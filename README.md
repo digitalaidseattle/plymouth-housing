@@ -1,6 +1,6 @@
-# Digital Aid Seattle Admin Template
+# Plymouth Housing
 
-This template forms the basis for line-of-business web applications.  Frequently, partners need a simple CRUD interface for applications like:
+This repo is bootstrapped from our DAS admin template, that forms the basis for line-of-business web applications.  Frequently, partners need a simple CRUD interface for applications like:
 * inventory management
 * project/task tracking
 * document submittal

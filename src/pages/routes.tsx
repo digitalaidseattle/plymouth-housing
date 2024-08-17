@@ -8,6 +8,7 @@ import PrivacyPage from './PrivacyPage';
 import TicketPage from './TicketPage';
 import UploadPage from './UploadPage';
 import Login from './authentication/Login';
+import Login2 from './authentication/Login2';
 import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import SamplePage from './extra-pages/SamplePage';
@@ -70,6 +71,10 @@ const routes = [
       {
         path: 'login',
         element: <Login />
+      },
+      {
+        path: 'login2',
+        element: <Login2 />
       }
     ]
   },

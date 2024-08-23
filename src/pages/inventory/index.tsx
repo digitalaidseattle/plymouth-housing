@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import dummyData from './data';
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
@@ -26,6 +26,17 @@ import { visuallyHidden } from '@mui/utils';
 const Inventory = () => {
 
   const [data, setData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  }
 
   const columns = [
     {
@@ -65,56 +76,67 @@ const Inventory = () => {
   }, [])
 
   return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow
-            sx={{
-              '& td, & th': { borderBottom: '1px solid rgba(224, 224, 224, 1)' }
-            }}>
-            <TableCell padding="checkbox">
-              <Checkbox
-                color="primary"
-              />
-            </TableCell>
-            {columns.map((column) => (
-              <TableCell
-                key={column.id}
-                align="left"
-              >
-                <TableSortLabel
-                sx={{ fontWeight: 'bold'}}
-                >
-                  {column.label}
-                </TableSortLabel>
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((row, index) => (
+    <Box>
+      <TableContainer>
+        <Table>
+          <TableHead>
             <TableRow
-              key={index}
               sx={{
-                cursor: 'pointer',
                 '& td, & th': { borderBottom: '1px solid rgba(224, 224, 224, 1)' }
-              }}
-            >
+              }}>
               <TableCell padding="checkbox">
                 <Checkbox
                   color="primary"
                 />
               </TableCell>
-              <TableCell scope="row" align="left">{row.item}</TableCell>
-              <TableCell align="left">{row.type}</TableCell>
-              <TableCell align="left">{row.category}</TableCell>
-              <TableCell align="left">{row.inStock}</TableCell>
-              <TableCell align="left">{row.quantity}</TableCell>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align="left"
+                >
+                  <TableSortLabel
+                    sx={{ fontWeight: 'bold' }}
+                  >
+                    {column.label}
+                  </TableSortLabel>
+                </TableCell>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {data.map((row, index) => (
+              <TableRow
+                key={index}
+                sx={{
+                  cursor: 'pointer',
+                  '& td, & th': { borderBottom: '1px solid rgba(224, 224, 224, 1)' }
+                }}
+              >
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    color="primary"
+                  />
+                </TableCell>
+                <TableCell scope="row" align="left">{row.item}</TableCell>
+                <TableCell align="left">{row.type}</TableCell>
+                <TableCell align="left">{row.category}</TableCell>
+                <TableCell align="left">{row.inStock}</TableCell>
+                <TableCell align="left">{row.quantity}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 20, 30]}
+        component="div"
+        count={data.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Box>
   )
 }
 

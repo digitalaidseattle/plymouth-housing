@@ -13,6 +13,7 @@ import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import SamplePage from './extra-pages/SamplePage';
 import DragDropPage from './dragdrop/DragDropPage';
+import Inventory from './inventory'
 
 const routes = [
   {
@@ -43,6 +44,14 @@ const routes = [
         element: (
           <MainCard title="Tickets Page">
             <TicketsGrid />
+          </MainCard>
+        ),
+      },
+      {
+        path: "inventory",
+        element: (
+          <MainCard title="Inventory Page">
+            <Inventory />
           </MainCard>
         ),
       },

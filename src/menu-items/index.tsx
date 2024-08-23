@@ -58,6 +58,14 @@ const dashboard = {
       url: '/tickets-grid',
       icon: icons.FileExclamationOutlined,
       breadcrumbs: false
+    },
+    {
+      id: 'inventory',
+      title: 'Inventory',
+      type: 'item',
+      url: '/inventory',
+      icon: icons.FileExclamationOutlined,
+      breadcrumbs: false
     }
   ]
 }

@@ -19,9 +19,7 @@ expectations and principles are.
 
 ## Work-life Balance
 
-- Our office hours, when we can expect to collaborate via Microsoft Teams, phone or face-to-face are Monday to Friday 10AM - 5PM
-- We are not expected to answer emails past 6PM, on weekends or when we are on holidays or vacation.
-- We work in different time zones and respect this, especially when setting up recurring meetings.
+- We work in a volunteering org and respect this, especially when setting up recurring meetings.
 - We record meetings when possible, so that team members who could not attend live can listen later.
 
 ## Quality and not Quantity
@@ -33,12 +31,12 @@ expectations and principles are.
 
 | Activity | When | Duration | Who | Accountable | Goal |
 | -- | -- | -- | -- | -- | -- |
-| Project Standup | Tue-Fri 9AM           | 15 min   | Everyone     | Project Manager | What has been accomplished, next steps, blockers                           |
+| Project Standup | Thu 5.30PM           | 30 min   | Everyone     | Project Manager | What has been accomplished, next steps, blockers                           |
 | Sprint Demo                                           | ??            | ??   | Everyone     | Solution Architect     | Present work done and sign off on user story completion                    |
 | Sprint Retro | ??           | ??   | Everyone     | Project Manager | Dev Teams shares learnings and what can be improved                        |
 | Sprint Planning | ??           | ??   | Everyone     | PO           | Size and plan user stories for the sprint                                  |
 | Task Creation | After taking user story | -        | Dev      | Dev      | Create tasks to clarify and determine velocity                             |
-| Backlog refinement | Wednesday 2PM         | 1 hour   | Solution Architect, PO | PO           | Prepare for next sprint and ensure that stories are ready for next sprint. |
+| Backlog refinement | ??         | 1 hour   | Solution Architect, PO | PO           | Prepare for next sprint and ensure that stories are ready for next sprint. |
 
 ## Process Lead
 

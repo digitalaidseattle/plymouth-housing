@@ -36,21 +36,21 @@ const dummyData = [
   },
   {
     "item": "Notebooks",
-    "type": "School supplies",
+    "type": "Welcome Basket",
     "category": "Stationery",
     "inStock": "Yes",
     "quantity": 40
   },
   {
     "item": "Pens",
-    "type": "School supplies",
+    "type": "Welcome Basket",
     "category": "Stationery",
     "inStock": "Yes",
     "quantity": 60
   },
   {
     "item": "Pencil cases",
-    "type": "School supplies",
+    "type": "Welcome Basket",
     "category": "Stationery",
     "inStock": "Yes",
     "quantity": 20

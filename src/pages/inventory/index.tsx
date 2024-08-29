@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import dummyData from './data';
-import PropTypes from 'prop-types';
-import { alpha } from '@mui/material/styles';
+import dummyData from './data.js';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -11,23 +9,23 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import { visuallyHidden } from '@mui/utils';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { Button } from '@mui/material';
+
 
 const Inventory = () => {
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -37,6 +35,32 @@ const Inventory = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   }
+
+  const handleCategoryChange = (event: SelectChangeEvent) => {
+    setSearchCategory(event.target.value);
+    console.log(event.target.value);
+  }
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
+  }
+
+  const handleFilter = () => {
+    const searchFiltered = dummyData.filter((dataItem) => {
+      // Check if the item matches the search value
+      const matchesSearch = dataItem.item.toLowerCase().includes(searchValue.toLowerCase());
+
+      // Check if the item matches the selected category or if no category is selected
+      const matchesCategory = !searchCategory || dataItem.category === searchCategory;
+
+      // Return true if both conditions are met
+      return matchesSearch && matchesCategory;
+    });
+
+    setData(searchFiltered);
+  };
+
+  const paginatedData = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const columns = [
     {
@@ -77,6 +101,27 @@ const Inventory = () => {
 
   return (
     <Box>
+      <Box id="filter-container">
+        <TextField label="Search" placeholder="Item, type, etc..." type="search" onChange={handleSearchChange}/>
+        <FormControl sx={{ ml: 2, minWidth: 120 }}>
+          <InputLabel>Category</InputLabel>
+          <Select
+            label="Category"
+            value={searchCategory}
+            onChange={handleCategoryChange}
+          >
+            <MenuItem value="" >None</MenuItem>
+            <MenuItem value="Household">Household</MenuItem>
+            <MenuItem value="Toiletries">Toiletries</MenuItem>
+            <MenuItem value="Stationery">Stationery</MenuItem>
+            <MenuItem value="Food">Food</MenuItem>
+            <MenuItem value="Clothing">Clothing</MenuItem>
+          </Select>
+        </FormControl>
+        <Button sx={{ my: 1 }} onClick={handleFilter}>
+          <FilterAltIcon fontSize="medium" />
+        </Button>
+      </Box>
       <TableContainer>
         <Table>
           <TableHead>
@@ -104,7 +149,7 @@ const Inventory = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => (
+            {paginatedData.map((row, index) => (
               <TableRow
                 key={index}
                 sx={{

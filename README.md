@@ -1,79 +1,175 @@
-# Plymouth Housing
+<p align='center'>
+    <a href='https://www.digitalaidseattle.org'>
+        <img src='https://avatars.githubusercontent.com/u/3466034?s=200&v=4' height='128'>
+    </a>
+    <h2 align='center'>Digital Aid Seattle</h2>
+    <h1 align='center'>Plymouth Housing</h1>
+</p>
+<p align='center'>
+    <img alt="GitHub commit activity (main)" src="https://img.shields.io/github/commit-activity/m/openseattle/open-seattle-website/main">
+</p>
 
-This repo is bootstrapped from our DAS admin template, that forms the basis for line-of-business web applications.  Frequently, partners need a simple CRUD interface for applications like:
-* inventory management
-* project/task tracking
-* document submittal
+## Introduction
 
-The template supports these application types by providing an application shell with common features such as:
-* authentication
-* dialogs for data entry
-* data tables
-* form validation
-* file uploads
-* drag-and-drop
-* Excel spreadsheet support
+Digital Aid Seattle aims to amplify community impact with technology by connecting organizations who need technical solutions with skilled volunteers.
 
-A venture squad will be able to copy this template and modify it to suit their venture's need.
+People across thousands of Seattle civic and nonprofit organizations have dedicated their lives to making the world safer, more equitable, and more sustainable. This work is responsible for so much good in the world, and we owe them a huge debt of gratitude.
 
-## Dependencies
-The template is built with:
-* React
-* TypeScript
-* Material UI
-* Vite
-* Supabase
+Unfortunately, many of these organizations lack access to digital tools that are vital to success in the modern age. Nonprofits struggle to create and scale their impact without the resources they need.
 
-## Features
-### Application Shell
-The responsive shell that provides a toolbar, navbar, and aside. 
+Just outside their doors is a fleet of experts and technologists with the talent, capacity, and drive to build.
 
-### Authentication
-The DAS template uses Supabase for user authentication and authorization.  Implementation for Google and Microsoft authentication is provided.
+Seattle is world-renowned as a hub for technology talent, full of motivated builders, designers, and creators that want to use their skills for good. Digital Aid Seattle is bringing these communities together to create a sum greater than its parts.
 
-### CRUD
-The DAS template uses Supabase for data storage.  It is anticipated that applications requiring RDBMS support would use this.  Examples of lists, dialogs, and forms with validation are available.
+This website is for organizations that want to [learn more about partnering with Digital Aid Seattle](https://www.digitalaidseattle.org/partner) and for passionate, skilled Seattlites who want to [learn more about volunteering!](https://www.digitalaidseattle.org/volunteer)
 
-### Markdown
-The DAS template includes support for displaying Markdown. The typical use-case is to display privacy policies and/or terms and conditions.  The content on the page can be stored as a application resource to allow changes withou redployment.  One consequence of supporting Markdown is not using Tailwind CSS.  Tailwind removes default formatting from HTML components (e.g. h1 renders plainly with default font size and weight). Markdown is implemented with react-markdown.
+## Technology Stack
 
-### File Storage
-The DAS template includes an example of uploading, reading, as listing of files in Supabase's storage system.  The use-case for this could include storing documents, like release forms, for an application. The file `src/pages/UploadPage.tsx` is the entry point for the example.
+The website is built using [Vite](https://vitejs.dev/guide/).
 
-### Maps
-The DAS template includes an example mapping page `src/pages/MapPage.tsx`.  Maps were implemented with react-map-gl & maplibre-gl.
+[Supabase](https://supabase.com/) is used for Postgres database services and authentication with Google and Azure accounts via OAuth. 
 
-### Drag & Drop
-The DAS template includes an example of drag-and-drop use. Drag and drop is implemented with @dnd-kit/core and @dnd-kit/sortable.
 
-### Polling
-The application shell includes a 10 second timer. The refresh context can be used to refresh components with current data.
+## System Requirements
 
-```
-    const { refresh } = useContext(RefreshContext)
+Install:
+1. [Node.js](https://nodejs.org/en/)
+1. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+1. [VS Code](https://code.visualstudio.com/download)
+1. [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
-    useEffect(() => {
-        // Refresh action
-        ticketService.getTickets(NUM_TIX)
-            .then((tix) => setTickets(tix))
-    }, [refresh])
-```
+## Local Environment Setup
 
-## Deployment
-The application is deployed at Google's Firebase as a static website.  GitHub's workflow action adds site secrets to the build before deploying.
+### Setup NextJS Application
+    
+1. Go in the folder you want the project to exist, run:
 
-## FAQ
-### How do I connect to Supabase?
-Environment variables for the connecting to Supabase must be added to the hosting platform as well as the `.env.local` file.  Squad members must obtain the supabase url and auth_anon_key for accessing the Supabase project.
+   ```bash
+   git clone https://github.com/digitalaidseattle/plymouth-housing
+   ```
 
-### How do I change the menu items?
-Contents of the navbar, the drawer of links on the left of the application window, can be modified by changing the contents of `/src/menu-items/index.tsx`.
+1. Open VS code.
 
-### How do I change the toolbar items?
-Contents of the toolbar, the links at the top the application window and left of the profile button, can be modified by changing the contents of `/src/toolbar-items/index.tsx`. The file `/src/sections/tickets/TicketToolbarItem` contains an example of what can be done with a toolbar item.
+1. (Optional but recommended!) From VS code, open the command palette using `⇧⌘P` on Mac or `Ctrl+Shift+P` on Windows and type:
+    ```
+    Dev Containers: Open Folder in Container...
+    ```
 
-### How do I add a page to the application?
-Since the template uses `react-router-dom` for application routing, there is no requirement to placement new pages in the `pages` folder.  It is by convention that new pages are placed there.  For the page to be included in the application `src/pages/routes.tsx` must be updated to include the new page.
+    _Note: For more information check out: https://code.visualstudio.com/docs/devcontainers/containers_
 
-### Where does the partner logo get changed?
-The logo, displayed in the upper left hand of the application window and elsewhere, can be modified in `/src/components/Logo/Logo.tsx`.  The image files should be placed in the `/src/assets/images/` directory.
+1. Open a shell and install dependecies by running:
+    ```bash
+    npm install
+    ```
+
+### Setup Environment Variables
+
+This setup uses a shared cloud Supabase database for simplicity.
+1. Run the command:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+2. Request the `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the team or go to settings > api from the Supabase Dashboard tp get them yourself. Other variables in `.env.local` can be ignored for now.
+
+### Run the application
+1. Run the command in your terminal from the project directory:
+```bash
+   npm run dev
+   ```
+
+## Testing
+
+- To run all tests: `npm run test`.
+
+## Setup Application with Local Database (Optional)
+
+This section is only needed if you want to isolate your database and not use a shared environment.
+
+### Configure Environmental Variables
+Local setup requires a few one-time steps. In the following steps, you will start Supabase locally and put values from Supabase into your .env.local file.
+
+1. Like before, create a copy of .env.local.example:
+
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+1. Open the .env.local file in VSCode. You will need to put values in this file after the next step, so keep it open.
+
+1. Initialize Supabase locally. Open a *[local terminal window](https://stackoverflow.com/questions/59815283/open-local-terminal-in-vscode-when-running-in-ssh-mode?rq=1)* from the plymouth-housing folder and run: 
+   ```bash 
+   supabase init
+   ```
+
+1. Start Supabase locally. In the same local terminal window run: 
+
+   ```bash 
+   npx supabase start
+   ```
+
+    Enter "y" when/if asked to install the Supabase package.
+
+    Give it a moment to spin up the containers. When it's finished, it will display URLs and keys that need to go into your local environment file.
+    
+    Put the API URL after `VITE_SUPABASE_URL=` variable and the anon key after the `VITE_SUPABASE_ANON_KEY=` variable in the .env.local file. Double-check you copied the value correctly then save the file.
+
+    (These steps are derived from the [Original Supabase instructions here](https://supabase.com/docs/guides/cli/local-development#start-supabase-services))
+
+    _Note: If you have existing Supabase containers running, you may need to run `supabase stop --no-backup` to reset your environment. Careful, this will delete anything saved in your local database._
+
+1. Run `supabase stop` to close Supabase when you are done.
+
+#### Configure OAuth Environment Variables
+
+1. If you need to use OAuth, be sure to follow the steps listed in _.env.local.example_ to set the OAuth variables. Once the variables are set, run:
+    ```bash
+    supabase stop # You need to stop Supabase execution so that the new configuration changes will be picked up.
+    source .env.local
+    supabase start
+    ```
+
+### Running the application and backend locally (optional still)
+
+#### Run the frontend
+
+1. Open a shell inside the docker container (default option when opening shells with Dev Container).
+
+1. Load the values from the env file into the environment by running:
+    ```bash
+      source .env.local
+    ```
+
+1. Start development server
+   ```bash
+   yarn dev
+   ```
+
+1. Open local instance in browser: <http://localhost:3000>.
+
+1. Use `Ctrl+C` to stop the server when you are done.
+
+#### Generate lots of fake data (optional)
+1. Open a *[local terminal window](https://stackoverflow.com/questions/59815283/open-local-terminal-in-vscode-when-running-in-ssh-mode?rq=1)* from the seattle-humane-app folder and run: 
+    ```bash
+    npm run gen-seed-data
+    ```
+    This will overwrite `supabase/seed.sql` and supabase will use the generated data when starting up.
+
+1. If you've already started supabase, first you have to stop it and clear the data by running
+    ```bash
+    npx supabase stop --no-backup
+    ```
+    Then [Run Supabase](#run-supabase)
+
+#### Run Supabase
+
+1. Open a *[local terminal window](https://stackoverflow.com/questions/59815283/open-local-terminal-in-vscode-when-running-in-ssh-mode?rq=1)* from the seattle-humane-app folder.
+
+1. Run `supabase start`. If Supabase is already running, you can stop it by running `supabase stop` first.
+
+1. Run `supabase stop` when you are done.
+
+## Manually updating Supabase types
+
+- To login to supabase: npx supabase login.
+- To update type file: npx supabase gen types typescript --project-id "liuebfxbxugpfsfwbkks" --schema public > supabase/database.types.ts

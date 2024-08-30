@@ -125,7 +125,7 @@ Local setup requires a few one-time steps. In the following steps, you will star
 
 #### Configure OAuth Environment Variables
 
-1. If you need to use OAuth, be sure to follow the steps listed in _.env.local.example_ to set the OAuth variables. Once the variables are set, run:
+If you need to use OAuth, be sure to follow the steps listed in _.env.local.example_ to set the OAuth variables. Once the variables are set, run:
     ```bash
     supabase stop # You need to stop Supabase execution so that the new configuration changes will be picked up.
     source .env.local
@@ -145,7 +145,7 @@ Local setup requires a few one-time steps. In the following steps, you will star
 
 1. Start development server
    ```bash
-   yarn dev
+   npm run dev
    ```
 
 1. Open local instance in browser: <http://localhost:3000>.

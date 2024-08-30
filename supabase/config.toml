@@ -103,7 +103,7 @@ enable_manual_linking = false
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
-enable_signup = true
+enable_signup = false
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
@@ -128,7 +128,7 @@ max_frequency = "1s"
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
-enable_signup = true
+enable_signup = false
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
@@ -209,6 +209,15 @@ enabled = false
 enabled = false
 # user_pool_id = "my-user-pool-id"
 # user_pool_region = "us-east-1"
+
+# Use Azure OAuth provider
+[auth.external.azure]
+enabled = true
+client_id = "env(SUPABASE_AUTH_AZURE_CLIENT_ID)"
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead.
+secret = "env(SUPABASE_AUTH_AZURE_SECRET)"
+redirect_uri = "env(SUPABASE_AUTH_AZURE_REDIRECT_URI)"
+url = "env(SUPABASE_AUTH_AZURE_URI)"
 
 [edge_runtime]
 enabled = true

@@ -96,7 +96,11 @@ Local setup requires a few one-time steps. In the following steps, you will star
 
 1. Open the .env.local file in VSCode. You will need to put values in this file after the next step, so keep it open.
 
-1. Initialize Supabase locally. Open a *[local terminal window](https://stackoverflow.com/questions/59815283/open-local-terminal-in-vscode-when-running-in-ssh-mode?rq=1)* from the plymouth-housing folder and run: 
+1. Install supabase CLI from [here](https://supabase.com/docs/guides/cli/getting-started?queryGroups=platform&platform=linux)
+
+1. Initialize Supabase locally. You will have to do this on the local system, not in the devcontainer since supabase will run in docker on the host. 
+
+    Open a *[local terminal window](https://stackoverflow.com/questions/59815283/open-local-terminal-in-vscode-when-running-in-ssh-mode?rq=1)* from the plymouth-housing folder and run: 
    ```bash 
    supabase init
    ```
@@ -104,7 +108,7 @@ Local setup requires a few one-time steps. In the following steps, you will star
 1. Start Supabase locally. In the same local terminal window run: 
 
    ```bash 
-   npx supabase start
+   supabase start
    ```
 
     Enter "y" when/if asked to install the Supabase package.

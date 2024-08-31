@@ -1,16 +1,21 @@
-
+import { useNavigate } from 'react-router-dom';
 // material-ui
 import { Grid, Stack, Typography } from '@mui/material';
-
+import { Button} from '@mui/material';
 // project import
 import Logo from '../../components/Logo/Logo';
 import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
-import FirebaseSocial from './auth-forms/FirebaseSocial';
-
-// ================================|| 404 ||================================ //
+import PinInput from './PinInput';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const handleNextClick = () => {
+      navigate('/');
+  };
+  const handlePrevClick = () => {
+    navigate('/pick-your-name');
+};
 
   return (<MinimalWrapper>
     <Grid
@@ -33,8 +38,22 @@ const Login: React.FC = () => {
             </Stack>
           </Grid>
           <Grid item xs={12}>
-            <FirebaseSocial />
-          </Grid>
+              <PinInput />
+              <Stack
+                direction="row"
+                spacing={2}
+                justifyContent="center"
+                alignItems="center"
+                sx={{ mt: 2 }}
+              >
+                <Button variant="contained" color="primary" onClick={handlePrevClick}>
+                  Previous
+                </Button>
+                <Button variant="contained" color="primary" onClick={handleNextClick}>
+                  Next
+                </Button>
+              </Stack>
+            </Grid>
         </Grid>
       </CenteredCard>
     </Grid>

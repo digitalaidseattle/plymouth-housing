@@ -84,12 +84,10 @@ const PinInputComponent: React.FC = () => {
           onMouseDown={handleMouseDownPassword}
           edge="end"
         >
-          {showPassword ? <VisibilityOff /> : <Visibility />}
+          {/* {showPassword ? <VisibilityOff /> : <Visibility />} */}
         </IconButton>
       </Box>
-      <Button variant="contained" color="primary" style={{ marginTop: '20px' }}>
-        Next
-      </Button>
+     
     </Box>
   );
 };

@@ -8,7 +8,8 @@ import PrivacyPage from './PrivacyPage';
 import TicketPage from './TicketPage';
 import UploadPage from './UploadPage';
 import Login from './authentication/Login';
-import Login2 from './authentication/Login2';
+import EnterPin from './authentication/EnterPinPage';
+import PickYourNamePage from './authentication/PickNamePage';
 import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import SamplePage from './extra-pages/SamplePage';
@@ -73,8 +74,12 @@ const routes = [
         element: <Login />
       },
       {
-        path: 'login2',
-        element: <Login2 />
+        path: 'pick-your-name',
+        element: <PickYourNamePage/>
+      },
+      {
+        path: 'enter-pin',
+        element: <EnterPin/>
       }
     ]
   },

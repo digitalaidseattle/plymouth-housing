@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Stack, Typography, Button, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { Grid, Stack, Typography, Button, Select, MenuItem, SelectChangeEvent, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import Logo from '../../components/Logo/Logo';
 import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
 
 const PickYourNamePage: React.FC = () => {
   const [selectedName, setSelectedName] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const names = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
@@ -22,6 +23,14 @@ const PickYourNamePage: React.FC = () => {
     } else {
       alert('Please select a name');
     }
+  };
+
+  const handleDialogOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpen(false);
   };
 
   return (
@@ -47,7 +56,7 @@ const PickYourNamePage: React.FC = () => {
               </Stack>
             </Grid>
             <Grid item xs={12}>
-              <Stack direction="row" justifyContent="center" alignItems="center">
+              <Stack direction="column" justifyContent="center" alignItems="center">
                 <Select
                   value={selectedName}
                   onChange={(e) => handleNameChange(e)}
@@ -61,16 +70,18 @@ const PickYourNamePage: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
+                <Typography
+                  variant="body2"
+                  color="primary"
+                  onClick={handleDialogOpen}
+                  sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2 }}
+                >
+                  I don’t see my name, what do I do now
+                </Typography>
               </Stack>
             </Grid>
             <Grid item xs={12}>
-              <Stack
-                direction="row"
-                spacing={2}
-                justifyContent="center"
-                alignItems="center"
-                sx={{ mt: 2 }}
-              >
+              <Stack direction="column" spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
                 <Button variant="contained" color="primary" onClick={handleNextClick}>
                   Next
                 </Button>
@@ -79,6 +90,19 @@ const PickYourNamePage: React.FC = () => {
           </Grid>
         </CenteredCard>
       </Grid>
+      <Dialog open={open} onClose={handleDialogClose}>
+        <DialogTitle>Contact PH Admin</DialogTitle>
+        <DialogContent>
+          <Typography>
+          Please call the phone number 222-222-2222 or email example@com of a PH admin that can sort it out.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </MinimalWrapper>
   );
 };

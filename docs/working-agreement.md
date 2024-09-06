@@ -29,14 +29,18 @@ expectations and principles are.
 
 ## Scrum Rhythm
 
+We follow a simple [Kanban](https://www.atlassian.com/agile/kanban) method without sprints. Tasks and stories will move across the board and new tasks can be picked up or assigned from To-do column. 
+
 | Activity | When | Duration | Who | Accountable | Goal |
 | -- | -- | -- | -- | -- | -- |
+| Async Standup | Mon 5.30PM in Slack | NA   | Everyone     | Project Manager | What has been accomplished, next steps, blockers                           |
 | Project Standup | Thu 5.30PM           | 30 min   | Everyone     | Project Manager | What has been accomplished, next steps, blockers                           |
-| Demo                                           | ??            | ??   | Everyone     | Solution Architect     | Present work done and sign off on user story completion                    |
-| Retro | ??           | ??   | Everyone     | Project Manager | Dev Teams shares learnings and what can be improved                        |
-| Planning | ??           | ??   | Everyone     | PO           | Size and plan user stories for the coiming week                                  |
+| Dev Sync | Fri 5.45PM           | 45 min   | Devs     | Devs | Open hours for getting over hurdles |
+| Demo                                           | When feature is done            | -   | Everyone     | Solution Architect     | Present work done and sign off on user story completion                    |
+| Retro | TBD           | TBD   | Everyone     | Project Manager | Dev Teams shares learnings and what can be improved                        |
+| Planning | NA           | NA   | NA     | NA           | NA                                  |
 | Task Creation | After taking user story | -        | Dev      | Dev      | Create tasks to clarify and determine velocity                             |
-| Backlog refinement | ??         | 1 hour   | Solution Architect, PO | PO           | Prepare for next few weeks and ensure that stories are ready. |
+| Backlog refinement | TBD         | 1 hour   | Solution Architect, PO | PO           | Prepare for next few weeks and ensure that stories are ready. |
 
 ## Process Lead
 
@@ -68,8 +72,8 @@ The Project Manager is responsible for leading any scrum or agile practices to e
 ## Code Management
 
 - We follow the git flow branch naming convention for branches and identify the task number e.g. `name/123-add-working-agreement`
-- We merge all code into main branches through PRs
-- All PRs are reviewed by one person from the DAS
+- We merge all code into main branch through PRs
+- All PRs are reviewed by one person from DAS
 - We always review existing PRs before starting work on a new task
 - We look through open PRs at the end of stand-up to make sure all PRs have reviewers.
 - We treat documentation as code and apply the same standards to Markdown as code

@@ -12,6 +12,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ClearIcon from '@mui/icons-material/Clear';
 
 
 const Inventory = () => {
@@ -65,8 +66,18 @@ const Inventory = () => {
     handleStatusClose();
   }
 
+  const clearTypeFilter = () => {
+    setType('');
+  }
+  const clearCategoryFilter = () => {
+    setCategory('');
+  }
+  const clearStatusFilter = () => {
+    setStatus('');
+  }
+
   const handleFilter = () => {
-    const searchFiltered = dummyData.filter((item: {item: string, type: string, category: string, quantity: number; status: string}) => {
+    const searchFiltered = dummyData.filter((item: { item: string, type: string, category: string, quantity: number; status: string }) => {
 
       const matchesType = type ? item.type.toLowerCase().includes(type.toLowerCase()) : true;
 
@@ -100,13 +111,15 @@ const Inventory = () => {
   return (
     <Box>
       <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center' }}>
-        <Typography variant="body2">Filter</Typography>
+        <Typography variant="body2">Filters</Typography>
 
         {/* Type Filter */}
         <Box sx={{ px: '8px' }} id="type-button-container">
           <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleTypeClick}>
-            <Typography variant="body2">Type</Typography>
-            <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></Button>
+            {type ? (
+              <>{type} <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearTypeFilter} /></>
+            ) : (<><Typography variant="body2">Type</Typography><ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></>)}
+          </Button>
           <Menu
             open={Boolean(anchorType)}
             onClose={handleTypeClose}
@@ -119,8 +132,9 @@ const Inventory = () => {
 
         {/* Category Filter */}
         <Box sx={{ px: '8px' }} id="category-button-container">
-          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleCategoryClick}>       <Typography variant="body2">Category</Typography>
-          <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></Button>
+          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleCategoryClick}>       {category ? (
+            <>{category} <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearCategoryFilter} /></>
+          ) : (<><Typography variant="body2">Category</Typography><ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></>)}</Button>
           <Menu
             open={Boolean(anchorCategory)}
             onClose={handleCategoryClose}
@@ -140,8 +154,9 @@ const Inventory = () => {
         {/* Status Filter */}
         <Box sx={{ px: '8px' }} id="status-button-container">
           <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleStatusClick}>
-            <Typography variant="body2">Status</Typography>
-            <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></Button>
+            {status ? (
+              <>{status} <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearStatusFilter} /></>
+            ) : (<><Typography variant="body2">Status</Typography><ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></>)}</Button>
           <Menu
             open={Boolean(anchorStatus)}
             onClose={handleStatusClose}

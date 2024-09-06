@@ -1,144 +1,144 @@
 const dummyData = [
   {
-    "item": "Bath towels",
+    "item": "Bed Sheets",
     "type": "Donation",
-    "category": "Household",
-    "inStock": "Yes",
-    "quantity": 12
+    "category": "Beddings & Linens",
+    "quantity": 12,
+    "status": "Medium"
   },
   {
     "item": "Shampoo bottles",
     "type": "Donation",
-    "category": "Toiletries",
-    "inStock": "Yes",
-    "quantity": 30
+    "category": "Bath & Toiletries",
+    "quantity": 30,
+    "status": "High"
   },
   {
-    "item": "Canned beans",
+    "item": "Cooking pots",
     "type": "Donation",
+    "category": "Kitchenware",
+    "quantity": 50,
+    "status": "High"
+  },
+  {
+    "item": "Curtains",
+    "type": "Donation",
+    "category": "Decorative & Home improvement",
+    "quantity": 100,
+    "status": "High"
+  },
+  {
+    "item": "First aid kits",
+    "type": "Donation",
+    "category": "Health & Medical",
+    "quantity": 25,
+    "status": "High"
+  },
+  {
+    "item": "Canned vegetables",
+    "type": "Welcome Basket",
     "category": "Food",
-    "inStock": "Yes",
-    "quantity": 50
+    "quantity": 40,
+    "status": "High"
   },
   {
-    "item": "Disposable plates",
+    "item": "Blender",
     "type": "Donation",
-    "category": "Household",
-    "inStock": "Yes",
-    "quantity": 100
+    "category": "Electronics & Appliances",
+    "quantity": 60,
+    "status": "High"
   },
   {
-    "item": "Toothpaste tubes",
-    "type": "Donation",
-    "category": "Toiletries",
-    "inStock": "Yes",
-    "quantity": 25
-  },
-  {
-    "item": "Notebooks",
+    "item": "Board games",
     "type": "Welcome Basket",
-    "category": "Stationery",
-    "inStock": "Yes",
-    "quantity": 40
-  },
-  {
-    "item": "Pens",
-    "type": "Welcome Basket",
-    "category": "Stationery",
-    "inStock": "Yes",
-    "quantity": 60
-  },
-  {
-    "item": "Pencil cases",
-    "type": "Welcome Basket",
-    "category": "Stationery",
-    "inStock": "Yes",
-    "quantity": 20
+    "category": "Games, Books, Entertainment",
+    "quantity": 20,
+    "status": "High"
   },
   {
     "item": "Blankets",
     "type": "Donation",
-    "category": "Household",
-    "inStock": "Yes",
-    "quantity": 15
+    "category": "Beddings & Linens",
+    "quantity": 15,
+    "status": "Medium"
   },
   {
     "item": "Soup cans",
     "type": "Donation",
     "category": "Food",
-    "inStock": "Yes",
-    "quantity": 35
+    "quantity": 35,
+    "status": "High"
   },
   {
     "item": "Face masks",
     "type": "Donation",
-    "category": "Health",
-    "inStock": "Yes",
-    "quantity": 100
+    "category": "Health & Medical",
+    "quantity": 100,
+    "status": "High"
   },
   {
-    "item": "Hand sanitizers",
+    "item": "Electric kettle",
     "type": "Donation",
-    "category": "Health",
-    "inStock": "Yes",
-    "quantity": 40
+    "category": "Electronics & Appliances",
+    "quantity": 40,
+    "status": "High"
   },
   {
-    "item": "Coffee mugs",
+    "item": "Toothbrushes",
     "type": "Donation",
-    "category": "Household",
-    "inStock": "Yes",
-    "quantity": 20
-  },
-  {
-    "item": "Bottled water",
-    "type": "Donation",
-    "category": "Food",
-    "inStock": "Yes",
-    "quantity": 80
-  },
-  {
-    "item": "Baby diapers",
-    "type": "Donation",
-    "category": "Baby care",
-    "inStock": "Yes",
-    "quantity": 50
-  },
-  {
-    "item": "Baby wipes",
-    "type": "Donation",
-    "category": "Baby care",
-    "inStock": "Yes",
-    "quantity": 60
+    "category": "Bath & Toiletries",
+    "quantity": 20,
+    "status": "High"
   },
   {
     "item": "Packaged snacks",
     "type": "Donation",
     "category": "Food",
-    "inStock": "Yes",
-    "quantity": 45
+    "quantity": 80,
+    "status": "High"
   },
   {
-    "item": "Gloves",
+    "item": "Baby diapers",
     "type": "Donation",
-    "category": "Health",
-    "inStock": "Yes",
-    "quantity": 200
+    "category": "Health & Medical",
+    "quantity": 50,
+    "status": "High"
   },
   {
-    "item": "Water filters",
+    "item": "Books",
     "type": "Donation",
-    "category": "Household",
-    "inStock": "Yes",
-    "quantity": 10
+    "category": "Games, Books, Entertainment",
+    "quantity": 60,
+    "status": "High"
+  },
+  {
+    "item": "Frying pans",
+    "type": "Donation",
+    "category": "Kitchenware",
+    "quantity": 45,
+    "status": "High"
+  },
+  {
+    "item": "Thermometers",
+    "type": "Donation",
+    "category": "Health & Medical",
+    "quantity": 200,
+    "status": "High"
+  },
+  {
+    "item": "Lamp",
+    "type": "Donation",
+    "category": "Decorative & Home improvement",
+    "quantity": 10,
+    "status": "Medium"
   },
   {
     "item": "Winter coats",
     "type": "Donation",
-    "category": "Clothing",
-    "inStock": "Yes",
-    "quantity": 8
+    "category": "Beddings & Linens",
+    "quantity": 8,
+    "status": "Medium"
   }
-]
+];
 
 export default dummyData;

@@ -8,179 +8,179 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
 import TextField from '@mui/material/TextField';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { Button } from '@mui/material';
+import { Button, Menu, Typography } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 const Inventory = () => {
 
   const [data, setData] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchValue, setSearchValue] = useState('');
-  const [searchCategory, setSearchCategory] = useState('');
+  const [type, setType] = useState('');
+  const [category, setCategory] = useState('');
+  const [status, setStatus] = useState('');
+  const [search, setSearch] = useState('');
+  const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
+  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
+  const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
+  const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorType(event.currentTarget);
+  };
+  const handleCategoryClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorCategory(event.currentTarget);
+  };
+  const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorStatus(event.currentTarget);
+  };
+
+  const handleTypeClose = () => {
+    setAnchorType(null);
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleMenuTypeClick = (value: string) => {
+    setType(value)
+    handleFilter();
+    handleTypeClose();
   }
 
-  const handleCategoryChange = (event: SelectChangeEvent) => {
-    setSearchCategory(event.target.value);
-    console.log(event.target.value);
+  const handleCategoryClose = () => {
+    setAnchorCategory(null);
   }
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value);
+  const handleMenuCategoryClick = (value: string) => {
+    setCategory(value);
+    handleFilter();
+    handleCategoryClose();
+  }
+
+  const handleStatusClose = () => {
+    setAnchorStatus(null);
+  }
+
+  const handleMenuStatusClick = (value: string) => {
+    setStatus(value);
+    handleFilter();
+    handleStatusClose();
   }
 
   const handleFilter = () => {
-    const searchFiltered = dummyData.filter((dataItem) => {
-      // Check if the item matches the search value
-      const matchesSearch = dataItem.item.toLowerCase().includes(searchValue.toLowerCase());
+    const searchFiltered = dummyData.filter((item: {item: string, type: string, category: string, quantity: number; status: string}) => {
 
-      // Check if the item matches the selected category or if no category is selected
-      const matchesCategory = !searchCategory || dataItem.category === searchCategory;
+      const matchesType = type ? item.type.toLowerCase().includes(type.toLowerCase()) : true;
 
-      // Return true if both conditions are met
-      return matchesSearch && matchesCategory;
+      const matchesCategory = category ? item.category.toLowerCase().includes(category.toLowerCase()) : true;
+
+      const matchesStatus = status ? item.status.toLowerCase().includes(status.toLowerCase()) : true;
+
+      const matchesSearch = search
+        ? item.item.toLowerCase().includes(search.toLowerCase()) ||
+        item.type.toLowerCase().includes(search.toLowerCase()) ||
+        item.category.toLowerCase().includes(search.toLowerCase()) ||
+        item.status.toLowerCase().includes(search.toLowerCase()) ||
+        item.quantity.toString().toLowerCase().includes(search.toLowerCase())
+        : true;
+
+      return matchesType && matchesCategory && matchesStatus && matchesSearch;
     });
 
     setData(searchFiltered);
   };
 
-  const paginatedData = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-  const columns = [
-    {
-      id: 'item',
-      numeric: false,
-      disablePadding: true,
-      label: 'Item',
-    },
-    {
-      id: 'type',
-      numeric: false,
-      disablePadding: true,
-      label: 'Type',
-    },
-    {
-      id: 'category',
-      numeric: false,
-      disablePadding: true,
-      label: 'Category',
-    },
-    {
-      id: 'inStock',
-      numeric: false,
-      disablePadding: true,
-      label: 'In Stock?',
-    },
-    {
-      id: 'quantity',
-      numeric: true,
-      disablePadding: true,
-      label: 'Quantity',
-    },
-  ]
 
   useEffect(() => {
-    setData(dummyData);
-  }, [])
+    if (type || category || status || search) {
+      handleFilter()
+    } else {
+      setData(dummyData);
+    }
+  }, [type, category, status, search])
 
   return (
     <Box>
-      <Box id="filter-container">
-        <TextField label="Search" placeholder="Item, type, etc..." type="search" onChange={handleSearchChange}/>
-        <FormControl sx={{ ml: 2, minWidth: 120 }}>
-          <InputLabel>Category</InputLabel>
-          <Select
-            label="Category"
-            value={searchCategory}
-            onChange={handleCategoryChange}
+      <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center' }}>
+        <Typography variant="body2">Filter</Typography>
+
+        {/* Type Filter */}
+        <Box sx={{ px: '8px' }} id="type-button-container">
+          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleTypeClick}>
+            <Typography variant="body2">Type</Typography>
+            <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></Button>
+          <Menu
+            open={Boolean(anchorType)}
+            onClose={handleTypeClose}
+            anchorEl={anchorType}
           >
-            <MenuItem value="" >None</MenuItem>
-            <MenuItem value="Household">Household</MenuItem>
-            <MenuItem value="Toiletries">Toiletries</MenuItem>
-            <MenuItem value="Stationery">Stationery</MenuItem>
-            <MenuItem value="Food">Food</MenuItem>
-            <MenuItem value="Clothing">Clothing</MenuItem>
-          </Select>
-        </FormControl>
-        <Button sx={{ my: 1 }} onClick={handleFilter}>
-          <FilterAltIcon fontSize="medium" />
-        </Button>
+            <MenuItem onClick={() => handleMenuTypeClick('Donation')}>Donation</MenuItem>
+            <MenuItem onClick={() => handleMenuTypeClick('Welcome Basket')}>Welcome Basket</MenuItem>
+          </Menu>
+        </Box>
+
+        {/* Category Filter */}
+        <Box sx={{ px: '8px' }} id="category-button-container">
+          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleCategoryClick}>       <Typography variant="body2">Category</Typography>
+          <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></Button>
+          <Menu
+            open={Boolean(anchorCategory)}
+            onClose={handleCategoryClose}
+            anchorEl={anchorCategory}
+          >
+            <MenuItem onClick={() => handleMenuCategoryClick('Beddings & Linens')}>Beddings & Linens</MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Bath & Toiletries')}>Bath & Toiletries</MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Kitchenware')}>Kitchenware</MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Decorative & Home improvement')}>Decorative & Home improvement</MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Health & Medical')}>Health & Medical</MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Food')}>Food</MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Electronics & Appliances')}>Electronics & Appliances</MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Games, Books, Entertainment')}>Games, Books, Entertainment</MenuItem>
+          </Menu>
+        </Box>
+
+        {/* Status Filter */}
+        <Box sx={{ px: '8px' }} id="status-button-container">
+          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleStatusClick}>
+            <Typography variant="body2">Status</Typography>
+            <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></Button>
+          <Menu
+            open={Boolean(anchorStatus)}
+            onClose={handleStatusClose}
+            anchorEl={anchorStatus}
+          >
+            <MenuItem onClick={() => handleMenuStatusClick('Low')}>Low</MenuItem>
+            <MenuItem onClick={() => handleMenuStatusClick('Medium')}>Medium</MenuItem>
+            <MenuItem onClick={() => handleMenuStatusClick('High')}>High</MenuItem>
+          </Menu>
+        </Box>
       </Box>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow
-              sx={{
-                '& td, & th': { borderBottom: '1px solid rgba(224, 224, 224, 1)' }
-              }}>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  color="primary"
-                />
-              </TableCell>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align="left"
-                >
-                  <TableSortLabel
-                    sx={{ fontWeight: 'bold' }}
-                  >
-                    {column.label}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedData.map((row, index) => (
-              <TableRow
-                key={index}
-                sx={{
-                  cursor: 'pointer',
-                  '& td, & th': { borderBottom: '1px solid rgba(224, 224, 224, 1)' }
-                }}
-              >
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    color="primary"
-                  />
-                </TableCell>
-                <TableCell scope="row" align="left">{row.item}</TableCell>
-                <TableCell align="left">{row.type}</TableCell>
-                <TableCell align="left">{row.category}</TableCell>
-                <TableCell align="left">{row.inStock}</TableCell>
-                <TableCell align="left">{row.quantity}</TableCell>
+
+      {/* Inventory Table */}
+      <Box id="inventory-container">
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Item</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Quantity</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 20, 30]}
-        component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+            </TableHead>
+            <TableBody>
+              {data.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>{row.item}</TableCell>
+                  <TableCell>{row.type}</TableCell>
+                  <TableCell>{row.category}</TableCell>
+                  <TableCell>{row.status}</TableCell>
+                  <TableCell>{row.quantity}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </Box>
   )
 }

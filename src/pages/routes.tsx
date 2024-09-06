@@ -50,7 +50,7 @@ const routes = [
       {
         path: "inventory",
         element: (
-          <MainCard title="Inventory Page">
+          <MainCard title="Inventory">
             <Inventory />
           </MainCard>
         ),

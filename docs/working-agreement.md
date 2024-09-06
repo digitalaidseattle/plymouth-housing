@@ -3,7 +3,7 @@
 A working agreement is a document, or a set of documents that describe how we work together as a team and what our
 expectations and principles are.
 
-## General
+## General  
 
 - We work as one team towards a common goal and clear scope
 - We make sure everyone's voice is heard, listened to
@@ -24,7 +24,7 @@ expectations and principles are.
 
 ## Quality and not Quantity
 
-- We agree on a [Definition of Done](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/definition-of-done.md) for our user story's and sprints and live by it.
+- We agree on a [Definition of Done](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/definition-of-done.md) for our user story's and live by it.
 - We follow engineering best practices like the [Engineering Fundamentals Engineering Playbook](https://github.com/microsoft/code-with-engineering-playbook)
 
 ## Scrum Rhythm
@@ -32,11 +32,11 @@ expectations and principles are.
 | Activity | When | Duration | Who | Accountable | Goal |
 | -- | -- | -- | -- | -- | -- |
 | Project Standup | Thu 5.30PM           | 30 min   | Everyone     | Project Manager | What has been accomplished, next steps, blockers                           |
-| Sprint Demo                                           | ??            | ??   | Everyone     | Solution Architect     | Present work done and sign off on user story completion                    |
-| Sprint Retro | ??           | ??   | Everyone     | Project Manager | Dev Teams shares learnings and what can be improved                        |
-| Sprint Planning | ??           | ??   | Everyone     | PO           | Size and plan user stories for the sprint                                  |
+| Demo                                           | ??            | ??   | Everyone     | Solution Architect     | Present work done and sign off on user story completion                    |
+| Retro | ??           | ??   | Everyone     | Project Manager | Dev Teams shares learnings and what can be improved                        |
+| Planning | ??           | ??   | Everyone     | PO           | Size and plan user stories for the coiming week                                  |
 | Task Creation | After taking user story | -        | Dev      | Dev      | Create tasks to clarify and determine velocity                             |
-| Backlog refinement | ??         | 1 hour   | Solution Architect, PO | PO           | Prepare for next sprint and ensure that stories are ready for next sprint. |
+| Backlog refinement | ??         | 1 hour   | Solution Architect, PO | PO           | Prepare for next few weeks and ensure that stories are ready. |
 
 ## Process Lead
 
@@ -51,17 +51,17 @@ The Project Manager is responsible for leading any scrum or agile practices to e
 - Hold the team accountable for results in a supportive fashion.
 - Make sure that project and program documentation are up-to-date.
 - Guarantee the tracking/following up on action items from retrospectives (iteration and release planning) and from daily standup meetings.
-- Facilitate the sprint retrospective.
+- Facilitate the retrospective.
 - Coach Product Owner and the team in the process, as needed.
 
 ## Backlog Management
 
-- We work together on a [Definition of Ready](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/definition-of-ready.md) and all user stories assigned to a sprint need to follow this
+- We work together on a [Definition of Ready](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/definition-of-ready.md) and all user stories need to follow this
 - We communicate what we are working on through the board
 - We assign ourselves a task when we are ready to work on it (not before) and move it to active
 - We capture any work we do related to the project in a user story/task
 - We close our tasks/user stories only when they are done (as described in the [Definition of Done](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/definition-of-done.md))
-- We work with the PM if we want to add a new user story to the sprint
+- We work with the PM if we want to add a new user story to the backlog
 - If we add new tasks to the board, we make sure it matches the acceptance criteria of the user story (to avoid scope creep).
   If it doesn't match the acceptance criteria we should discuss with the PM to see if we need a new user story for the task or if we should adjust the acceptance criteria.
 

@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, KeyboardEvent, useRef } from 'react';
-import { Box, TextField, Button, IconButton } from '@mui/material';
+import { Box, TextField, IconButton } from '@mui/material';
 import { styled } from '@mui/system';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -18,22 +18,28 @@ const PinInput = styled(TextField)(({ }) => ({
 const PinInputComponent: React.FC = () => {
   const [pin, setPin] = useState<string[]>(['', '', '', '']);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
   const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>, index: number) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
     const value = e.target.value;
     if (/^\d*$/.test(value) && value.length <= 1) {
       const newPin = [...pin];
       newPin[index] = value;
       setPin(newPin);
+      setVisibleIndex(index);
 
       if (value && index < 3 && pinRefs.current[index + 1]) {
         pinRefs.current[index + 1]?.focus();
       }
+
+      setTimeout(() => {
+        setVisibleIndex(null);
+      }, 1000);
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement|HTMLDivElement>   , index: number) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLDivElement>, index: number) => {
     if (e.key === 'Backspace') {
       if (pin[index]) {
         const newPin = [...pin];
@@ -73,7 +79,7 @@ const PinInputComponent: React.FC = () => {
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               inputProps={{ maxLength: 1 }}
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword || visibleIndex === index ? 'text' : 'password'}
               inputRef={(el) => (pinRefs.current[index] = el)}
             />
           ))}
@@ -87,7 +93,6 @@ const PinInputComponent: React.FC = () => {
           {/* {showPassword ? <VisibilityOff /> : <Visibility />} */}
         </IconButton>
       </Box>
-     
     </Box>
   );
 };

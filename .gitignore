@@ -26,3 +26,5 @@ coverage
 .firebase/hosting.cHVibGlj.cache
 .env
 
+supabase/.branches/*
+supabase/.temp/*

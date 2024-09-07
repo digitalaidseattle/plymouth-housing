@@ -19,6 +19,7 @@ expectations and principles are.
 
 ## Work-life Balance
 
+- We strive to work a minimum of 4 hours a week. 
 - We work in a volunteering org and respect this, especially when setting up recurring meetings.
 - We record meetings when possible, so that team members who could not attend live can listen later.
 
@@ -49,6 +50,7 @@ The Project Manager is responsible for leading any scrum or agile practices to e
 - Facilitate standup meetings and hold team accountable for attendance and participation.
 - Keep the meeting moving as described in the [Project Standup](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/ceremonies.md) page.
 - Make sure all action items are documented and ensure each has an owner and a due date and tracks the open issues.
+- We keep our notes in [Miro](https://miro.com/app/board/uXjVK69-jvE=/)
 - Notes as needed after planning / stand-ups.
 - Make sure that items are moved to the parking lot and ensure follow-up afterwards.
 - Maintain a location showing team’s work and status and removing impediments that are blocking the team.
@@ -60,6 +62,7 @@ The Project Manager is responsible for leading any scrum or agile practices to e
 
 ## Backlog Management
 
+- We keep our board in [Jira](https://das-ph-inventory-tracker.atlassian.net/jira/core/projects/PIT/board)
 - We work together on a [Definition of Ready](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/definition-of-ready.md) and all user stories need to follow this
 - We communicate what we are working on through the board
 - We assign ourselves a task when we are ready to work on it (not before) and move it to active
@@ -76,4 +79,5 @@ The Project Manager is responsible for leading any scrum or agile practices to e
 - All PRs are reviewed by one person from DAS
 - We always review existing PRs before starting work on a new task
 - We look through open PRs at the end of stand-up to make sure all PRs have reviewers.
-- We treat documentation as code and apply the same standards to Markdown as code
+- We treat documentation as code and apply the same standards to Markdown as code.
+- We have our designs in Figma. 

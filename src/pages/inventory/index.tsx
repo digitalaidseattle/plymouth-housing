@@ -10,7 +10,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import { Button, Menu, Typography } from '@mui/material';
+import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 
@@ -25,6 +25,12 @@ const Inventory = () => {
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
   const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorType(event.currentTarget);
@@ -76,6 +82,14 @@ const Inventory = () => {
     setStatus('');
   }
 
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value)
+  }
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setCurrentPage(value);
+  }
+
   const handleFilter = () => {
     const searchFiltered = dummyData.filter((item: { item: string, type: string, category: string, quantity: number; status: string }) => {
 
@@ -110,7 +124,7 @@ const Inventory = () => {
 
   return (
     <Box>
-      <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
         <Typography variant="body2">Filters</Typography>
 
         {/* Type Filter */}
@@ -167,7 +181,13 @@ const Inventory = () => {
             <MenuItem onClick={() => handleMenuStatusClick('High')}>High</MenuItem>
           </Menu>
         </Box>
+
+        {/* Search Filter */}
+        <Box id="search-container" sx={{ ml: 'auto' }}>
+          <TextField value={search} onChange={handleSearch} variant="standard" placeholder="Search" />
+        </Box>
       </Box>
+
 
       {/* Inventory Table */}
       <Box id="inventory-container">
@@ -183,7 +203,7 @@ const Inventory = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((row, index) => (
+              {currentItems.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{row.item}</TableCell>
                   <TableCell>{row.type}</TableCell>
@@ -195,6 +215,15 @@ const Inventory = () => {
             </TableBody>
           </Table>
         </TableContainer>
+      </Box>
+
+      {/* Pagination */}
+      <Box sx={{display: 'flex', justifyContent: 'center'}}>
+        <Pagination
+          count={Math.ceil(data.length / itemsPerPage)}
+          page={currentPage}
+          onChange={handlePageChange}
+        />
       </Box>
     </Box>
   )

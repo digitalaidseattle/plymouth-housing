@@ -12,6 +12,7 @@ import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import SamplePage from './extra-pages/SamplePage';
 import DragDropPage from './dragdrop/DragDropPage';
+import CheckoutPage from './CheckoutPage';
 
 const routes = [
   {
@@ -60,7 +61,11 @@ const routes = [
       {
         path: "map-example",
         element: <MapPage />,
-      }
+      },
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
+      },
     ]
   },
   {

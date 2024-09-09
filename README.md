@@ -38,6 +38,10 @@ Install:
 1. [VS Code](https://code.visualstudio.com/download)
 1. [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
+## New to Supabase
+
+This [Supabase with React tutorial](https://supabase.com/docs/guides/getting-started/quickstarts/reactjs) is an excellent start to understand the different pieces. 
+
 ## Local Environment Setup
 
 ### Setup NextJS Application

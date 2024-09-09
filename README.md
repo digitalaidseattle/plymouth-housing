@@ -61,6 +61,9 @@ This [Supabase with React tutorial](https://supabase.com/docs/guides/getting-sta
 
     _Note: For more information check out: https://code.visualstudio.com/docs/devcontainers/containers_
 
+
+    _Note: Running your project in devcontainers, might throw off Vite's file change monitoring capabilities. This means Hot Module Reloading (HMR) stops working._
+
 1. Open a shell and install dependecies by running:
     ```bash
     npm install

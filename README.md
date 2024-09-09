@@ -156,28 +156,7 @@ If you need to use OAuth, be sure to follow the steps listed in _.env.local.exam
 
 1. Use `Ctrl+C` to stop the server when you are done.
 
-#### Generate lots of fake data (optional)
-1. Open a *[local terminal window](https://stackoverflow.com/questions/59815283/open-local-terminal-in-vscode-when-running-in-ssh-mode?rq=1)* from the seattle-humane-app folder and run: 
-    ```bash
-    npm run gen-seed-data
-    ```
-    This will overwrite `supabase/seed.sql` and supabase will use the generated data when starting up.
-
-1. If you've already started supabase, first you have to stop it and clear the data by running
-    ```bash
-    npx supabase stop --no-backup
-    ```
-    Then [Run Supabase](#run-supabase)
-
-#### Run Supabase
-
-1. Open a *[local terminal window](https://stackoverflow.com/questions/59815283/open-local-terminal-in-vscode-when-running-in-ssh-mode?rq=1)* from the seattle-humane-app folder.
-
-1. Run `supabase start`. If Supabase is already running, you can stop it by running `supabase stop` first.
-
-1. Run `supabase stop` when you are done.
-
 ## Manually updating Supabase types
 
 - To login to supabase: npx supabase login.
-- To update type file: npx supabase gen types typescript --project-id "liuebfxbxugpfsfwbkks" --schema public > supabase/database.types.ts
+- To update type file: npx supabase gen types typescript --project-id "<our-supabase-project-id>" --schema public > supabase/database.types.ts

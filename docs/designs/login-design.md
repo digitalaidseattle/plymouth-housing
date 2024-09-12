@@ -159,7 +159,7 @@ The high-level architecture includes the following components:
 | `email`  | VARCHAR   | Volunteer’s email address(unique).  |
 | `PIN`            | CHAR(4)   | 4-digit PIN for volunteer access.    |
 | `last_signed_in` | DATETIME  | Timestamp of the last sign-in.       |
- |`activate`	 |BOOL |	Indicates if the volunteer is active (true/false). |
+ |`active`	 |BOOL |	Indicates if the volunteer is active (true/false). |
 
 ## 11. Conclusion
 The architecture outlined provides a secure and user-friendly approach for volunteer sign-ins using Azure OAuth and a simple PIN mechanism. The design focuses on security, performance, and scalability, ensuring that the system meets the needs of the volunteering organization.

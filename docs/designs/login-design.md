@@ -3,16 +3,17 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-The purpose of this document is to outline the design of a sign-in page for a volunteering organization. This page will authenticate users through Azure OAuth and redirect them to different pages based on their role (volunteer or admin). The document focuses on the design of the sign-in page and the volunteer PIN page, with specific details on the database schema required.
+This document outlines the design of a sign-in page for PH admins and volunteers. Users will be authenticated through Azure OAuth and redirected based on their role (admin or volunteer). The document focuses on the design of the sign-in page, the volunteer PIN page, and the supporting database schema.
 
 ### 1.2 Scope
 The scope of this design includes the development of:
-- A sign-in page that redirects to Azure OAuth for authentication.
-- A volunteer PIN page that allows volunteers to sign in using a dropdown selection and a 4-digit PIN.
-- A mechanism to retrieve forgotten PINs.
-- A database schema to support volunteer sign-ins.
+- A sign-in page redirecting to Azure OAuth for authentication.
+- Role-based redirection:  admins are directed to the dashboard, while volunteers are directed to a name selection page before entering their 4-digit PIN.
+- A volunteer name page where volunteers select their name and enter a 4-digit PIN for sign-in.
+- A mechanism to retrieve forgotten PINs via email.
+- A database schema supporting volunteer sign-ins.
 
-The admin dashboard and volunteer dashboard functionalities are outside the scope of this document.
+The functionalities of the admin dashboard, volunteer dashboard, setting user activation status, and enrolling or deleting users are outside the scope of this document.
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
 - **OAuth**: Open Authorization, a protocol for secure user authentication.
@@ -23,24 +24,27 @@ The admin dashboard and volunteer dashboard functionalities are outside the scop
 - User Interface Design Guidelines
 
 ## 2. System Overview
-The system will consist of a sign-in page that authenticates users via Azure OAuth. Depending on the email address used during authentication, users will be redirected to either:
-- A volunteer PIN page (for volunteers).
-- An admin dashboard (for administrators).
+The system authenticates users via Azure OAuth, enforcing that the email domain is @plymouthhousing.org. After authentication:
+- Volunteers are redirected to a PIN page (such as volunteers@plymouthhousing.org).
+- Administrators are redirected to the admin dashboard (for accounts not using the volunteers@plymouthhousing.org domain).
 
-The volunteer PIN page will present a dropdown list of all volunteers and a field to enter a 4-digit PIN. Upon successful entry, the volunteer will be redirected to a volunteer dashboard.
+Volunteers will select their name from a dropdown and enter a 4-digit PIN to sign in.
 
 ## 3. Architecture Goals and Constraints
 
 ### 3.1 Goals
-- Provide a secure sign-in process using Azure OAuth.
-- Allow volunteers to authenticate using a simple PIN mechanism.
-- Ensure data integrity and security for volunteer information.
-- Provide a way for volunteers to retrieve forgotten PINs.
+- Secure sign-in via Azure OAuth.
+- Role-based redirection.
+- Simple PIN-based authentication for volunteers.
+- Data integrity and security for volunteer information.
+- Mechanism for PIN recovery via email.
+
 
 ### 3.2 Constraints
 - Must use Azure OAuth for authentication.
 - Admin and volunteer dashboards are outside the scope of this design.
 - The solution must comply with data protection and privacy regulations.
+- The process for resetting a volunteer's PIN has not been finalized. It could be managed by admins via the admin page or by the volunteers themselves through a new PIN reset page.
 
 ## 4. Architectural Representations
 
@@ -48,29 +52,55 @@ The volunteer PIN page will present a dropdown list of all volunteers and a fiel
 The high-level architecture includes the following components:
 - **Sign-In Page**: Redirects to Azure OAuth.
 - **Azure OAuth Service**: Authenticates users based on their email.
-- **Volunteer PIN Page**: Allows volunteers to sign in using a dropdown and PIN.
-- **Database**: Stores volunteer information, including PIN and last sign-in date.
+- **Volunteer Name Page**: Allows volunteers to select name using a dropdown.
+- **Volunteer PIN Page**: Allows volunteers to sign in using a PIN.
+- **Email Notification**: Sends email notifications for user to reset the PIN.
+- **Database**: Stores volunteer details, including the PIN, activation status, and last sign-in date.
 
 ### 4.2 Component Descriptions
 - **Sign-In Page**: Initial landing page for all users; redirects to Azure OAuth for authentication.
 - **Azure OAuth Service**: Handles secure authentication; determines user role based on the email domain.
-- **Volunteer PIN Page**: Displays a dropdown of volunteers and a PIN field; checks entered data against the database.
-- **Database**: Manages volunteer data, including first name, last name, phone number, email address, PIN, and last sign-in date.
+- **Volunteer Name Page**: Displays a dropdown of volunteers names.
+- **Volunteer PIN Page**: Displays a PIN field; checks entered data against the database.
+- **Email Notification via Resend API**:  Sends email notifications using the Resend API through Supabase Edge Functions. This feature is used for sending important notifications, such as PIN reset emails to volunteers. [Resend API Documentation](https://resend.com/docs/send-with-supabase-edge-functions)
+- **Database**: Manages volunteer data, including name, email address, PIN, and last sign-in date.
 
 ## 5. Detailed Design
 
 ### 5.1 Subsystems and Components
 #### Sign-In Page
 - **Purpose**: Redirect users to Azure OAuth for authentication.
-- **Input**: User clicks the sign-in button.
+- **Input**: User clicks the Azure sign-in button.
 - **Output**: Redirect to Azure OAuth login page.
 - **Dependencies**: Azure OAuth Service.
 
+#### Volunteer Name Page
+- **Purpose**: Allows volunteers to choice their name using a dropdown selection.
+- **Input**: Selected volunteer name.
+- **Output**: Redirect to the volunteer Volunteer PIN Page.
+- **Dependencies**: Database for volunteer details.
+- **Additional Features**:
+  - **“I don’t see my name, what do I do now”** link: When clicked, a dialog will pop up. Provides a phone number or email of a PH admin that can sort it out (either get them activated in the database, and/or let them into another account for urgent matters)
+  - **Active User Filtering**: Only volunteers marked as "active" in the database will appear in the dropdown selection. This ensures that only currently active volunteers can sign in.
+
 #### Volunteer PIN Page
 - **Purpose**: Allows volunteers to authenticate using a dropdown selection and a 4-digit PIN.
-- **Input**: Selected volunteer name and entered PIN.
+- **Input**: Entered corresponding PIN.
 - **Output**: Redirect to the volunteer dashboard upon successful authentication.
 - **Dependencies**: Database for volunteer details.
+- **Additional Features**:
+  - **Temporary PIN Visibility**: When the volunteer enters their PIN, the input will be visible for 1 second and then automatically obscured, enhancing security while still providing immediate visual feedback to the user.
+  - **Previous Page Button**: Allows the volunteer to return to the previous "Select Volunteer Name Page" if needed.
+  - **"Forgot my PIN"** Link: When clicked, a dialog will pop up, allowing volunteers to enter their registered email to reset or retrieve their PIN. After entering the correct email, a reset link will be sent to the volunteer’s personal email with instructions to reset their PIN.
+  - **Consideration**: he process for resetting a volunteer's PIN has not been finalized. It could be managed by admins via an admin page, or volunteers could reset the PIN themselves through a new self-service PIN reset page. Further discussion is needed to determine the most appropriate approach.
+
+
+#### Email Notification via Resend API
+- **Purpose**: Sends email notifications for PIN reset requests and other important notifications to volunteers using the Resend API integrated through Supabase Edge Functions.
+- **Dependencies**:  [Resend API](https://resend.com/docs/send-with-supabase-edge-functions), [Supabase Edge Functions](https://supabase.com/docs/guides/functions).
+- **Additional Details**: Supabase supports email sending through the Resend API, which is free for up to 3,000 emails per month (100 per day). This limit should be sufficient for our current needs.
+- **Consideration**: We need to decide whether to use the default domain provided by Resend for email notifications or configure our own custom domain for branding and authentication purposes.
+
 
 ### 5.2 Data Flow
 1. User accesses the sign-in page and is redirected to Azure OAuth.
@@ -82,13 +112,15 @@ The high-level architecture includes the following components:
 ## 6. Security and Compliance
 
 ### 6.1 Security Considerations
-- Use Azure OAuth to ensure secure authentication.
-- Store PINs securely in the database with encryption.
-- Implement data validation to prevent unauthorized access.
+- **Azure OAuth**: Use Azure OAuth to ensure secure authentication.
+- **Domain Restriction**: After a user logs in through Azure OAuth via Supabase, enforce domain restrictions by verifying that the user's email domain matches @plymouthhousing.org. This ensures that only authorized users from the organization can log in.
+- **Encryption in sensitive user information**: PINs and other sensitive data should be securely stored in the database using encryption. This protects the information from being exposed in case of a data breach.
+- **Data Validation**: Ensure that the PIN is exactly 4 digits long, validated both on the frontend and with server-side checks to prevent unauthorized access attempts and injection attacks.
 
 ### 6.2 Compliance Requirements
 - Ensure compliance with GDPR for handling volunteer data.
-- Follow best practices for data encryption and storage.
+  - **Data Minimization**: Only collect data that is necessary for the operation of the system. For example, storing name, email, and PIN is necessary for authentication.
+  - **Encryption**: The PIN field must be encrypted using secure cryptographic algorithms, such as AES, to ensure that sensitive data is protected against unauthorized access.
 
 ## 7. Performance Considerations
 
@@ -113,7 +145,7 @@ The high-level architecture includes the following components:
 
 ## 9. Risk Analysis
 - **Risk**: Unauthorized access if PINs are guessed.
-  - **Mitigation**: Implement rate limiting and lockout mechanisms after multiple failed attempts.
+  - **Mitigation**: Implement rate limiting, captchas, and account lockout mechanisms after multiple failed attempts.
 - **Risk**: Data breaches compromising volunteer information.
   - **Mitigation**: Use encryption for sensitive data and secure access controls.
 
@@ -123,12 +155,11 @@ The high-level architecture includes the following components:
 | Column Name      | Data Type | Description                          |
 |------------------|-----------|--------------------------------------|
 | `id`             | INT       | Primary key, auto-increment.         |
-| `first_name`     | VARCHAR   | Volunteer’s first name.              |
-| `last_name`      | VARCHAR   | Volunteer’s last name.               |
-| `phone_number`   | VARCHAR   | Volunteer’s phone number.            |
-| `email_address`  | VARCHAR   | Volunteer’s email address (unique).  |
-| `pin`            | CHAR(4)   | 4-digit PIN for volunteer access.    |
+| `name`     | VARCHAR   | Volunteer’s name(unique).              |
+| `email`  | VARCHAR   | Volunteer’s email address(unique).  |
+| `PIN`            | CHAR(4)   | 4-digit PIN for volunteer access.    |
 | `last_signed_in` | DATETIME  | Timestamp of the last sign-in.       |
+ |`activate`	 |BOOL |	Indicates if the volunteer is active (true/false). |
 
 ## 11. Conclusion
 The architecture outlined provides a secure and user-friendly approach for volunteer sign-ins using Azure OAuth and a simple PIN mechanism. The design focuses on security, performance, and scalability, ensuring that the system meets the needs of the volunteering organization.

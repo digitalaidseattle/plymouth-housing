@@ -14,12 +14,13 @@ import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import { createClient } from '@supabase/supabase-js';
+import AddIcon from '@mui/icons-material/Add';
 
 type InventoryItem = {
   id: number;
   name: string;
   quantity: number;
-  category: number;
+  category: string;
 }
 
 
@@ -133,18 +134,26 @@ const Inventory = () => {
 
   const fetchData = async () => {
     const { data: inventory, error } = await supabase
-    .from('inventory')
-    .select('*');
+      .from('inventory')
+      .select(`id, item, type, quantity, category:category (categories)`);
 
     if (error) {
       console.error('Error fetching inventory:', error)
     } else {
-      setData(inventory)
+      const formattedData = inventory.map(item => ({
+        ...item,
+        category: item.category.categories,
+      }))
+      console.log(inventory)
+      setData(formattedData)
     }
   }
 
   return (
     <Box>
+      <Box id="add-container" sx={{display: 'flex', justifyContent: 'end'}}>
+        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }}><AddIcon fontSize="small" sx={{ color: 'black' }} />Add</Button>
+      </Box>
       <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
         <Typography variant="body2">Filters</Typography>
 
@@ -239,7 +248,7 @@ const Inventory = () => {
       </Box>
 
       {/* Pagination */}
-      <Box sx={{display: 'flex', justifyContent: 'center'}}>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Pagination
           count={Math.ceil(data.length / itemsPerPage)}
           page={currentPage}

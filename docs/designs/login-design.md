@@ -75,7 +75,7 @@ The high-level architecture includes the following components:
 - **Dependencies**: Azure OAuth Service.
 
 #### Volunteer Name Page
-- **Purpose**: Allows volunteers to choice their name using a dropdown selection.
+- **Purpose**: Allows volunteers to choose their name using a dropdown selection.
 - **Input**: Selected volunteer name.
 - **Output**: Redirect to the volunteer Volunteer PIN Page.
 - **Dependencies**: Database for volunteer details.

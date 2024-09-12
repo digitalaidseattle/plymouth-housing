@@ -145,7 +145,7 @@ The high-level architecture includes the following components:
 
 ## 9. Risk Analysis
 - **Risk**: Unauthorized access if PINs are guessed.
-  - **Mitigation**: Implement rate limiting, captchas, and account lockout mechanisms after multiple failed attempts.
+  - **Mitigation**: Implement account lockout mechanisms after three failed attempts.
 - **Risk**: Data breaches compromising volunteer information.
   - **Mitigation**: Use encryption for sensitive data and secure access controls.
 

@@ -13,11 +13,19 @@ import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
+import { createClient } from '@supabase/supabase-js';
+
+type InventoryItem = {
+  id: number;
+  name: string;
+  quantity: number;
+  category: number;
+}
 
 
 const Inventory = () => {
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<InventoryItem[]>([]);
   const [type, setType] = useState('');
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
@@ -86,7 +94,7 @@ const Inventory = () => {
     setSearch(event.target.value)
   }
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   }
 
@@ -113,14 +121,27 @@ const Inventory = () => {
     setData(searchFiltered);
   };
 
+  const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY); // When we deploy this application or when we create a server, this will have to be changed to server side so that the anon_key can be hidden.
 
   useEffect(() => {
     if (type || category || status || search) {
       handleFilter()
     } else {
-      setData(dummyData);
+      fetchData();
     }
   }, [type, category, status, search])
+
+  const fetchData = async () => {
+    const { data: inventory, error } = await supabase
+    .from('inventory')
+    .select('*');
+
+    if (error) {
+      console.error('Error fetching inventory:', error)
+    } else {
+      setData(inventory)
+    }
+  }
 
   return (
     <Box>

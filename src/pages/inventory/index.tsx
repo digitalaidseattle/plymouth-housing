@@ -16,16 +16,16 @@ import AddIcon from '@mui/icons-material/Add';
 
 type InventoryItem = {
   id: number;
-  name: string;
+  item: string;
+  type: string;
   quantity: number;
-  category: {
-    categories: string;
-  }
+  category: string;
 }
 
 
 const Inventory = () => {
 
+  const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [data, setData] = useState<InventoryItem[]>([]);
   const [type, setType] = useState('');
   const [category, setCategory] = useState('');
@@ -100,20 +100,20 @@ const Inventory = () => {
   }
 
   const handleFilter = () => {
-    const searchFiltered = data.filter((item: { item: string, type: string, category: string, quantity: number; }) => {
+    const searchFiltered = originalData.filter((row: { item: string, type: string, category: string, quantity: number; }) => {
 
-      const matchesType = type ? item.type.toLowerCase().includes(type.toLowerCase()) : true;
+      const matchesType = type ? row.type.toLowerCase().includes(type.toLowerCase()) : true;
 
-      const matchesCategory = category ? item.category.toLowerCase().includes(category.toLowerCase()) : true;
+      const matchesCategory = category ? row.category.toLowerCase().includes(category.toLowerCase()) : true;
 
       // const matchesStatus = status ? item.status.toLowerCase().includes(status.toLowerCase()) : true; //
 
       const matchesSearch = search
-        ? item.item.toLowerCase().includes(search.toLowerCase()) ||
-        item.type.toLowerCase().includes(search.toLowerCase()) ||
-        item.category.toLowerCase().includes(search.toLowerCase()) ||
+        ? row.item.toLowerCase().includes(search.toLowerCase()) ||
+        row.type.toLowerCase().includes(search.toLowerCase()) ||
+        row.category.toLowerCase().includes(search.toLowerCase()) ||
         // item.status.toLowerCase().includes(search.toLowerCase()) ||
-        item.quantity.toString().toLowerCase().includes(search.toLowerCase())
+        row.quantity.toString().toLowerCase().includes(search.toLowerCase())
         : true;
 
       return matchesType && matchesCategory && matchesSearch;
@@ -127,17 +127,14 @@ const Inventory = () => {
   const fetchData = async () => {
     const { data: inventory, error } = await supabase
       .from('inventory')
-      .select(`id, item, type, quantity, category:category (categories)`);
+      .select(`id, item, type, quantity, category`);
 
     if (error) {
       console.error('Error fetching inventory:', error)
     } else {
-      const formattedData = inventory.map(item => ({
-        ...item,
-        category: item.category.categories,
-      }))
-      console.log(inventory)
-      setData(formattedData)
+      console.log(inventory);
+      setOriginalData(inventory);
+      setData(inventory)
     }
   }
 
@@ -243,7 +240,8 @@ const Inventory = () => {
                   <TableCell>{row.item}</TableCell>
                   <TableCell>{row.type}</TableCell>
                   <TableCell>{row.category}</TableCell>
-                  <TableCell>{row.status}</TableCell> {/* Status will need to populate based on quantity */}
+                  {/* <TableCell>{row.status}</TableCell> Status will need to populate based on quantity */}
+                  <TableCell>In Progress</TableCell>
                   <TableCell>{row.quantity}</TableCell>
                 </TableRow>
               ))}

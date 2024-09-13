@@ -10,7 +10,7 @@ The scope of this design includes the development of:
 - A sign-in page redirecting to Azure OAuth for authentication.
 - Role-based redirection:  admins are directed to the dashboard, while volunteers are directed to a name selection page before entering their 4-digit PIN.
 - A volunteer name page where volunteers select their name and enter a 4-digit PIN for sign-in.
-- A mechanism to retrieve forgotten PINs via email.
+- A mechanism to retrieve forgotten PINs by calling Admin.
 - A database schema supporting volunteer sign-ins.
 
 The functionalities of the admin dashboard, volunteer dashboard, setting user activation status, and enrolling or deleting users are outside the scope of this document.
@@ -37,7 +37,7 @@ Volunteers will select their name from a dropdown and enter a 4-digit PIN to sig
 - Role-based redirection.
 - Simple PIN-based authentication for volunteers.
 - Data integrity and security for volunteer information.
-- Mechanism for PIN recovery via email.
+- Mechanism for PIN recovery via phone call.
 
 
 ### 3.2 Constraints
@@ -54,7 +54,7 @@ The high-level architecture includes the following components:
 - **Azure OAuth Service**: Authenticates users based on their email.
 - **Volunteer Name Page**: Allows volunteers to select name using a dropdown.
 - **Volunteer PIN Page**: Allows volunteers to sign in using a PIN.
-- **Email Notification**: Sends email notifications for user to reset the PIN.
+- **Forget PIN Flow**: Displays a dialog box showing, "Please call the PH administrator for your PIN."
 - **Database**: Stores volunteer details, including the PIN, activation status, and last sign-in date.
 
 ### 4.2 Component Descriptions
@@ -62,7 +62,7 @@ The high-level architecture includes the following components:
 - **Azure OAuth Service**: Handles secure authentication; determines user role based on the email domain.
 - **Volunteer Name Page**: Displays a dropdown of volunteers names.
 - **Volunteer PIN Page**: Displays a PIN field; checks entered data against the database.
-- **Email Notification via Resend API**:  Sends email notifications using the Resend API through Supabase Edge Functions. This feature is used for sending important notifications, such as PIN reset emails to volunteers. [Resend API Documentation](https://resend.com/docs/send-with-supabase-edge-functions)
+- - **Forget PIN Flow**: If the volunteer forgets his or her PIN. They can click on a link that displays a dialog box that says, "Please call the PH administrator for your PIN.
 - **Database**: Manages volunteer data, including name, email address, PIN, and last sign-in date.
 
 ## 5. Detailed Design
@@ -91,15 +91,8 @@ The high-level architecture includes the following components:
 - **Additional Features**:
   - **Temporary PIN Visibility**: When the volunteer enters their PIN, the input will be visible for 1 second and then automatically obscured, enhancing security while still providing immediate visual feedback to the user.
   - **Previous Page Button**: Allows the volunteer to return to the previous "Select Volunteer Name Page" if needed.
-  - **"Forgot my PIN"** Link: When clicked, a dialog will pop up, allowing volunteers to enter their registered email to reset or retrieve their PIN. After entering the correct email, a reset link will be sent to the volunteer’s personal email with instructions to reset their PIN.
+  - **"Forgot my PIN"** Link: When clicked, a dialog pops up indicating that volunteers can call admins to get their PIN. 
   - **Consideration**: he process for resetting a volunteer's PIN has not been finalized. It could be managed by admins via an admin page, or volunteers could reset the PIN themselves through a new self-service PIN reset page. Further discussion is needed to determine the most appropriate approach.
-
-
-#### Email Notification via Resend API
-- **Purpose**: Sends email notifications for PIN reset requests and other important notifications to volunteers using the Resend API integrated through Supabase Edge Functions.
-- **Dependencies**:  [Resend API](https://resend.com/docs/send-with-supabase-edge-functions), [Supabase Edge Functions](https://supabase.com/docs/guides/functions).
-- **Additional Details**: Supabase supports email sending through the Resend API, which is free for up to 3,000 emails per month (100 per day). This limit should be sufficient for our current needs.
-- **Consideration**: We need to decide whether to use the default domain provided by Resend for email notifications or configure our own custom domain for branding and authentication purposes.
 
 
 ### 5.2 Data Flow

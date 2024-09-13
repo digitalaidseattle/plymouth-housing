@@ -98,37 +98,29 @@ const Inventory = () => {
   }
 
   const handleFilter = () => {
-    const searchFiltered = dummyData.filter((item: { item: string, type: string, category: string, quantity: number; status: string }) => {
+    const searchFiltered = data.filter((item: { item: string, type: string, category: string, quantity: number; }) => {
 
       const matchesType = type ? item.type.toLowerCase().includes(type.toLowerCase()) : true;
 
       const matchesCategory = category ? item.category.toLowerCase().includes(category.toLowerCase()) : true;
 
-      const matchesStatus = status ? item.status.toLowerCase().includes(status.toLowerCase()) : true;
+      // const matchesStatus = status ? item.status.toLowerCase().includes(status.toLowerCase()) : true; //
 
       const matchesSearch = search
         ? item.item.toLowerCase().includes(search.toLowerCase()) ||
         item.type.toLowerCase().includes(search.toLowerCase()) ||
         item.category.toLowerCase().includes(search.toLowerCase()) ||
-        item.status.toLowerCase().includes(search.toLowerCase()) ||
+        // item.status.toLowerCase().includes(search.toLowerCase()) ||
         item.quantity.toString().toLowerCase().includes(search.toLowerCase())
         : true;
 
-      return matchesType && matchesCategory && matchesStatus && matchesSearch;
+      return matchesType && matchesCategory && matchesSearch;
     });
 
     setData(searchFiltered);
   };
 
   const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY); // When we deploy this application or when we create a server, this will have to be changed to server side so that the anon_key can be hidden.
-
-  useEffect(() => {
-    if (type || category || status || search) {
-      handleFilter()
-    } else {
-      fetchData();
-    }
-  }, [type, category, status, search])
 
   const fetchData = async () => {
     const { data: inventory, error } = await supabase
@@ -147,11 +139,24 @@ const Inventory = () => {
     }
   }
 
+  useEffect(() => {
+    if (type || category || status || search) {
+      handleFilter()
+    } else {
+      fetchData();
+    }
+  }, [type, category, status, search])
+
+
   return (
     <Box>
-      <Box id="add-container" sx={{display: 'flex', justifyContent: 'end'}}>
+
+      {/* Add button */}
+      <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
         <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }}><AddIcon fontSize="small" sx={{ color: 'black' }} />Add</Button>
       </Box>
+
+      {/* Filter Container */}
       <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
         <Typography variant="body2">Filters</Typography>
 
@@ -236,7 +241,7 @@ const Inventory = () => {
                   <TableCell>{row.item}</TableCell>
                   <TableCell>{row.type}</TableCell>
                   <TableCell>{row.category}</TableCell>
-                  <TableCell>{row.status}</TableCell>
+                  <TableCell>{row.status}</TableCell> {/* Status will need to populate based on quantity */}
                   <TableCell>{row.quantity}</TableCell>
                 </TableRow>
               ))}

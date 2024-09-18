@@ -22,7 +22,6 @@ type InventoryItem = {
   category: string;
 }
 
-
 const Inventory = () => {
 
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
@@ -84,9 +83,11 @@ const Inventory = () => {
   const clearTypeFilter = () => {
     setType('');
   }
+
   const clearCategoryFilter = () => {
     setCategory('');
   }
+
   const clearStatusFilter = () => {
     setStatus('');
   }
@@ -106,14 +107,16 @@ const Inventory = () => {
 
       const matchesCategory = category ? row.category.toLowerCase().includes(category.toLowerCase()) : true;
 
-      // const matchesStatus = status ? item.status.toLowerCase().includes(status.toLowerCase()) : true; //
+      // const matchesStatus = status ? item.status.toLowerCase().includes(status.toLowerCase()) : true; //Status functionality not implemented yet. TODO
+
+      const lowerCaseSearch = search.toLowerCase();
 
       const matchesSearch = search
-        ? row.item.toLowerCase().includes(search.toLowerCase()) ||
-        row.type.toLowerCase().includes(search.toLowerCase()) ||
-        row.category.toLowerCase().includes(search.toLowerCase()) ||
-        // item.status.toLowerCase().includes(search.toLowerCase()) ||
-        row.quantity.toString().toLowerCase().includes(search.toLowerCase())
+        ? row.item.toLowerCase().includes(lowerCaseSearch) ||
+        row.type.toLowerCase().includes(lowerCaseSearch) ||
+        row.category.toLowerCase().includes(lowerCaseSearch) ||
+        // item.status.toLowerCase().includes(lowerCaseSearch) || //Status functionality not implemented yet. TODO
+        row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
         : true;
 
       return matchesType && matchesCategory && matchesSearch;

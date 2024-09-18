@@ -57,7 +57,7 @@ const Inventory = () => {
 
   const handleMenuTypeClick = (value: string) => {
     setType(value)
-    handleFilter();
+    // handleFilter(); Already called in the useEffect
     handleTypeClose();
   }
 
@@ -140,12 +140,17 @@ const Inventory = () => {
 
   useEffect(() => {
     if (type || category || status || search) {
-      handleFilter()
+      const handler = setTimeout(() => {
+        handleFilter();
+      }, 300); // Reduces calls to filter while typing in search
+      return () => {
+        clearTimeout(handler);
+      };
+      // handleFilter()
     } else {
       fetchData();
     }
   }, [type, category, status, search])
-
 
   return (
     <Box>

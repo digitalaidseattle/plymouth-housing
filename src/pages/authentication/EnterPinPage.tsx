@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Snackbar, Alert } from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
-import PinInput from '../../pages/authentication/PinInput';
+import PinInput from 'PinInput';
 import CenteredLayout from './CenteredLayout';
 
 const EnterPinPage: React.FC = () => {

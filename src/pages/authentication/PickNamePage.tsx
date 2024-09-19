@@ -6,6 +6,7 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 
 const names = ['Alice', 'Allen', 'Bob', 'Ping-Chen Chan', 'Charlie', 'David', 'Eve'];
+    //TODO: Implement the fetch logic to get the names from the server
 
 const PickYourNamePage: React.FC = () => {
   const [selectedName, setSelectedName] = useState<string>('');
@@ -78,8 +79,8 @@ const PickYourNamePage: React.FC = () => {
           color="secondary"
           onClick={handleNextClick}
           sx={{
-            height: '45px', // 固定高度
-            width: '200px', // 固定寬度
+            height: '45px', 
+            width: '200px', 
             fontSize: '16px',
             marginTop: 2,
           }}

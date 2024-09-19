@@ -87,7 +87,7 @@ const EnterPinPage: React.FC = () => {
         </Button>
         <Typography
           variant="body2"
-          onClick={handlePrevClick}
+          onClick={handlePreviousClick}
           sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2, textDecoration: 'underline' }}
         >
           Back to the name selection.

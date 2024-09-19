@@ -106,6 +106,7 @@ const EnterPinPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
         <Snackbar
           open={openSnackbar}
           autoHideDuration={3000}
@@ -116,6 +117,7 @@ const EnterPinPage: React.FC = () => {
             Please enter your PIN before continuing.
           </Alert>
         </Snackbar>
+        
       </CenteredLayout>
     </MinimalWrapper>
   );

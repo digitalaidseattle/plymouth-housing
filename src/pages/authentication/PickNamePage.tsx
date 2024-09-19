@@ -1,108 +1,117 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Stack, Typography, Button, Select, MenuItem, SelectChangeEvent, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
+import { Stack, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Autocomplete, TextField, Snackbar, Alert } from '@mui/material';
 import Logo from '../../components/Logo/Logo';
-import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
+import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
+import CenteredLayout from './CenteredLayout';
+
+const names = ['Alice', 'Allen', 'Bob', 'Ping-Chen Chan', 'Charlie', 'David', 'Eve'];
 
 const PickYourNamePage: React.FC = () => {
   const [selectedName, setSelectedName] = useState<string>('');
-  const [open, setOpen] = useState<boolean>(false);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const names = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
-
-  const handleNameChange = (event: SelectChangeEvent<string>) => {
-    setSelectedName(event.target.value as string);
+  const handleNameChange = (_event: React.ChangeEvent<{}>, value: string | null) => {
+    setSelectedName(value || '');
   };
 
   const handleNextClick = () => {
     if (selectedName) {
-      console.log('Selected Name:', selectedName);
       navigate('/enter-pin');
     } else {
-      alert('Please select a name');
+      setOpenSnackbar(true);
     }
   };
 
   const handleDialogOpen = () => {
-    setOpen(true);
+    setOpenDialog(true);
   };
 
   const handleDialogClose = () => {
-    setOpen(false);
+    setOpenDialog(false);
+  };
+
+  const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   return (
     <MinimalWrapper>
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Grid item xs={3}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Logo />
-            <Typography variant="h5">{import.meta.env.VITE_APPLICATION_NAME}</Typography>
-          </Stack>
-        </Grid>
-        <CenteredCard>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: { xs: -0.5, sm: 0.5 } }}>
-                <Typography variant="h3" textAlign="center">Pick Your Name</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12}>
-              <Stack direction="column" justifyContent="center" alignItems="center">
-                <Select
-                  value={selectedName}
-                  onChange={(e) => handleNameChange(e)}
-                  displayEmpty
-                  sx={{ minWidth: 200 }}
-                >
-                  <MenuItem value="" disabled>Select a name</MenuItem>
-                  {names.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      {name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <Typography
-                  variant="body2"
-                  color="primary"
-                  onClick={handleDialogOpen}
-                  sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2 }}
-                >
-                  I don’t see my name, what do I do now
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12}>
-              <Stack direction="column" spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
-                <Button variant="contained" color="primary" onClick={handleNextClick}>
-                  Next
-                </Button>
-              </Stack>
-            </Grid>
-          </Grid>
-        </CenteredCard>
-      </Grid>
-      <Dialog open={open} onClose={handleDialogClose}>
-        <DialogTitle>Contact PH Admin</DialogTitle>
-        <DialogContent>
-          <Typography>
-          Please call the phone number 222-222-2222 or email example@com of a PH admin that can sort it out.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CenteredLayout>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Logo />
+          <Typography variant="h5">{import.meta.env.VITE_APPLICATION_NAME}</Typography>
+        </Stack>
+        <Typography
+          variant="h3"
+          textAlign="center"
+          sx={{
+            height: '50px', 
+            lineHeight: '50px', 
+            marginBottom: 2,
+          }}
+        >
+          Pick Your Name
+        </Typography>
+        <Autocomplete
+          value={selectedName}
+          onChange={handleNameChange}
+          options={names}
+          renderInput={(params) => <TextField {...params} label="Select your name" variant="outlined" />}
+          sx={{ minWidth: 300 }}
+        />
+        <Typography
+          variant="body2"
+          color="primary"
+          onClick={handleDialogOpen}
+          sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2 }}
+        >
+          Your name isn't listed.
+        </Typography>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleNextClick}
+          sx={{
+            height: '45px', // 固定高度
+            width: '200px', // 固定寬度
+            fontSize: '16px',
+            marginTop: 2,
+          }}
+        >
+          Continue
+        </Button>
+
+        <Dialog open={openDialog} onClose={handleDialogClose}>
+          <DialogTitle>Contact PH Admin</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Please call the phone number 222-222-2222 or email example@com of a PH admin who can assist you.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={3000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert onClose={handleSnackbarClose} severity="warning" sx={{ width: '100%' }}>
+            Please select a name before continuing.
+          </Alert>
+        </Snackbar>
+      </CenteredLayout>
     </MinimalWrapper>
   );
 };

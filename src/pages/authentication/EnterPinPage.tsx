@@ -1,21 +1,30 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Stack, Typography, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Snackbar, Alert } from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
-import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
 import PinInput from '../../pages/authentication/PinInput';
+import CenteredLayout from './CenteredLayout';
 
 const EnterPinPage: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
-
+  const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const navigate = useNavigate();
+
   const handleNextClick = () => {
-      navigate('/');
+    if (pin.every(p => p !== "")) {
+      //TODO: Implement the logic to check the PIN
+      navigate('/enter-pin');
+    } else {
+      setOpenSnackbar(true);
     }
+
+  };
+
   const handlePrevClick = () => {
-      navigate('/pick-your-name');
-    }
+    navigate('/pick-your-name');
+  };
 
   const handleDialogOpen = () => {
     setOpen(true);
@@ -25,78 +34,89 @@ const EnterPinPage: React.FC = () => {
     setOpen(false);
   };
 
+  const handlePinChange = useCallback((newPin: string[]) => {
+    setPin(newPin);
+  }, []);
+
+  const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   return (
     <MinimalWrapper>
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Grid item xs={3}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Logo />
-            <Typography variant="h5">{import.meta.env.VITE_APPLICATION_NAME}</Typography>
-          </Stack>
-        </Grid>
-        <CenteredCard>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: { xs: -0.5, sm: 0.5 } }}>
-                <Typography variant="h3" textAlign="center">Enter Your PIN</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12}>
-              <Stack direction="column" justifyContent="center" alignItems="center">
-                <PinInput/>
-                <Typography
-                  variant="body2"
-                  color="primary"
-                  onClick={handleDialogOpen}
-                  sx={{ cursor: 'pointer', textAlign: 'center' }}
-                >
-                  I forgot my password
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12}>
-              <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
-                <Button variant="contained" color="primary" onClick={handlePrevClick}>
-                  Previous
-                </Button>
-                <Button variant="contained" color="primary" onClick={handleNextClick}>
-                  Next
-              </Button>
-              </Stack>
-            </Grid>
-          </Grid>
-        </CenteredCard>
-      </Grid>
-      <Dialog open={open} onClose={handleDialogClose}>
-        <DialogTitle>Reset Password</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Please enter your personal email address to reset your password.
-          </Typography>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Email Address"
-            type="email"
-            fullWidth
-            variant="outlined"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleDialogClose} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CenteredLayout>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Logo />
+          <Typography variant="h5">{import.meta.env.VITE_APPLICATION_NAME}</Typography>
+        </Stack>
+        <Typography
+          variant="h3"
+          textAlign="center"
+          sx={{
+            height: '50px', 
+            lineHeight: '50px', 
+            marginBottom: 2,
+          }}
+        >
+          Enter Your PIN
+        </Typography>
+        <PinInput onPinChange={handlePinChange} />
+        <Typography
+          variant="body2"
+          color="primary"
+          onClick={handleDialogOpen}
+          sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 6, paddingTop:'3.66px' }}
+        >
+          I forgot my password
+        </Typography>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleNextClick}
+          sx={{
+            height: '45px', 
+            width: '200px',
+            fontSize: '16px',
+            marginTop: 2,
+          }}
+        >
+          Continue
+        </Button>
+        <Typography
+          variant="body2"
+          onClick={handlePrevClick}
+          sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2, textDecoration: 'underline' }}
+        >
+          Back to the name selection
+        </Typography>
+
+        <Dialog open={open} onClose={handleDialogClose}>
+          <DialogTitle>Forget your PIN?</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Please call the phone number 222-222-2222 or email example@com of a PH admin who can assist you.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={3000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert onClose={handleSnackbarClose} severity="warning" sx={{ width: '100%' }}>
+            Please enter your PIN before continuing.
+          </Alert>
+        </Snackbar>
+      </CenteredLayout>
     </MinimalWrapper>
   );
 };

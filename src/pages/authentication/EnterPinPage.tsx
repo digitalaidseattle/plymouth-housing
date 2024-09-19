@@ -61,7 +61,7 @@ const EnterPinPage: React.FC = () => {
             marginBottom: 2,
           }}
         >
-          Enter Your PIN
+          Enter Your PIN.
         </Typography>
         <PinInput onPinChange={handlePinChange} />
         <Typography

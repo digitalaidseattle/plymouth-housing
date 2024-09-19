@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Snackbar, Alert } from '@mui/material';
+import { Typography, Button, Stack, Snackbar, Alert } from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
+import ContactAdminDialog from './ContactAdminDialog';
 
 const EnterPinPage: React.FC = () => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [openDialog, setOpenDialog]  = useState<boolean>(false);
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -27,11 +28,11 @@ const EnterPinPage: React.FC = () => {
   };
 
   const handleDialogOpen = () => {
-    setOpen(true);
+    setOpenDialog(true);
   };
 
   const handleDialogClose = () => {
-    setOpen(false);
+    setOpenDialog(false);
   };
 
   const handlePinChange = useCallback((newPin: string[]) => {
@@ -93,19 +94,7 @@ const EnterPinPage: React.FC = () => {
           Back to the name selection.
         </Typography>
 
-        <Dialog open={open} onClose={handleDialogClose}>
-          <DialogTitle>Forget your PIN?</DialogTitle>
-          <DialogContent>
-            <Typography>
-              Please call the phone number 222-222-2222 or email example@com of a PH admin who can assist you.
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ContactAdminDialog open={openDialog} onClose={handleDialogClose} />
 
         <Snackbar
           open={openSnackbar}
@@ -117,7 +106,7 @@ const EnterPinPage: React.FC = () => {
             Please enter your PIN before continuing.
           </Alert>
         </Snackbar>
-        
+
       </CenteredLayout>
     </MinimalWrapper>
   );

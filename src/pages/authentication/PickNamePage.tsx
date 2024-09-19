@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stack, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Autocomplete, TextField, Snackbar, Alert } from '@mui/material';
+import { Stack, Typography, Button, Autocomplete, TextField, Snackbar, Alert } from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
+import ContactAdminDialog from './ContactAdminDialog';
 
 const names = ['Alice', 'Allen', 'Bob', 'Ping-Chen Chan', 'Charlie', 'David', 'Eve'];
     //TODO: Implement the fetch logic to get the names from the server
@@ -88,19 +89,7 @@ const PickYourNamePage: React.FC = () => {
           Continue
         </Button>
 
-        <Dialog open={openDialog} onClose={handleDialogClose}>
-          <DialogTitle>Contact PH Admin</DialogTitle>
-          <DialogContent>
-            <Typography>
-              Please call the phone number 222-222-2222 or email example@com of a PH admin who can assist you.
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ContactAdminDialog open={openDialog} onClose={handleDialogClose} />
 
         <Snackbar
           open={openSnackbar}

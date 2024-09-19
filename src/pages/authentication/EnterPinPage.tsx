@@ -90,7 +90,7 @@ const EnterPinPage: React.FC = () => {
           onClick={handlePrevClick}
           sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2, textDecoration: 'underline' }}
         >
-          Back to the name selection
+          Back to the name selection.
         </Typography>
 
         <Dialog open={open} onClose={handleDialogClose}>

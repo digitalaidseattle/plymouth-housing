@@ -22,7 +22,7 @@ const EnterPinPage: React.FC = () => {
 
   };
 
-  const handlePrevClick = () => {
+  const handlePreviousClick = () => {
     navigate('/pick-your-name');
   };
 
@@ -61,7 +61,7 @@ const EnterPinPage: React.FC = () => {
             marginBottom: 2,
           }}
         >
-          Enter Your PIN
+          Enter Your PIN.
         </Typography>
         <PinInput onPinChange={handlePinChange} />
         <Typography
@@ -70,7 +70,7 @@ const EnterPinPage: React.FC = () => {
           onClick={handleDialogOpen}
           sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 6, paddingTop:'3.66px' }}
         >
-          I forgot my password
+          I forgot my password.
         </Typography>
         <Button
           variant="contained"
@@ -90,7 +90,7 @@ const EnterPinPage: React.FC = () => {
           onClick={handlePrevClick}
           sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2, textDecoration: 'underline' }}
         >
-          Back to the name selection
+          Back to the name selection.
         </Typography>
 
         <Dialog open={open} onClose={handleDialogClose}>

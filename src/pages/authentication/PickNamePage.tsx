@@ -57,7 +57,7 @@ const PickYourNamePage: React.FC = () => {
             marginBottom: 2,
           }}
         >
-          Pick Your Name
+          Pick Your Name.
         </Typography>
         <Autocomplete
           value={selectedName}

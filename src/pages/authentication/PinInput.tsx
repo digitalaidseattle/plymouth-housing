@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, KeyboardEvent, useRef, useCallback } from 'react';
 import { Box, TextField} from '@mui/material';
 import { styled } from '@mui/system';
+import SnackbarAlert from './SnackbarAlert';
 
 const PinInput = styled(TextField)(({ }) => ({
   width: '50px',
@@ -16,6 +17,7 @@ const PinInput = styled(TextField)(({ }) => ({
 const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({ onPinChange }) => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const updatePin = useCallback((index: number, value: string) => {
@@ -29,14 +31,20 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value) && value.length <= 1) {
+  
+    if (!/^\d*$/.test(value)) {
+      setOpenSnackbar(true);
+      return;
+    }
+  
+    if (value.length <= 1) {
       updatePin(index, value);
       setVisibleIndex(index);
-
+  
       if (value && index < 3 && pinRefs.current[index + 1]) {
         pinRefs.current[index + 1]?.focus();
       }
-
+  
       const timeout = setTimeout(() => {
         setVisibleIndex(null);
       }, 1000);
@@ -60,6 +68,13 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
     }
   }, [updatePin]);
 
+  const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
       <Box display="flex" alignItems="center">
@@ -77,6 +92,9 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
               inputRef={(el) => (pinRefs.current[index] = el)}
             />
           ))}
+          <SnackbarAlert open={openSnackbar} onClose={handleSnackbarClose} severity="warning">
+            Please enter only numbers for your PIN.
+          </SnackbarAlert>
         </Box>
       </Box>
     </Box>

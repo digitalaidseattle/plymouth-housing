@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stack, Typography, Button, Autocomplete, TextField, Snackbar, Alert } from '@mui/material';
+import { Stack, Typography, Button, Autocomplete, TextField} from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import ContactAdminDialog from './ContactAdminDialog';
+import SnackbarAlert from './SnackbarAlert';
 
 const names = ['Alice', 'Allen', 'Bob', 'Ping-Chen Chan', 'Charlie', 'David', 'Eve'];
     //TODO: Implement the fetch logic to get the names from the server
@@ -90,17 +91,9 @@ const PickYourNamePage: React.FC = () => {
         </Button>
 
         <ContactAdminDialog open={openDialog} onClose={handleDialogClose} />
-
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert onClose={handleSnackbarClose} severity="warning" sx={{ width: '100%' }}>
-            Please select a name before continuing.
-          </Alert>
-        </Snackbar>
+        <SnackbarAlert open={openSnackbar} onClose={handleSnackbarClose} severity="warning">
+        Please select a name before continuing.
+      </SnackbarAlert>
       </CenteredLayout>
     </MinimalWrapper>
   );

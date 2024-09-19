@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Typography, Button, Stack, Snackbar, Alert } from '@mui/material';
+import { Typography, Button, Stack} from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import ContactAdminDialog from './ContactAdminDialog';
+import SnackbarAlert from './SnackbarAlert';
 
 const EnterPinPage: React.FC = () => {
   const [openDialog, setOpenDialog]  = useState<boolean>(false);
@@ -96,16 +97,9 @@ const EnterPinPage: React.FC = () => {
 
         <ContactAdminDialog open={openDialog} onClose={handleDialogClose} />
 
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert onClose={handleSnackbarClose} severity="warning" sx={{ width: '100%' }}>
-            Please enter your PIN before continuing.
-          </Alert>
-        </Snackbar>
+        <SnackbarAlert open={openSnackbar} onClose={handleSnackbarClose} severity="warning">
+           Please enter your PIN before continuing.
+      </SnackbarAlert>
 
       </CenteredLayout>
     </MinimalWrapper>

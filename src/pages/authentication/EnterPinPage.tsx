@@ -22,7 +22,7 @@ const EnterPinPage: React.FC = () => {
 
   };
 
-  const handlePrevClick = () => {
+  const handlePreviousClick = () => {
     navigate('/pick-your-name');
   };
 

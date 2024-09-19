@@ -70,7 +70,7 @@ const EnterPinPage: React.FC = () => {
           onClick={handleDialogOpen}
           sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 6, paddingTop:'3.66px' }}
         >
-          I forgot my password
+          I forgot my password.
         </Typography>
         <Button
           variant="contained"

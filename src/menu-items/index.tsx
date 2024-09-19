@@ -41,7 +41,7 @@ const dashboard = {
       type: 'item',
       url: '/',
       icon: icons.DashboardOutlined,
-      breadcrumbs: false
+      breadcrumbs: false,
     },
     {
       id: 'tickets',
@@ -49,7 +49,7 @@ const dashboard = {
       type: 'item',
       url: '/tickets',
       icon: icons.FileOutlined,
-      breadcrumbs: false
+      breadcrumbs: false,
     },
     {
       id: 'tickets-grid',
@@ -57,10 +57,10 @@ const dashboard = {
       type: 'item',
       url: '/tickets-grid',
       icon: icons.FileExclamationOutlined,
-      breadcrumbs: false
-    }
-  ]
-}
+      breadcrumbs: false,
+    },
+  ],
+};
 
 const pages = {
   id: 'example',
@@ -72,21 +72,21 @@ const pages = {
       title: 'Login',
       type: 'item',
       url: '/login',
-      icon: icons.LoginOutlined
+      icon: icons.LoginOutlined,
     },
     {
       id: '404',
       title: '404',
       type: 'item',
       url: '/404',
-      icon: icons.ExclamationOutlined
+      icon: icons.ExclamationOutlined,
     },
     {
       id: 'sample-page',
       title: 'Sample Page',
       type: 'item',
       url: '/sample-page',
-      icon: icons.ChromeOutlined
+      icon: icons.ChromeOutlined,
     },
     {
       id: 'privacy-page',
@@ -94,7 +94,7 @@ const pages = {
       type: 'item',
       url: '/privacy',
       icon: icons.EyeInvisibleOutlined,
-      breadcrumbs: false
+      breadcrumbs: false,
     },
     {
       id: 'upload-page',
@@ -102,15 +102,15 @@ const pages = {
       type: 'item',
       url: '/upload',
       icon: icons.UploadOutlined,
-      breadcrumbs: false
+      breadcrumbs: false,
     },
-     {
+    {
       id: 'drag-drop-page',
       title: 'Drag Drop Page',
       type: 'item',
       url: '/drag-drop',
       icon: icons.DragOutlined,
-      breadcrumbs: false
+      breadcrumbs: false,
     },
     {
       id: 'map-example-page',
@@ -118,13 +118,13 @@ const pages = {
       type: 'item',
       url: '/map-example',
       icon: icons.GlobalOutlined,
-      breadcrumbs: false
-    }
-  ]
+      breadcrumbs: false,
+    },
+  ],
 };
 
 const menuItems = {
-  items: [dashboard, pages]
+  items: [dashboard, pages],
 };
 
 export default menuItems;

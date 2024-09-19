@@ -1,4 +1,3 @@
-
 // material-ui
 import { Grid, Stack, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -22,14 +21,22 @@ function ShadowBox(props: { shadow: any }) {
 
 // ===============================|| CUSTOM - SHADOW BOX ||=============================== //
 interface CustomShadowBoxProps {
-  shadow?: any,
-  label?: any,
-  color?: any,
-  bgcolor?: any
+  shadow?: any;
+  label?: any;
+  color?: any;
+  bgcolor?: any;
 }
-const CustomShadowBox: React.FC<CustomShadowBoxProps> = ({ shadow, label, color, bgcolor }) => {
+const CustomShadowBox: React.FC<CustomShadowBoxProps> = ({
+  shadow,
+  label,
+  color,
+  bgcolor,
+}) => {
   return (
-    <MainCard border={false} sx={{ bgcolor: bgcolor || 'inherit', boxShadow: shadow }}>
+    <MainCard
+      border={false}
+      sx={{ bgcolor: bgcolor || 'inherit', boxShadow: shadow }}
+    >
       <Stack spacing={1} justifyContent="center" alignItems="center">
         <Typography variant="subtitle1" color={color}>
           {label}
@@ -37,7 +44,7 @@ const CustomShadowBox: React.FC<CustomShadowBoxProps> = ({ shadow, label, color,
       </Stack>
     </MainCard>
   );
-}
+};
 
 // ============================|| COMPONENT - SHADOW ||============================ //
 
@@ -132,7 +139,11 @@ const ComponentShadow = () => {
           <MainCard title="Custom Shadow" codeHighlight>
             <Grid container spacing={3}>
               <Grid item xs={6} sm={4} md={3} lg={2}>
-                <CustomShadowBox shadow={theme.shadows['1']} label="z1" color="inherit" />
+                <CustomShadowBox
+                  shadow={theme.shadows['1']}
+                  label="z1"
+                  color="inherit"
+                />
               </Grid>
             </Grid>
           </MainCard>

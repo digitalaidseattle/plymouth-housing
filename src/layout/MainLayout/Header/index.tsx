@@ -19,8 +19,8 @@ import AppBarStyled from './AppBarStyled';
 // ==============================|| MAIN LAYOUT - HEADER ||============================== //
 
 interface HeaderProps {
-  open: boolean,
-  handleDrawerToggle: () => void
+  open: boolean;
+  handleDrawerToggle: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ open, handleDrawerToggle }) => {
@@ -39,7 +39,11 @@ const Header: React.FC<HeaderProps> = ({ open, handleDrawerToggle }) => {
         onClick={handleDrawerToggle}
         edge="start"
         color="secondary"
-        sx={{ color: 'text.primary', bgcolor: open ? iconBackColorOpen : iconBackColor, ml: { xs: 0, lg: -2 } }}
+        sx={{
+          color: 'text.primary',
+          bgcolor: open ? iconBackColorOpen : iconBackColor,
+          ml: { xs: 0, lg: -2 },
+        }}
       >
         {!open ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </IconButton>
@@ -54,8 +58,8 @@ const Header: React.FC<HeaderProps> = ({ open, handleDrawerToggle }) => {
     elevation: 0,
     sx: {
       borderBottom: `1px solid ${theme.palette.divider}`,
-      boxShadow: theme.shadows[1]
-    }
+      boxShadow: theme.shadows[1],
+    },
   };
 
   return (
@@ -66,13 +70,16 @@ const Header: React.FC<HeaderProps> = ({ open, handleDrawerToggle }) => {
         </AppBarStyled>
       ) : (
         <AppBar
-          position='fixed'
-          color='inherit'
+          position="fixed"
+          color="inherit"
           elevation={0}
           sx={{
             borderBottom: `1px solid ${theme.palette.divider}`,
-            boxShadow: theme.shadows[1]
-          }}>{mainHeader}</AppBar >
+            boxShadow: theme.shadows[1],
+          }}
+        >
+          {mainHeader}
+        </AppBar>
       )}
     </>
   );

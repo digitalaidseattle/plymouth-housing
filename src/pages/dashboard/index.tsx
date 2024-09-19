@@ -15,7 +15,7 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 
 // project import
@@ -26,7 +26,11 @@ import ReportAreaChart from './ReportAreaChart';
 import SalesColumnChart from './SalesColumnChart';
 
 // assets
-import { GiftOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons';
+import {
+  GiftOutlined,
+  MessageOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import MainCard from '../../components/MainCard';
 import avatar1 from '/src/assets/images/users/avatar-1.png';
@@ -39,7 +43,7 @@ import TicketsTable from '../../sections/tickets/TicketsTable';
 const avatarSX = {
   width: 36,
   height: 36,
-  fontSize: '1rem'
+  fontSize: '1rem',
 };
 
 // action style
@@ -49,23 +53,23 @@ const actionSX = {
   top: 'auto',
   right: 'auto',
   alignSelf: 'flex-start',
-  transform: 'none'
+  transform: 'none',
 };
 
 // sales report status
 const status = [
   {
     value: 'today',
-    label: 'Today'
+    label: 'Today',
   },
   {
     value: 'month',
-    label: 'This Month'
+    label: 'This Month',
   },
   {
     value: 'year',
-    label: 'This Year'
-  }
+    label: 'This Year',
+  },
 ];
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
@@ -83,19 +87,47 @@ const DashboardDefault = () => {
         <Typography variant="h5">Dashboard</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />
+        <AnalyticEcommerce
+          title="Total Page Views"
+          count="4,42,236"
+          percentage={59.3}
+          extra="35,000"
+        />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Users" count="78,250" percentage={70.5} extra="8,900" />
+        <AnalyticEcommerce
+          title="Total Users"
+          count="78,250"
+          percentage={70.5}
+          extra="8,900"
+        />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Order" count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
+        <AnalyticEcommerce
+          title="Total Order"
+          count="18,800"
+          percentage={27.4}
+          isLoss
+          color="warning"
+          extra="1,943"
+        />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Sales" count="$35,078" percentage={27.4} isLoss color="warning" extra="$20,395" />
+        <AnalyticEcommerce
+          title="Total Sales"
+          count="$35,078"
+          percentage={27.4}
+          isLoss
+          color="warning"
+          extra="$20,395"
+        />
       </Grid>
 
-      <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
+      <Grid
+        item
+        md={8}
+        sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }}
+      />
 
       {/* row 2 */}
 
@@ -108,7 +140,7 @@ const DashboardDefault = () => {
             <Stack direction="row" alignItems="center" spacing={0}>
               <Button
                 size="small"
-                onClick={() =>  navigate('/tickets')}
+                onClick={() => navigate('/tickets')}
                 color={'primary'}
                 variant={'text'}
               >
@@ -214,7 +246,9 @@ const DashboardDefault = () => {
               select
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              sx={{ '& .MuiInputBase-input': { py: 0.5, fontSize: '0.875rem' } }}
+              sx={{
+                '& .MuiInputBase-input': { py: 0.5, fontSize: '0.875rem' },
+              }}
             >
               {status.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -250,8 +284,11 @@ const DashboardDefault = () => {
               '& .MuiListItemButton-root': {
                 py: 1.5,
                 '& .MuiAvatar-root': avatarSX,
-                '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-              }
+                '& .MuiListItemSecondaryAction-root': {
+                  ...actionSX,
+                  position: 'relative',
+                },
+              },
             }}
           >
             <ListItemButton divider>
@@ -259,13 +296,18 @@ const DashboardDefault = () => {
                 <Avatar
                   sx={{
                     color: 'success.main',
-                    bgcolor: 'success.lighter'
+                    bgcolor: 'success.lighter',
                   }}
                 >
                   <GiftOutlined />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #002434</Typography>} secondary="Today, 2:00 AM" />
+              <ListItemText
+                primary={
+                  <Typography variant="subtitle1">Order #002434</Typography>
+                }
+                secondary="Today, 2:00 AM"
+              />
               <ListItemSecondaryAction>
                 <Stack alignItems="flex-end">
                   <Typography variant="subtitle1" noWrap>
@@ -282,13 +324,18 @@ const DashboardDefault = () => {
                 <Avatar
                   sx={{
                     color: 'primary.main',
-                    bgcolor: 'primary.lighter'
+                    bgcolor: 'primary.lighter',
                   }}
                 >
                   <MessageOutlined />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #984947</Typography>} secondary="5 August, 1:45 PM" />
+              <ListItemText
+                primary={
+                  <Typography variant="subtitle1">Order #984947</Typography>
+                }
+                secondary="5 August, 1:45 PM"
+              />
               <ListItemSecondaryAction>
                 <Stack alignItems="flex-end">
                   <Typography variant="subtitle1" noWrap>
@@ -305,13 +352,18 @@ const DashboardDefault = () => {
                 <Avatar
                   sx={{
                     color: 'error.main',
-                    bgcolor: 'error.lighter'
+                    bgcolor: 'error.lighter',
                   }}
                 >
                   <SettingOutlined />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #988784</Typography>} secondary="7 hours ago" />
+              <ListItemText
+                primary={
+                  <Typography variant="subtitle1">Order #988784</Typography>
+                }
+                secondary="7 hours ago"
+              />
               <ListItemSecondaryAction>
                 <Stack alignItems="flex-end">
                   <Typography variant="subtitle1" noWrap>
@@ -339,7 +391,9 @@ const DashboardDefault = () => {
                 </Stack>
               </Grid>
               <Grid item>
-                <AvatarGroup sx={{ '& .MuiAvatar-root': { width: 32, height: 32 } }}>
+                <AvatarGroup
+                  sx={{ '& .MuiAvatar-root': { width: 32, height: 32 } }}
+                >
                   <Avatar alt="Remy Sharp" src={avatar1} />
                   <Avatar alt="Travis Howard" src={avatar2} />
                   <Avatar alt="Cindy Baker" src={avatar3} />
@@ -347,7 +401,11 @@ const DashboardDefault = () => {
                 </AvatarGroup>
               </Grid>
             </Grid>
-            <Button size="small" variant="contained" sx={{ textTransform: 'capitalize' }}>
+            <Button
+              size="small"
+              variant="contained"
+              sx={{ textTransform: 'capitalize' }}
+            >
               Need Help?
             </Button>
           </Stack>

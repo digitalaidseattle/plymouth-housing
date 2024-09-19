@@ -8,7 +8,12 @@ interface SnackbarAlertProps {
   children: React.ReactNode;
 }
 
-const SnackbarAlert: React.FC<SnackbarAlertProps> = ({ open, onClose, severity, children }) => {
+const SnackbarAlert: React.FC<SnackbarAlertProps> = ({
+  open,
+  onClose,
+  severity,
+  children,
+}) => {
   return (
     <Snackbar
       open={open}

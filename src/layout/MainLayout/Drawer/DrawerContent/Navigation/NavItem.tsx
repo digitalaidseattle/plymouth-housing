@@ -2,25 +2,37 @@ import React, { forwardRef, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 // material-ui
-import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import {
+  Avatar,
+  Chip,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 // project import
-import { ActiveMenuItemContext, MenuItem } from '../../../../../components/contexts/ActiveMenuItemContext';
+import {
+  ActiveMenuItemContext,
+  MenuItem,
+} from '../../../../../components/contexts/ActiveMenuItemContext';
 import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpenContext';
 
 // ==============================|| NAVIGATION - LIST ITEM ||============================== //
 interface NavItemProps {
-  item: MenuItem,
-  level: number
+  item: MenuItem;
+  level: number;
 }
 
 const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   const theme = useTheme();
   const { pathname } = useLocation();
 
-  const { drawerOpen } = useContext(DrawerOpenContext)
-  const { activeMenuItem, setActiveMenuItem } = useContext(ActiveMenuItemContext);
+  const { drawerOpen } = useContext(DrawerOpenContext);
+  const { activeMenuItem, setActiveMenuItem } = useContext(
+    ActiveMenuItemContext,
+  );
 
   // active menu item on page load
   useEffect(() => {
@@ -34,8 +46,12 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
     itemTarget = '_blank';
   }
 
-  // eslint-disable-next-line 
-  const listItemProps = { component: forwardRef((props, ref: any) => <Link ref={ref} {...props} to={item.url} target={itemTarget} />) };
+  // eslint-disable-next-line
+  const listItemProps = {
+    component: forwardRef((props, ref: any) => (
+      <Link ref={ref} {...props} to={item.url} target={itemTarget} />
+    )),
+  };
   // FIXME
   // if (item?.external) {
   //   listItemProps = { component: 'a', href: item.url, target: itemTarget };
@@ -48,7 +64,9 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   const textColor = 'text.primary';
   const iconSelectedColor = 'primary.main';
   const Icon = item.icon as unknown as React.ForwardRefExoticComponent<any>;
-  const itemIcon = item.icon && <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />;
+  const itemIcon = item.icon && (
+    <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />
+  );
   const isSelected = activeMenuItem === item.id;
 
   return (
@@ -63,7 +81,7 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
         py: !drawerOpen && level === 1 ? 1.25 : 1,
         ...(drawerOpen && {
           '&:hover': {
-            bgcolor: 'primary.lighter'
+            bgcolor: 'primary.lighter',
           },
           '&.Mui-selected': {
             bgcolor: 'primary.lighter',
@@ -71,21 +89,21 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
             color: iconSelectedColor,
             '&:hover': {
               color: iconSelectedColor,
-              bgcolor: 'primary.lighter'
-            }
-          }
+              bgcolor: 'primary.lighter',
+            },
+          },
         }),
         ...(!drawerOpen && {
           '&:hover': {
-            bgcolor: 'transparent'
+            bgcolor: 'transparent',
           },
           '&.Mui-selected': {
             '&:hover': {
-              bgcolor: 'transparent'
+              bgcolor: 'transparent',
             },
-            bgcolor: 'transparent'
-          }
-        })
+            bgcolor: 'transparent',
+          },
+        }),
       }}
     >
       {itemIcon && (
@@ -100,16 +118,16 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
               alignItems: 'center',
               justifyContent: 'center',
               '&:hover': {
-                bgcolor: 'secondary.lighter'
-              }
+                bgcolor: 'secondary.lighter',
+              },
             }),
             ...(!drawerOpen &&
               isSelected && {
-              bgcolor: 'primary.lighter',
-              '&:hover': {
-                bgcolor: 'primary.lighter'
-              }
-            })
+                bgcolor: 'primary.lighter',
+                '&:hover': {
+                  bgcolor: 'primary.lighter',
+                },
+              }),
           }}
         >
           {itemIcon}
@@ -118,7 +136,10 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
       {(drawerOpen || (!drawerOpen && level !== 1)) && (
         <ListItemText
           primary={
-            <Typography variant="h6" sx={{ color: isSelected ? iconSelectedColor : textColor }}>
+            <Typography
+              variant="h6"
+              sx={{ color: isSelected ? iconSelectedColor : textColor }}
+            >
               {item.title}
             </Typography>
           }
@@ -136,7 +157,5 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
     </ListItemButton>
   );
 };
-
-
 
 export default NavItem;

@@ -7,10 +7,7 @@
 import React, { useContext, useRef, useState } from 'react';
 
 // material-ui
-import {
-  Box,
-  IconButton
-} from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 
 // project import
 
@@ -22,16 +19,14 @@ import { Ticket } from './ticketService';
 import { loggingService } from '../../services/loggingService';
 import { UserContext } from '../../components/contexts/UserContext';
 
-
 // ==============================|| HEADER CONTENT - NOTIFICATION ||============================== //
 const Labels = {
-  createdMessage: 'Ticket created.'
-}
+  createdMessage: 'Ticket created.',
+};
 
 const TicketToolbarItem: React.FC = () => {
-
   const anchorRef = useRef(null);
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
 
@@ -40,7 +35,7 @@ const TicketToolbarItem: React.FC = () => {
 
   const handleSuccess = (resp: Ticket | null) => {
     if (resp) {
-      setOpenSnack(true)
+      setOpenSnack(true);
     }
     setOpen(false);
   };
@@ -60,7 +55,10 @@ const TicketToolbarItem: React.FC = () => {
         <IconButton
           disableRipple
           color="secondary"
-          sx={{ color: 'text.primary', bgcolor: open ? iconBackColorOpen : iconBackColor }}
+          sx={{
+            color: 'text.primary',
+            bgcolor: open ? iconBackColorOpen : iconBackColor,
+          }}
           aria-label="open profile"
           ref={anchorRef}
           aria-controls={open ? 'profile-grow' : undefined}
@@ -70,12 +68,17 @@ const TicketToolbarItem: React.FC = () => {
           <ThunderboltOutlined />
         </IconButton>
       </Box>
-      <TicketDialog open={open} handleSuccess={handleSuccess} handleError={handleError} />
+      <TicketDialog
+        open={open}
+        handleSuccess={handleSuccess}
+        handleError={handleError}
+      />
       <DASSnackbar
         message={Labels.createdMessage}
         open={openSnack}
         severity={'success'}
-        onClose={() => setOpenSnack(false)} />
+        onClose={() => setOpenSnack(false)}
+      />
     </React.Fragment>
   );
 };

@@ -1,4 +1,3 @@
-
 // material-ui
 import { Box, List, Typography } from '@mui/material';
 
@@ -11,7 +10,7 @@ import { MenuItem } from '../../../../../components/contexts/ActiveMenuItemConte
 // ==============================|| NAVIGATION - LIST GROUP ||============================== //
 
 interface NavGroupProps {
-  item: MenuItem
+  item: MenuItem;
 }
 const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
   const { drawerOpen } = useContext(DrawerOpenContext);
@@ -20,7 +19,12 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
     switch (menuItem.type) {
       case 'collapse':
         return (
-          <Typography key={menuItem.id} variant="caption" color="error" sx={{ p: 2.5 }}>
+          <Typography
+            key={menuItem.id}
+            variant="caption"
+            color="error"
+            sx={{ p: 2.5 }}
+          >
             collapse - only available in paid version
           </Typography>
         );
@@ -28,7 +32,12 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
         return <NavItem key={menuItem.id} item={menuItem} level={1} />;
       default:
         return (
-          <Typography key={menuItem.id} variant="h6" color="error" align="center">
+          <Typography
+            key={menuItem.id}
+            variant="h6"
+            color="error"
+            align="center"
+          >
             Fix - Group Collapse or Items
           </Typography>
         );

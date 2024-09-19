@@ -2,7 +2,7 @@
  *  loggingService.ts
  *
  *  @copyright 2024 Digital Aid Seattle
- * 
+ *
  * <ul>
  * <li>Logging service currently writes to console.</li>
  * <li>Production services could write to a remote service. Include severity as part of payload.</li>
@@ -10,71 +10,75 @@
  * </ul>
  *
  */
-import { User } from '@supabase/supabase-js'
-import { describe, expect, it, vitest } from 'vitest'
-import { loggingService } from './loggingService'
+import { User } from '@supabase/supabase-js';
+import { describe, expect, it, vitest } from 'vitest';
+import { loggingService } from './loggingService';
 
 describe('loggingService tests', () => {
+  it('info', async () => {
+    const user = { email: 'test@test.com' } as User;
+    const consoleSpy = vitest.spyOn(global.console, 'info');
 
+    loggingService.info('message', user);
+    expect(consoleSpy).toBeCalledWith(
+      'test@test.com',
+      expect.any(Date),
+      'message',
+    );
+  });
 
-    it('info', async () => {
-        const user = { email: 'test@test.com' } as User;
-        const consoleSpy = vitest.spyOn(global.console, 'info')
+  it('info - no user', async () => {
+    const consoleSpy = vitest.spyOn(global.console, 'info');
 
-        loggingService.info('message', user)
-        expect(consoleSpy).toBeCalledWith('test@test.com', expect.any(Date), 'message')
-    })
+    loggingService.info('message');
+    expect(consoleSpy).toBeCalledWith('<no user>', expect.any(Date), 'message');
+  });
 
+  it('warn', async () => {
+    const user = { email: 'test@test.com' } as User;
+    const consoleSpy = vitest.spyOn(global.console, 'warn');
 
-    it('info - no user', async () => {
-        const consoleSpy = vitest.spyOn(global.console, 'info')
+    loggingService.warn('message', user);
+    expect(consoleSpy).toBeCalledWith(
+      'test@test.com',
+      expect.any(Date),
+      'message',
+    );
+  });
 
-        loggingService.info('message')
-        expect(consoleSpy).toBeCalledWith('<no user>', expect.any(Date), 'message')
-    })
+  it('warn - no user', async () => {
+    const consoleSpy = vitest.spyOn(global.console, 'warn');
 
-    it('warn', async () => {
-        const user = { email: 'test@test.com' } as User;
-        const consoleSpy = vitest.spyOn(global.console, 'warn')
+    loggingService.warn('message');
+    expect(consoleSpy).toBeCalledWith('<no user>', expect.any(Date), 'message');
+  });
 
-        loggingService.warn('message', user)
-        expect(consoleSpy).toBeCalledWith('test@test.com', expect.any(Date), 'message')
-    })
+  it('error', async () => {
+    const user = { email: 'test@test.com' } as User;
+    const consoleSpy = vitest.spyOn(global.console, 'error');
 
-    it('warn - no user', async () => {
-        const consoleSpy = vitest.spyOn(global.console, 'warn')
+    loggingService.error('message', user);
+    expect(consoleSpy).toBeCalledWith(
+      'test@test.com',
+      expect.any(Date),
+      'message',
+    );
+  });
 
-        loggingService.warn('message')
-        expect(consoleSpy).toBeCalledWith('<no user>', expect.any(Date), 'message')
-    })
+  it('error - no user', async () => {
+    const consoleSpy = vitest.spyOn(global.console, 'error');
 
-    it('error', async () => {
-        const user = { email: 'test@test.com' } as User;
-        const consoleSpy = vitest.spyOn(global.console, 'error')
+    loggingService.error('message');
+    expect(consoleSpy).toBeCalledWith('<no user>', expect.any(Date), 'message');
+  });
 
-        loggingService.error('message', user)
-        expect(consoleSpy).toBeCalledWith('test@test.com', expect.any(Date), 'message')
-    })
+  it('disabled', async () => {
+    const user = { email: 'test@test.com' } as User;
+    const consoleSpy = vitest.spyOn(global.console, 'error');
 
-
-    it('error - no user', async () => {
-        const consoleSpy = vitest.spyOn(global.console, 'error')
-
-        loggingService.error('message')
-        expect(consoleSpy).toBeCalledWith('<no user>', expect.any(Date), 'message')
-    })
-
-
-    it('disabled', async () => {
-
-        const user = { email: 'test@test.com' } as User;
-        const consoleSpy = vitest.spyOn(global.console, 'error')
-
-        loggingService.enabled = false;
-        loggingService.error('message', user)
-        expect(consoleSpy).toBeCalledTimes(0)
-        loggingService.enabled = true;
-
-    })
-
-})
+    loggingService.enabled = false;
+    loggingService.error('message', user);
+    expect(consoleSpy).toBeCalledTimes(0);
+    loggingService.enabled = true;
+  });
+});

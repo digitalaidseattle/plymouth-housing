@@ -16,7 +16,7 @@ import {
   Paper,
   Popper,
   Typography,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -25,13 +25,19 @@ import Transitions from '../components/@extended/Transitions';
 import MainCard from '../components/MainCard';
 
 // assets
-import { BellOutlined, CloseOutlined, GiftOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons';
+import {
+  BellOutlined,
+  CloseOutlined,
+  GiftOutlined,
+  MessageOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 
 // sx styles
 const avatarSX = {
   width: 36,
   height: 36,
-  fontSize: '1rem'
+  fontSize: '1rem',
 };
 
 const actionSX = {
@@ -41,7 +47,7 @@ const actionSX = {
   right: 'auto',
   alignSelf: 'flex-start',
 
-  transform: 'none'
+  transform: 'none',
 };
 
 // ==============================|| HEADER CONTENT - NOTIFICATION ||============================== //
@@ -73,7 +79,10 @@ const Notification = () => {
       <IconButton
         disableRipple
         color="secondary"
-        sx={{ color: 'text.primary', bgcolor: open ? iconBackColorOpen : iconBackColor }}
+        sx={{
+          color: 'text.primary',
+          bgcolor: open ? iconBackColorOpen : iconBackColor,
+        }}
         aria-label="open profile"
         ref={anchorRef}
         aria-controls={open ? 'profile-grow' : undefined}
@@ -96,10 +105,10 @@ const Notification = () => {
             {
               name: 'offset',
               options: {
-                offset: [matchesXs ? -5 : 0, 9]
-              }
-            }
-          ]
+                offset: [matchesXs ? -5 : 0, 9],
+              },
+            },
+          ],
         }}
       >
         {({ TransitionProps }) => (
@@ -111,8 +120,8 @@ const Notification = () => {
                 minWidth: 285,
                 maxWidth: 420,
                 [theme.breakpoints.down('md')]: {
-                  maxWidth: 285
-                }
+                  maxWidth: 285,
+                },
               }}
             >
               <ClickAwayListener onClickAway={handleClose}>
@@ -134,8 +143,11 @@ const Notification = () => {
                       '& .MuiListItemButton-root': {
                         py: 0.5,
                         '& .MuiAvatar-root': avatarSX,
-                        '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-                      }
+                        '& .MuiListItemSecondaryAction-root': {
+                          ...actionSX,
+                          position: 'relative',
+                        },
+                      },
                     }}
                   >
                     <ListItemButton>
@@ -143,7 +155,7 @@ const Notification = () => {
                         <Avatar
                           sx={{
                             color: 'success.main',
-                            bgcolor: 'success.lighter'
+                            bgcolor: 'success.lighter',
                           }}
                         >
                           <GiftOutlined />
@@ -173,7 +185,7 @@ const Notification = () => {
                         <Avatar
                           sx={{
                             color: 'primary.main',
-                            bgcolor: 'primary.lighter'
+                            bgcolor: 'primary.lighter',
                           }}
                         >
                           <MessageOutlined />
@@ -202,7 +214,7 @@ const Notification = () => {
                         <Avatar
                           sx={{
                             color: 'error.main',
-                            bgcolor: 'error.lighter'
+                            bgcolor: 'error.lighter',
                           }}
                         >
                           <SettingOutlined />
@@ -231,7 +243,7 @@ const Notification = () => {
                         <Avatar
                           sx={{
                             color: 'primary.main',
-                            bgcolor: 'primary.lighter'
+                            bgcolor: 'primary.lighter',
                           }}
                         >
                           C
@@ -258,7 +270,9 @@ const Notification = () => {
                       </ListItemSecondaryAction>
                     </ListItemButton>
                     <Divider />
-                    <ListItemButton sx={{ textAlign: 'center', py: `${12}px !important` }}>
+                    <ListItemButton
+                      sx={{ textAlign: 'center', py: `${12}px !important` }}
+                    >
                       <ListItemText
                         primary={
                           <Typography variant="h6" color="primary">

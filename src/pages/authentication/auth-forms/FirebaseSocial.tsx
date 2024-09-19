@@ -31,7 +31,7 @@ const FirebaseSocial = () => {
       justifyContent={matchDownSM ? 'space-around' : 'space-between'}
       sx={{ '& .MuiButton-startIcon': { mr: matchDownSM ? 0 : 1, ml: matchDownSM ? 0 : -0.5 } }}
     >
-      {/* <Button
+      <Button
         title='Login with Google'
         variant="outlined"
         color="secondary"
@@ -39,7 +39,7 @@ const FirebaseSocial = () => {
         startIcon={<img src={Google} alt="Google" />}
         onClick={googleHandler}>
         {!matchDownSM && 'Google'}
-      </Button> */}
+      </Button>
 
       <Button
         title='Login with Microsoft'

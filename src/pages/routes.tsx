@@ -14,6 +14,7 @@ import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import SamplePage from './extra-pages/SamplePage';
 import DragDropPage from './dragdrop/DragDropPage';
+import Inventory from './inventory'
 
 const routes = [
   {
@@ -49,7 +50,15 @@ const routes = [
         ),
       },
       {
-        path: 'privacy',
+        path: "inventory",
+        element: (
+          <MainCard title="Inventory">
+            <Inventory />
+          </MainCard>
+        ),
+      },
+      {
+        path: "privacy",
         element: <PrivacyPage />,
       },
       {

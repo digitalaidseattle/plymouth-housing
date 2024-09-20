@@ -41,14 +41,12 @@ describe('storageService tests', () => {
     const fromSpy = vi
       .spyOn(supabaseClient.storage, 'from')
       .mockReturnValue(mockStorageApi as any);
-    const downloadSpy = vi
-      .spyOn(mockStorageApi, 'download')
-      .mockReturnValue(
-        Promise.resolve({
-          data: blob,
-          error: { resp: { message: 'boom' } },
-        }) as any,
-      );
+    const downloadSpy = vi.spyOn(mockStorageApi, 'download').mockReturnValue(
+      Promise.resolve({
+        data: blob,
+        error: { resp: { message: 'boom' } },
+      }) as any,
+    );
 
     try {
       await storageService.downloadFile('file');

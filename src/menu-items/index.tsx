@@ -57,7 +57,7 @@ const dashboard = {
       type: 'item',
       url: '/tickets-grid',
       icon: icons.FileExclamationOutlined,
-      breadcrumbs: false
+      breadcrumbs: false,
     },
     {
       id: 'inventory',
@@ -65,10 +65,10 @@ const dashboard = {
       type: 'item',
       url: '/inventory',
       icon: icons.FileExclamationOutlined,
-      breadcrumbs: false
-    }
-  ]
-}
+      breadcrumbs: false,
+    },
+  ],
+};
 
 const pages = {
   id: 'example',

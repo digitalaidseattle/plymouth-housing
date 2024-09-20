@@ -24,14 +24,12 @@ describe('authservice tests', () => {
 
   it('getUser', async () => {
     const user = {} as User;
-    const getUserSpy = vi
-      .spyOn(supabaseClient.auth, 'getUser')
-      .mockReturnValue(
-        Promise.resolve({
-          data: { user: user },
-          error: null,
-        } as unknown as UserResponse),
-      );
+    const getUserSpy = vi.spyOn(supabaseClient.auth, 'getUser').mockReturnValue(
+      Promise.resolve({
+        data: { user: user },
+        error: null,
+      } as unknown as UserResponse),
+    );
 
     const actual = await authService.getUser();
     assert.equal(getUserSpy.mock.calls.length, 1);
@@ -62,14 +60,12 @@ describe('authservice tests', () => {
 
   it('hasUser - fail', async () => {
     const data = { user: null };
-    const getUserSpy = vi
-      .spyOn(supabaseClient.auth, 'getUser')
-      .mockReturnValue(
-        Promise.resolve({
-          data: data,
-          error: {} as AuthError,
-        } as unknown as UserResponse),
-      );
+    const getUserSpy = vi.spyOn(supabaseClient.auth, 'getUser').mockReturnValue(
+      Promise.resolve({
+        data: data,
+        error: {} as AuthError,
+      } as unknown as UserResponse),
+    );
     authService.hasUser().then((hasUser) => {
       assert.equal(getUserSpy.mock.calls.length, 1);
       assert.isFalse(hasUser);

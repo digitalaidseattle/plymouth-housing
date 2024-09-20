@@ -139,6 +139,22 @@ If you need to use OAuth, be sure to follow the steps listed in _.env.local.exam
     supabase start
     ```
 
+_Note: If you are trying to log in using Azure OAuth but get this error_
+
+```{"code":400,"error_code":"validation_failed","msg":"Unsupported provider: provider is not enabled"}```
+
+_you can add the following code to supabase/config.toml to enable the Azure OAuth provider in your local supabase._
+
+```# Use Azure OAuth provider
+[auth.external.azure]
+enabled = true
+client_id = "env(SUPABASE_AUTH_AZURE_CLIENT_ID)"
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead.
+secret = "env(SUPABASE_AUTH_AZURE_SECRET)"
+redirect_uri = "env(SUPABASE_AUTH_AZURE_REDIRECT_URI)"
+url = `"env(SUPABASE_AUTH_AZURE_URI)"
+```
+
 ### Running the application and backend locally (optional still)
 
 #### Run the frontend

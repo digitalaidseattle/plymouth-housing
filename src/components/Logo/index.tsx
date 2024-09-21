@@ -10,8 +10,8 @@ import config from '../../config';
 
 // ==============================|| MAIN LOGO ||============================== //
 interface LogoSectionProps {
-  sx: object,
-  to: string
+  sx: object;
+  to: string;
 }
 
 const LogoSection: React.FC<LogoSectionProps> = ({ sx, to }) => {
@@ -28,9 +28,7 @@ const LogoSection: React.FC<LogoSectionProps> = ({ sx, to }) => {
     >
       <Logo />
     </ButtonBase>
-  )
-}
-
-
+  );
+};
 
 export default LogoSection;

@@ -14,13 +14,12 @@ import ThemeCustomization from './themes/themeCustomization';
 
 const router = createBrowserRouter(routes);
 
-
 const App: React.FC = () => {
   return (
     <ThemeCustomization>
       <RouterProvider router={router} />
     </ThemeCustomization>
   );
-}
+};
 
 export default App;

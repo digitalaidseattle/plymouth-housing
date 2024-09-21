@@ -1,5 +1,12 @@
 // material-ui
-import { Breadcrumbs, Divider, Grid, Link, Stack, Typography } from '@mui/material';
+import {
+  Breadcrumbs,
+  Divider,
+  Grid,
+  Link,
+  Stack,
+  Typography,
+} from '@mui/material';
 
 // project import
 import ComponentSkeleton from './ComponentSkeleton';
@@ -60,7 +67,9 @@ const ComponentTypography = () => (
               <Typography variant="h5">H5 Heading</Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 16px</Typography>
-                <Typography variant="h6">Weight: Regular & Medium & Bold</Typography>
+                <Typography variant="h6">
+                  Weight: Regular & Medium & Bold
+                </Typography>
                 <Typography variant="h6">Line Height: 24px</Typography>
               </Breadcrumbs>
               <Divider />
@@ -76,7 +85,8 @@ const ComponentTypography = () => (
           <MainCard title="Body 1" codeHighlight>
             <>
               <Typography variant="body1" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 14px</Typography>
@@ -88,7 +98,8 @@ const ComponentTypography = () => (
           <MainCard title="Body 2" codeHighlight>
             <>
               <Typography variant="body2" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 12px</Typography>
@@ -100,7 +111,8 @@ const ComponentTypography = () => (
           <MainCard title="Subtitle 1" codeHighlight>
             <>
               <Typography variant="subtitle1" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 14px</Typography>
@@ -112,7 +124,8 @@ const ComponentTypography = () => (
           <MainCard title="Subtitle 2" codeHighlight>
             <>
               <Typography variant="subtitle2" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 12px</Typography>
@@ -124,7 +137,8 @@ const ComponentTypography = () => (
           <MainCard title="Caption" codeHighlight>
             <Stack spacing={1}>
               <Typography variant="caption">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 12px</Typography>
@@ -140,26 +154,31 @@ const ComponentTypography = () => (
           <MainCard title="Alignment" codeHighlight>
             <>
               <Typography variant="body2" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. sed
+                do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Typography variant="body2" textAlign="center" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. sed
+                do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Typography variant="body2" textAlign="right">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. sed
+                do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
             </>
           </MainCard>
           <MainCard title="Gutter Bottom" codeHighlight>
             <>
               <Typography variant="body1" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Typography variant="body2" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 12px</Typography>
@@ -171,7 +190,8 @@ const ComponentTypography = () => (
           <MainCard title="Overline" codeHighlight>
             <Stack spacing={1.5}>
               <Typography variant="overline">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 12px</Typography>
@@ -207,7 +227,11 @@ const ComponentTypography = () => (
               <Typography variant="h6" color="success" gutterBottom>
                 This is success text color.
               </Typography>
-              <Typography variant="h6" sx={{ color: 'warning.main' }} gutterBottom>
+              <Typography
+                variant="h6"
+                sx={{ color: 'warning.main' }}
+                gutterBottom
+              >
                 This is warning text color.
               </Typography>
               <Typography variant="h6" color="error" gutterBottom>
@@ -218,8 +242,10 @@ const ComponentTypography = () => (
           <MainCard title="Paragraph" codeHighlight>
             <>
               <Typography variant="body1" gutterBottom>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 14px</Typography>
@@ -230,15 +256,27 @@ const ComponentTypography = () => (
           </MainCard>
           <MainCard title="Font Style" codeHighlight>
             <>
-              <Typography variant="body1" gutterBottom sx={{ fontStyle: 'italic' }}>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{ fontStyle: 'italic' }}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
-              <Typography variant="subtitle1" gutterBottom sx={{ fontStyle: 'italic' }}>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              <Typography
+                variant="subtitle1"
+                gutterBottom
+                sx={{ fontStyle: 'italic' }}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </Typography>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 14px</Typography>
-                <Typography variant="h6">Weight: Italic Regular & Italic Bold</Typography>
+                <Typography variant="h6">
+                  Weight: Italic Regular & Italic Bold
+                </Typography>
                 <Typography variant="h6">Line Height: 22px</Typography>
               </Breadcrumbs>
             </>

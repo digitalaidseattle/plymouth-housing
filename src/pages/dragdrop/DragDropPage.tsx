@@ -1,4 +1,3 @@
-
 import BoardSectionList from './BoardSectionList';
 import MainCard from '../../components/MainCard';
 
@@ -6,10 +5,10 @@ import MainCard from '../../components/MainCard';
 
 const DragDropPage = () => {
   return (
-    <MainCard title="Drag Drop Sample"> 
+    <MainCard title="Drag Drop Sample">
       <BoardSectionList />
     </MainCard>
-  )
-}
+  );
+};
 
 export default DragDropPage;

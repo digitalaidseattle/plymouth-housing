@@ -12,18 +12,18 @@ const areaChartOptions = {
     height: 340,
     type: 'line',
     toolbar: {
-      show: false
-    }
+      show: false,
+    },
   },
   dataLabels: {
-    enabled: false
+    enabled: false,
   },
   stroke: {
     curve: 'smooth',
-    width: 1.5
+    width: 1.5,
   },
   grid: {
-    strokeDashArray: 4
+    strokeDashArray: 4,
   },
   xaxis: {
     type: 'datetime',
@@ -35,26 +35,26 @@ const areaChartOptions = {
       '2018-09-19T03:30:00.000Z',
       '2018-10-19T04:30:00.000Z',
       '2018-11-19T05:30:00.000Z',
-      '2018-12-19T06:30:00.000Z'
+      '2018-12-19T06:30:00.000Z',
     ],
     labels: {
-      format: 'MMM'
+      format: 'MMM',
     },
     axisBorder: {
-      show: false
+      show: false,
     },
     axisTicks: {
-      show: false
-    }
+      show: false,
+    },
   },
   yaxis: {
-    show: false
+    show: false,
   },
   tooltip: {
     x: {
-      format: 'MM'
-    }
-  }
+      format: 'MM',
+    },
+  },
 };
 
 // ==============================|| REPORT AREA CHART ||============================== //
@@ -74,32 +74,48 @@ const ReportAreaChart = () => {
       xaxis: {
         labels: {
           style: {
-            colors: [secondary, secondary, secondary, secondary, secondary, secondary, secondary, secondary]
-          }
-        }
+            colors: [
+              secondary,
+              secondary,
+              secondary,
+              secondary,
+              secondary,
+              secondary,
+              secondary,
+              secondary,
+            ],
+          },
+        },
       },
       grid: {
-        borderColor: line
+        borderColor: line,
       },
       tooltip: {
-        theme: 'light'
+        theme: 'light',
       },
       legend: {
         labels: {
-          colors: 'grey.500'
-        }
-      }
+          colors: 'grey.500',
+        },
+      },
     }));
   }, [primary, secondary, line, theme]);
 
   const [series] = useState([
     {
       name: 'Series 1',
-      data: [58, 115, 28, 83, 63, 75, 35, 55]
-    }
+      data: [58, 115, 28, 83, 63, 75, 35, 55],
+    },
   ]);
 
-  return <ReactApexChart options={options} series={series} type="line" height={345} />;
+  return (
+    <ReactApexChart
+      options={options}
+      series={series}
+      type="line"
+      height={345}
+    />
+  );
 };
 
 export default ReportAreaChart;

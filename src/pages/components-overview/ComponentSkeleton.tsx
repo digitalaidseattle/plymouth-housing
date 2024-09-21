@@ -8,7 +8,7 @@ import MainCard from '../../components/MainCard';
 
 // ===============================|| COMPONENT - SKELETON ||=============================== //
 
-const ComponentSkeleton = (props: { children : ReactNode}) => {
+const ComponentSkeleton = (props: { children: ReactNode }) => {
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(false);
@@ -17,7 +17,9 @@ const ComponentSkeleton = (props: { children : ReactNode}) => {
   const skeletonCard = (
     <MainCard
       title={<Skeleton sx={{ width: { xs: 120, md: 180 } }} />}
-      secondary={<Skeleton animation="wave" variant="circular" width={24} height={24} />}
+      secondary={
+        <Skeleton animation="wave" variant="circular" width={24} height={24} />
+      }
     >
       <Stack spacing={1}>
         <Skeleton />

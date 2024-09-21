@@ -27,7 +27,6 @@ import { authService } from '../../services/authService';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
-
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
@@ -36,16 +35,14 @@ const MainLayout: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    authService.getUser()
-      .then((user: User | null) => {
-        if (user) {
-          setUser(user)
-        } else {
-          navigate("/login")
-        }
-      })
-  }, [navigate])
-
+    authService.getUser().then((user: User | null) => {
+      if (user) {
+        setUser(user);
+      } else {
+        navigate('/login');
+      }
+    });
+  }, [navigate]);
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -57,15 +54,24 @@ const MainLayout: React.FC = () => {
   }, [matchDownLG]);
 
   return (
-    <UserContext.Provider value={{ user, setUser }} >
-      {user &&
-        <DrawerOpenContext.Provider value={{ drawerOpen, setDrawerOpen }} >
-          <RefreshContextProvider >
+    <UserContext.Provider value={{ user, setUser }}>
+      {user && (
+        <DrawerOpenContext.Provider value={{ drawerOpen, setDrawerOpen }}>
+          <RefreshContextProvider>
             <ScrollTop>
               <Box sx={{ display: 'flex', width: '100%' }}>
-                <Header open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
-                <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
-                <Box component="main" sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+                <Header
+                  open={drawerOpen}
+                  handleDrawerToggle={handleDrawerToggle}
+                />
+                <Drawer
+                  open={drawerOpen}
+                  handleDrawerToggle={handleDrawerToggle}
+                />
+                <Box
+                  component="main"
+                  sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}
+                >
                   <Toolbar />
                   <Breadcrumbs navigation={navigation} title />
                   <Outlet />
@@ -74,7 +80,7 @@ const MainLayout: React.FC = () => {
             </ScrollTop>
           </RefreshContextProvider>
         </DrawerOpenContext.Provider>
-      }
+      )}
     </UserContext.Provider>
   );
 };

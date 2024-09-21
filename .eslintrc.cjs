@@ -14,7 +14,7 @@ module.exports = {
     // From template
     'src/pages/dashboard',
     'src/pages/components-overview',
-    'src/components/@extended'
+    'src/components/@extended',
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh'],
@@ -23,5 +23,5 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-  }
-}
+  },
+};

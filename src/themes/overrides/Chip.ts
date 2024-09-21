@@ -1,6 +1,6 @@
 // ==============================|| OVERRIDES - CHIP ||============================== //
 
-import { Theme } from "@mui/material";
+import { Theme } from '@mui/material';
 
 export default function Chip(theme: Theme) {
   return {
@@ -9,12 +9,12 @@ export default function Chip(theme: Theme) {
         root: {
           borderRadius: 4,
           '&:active': {
-            boxShadow: 'none'
-          }
+            boxShadow: 'none',
+          },
         },
         sizeLarge: {
           fontSize: '1rem',
-          height: 40
+          height: 40,
         },
         light: {
           color: theme.palette.primary.main,
@@ -23,20 +23,20 @@ export default function Chip(theme: Theme) {
           '&.MuiChip-lightError': {
             color: theme.palette.error.main,
             backgroundColor: theme.palette.error.light,
-            borderColor: theme.palette.error.light
+            borderColor: theme.palette.error.light,
           },
           '&.MuiChip-lightSuccess': {
             color: theme.palette.success.main,
             backgroundColor: theme.palette.success.light,
-            borderColor: theme.palette.success.light
+            borderColor: theme.palette.success.light,
           },
           '&.MuiChip-lightWarning': {
             color: theme.palette.warning.main,
             backgroundColor: theme.palette.warning.light,
-            borderColor: theme.palette.warning.light
-          }
-        }
-      }
-    }
+            borderColor: theme.palette.warning.light,
+          },
+        },
+      },
+    },
   };
 }

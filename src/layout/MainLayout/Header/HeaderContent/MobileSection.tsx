@@ -2,7 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { AppBar, Box, ClickAwayListener, IconButton, Paper, Popper, Toolbar } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  ClickAwayListener,
+  IconButton,
+  Paper,
+  Popper,
+  Toolbar,
+} from '@mui/material';
 
 // project import
 import Search from './Search';
@@ -26,7 +34,7 @@ const MobileSection = () => {
 
   const handleClose = (event: MouseEvent | TouchEvent) => {
     // FIXME
-    // eslint-disable-next-line 
+    // eslint-disable-next-line
     const ref = anchorRef as any;
     if (ref.current && ref.current.contains(event.target)) {
       return;
@@ -39,7 +47,7 @@ const MobileSection = () => {
   useEffect(() => {
     if (prevOpen.current === true && open === false) {
       // FIXME
-      // eslint-disable-next-line 
+      // eslint-disable-next-line
       const ref = anchorRef as any;
       ref.current.focus();
     }
@@ -54,7 +62,7 @@ const MobileSection = () => {
           component="span"
           disableRipple
           sx={{
-            bgcolor: open ? 'grey.300' : 'grey.100'
+            bgcolor: open ? 'grey.300' : 'grey.100',
           }}
           ref={anchorRef}
           aria-controls={open ? 'menu-list-grow' : undefined}
@@ -73,17 +81,17 @@ const MobileSection = () => {
         transition
         disablePortal
         style={{
-          width: '100%'
+          width: '100%',
         }}
         popperOptions={{
           modifiers: [
             {
               name: 'offset',
               options: {
-                offset: [0, 9]
-              }
-            }
-          ]
+                offset: [0, 9],
+              },
+            },
+          ],
         }}
       >
         {({ TransitionProps }) => (

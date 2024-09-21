@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stack, Typography, Button, Autocomplete, TextField} from '@mui/material';
+import {
+  Stack,
+  Typography,
+  Button,
+  Autocomplete,
+  TextField,
+} from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import ContactAdminDialog from './ContactAdminDialog';
 import SnackbarAlert from './SnackbarAlert';
 
-const names = ['Alice', 'Allen', 'Bob', 'Ping-Chen Chan', 'Charlie', 'David', 'Eve'];
-    //TODO: Implement the fetch logic to get the names from the server
+const names = [
+  'Alice',
+  'Allen',
+  'Bob',
+  'Ping-Chen Chan',
+  'Charlie',
+  'David',
+  'Eve',
+];
+//TODO: Implement the fetch logic to get the names from the server
 
 const PickYourNamePage: React.FC = () => {
   const [selectedName, setSelectedName] = useState<string>('');
@@ -16,7 +30,10 @@ const PickYourNamePage: React.FC = () => {
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handleNameChange = (_event: React.ChangeEvent<{}>, value: string | null) => {
+  const handleNameChange = (
+    _event: React.ChangeEvent<{}>,
+    value: string | null,
+  ) => {
     setSelectedName(value || '');
   };
 
@@ -36,7 +53,10 @@ const PickYourNamePage: React.FC = () => {
     setOpenDialog(false);
   };
 
-  const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -48,14 +68,16 @@ const PickYourNamePage: React.FC = () => {
       <CenteredLayout>
         <Stack direction="row" spacing={1} alignItems="center">
           <Logo />
-          <Typography variant="h5">{import.meta.env.VITE_APPLICATION_NAME}</Typography>
+          <Typography variant="h5">
+            {import.meta.env.VITE_APPLICATION_NAME}
+          </Typography>
         </Stack>
         <Typography
           variant="h3"
           textAlign="center"
           sx={{
-            height: '50px', 
-            lineHeight: '50px', 
+            height: '50px',
+            lineHeight: '50px',
             marginBottom: 2,
           }}
         >
@@ -65,7 +87,13 @@ const PickYourNamePage: React.FC = () => {
           value={selectedName}
           onChange={handleNameChange}
           options={names}
-          renderInput={(params) => <TextField {...params} label="Select your name" variant="outlined" />}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Select your name"
+              variant="outlined"
+            />
+          )}
           sx={{ minWidth: 300 }}
         />
         <Typography
@@ -81,8 +109,8 @@ const PickYourNamePage: React.FC = () => {
           color="secondary"
           onClick={handleNextClick}
           sx={{
-            height: '45px', 
-            width: '200px', 
+            height: '45px',
+            width: '200px',
             fontSize: '16px',
             marginTop: 2,
           }}
@@ -91,9 +119,13 @@ const PickYourNamePage: React.FC = () => {
         </Button>
 
         <ContactAdminDialog open={openDialog} onClose={handleDialogClose} />
-        <SnackbarAlert open={openSnackbar} onClose={handleSnackbarClose} severity="warning">
-        Please select a name before continuing.
-      </SnackbarAlert>
+        <SnackbarAlert
+          open={openSnackbar}
+          onClose={handleSnackbarClose}
+          severity="warning"
+        >
+          Please select a name before continuing.
+        </SnackbarAlert>
       </CenteredLayout>
     </MinimalWrapper>
   );

@@ -1,4 +1,3 @@
-
 // third-party
 // FIXME
 // import { motion } from 'framer-motion';
@@ -6,8 +5,11 @@ import { ReactNode } from 'react';
 
 // ==============================|| ANIMATION BUTTON ||============================== //
 
-export default function AnimateButton(props: { children: ReactNode, type?: string }) {
-  switch (props.type ? props.type: 'scale') {
+export default function AnimateButton(props: {
+  children: ReactNode;
+  type?: string;
+}) {
+  switch (props.type ? props.type : 'scale') {
     case 'rotate': // only available in paid version
     case 'slide': // only available in paid version
     case 'scale': // only available in paid version
@@ -21,4 +23,3 @@ export default function AnimateButton(props: { children: ReactNode, type?: strin
       );
   }
 }
-

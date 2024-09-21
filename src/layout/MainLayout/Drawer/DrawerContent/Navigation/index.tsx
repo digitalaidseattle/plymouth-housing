@@ -10,10 +10,10 @@ import { useState } from 'react';
 // ==============================|| DRAWER CONTENT - NAVIGATION ||============================== //
 
 const Navigation = () => {
-  const [activeMenuItem, setActiveMenuItem] = useState<string | null>(null)
+  const [activeMenuItem, setActiveMenuItem] = useState<string | null>(null);
 
   // FIXME
-  // eslint-disable-next-line 
+  // eslint-disable-next-line
   const navGroups = menuItem.items.map((item: any) => {
     switch (item.type) {
       case 'group':
@@ -29,7 +29,9 @@ const Navigation = () => {
 
   return (
     <Box sx={{ pt: 2 }}>
-      <ActiveMenuItemContext.Provider value={{ activeMenuItem, setActiveMenuItem }}>
+      <ActiveMenuItemContext.Provider
+        value={{ activeMenuItem, setActiveMenuItem }}
+      >
         {navGroups}
       </ActiveMenuItemContext.Provider>
     </Box>

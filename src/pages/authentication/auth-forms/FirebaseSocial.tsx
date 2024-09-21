@@ -14,8 +14,11 @@ const FirebaseSocial = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
 
   const microsoftHandler = async () => {
-    authService.signInWithAzure()
-      .then((resp) => loggingService.info('Logged in with Azure: ' + resp.data.url))
+    authService
+      .signInWithAzure()
+      .then((resp) =>
+        loggingService.info('Logged in with Azure: ' + resp.data.url),
+      );
   };
 
   return (
@@ -23,15 +26,21 @@ const FirebaseSocial = () => {
       direction="row"
       spacing={matchDownSM ? 1 : 2}
       justifyContent={matchDownSM ? 'space-around' : 'space-between'}
-      sx={{ '& .MuiButton-startIcon': { mr: matchDownSM ? 0 : 1, ml: matchDownSM ? 0 : -0.5 } }}
+      sx={{
+        '& .MuiButton-startIcon': {
+          mr: matchDownSM ? 0 : 1,
+          ml: matchDownSM ? 0 : -0.5,
+        },
+      }}
     >
       <Button
-        title='Login with Microsoft'
+        title="Login with Microsoft"
         variant="outlined"
         color="secondary"
         fullWidth={!matchDownSM}
         startIcon={<img src={Microsoft} alt="Microsoft" />}
-        onClick={microsoftHandler}>
+        onClick={microsoftHandler}
+      >
         {!matchDownSM && 'Microsoft'}
       </Button>
     </Stack>

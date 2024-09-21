@@ -14,11 +14,14 @@ import DrawerFooter from './DrawerFooter';
 // ==============================|| MAIN LAYOUT - DRAWER ||============================== //
 
 interface MainDrawerProps {
-  open: boolean,
-  handleDrawerToggle: () => void,
+  open: boolean;
+  handleDrawerToggle: () => void;
 }
 
-const MainDrawer: React.FC<MainDrawerProps> = ({ open, handleDrawerToggle }) => {
+const MainDrawer: React.FC<MainDrawerProps> = ({
+  open,
+  handleDrawerToggle,
+}) => {
   const theme = useTheme();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -31,7 +34,11 @@ const MainDrawer: React.FC<MainDrawerProps> = ({ open, handleDrawerToggle }) => 
   const drawerFooter = useMemo(() => <DrawerFooter />, [open]);
 
   return (
-    <Box component="nav" sx={{ flexShrink: { md: 0 }, zIndex: 1300 }} aria-label="mailbox folders">
+    <Box
+      component="nav"
+      sx={{ flexShrink: { md: 0 }, zIndex: 1300 }}
+      aria-label="mailbox folders"
+    >
       {!matchDownMD ? (
         <MiniDrawerStyled variant="permanent" open={open}>
           {drawerHeader}
@@ -52,8 +59,8 @@ const MainDrawer: React.FC<MainDrawerProps> = ({ open, handleDrawerToggle }) => 
               width: drawerWidth,
               borderRight: `1px solid ${theme.palette.divider}`,
               backgroundImage: 'none',
-              boxShadow: 'inherit'
-            }
+              boxShadow: 'inherit',
+            },
           }}
         >
           {open && drawerHeader}
@@ -64,6 +71,5 @@ const MainDrawer: React.FC<MainDrawerProps> = ({ open, handleDrawerToggle }) => 
     </Box>
   );
 };
-
 
 export default MainDrawer;

@@ -1,6 +1,6 @@
 // ==============================|| OVERRIDES - TAB ||============================== //
 
-import { Theme } from "@mui/material";
+import { Theme } from '@mui/material';
 
 export default function Tab(theme: Theme) {
   return {
@@ -8,9 +8,9 @@ export default function Tab(theme: Theme) {
       styleOverrides: {
         root: {
           minHeight: 46,
-          color: theme.palette.text.primary
-        }
-      }
-    }
+          color: theme.palette.text.primary,
+        },
+      },
+    },
   };
 }

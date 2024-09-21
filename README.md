@@ -23,6 +23,32 @@ The template is built with:
 * Material UI
 * Vite
 * Supabase
+* Prettier
+
+
+## Code Formatting
+
+This project uses [Prettier](https://prettier.io/) to maintain a consistent code style. The configuration for Prettier is defined in the `.prettierrc` file at the root of the project.
+
+To exclude specific files or directories from formatting, you can add them to the `.prettierignore` file.
+
+
+To format your code, you can run the following command in your terminal:
+
+```bash
+npx prettier --write .
+```
+This command will automatically format all the files in your project according to the rules specified in the .prettierrc file.
+
+If you're using Visual Studio Code, you can also set up Prettier to automatically format your code every time you save a file. Here's how:
+
+- Install the Prettier extension from the VS Code marketplace.
+- Open the settings (File > Preferences > Settings or Ctrl + , on Windows, Cmd + , on Mac).
+- Search for "Format On Save" and make sure the "Editor: Format On Save" option is checked.
+- Search for "Default Formatter" and select "Prettier - Code formatter".
+- Now, every time you save a file, Prettier will automatically format it for you.
+
+
 
 ## Features
 ### Application Shell

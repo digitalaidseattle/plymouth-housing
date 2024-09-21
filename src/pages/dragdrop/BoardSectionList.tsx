@@ -25,22 +25,19 @@ import { Ticket, ticketService } from '../../sections/tickets/ticketService';
 import { UserContext } from '../../components/contexts/UserContext';
 
 const BoardSectionList = () => {
-const { user } = useContext(UserContext);
-const NUM_TIX = 20;
-const [tickets, setTickets] = useState<Ticket[]>([]);
-const [boardSections, setBoardSections] =
-    useState<BoardSectionsType>();
+  const { user } = useContext(UserContext);
+  const NUM_TIX = 20;
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [boardSections, setBoardSections] = useState<BoardSectionsType>();
 
-    useEffect(() => {
-        ticketService.getTickets(NUM_TIX)
-            .then((tix) => setTickets(tix));
-    }, []);
+  useEffect(() => {
+    ticketService.getTickets(NUM_TIX).then((tix) => setTickets(tix));
+  }, []);
 
-    useEffect(() => {
-        const initialBoardSections = initializeBoard(tickets);
-        setBoardSections(initialBoardSections);
-    }, [tickets]);
-
+  useEffect(() => {
+    const initialBoardSections = initializeBoard(tickets);
+    setBoardSections(initialBoardSections);
+  }, [tickets]);
 
   const [activeTicketId, setActiveTicketId] = useState<null | number>(null);
 
@@ -50,7 +47,7 @@ const [boardSections, setBoardSections] =
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragStart = ({ active }: DragStartEvent) => {
@@ -61,11 +58,11 @@ const [boardSections, setBoardSections] =
     // Find the containers
     const activeContainer = findBoardSectionContainer(
       boardSections!,
-      active.id as number
+      active.id as number,
     );
     const overContainer = findBoardSectionContainer(
       boardSections!,
-      over?.id as number
+      over?.id as number,
     );
 
     if (
@@ -76,14 +73,13 @@ const [boardSections, setBoardSections] =
       return;
     }
 
-
     setBoardSections((boardSection) => {
       const activeItems = boardSection![activeContainer];
       const overItems = boardSection![overContainer];
 
       // Find the indexes for the items
       const activeIndex = activeItems.findIndex(
-        (item) => item.id === active.id
+        (item) => item.id === active.id,
       );
       const overIndex = overItems.findIndex((item) => item.id !== over?.id);
 
@@ -91,7 +87,7 @@ const [boardSections, setBoardSections] =
         ...boardSection,
         [activeContainer]: [
           ...boardSection![activeContainer].filter(
-            (item) => item.id !== active.id
+            (item) => item.id !== active.id,
           ),
         ],
         [overContainer]: [
@@ -99,24 +95,22 @@ const [boardSections, setBoardSections] =
           boardSections![activeContainer][activeIndex],
           ...boardSection![overContainer].slice(
             overIndex,
-            boardSection![overContainer].length
+            boardSection![overContainer].length,
           ),
         ],
       };
     });
-
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     const activeContainer = findBoardSectionContainer(
       boardSections!,
-      active.id as number
+      active.id as number,
     );
     const overContainer = findBoardSectionContainer(
       boardSections!,
-      over?.id as number
+      over?.id as number,
     );
-    
 
     if (
       !activeContainer ||
@@ -127,10 +121,10 @@ const [boardSections, setBoardSections] =
     }
 
     const activeIndex = boardSections![activeContainer].findIndex(
-      (ticket) => ticket.id === active.id
+      (ticket) => ticket.id === active.id,
     );
     const overIndex = boardSections![overContainer].findIndex(
-      (ticket) => ticket.id === over?.id
+      (ticket) => ticket.id === over?.id,
     );
 
     if (activeIndex !== overIndex) {
@@ -139,17 +133,16 @@ const [boardSections, setBoardSections] =
         [overContainer]: arrayMove(
           boardSection![overContainer],
           activeIndex,
-          overIndex
+          overIndex,
         ),
       }));
     }
     // persist status changes in database
-    changes["status"] = active.data.current?.sortable.containerId;
+    changes['status'] = active.data.current?.sortable.containerId;
     setChanges({ ...changes });
-    ticketService.updateTicket(user!, ticket!, changes)
-      .then(() => {
-        setChanges({});
-      })
+    ticketService.updateTicket(user!, ticket!, changes).then(() => {
+      setChanges({});
+    });
 
     setActiveTicketId(null);
   };
@@ -161,31 +154,32 @@ const [boardSections, setBoardSections] =
   const ticket = activeTicketId ? getTicketById(tickets, activeTicketId) : null;
 
   return (
-    boardSections &&
-    <Container>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <Grid container spacing={4}>
-          {Object.keys(boardSections).map((boardSectionKey) => (
-            <Grid item xs={3} key={boardSectionKey}>
-              <BoardSection
-                id={boardSectionKey}
-                title={boardSectionKey}
-                tickets={boardSections[boardSectionKey]}
-              />
-            </Grid>
-          ))}
-          <DragOverlay dropAnimation={dropAnimation}>
-            {ticket ? <TicketItem ticket={ticket} /> : null}
-          </DragOverlay>
-        </Grid>
-      </DndContext>
-    </Container>
+    boardSections && (
+      <Container>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <Grid container spacing={4}>
+            {Object.keys(boardSections).map((boardSectionKey) => (
+              <Grid item xs={3} key={boardSectionKey}>
+                <BoardSection
+                  id={boardSectionKey}
+                  title={boardSectionKey}
+                  tickets={boardSections[boardSectionKey]}
+                />
+              </Grid>
+            ))}
+            <DragOverlay dropAnimation={dropAnimation}>
+              {ticket ? <TicketItem ticket={ticket} /> : null}
+            </DragOverlay>
+          </Grid>
+        </DndContext>
+      </Container>
+    )
   );
 };
 

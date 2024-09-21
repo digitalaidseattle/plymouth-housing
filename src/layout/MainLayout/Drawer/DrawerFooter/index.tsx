@@ -14,12 +14,13 @@ import { Link } from 'react-router-dom';
 // ==============================|| DRAWER HEADER ||============================== //
 
 const DrawerFooter = () => {
-
   return (
     <ListItemButton style={{ position: 'fixed', bottom: 0, paddingBottom: 10 }}>
       <Link
-        style={{ 'textDecoration': 'none' }}
-        color="secondary" to={`/privacy`}>
+        style={{ textDecoration: 'none' }}
+        color="secondary"
+        to={`/privacy`}
+      >
         Privacy Policy
       </Link>
     </ListItemButton>

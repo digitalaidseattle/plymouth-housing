@@ -1,13 +1,11 @@
-
 // material-ui
 import { Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 type DotProps = {
-  color: string,
-  size?: number
+  color: string;
+  size?: number;
 };
-
 
 const Dot: React.FC<DotProps> = ({ color, size }) => {
   const theme = useTheme();
@@ -39,11 +37,10 @@ const Dot: React.FC<DotProps> = ({ color, size }) => {
         width: size || 8,
         height: size || 8,
         borderRadius: '50%',
-        bgcolor: main
+        bgcolor: main,
       }}
     />
   );
 };
-
 
 export default Dot;

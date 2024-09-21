@@ -2,14 +2,32 @@ import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
 // material-ui
-import { Box, Link, SortDirection, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import {
+  Box,
+  Link,
+  SortDirection,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
 
 // third-party
 
 // project import
 import Dot from '../../components/@extended/Dot';
 
-function createData(trackingNo: any, name: any, fat: any, carbs: any, protein: any) {
+function createData(
+  trackingNo: any,
+  name: any,
+  fat: any,
+  carbs: any,
+  protein: any,
+) {
   return { trackingNo, name, fat, carbs, protein };
 }
 
@@ -23,7 +41,7 @@ const rows = [
   createData(13256498, 'Keyboard', 125, 2, 70999),
   createData(98753263, 'Mouse', 89, 2, 10570),
   createData(98753275, 'Desktop', 185, 1, 98063),
-  createData(98753291, 'Chair', 100, 0, 14001)
+  createData(98753291, 'Chair', 100, 0, 14001),
 ];
 
 function descendingComparator(a: any, b: any, orderBy: any) {
@@ -61,39 +79,39 @@ const headCells = [
     id: 'trackingNo',
     align: 'left',
     disablePadding: false,
-    label: 'Tracking No.'
+    label: 'Tracking No.',
   },
   {
     id: 'name',
     align: 'left',
     disablePadding: true,
-    label: 'Product Name'
+    label: 'Product Name',
   },
   {
     id: 'fat',
     align: 'right',
     disablePadding: false,
-    label: 'Total Order'
+    label: 'Total Order',
   },
   {
     id: 'carbs',
     align: 'left',
     disablePadding: false,
 
-    label: 'Status'
+    label: 'Status',
   },
   {
     id: 'protein',
     align: 'right',
     disablePadding: false,
-    label: 'Total Amount'
-  }
+    label: 'Total Amount',
+  },
 ];
 
 // ==============================|| ORDER TABLE - HEADER ||============================== //
 type OrderTableHeadProps = {
-  order: SortDirection,
-  orderBy: string
+  order: SortDirection;
+  orderBy: string;
 };
 const OrderTableHead: React.FC<OrderTableHeadProps> = ({ order, orderBy }) => {
   return (
@@ -102,7 +120,15 @@ const OrderTableHead: React.FC<OrderTableHeadProps> = ({ order, orderBy }) => {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.align as "left" | "right" | "center" | "justify" | "inherit" | undefined}
+            align={
+              headCell.align as
+                | 'left'
+                | 'right'
+                | 'center'
+                | 'justify'
+                | 'inherit'
+                | undefined
+            }
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : 'asc'}
           >
@@ -112,13 +138,11 @@ const OrderTableHead: React.FC<OrderTableHeadProps> = ({ order, orderBy }) => {
       </TableRow>
     </TableHead>
   );
-}
-
-
+};
 
 // ==============================|| ORDER TABLE - STATUS ||============================== //
 type OrderStatusProps = {
-  status: number
+  status: number;
 };
 const OrderStatus: React.FC<OrderStatusProps> = ({ status }) => {
   let color;
@@ -150,7 +174,6 @@ const OrderStatus: React.FC<OrderStatusProps> = ({ status }) => {
   );
 };
 
-
 // ==============================|| ORDER TABLE ||============================== //
 
 export default function OrdersTable() {
@@ -158,7 +181,8 @@ export default function OrdersTable() {
   const [orderBy] = useState<string>('trackingNo');
   const [selected] = useState<string[]>([]);
 
-  const isSelected = (trackingNo: string) => selected.indexOf(trackingNo) !== -1;
+  const isSelected = (trackingNo: string) =>
+    selected.indexOf(trackingNo) !== -1;
 
   return (
     <Box>
@@ -169,24 +193,24 @@ export default function OrdersTable() {
           position: 'relative',
           display: 'block',
           maxWidth: '100%',
-          '& td, & th': { whiteSpace: 'nowrap' }
+          '& td, & th': { whiteSpace: 'nowrap' },
         }}
       >
         <Table
           aria-labelledby="tableTitle"
           sx={{
             '& .MuiTableCell-root:first-of-type': {
-              pl: 2
+              pl: 2,
             },
             '& .MuiTableCell-root:last-of-type': {
-              pr: 3
-            }
+              pr: 3,
+            },
           }}
         >
           <OrderTableHead order={order} orderBy={orderBy} />
           <TableBody>
-            {stableSort(rows as [], getComparator(order, orderBy))
-              .map((row: any, index: number) => {
+            {stableSort(rows as [], getComparator(order, orderBy)).map(
+              (row: any, index: number) => {
                 const isItemSelected = isSelected(row.trackingNo);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -200,7 +224,12 @@ export default function OrdersTable() {
                     key={row.trackingNo}
                     selected={isItemSelected}
                   >
-                    <TableCell component="th" id={labelId} scope="row" align="left">
+                    <TableCell
+                      component="th"
+                      id={labelId}
+                      scope="row"
+                      align="left"
+                    >
                       <Link color="secondary" component={RouterLink} to="">
                         {row.trackingNo}
                       </Link>
@@ -216,7 +245,8 @@ export default function OrdersTable() {
                     </TableCell>
                   </TableRow>
                 );
-              })}
+              },
+            )}
           </TableBody>
         </Table>
       </TableContainer>

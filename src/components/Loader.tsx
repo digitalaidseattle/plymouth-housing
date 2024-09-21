@@ -16,8 +16,8 @@ const LoaderWrapper = styled('div')(({ theme }) => ({
   zIndex: 2001,
   width: '100%',
   '& > * + *': {
-    marginTop: theme.spacing(2)
-  }
+    marginTop: theme.spacing(2),
+  },
 }));
 
 // ==============================|| Loader ||============================== //

@@ -9,7 +9,7 @@ export const initializeBoard = (tickets: Ticket[]) => {
   Object.keys(BOARD_SECTIONS).forEach((boardSectionKey) => {
     boardSections[boardSectionKey] = getTicketsByStatus(
       tickets,
-      boardSectionKey as Status
+      boardSectionKey as Status,
     );
   });
 
@@ -18,14 +18,14 @@ export const initializeBoard = (tickets: Ticket[]) => {
 
 export const findBoardSectionContainer = (
   boardSections: BoardSections,
-  id: number
+  id: number,
 ) => {
   if (id in boardSections) {
     return id;
   }
 
   const container = Object.keys(boardSections).find((key) =>
-    boardSections[key].find((item) => item.id === id)
+    boardSections[key].find((item) => item.id === id),
   );
   return container;
 };

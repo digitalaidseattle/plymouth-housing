@@ -17,7 +17,7 @@ import {
   ListItemText,
   Paper,
   Stack,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   FullscreenControl,
@@ -25,23 +25,27 @@ import {
   Marker,
   NavigationControl,
   Popup,
-  ScaleControl
+  ScaleControl,
 } from 'react-map-gl';
 import Map from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { Location, TeamMember, mappingService } from '../sections/maps/mappingService';
+import {
+  Location,
+  TeamMember,
+  mappingService,
+} from '../sections/maps/mappingService';
 
 const Labels = {
   title: 'Map Example',
   saveButton: 'Save',
   resetButton: 'Reset',
-}
+};
 
 type PopupInfo = {
   location: Location;
   members: TeamMember[];
-}
+};
 
 const ICON = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,4.5,2,10c0,2,0.6,3.9,1.6,5.4c0,0.1,0.1,0.2,0.2,0.3
   c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
@@ -50,14 +54,14 @@ const ICON = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,
 const pinStyle = {
   cursor: 'pointer',
   fill: '#0aa',
-  stroke: 'none'
+  stroke: 'none',
 };
 
 const DEFAULT_VIEW = {
   longitude: -122.4,
   latitude: 47.6061,
-  zoom: 7
-}
+  zoom: 7,
+};
 
 const MAP_HEIGHT = '80vh';
 
@@ -77,27 +81,24 @@ const MapPage = () => {
   const [pins, setPins] = useState<ReactNode[]>([]);
 
   useEffect(() => {
-    Promise
-      .all([
-        mappingService.getPeople(),
-        mappingService.getLocations()
-      ])
-      .then(resps => {
-        setPeople(resps[0].sort((p1, p2) => p1.name.localeCompare(p2.name)))
-        setLocations(resps[1]);
-      });
+    Promise.all([
+      mappingService.getPeople(),
+      mappingService.getLocations(),
+    ]).then((resps) => {
+      setPeople(resps[0].sort((p1, p2) => p1.name.localeCompare(p2.name)));
+      setLocations(resps[1]);
+    });
   }, []);
 
   useEffect(() => {
-    setPins(mappingService
-      .unique(locations)
-      .map((loc, index) => (
+    setPins(
+      mappingService.unique(locations).map((loc, index) => (
         <Marker
           key={`marker-${index}`}
           longitude={loc.longitude}
           latitude={loc.latitude}
           anchor="bottom"
-          onClick={e => {
+          onClick={(e) => {
             // If we let the click event propagates to the map, it will immediately close the popup
             // with `closeOnClick: true`
             e.originalEvent.stopPropagation();
@@ -106,53 +107,55 @@ const MapPage = () => {
         >
           <Pin />
         </Marker>
-      )))
-  }, [locations])
+      )),
+    );
+  }, [locations]);
 
   const handleMarkerSelection = (loc: Location) => {
-    const peeps = mappingService.getPeopleAt(people, locations, loc)
+    const peeps = mappingService.getPeopleAt(people, locations, loc);
     setPopupInfo({
       location: loc,
-      members: peeps
+      members: peeps,
     });
-  }
+  };
 
   // show that person and center on them
   const handlePeopleSelection = (person: TeamMember) => {
-    const loc = locations.find(l => l.name === person.location.trim());
+    const loc = locations.find((l) => l.name === person.location.trim());
     if (loc) {
       setViewState({
         longitude: loc.longitude,
         latitude: loc.latitude,
-        zoom: viewState.zoom
+        zoom: viewState.zoom,
       });
       setPopupInfo({
         location: loc,
         members: [person],
       });
     }
-  }
+  };
 
   const reset = () => {
     setViewState(DEFAULT_VIEW);
-  }
+  };
 
   const save = () => {
-    alert('Save')
-  }
+    alert('Save');
+  };
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
       <Grid item xs={12} sx={{ mb: -2.25 }}>
-        <Stack direction="row" justifyContent={'space-between'} >
+        <Stack direction="row" justifyContent={'space-between'}>
           <Typography variant="h5">{Labels.title}</Typography>
           <Stack direction="row" spacing={'1rem'}>
             <Button
               title={Labels.resetButton}
               variant="contained"
               color="secondary"
-              onClick={reset}>
+              onClick={reset}
+            >
               {Labels.resetButton}
             </Button>
             <Button
@@ -160,7 +163,8 @@ const MapPage = () => {
               variant="contained"
               color="primary"
               disabled={true}
-              onClick={save}>
+              onClick={save}
+            >
               {Labels.saveButton}
             </Button>
           </Stack>
@@ -170,16 +174,14 @@ const MapPage = () => {
       {/* row 2 */}
       <Grid item xs={12} lg={2}>
         <Paper style={{ maxHeight: MAP_HEIGHT, overflow: 'auto' }}>
-          <List >
-            {people.map((p, idx) =>
-              <ListItem key={('p' + idx)}>
-                <ListItemButton
-                  onClick={() => handlePeopleSelection(p)}>
-                  <ListItemText
-                    primary={p.name} />
+          <List>
+            {people.map((p, idx) => (
+              <ListItem key={'p' + idx}>
+                <ListItemButton onClick={() => handlePeopleSelection(p)}>
+                  <ListItemText primary={p.name} />
                 </ListItemButton>
               </ListItem>
-            )}
+            ))}
           </List>
         </Paper>
       </Grid>
@@ -187,7 +189,7 @@ const MapPage = () => {
         <Box height={MAP_HEIGHT}>
           <Map
             {...viewState}
-            onMove={evt => setViewState(evt.viewState)}
+            onMove={(evt) => setViewState(evt.viewState)}
             mapStyle={`${import.meta.env.VITE_MAP_STYLE}?key=${import.meta.env.VITE_MAPTILER_API_KEY}`}
           >
             <GeolocateControl position="top-left" />
@@ -204,20 +206,29 @@ const MapPage = () => {
               >
                 <Stack>
                   <Typography fontWeight={600}>
-                    <a target="_new"
+                    <a
+                      target="_new"
                       href={`http://en.wikipedia.org/w/index.php?title=Special:Search&search=${popupInfo.location.name}`}
-                    >{popupInfo.location.name}</a>
+                    >
+                      {popupInfo.location.name}
+                    </a>
                   </Typography>
 
-                  {popupInfo.members.length === 1 ?
+                  {popupInfo.members.length === 1 ? (
                     <Stack>
                       <img src={popupInfo.members[0].url} />
-                      <Typography fontWeight={600}>{popupInfo.members[0].name}</Typography>
-                      <Typography fontWeight={400}>{popupInfo.members[0].role}</Typography>
+                      <Typography fontWeight={600}>
+                        {popupInfo.members[0].name}
+                      </Typography>
+                      <Typography fontWeight={400}>
+                        {popupInfo.members[0].role}
+                      </Typography>
                     </Stack>
-                    :
-                    <Typography>Home of {popupInfo.members.length} Cadre members</Typography>
-                  }
+                  ) : (
+                    <Typography>
+                      Home of {popupInfo.members.length} Cadre members
+                    </Typography>
+                  )}
                 </Stack>
               </Popup>
             )}
@@ -226,6 +237,6 @@ const MapPage = () => {
       </Grid>
     </Grid>
   );
-}
+};
 
 export default MapPage;

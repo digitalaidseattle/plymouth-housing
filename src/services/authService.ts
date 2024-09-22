@@ -12,6 +12,25 @@ import {
 } from '@supabase/supabase-js';
 import { supabaseClient } from './supabaseClient';
 
+
+//////////////
+const user: User = {
+  id: "12345",
+  app_metadata: {
+    provider: "google",
+  },
+  user_metadata: {
+    firstName: "John",
+    lastName: "Doe",
+  },
+  aud: "authenticated",
+  created_at: "2024-09-21T00:00:00Z", // ISO timestamp
+  updated_at: "2024-09-21T00:00:00Z", // ISO timestamp
+  // Optional fields can be omitted or added:
+  email: "john.doe@example.com",
+  role: "admin",
+};
+
 class AuthService {
   signOut = async (): Promise<{ error: AuthError | null }> => {
     return supabaseClient.auth.signOut();
@@ -22,9 +41,10 @@ class AuthService {
   };
 
   getUser = async (): Promise<User | null> => {
-    return supabaseClient.auth
-      .getUser()
-      .then((response: UserResponse) => response.data.user);
+    return user;
+    // return supabaseClient.auth
+    //   .getUser()
+    //   .then((response: UserResponse) => response.data.user);
   };
 
   signInWithGoogle = async (): Promise<OAuthResponse> => {

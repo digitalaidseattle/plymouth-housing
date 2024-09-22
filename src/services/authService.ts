@@ -8,7 +8,7 @@ import {
   AuthError,
   OAuthResponse,
   User,
-  UserResponse,
+//  UserResponse,
 } from '@supabase/supabase-js';
 import { supabaseClient } from './supabaseClient';
 

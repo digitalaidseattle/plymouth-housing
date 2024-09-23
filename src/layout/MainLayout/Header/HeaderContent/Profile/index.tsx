@@ -30,9 +30,8 @@ import {
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router';
 import { UserContext } from '../../../../../components/contexts/UserContext';
-import { authService } from '../../../../../services/authService';
+import { useMsal } from '@azure/msal-react';
 
 interface TabPanelProps {
   children: ReactNode;
@@ -76,21 +75,21 @@ const Profile = () => {
   const { user } = useContext(UserContext);
   const [username, setUsername] = useState<string>('');
   const [avatar, setAvatar] = useState<string>('');
-  const navigate = useNavigate();
+  const { instance } = useMsal();
 
   useEffect(() => {
     if (user) {
-      setAvatar(user.user_metadata.avatar_url);
+      // setAvatar(user.user_metadata.avatar_url)
       setUsername(
-        user.user_metadata.name
-          ? user.user_metadata.name
-          : user.user_metadata.email,
+        user.preferred_username ? user.preferred_username : user.email,
       );
     }
   }, [user]);
 
   const handleLogout = async () => {
-    authService.signOut().then(() => navigate('/login'));
+    instance.logoutRedirect({
+      postLogoutRedirectUri: '/',
+    });
   };
 
   const anchorRef = useRef(null);

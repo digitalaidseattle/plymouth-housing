@@ -4,21 +4,29 @@ import { useTheme } from '@mui/material/styles';
 
 // assets
 import Microsoft from '../../../assets/images/icons/microsoft.svg';
-import { authService } from '../../../services/authService';
-import { loggingService } from '../../../services/loggingService';
 
+//azure oauth
+import { useMsal } from '@azure/msal-react';
+import { loginRequest } from '../../../authConfig'; // see authConfig.ts code bellow
+import { useNavigate } from 'react-router-dom';
 // ==============================|| FIREBASE - SOCIAL BUTTON ||============================== //
 
 const FirebaseSocial = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
+  const { instance } = useMsal();
+  const navigate = useNavigate();
 
-  const microsoftHandler = async () => {
-    authService
-      .signInWithAzure()
-      .then((resp) =>
-        loggingService.info('Logged in with Azure: ' + resp.data.url),
-      );
+  const azureLoginHandler = () => {
+    instance
+      .loginPopup(loginRequest)
+      .then((response) => {
+        instance.setActiveAccount(response.account);
+        navigate('/');
+      })
+      .catch((error) => {
+        console.error('Login failed:', error);
+      });
   };
 
   return (
@@ -39,7 +47,7 @@ const FirebaseSocial = () => {
         color="secondary"
         fullWidth={!matchDownSM}
         startIcon={<img src={Microsoft} alt="Microsoft" />}
-        onClick={microsoftHandler}
+        onClick={azureLoginHandler}
       >
         {!matchDownSM && 'Microsoft'}
       </Button>

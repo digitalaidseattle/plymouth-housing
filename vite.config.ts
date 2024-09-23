@@ -9,6 +9,6 @@ export default defineConfig({
     environment: 'jsdom',
   },
   server: {
-    host: true
-  }, 
-})
+    host: true,
+  },
+});

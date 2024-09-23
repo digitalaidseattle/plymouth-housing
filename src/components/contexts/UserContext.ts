@@ -4,12 +4,12 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import { User } from '@supabase/supabase-js';
+import { IdTokenClaims } from '@azure/msal-common';
 import { createContext } from 'react';
 
 interface UserContextType {
-  user: User | null;
-  setUser: (user: User) => void;
+  user: IdTokenClaims | null;
+  setUser: (user: IdTokenClaims) => void;
 }
 
 export const UserContext = createContext<UserContextType>({

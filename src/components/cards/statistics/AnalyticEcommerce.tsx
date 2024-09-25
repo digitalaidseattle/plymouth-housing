@@ -1,4 +1,3 @@
-
 // material-ui
 import { Box, Chip, Grid, Stack, Typography } from '@mui/material';
 
@@ -11,15 +10,29 @@ import { ReactNode } from 'react';
 
 // ==============================|| STATISTICS - ECOMMERCE CARD  ||============================== //
 type AnalyticEcommerceProps = {
-  color?: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
-  title: string,
-  count: string,
-  percentage: number,
-  isLoss?: boolean,
-  extra: ReactNode | string
+  color?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'error'
+    | 'info'
+    | 'success'
+    | 'warning';
+  title: string;
+  count: string;
+  percentage: number;
+  isLoss?: boolean;
+  extra: ReactNode | string;
 };
 
-const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({ color = "primary", title, count, percentage, isLoss, extra }) => (
+const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({
+  color = 'primary',
+  title,
+  count,
+  percentage,
+  isLoss,
+  extra,
+}) => (
   <MainCard contentSX={{ p: 2.25 }}>
     <Stack spacing={0.5}>
       <Typography variant="h6" color="textSecondary">
@@ -38,8 +51,16 @@ const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({ color = "primary"
               color={color}
               icon={
                 <>
-                  {!isLoss && <RiseOutlined style={{ fontSize: '0.75rem', color: 'inherit' }} />}
-                  {isLoss && <FallOutlined style={{ fontSize: '0.75rem', color: 'inherit' }} />}
+                  {!isLoss && (
+                    <RiseOutlined
+                      style={{ fontSize: '0.75rem', color: 'inherit' }}
+                    />
+                  )}
+                  {isLoss && (
+                    <FallOutlined
+                      style={{ fontSize: '0.75rem', color: 'inherit' }}
+                    />
+                  )}
                 </>
               }
               label={`${percentage}%`}
@@ -53,7 +74,11 @@ const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({ color = "primary"
     <Box sx={{ pt: 2.25 }}>
       <Typography variant="caption" color="textSecondary">
         You made an extra{' '}
-        <Typography component="span" variant="caption" sx={{ color: `${color || 'primary'}.main` }}>
+        <Typography
+          component="span"
+          variant="caption"
+          sx={{ color: `${color || 'primary'}.main` }}
+        >
           {extra}
         </Typography>{' '}
         this year

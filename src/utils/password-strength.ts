@@ -8,10 +8,12 @@
 const hasNumber = (number: string) => new RegExp(/[0-9]/).test(number);
 
 // has mix of small and capitals
-const hasMixed = (number: string) => new RegExp(/[a-z]/).test(number) && new RegExp(/[A-Z]/).test(number);
+const hasMixed = (number: string) =>
+  new RegExp(/[a-z]/).test(number) && new RegExp(/[A-Z]/).test(number);
 
 // has special chars
-const hasSpecial = (number: string) => new RegExp(/[!#@$%^&*)(+=._-]/).test(number);
+const hasSpecial = (number: string) =>
+  new RegExp(/[!#@$%^&*)(+=._-]/).test(number);
 
 // set color based on password strength
 export const strengthColor = (count: number) => {

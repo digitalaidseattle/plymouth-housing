@@ -1,10 +1,15 @@
-import React, { useState, ChangeEvent, KeyboardEvent, useRef } from 'react';
-import { Box, TextField, Button, IconButton } from '@mui/material';
+import React, {
+  useState,
+  ChangeEvent,
+  KeyboardEvent,
+  useRef,
+  useCallback,
+} from 'react';
+import { Box, TextField } from '@mui/material';
 import { styled } from '@mui/system';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import SnackbarAlert from './SnackbarAlert';
 
-const PinInput = styled(TextField)(({ }) => ({
+const PinInput = styled(TextField)(({}) => ({
   width: '50px',
   margin: '0 8px',
   textAlign: 'center',
@@ -15,81 +20,109 @@ const PinInput = styled(TextField)(({ }) => ({
   },
 }));
 
-const PinInputComponent: React.FC = () => {
-  const [pin, setPin] = useState<string[]>(['', '', '', '']);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
+  onPinChange,
+}) => {
+  const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
+  const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>, index: number) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value) && value.length <= 1) {
-      const newPin = [...pin];
+  const updatePin = useCallback((index: number, value: string) => {
+    setPin((prevPin) => {
+      const newPin = [...prevPin];
       newPin[index] = value;
-      setPin(newPin);
+      onPinChange(newPin);
+      return newPin;
+    });
+  }, []);
 
-      if (value && index < 3 && pinRefs.current[index + 1]) {
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
+      const value = e.target.value;
+
+      if (!/^\d*$/.test(value)) {
+        setOpenSnackbar(true);
+        return;
+      }
+
+      if (value.length <= 1) {
+        updatePin(index, value);
+        setVisibleIndex(index);
+
+        if (value && index < 3 && pinRefs.current[index + 1]) {
+          pinRefs.current[index + 1]?.focus();
+        }
+
+        const timeout = setTimeout(() => {
+          setVisibleIndex(null);
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+      }
+    },
+    [updatePin, onPinChange],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement | HTMLDivElement>, index: number) => {
+      if (e.key === 'Backspace') {
+        if (pinRefs.current[index]?.value) {
+          updatePin(index, '');
+        } else if (index > 0) {
+          pinRefs.current[index - 1]?.focus();
+          updatePin(index - 1, '');
+        }
+      } else if (e.key === 'ArrowRight' && index < 3) {
         pinRefs.current[index + 1]?.focus();
-      }
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement|HTMLDivElement>   , index: number) => {
-    if (e.key === 'Backspace') {
-      if (pin[index]) {
-        const newPin = [...pin];
-        newPin[index] = '';
-        setPin(newPin);
-      } else if (index > 0) {
+      } else if (e.key === 'ArrowLeft' && index > 0) {
         pinRefs.current[index - 1]?.focus();
-        const newPin = [...pin];
-        newPin[index - 1] = '';
-        setPin(newPin);
       }
-    } else if (e.key === 'ArrowRight' && index < 3) {
-      pinRefs.current[index + 1]?.focus();
-    } else if (e.key === 'ArrowLeft' && index > 0) {
-      pinRefs.current[index - 1]?.focus();
+    },
+    [updatePin],
+  );
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') {
+      return;
     }
-  };
-
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-  };
-
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
+    setOpenSnackbar(false);
   };
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+    >
       <Box display="flex" alignItems="center">
-        <Box display="flex" justifyContent="center" mb={2}>
+        <Box display="flex" justifyContent="center">
           {pin.map((digit, index) => (
             <PinInput
-              key={index}
+              key={`pin-input-${index}`}
               id={`pin-input-${index}`}
               variant="outlined"
               value={digit}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               inputProps={{ maxLength: 1 }}
-              type={showPassword ? 'text' : 'password'}
+              type={visibleIndex === index ? 'text' : 'password'}
               inputRef={(el) => (pinRefs.current[index] = el)}
             />
           ))}
+          <SnackbarAlert
+            open={openSnackbar}
+            onClose={handleSnackbarClose}
+            severity="warning"
+          >
+            Please enter only numbers for your PIN.
+          </SnackbarAlert>
         </Box>
-        <IconButton
-          aria-label="toggle password visibility"
-          onClick={handleClickShowPassword}
-          onMouseDown={handleMouseDownPassword}
-          edge="end"
-        >
-          {showPassword ? <VisibilityOff /> : <Visibility />}
-        </IconButton>
       </Box>
-      <Button variant="contained" color="primary" style={{ marginTop: '20px' }}>
-        Next
-      </Button>
     </Box>
   );
 };

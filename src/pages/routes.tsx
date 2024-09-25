@@ -8,39 +8,41 @@ import PrivacyPage from './PrivacyPage';
 import TicketPage from './TicketPage';
 import UploadPage from './UploadPage';
 import Login from './authentication/Login';
-import Login2 from './authentication/Login2';
+import EnterPin from './authentication/EnterPinPage';
+import PickYourNamePage from './authentication/PickNamePage';
 import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import SamplePage from './extra-pages/SamplePage';
 import DragDropPage from './dragdrop/DragDropPage';
-import Inventory from './inventory'
+import Inventory from './inventory';
 
 const routes = [
   {
-    path: "/",
+    path: '/',
     element: <MainLayout />,
     children: [
       {
-        path: "",
+        path: '',
         element: <DashboardDefault />,
       },
       {
-        path: "sample-page",
+        path: 'sample-page',
         element: <SamplePage />,
       },
       {
-        path: "ticket/:id",
+        path: 'ticket/:id',
         element: <TicketPage />,
       },
       {
-        path: "tickets",
+        path: 'tickets',
         element: (
           <MainCard title="Tickets Page">
             <TicketsTable />
-          </MainCard>),
+          </MainCard>
+        ),
       },
       {
-        path: "tickets-grid",
+        path: 'tickets-grid',
         element: (
           <MainCard title="Tickets Page">
             <TicketsGrid />
@@ -48,7 +50,7 @@ const routes = [
         ),
       },
       {
-        path: "inventory",
+        path: 'inventory',
         element: (
           <MainCard title="Inventory">
             <Inventory />
@@ -56,47 +58,51 @@ const routes = [
         ),
       },
       {
-        path: "privacy",
+        path: 'privacy',
         element: <PrivacyPage />,
       },
       {
-        path: "upload",
+        path: 'upload',
         element: <UploadPage />,
       },
       {
-        path: "drag-drop",
+        path: 'drag-drop',
         element: <DragDropPage />,
       },
       {
-        path: "map-example",
+        path: 'map-example',
         element: <MapPage />,
-      }
-    ]
+      },
+    ],
   },
   {
-    path: "/",
+    path: '/',
     element: <MinimalLayout />,
     children: [
       {
         path: 'login',
-        element: <Login />
+        element: <Login />,
       },
       {
-        path: 'login2',
-        element: <Login2 />
-      }
-    ]
+        path: 'pick-your-name',
+        element: <PickYourNamePage />,
+      },
+      {
+        path: 'enter-pin',
+        element: <EnterPin />,
+      },
+    ],
   },
   {
-    path: "*",
+    path: '*',
     element: <MinimalLayout />,
     children: [
       {
         path: '*',
-        element: <Page404 />
-      }
-    ]
-  }
+        element: <Page404 />,
+      },
+    ],
+  },
 ];
 
 export { routes };

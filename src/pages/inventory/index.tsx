@@ -25,7 +25,6 @@ type InventoryItem = {
 }
 
 const Inventory = () => {
-
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [data, setData] = useState<InventoryItem[]>([]);
   const [type, setType] = useState('');
@@ -33,7 +32,9 @@ const Inventory = () => {
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
-  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
+  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
+    null,
+  );
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -54,53 +55,56 @@ const Inventory = () => {
 
   const handleTypeClose = () => {
     setAnchorType(null);
-  }
+  };
 
   const handleMenuTypeClick = (value: string) => {
-    setType(value)
+    setType(value);
     // handleFilter(); Already called in the useEffect
     handleTypeClose();
-  }
+  };
 
   const handleCategoryClose = () => {
     setAnchorCategory(null);
-  }
+  };
 
   const handleMenuCategoryClick = (value: string) => {
     setCategory(value);
     handleFilter();
     handleCategoryClose();
-  }
+  };
 
   const handleStatusClose = () => {
     setAnchorStatus(null);
-  }
+  };
 
   const handleMenuStatusClick = (value: string) => {
     setStatus(value);
     handleFilter();
     handleStatusClose();
-  }
+  };
 
   const clearTypeFilter = () => {
     setType('');
-  }
+  };
 
   const clearCategoryFilter = () => {
     setCategory('');
-  }
+  };
 
   const clearStatusFilter = () => {
     setStatus('');
-  }
+  };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(event.target.value)
-  }
+    setSearch(event.target.value);
+  };
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number,
+  ) => {
     setCurrentPage(value);
-  }
+  };
 
   const handleFilter = () => {
     const searchFiltered = originalData.filter((row: { item: string, type: string, category: string, quantity: number; status: string }) => {
@@ -127,7 +131,10 @@ const Inventory = () => {
     setData(searchFiltered);
   };
 
-  const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY); // When we deploy this application or when we create a server, this will have to be changed to server side so that the anon_key can be hidden.
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY,
+  ); // When we deploy this application or when we create a server, this will have to be changed to server side so that the anon_key can be hidden.
 
   const fetchData = async () => {
     const { data: inventory, error } = await supabase
@@ -135,13 +142,13 @@ const Inventory = () => {
       .select(`id, item, type, quantity, category, status`);
 
     if (error) {
-      console.error('Error fetching inventory:', error)
+      console.error('Error fetching inventory:', error);
     } else {
       console.log(inventory);
       setOriginalData(inventory);
-      setData(inventory)
+      setData(inventory);
     }
-  }
+  };
 
   useEffect(() => {
     if (type || category || status || search) {
@@ -155,81 +162,180 @@ const Inventory = () => {
     } else {
       fetchData();
     }
-  }, [type, category, status, search])
+  }, [type, category, status, search]);
 
   return (
     <Box>
-
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }}><AddIcon fontSize="small" sx={{ color: 'black' }} />Add</Button>
+        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }}>
+          <AddIcon fontSize="small" sx={{ color: 'black' }} />
+          Add
+        </Button>
       </Box>
 
       {/* Filter Container */}
-      <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
+      <Box
+        id="filter-container"
+        sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}
+      >
         <Typography variant="body2">Filters</Typography>
 
         {/* Type Filter */}
         <Box sx={{ px: '8px' }} id="type-button-container">
-          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleTypeClick}>
+          <Button
+            sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
+            onClick={handleTypeClick}
+          >
             {type ? (
-              <>{type} <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearTypeFilter} /></>
-            ) : (<><Typography variant="body2">Type</Typography><ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></>)}
+              <>
+                {type}{' '}
+                <ClearIcon
+                  sx={{ fontSize: 'large', ml: '6px' }}
+                  onClick={clearTypeFilter}
+                />
+              </>
+            ) : (
+              <>
+                <Typography variant="body2">Type</Typography>
+                <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              </>
+            )}
           </Button>
           <Menu
             open={Boolean(anchorType)}
             onClose={handleTypeClose}
             anchorEl={anchorType}
           >
-            <MenuItem onClick={() => handleMenuTypeClick('Donation')}>Donation</MenuItem>
-            <MenuItem onClick={() => handleMenuTypeClick('Welcome Basket')}>Welcome Basket</MenuItem>
+            <MenuItem onClick={() => handleMenuTypeClick('Donation')}>
+              Donation
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuTypeClick('Welcome Basket')}>
+              Welcome Basket
+            </MenuItem>
           </Menu>
         </Box>
 
         {/* Category Filter */}
         <Box sx={{ px: '8px' }} id="category-button-container">
-          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleCategoryClick}>       {category ? (
-            <>{category} <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearCategoryFilter} /></>
-          ) : (<><Typography variant="body2">Category</Typography><ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></>)}</Button>
+          <Button
+            sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
+            onClick={handleCategoryClick}
+          >
+            {' '}
+            {category ? (
+              <>
+                {category}{' '}
+                <ClearIcon
+                  sx={{ fontSize: 'large', ml: '6px' }}
+                  onClick={clearCategoryFilter}
+                />
+              </>
+            ) : (
+              <>
+                <Typography variant="body2">Category</Typography>
+                <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              </>
+            )}
+          </Button>
           <Menu
             open={Boolean(anchorCategory)}
             onClose={handleCategoryClose}
             anchorEl={anchorCategory}
           >
-            <MenuItem onClick={() => handleMenuCategoryClick('Beddings & Linens')}>Beddings & Linens</MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Bath & Toiletries')}>Bath & Toiletries</MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Kitchenware')}>Kitchenware</MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Decorative & Home improvement')}>Decorative & Home improvement</MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Health & Medical')}>Health & Medical</MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Food')}>Food</MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Electronics & Appliances')}>Electronics & Appliances</MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Games, Books, Entertainment')}>Games, Books, Entertainment</MenuItem>
+            <MenuItem
+              onClick={() => handleMenuCategoryClick('Beddings & Linens')}
+            >
+              Beddings & Linens
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleMenuCategoryClick('Bath & Toiletries')}
+            >
+              Bath & Toiletries
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Kitchenware')}>
+              Kitchenware
+            </MenuItem>
+            <MenuItem
+              onClick={() =>
+                handleMenuCategoryClick('Decorative & Home improvement')
+              }
+            >
+              Decorative & Home improvement
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleMenuCategoryClick('Health & Medical')}
+            >
+              Health & Medical
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuCategoryClick('Food')}>
+              Food
+            </MenuItem>
+            <MenuItem
+              onClick={() =>
+                handleMenuCategoryClick('Electronics & Appliances')
+              }
+            >
+              Electronics & Appliances
+            </MenuItem>
+            <MenuItem
+              onClick={() =>
+                handleMenuCategoryClick('Games, Books, Entertainment')
+              }
+            >
+              Games, Books, Entertainment
+            </MenuItem>
           </Menu>
         </Box>
 
         {/* Status Filter */}
         <Box sx={{ px: '8px' }} id="status-button-container">
-          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleStatusClick}>
+          <Button
+            sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
+            onClick={handleStatusClick}
+          >
             {status ? (
-              <>{status} <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearStatusFilter} /></>
-            ) : (<><Typography variant="body2">Status</Typography><ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} /></>)}</Button>
+              <>
+                {status}{' '}
+                <ClearIcon
+                  sx={{ fontSize: 'large', ml: '6px' }}
+                  onClick={clearStatusFilter}
+                />
+              </>
+            ) : (
+              <>
+                <Typography variant="body2">Status</Typography>
+                <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              </>
+            )}
+          </Button>
           <Menu
             open={Boolean(anchorStatus)}
             onClose={handleStatusClose}
             anchorEl={anchorStatus}
           >
-            <MenuItem onClick={() => handleMenuStatusClick('Low')}>Low</MenuItem>
-            <MenuItem onClick={() => handleMenuStatusClick('Medium')}>Medium</MenuItem>
-            <MenuItem onClick={() => handleMenuStatusClick('High')}>High</MenuItem>
+            <MenuItem onClick={() => handleMenuStatusClick('Low')}>
+              Low
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuStatusClick('Medium')}>
+              Medium
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuStatusClick('High')}>
+              High
+            </MenuItem>
           </Menu>
         </Box>
 
         {/* Search Filter */}
         <Box id="search-container" sx={{ ml: 'auto' }}>
-          <TextField value={search} onChange={handleSearch} variant="standard" placeholder="Search" />
+          <TextField
+            value={search}
+            onChange={handleSearch}
+            variant="standard"
+            placeholder="Search"
+          />
         </Box>
       </Box>
-
 
       {/* Inventory Table */}
       <Box id="inventory-container">
@@ -274,7 +380,7 @@ const Inventory = () => {
         />
       </Box>
     </Box>
-  )
-}
+  );
+};
 
 export default Inventory;

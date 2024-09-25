@@ -1,4 +1,3 @@
-
 import Box from '@mui/material/Box';
 import { useDroppable } from '@dnd-kit/core';
 import {

@@ -19,7 +19,7 @@ const Search = () => (
         }
         aria-describedby="header-search-text"
         inputProps={{
-          'aria-label': 'weight'
+          'aria-label': 'weight',
         }}
         placeholder="Ctrl + K"
       />

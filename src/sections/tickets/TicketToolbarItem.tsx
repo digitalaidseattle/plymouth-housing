@@ -4,7 +4,7 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useContext, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 // material-ui
 import { Box, IconButton } from '@mui/material';
@@ -14,8 +14,8 @@ import { Box, IconButton } from '@mui/material';
 // assets
 import { ThunderboltOutlined } from '@ant-design/icons';
 import { DASSnackbar } from '../../components/DASSnackbar';
-import TicketDialog from './TicketDialog';
-import { Ticket } from './ticketService';
+// import TicketDialog from './TicketDialog';
+// import { Ticket } from './ticketService';
 // import { loggingService } from '../../services/loggingService';
 // import { UserContext } from '../../components/contexts/UserContext';
 
@@ -33,12 +33,12 @@ const TicketToolbarItem: React.FC = () => {
   const iconBackColorOpen = 'grey.300';
   const iconBackColor = 'grey.100';
 
-  const handleSuccess = (resp: Ticket | null) => {
-    if (resp) {
-      setOpenSnack(true);
-    }
-    setOpen(false);
-  };
+  // const handleSuccess = (resp: Ticket | null) => {
+  //   if (resp) {
+  //     setOpenSnack(true);
+  //   }
+  //   setOpen(false);
+  // };
 
   // const handleError = (err: Error) => {
   //   loggingService.error(err.message, user!);

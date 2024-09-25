@@ -4,14 +4,14 @@
  */
 
 // react
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 // material-ui
 import { Button, Grid, Stack, Typography } from '@mui/material';
 
 import { DASSnackbar } from '../components/DASSnackbar';
-import { UserContext } from '../components/contexts/UserContext';
+// import { UserContext } from '../components/contexts/UserContext';
 import {
   TicketHistoryCard,
   TicketLongForm,

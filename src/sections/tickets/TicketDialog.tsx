@@ -4,7 +4,7 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 
 // material-ui
 import {
@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import { Ticket, ticketService } from './ticketService';
 import useAppConstants from '../../services/useAppConstants';
-import { UserContext } from '../../components/contexts/UserContext';
+// import { UserContext } from '../../components/contexts/UserContext';
 
 interface TicketDialogProps {
   open: boolean;
@@ -52,7 +52,7 @@ const TicketDialog: React.FC<TicketDialogProps> = ({
         component: 'form',
         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-          const formData = new FormData(event.currentTarget);
+          // const formData = new FormData(event.currentTarget);
           // const formJson = Object.fromEntries(formData.entries());
           // Review: as unknown as Ticket
           ticketService

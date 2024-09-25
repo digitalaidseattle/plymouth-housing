@@ -42,7 +42,7 @@ const EnterPinPage: React.FC = () => {
       <CenteredLayout>
         <Box sx={{ maxWidth: '350px', width: '100%' }}>
           <Typography
-            variant="h3"
+            variant="h4"
             textAlign="left"
             sx={{
               height: '50px',

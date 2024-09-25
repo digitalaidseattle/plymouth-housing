@@ -13,6 +13,7 @@ const PinInput = styled(TextField)(({}) => ({
   width: '50px',
   margin: '0 8px',
   textAlign: 'center',
+  height: '56px',
   '& input': {
     textAlign: 'center',
     fontSize: '24px',
@@ -99,29 +100,27 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
       alignItems="center"
       justifyContent="center"
     >
-      <Box display="flex" alignItems="center">
-        <Box display="flex" justifyContent="center">
-          {pin.map((digit, index) => (
-            <PinInput
-              key={`pin-input-${index}`}
-              id={`pin-input-${index}`}
-              variant="outlined"
-              value={digit}
-              onChange={(e) => handleChange(e, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              inputProps={{ maxLength: 1 }}
-              type={visibleIndex === index ? 'text' : 'password'}
-              inputRef={(el) => (pinRefs.current[index] = el)}
-            />
-          ))}
-          <SnackbarAlert
-            open={openSnackbar}
-            onClose={handleSnackbarClose}
-            severity="warning"
-          >
-            Please enter only numbers for your PIN.
-          </SnackbarAlert>
-        </Box>
+      <Box display="flex" justifyContent="space-between" width="100%">
+        {pin.map((digit, index) => (
+          <PinInput
+            key={`pin-input-${index}`}
+            id={`pin-input-${index}`}
+            variant="outlined"
+            value={digit}
+            onChange={(e) => handleChange(e, index)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            inputProps={{ maxLength: 1 }}
+            type={visibleIndex === index ? 'text' : 'password'}
+            inputRef={(el) => (pinRefs.current[index] = el)}
+          />
+        ))}
+        <SnackbarAlert
+          open={openSnackbar}
+          onClose={handleSnackbarClose}
+          severity="warning"
+        >
+          Please enter only numbers for your PIN.
+        </SnackbarAlert>
       </Box>
     </Box>
   );

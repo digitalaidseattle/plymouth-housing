@@ -1,15 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Typography, Button, Stack } from '@mui/material';
-import Logo from '../../components/Logo/Logo';
+import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
-import ContactAdminDialog from './ContactAdminDialog';
 import SnackbarAlert from './SnackbarAlert';
 
 const EnterPinPage: React.FC = () => {
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -24,14 +21,6 @@ const EnterPinPage: React.FC = () => {
 
   const handlePreviousClick = () => {
     navigate('/pick-your-name');
-  };
-
-  const handleDialogOpen = () => {
-    setOpenDialog(true);
-  };
-
-  const handleDialogClose = () => {
-    setOpenDialog(false);
   };
 
   const handlePinChange = useCallback((newPin: string[]) => {
@@ -51,65 +40,61 @@ const EnterPinPage: React.FC = () => {
   return (
     <MinimalWrapper>
       <CenteredLayout>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Logo />
-          <Typography variant="h5">
-            {import.meta.env.VITE_APPLICATION_NAME}
+        <Box sx={{ maxWidth: '350px', width: '100%' }}>
+          <Typography
+            variant="h3"
+            textAlign="left"
+            sx={{
+              height: '50px',
+              lineHeight: '50px',
+              marginBottom: 2,
+            }}
+          >
+            Enter Your PIN.
           </Typography>
-        </Stack>
-        <Typography
-          variant="h3"
-          textAlign="center"
-          sx={{
-            height: '50px',
-            lineHeight: '50px',
-            marginBottom: 2,
-          }}
-        >
-          Enter Your PIN.
-        </Typography>
-        <PinInput onPinChange={handlePinChange} />
-        <Typography
-          variant="body2"
-          color="primary"
-          onClick={handleDialogOpen}
-          sx={{
-            cursor: 'pointer',
-            textAlign: 'center',
-            marginTop: 6,
-            paddingTop: '3.66px',
-          }}
-        >
-          I forgot my password.
-        </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleNextClick}
-          sx={{
-            height: '45px',
-            width: '200px',
-            fontSize: '16px',
-            marginTop: 2,
-          }}
-        >
-          Continue
-        </Button>
-        <Typography
-          variant="body2"
-          onClick={handlePreviousClick}
-          sx={{
-            cursor: 'pointer',
-            textAlign: 'center',
-            marginTop: 2,
-            textDecoration: 'underline',
-          }}
-        >
-          Back to the name selection.
-        </Typography>
 
-        <ContactAdminDialog open={openDialog} onClose={handleDialogClose} />
-
+          <Typography
+            variant="body2"
+            sx={{
+              maxWidth: '100%',
+              textAlign: 'left',
+              marginBottom: 4,
+              lineHeight: 1.5,
+            }}
+          >
+            <strong>Forget your pin?</strong> Contact IT department at{' '}
+            {import.meta.env.VITE_ADMIN_PHONE_NUMBER} or{' '}
+            {import.meta.env.VITE_ADMIN_EMAIL}
+          </Typography>
+          <Box sx={{ marginBottom: 6 }}>
+            <PinInput onPinChange={handlePinChange} />
+          </Box>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleNextClick}
+            sx={{
+              height: '45px',
+              width: '100%',
+              fontSize: '16px',
+              marginTop: 2,
+            }}
+          >
+            Continue
+          </Button>
+          <Typography
+            variant="body2"
+            onClick={handlePreviousClick}
+            sx={{
+              cursor: 'pointer',
+              textAlign: 'center',
+              marginTop: 2,
+              textDecoration: 'underline',
+            }}
+          >
+            Back to the name selection.
+          </Typography>
+        </Box>
         <SnackbarAlert
           open={openSnackbar}
           onClose={handleSnackbarClose}

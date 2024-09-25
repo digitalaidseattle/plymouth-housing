@@ -68,7 +68,7 @@ const routes = [
         element: <PickYourNamePage />,
       },
       {
-        path: 'enter-pin',
+        path: 'enter-your-pin',
         element: <EnterPin />,
       },
     ],

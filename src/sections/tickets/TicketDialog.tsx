@@ -56,9 +56,9 @@ const TicketDialog: React.FC<TicketDialogProps> = ({
           const formJson = Object.fromEntries(formData.entries());
           // Review: as unknown as Ticket
           ticketService
-            .createTicket(user!, formJson as unknown as Ticket)
-            .then((resp: Ticket) => handleSuccess(resp))
-            .catch((err) => handleError(err));
+            // .createTicket(user!, formJson as unknown as Ticket)
+            // .then((resp: Ticket) => handleSuccess(resp))
+            // .catch((err) => handleError(err));
         },
       }}
     >

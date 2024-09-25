@@ -41,7 +41,7 @@ const TicketToolbarItem: React.FC = () => {
   };
 
   const handleError = (err: Error) => {
-    loggingService.error(err.message, user!);
+    // loggingService.error(err.message, user!);
     setOpen(false);
   };
 

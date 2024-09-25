@@ -65,11 +65,11 @@ const TicketPage = () => {
   };
 
   const save = () => {
-    ticketService.updateTicket(user!, ticket!, changes).then((resp: Ticket) => {
-      setTicket(resp);
-      setChanges({});
-      setOpenSnack(true);
-    });
+    // ticketService.updateTicket(user!, ticket!, changes).then((resp: Ticket) => {
+    //   setTicket(resp);
+    //   setChanges({});
+    //   setOpenSnack(true);
+    // });
   };
 
   return (

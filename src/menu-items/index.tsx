@@ -54,7 +54,6 @@ const dashboard = {
   ],
 };
 
-
 const menuItems = {
   items: [dashboard],
 };

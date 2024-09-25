@@ -26,18 +26,17 @@ const FirebaseSocial = () => {
         const roles = idTokenClaims.roles || [];
 
         if (roles.includes('admin')) {
-          navigate('/inventory'); 
+          navigate('/inventory');
         } else if (roles.includes('volunteer')) {
-          navigate('/pick-your-name');  
+          navigate('/pick-your-name');
         } else {
-          navigate('/'); 
+          navigate('/');
         }
       })
       .catch((error) => {
         console.error('Login failed:', error);
       });
   };
-
 
   return (
     <Stack

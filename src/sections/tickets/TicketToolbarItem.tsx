@@ -16,8 +16,8 @@ import { ThunderboltOutlined } from '@ant-design/icons';
 import { DASSnackbar } from '../../components/DASSnackbar';
 import TicketDialog from './TicketDialog';
 import { Ticket } from './ticketService';
-import { loggingService } from '../../services/loggingService';
-import { UserContext } from '../../components/contexts/UserContext';
+// import { loggingService } from '../../services/loggingService';
+// import { UserContext } from '../../components/contexts/UserContext';
 
 // ==============================|| HEADER CONTENT - NOTIFICATION ||============================== //
 const Labels = {
@@ -26,7 +26,7 @@ const Labels = {
 
 const TicketToolbarItem: React.FC = () => {
   const anchorRef = useRef(null);
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
 
@@ -40,10 +40,10 @@ const TicketToolbarItem: React.FC = () => {
     setOpen(false);
   };
 
-  const handleError = (err: Error) => {
-    // loggingService.error(err.message, user!);
-    setOpen(false);
-  };
+  // const handleError = (err: Error) => {
+  //   loggingService.error(err.message, user!);
+  //   setOpen(false);
+  // };
 
   const toggle = () => {
     setOpen(!open);
@@ -68,11 +68,11 @@ const TicketToolbarItem: React.FC = () => {
           <ThunderboltOutlined />
         </IconButton>
       </Box>
-      <TicketDialog
+      {/* <TicketDialog
         open={open}
         handleSuccess={handleSuccess}
         handleError={handleError}
-      />
+      /> */}
       <DASSnackbar
         message={Labels.createdMessage}
         open={openSnack}

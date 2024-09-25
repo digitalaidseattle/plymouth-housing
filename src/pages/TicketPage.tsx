@@ -29,7 +29,7 @@ const Labels = {
 };
 const TicketPage = () => {
   const { id } = useParams();
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
   const [ticket, setTicket] = useState<Ticket>();
   const [changes, setChanges] = useState<Record<string, unknown>>({});
   const [messages, setMessages] = useState<Map<string, string>>(new Map());

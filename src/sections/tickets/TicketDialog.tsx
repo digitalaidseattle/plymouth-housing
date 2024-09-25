@@ -34,9 +34,9 @@ interface TicketDialogProps {
 const TicketDialog: React.FC<TicketDialogProps> = ({
   open,
   handleSuccess,
-  handleError,
+  // handleError,
 }) => {
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
   const { data: sources } = useAppConstants('SOURCE');
   const [source, setSource] = useState('email');
 
@@ -53,7 +53,7 @@ const TicketDialog: React.FC<TicketDialogProps> = ({
         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
-          const formJson = Object.fromEntries(formData.entries());
+          // const formJson = Object.fromEntries(formData.entries());
           // Review: as unknown as Ticket
           ticketService
             // .createTicket(user!, formJson as unknown as Ticket)

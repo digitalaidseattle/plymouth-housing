@@ -80,9 +80,7 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       // setAvatar(user.user_metadata.avatar_url)
-      setUsername(
-        user.preferred_username ? user.preferred_username : user.email,
-      );
+      setUsername(user.name ?? 'Null');
     }
   }, [user]);
 

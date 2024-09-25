@@ -22,12 +22,22 @@ const FirebaseSocial = () => {
       .loginPopup(loginRequest)
       .then((response) => {
         instance.setActiveAccount(response.account);
-        navigate('/');
+        const idTokenClaims = response.idTokenClaims as { roles?: string[] };
+        const roles = idTokenClaims.roles || [];
+
+        if (roles.includes('admin')) {
+          navigate('/inventory'); 
+        } else if (roles.includes('volunteer')) {
+          navigate('/pick-your-name');  
+        } else {
+          navigate('/'); 
+        }
       })
       .catch((error) => {
         console.error('Login failed:', error);
       });
   };
+
 
   return (
     <Stack

@@ -13,6 +13,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
+import Paper from '@mui/material/Paper';
 
 type InventoryItem = {
   id: number;
@@ -20,7 +21,8 @@ type InventoryItem = {
   type: string;
   quantity: number;
   category: string;
-};
+  status: string;
+}
 
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
@@ -105,36 +107,26 @@ const Inventory = () => {
   };
 
   const handleFilter = () => {
-    const searchFiltered = originalData.filter(
-      (row: {
-        item: string;
-        type: string;
-        category: string;
-        quantity: number;
-      }) => {
-        const matchesType = type
-          ? row.type.toLowerCase().includes(type.toLowerCase())
-          : true;
+    const searchFiltered = originalData.filter((row: { item: string, type: string, category: string, quantity: number; status: string }) => {
 
-        const matchesCategory = category
-          ? row.category.toLowerCase().includes(category.toLowerCase())
-          : true;
+      const matchesType = type ? row.type.toLowerCase().includes(type.toLowerCase()) : true;
 
-        // const matchesStatus = status ? item.status.toLowerCase().includes(status.toLowerCase()) : true; //Status functionality not implemented yet. TODO
+      const matchesCategory = category ? row.category.toLowerCase().includes(category.toLowerCase()) : true;
 
-        const lowerCaseSearch = search.toLowerCase();
+      const matchesStatus = status ? row.status.toLowerCase().includes(status.toLowerCase()) : true;
 
-        const matchesSearch = search
-          ? row.item.toLowerCase().includes(lowerCaseSearch) ||
-            row.type.toLowerCase().includes(lowerCaseSearch) ||
-            row.category.toLowerCase().includes(lowerCaseSearch) ||
-            // item.status.toLowerCase().includes(lowerCaseSearch) || //Status functionality not implemented yet. TODO
-            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
-          : true;
+      const lowerCaseSearch = search.toLowerCase();
 
-        return matchesType && matchesCategory && matchesSearch;
-      },
-    );
+      const matchesSearch = search
+        ? row.item.toLowerCase().includes(lowerCaseSearch) ||
+        row.type.toLowerCase().includes(lowerCaseSearch) ||
+        row.category.toLowerCase().includes(lowerCaseSearch) ||
+        row.status.toLowerCase().includes(lowerCaseSearch) ||
+        row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+        : true;
+
+      return matchesType && matchesCategory && matchesSearch && matchesStatus;
+    });
 
     setData(searchFiltered);
   };
@@ -147,7 +139,7 @@ const Inventory = () => {
   const fetchData = async () => {
     const { data: inventory, error } = await supabase
       .from('inventory')
-      .select(`id, item, type, quantity, category`);
+      .select(`id, item, type, quantity, category, status`);
 
     if (error) {
       console.error('Error fetching inventory:', error);
@@ -347,7 +339,7 @@ const Inventory = () => {
 
       {/* Inventory Table */}
       <Box id="inventory-container">
-        <TableContainer>
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -360,12 +352,17 @@ const Inventory = () => {
             </TableHead>
             <TableBody>
               {currentItems.map((row, index) => (
-                <TableRow key={index}>
+                <TableRow
+                  key={index}
+                  component={Paper}
+                  sx={{
+                    boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)'
+                  }}
+                >
                   <TableCell>{row.item}</TableCell>
                   <TableCell>{row.type}</TableCell>
                   <TableCell>{row.category}</TableCell>
-                  {/* <TableCell>{row.status}</TableCell> Status will need to populate based on quantity */}
-                  <TableCell>In Progress</TableCell>
+                  <TableCell>{row.status}</TableCell>
                   <TableCell>{row.quantity}</TableCell>
                 </TableRow>
               ))}

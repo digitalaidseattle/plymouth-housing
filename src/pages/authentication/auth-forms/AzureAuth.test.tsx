@@ -7,7 +7,7 @@
 import { render } from '@testing-library/react';
 import { afterEach, assert, describe, expect, it, vi } from 'vitest';
 import { authService } from '../../../services/authService';
-import FirebaseSocial from './FirebaseSocial';
+import FirebaseSocial from './AzureAuth';
 import { OAuthResponse } from '@supabase/supabase-js';
 
 // ==============================|| FIREBASE - SOCIAL BUTTON ||============================== //

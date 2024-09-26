@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import { Ticket, ticketService } from './ticketService';
 import useAppConstants from '../../services/useAppConstants';
-// import { UserContext } from '../../components/contexts/UserContext';
+// import { UserContext } from '../../components/contexts/UserContext'; //TODO update UserContext and related code
 
 interface TicketDialogProps {
   open: boolean;
@@ -34,9 +34,9 @@ interface TicketDialogProps {
 const TicketDialog: React.FC<TicketDialogProps> = ({
   open,
   handleSuccess,
-  // handleError,
+  // handleError, //TODO
 }) => {
-  // const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext); //TODO
   const { data: sources } = useAppConstants('SOURCE');
   const [source, setSource] = useState('email');
 
@@ -52,13 +52,13 @@ const TicketDialog: React.FC<TicketDialogProps> = ({
         component: 'form',
         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-          // const formData = new FormData(event.currentTarget);
-          // const formJson = Object.fromEntries(formData.entries());
+          // const formData = new FormData(event.currentTarget); //TODO
+          // const formJson = Object.fromEntries(formData.entries()); //TODO
           // Review: as unknown as Ticket
           ticketService
-            // .createTicket(user!, formJson as unknown as Ticket)
-            // .then((resp: Ticket) => handleSuccess(resp))
-            // .catch((err) => handleError(err));
+            // .createTicket(user!, formJson as unknown as Ticket) //TODO
+            // .then((resp: Ticket) => handleSuccess(resp)) //TODO
+            // .catch((err) => handleError(err)); //TODO
         },
       }}
     >

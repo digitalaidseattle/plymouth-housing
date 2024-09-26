@@ -50,7 +50,7 @@ const MainLayout: React.FC = () => {
           console.error('Error acquiring token', error);
         });
     } else {
-      console.log('no account navigate("/login"); ');
+      console.log('Cannot get account, redirecting to login');
       navigate('/login');
     }
   }, [navigate]);

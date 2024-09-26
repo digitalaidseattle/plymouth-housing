@@ -74,13 +74,13 @@ const Profile = () => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
   const [username, setUsername] = useState<string>('');
-  // const [avatar, setAvatar] = useState<string>('');
+  // const [avatar, setAvatar] = useState<string>(''); //TODO add avatar
   const { instance } = useMsal();
 
   useEffect(() => {
     if (user) {
-      // setAvatar(user.user_metadata.avatar_url)
-      setUsername(user.name ?? 'Null');
+      // setAvatar(user.user_metadata.avatar_url) //TODO add avatar
+      setUsername(user.name ?? 'Null'); 
     }
   }, [user]);
 
@@ -132,7 +132,7 @@ const Profile = () => {
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
           <Avatar
             alt="profile user"
-            // src={avatar}
+            // src={avatar} //TODO add avatar
             sx={{ width: 32, height: 32 }}
           />
           <Typography variant="subtitle1">{username}</Typography>
@@ -186,7 +186,7 @@ const Profile = () => {
                           >
                             <Avatar
                               alt="profile user"
-                              // src={avatar}
+                              // src={avatar} //TODO 
                               sx={{ width: 32, height: 32 }}
                             />
                             <Stack>

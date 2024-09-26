@@ -12,31 +12,13 @@ import {
 } from '@supabase/supabase-js';
 import { supabaseClient } from './supabaseClient';
 
-//////////////
-const user: User = {
-  id: '12345',
-  app_metadata: {
-    provider: 'google',
-  },
-  user_metadata: {
-    firstName: 'John',
-    lastName: 'Doe',
-  },
-  aud: 'authenticated',
-  created_at: '2024-09-21T00:00:00Z', // ISO timestamp
-  updated_at: '2024-09-21T00:00:00Z', // ISO timestamp
-  // Optional fields can be omitted or added:
-  email: 'john.doe@example.com',
-  role: 'admin',
-};
-
 class AuthService {
   signOut = async (): Promise<void> => {};
 
   hasUser = async (): Promise<void> => {};
 
   getUser = async (): Promise<User | null> => {
-    return user;
+    return null; //TODO return user from azure
     // return supabaseClient.auth
     //   .getUser()
     //   .then((response: UserResponse) => response.data.user);

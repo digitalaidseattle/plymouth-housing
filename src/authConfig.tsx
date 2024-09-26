@@ -9,10 +9,12 @@
 import { Configuration, PopupRequest } from '@azure/msal-browser';
 
 export const msalConfig: Configuration = {
+  //This is the configuration for Azure Entra ID authentication
+  //The Azure App Registration must be configured with the redirectUri
   auth: {
-    clientId: '298df75e-98a0-4fa1-bf81-cd5602f5758b', // This is the ONLY mandatory field that you need to supply.
-    authority: 'https://TrialTenantmVxbixE4.ciamlogin.com/', // Replace the placeholder with your tenant subdomain
-    redirectUri: 'http://localhost:3000/', // Points to window.location.origin. You must register this URI on Microsoft Entra admin center/App Registration.
+    clientId: import.meta.env.VITE_AUTH_CLIENT_ID, // This is the ONLY mandatory field that you need to supply.
+    authority: import.meta.env.VITE_AUTH_AUTHORITY, // Replace the placeholder with your tenant subdomain
+    redirectUri: import.meta.env.VITE_AUTH_REDIRECT_URI, // Points to window.location.origin. You must register this URI on Microsoft Entra admin center/App Registration.
     postLogoutRedirectUri: '/login',
   },
   system: {

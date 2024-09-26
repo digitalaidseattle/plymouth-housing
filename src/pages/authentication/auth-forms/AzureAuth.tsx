@@ -11,7 +11,7 @@ import { loginRequest } from '../../../authConfig'; // see authConfig.ts code be
 import { useNavigate } from 'react-router-dom';
 // ==============================|| FIREBASE - SOCIAL BUTTON ||============================== //
 
-const FirebaseSocial = () => {
+const AzureAuth = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const { instance } = useMsal();

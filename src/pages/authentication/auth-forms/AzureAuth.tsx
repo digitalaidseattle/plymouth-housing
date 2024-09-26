@@ -1,15 +1,9 @@
-// material-ui
 import { Button, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-
-// assets
 import Microsoft from '../../../assets/images/icons/microsoft.svg';
-
-//azure oauth
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '../../../authConfig'; // see authConfig.ts code bellow
 import { useNavigate } from 'react-router-dom';
-// ==============================|| FIREBASE - SOCIAL BUTTON ||============================== //
 
 const AzureAuth = () => {
   const theme = useTheme();
@@ -64,4 +58,4 @@ const AzureAuth = () => {
   );
 };
 
-export default FirebaseSocial;
+export default AzureAuth;

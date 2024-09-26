@@ -1,5 +1,5 @@
 /**
- *  FirebaseSocial.test.tsx
+ *  AzureAuth.test.tsx
  *
  *  @copyright 2024 Digital Aid Seattle
  *
@@ -7,14 +7,14 @@
 import { render } from '@testing-library/react';
 import { afterEach, assert, describe, expect, it, vi } from 'vitest';
 import { authService } from '../../../services/authService';
-import FirebaseSocial from './AzureAuth';
+import AzureAuth from './AzureAuth';
 import { OAuthResponse } from '@supabase/supabase-js';
 
 // ==============================|| FIREBASE - SOCIAL BUTTON ||============================== //
 
-describe('FirebaseSocial tests', () => {
+describe('AzureAuth tests', () => {
   it('should render the app', () => {
-    const element = render(<FirebaseSocial />);
+    const element = render(<AzureAuth />);
     assert.isNotNull(element.queryByText('Google'));
     assert.isNotNull(element.queryByText('Microsoft'));
   });
@@ -26,7 +26,7 @@ describe('FirebaseSocial tests', () => {
       .mockReturnValue(resp);
     // const loggingSpy = vi.spyOn(loggingService, 'info')
 
-    const element = render(<FirebaseSocial />);
+    const element = render(<AzureAuth />);
     const button = element.queryByTitle('Login with Google');
     button?.click();
     await resp;
@@ -42,7 +42,7 @@ describe('FirebaseSocial tests', () => {
       );
     // const loggingSpy = vi.spyOn(loggingService, 'info')
 
-    const element = render(<FirebaseSocial />);
+    const element = render(<AzureAuth />);
     const button = element.queryByTitle('Login with Microsoft');
 
     button?.click();

@@ -87,13 +87,13 @@ const CheckoutPage = () => {
               {category.items.map(item => (
                 <Card key={item.id} style={{
                   display: "flex", width: "200px", height: "100px", margin: "10px 20px", justifyContent: "space-between", borderRadius: "10px",
-                  backgroundColor: checkoutItems.find(v => v.id === item.id) ? "#C0C0C0" : "white"
+                  backgroundColor: checkoutItems.find((v:any) => v.id === item.id) ? "#C0C0C0" : "white"
                 }}>
                   <CardContent>
                     <h3>{item.name}</h3>
                   </CardContent>
                   <CardActions>
-                    {checkoutItems.find(v => v.id === item.id) ? <IconButton style={{ backgroundColor: "#E8E8E8", width: "30px", height: "30px" }} onClick={() => handleRemoveItem(item)}><Remove /></IconButton> :
+                    {checkoutItems.find((v:any) => v.id === item.id) ? <IconButton style={{ backgroundColor: "#E8E8E8", width: "30px", height: "30px" }} onClick={() => handleRemoveItem(item)}><Remove /></IconButton> :
                       <IconButton style={{ backgroundColor: "#E8E8E8", width: "30px", height: "30px" }} onClick={() => handleAddItem(item)}><Add /></IconButton>
                     }
                   </CardActions>

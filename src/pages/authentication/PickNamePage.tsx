@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Stack,
   Typography,
   Button,
   Autocomplete,
   TextField,
+  Box,
 } from '@mui/material';
-import Logo from '../../components/Logo/Logo';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
-import ContactAdminDialog from './ContactAdminDialog';
 import SnackbarAlert from './SnackbarAlert';
 
 const names = [
@@ -26,7 +24,6 @@ const names = [
 
 const PickYourNamePage: React.FC = () => {
   const [selectedName, setSelectedName] = useState<string>('');
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -39,18 +36,10 @@ const PickYourNamePage: React.FC = () => {
 
   const handleNextClick = () => {
     if (selectedName) {
-      navigate('/enter-pin');
+      navigate('/enter-your-pin');
     } else {
       setOpenSnackbar(true);
     }
-  };
-
-  const handleDialogOpen = () => {
-    setOpenDialog(true);
-  };
-
-  const handleDialogClose = () => {
-    setOpenDialog(false);
   };
 
   const handleSnackbarClose = (
@@ -66,59 +55,65 @@ const PickYourNamePage: React.FC = () => {
   return (
     <MinimalWrapper>
       <CenteredLayout>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Logo />
-          <Typography variant="h5">
-            {import.meta.env.VITE_APPLICATION_NAME}
+        <Box sx={{ maxWidth: '350px', width: '100%' }}>
+          <Typography
+            variant="h4"
+            textAlign="left"
+            sx={{
+              height: '50px',
+              lineHeight: '50px',
+              marginBottom: 2,
+            }}
+          >
+            Pick Your Name
           </Typography>
-        </Stack>
-        <Typography
-          variant="h3"
-          textAlign="center"
-          sx={{
-            height: '50px',
-            lineHeight: '50px',
-            marginBottom: 2,
-          }}
-        >
-          Pick Your Name.
-        </Typography>
-        <Autocomplete
-          value={selectedName}
-          onChange={handleNameChange}
-          options={names}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Select your name"
-              variant="outlined"
-            />
-          )}
-          sx={{ minWidth: 300 }}
-        />
-        <Typography
-          variant="body2"
-          color="primary"
-          onClick={handleDialogOpen}
-          sx={{ cursor: 'pointer', textAlign: 'center', marginTop: 2 }}
-        >
-          Your name isn't listed.
-        </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleNextClick}
-          sx={{
-            height: '45px',
-            width: '200px',
-            fontSize: '16px',
-            marginTop: 2,
-          }}
-        >
-          Continue
-        </Button>
 
-        <ContactAdminDialog open={openDialog} onClose={handleDialogClose} />
+          <Typography
+            variant="body2"
+            sx={{
+              maxWidth: '100%',
+              textAlign: 'left',
+              marginBottom: 4,
+              lineHeight: 1.5,
+            }}
+          >
+            <strong>Can't find your name?</strong> Let a staff member know or
+            contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
+          </Typography>
+
+          <Autocomplete
+            value={selectedName}
+            onChange={handleNameChange}
+            options={names}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select your name"
+                variant="outlined"
+                sx={{ width: '100%' }}
+              />
+            )}
+            sx={{
+              width: '100%',
+              marginBottom: 8,
+              '& .MuiAutocomplete-inputRoot': { height: '56px' },
+            }}
+          />
+
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleNextClick}
+            sx={{
+              height: '45px',
+              width: '100%',
+              fontSize: '16px',
+            }}
+          >
+            Continue
+          </Button>
+        </Box>
+
         <SnackbarAlert
           open={openSnackbar}
           onClose={handleSnackbarClose}

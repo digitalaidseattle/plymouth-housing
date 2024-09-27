@@ -11,7 +11,7 @@ import { afterEach, assert, describe, it, vi } from 'vitest';
 import { DASSnackbar } from './DASSnackbar';
 import { render } from '@testing-library/react';
 
-describe('FirebaseSocial tests', () => {
+describe('Snackbar tests', () => {
   it('should render the DASSnackbar', () => {
     const element = render(
       <DASSnackbar

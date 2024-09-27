@@ -3,17 +3,13 @@ import MainLayout from '../layout/MainLayout';
 import MinimalLayout from '../layout/MinimalLayout';
 import TicketsGrid from '../sections/tickets/TicketsGrid';
 import TicketsTable from '../sections/tickets/TicketsTable';
-import MapPage from './MapPage';
 import PrivacyPage from './PrivacyPage';
 import TicketPage from './TicketPage';
-import UploadPage from './UploadPage';
 import Login from './authentication/Login';
 import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
 import DashboardDefault from './dashboard';
 import Page404 from './error/404';
-import SamplePage from './extra-pages/SamplePage';
-import DragDropPage from './dragdrop/DragDropPage';
 import Inventory from './inventory';
 
 const routes = [
@@ -24,10 +20,6 @@ const routes = [
       {
         path: '',
         element: <DashboardDefault />,
-      },
-      {
-        path: 'sample-page',
-        element: <SamplePage />,
       },
       {
         path: 'ticket/:id',
@@ -61,18 +53,6 @@ const routes = [
         path: 'privacy',
         element: <PrivacyPage />,
       },
-      {
-        path: 'upload',
-        element: <UploadPage />,
-      },
-      {
-        path: 'drag-drop',
-        element: <DragDropPage />,
-      },
-      {
-        path: 'map-example',
-        element: <MapPage />,
-      },
     ],
   },
   {
@@ -88,7 +68,7 @@ const routes = [
         element: <PickYourNamePage />,
       },
       {
-        path: 'enter-pin',
+        path: 'enter-your-pin',
         element: <EnterPin />,
       },
     ],

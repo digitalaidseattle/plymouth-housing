@@ -4,14 +4,14 @@
  */
 
 // react
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 // material-ui
 import { Button, Grid, Stack, Typography } from '@mui/material';
 
 import { DASSnackbar } from '../components/DASSnackbar';
-import { UserContext } from '../components/contexts/UserContext';
+// import { UserContext } from '../components/contexts/UserContext';
 import {
   TicketHistoryCard,
   TicketLongForm,
@@ -29,7 +29,7 @@ const Labels = {
 };
 const TicketPage = () => {
   const { id } = useParams();
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
   const [ticket, setTicket] = useState<Ticket>();
   const [changes, setChanges] = useState<Record<string, unknown>>({});
   const [messages, setMessages] = useState<Map<string, string>>(new Map());
@@ -65,11 +65,11 @@ const TicketPage = () => {
   };
 
   const save = () => {
-    ticketService.updateTicket(user!, ticket!, changes).then((resp: Ticket) => {
-      setTicket(resp);
-      setChanges({});
-      setOpenSnack(true);
-    });
+    // ticketService.updateTicket(user!, ticket!, changes).then((resp: Ticket) => {
+    //   setTicket(resp);
+    //   setChanges({});
+    //   setOpenSnack(true);
+    // });
   };
 
   return (

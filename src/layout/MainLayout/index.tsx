@@ -17,31 +17,42 @@ import Drawer from './Drawer';
 import Header from './Header';
 
 // types
-import { User } from '@supabase/supabase-js';
 import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 import ScrollTop from '../../components/ScrollTop';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { RefreshContextProvider } from '../../components/contexts/RefreshContext';
 import { UserContext } from '../../components/contexts/UserContext';
-import { authService } from '../../services/authService';
-
+import { useMsal } from '@azure/msal-react';
+import { IdTokenClaims } from '@azure/msal-common';
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const [user, setUser] = useState<User>(null as unknown as User);
+  const [user, setUser] = useState<IdTokenClaims | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const navigate = useNavigate();
+  const { instance } = useMsal();
 
   useEffect(() => {
-    authService.getUser().then((user: User | null) => {
-      if (user) {
-        setUser(user);
-      } else {
-        navigate('/login');
-      }
-    });
+    const account = instance.getActiveAccount();
+    if (account) {
+      instance
+        .acquireTokenSilent({
+          account: account,
+          scopes: ['openid', 'profile', 'email', 'User.Read'],
+        })
+        .then((response) => {
+          const userClaims = response.idTokenClaims;
+          setUser(userClaims || null);
+        })
+        .catch((error) => {
+          console.error('Error acquiring token', error);
+        });
+    } else {
+      console.log('Cannot get account, redirecting to login');
+      navigate('/login');
+    }
   }, [navigate]);
 
   const handleDrawerToggle = () => {

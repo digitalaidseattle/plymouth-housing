@@ -11,6 +11,7 @@ import PickYourNamePage from './authentication/PickNamePage';
 import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import Inventory from './inventory';
+import VolunteerHome from './VolunteerHome';
 
 const routes = [
   {
@@ -46,6 +47,14 @@ const routes = [
         element: (
           <MainCard title="Inventory">
             <Inventory />
+          </MainCard>
+        ),
+      },
+      {
+        path: 'volunteer-home',
+        element: (
+          <MainCard title="Volunteer Home">
+            <VolunteerHome />
           </MainCard>
         ),
       },

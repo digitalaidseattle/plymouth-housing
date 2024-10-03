@@ -10,16 +10,10 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
+import VolunteerNames from '../../data/volunteers';
 
-const names = [
-  'Alice',
-  'Allen',
-  'Bob',
-  'Ping-Chen Chan',
-  'Charlie',
-  'David',
-  'Eve',
-];
+
+
 //TODO: Implement the fetch logic to get the names from the server
 
 const PickYourNamePage: React.FC = () => {
@@ -84,7 +78,7 @@ const PickYourNamePage: React.FC = () => {
           <Autocomplete
             value={selectedName}
             onChange={handleNameChange}
-            options={names}
+            options={VolunteerNames}
             renderInput={(params) => (
               <TextField
                 {...params}

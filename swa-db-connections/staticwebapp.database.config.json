@@ -1,42 +1,33 @@
 {
-  "$schema": "https://github.com/Azure/data-api-builder/releases/latest/download/dab.draft.schema.json",
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.1.7/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
+    "connection-string": "",
     "options": {
-      "set-session-context": false 
-    },
-    "connection-string": "@env('DATABASE_CONNECTION_STRING')"
+      "set-session-context": false
+    }
   },
   "runtime": {
     "rest": {
       "enabled": true,
-      "path": "/rest"
+      "path": "/rest",
+      "request-body-strict": true
     },
     "graphql": {
-      "allow-introspection": true,
       "enabled": true,
-      "path": "/graphql"
+      "path": "/graphql",
+      "allow-introspection": true
     },
     "host": {
-      "mode": "production",
       "cors": {
-        "origins": ["http://localhost:4280"],
+        "origins": [],
         "allow-credentials": false
       },
       "authentication": {
         "provider": "StaticWebApps"
-      }
+      },
+      "mode": "production"
     }
-  }
-  // "entities": {
-  //   "Person": {
-  //     "source": "dbo.MyTestPersonTable",
-  //     "permissions": [
-  //       {
-  //         "actions": ["*"],
-  //         "role": "anonymous"
-  //       }
-  //     ]
-  //   }
-  // }
+  },
+  "entities": {}
 }

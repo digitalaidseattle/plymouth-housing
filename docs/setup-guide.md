@@ -48,6 +48,17 @@ There are tutorials that will help you get started:
     VITE_AUTH_REDIRECT_URI=http://localhost:3000 # callback URI
     ```
 
+1. You also need to add these settings for your build process. When the github action builds your app, it wil pull the variables out of the github repo section and inject them in the build process. 
+    
+    a. add these settings to your ```.github/workflows/{name}.yml file```:
+
+    ```
+        env:
+          VITE_AUTH_CLIENT_ID: ${{ vars.VITE_AUTH_CLIENT_ID }}
+          VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
+          VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
+    ```
+    b. Make sure these same variables are also under ```Secrets and variables/Actions/Variables/Repository variables``` in your Github repo settings. 
 
 
 1. Create the roles as is explained [a bit further in the Tutorial](https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph#create-roles).

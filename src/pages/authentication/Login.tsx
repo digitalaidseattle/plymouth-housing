@@ -17,7 +17,7 @@ const Login: React.FC = () => {
         <Stack direction="row" spacing={1} alignItems="center">
           <Logo />
           <Typography variant="h5">
-            {import.meta.env.VITE_AUTH_AUTHORITY}
+            {import.meta.env.VITE_AUTH_CLIENT_ID}
           </Typography>
         </Stack>
         <CenteredCard>

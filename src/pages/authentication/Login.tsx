@@ -30,6 +30,7 @@ const Login: React.FC = () => {
                 sx={{ mb: { xs: -0.5, sm: 0.5 } }}
               >
                 <Typography variant="h3" textAlign="center">
+                  {console.log(import.meta.env.VITE_AUTH_AUTHORITY)}
                   Please login
                 </Typography>
               </Stack>

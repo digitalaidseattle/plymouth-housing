@@ -17,7 +17,7 @@ const Login: React.FC = () => {
         <Stack direction="row" spacing={1} alignItems="center">
           <Logo />
           <Typography variant="h5">
-            {import.meta.env.VITE_APPLICATION_NAME}
+            {import.meta.env.VITE_AUTH_AUTHORITY}
           </Typography>
         </Stack>
         <CenteredCard>
@@ -30,7 +30,6 @@ const Login: React.FC = () => {
                 sx={{ mb: { xs: -0.5, sm: 0.5 } }}
               >
                 <Typography variant="h3" textAlign="center">
-                  {console.log(import.meta.env.VITE_AUTH_AUTHORITY)}
                   Please login
                 </Typography>
               </Stack>

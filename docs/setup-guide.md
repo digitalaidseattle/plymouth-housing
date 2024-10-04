@@ -39,11 +39,23 @@ There are tutorials that will help you get started:
 
 1. Make sure you add both the URL for your production site as well as http://localhost:3000 to the callback URLs. The last one ensures you can debug locally. 
 
+1. Add the following settings to your ```.env.local```:
+
+    ```
+    # appid as in Entra App Registration
+    VITE_AUTH_CLIENT_ID=7c5c1bb2-faea-4bcf-babd-4fd023fabfd6 
+    VITE_AUTH_AUTHORITY=https://login.microsoftonline.com/common 
+    VITE_AUTH_REDIRECT_URI=http://localhost:3000 # callback URI
+    ```
+
+
+
 1. Create the roles as is explained [a bit further in the Tutorial](https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph#create-roles).
 
 1. Add users to the roles. Follow the steps on the page "Assign users to a Role". 
 
 1. Now OAuth is enabled on the website and you will have to sign in to access it. 
+
 
 ## Cloud Database for Production/Staging
 

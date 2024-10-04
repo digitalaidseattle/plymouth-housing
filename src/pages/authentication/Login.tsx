@@ -11,11 +11,6 @@ import CenteredLayout from './CenteredLayout';
 // ================================|| 404 ||================================ //
 
 const Login: React.FC = () => {
-  console.log(import.meta.env.VITE_AUTH_CLIENT_ID);
-  console.log(import.meta.env.VITE_AUTH_AUTHORITY);
-  console.log(import.meta.env.VITE_AUTH_REDIRECT_URI);
-  console.log(import.meta.env.VITE_SUPABASE_URL);
-
   return (
     <MinimalWrapper>
       <CenteredLayout>

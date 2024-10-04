@@ -15,7 +15,6 @@ const Login: React.FC = () => {
   console.log(import.meta.env.VITE_AUTH_AUTHORITY);
   console.log(import.meta.env.VITE_AUTH_REDIRECT_URI);
   console.log(import.meta.env.VITE_SUPABASE_URL);
-  console.log(import.meta.env.VITE_SUPABASE_ANON_KEY);
 
   return (
     <MinimalWrapper>

@@ -2,11 +2,11 @@
 
 ## Intro
 
-In Azure we use Static Web Apps as our hosting platform. All the documentation is [here](https://learn.microsoft.com/en-us/azure/static-web-apps/). 
+In Azure we use Static Web Apps (SWA) as our hosting platform. All the documentation for SWA is [here](https://learn.microsoft.com/en-us/azure/static-web-apps/). 
 
 ## Requirements
 
-- Access to an Azure subscription, either one for yourself or for your partner.
+- Access to an Azure subscription, either one for yourself or for venture partner.
 
 ## Create the App
 
@@ -18,15 +18,15 @@ In Azure we use Static Web Apps as our hosting platform. All the documentation i
 
 1. Under **deployment** select Github. Point it to the repo you just created under 1.
 
-1. Click Next to go to the Advanced tab. We are not using Azure Functions so we can leave this alone. 
+1. Click Next to go to the **Advanced** tab. We are not using Azure Functions so we can leave this alone. 
 
-1. We are also not using Tags in the next tab, so you can click Create
+1. We are also not using **Tags** in the next tab, so you can click Create
 
 1. This will bootstrap your github repo with some deployment details under `.github/workflows/{file}.yml`. This file contains the workflows that Github will perform when there is a PR and a merge on the repo. It also added a secret to the Github repo that is referenced in the yml file. 
 
 ## Adding OAuth
 
-You might need help from your partners Azure admin. Some of the Azure Entra ID steps are privileged. 
+You might need help from your partner's Azure admin. Some of the Azure Entra ID steps are privileged. 
 
 There are tutorials that will help you get started:
 - https://learn.microsoft.com/en-us/azure/static-web-apps/add-authentication
@@ -35,7 +35,7 @@ There are tutorials that will help you get started:
 
 1. For OAuth to work, you will need callback URIs. The [substeps in this Tutorial](https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph#create-a-microsoft-entra-application) will tell you how to create an Entra App Registration and set up the callback URIs.
 
-    >Create only the App Registration and stop at **Create a client secret**. That is only required for custom Role Authentication.
+    >Create only the App Registration and stop at **Create a client secret**. That is only required in case you need APIs (used for custom Role Authentication in the tutorial).
 
 1. Make sure you add both the URL for your production site as well as http://localhost:3000 to the callback URLs. The last one ensures you can debug locally. 
 
@@ -45,7 +45,7 @@ There are tutorials that will help you get started:
 
 1. Now OAuth is enabled on the website and you will have to sign in to access it. 
 
-## Hooking up a Database
+## Cloud Database for Production/Staging
 
 The template uses a SQL database. We use an Azure SQL Serverless database with Managed Identity. 
 
@@ -65,4 +65,19 @@ There are tutorials here:
     alter role db_datawriter add member [my-swa];
     ```
 
-1. To connect the database, your SWA needs a config file. You can create it with the az swa
+    Replace the [my-swa] the name of your SWA.
+
+1. The rest of the steps to connect the database are in [the tutorial mentioned earlier](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest).  
+
+## Local Database for Development
+
+You can also develop locally against a local install of SQL server. There are free editions for developers and SQL Express. 
+
+- make sure to update the ```DATABASE_CONNECTION_STRING``` in ```.env.local``` and reload with ```source .env.local```
+- you will get this error likely:
+
+    *The certificate chain was issued by an authority that is not trusted*
+
+    Adding ```TrustServerCertificate=True``` to the connection string will get you around that. (Yes, not recommended for any scenario other than local dev.)
+
+    ```DATABASE_CONNECTION_STRING=Server=localhost\SQLEXPRESS;Database=mySampleDatabase;Trusted_Connection=True;TrustServerCertificate=True```

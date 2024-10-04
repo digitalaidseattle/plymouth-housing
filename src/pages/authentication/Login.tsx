@@ -11,13 +11,19 @@ import CenteredLayout from './CenteredLayout';
 // ================================|| 404 ||================================ //
 
 const Login: React.FC = () => {
+  console.log(import.meta.env.VITE_AUTH_CLIENT_ID);
+  console.log(import.meta.env.VITE_AUTH_AUTHORITY);
+  console.log(import.meta.env.VITE_AUTH_REDIRECT_URI);
+  console.log(import.meta.env.VITE_SUPABASE_URL);
+  console.log(import.meta.env.VITE_SUPABASE_ANON_KEY);
+
   return (
     <MinimalWrapper>
       <CenteredLayout>
         <Stack direction="row" spacing={1} alignItems="center">
           <Logo />
           <Typography variant="h5">
-            {import.meta.env.VITE_AUTH_CLIENT_ID}
+            {import.meta.env.VITE_APPLICATION_NAME}
           </Typography>
         </Stack>
         <CenteredCard>

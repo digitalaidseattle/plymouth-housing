@@ -7,7 +7,7 @@ import {
   Typography,
   Autocomplete,
 } from '@mui/material';
-import moment from 'moment';
+import moment from 'moment/moment';
 import { Link as RouterLink } from 'react-router-dom';
 import Dot from '../../components/@extended/Dot';
 import MainCard from '../../components/MainCard';

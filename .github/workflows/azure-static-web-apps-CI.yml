@@ -27,9 +27,6 @@ jobs:
           if [ -z "$PR_URL" ]; then
             echo "No open PR targeting main from this branch. Exiting."
             exit 1
-          else
-            echo "PR URL: $PR_URL"
-            echo "::set-output name=pr_url::$PR_URL"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required for PR check

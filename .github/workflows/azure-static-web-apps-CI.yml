@@ -1,10 +1,10 @@
 name: Azure Static Web Apps CI
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
+  push:
     branches:
-      - main
+      - "**"
+      - "!main"
 
 jobs:
   build_and_deploy_job:
@@ -16,7 +16,7 @@ jobs:
         with:
           submodules: true
           lfs: false
-      # - name: Linting
+        # - name: Linting
       #   run: |
       #     echo "installing dependencies"
       #     npm install 
@@ -43,6 +43,7 @@ jobs:
           VITE_AUTH_CLIENT_ID: ${{ vars.VITE_AUTH_CLIENT_ID }}
           VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
           VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
+
       - name: Post URL
         run: |  
           echo "App deployed :rocket:" >> $GITHUB_STEP_SUMMARY

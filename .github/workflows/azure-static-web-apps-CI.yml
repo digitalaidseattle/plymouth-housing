@@ -25,7 +25,8 @@ jobs:
             echo "PR URL: $PR_URL"
             echo "::set-output name=pr_url::$PR_URL"
           fi
-
+        env:
+          GH_TOKEN: ${{ github.token }} # required for PR check
       - name: Check out source
         uses: actions/checkout@v3
         with:
@@ -58,7 +59,6 @@ jobs:
           VITE_AUTH_CLIENT_ID: ${{ vars.VITE_AUTH_CLIENT_ID }}
           VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
           VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
-          GH_TOKEN: ${{ github.token }} # required for PR check
 
       - name: Post URL
         run: |  

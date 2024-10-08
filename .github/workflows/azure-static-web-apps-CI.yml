@@ -58,6 +58,8 @@ jobs:
           VITE_AUTH_CLIENT_ID: ${{ vars.VITE_AUTH_CLIENT_ID }}
           VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
           VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
+          GH_TOKEN: ${{ github.token }} # required for PR check
+
       - name: Post URL
         run: |  
           echo "App deployed :rocket:" >> $GITHUB_STEP_SUMMARY

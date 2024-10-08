@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
+      - name: Check out source
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
       - name: Check for open PR targeting main
         id: check_pr
         run: |
@@ -28,12 +33,7 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required for PR check
-      - name: Check out source
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          lfs: false
-      # - name: Linting
+        # - name: Linting
       #   run: |
       #     echo "installing dependencies"
       #     npm install 

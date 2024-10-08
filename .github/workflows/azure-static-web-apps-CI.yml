@@ -1,13 +1,11 @@
 name: Azure Static Web Apps CI
 
 on:
-  # push:
-  #   branches:
-  #     - "**"
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
     branches:
       - "**"
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
 
 jobs:
   build_and_deploy_job:
@@ -16,6 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
+      - name: Check for open PR targeting main
+        id: check_pr
+        run: |
+          PR_URL=$(gh pr list --state open --base main --head "${{ github.ref_name }}" --json url --jq '.[].url')
+          if [ -z "$PR_URL" ]; then
+            echo "No open PR targeting main from this branch. Exiting."
+            exit 1
+          else
+            echo "PR URL: $PR_URL"
+            echo "::set-output name=pr_url::$PR_URL"
+          fi
+
       - name: Check out source
         uses: actions/checkout@v3
         with:

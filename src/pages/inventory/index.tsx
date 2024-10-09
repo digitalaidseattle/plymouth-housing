@@ -11,9 +11,10 @@ import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
-import { createClient } from '@supabase/supabase-js';
+// import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
+import axios from 'axios';
 
 type InventoryItem = {
   id: number;
@@ -131,22 +132,21 @@ const Inventory = () => {
     setData(searchFiltered);
   };
 
-  const supabase = createClient(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY,
-  ); // When we deploy this application or when we create a server, this will have to be changed to server side so that the anon_key can be hidden.
+  // const supabase = createClient(
+  //   import.meta.env.VITE_SUPABASE_URL,
+  //   import.meta.env.VITE_SUPABASE_ANON_KEY,
+  // ); // When we deploy this application or when we create a server, this will have to be changed to server side so that the anon_key can be hidden.
 
   const fetchData = async () => {
-    const { data: inventory, error } = await supabase
-      .from('inventory')
-      .select(`id, item, type, quantity, category, status`);
+    try {
+      const response = await axios.get('http://localhost:5000/api/inventory');
+      const inventory = response.data;
+      console.log('AzureDB:', inventory);
 
-    if (error) {
-      console.error('Error fetching inventory:', error);
-    } else {
-      console.log(inventory);
       setOriginalData(inventory);
       setData(inventory);
+    } catch (err) {
+      console.log('Error', err)
     }
   };
 

@@ -1,5 +1,4 @@
-# Architecture Design Document
-[This is GenAI generated doc. It is comprehensive. Feel free to modify and delete any section that is not needed.]
+# Iventory Design Document
 
 ## 1. Introduction
 
@@ -65,7 +64,7 @@ Inventory Table: Displays all items in the PH inventory, including fields such a
 
 ### 4.2 Component Descriptions
 - **Inventory Table**
-  - Responsibility: Displaying a list of all items in the inventory, including item-specific details such as type, category, status, and quanitty
+  - Responsibility: Displaying a list of all items in the inventory, including item-specific details such as type, category, status, and quantity
   - Interactions: Receives data from the state that is populated by fetching data from Supabase. Interacts with the filtering and search components to display relevant data based on user input
 
 - **Filter DropDwon/Search**:
@@ -96,7 +95,7 @@ Internal Structure: Table structure using JSX. Table rows dynamically generated 
 Dependencies: Supabase database for fetching data. Filtering, search, and pagination components. State management to manage data flow.
 
 **Filter DropDown/Search**
-Purpose: Allows users to filter the inventory based on predefineed fields or perform open-ended searches.
+Purpose: Allows users to filter the inventory based on predefined fields or perform open-ended searches.
 Input: User selection in dropdown or text input for search.
 Output: Filtered subset of items that meet criteria. Updated inventory table.
 Internal Structure: Dropdown menus for each filter. Search bar with an input field. Filter fuction that searches through the state and matches each filtered option.
@@ -170,7 +169,7 @@ Identify potential risks in the architecture and provide mitigation strategies.
 | Column Name      | Data Type | Description                          |
 |------------------|-----------|--------------------------------------|
 | `id`             | INT       | Primary key, auto-increment.         |
-| `item`     | VARCHAR   | Item's name.              |
+| `name`     | VARCHAR   | Item's name.              |
 | `type`  | VARCHAR   | Donation Type (donation or welcome basket)  |
 | `category`            | VARCHAR   | Category of item    |
 | `quantity` | INT  | Amount of item       |

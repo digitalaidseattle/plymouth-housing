@@ -1,4 +1,4 @@
-# Iventory Design Document
+# Inventory Design Document
 
 ## 1. Introduction
 

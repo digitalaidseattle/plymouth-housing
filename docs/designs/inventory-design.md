@@ -80,7 +80,7 @@ Inventory Table: Displays all items in the PH inventory, including fields such a
   - Interactions: Sends requests to the database to add new items or update existing ones. Updates the state with the newly added or modified items.
 
 - **Database**
-  - Responsibility: Stores all inventory information, including name, type, category, status, and quanitty.
+  - Responsibility: Stores all inventory information, including name, type, category, status, and quantity.
   - Interactions: System fetches data from Supabase
   - Adding/editing items sends API requests to Supabase
 

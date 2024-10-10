@@ -100,19 +100,23 @@ const PickYourNamePage: React.FC = () => {
             }}
           />
 
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleNextClick}
-            sx={{
-              height: '45px',
-              width: '100%',
-              fontSize: '16px',
-            }}
-          >
-            Continue
-          </Button>
-        </Box>
+        <Button
+          variant="contained"
+          onClick={handleNextClick}
+          sx={{
+            height: '45px',
+            width: '100%',
+            fontSize: '16px',
+            backgroundColor: 'black', 
+            color: 'white', 
+            '&:hover': {
+              backgroundColor: '#4f4f4f', 
+            },
+          }}
+        >
+              Continue
+            </Button>
+          </Box>
 
         <SnackbarAlert
           open={openSnackbar}

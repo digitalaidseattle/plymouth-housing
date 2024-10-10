@@ -5,7 +5,7 @@ import { Grid, Stack, Typography } from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
-import AzureAuth  from './auth-forms/AzureAuth';
+import AzureAuth from './auth-forms/AzureAuth';
 import CenteredLayout from './CenteredLayout';
 
 // ================================|| 404 ||================================ //

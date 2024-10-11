@@ -139,12 +139,12 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/inventory');
+      const response = await axios.get('http://localhost:4280/data-api/rest/Inventory');
       const inventory = response.data;
-      console.log('AzureDB:', inventory);
+      console.log('AzureDB:', inventory.value);
 
-      setOriginalData(inventory);
-      setData(inventory);
+      setOriginalData(inventory.value);
+      setData(inventory.value);
     } catch (err) {
       console.log('Error', err)
     }

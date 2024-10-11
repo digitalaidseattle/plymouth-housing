@@ -33,14 +33,14 @@ const TicketToolbarItem: React.FC = () => {
   const iconBackColorOpen = 'grey.300';
   const iconBackColor = 'grey.100';
 
-  // const handleSuccess = (resp: Ticket | null) => { //TODO 
+  // const handleSuccess = (resp: Ticket | null) => { //TODO
   //   if (resp) {
   //     setOpenSnack(true);
   //   }
   //   setOpen(false);
   // };
 
-  // const handleError = (err: Error) => { //TODO 
+  // const handleError = (err: Error) => { //TODO
   //   loggingService.error(err.message, user!);
   //   setOpen(false);
   // };

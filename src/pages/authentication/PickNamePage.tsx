@@ -12,8 +12,6 @@ import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 import VolunteerNames from '../../data/volunteers';
 
-
-
 //TODO: Implement the fetch logic to get the names from the server
 
 const PickYourNamePage: React.FC = () => {

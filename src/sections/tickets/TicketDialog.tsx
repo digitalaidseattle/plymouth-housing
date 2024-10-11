@@ -55,10 +55,10 @@ const TicketDialog: React.FC<TicketDialogProps> = ({
           // const formData = new FormData(event.currentTarget); //TODO
           // const formJson = Object.fromEntries(formData.entries()); //TODO
           // Review: as unknown as Ticket
-          ticketService
-            // .createTicket(user!, formJson as unknown as Ticket) //TODO
-            // .then((resp: Ticket) => handleSuccess(resp)) //TODO
-            // .catch((err) => handleError(err)); //TODO
+          ticketService;
+          // .createTicket(user!, formJson as unknown as Ticket) //TODO
+          // .then((resp: Ticket) => handleSuccess(resp)) //TODO
+          // .catch((err) => handleError(err)); //TODO
         },
       }}
     >

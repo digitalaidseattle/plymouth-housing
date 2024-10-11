@@ -80,7 +80,7 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       // setAvatar(user.user_metadata.avatar_url) //TODO add avatar
-      setUsername(user.name ?? 'Null'); 
+      setUsername(user.name ?? 'Null');
     }
   }, [user]);
 
@@ -186,7 +186,7 @@ const Profile = () => {
                           >
                             <Avatar
                               alt="profile user"
-                              // src={avatar} //TODO 
+                              // src={avatar} //TODO
                               sx={{ width: 32, height: 32 }}
                             />
                             <Stack>

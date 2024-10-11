@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const VolunteerHome: React.FC = () => {
   const navigate = useNavigate();
-  
+
   const handleAddItemClick = () => {
     navigate('/inventory');
   };

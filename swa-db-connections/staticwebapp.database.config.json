@@ -5,7 +5,7 @@
     "options": {
       "set-session-context": false
     },
-    "connection-string": "Server=tcp:myfreesqldbserver8465.database.windows.net,1433;Initial Catalog=myFreeDB;Persist Security Info=False;User ID=inventory-admin@plymouthhousing.org@myfreesqldbserver8465;Password=Volunteer4plymouth;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    "connection-string": "@env('DATABASE_CONNECTION_STRING')"
   },
   "runtime": {
     "rest": {

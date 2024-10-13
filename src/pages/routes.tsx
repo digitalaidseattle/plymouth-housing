@@ -12,6 +12,7 @@ import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import Inventory from './inventory';
 import VolunteerHome from './VolunteerHome';
+import CheckoutPage from './CheckoutPage';
 
 const routes = [
   {
@@ -62,7 +63,15 @@ const routes = [
         path: 'privacy',
         element: <PrivacyPage />,
       },
-    ],
+      {
+        path: "drag-drop",
+        element: <DragDropPage />,
+      },
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
+      },
+    ]
   },
   {
     path: '/',

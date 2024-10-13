@@ -64,10 +64,6 @@ const routes = [
         element: <PrivacyPage />,
       },
       {
-        path: "drag-drop",
-        element: <DragDropPage />,
-      },
-      {
         path: "checkout",
         element: <CheckoutPage />,
       },

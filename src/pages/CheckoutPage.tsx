@@ -1,0 +1,190 @@
+import { useState } from 'react';
+
+import {
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  TextField,
+  InputAdornment,
+  Card,
+  CardActions,
+  CardContent,
+  IconButton,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from '@mui/material';
+
+import { Search, Add, Remove, Close } from '@mui/icons-material';
+
+// data
+import { categories, buildingCodes } from '../data/checkoutPage';
+
+type CheckoutItem = {
+  id: string;
+  name: string;
+  quantity: number;
+}
+
+type Item = {
+  id: string;
+  name: string;
+}
+
+const CheckoutPage = () => {
+
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
+  const [openSummary, setOpenSummary] = useState(false);
+
+
+  const removeItemFromCart = (itemId: string) => {
+    setCheckoutItems(checkoutItems.filter((addedItem: CheckoutItem) => addedItem.id !== itemId));
+  }
+
+  const addItemToCart = (item: Item, quantity: number) => {
+    const foundIndex = checkoutItems.findIndex((addedItem: any) => addedItem.id === item.id);
+    if (foundIndex !== -1) {
+      const foundItem = checkoutItems[foundIndex];
+      if (foundItem.quantity + quantity === 0) {
+        removeItemFromCart(item.id);
+      } else {
+        const updatedItems = [...checkoutItems];
+        updatedItems[foundIndex] = { ...foundItem, quantity: foundItem.quantity + quantity };
+        setCheckoutItems(updatedItems);
+      }
+    } else {
+      const updatedItems = [...checkoutItems, { ...item, quantity: 1 }];
+      setCheckoutItems(updatedItems);
+    }
+  }
+
+  const renderItemQuantityButtons = (item: Item | CheckoutItem) => {
+    const foundInCart = checkoutItems.find((v: CheckoutItem) => v.id === item.id);
+    if (foundInCart) {
+      return (
+        <div style={{ display: "flex" }}>
+          <IconButton style={{ backgroundColor: "#E8E8E8", width: "20px", height: "20px" }} onClick={() => addItemToCart(item, -1)}><Remove fontSize="small" /></IconButton>
+          <span style={{ fontWeight: "bold", margin: "0 10px" }}>{foundInCart.quantity}</span>
+          <IconButton style={{ backgroundColor: "#E8E8E8", width: "20px", height: "20px" }} onClick={() => addItemToCart(item, 1)}><Add fontSize="small" /></IconButton>
+        </div>
+      );
+    }
+    return <IconButton style={{ backgroundColor: "#E8E8E8", width: "30px", height: "30px" }} onClick={() => addItemToCart(item, 1)}><Add /></IconButton>
+  }
+
+
+  return (
+    <div style={{ margin: "auto 100px" }}>
+      <h2>Check out</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end" }}>
+        <div>
+          <FormControl style={{ width: "150px" }}>
+            <InputLabel id="demo-simple-select-label">Building Code</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              label="Building Code"
+            >
+              {buildingCodes.map((buildingCode) => (
+                <MenuItem key={buildingCode.code} value={buildingCode.code}>{buildingCode.code} ({buildingCode.name})</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+        <div>
+          <TextField variant="standard" placeholder="Search..." type="search"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </div>
+      </div>
+      <div style={{ borderRadius: "10px", backgroundColor: "#F0F0F0" }}>
+        {categories.map((category) => (
+          <div key={category.id}>
+            <h3 style={{ margin: "20px 20px" }}>{category.name}</h3>
+            <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
+              {category.items.map(item => (
+                <Card key={item.id} style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center", width: "238px", height: "70px", margin: "10px", borderRadius: "10px",
+                  backgroundColor: checkoutItems.find((v: any) => v.id === item.id) ? "#C0C0C0" : "white"
+                }}>
+                  <CardContent>
+                    <h4>{item.name}</h4>
+                  </CardContent>
+                  <CardActions style={{ border: "1px red blue" }}>
+                    {renderItemQuantityButtons(item)}
+                  </CardActions>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      {checkoutItems.length > 0 && (
+        <div style={{ padding: "0 100px", display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", height: "100px", backgroundColor: "#C0C0C0" }}>
+          <p>{checkoutItems.reduce((accumulator, item) => accumulator + item.quantity, 0)} items selected</p>
+          <Button variant="text" style={{ color: "black", backgroundColor: "white" }} onClick={() => setOpenSummary(true)}>Continue</Button>
+        </div>
+      )}
+
+      <Dialog
+        onClose={() => setOpenSummary(false)}
+        aria-labelledby="customized-dialog-title"
+        open={openSummary}
+
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          <span style={{fontSize: "1.5rem"}}>Check Out Summary</span>
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={() => setOpenSummary(false)}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <Close />
+        </IconButton>
+        <DialogContent dividers style={{ width: "500px" }}>
+          {
+            checkoutItems.map((item: CheckoutItem) => (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "370px", alignItems: "center"}}>
+                  <div>
+                    <h4>{item.name}</h4>
+                  </div>
+                  {renderItemQuantityButtons(item)}
+                </div>
+                <div>
+                  <Button variant="text" onClick={() => removeItemFromCart(item.id)}>Remove</Button>
+                </div>
+              </div>
+            ))
+          }
+
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenSummary(false)}>
+            Cancel
+          </Button>
+          <Button autoFocus >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
+
+export default CheckoutPage;

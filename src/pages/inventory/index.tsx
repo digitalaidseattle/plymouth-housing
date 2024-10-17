@@ -26,7 +26,8 @@ type InventoryItem = {
 
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
-  const [data, setData] = useState<InventoryItem[]>([]);
+  const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
+  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
   const [type, setType] = useState('');
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
@@ -41,7 +42,7 @@ const Inventory = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorType(event.currentTarget);
@@ -52,6 +53,17 @@ const Inventory = () => {
   const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorStatus(event.currentTarget);
   };
+
+  const itemAlphabetizeHandle = () => {
+    if (itemAlph === 'asc') {
+      setItemAlph('desc');
+    } else if (itemAlph === 'desc') {
+      setItemAlph('original');
+    } else if (itemAlph === 'original') {
+      setItemAlph('asc');
+    }
+    console.log('Current order:', itemAlph)
+  }
 
   const handleTypeClose = () => {
     setAnchorType(null);
@@ -128,7 +140,13 @@ const Inventory = () => {
       return matchesType && matchesCategory && matchesSearch && matchesStatus;
     });
 
-    setData(searchFiltered);
+    if (itemAlph === 'asc') {
+      searchFiltered.sort((a, b) => a.item.localeCompare(b.item)); // Ascending A-Z
+    } else if (itemAlph === 'desc') {
+      searchFiltered.sort((a, b) => b.item.localeCompare(a.item)); // Descending Z-A
+    }
+
+    setDisplayData(searchFiltered);
   };
 
   const supabase = createClient(
@@ -146,7 +164,7 @@ const Inventory = () => {
     } else {
       console.log(inventory);
       setOriginalData(inventory);
-      setData(inventory);
+      setDisplayData(inventory);
     }
   };
 
@@ -163,6 +181,10 @@ const Inventory = () => {
       fetchData();
     }
   }, [type, category, status, search]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [itemAlph])
 
   return (
     <Box>
@@ -343,11 +365,11 @@ const Inventory = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Quantity</TableCell>
+                <TableCell sx={{fontWeight: 'bold', cursor: 'pointer'}} onClick={itemAlphabetizeHandle}>Item</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Type</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Category</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Status</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Quantity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -374,7 +396,7 @@ const Inventory = () => {
       {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Pagination
-          count={Math.ceil(data.length / itemsPerPage)}
+          count={Math.ceil(displayData.length / itemsPerPage)}
           page={currentPage}
           onChange={handlePageChange}
         />

@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, Button, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
+import TicketDialog from '../../sections/tickets/TicketDialog';
+import { Ticket } from '../../sections/tickets/ticketService';
+import { DASSnackbar } from '../../components/DASSnackbar';
 
 const VolunteerHome: React.FC = () => {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [openSnack, setOpenSnack] = useState(false);
+  const handleSuccess = (resp: Ticket | null) => { //TODO
+    if (resp) {
+      setOpenSnack(true);
+    }
+    setOpen(false);
+  };
+
+  const handleError = (err: Error) => { //TODO
+    // loggingService.error(err.message, user!);
+    setOpen(false);
+  };
+
+  const toggle = () => {
+    setOpen(!open);
+  };
 
   const handleAddItemClick = () => {
     navigate('/inventory');
@@ -75,7 +95,8 @@ const VolunteerHome: React.FC = () => {
         <Grid item xs={12} sm={6} md={6}>
           <Button
             variant="outlined"
-            onClick={handleAddItemClick}
+            // onClick={handleAddItemClick}
+            onClick={toggle}
             sx={{
               height: '100%',
               width: '100%',
@@ -98,6 +119,18 @@ const VolunteerHome: React.FC = () => {
           </Button>
         </Grid>
       </Grid>
+
+      <TicketDialog 
+        open={open}
+        handleSuccess={handleSuccess}
+        handleError={handleError}
+      />
+            <DASSnackbar
+        message={'Success!'}
+        open={openSnack}
+        severity={'success'}
+        onClose={() => setOpenSnack(false)}
+      />
     </Box>
   );
 };

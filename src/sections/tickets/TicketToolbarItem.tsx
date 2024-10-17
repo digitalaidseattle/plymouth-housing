@@ -14,8 +14,8 @@ import { Box, IconButton } from '@mui/material';
 // assets
 import { ThunderboltOutlined } from '@ant-design/icons';
 import { DASSnackbar } from '../../components/DASSnackbar';
-// import TicketDialog from './TicketDialog'; //TODO
-// import { Ticket } from './ticketService';//TODO
+import TicketDialog from './TicketDialog'; //TODO
+import { Ticket } from './ticketService';//TODO
 // import { loggingService } from '../../services/loggingService';//TODO
 // import { UserContext } from '../../components/contexts/UserContext';//TODO
 
@@ -33,17 +33,17 @@ const TicketToolbarItem: React.FC = () => {
   const iconBackColorOpen = 'grey.300';
   const iconBackColor = 'grey.100';
 
-  // const handleSuccess = (resp: Ticket | null) => { //TODO
-  //   if (resp) {
-  //     setOpenSnack(true);
-  //   }
-  //   setOpen(false);
-  // };
+  const handleSuccess = (resp: Ticket | null) => { //TODO
+    if (resp) {
+      setOpenSnack(true);
+    }
+    setOpen(false);
+  };
 
-  // const handleError = (err: Error) => { //TODO
-  //   loggingService.error(err.message, user!);
-  //   setOpen(false);
-  // };
+  const handleError = (err: Error) => { //TODO
+    // loggingService.error(err.message, user!);
+    setOpen(false);
+  };
 
   const toggle = () => {
     setOpen(!open);
@@ -68,11 +68,11 @@ const TicketToolbarItem: React.FC = () => {
           <ThunderboltOutlined />
         </IconButton>
       </Box>
-      {/* <TicketDialog //TODO 
+      <TicketDialog //TODO 
         open={open}
         handleSuccess={handleSuccess}
         handleError={handleError}
-      /> */}
+      />
       <DASSnackbar
         message={Labels.createdMessage}
         open={openSnack}

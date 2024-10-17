@@ -1,6 +1,3 @@
-USE Inventory;
-GO
-
 DROP TABLE IF EXISTS [dbo].[Items];
 GO
 

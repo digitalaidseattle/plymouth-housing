@@ -1,6 +1,3 @@
-USE Inventory;
-GO
-
 -- Insert data into the items table
 INSERT INTO Items (name, type, category, quantity, status) VALUES
 ('Bed Sheets', 'Donation', 'Beddings & Linens', 12, 'Medium'),

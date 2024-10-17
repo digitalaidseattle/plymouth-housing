@@ -119,9 +119,10 @@ You can also develop locally against a local install of SQL server. There are fr
 
 ### Cloud Database for Development
 
-Similar as above. 
+Similar as above, but create a Azure SQL database. Easiest way to connect is to use SQL Authentication. 
+Make sure that you add your local IP to **Security/Networking** of the SQL Server (not the database)
 Just make sure that you can access the database from your local machine. 
-You can verify by adding it to the VS COde extension. 
+You can verify by adding it to the VS Code extension. 
 
 ## Local Development
 

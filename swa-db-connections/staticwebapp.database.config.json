@@ -20,18 +20,26 @@
     },
     "host": {
       "cors": {
-        "origins": [],
+        "origins": ["http://localhost:3000"],
         "allow-credentials": false
       },
       "authentication": {
         "provider": "StaticWebApps"
       },
-      "mode": "production"
+      "mode": "development"
     }
   },
   "entities": {
     "Item": {
-      "source": "dbo.Items",
+      "source": {
+        "object": "dbo.Items",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/item"
+      },
       "permissions": [
         {
           "actions": ["*"],

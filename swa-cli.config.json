@@ -6,8 +6,8 @@
       "outputLocation": "dist",
       "dataApiLocation": "swa-db-connections",
       "appBuildCommand": "npm run build",
-      "run": "npm run dev",
-      "appDevserverUrl": "http://localhost:5173"
+      "appDevserverUrl": "http://localhost:3000",
+      "run": "npm run dev"
     }
   }
 }

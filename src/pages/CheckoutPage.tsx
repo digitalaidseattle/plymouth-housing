@@ -1,5 +1,4 @@
 import { useState } from 'react';
-
 import {
   MenuItem,
   Select,
@@ -17,11 +16,8 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-
 import { Search, Add, Remove, Close } from '@mui/icons-material';
-
-// data
-import { categories, buildingCodes } from '../data/checkoutPage';
+import { categories, buildingCodes } from '../data/checkoutPage'; //TODO remove when SQL Is hooked up
 
 type CheckoutItem = {
   id: string;
@@ -38,14 +34,14 @@ const CheckoutPage = () => {
 
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
-
+  const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
 
   const removeItemFromCart = (itemId: string) => {
     setCheckoutItems(checkoutItems.filter((addedItem: CheckoutItem) => addedItem.id !== itemId));
   }
 
   const addItemToCart = (item: Item, quantity: number) => {
-    const foundIndex = checkoutItems.findIndex((addedItem: any) => addedItem.id === item.id);
+    const foundIndex = checkoutItems.findIndex((addedItem: CheckoutItem) => addedItem.id === item.id);
     if (foundIndex !== -1) {
       const foundItem = checkoutItems[foundIndex];
       if (foundItem.quantity + quantity === 0) {
@@ -75,18 +71,19 @@ const CheckoutPage = () => {
     return <IconButton style={{ backgroundColor: "#E8E8E8", width: "30px", height: "30px" }} onClick={() => addItemToCart(item, 1)}><Add /></IconButton>
   }
 
-
   return (
     <div style={{ margin: "auto 100px" }}>
       <h2>Check out</h2>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end" }}>
         <div>
           <FormControl style={{ width: "150px" }}>
-            <InputLabel id="demo-simple-select-label">Building Code</InputLabel>
+            <InputLabel id="select-building-code-label">Building Code</InputLabel>
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
+              labelId="select-building-code-label"
+              id="select-building-code"
               label="Building Code"
+              value={selectedBuildingCode || ''}
+              onChange={(event) => setSelectedBuildingCode(event.target.value)}
             >
               {buildingCodes.map((buildingCode) => (
                 <MenuItem key={buildingCode.code} value={buildingCode.code}>{buildingCode.code} ({buildingCode.name})</MenuItem>
@@ -114,7 +111,7 @@ const CheckoutPage = () => {
               {category.items.map(item => (
                 <Card key={item.id} style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center", width: "238px", height: "70px", margin: "10px", borderRadius: "10px",
-                  backgroundColor: checkoutItems.find((v: any) => v.id === item.id) ? "#C0C0C0" : "white"
+                  backgroundColor: checkoutItems.find((v: CheckoutItem) => v.id === item.id) ? "#C0C0C0" : "white"
                 }}>
                   <CardContent>
                     <h4>{item.name}</h4>
@@ -139,10 +136,9 @@ const CheckoutPage = () => {
         onClose={() => setOpenSummary(false)}
         aria-labelledby="customized-dialog-title"
         open={openSummary}
-
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          <span style={{fontSize: "1.5rem"}}>Check Out Summary</span>
+          <span style={{ fontSize: "1.5rem" }}>Check Out Summary</span>
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -159,8 +155,8 @@ const CheckoutPage = () => {
         <DialogContent dividers style={{ width: "500px" }}>
           {
             checkoutItems.map((item: CheckoutItem) => (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "10px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", width: "370px", alignItems: "center"}}>
+              <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "370px", alignItems: "center" }}>
                   <div>
                     <h4>{item.name}</h4>
                   </div>
@@ -172,7 +168,6 @@ const CheckoutPage = () => {
               </div>
             ))
           }
-
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenSummary(false)}>

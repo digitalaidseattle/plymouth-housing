@@ -28,7 +28,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   return (
     <Dialog onClose={onClose} aria-labelledby="customized-dialog-title" open={open}>
       <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        <span style={{ fontSize: "1.5rem" }}>Check Out Summary</span>
+        <span style={{ fontSize: "1.5rem" }}>Checkout Summary</span>
       </DialogTitle>
       <IconButton
         aria-label="close"

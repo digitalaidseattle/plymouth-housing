@@ -49,7 +49,7 @@ const CheckoutPage = () => {
       return (
         <div style={{ display: "flex" }}>
           <IconButton style={{ backgroundColor: "#E8E8E8", width: "20px", height: "20px" }} onClick={() => addItemToCart(item, -1)}><Remove fontSize="small" /></IconButton>
-          <span style={{ fontWeight: "bold", margin: "0 10px" }}>{foundInCart.quantity}</span>
+          <span style={{ fontWeight: "bold", margin: "0 10px" }} data-testid="test-id-quantity">{foundInCart.quantity}</span>
           <IconButton style={{ backgroundColor: "#E8E8E8", width: "20px", height: "20px" }} onClick={() => addItemToCart(item, 1)}><Add fontSize="small" /></IconButton>
         </div>
       );
@@ -67,6 +67,7 @@ const CheckoutPage = () => {
             <Select
               labelId="select-building-code-label"
               id="select-building-code"
+              data-testid="test-id-select-building-code"
               label="Building Code"
               value={selectedBuildingCode || ''}
               onChange={(event) => setSelectedBuildingCode(event.target.value)}

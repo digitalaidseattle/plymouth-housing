@@ -8,7 +8,7 @@ import {
   Button,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CheckoutItem } from './CheckoutPage'; // Assuming CheckoutItem is defined in the same file
+import { CheckoutItem } from '../../types/interfaces'
 
 type CheckoutDialogProps = {
   open: boolean;

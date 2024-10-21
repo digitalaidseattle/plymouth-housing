@@ -13,19 +13,9 @@ import {
   Button,
 } from '@mui/material';
 import { Search, Add, Remove } from '@mui/icons-material';
+import { CheckoutItem, Item } from '../../types/interfaces';
 import CheckoutDialog from './CheckoutDialog';
 import { categories, buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
-
-type CheckoutItem = {
-  id: string;
-  name: string;
-  quantity: number;
-}
-
-type Item = {
-  id: string;
-  name: string;
-}
 
 const CheckoutPage = () => {
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);

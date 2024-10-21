@@ -12,7 +12,7 @@ import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import Inventory from './inventory';
 import VolunteerHome from './VolunteerHome';
-import CheckoutPage from './CheckoutPage';
+import CheckoutPage from './checkout/CheckoutPage';
 
 const routes = [
   {

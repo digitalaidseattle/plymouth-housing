@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import CheckoutPage from './CheckoutPage';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
 
 // Mock categories and building codes data
@@ -12,9 +12,11 @@ vi.mock('../../data/checkoutPage', () => ({
 }));
 
 describe('CheckoutPage', () => {
-  it('renders the checkout page correctly', () => {
+  beforeEach(() => {
     render(<CheckoutPage />);
+  });
 
+  it('renders the checkout page correctly', () => {
     // Check if the heading is rendered
     expect(screen.getByText(/Check out/i)).toBeInTheDocument();
 
@@ -24,22 +26,25 @@ describe('CheckoutPage', () => {
     expect(screen.getByText(/Phone/i)).toBeInTheDocument();
   });
 
-  it('allows selecting a building code', () => {
-    render(<CheckoutPage />);
+  it('renders the building code select with correct label', () => {
+    expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
+  });
 
-    // Open the building code selector
-    fireEvent.mouseDown(screen.getByTestId('test-id-select-building-code'));
+  it('updates selected value when an option is chosen', () => {
+    const select = screen.getByLabelText('Building Code');
     
-    // Select a building code
-    fireEvent.click(screen.getByText("B1 (Building 1)"));
-
-    // Check if the selected building code is displayed
-    expect(screen.getByLabelText(/Building Code/i)).toHaveTextContent('B1');
+    // Open the dropdown
+    fireEvent.mouseDown(select);
+    
+    // Click the first option
+    const firstOption = screen.getByText('B1 (Building 1)');
+    fireEvent.click(firstOption);
+    
+    // Verify the selection
+    expect(select).toHaveTextContent('B1 (Building 1)'); 
   });
 
   it('adds an item to the cart and shows item quantity', () => {
-    render(<CheckoutPage />);
-
     // Check if the cart is initially empty (no summary button visible)
     expect(screen.queryByText(/items selected/i)).not.toBeInTheDocument();
 
@@ -53,8 +58,6 @@ describe('CheckoutPage', () => {
   }); 
 
   it('removes an item from the cart', () => {
-    render(<CheckoutPage />);
-
     // Add item to the cart
     const addItemButton = screen.getAllByTestId('AddIcon')[0];
     fireEvent.click(addItemButton);
@@ -71,8 +74,6 @@ describe('CheckoutPage', () => {
   });
 
   it('shows checkout dialog when "Continue" is clicked', () => {
-    render(<CheckoutPage />);
-
     // Add item to the cart
     const addItemButton = screen.getAllByTestId('AddIcon')[0];
     fireEvent.click(addItemButton);

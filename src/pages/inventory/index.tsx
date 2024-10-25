@@ -22,7 +22,7 @@ type InventoryItem = {
   quantity: number;
   category: string;
   status: string;
-}
+};
 
 const API = "/data-api/rest/item";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
@@ -111,26 +111,39 @@ const Inventory = () => {
   };
 
   const handleFilter = () => {
-    const searchFiltered = originalData.filter((row: { name: string, type: string, category: string, quantity: number; status: string }) => {
+    const searchFiltered = originalData.filter(
+      (row: {
+        name: string;
+        type: string;
+        category: string;
+        quantity: number;
+        status: string;
+      }) => {
+        const matchesType = type
+          ? row.type.toLowerCase().includes(type.toLowerCase())
+          : true;
 
-      const matchesType = type ? row.type.toLowerCase().includes(type.toLowerCase()) : true;
+        const matchesCategory = category
+          ? row.category.toLowerCase().includes(category.toLowerCase())
+          : true;
 
-      const matchesCategory = category ? row.category.toLowerCase().includes(category.toLowerCase()) : true;
+        const matchesStatus = status
+          ? row.status.toLowerCase().includes(status.toLowerCase())
+          : true;
 
-      const matchesStatus = status ? row.status.toLowerCase().includes(status.toLowerCase()) : true;
+        const lowerCaseSearch = search.toLowerCase();
 
-      const lowerCaseSearch = search.toLowerCase();
+        const matchesSearch = search
+          ? row.name.toLowerCase().includes(lowerCaseSearch) ||
+            row.type.toLowerCase().includes(lowerCaseSearch) ||
+            row.category.toLowerCase().includes(lowerCaseSearch) ||
+            row.status.toLowerCase().includes(lowerCaseSearch) ||
+            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+          : true;
 
-      const matchesSearch = search
-        ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-        row.type.toLowerCase().includes(lowerCaseSearch) ||
-        row.category.toLowerCase().includes(lowerCaseSearch) ||
-        row.status.toLowerCase().includes(lowerCaseSearch) ||
-        row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
-        : true;
-
-      return matchesType && matchesCategory && matchesSearch && matchesStatus;
-    });
+        return matchesType && matchesCategory && matchesSearch && matchesStatus;
+      },
+    );
 
     setData(searchFiltered);
   };
@@ -363,7 +376,8 @@ const Inventory = () => {
                   key={index}
                   component={Paper}
                   sx={{
-                    boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)'
+                    boxShadow:
+                      '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)',
                   }}
                 >
                   <TableCell>{row.name}</TableCell>

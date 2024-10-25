@@ -69,17 +69,22 @@ const EnterPinPage: React.FC = () => {
           <Box sx={{ marginBottom: 6 }}>
             <PinInput onPinChange={handlePinChange} />
           </Box>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleNextClick}
-            sx={{
-              height: '45px',
-              width: '100%',
-              fontSize: '16px',
-              marginTop: 2,
-            }}
-          >
+
+                    <Button
+          variant="contained"
+          onClick={handleNextClick}
+          sx={{
+            height: '45px',
+            width: '100%',
+            fontSize: '16px',
+            backgroundColor: 'black', 
+            color: 'white', 
+            marginTop: 2,
+            '&:hover': {
+              backgroundColor: '#4f4f4f', 
+            },
+          }}
+        >
             Continue
           </Button>
           <Typography

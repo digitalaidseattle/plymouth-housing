@@ -10,16 +10,8 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
+import VolunteerNames from '../../data/volunteers';
 
-const names = [
-  'Alice',
-  'Allen',
-  'Bob',
-  'Ping-Chen Chan',
-  'Charlie',
-  'David',
-  'Eve',
-];
 //TODO: Implement the fetch logic to get the names from the server
 
 const PickYourNamePage: React.FC = () => {
@@ -84,7 +76,7 @@ const PickYourNamePage: React.FC = () => {
           <Autocomplete
             value={selectedName}
             onChange={handleNameChange}
-            options={names}
+            options={VolunteerNames}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -100,19 +92,23 @@ const PickYourNamePage: React.FC = () => {
             }}
           />
 
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleNextClick}
-            sx={{
-              height: '45px',
-              width: '100%',
-              fontSize: '16px',
-            }}
-          >
-            Continue
-          </Button>
-        </Box>
+        <Button
+          variant="contained"
+          onClick={handleNextClick}
+          sx={{
+            height: '45px',
+            width: '100%',
+            fontSize: '16px',
+            backgroundColor: 'black', 
+            color: 'white', 
+            '&:hover': {
+              backgroundColor: '#4f4f4f', 
+            },
+          }}
+        >
+              Continue
+            </Button>
+          </Box>
 
         <SnackbarAlert
           open={openSnackbar}

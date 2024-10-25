@@ -51,6 +51,14 @@ const dashboard = {
       icon: icons.FileExclamationOutlined,
       breadcrumbs: false,
     },
+    {
+      id: 'checkout',
+      title: 'Checkout',
+      type: 'item',
+      url: '/checkout',
+      icon: icons.EyeInvisibleOutlined,
+      breadcrumbs: false,
+    },
   ],
 };
 

@@ -11,7 +11,6 @@ import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
-//import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 
@@ -154,14 +153,12 @@ const Inventory = () => {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      console.log(response);
       const data = await response.json();
-      console.log(response);
       setOriginalData(data.value);
       setData(data.value);
     } 
     catch (error) {
-      console.error('Error fetching inventory:', error);
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user. 
   }
     setIsLoading(false);
   };

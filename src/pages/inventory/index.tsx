@@ -11,23 +11,27 @@ import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
-import { createClient } from '@supabase/supabase-js';
+//import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 
 type InventoryItem = {
   id: number;
-  item: string;
+  name: string;
   type: string;
   quantity: number;
   category: string;
   status: string;
 };
 
+const API = "/data-api/rest/item";
+const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
+
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [data, setData] = useState<InventoryItem[]>([]);
   const [type, setType] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
@@ -109,7 +113,7 @@ const Inventory = () => {
   const handleFilter = () => {
     const searchFiltered = originalData.filter(
       (row: {
-        item: string;
+        name: string;
         type: string;
         category: string;
         quantity: number;
@@ -130,7 +134,7 @@ const Inventory = () => {
         const lowerCaseSearch = search.toLowerCase();
 
         const matchesSearch = search
-          ? row.item.toLowerCase().includes(lowerCaseSearch) ||
+          ? row.name.toLowerCase().includes(lowerCaseSearch) ||
             row.type.toLowerCase().includes(lowerCaseSearch) ||
             row.category.toLowerCase().includes(lowerCaseSearch) ||
             row.status.toLowerCase().includes(lowerCaseSearch) ||
@@ -144,24 +148,27 @@ const Inventory = () => {
     setData(searchFiltered);
   };
 
-  const supabase = createClient(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY,
-  ); // When we deploy this application or when we create a server, this will have to be changed to server side so that the anon_key can be hidden.
-
   const fetchData = async () => {
-    const { data: inventory, error } = await supabase
-      .from('inventory')
-      .select(`id, item, type, quantity, category, status`);
-
-    if (error) {
+    try {
+      const response = await fetch(API, { headers: HEADERS, method: "GET" });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      console.log(response);
+      const data = await response.json();
+      console.log(response);
+      setOriginalData(data.value);
+      setData(data.value);
+    } 
+    catch (error) {
       console.error('Error fetching inventory:', error);
-    } else {
-      console.log(inventory);
-      setOriginalData(inventory);
-      setData(inventory);
-    }
+  }
+    setIsLoading(false);
   };
+
+  if (isLoading) {
+    return <p>Loading ...</p>;
+  }
 
   useEffect(() => {
     if (type || category || status || search) {
@@ -373,7 +380,7 @@ const Inventory = () => {
                       '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)',
                   }}
                 >
-                  <TableCell>{row.item}</TableCell>
+                  <TableCell>{row.name}</TableCell>
                   <TableCell>{row.type}</TableCell>
                   <TableCell>{row.category}</TableCell>
                   <TableCell>{row.status}</TableCell>

@@ -21,7 +21,8 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token:
-            ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_ISLAND_01BE9BF1E }}
+            ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_ISLAND_01BE9BF1E
+            }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: 'upload'
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
@@ -37,6 +38,6 @@ jobs:
           VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
           VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
       - name: Post URL
-        run: |  
+        run: |
           echo "App deployed :rocket:" >> $GITHUB_STEP_SUMMARY
           echo ${{ steps.builddeploy.outputs.static_web_app_url }} >> $GITHUB_STEP_SUMMARY

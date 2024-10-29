@@ -13,9 +13,9 @@ export const msalConfig: Configuration = {
   //The Azure App Registration must be configured with the redirectUri
   auth: {
     //see the .env.example file for explanation and examples
-    clientId: import.meta.env.VITE_AUTH_CLIENT_ID, 
-    authority: import.meta.env.VITE_AUTH_AUTHORITY, 
-    redirectUri: import.meta.env.VITE_AUTH_REDIRECT_URI, 
+    clientId: import.meta.env.VITE_AUTH_CLIENT_ID,
+    authority: import.meta.env.VITE_AUTH_AUTHORITY,
+    redirectUri: import.meta.env.VITE_AUTH_REDIRECT_URI,
     postLogoutRedirectUri: '/login',
   },
   system: {

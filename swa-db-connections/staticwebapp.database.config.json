@@ -71,6 +71,22 @@
           "role": "anonymous"
         }
       ]
+    },
+    "VerifyPin": {
+      "source": {
+        "object": "dbo.VerifyVolunteerPin",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/verify-pin"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "anonymous"
+        }
+      ]
     }
   }
 }

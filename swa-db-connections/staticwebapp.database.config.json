@@ -50,6 +50,27 @@
           "role": "anonymous"
         }
       ]
+    },
+    "Volunteer": {
+      "source": {
+        "object": "dbo.Volunteers",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/volunteer"
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "anonymous"
+        }
+      ]
     }
   }
 }

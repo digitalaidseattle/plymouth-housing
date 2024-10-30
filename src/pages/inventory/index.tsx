@@ -147,10 +147,10 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-            row.type.toLowerCase().includes(lowerCaseSearch) ||
-            row.category.toLowerCase().includes(lowerCaseSearch) ||
-            row.status.toLowerCase().includes(lowerCaseSearch) ||
-            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+          row.type.toLowerCase().includes(lowerCaseSearch) ||
+          row.category.toLowerCase().includes(lowerCaseSearch) ||
+          row.status.toLowerCase().includes(lowerCaseSearch) ||
+          row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
         return matchesType && matchesCategory && matchesSearch && matchesStatus;
@@ -180,7 +180,7 @@ const Inventory = () => {
     }
     catch (error) {
       console.error('Error fetching inventory:', error);
-  }
+    }
     setIsLoading(false);
   };
 
@@ -381,7 +381,7 @@ const Inventory = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Item</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', cursor: 'pointer' }} onClick={itemAlphabetizeHandle}>Item</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Status</TableCell>

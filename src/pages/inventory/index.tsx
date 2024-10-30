@@ -153,13 +153,14 @@ const Inventory = () => {
             row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
-      return matchesType && matchesCategory && matchesSearch && matchesStatus;
-    });
+        return matchesType && matchesCategory && matchesSearch && matchesStatus;
+      },
+    );
 
     if (itemAlph === 'asc') {
-      searchFiltered.sort((a, b) => a.item.localeCompare(b.item)); // Ascending A-Z
+      searchFiltered.sort((a, b) => a.name.localeCompare(b.name)); // Ascending A-Z
     } else if (itemAlph === 'desc') {
-      searchFiltered.sort((a, b) => b.item.localeCompare(a.item)); // Descending Z-A
+      searchFiltered.sort((a, b) => b.name.localeCompare(a.name)); // Descending Z-A
     }
 
     setDisplayData(searchFiltered);
@@ -175,15 +176,12 @@ const Inventory = () => {
       const data = await response.json();
       console.log(response);
       setOriginalData(data.value);
-      setData(data.value);
+      setDisplayData(data.value);
     }
     catch (error) {
       console.error('Error fetching inventory:', error);
-    } else {
-      console.log(inventory);
-      setOriginalData(inventory);
-      setDisplayData(inventory);
-    }
+  }
+    setIsLoading(false);
   };
 
   if (isLoading) {
@@ -203,10 +201,6 @@ const Inventory = () => {
       fetchData();
     }
   }, [type, category, status, search]);
-
-  useEffect(() => {
-    handleFilter();
-  }, [itemAlph])
 
   return (
     <Box>
@@ -387,11 +381,11 @@ const Inventory = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{fontWeight: 'bold', cursor: 'pointer'}} onClick={itemAlphabetizeHandle}>Item</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}>Type</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}>Category</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}>Status</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}>Quantity</TableCell>
+                <TableCell>Item</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Quantity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

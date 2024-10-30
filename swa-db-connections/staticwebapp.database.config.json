@@ -2,7 +2,7 @@
   "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.1.7/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "",
+    "connection-string": "@env('DATABASE_CONNECTION_STRING')",
     "options": {
       "set-session-context": false
     }
@@ -20,14 +20,36 @@
     },
     "host": {
       "cors": {
-        "origins": [],
+        "origins": ["http://localhost:4280"],
         "allow-credentials": false
       },
       "authentication": {
         "provider": "StaticWebApps"
       },
-      "mode": "production"
+      "mode": "development"
     }
   },
-  "entities": {}
+  "entities": {
+    "Item": {
+      "source": {
+        "object": "dbo.Items",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/item"
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "anonymous"
+        }
+      ]
+    }
+  }
 }

@@ -393,10 +393,10 @@ const Inventory = () => {
                 ) : itemAlph === 'desc' ? (
                   <ArrowDownwardIcon fontSize="small" sx={{fontWeight: 'normal', ml: 0.5, color: 'gray'}}/>
                 ) : null}</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Quantity</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Quantity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -24,7 +24,7 @@ type InventoryItem = {
   status: string;
 };
 
-const API = "/data-api/rest/item";
+const API = "http://localhost:4280/data-api/rest/item";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
 
 const Inventory = () => {
@@ -172,9 +172,7 @@ const Inventory = () => {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      console.log(response);
       const data = await response.json();
-      console.log(response);
       setOriginalData(data.value);
       setDisplayData(data.value);
     }
@@ -190,6 +188,7 @@ const Inventory = () => {
 
   useEffect(() => {
     if (type || category || status || search) {
+      // console.log('database_connection_string:', process.env.DATABASE_CONNECTION_STRING);
       const handler = setTimeout(() => {
         handleFilter();
       }, 300); // Reduces calls to filter while typing in search
@@ -198,6 +197,7 @@ const Inventory = () => {
       };
       // handleFilter()
     } else {
+      // console.log('database_connection_string:', process.env.DATABASE_CONNECTION_STRING);
       fetchData();
     }
   }, [type, category, status, search]);

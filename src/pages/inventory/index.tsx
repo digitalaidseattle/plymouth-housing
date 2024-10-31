@@ -11,6 +11,8 @@ import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 //import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
@@ -66,7 +68,6 @@ const Inventory = () => {
     } else if (itemAlph === 'original') {
       setItemAlph('asc');
     }
-    console.log('Current order:', itemAlph)
   }
 
   const handleTypeClose = () => {
@@ -173,6 +174,7 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
+      console.log(data.value)
       setOriginalData(data.value);
       setDisplayData(data.value);
     }
@@ -201,6 +203,10 @@ const Inventory = () => {
       fetchData();
     }
   }, [type, category, status, search]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [itemAlph])
 
   return (
     <Box>
@@ -381,7 +387,12 @@ const Inventory = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', cursor: 'pointer' }} onClick={itemAlphabetizeHandle}>Item</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={itemAlphabetizeHandle}>Name
+                  {itemAlph === 'asc' ? (
+                  <ArrowUpwardIcon fontSize="small" sx={{fontWeight: 'normal', ml: 0.5, color: 'gray'}}/>
+                ) : itemAlph === 'desc' ? (
+                  <ArrowDownwardIcon fontSize="small" sx={{fontWeight: 'normal', ml: 0.5, color: 'gray'}}/>
+                ) : null}</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Status</TableCell>

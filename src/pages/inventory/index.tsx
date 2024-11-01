@@ -26,7 +26,7 @@ type InventoryItem = {
   status: string;
 };
 
-const API = "http://localhost:4280/data-api/rest/item";
+const API = "/data-api/rest/item";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
 
 const Inventory = () => {

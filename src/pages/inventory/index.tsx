@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -8,7 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import { Button, Menu, Modal, Pagination, Select, Typography } from '@mui/material';
+import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -16,6 +17,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 //import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
+import AddItemModal from '../../components/AddItemModal/AddItemModal';
 
 type InventoryItem = {
   id: number;
@@ -34,7 +36,6 @@ const Inventory = () => {
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
   const [addModal, setAddModal] = useState(false);
-  const [addItemType, setAddItemType] = useState('');
   const [type, setType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
@@ -52,6 +53,14 @@ const Inventory = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
+  const handleAddOpen = () => {
+    setAddModal(true)
+  }
+
+  const handleAddClose = () => {
+    setAddModal(false)
+  }
+
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorType(event.currentTarget);
   };
@@ -61,17 +70,6 @@ const Inventory = () => {
   const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorStatus(event.currentTarget);
   };
-  const handleAddClick = () => {
-    setAddModal(true)
-  }
-
-  const handleAddClose = () => {
-    setAddModal(false)
-  }
-
-  const handleAddItemType = (event: { target: { value: string } }) => {
-    setAddItemType(event.target.value)
-  }
 
   const itemAlphabetizeHandle = () => {
     if (itemAlph === 'asc') {
@@ -225,48 +223,12 @@ const Inventory = () => {
     <Box>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddClick}>
+        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
           Add
         </Button>
-        <Modal
-          open={addModal}
-          onClose={handleAddClose}
-        >
-          <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '50%', height: '50%', backgroundColor: 'white' }}>
-            <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-evenly', width: '80%', margin: 'auto', height: '100%'}}>
-              <Typography>
-                Add Item
-              </Typography>
-              <Box id="add-item-type">
-                <Typography>
-                  Item Type
-                </Typography>
-                <Select
-                  value={addItemType}
-                  onChange={handleAddItemType}
-                  sx={{ minWidth: '200px' }}
-                >
-                  <MenuItem value={'Donation'}>Donation</MenuItem>
-                  <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
-                </Select>
-              </Box>
-              <Box id="add-item-name">
-                <Typography>
-                  Item
-                </Typography>
-                <TextField></TextField>
-              </Box>
-              <Box id="add-item-quantity">
-                <Typography>
-                  Quantity
-                </Typography>
-                <TextField></TextField>
-              </Box>
-            </Box>
-          </Box>
-        </Modal>
       </Box>
+      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData}/>
 
       {/* Filter Container */}
       <Box

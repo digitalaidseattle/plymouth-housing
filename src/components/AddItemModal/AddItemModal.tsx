@@ -5,12 +5,13 @@ type AddItemModalProps = {
   addModal: boolean;
   handleAddClose: () => void;
   fetchData: () => void;
+  uniqueCategories: string[];
 }
 
 const API = "/data-api/rest/item";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', 'x-ms-client-principal-role': 'admin' }; //The server is denying me access to post, have to add the admin role to HEADERS. In the swa config file, if I add 'create' to the anonymous role, it will grant access
 
-const AddItemModal = ({ addModal, handleAddClose, fetchData }: AddItemModalProps) => {
+const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories }: AddItemModalProps) => {
 
   const [addType, setAddType] = useState('');
   const [addName, setAddName] = useState('');
@@ -95,7 +96,17 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData }: AddItemModalProps
             <Typography>
               Category
             </Typography>
-            <TextField sx={{ width: '100%' }} onChange={handleAddCategory}></TextField>
+            <Select
+              value={addType}
+              onChange={handleAddCategory}
+              sx={{ width: '100%' }}
+            >
+              {uniqueCategories.map((category: string) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </Select>
           </Box>
           <Box id="add-item-quantity" sx={{ width: '100%' }}>
             <Typography>

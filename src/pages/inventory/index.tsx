@@ -45,10 +45,12 @@ const Inventory = () => {
   const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
     null,
   );
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const categoryList = new Set<string>();
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
@@ -185,9 +187,18 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log(data.value)
-      setOriginalData(data.value);
-      setDisplayData(data.value);
+      const inventoryList = data.value;
+      console.log(inventoryList)
+      setOriginalData(inventoryList);
+      setDisplayData(inventoryList);
+
+      inventoryList.forEach((obj: InventoryItem) => {
+        const uniqueCategory = obj.category;
+        categoryList.add(uniqueCategory)
+      })
+
+      setUniqueCategories([...categoryList]);
+
     }
     catch (error) {
       console.error('Error fetching inventory:', error);
@@ -228,7 +239,7 @@ const Inventory = () => {
           Add
         </Button>
       </Box>
-      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData}/>
+      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories}/>
 
       {/* Filter Container */}
       <Box

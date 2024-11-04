@@ -46,7 +46,7 @@
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": ["read", "create"],
           "role": "anonymous"
         }
       ]

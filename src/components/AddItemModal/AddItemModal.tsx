@@ -9,7 +9,7 @@ type AddItemModalProps = {
 }
 
 const API = "/data-api/rest/item";
-const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', 'x-ms-client-principal-role': 'admin' }; //The server is denying me access to post, have to add the admin role to HEADERS. In the swa config file, if I add 'create' to the anonymous role, it will grant access
+const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', }; //The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
 
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories }: AddItemModalProps) => {
 
@@ -58,6 +58,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories }:
         console.error('Error posting to database:', error)
       }
       fetchData();
+      handleAddClose();
+      resetInputsHandler();
     }
   }
 

@@ -53,8 +53,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories }:
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const result = await response.json();
-        console.log(result.value);
       }
       catch (error) {
         console.error('Error posting to database:', error)

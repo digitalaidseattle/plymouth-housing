@@ -188,7 +188,6 @@ const Inventory = () => {
       }
       const data = await response.json();
       const inventoryList = data.value;
-      console.log(inventoryList)
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
 
@@ -212,7 +211,6 @@ const Inventory = () => {
 
   useEffect(() => {
     if (type || category || status || search) {
-      // console.log('database_connection_string:', process.env.DATABASE_CONNECTION_STRING);
       const handler = setTimeout(() => {
         handleFilter();
       }, 300); // Reduces calls to filter while typing in search
@@ -221,7 +219,6 @@ const Inventory = () => {
       };
       // handleFilter()
     } else {
-      // console.log('database_connection_string:', process.env.DATABASE_CONNECTION_STRING);
       fetchData();
     }
   }, [type, category, status, search]);

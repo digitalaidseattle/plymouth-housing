@@ -174,7 +174,6 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log(data.value)
       setOriginalData(data.value);
       setDisplayData(data.value);
     }
@@ -190,7 +189,6 @@ const Inventory = () => {
 
   useEffect(() => {
     if (type || category || status || search) {
-      // console.log('database_connection_string:', process.env.DATABASE_CONNECTION_STRING);
       const handler = setTimeout(() => {
         handleFilter();
       }, 300); // Reduces calls to filter while typing in search
@@ -199,7 +197,6 @@ const Inventory = () => {
       };
       // handleFilter()
     } else {
-      // console.log('database_connection_string:', process.env.DATABASE_CONNECTION_STRING);
       fetchData();
     }
   }, [type, category, status, search]);

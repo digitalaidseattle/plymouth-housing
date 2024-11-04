@@ -95,7 +95,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories }:
               Category
             </Typography>
             <Select
-              value={addType}
+              value={addCategory}
               onChange={handleAddCategory}
               sx={{ width: '100%' }}
             >

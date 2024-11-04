@@ -1,5 +1,5 @@
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 type AddItemModalProps = {
   addModal: boolean;

@@ -5,6 +5,9 @@ on:
     branches:
       - "**"
       - "!main"
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build_and_deploy_job:
@@ -12,18 +15,24 @@ jobs:
     name: Build and Deploy Job
     environment: staging
     steps:
+      # Step 1: Check out the code from the repository
       - name: Check out source
         uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
-        # TODO Turn on Linting when all errors are cleared. See Jira 117
-        # - name: Linting
-      #   run: |
-      #     echo "installing dependencies"
-      #     npm install 
-      #     echo "and linting"
-      #     npm run lint      
+
+      # Step 2: Install dependencies
+      - name: Install dependencies
+        run: |
+          npm install
+
+      # Step 3: Run unit tests
+      - name: Run unit tests
+        run: |
+          npm run test:unit 
+
+      # Step 4: Build and deploy the app to Azure Static Web Apps
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -43,6 +52,7 @@ jobs:
           VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
           VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
 
+      # Step 5: Post the deployed URL to GitHub Actions summary
       - name: Post URL
         run: |  
           echo "App deployed :rocket:" >> $GITHUB_STEP_SUMMARY

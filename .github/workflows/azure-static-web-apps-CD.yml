@@ -31,8 +31,6 @@ jobs:
           output_location: 'dist' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_AUTH_CLIENT_ID: ${{ vars.VITE_AUTH_CLIENT_ID }}
           VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
           VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}

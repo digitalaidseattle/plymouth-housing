@@ -11,7 +11,8 @@ import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu, Pagination, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
-//import { createClient } from '@supabase/supabase-js';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 
@@ -32,7 +33,8 @@ const HEADERS = {
 
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
-  const [data, setData] = useState<InventoryItem[]>([]);
+  const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
+  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
   const [type, setType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
@@ -48,7 +50,7 @@ const Inventory = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorType(event.currentTarget);
@@ -59,6 +61,16 @@ const Inventory = () => {
   const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorStatus(event.currentTarget);
   };
+
+  const itemAlphabetizeHandle = () => {
+    if (itemAlph === 'asc') {
+      setItemAlph('desc');
+    } else if (itemAlph === 'desc') {
+      setItemAlph('original');
+    } else if (itemAlph === 'original') {
+      setItemAlph('asc');
+    }
+  }
 
   const handleTypeClose = () => {
     setAnchorType(null);
@@ -138,17 +150,23 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-            row.type.toLowerCase().includes(lowerCaseSearch) ||
-            row.category.toLowerCase().includes(lowerCaseSearch) ||
-            row.status.toLowerCase().includes(lowerCaseSearch) ||
-            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+          row.type.toLowerCase().includes(lowerCaseSearch) ||
+          row.category.toLowerCase().includes(lowerCaseSearch) ||
+          row.status.toLowerCase().includes(lowerCaseSearch) ||
+          row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
         return matchesType && matchesCategory && matchesSearch && matchesStatus;
       },
     );
 
-    setData(searchFiltered);
+    if (itemAlph === 'asc') {
+      searchFiltered.sort((a, b) => a.name.localeCompare(b.name)); // Ascending A-Z
+    } else if (itemAlph === 'desc') {
+      searchFiltered.sort((a, b) => b.name.localeCompare(a.name)); // Descending Z-A
+    }
+
+    setDisplayData(searchFiltered);
   };
 
   const fetchData = async () => {
@@ -157,14 +175,13 @@ const Inventory = () => {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      console.log(response);
       const data = await response.json();
-      console.log(response);
       setOriginalData(data.value);
-      setData(data.value);
-    } catch (error) {
-      console.error('Error fetching inventory:', error);
+      setDisplayData(data.value);
     }
+    catch (error) {
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user. 
+  }
     setIsLoading(false);
   };
 
@@ -185,6 +202,10 @@ const Inventory = () => {
       fetchData();
     }
   }, [type, category, status, search]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [itemAlph])
 
   return (
     <Box>
@@ -365,11 +386,16 @@ const Inventory = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Quantity</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={itemAlphabetizeHandle}>Name
+                  {itemAlph === 'asc' ? (
+                  <ArrowUpwardIcon fontSize="small" sx={{fontWeight: 'normal', ml: 0.5, color: 'gray'}}/>
+                ) : itemAlph === 'desc' ? (
+                  <ArrowDownwardIcon fontSize="small" sx={{fontWeight: 'normal', ml: 0.5, color: 'gray'}}/>
+                ) : null}</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Quantity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -397,7 +423,7 @@ const Inventory = () => {
       {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Pagination
-          count={Math.ceil(data.length / itemsPerPage)}
+          count={Math.ceil(displayData.length / itemsPerPage)}
           page={currentPage}
           onChange={handlePageChange}
         />

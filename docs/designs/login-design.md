@@ -106,7 +106,7 @@ The high-level architecture includes the following components:
 
 ### 6.1 Security Considerations
 - **Azure OAuth**: Use Azure OAuth to ensure secure authentication.
-- **Domain Restriction**: After a user logs in through Azure OAuth via Supabase, enforce domain restrictions by verifying that the user's email domain matches @plymouthhousing.org. This ensures that only authorized users from the organization can log in.
+- **Domain Restriction**: After a user logs in through Azure OAuth via Entra ID, enforce domain restrictions by verifying that the user's email domain matches @plymouthhousing.org. This ensures that only authorized users from the organization can log in.
 - **Encryption in sensitive user information**: PINs and other sensitive data should be securely stored in the database using encryption. This protects the information from being exposed in case of a data breach.
 - **Data Validation**: Ensure that the PIN is exactly 4 digits long, validated both on the frontend and with server-side checks to prevent unauthorized access attempts and injection attacks.
 

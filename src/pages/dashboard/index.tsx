@@ -37,7 +37,6 @@ import avatar1 from '/src/assets/images/users/avatar-1.png';
 import avatar2 from '/src/assets/images/users/avatar-2.png';
 import avatar3 from '/src/assets/images/users/avatar-3.png';
 import avatar4 from '/src/assets/images/users/avatar-4.png';
-import TicketsTable from '../../sections/tickets/TicketsTable';
 
 // avatar style
 const avatarSX = {
@@ -149,9 +148,6 @@ const DashboardDefault = () => {
             </Stack>
           </Grid>
         </Grid>
-        <MainCard sx={{ mt: 2 }} content={false}>
-          <TicketsTable />
-        </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">

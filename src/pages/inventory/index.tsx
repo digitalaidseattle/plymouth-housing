@@ -25,6 +25,7 @@ type InventoryItem = {
   type: string;
   quantity: number;
   category: string;
+  definition: string;
   status: string;
 };
 
@@ -236,7 +237,7 @@ const Inventory = () => {
           Add
         </Button>
       </Box>
-      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories}/>
+      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories} originalData={originalData}/>
 
       {/* Filter Container */}
       <Box

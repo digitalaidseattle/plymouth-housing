@@ -1,5 +1,5 @@
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 type InventoryItem = {
   id: number;
@@ -55,18 +55,18 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     handleAddClose();
   }
 
-  const inputChangeHandler = (event: React.SyntheticEvent, value: string) => {
+  const inputChangeHandler = (event: { target: { value: string } }) => {
     // This function allows the dropdown menu to appear blank when initially clicking on the textbox. When a user types, it then updates the nameSearch options. nameSearch is then fed in as the possible options in the dropdown options
-    if (value) {
+    if (event.target.value) {
       const filteredItems = originalData.filter(
         (item) =>
-          item.name.toLowerCase().includes(value.toLowerCase()) || item.definition.toLowerCase().includes(value.toLowerCase())
+          item.name.toLowerCase().includes(event.target.value.toLowerCase()) || item.definition.toLowerCase().includes(event.target.value.toLowerCase())
       );
       setNameSearch(filteredItems);
     } else {
       setNameSearch([])
     }
-    setAddName(value);
+    setAddName(event.target.value);
   }
 
   const createItemHandler = async () => {

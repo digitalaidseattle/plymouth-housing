@@ -25,8 +25,11 @@ type InventoryItem = {
   status: string;
 };
 
-const API = "/data-api/rest/item";
-const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
+const API = '/data-api/rest/item';
+const HEADERS = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json;charset=utf-8',
+};
 
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
@@ -168,7 +171,7 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(API, { headers: HEADERS, method: "GET" });
+      const response = await fetch(API, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

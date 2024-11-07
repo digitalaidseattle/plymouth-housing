@@ -55,18 +55,18 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     handleAddClose();
   }
 
-  const inputChangeHandler = (event: { target: { value: string } }) => {
+  const inputChangeHandler = (_event: React.SyntheticEvent, value: string) => {
     // This function allows the dropdown menu to appear blank when initially clicking on the textbox. When a user types, it then updates the nameSearch options. nameSearch is then fed in as the possible options in the dropdown options
-    if (event.target.value) {
+    if (value) {
       const filteredItems = originalData.filter(
         (item) =>
-          item.name.toLowerCase().includes(event.target.value.toLowerCase()) || item.definition.toLowerCase().includes(event.target.value.toLowerCase())
+          item.name.toLowerCase().includes(value.toLowerCase()) || item.definition.toLowerCase().includes(value.toLowerCase())
       );
       setNameSearch(filteredItems);
     } else {
       setNameSearch([])
     }
-    setAddName(event.target.value);
+    setAddName(value);
   }
 
   const createItemHandler = async () => {

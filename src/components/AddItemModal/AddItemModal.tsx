@@ -56,8 +56,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
   }
 
   const inputChangeHandler = (event: React.SyntheticEvent, value: string) => {
-    // console.log('Original Data:', originalData)
-    // console.log('Value:', value)
     // This function allows the dropdown menu to appear blank when initially clicking on the textbox. When a user types, it then updates the nameSearch options. nameSearch is then fed in as the possible options in the dropdown options
     if (value) {
       const filteredItems = originalData.filter(
@@ -115,7 +113,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
                 // Display the name property in the dropdown
                 return typeof option === 'string' ? option : option.name || '';
               }}
-              filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options.
+              filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
                 return options.filter((option) =>
                   option.name.toLowerCase().includes(inputValue.toLowerCase()) ||
                   option.definition.toLowerCase().includes(inputValue.toLowerCase())
@@ -123,7 +121,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
               }}
               renderInput={(params) => <TextField {...params} />}
             />
-            {/* <TextField sx={{ width: '100%' }} onChange={handleAddName}></TextField> */}
           </Box>
 
           {/* Item Type */}

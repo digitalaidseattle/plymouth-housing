@@ -13,7 +13,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-//import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 
@@ -178,8 +177,8 @@ const Inventory = () => {
       setDisplayData(data.value);
     }
     catch (error) {
-      console.error('Error fetching inventory:', error);
-    }
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user. 
+  }
     setIsLoading(false);
   };
 

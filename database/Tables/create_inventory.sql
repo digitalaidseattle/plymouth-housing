@@ -3,9 +3,10 @@ GO
 
 CREATE TABLE Items (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     type VARCHAR(255) NOT NULL,
     category VARCHAR(255) NOT NULL,
+    definition VARCHAR(255),
     quantity INT NOT NULL,
     status AS (
         CASE

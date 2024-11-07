@@ -32,7 +32,7 @@ describe('AzureAuth', () => {
     vi.clearAllMocks();
 
     // Setup mocks for MSAL
-    (useMsal as vi.Mock).mockReturnValue({
+    (useMsal as ReturnType<typeof vi.fn>).mockReturnValue({
       instance: {
         loginPopup: mockLoginPopup,
         setActiveAccount: mockSetActiveAccount,
@@ -40,15 +40,15 @@ describe('AzureAuth', () => {
     });
 
     // Setup mock for useNavigate
-    (useNavigate as vi.Mock).mockReturnValue(mockNavigate);
+    (useNavigate as ReturnType<typeof vi.fn>).mockReturnValue(mockNavigate);
 
     // Setup mock for useTheme and useMediaQuery
-    (useTheme as vi.Mock).mockReturnValue({
+    (useTheme as ReturnType<typeof vi.fn>).mockReturnValue({
       breakpoints: {
         down: vi.fn().mockImplementation((size) => `(max-width:${size})`),
       },
     });
-    (MaterialModule.useMediaQuery as vi.Mock).mockReturnValue(false); // assumes larger screen size
+    (MaterialModule.useMediaQuery as ReturnType<typeof vi.fn>).mockReturnValue(false); // assumes larger screen size
   });
 
   it('renders login button with correct text', () => {

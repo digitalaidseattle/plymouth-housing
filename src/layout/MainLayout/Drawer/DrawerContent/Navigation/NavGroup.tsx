@@ -6,7 +6,7 @@ import { useContext } from 'react';
 import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpenContext';
 import NavItem from './NavItem';
 import { MenuItem } from '../../../../../components/contexts/ActiveMenuItemContext';
-
+import { UserContext } from '../../../../../components/contexts/UserContext';
 // ==============================|| NAVIGATION - LIST GROUP ||============================== //
 
 interface NavGroupProps {
@@ -14,7 +14,7 @@ interface NavGroupProps {
 }
 const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
   const { drawerOpen } = useContext(DrawerOpenContext);
-
+  const { user } = useContext(UserContext);
   const navCollapse = item.children?.map((menuItem: MenuItem) => {
     switch (menuItem.type) {
       case 'collapse':
@@ -30,6 +30,8 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
         );
       case 'item':
         return <NavItem key={menuItem.id} item={menuItem} level={1} />;
+      case 'admin':
+          return user?.roles?.includes('admin') && <NavItem key={menuItem.id} item={menuItem} level={1} />;
       default:
         return (
           <Typography

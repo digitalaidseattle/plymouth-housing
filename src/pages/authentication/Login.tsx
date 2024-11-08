@@ -5,7 +5,7 @@ import { Grid, Stack, Typography } from '@mui/material';
 import Logo from '../../components/Logo/Logo';
 import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
-import AzureAuth  from './auth-forms/AzureAuth';
+import AzureAuth from './auth-forms/AzureAuth';
 import CenteredLayout from './CenteredLayout';
 
 // ================================|| 404 ||================================ //
@@ -29,8 +29,8 @@ const Login: React.FC = () => {
                 alignItems="center"
                 sx={{ mb: { xs: -0.5, sm: 0.5 } }}
               >
-                <Typography variant="h3" textAlign="center">
-                  Please login
+                <Typography variant="h4" textAlign="center">
+                  Sign in with Microsoft account
                 </Typography>
               </Stack>
             </Grid>

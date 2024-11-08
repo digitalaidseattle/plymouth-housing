@@ -1,16 +1,14 @@
 import MainCard from '../components/MainCard';
 import MainLayout from '../layout/MainLayout';
 import MinimalLayout from '../layout/MinimalLayout';
-import TicketsGrid from '../sections/tickets/TicketsGrid';
-import TicketsTable from '../sections/tickets/TicketsTable';
-import PrivacyPage from './PrivacyPage';
-import TicketPage from './TicketPage';
 import Login from './authentication/Login';
 import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
 import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import Inventory from './inventory';
+import VolunteerHome from './VolunteerHome';
+import CheckoutPage from './checkout/CheckoutPage';
 
 const routes = [
   {
@@ -22,26 +20,6 @@ const routes = [
         element: <DashboardDefault />,
       },
       {
-        path: 'ticket/:id',
-        element: <TicketPage />,
-      },
-      {
-        path: 'tickets',
-        element: (
-          <MainCard title="Tickets Page">
-            <TicketsTable />
-          </MainCard>
-        ),
-      },
-      {
-        path: 'tickets-grid',
-        element: (
-          <MainCard title="Tickets Page">
-            <TicketsGrid />
-          </MainCard>
-        ),
-      },
-      {
         path: 'inventory',
         element: (
           <MainCard title="Inventory">
@@ -50,10 +28,18 @@ const routes = [
         ),
       },
       {
-        path: 'privacy',
-        element: <PrivacyPage />,
+        path: 'volunteer-home',
+        element: (
+          <MainCard title="Volunteer Home">
+            <VolunteerHome />
+          </MainCard>
+        ),
       },
-    ],
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
+      },
+    ]
   },
   {
     path: '/',

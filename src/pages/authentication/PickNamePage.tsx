@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -11,32 +11,66 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 
-const names = [
-  'Alice',
-  'Allen',
-  'Bob',
-  'Ping-Chen Chan',
-  'Charlie',
-  'David',
-  'Eve',
-];
-//TODO: Implement the fetch logic to get the names from the server
+const API = '/data-api/rest/volunteer';
+const HEADERS = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json;charset=utf-8',
+};
+
+interface Volunteer {
+  id: number;
+  name: string;
+}
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedName, setSelectedName] = useState<string>('');
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
+    null,
+  );
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchVolunteers = async () => {
+      try {
+        const response = await fetch(
+          `${API}?$select=id,name&$filter=active eq true`,
+          {
+            method: 'GET',
+            headers: HEADERS,
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Volunteers:', data);
+
+        setVolunteers(data.value);
+      } catch (error) {
+        console.error('Failed to fetch volunteers:', error);
+      }
+    };
+
+    fetchVolunteers();
+  }, []);
+
   const handleNameChange = (
-    _event: React.ChangeEvent<{}>,
-    value: string | null,
+    _event: React.SyntheticEvent,
+    value: Volunteer | null,
   ) => {
-    setSelectedName(value || '');
+    setSelectedVolunteer(value);
   };
 
   const handleNextClick = () => {
-    if (selectedName) {
-      navigate('/enter-your-pin');
+    if (selectedVolunteer) {
+      // Navigate to the next page, passing the volunteer ID via state
+      navigate('/enter-your-pin', {
+        state: { volunteerId: selectedVolunteer.id },
+      });
     } else {
       setOpenSnackbar(true);
     }
@@ -82,9 +116,10 @@ const PickYourNamePage: React.FC = () => {
           </Typography>
 
           <Autocomplete
-            value={selectedName}
+            value={selectedVolunteer}
             onChange={handleNameChange}
-            options={names}
+            options={volunteers}
+            getOptionLabel={(option) => option.name}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -102,12 +137,16 @@ const PickYourNamePage: React.FC = () => {
 
           <Button
             variant="contained"
-            color="secondary"
             onClick={handleNextClick}
             sx={{
               height: '45px',
               width: '100%',
               fontSize: '16px',
+              backgroundColor: 'black',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#4f4f4f',
+              },
             }}
           >
             Continue

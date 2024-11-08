@@ -1,0 +1,13 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "plymouth-housing": {
+      "appLocation": ".",
+      "outputLocation": "dist",
+      "dataApiLocation": "swa-db-connections",
+      "appBuildCommand": "npm run build",
+      "run": "npm run dev",
+      "appDevserverUrl": "http://localhost:3000"
+    }
+  }
+}

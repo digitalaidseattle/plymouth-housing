@@ -47,7 +47,8 @@ const MinimalFooter = () => {
           spacing={matchDownSM ? 1 : 3}
           textAlign={matchDownSM ? 'center' : 'inherit'}
         >
-          <Typography
+        {/* Comment out the Github and Privacy Policy links */}
+        {/*  <Typography
             variant="subtitle2"
             color="secondary"
             component={Link}
@@ -66,7 +67,7 @@ const MinimalFooter = () => {
             underline="hover"
           >
             Privacy Policy
-          </Typography>
+          </Typography> */}
         </Stack>
       </Stack>
     </Container>

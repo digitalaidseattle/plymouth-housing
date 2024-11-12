@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+import React from 'react';
 
 // material-ui
 import {
@@ -11,11 +12,12 @@ import { useTheme } from '@mui/material/styles';
 
 // assets
 import {
-  EditOutlined,
+//   EditOutlined,
   LogoutOutlined,
-  ProfileOutlined,
+/*   ProfileOutlined,
+
   UserOutlined,
-  WalletOutlined,
+  WalletOutlined, */
 } from '@ant-design/icons';
 
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
@@ -26,10 +28,10 @@ type ProfileTabProps = {
 const ProfileTab: React.FC<ProfileTabProps> = ({ handleLogout }) => {
   const theme = useTheme();
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+/*   const [selectedIndex, setSelectedIndex] = useState(0);
   const handleListItemClick = (_event: React.SyntheticEvent, index: number) => {
     setSelectedIndex(index);
-  };
+  };  */
 
   return (
     <List
@@ -79,7 +81,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ handleLogout }) => {
         </ListItemIcon>
         <ListItemText primary="Billing" />
       </ListItemButton> */}
-      <ListItemButton selected={selectedIndex === 2} onClick={handleLogout}>
+      <ListItemButton onClick={handleLogout}>
         <ListItemIcon>
           <LogoutOutlined />
         </ListItemIcon>

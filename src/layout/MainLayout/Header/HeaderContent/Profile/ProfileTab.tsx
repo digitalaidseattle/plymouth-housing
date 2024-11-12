@@ -42,7 +42,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ handleLogout }) => {
         },
       }}
     >
-      <ListItemButton
+      {/* <ListItemButton
         selected={selectedIndex === 0}
         onClick={(event) => handleListItemClick(event, 0)}
       >
@@ -78,7 +78,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ handleLogout }) => {
           <WalletOutlined />
         </ListItemIcon>
         <ListItemText primary="Billing" />
-      </ListItemButton>
+      </ListItemButton> */}
       <ListItemButton selected={selectedIndex === 2} onClick={handleLogout}>
         <ListItemIcon>
           <LogoutOutlined />

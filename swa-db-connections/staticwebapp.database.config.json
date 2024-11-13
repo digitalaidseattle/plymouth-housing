@@ -84,7 +84,7 @@
       "permissions": [
         {
           "actions": ["execute"],
-          "role": "admin"
+          "role": "volunteer"
         }
       ]
     }

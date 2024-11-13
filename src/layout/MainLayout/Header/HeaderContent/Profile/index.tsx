@@ -8,7 +8,7 @@ import {
   CardContent,
   ClickAwayListener,
   Grid,
-  IconButton,
+//   IconButton,
   Paper,
   Popper,
   Stack,
@@ -26,7 +26,7 @@ import SettingTab from './SettingTab';
 
 // assets
 import {
-  LogoutOutlined,
+//   LogoutOutlined,
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';

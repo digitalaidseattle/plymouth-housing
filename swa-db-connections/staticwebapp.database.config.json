@@ -47,7 +47,7 @@
         },
         {
           "actions": ["read"],
-          "role": "anonymous"
+          "role": "volunteer"
         }
       ]
     },
@@ -68,7 +68,7 @@
         },
         {
           "actions": ["read"],
-          "role": "anonymous"
+          "role": "volunteer"
         }
       ]
     },
@@ -84,7 +84,7 @@
       "permissions": [
         {
           "actions": ["execute"],
-          "role": "anonymous"
+          "role": "admin"
         }
       ]
     }

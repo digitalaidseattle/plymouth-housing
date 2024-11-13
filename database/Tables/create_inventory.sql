@@ -6,7 +6,7 @@ CREATE TABLE Items (
     name VARCHAR(255) NOT NULL UNIQUE,
     type VARCHAR(255) NOT NULL,
     category VARCHAR(255) NOT NULL,
-    definition VARCHAR(255),
+    description VARCHAR(255) NOT NULL DEFAULT '',
     quantity INT NOT NULL,
     status AS (
         CASE

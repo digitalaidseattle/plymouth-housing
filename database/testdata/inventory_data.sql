@@ -1,5 +1,5 @@
 -- Insert data into the items table
-INSERT INTO Items (name, type, category, definition, quantity) VALUES
+INSERT INTO Items (name, type, category, description, quantity) VALUES
 ('Bed Sheets', 'Donation', 'Beddings & Linens', 'Linens, sheets, covers', 12),
 ('Shampoo bottles', 'Donation', 'Bath & Toiletries', 'Hair cleanser, hair wash, hair care', 30),
 ('Cooking pots', 'Donation', 'Kitchenware', 'Cookware, saucepans, stockpots', 50),

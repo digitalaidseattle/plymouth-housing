@@ -7,7 +7,7 @@ type InventoryItem = {
   type: string;
   quantity: number;
   category: string;
-  definition: string;
+  description: string;
   status: string;
 };
 
@@ -25,6 +25,7 @@ const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/jso
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
 
   const [addName, setAddName] = useState('');
+  const [addDescription, setAddDescription] = useState('');
   const [addType, setAddType] = useState('');
   const [addCategory, setAddCategory] = useState('');
   const [addQuantity, setAddQuantity] = useState('');
@@ -47,11 +48,16 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     setAddQuantity(event.target.value)
   }
 
+  const handleAddDescription = (event: { target: { value: string } }) => {
+    setAddDescription(event.target.value)
+  }
+
   const resetInputsHandler = () => {
     setAddType('');
     setAddName('');
     setAddCategory('');
     setAddQuantity('');
+    setAddDescription('');
     handleAddClose();
   }
 
@@ -60,7 +66,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     if (value) {
       const filteredItems = originalData.filter(
         (item) =>
-          item.name.toLowerCase().includes(value.toLowerCase()) || item.definition.toLowerCase().includes(value.toLowerCase())
+          item.name.toLowerCase().includes(value.toLowerCase()) || item.description.toLowerCase().includes(value.toLowerCase())
       );
       setNameSearch(filteredItems);
     } else {
@@ -70,12 +76,12 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
   }
 
   const createItemHandler = async () => {
-    if (addType === '' || addName === '' || addCategory === '' || addQuantity === '') {
+    if (addType === '' || addName === '' || addCategory === '' || addQuantity === '' || addDescription === '') {
       setErrorMessage(true)
     } else {
       try {
         setErrorMessage(false);
-        const response = await fetch(API, { method: "POST", headers: HEADERS, body: JSON.stringify({ name: addName, type: addType, category: addCategory, quantity: addQuantity }) });
+        const response = await fetch(API, { method: "POST", headers: HEADERS, body: JSON.stringify({ name: addName, type: addType, category: addCategory, quantity: addQuantity, description: addDescription }) });
         if (!response.ok) {
           throw new Error(response.statusText);
         }
@@ -116,11 +122,19 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
               filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
                 return options.filter((option) =>
                   option.name.toLowerCase().includes(inputValue.toLowerCase()) ||
-                  option.definition.toLowerCase().includes(inputValue.toLowerCase())
+                  option.description.toLowerCase().includes(inputValue.toLowerCase())
                 );
               }}
               renderInput={(params) => <TextField {...params} />}
             />
+          </Box>
+
+          {/* Description */}
+          <Box id="add-item-description" sx={{ width: '100%' }}>
+            <Typography>
+              Description
+            </Typography>
+            <TextField sx={{ width: '100%' }} onChange={handleAddDescription}></TextField>
           </Box>
 
           {/* Item Type */}

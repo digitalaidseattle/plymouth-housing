@@ -25,7 +25,7 @@ type InventoryItem = {
   type: string;
   quantity: number;
   category: string;
-  definition: string;
+  description: string;
   status: string;
 };
 
@@ -90,7 +90,6 @@ const Inventory = () => {
 
   const handleMenuTypeClick = (value: string) => {
     setType(value);
-    // handleFilter(); Already called in the useEffect
     handleTypeClose();
   };
 
@@ -100,7 +99,6 @@ const Inventory = () => {
 
   const handleMenuCategoryClick = (value: string) => {
     setCategory(value);
-    handleFilter();
     handleCategoryClose();
   };
 
@@ -110,7 +108,6 @@ const Inventory = () => {
 
   const handleMenuStatusClick = (value: string) => {
     setStatus(value);
-    handleFilter();
     handleStatusClose();
   };
 
@@ -142,6 +139,7 @@ const Inventory = () => {
       (row: {
         name: string;
         type: string;
+        description: string;
         category: string;
         quantity: number;
         status: string;
@@ -162,6 +160,7 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
+          row.description.toLowerCase().includes(lowerCaseSearch) ||
           row.type.toLowerCase().includes(lowerCaseSearch) ||
           row.category.toLowerCase().includes(lowerCaseSearch) ||
           row.status.toLowerCase().includes(lowerCaseSearch) ||
@@ -234,7 +233,7 @@ const Inventory = () => {
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
         <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
+          Add/Update
         </Button>
       </Box>
       <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories} originalData={originalData}/>

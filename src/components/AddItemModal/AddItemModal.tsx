@@ -26,22 +26,18 @@ const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/jso
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
 
   const [updateId, setUpdateId] = useState<number>();
-  const [updateItem, setUpdateItem] = useState<boolean>(false);
+  const [updateItem, setUpdateItem] = useState<InventoryItem | string>();
   const [addName, setAddName] = useState('');
   const [addDescription, setAddDescription] = useState('');
   const [addType, setAddType] = useState('');
   const [addCategory, setAddCategory] = useState('');
   const [addQuantity, setAddQuantity] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
 
   const handleAddType = (event: { target: { value: string } }) => {
     setAddType(event.target.value)
   }
-
-  // const handleAddName = (event: { target: { value: string } }) => {
-  //   setAddName(event.target.value)
-  // }
 
   const handleAddCategory = (event: { target: { value: string } }) => {
     setAddCategory(event.target.value)
@@ -55,12 +51,13 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     setAddDescription(event.target.value)
   }
 
-  const handleUpdate = (
+  const onChangeHandler = (
     _event: React.SyntheticEvent | React.FocusEvent<HTMLElement>,
     value?: InventoryItem | string | null,
     _reason?: AutocompleteChangeReason,
     _details?: AutocompleteChangeDetails<InventoryItem>
   ) => {
+    console.log(typeof (value));
     if (value && typeof (value) === 'object') { //If name already exists, type will be an object
       setUpdateId(value.id);
       setAddName(value.name)
@@ -68,13 +65,11 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       setAddType(value.type)
       setAddCategory(value.category)
       setAddQuantity(value.quantity)
-      setUpdateItem(true);
+      setUpdateItem(value);
     } else if (typeof (value) === 'string') {
       console.log('handleUpdate', value);
       setAddName(value);
-      setUpdateItem(false);
-    } else {
-      setUpdateItem(false);
+      setUpdateItem(value);
     }
   };
 
@@ -99,26 +94,53 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       setNameSearch([])
     }
     setAddName(value);
+    setUpdateItem(value);
     console.log('inputChangeHandler:', value)
   }
 
   const createItemHandler = async () => {
     if (addType === '' || addName === '' || addCategory === '' || addQuantity === 0 || addDescription === '') {
-      setErrorMessage(true)
+      setErrorMessage('Missing Information')
     } else {
       try {
-        setErrorMessage(false);
         const response = await fetch(API, { method: "POST", headers: HEADERS, body: JSON.stringify({ name: addName, type: addType, category: addCategory, quantity: addQuantity, description: addDescription }) });
         if (!response.ok) {
           throw new Error(response.statusText);
+        } else {
+          setErrorMessage('');
+          fetchData();
+          handleAddClose();
+          resetInputsHandler();
         }
       }
       catch (error) {
-        console.error('Error posting to database:', error)
+        console.error('Error posting to database:', error);
+        setErrorMessage(`${error}`)
       }
-      fetchData();
-      handleAddClose();
-      resetInputsHandler();
+    }
+  }
+
+  const updateItemHandler = async () => {
+    console.log(updateId);
+    if (addType === '' || addName === '' || addCategory === '' || addDescription === '') {
+      setErrorMessage('Missing Information')
+    } else {
+      try {
+        const response = await fetch(`${API}/id/${updateId}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify({ type: addType, category: addCategory, quantity: addQuantity, description: addDescription }) });
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        } else {
+          setErrorMessage('');
+          fetchData();
+          handleAddClose();
+          resetInputsHandler();
+        }
+      }
+      catch (error) {
+        console.error('Error updating to database:', error);
+        setErrorMessage(`Error updating to database: ${error.message}`)
+        setErrorMessage(`${error}`)
+      }
     }
   }
 
@@ -130,19 +152,19 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '40%', height: '60%', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'space-evenly', width: '70%', margin: 'auto', height: '100%' }}>
           <Typography sx={{ fontSize: '20px', }}>
-            Add Item
+            Add/Update Item
           </Typography>
 
           {/* Item Name */}
           <Box id="add-item-name" sx={{ width: '100%' }}>
-            <Typography>
-              Name
+            <Typography fontWeight='bold'>
+              Name (Click the item from the dropdown if you want to update!)
             </Typography>
             <Autocomplete
               freeSolo
               onInputChange={inputChangeHandler}
-              onChange={handleUpdate}
-              onBlur={(event) => handleUpdate(event, null)}
+              onChange={onChangeHandler}
+              onBlur={(event) => onChangeHandler(event, updateItem)}
               options={nameSearch} // Pass the full array of objects
               getOptionLabel={(option) => {
                 // Display the name property in the dropdown
@@ -160,7 +182,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
 
           {/* Description */}
           <Box id="add-item-description" sx={{ width: '100%' }}>
-            <Typography>
+            <Typography fontWeight='bold'>
               Description
             </Typography>
             <TextField sx={{ width: '100%' }} value={addDescription} onChange={handleAddDescription}></TextField>
@@ -168,7 +190,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
 
           {/* Item Type */}
           <Box id="add-item-type" sx={{ width: '100%' }}>
-            <Typography>
+            <Typography fontWeight='bold'>
               Type
             </Typography>
             <Select
@@ -183,7 +205,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
 
           {/* Item Category */}
           <Box id="add-item-category" sx={{ width: '100%' }}>
-            <Typography>
+            <Typography fontWeight='bold'>
               Category
             </Typography>
             <Select
@@ -199,15 +221,15 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             </Select>
           </Box>
           <Box id="add-item-quantity" sx={{ width: '100%' }}>
-            <Typography>
+            <Typography fontWeight='bold'>
               Quantity
             </Typography>
             <TextField sx={{ width: '100%' }} value={addQuantity} type="number" onChange={handleAddQuantity}></TextField>
           </Box>
-          {errorMessage ? <Typography color='red'>Missing Information!</Typography> : null}
+          {errorMessage.length > 0 ? <Typography color='red'>{errorMessage}</Typography> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-            {updateItem ? <Button>Update</Button> : <Button sx={{ color: 'black' }} onClick={createItemHandler}>Create</Button>}
+            {typeof (updateItem) === 'object' ? <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Update</Button> : <Button sx={{ color: 'black' }} onClick={createItemHandler}>Create</Button>}
           </Box>
         </Box>
       </Box>

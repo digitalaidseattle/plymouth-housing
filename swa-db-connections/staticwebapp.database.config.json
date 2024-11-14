@@ -38,7 +38,8 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/item"
+        "path": "/item",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
@@ -46,7 +47,7 @@
           "role": "admin"
         },
         {
-          "actions": ["read", "create"],
+          "actions": ["read", "create", "update"],
           "role": "anonymous"
         }
       ]

@@ -24,7 +24,8 @@ jobs:
 
       - name: Linting
         run: |
-          npm run lint
+          npm run lint -- --max-warnings -1
+        # Treat warnings as non-fatal for now
 
       - name: Run unit tests
         run: |

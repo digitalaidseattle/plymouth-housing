@@ -14,7 +14,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-//import { createClient } from '@supabase/supabase-js';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
@@ -29,8 +28,11 @@ type InventoryItem = {
   status: string;
 };
 
-const API = "/data-api/rest/item";
-const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
+const API = '/data-api/rest/item';
+const HEADERS = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json;charset=utf-8',
+};
 
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
@@ -182,7 +184,7 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(API, { headers: HEADERS, method: "GET" });
+      const response = await fetch(API, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -201,8 +203,8 @@ const Inventory = () => {
 
     }
     catch (error) {
-      console.error('Error fetching inventory:', error);
-    }
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user. 
+  }
     setIsLoading(false);
   };
 

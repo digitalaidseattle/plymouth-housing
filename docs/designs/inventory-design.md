@@ -7,7 +7,7 @@ This document outlines the design for the inventory page for PH volunteers and a
 
 ### 1.2 Scope
 In Scope:
-- Table of inventory items pulling from supabase database. Includes pagination. <!-- This will change to Azure DB -->
+- Table of inventory items pulling from SQL database. Includes pagination.
 - Dropdown buttons for filtering table based on category, type, and status.
 - Search input to filter for specific terms
 - Add button and popup modal to create new items in list
@@ -19,12 +19,12 @@ Define the scope of the architecture, including what is included and what is out
 N/A
 
 ### 1.4 References
-- [Supabase API Docs](https://supabase.com/dashboard/project/vjbckrdjaasagtermgpy/api)
+- [SWA API Docs](https://learn.microsoft.com/en-us/azure/static-web-apps/apis-overview)
 - [Material UI Table](https://mui.com/material-ui/react-table/)
 
 
 ## 2. System Overview
-This system provides an interface for managing and viewing inventory data pulled from Supabase. Upon initialization, the useEffect hook retrieves the inventory data and stores it in state. The table is then populated with items, including details like type, category, status, and quantity.
+This system provides an interface for managing and viewing inventory data pulled from SQL Server. Upon initialization, the useEffect hook retrieves the inventory data and stores it in state. The table is then populated with items, including details like type, category, status, and quantity.
 
 The filter container provides four filtering options:
 
@@ -45,7 +45,6 @@ Finally, pagination is implemented to display additional data from the database 
 - Security: Ensure that users can only access and modify data based on their permissions.
 
 ### 3.2 Constraints
-- The database host may switch from Supabase to Microsoft Azure Database
 - Adding/editing item workflow has not been finalized
 
 ## 4. Architectural Representations
@@ -60,12 +59,12 @@ Inventory Table: Displays all items in the PH inventory, including fields such a
 
 - **Add Item Modal**: Provides a user interface for creating new items or editing existing ones in the inventory. This modal interacts with the database to add new records or modify existing entries.
 
-- **Database (Supabase)**: Stores and manages all inventory data, including item details such as type, category, status, and quantity. The system fetches data from the database on initialization and updates it as users add or modify items.
+- **Database**: Stores and manages all inventory data, including item details such as type, category, status, and quantity. The system fetches data from the database on initialization and updates it as users add or modify items.
 
 ### 4.2 Component Descriptions
 - **Inventory Table**
   - Responsibility: Displaying a list of all items in the inventory, including item-specific details such as type, category, status, and quantity
-  - Interactions: Receives data from the state that is populated by fetching data from Supabase. Interacts with the filtering and search components to display relevant data based on user input
+  - Interactions: Receives data from the state that is populated by fetching data from SQL Server. Interacts with the filtering and search components to display relevant data based on user input
 
 - **Filter DropDwon/Search**:
   - Responsibility: Allow users to narrow down the displayed items in the inventory table based on specific criteria.
@@ -81,8 +80,8 @@ Inventory Table: Displays all items in the PH inventory, including fields such a
 
 - **Database**
   - Responsibility: Stores all inventory information, including name, type, category, status, and quantity.
-  - Interactions: System fetches data from Supabase
-  - Adding/editing items sends API requests to Supabase
+  - Interactions: System fetches data from SQL Server
+  - Adding/editing items sends API requests to SQL Server
 
 ## 5. Detailed Design
 
@@ -92,7 +91,7 @@ Purpose: Display component that lists all items currently stored in the inventor
 Input: Data from database and user input in the form of filters, search terms, or pagination actions.
 Output: Dynamically populated table displaying relevant items based on current filtering and search criteria.
 Internal Structure: Table structure using JSX. Table rows dynamically generated based on state data. Listeners to respond to changes in filters, search terms, or pagination controls.
-Dependencies: Supabase database for fetching data. Filtering, search, and pagination components. State management to manage data flow.
+Dependencies: SQL Server database for fetching data. Filtering, search, and pagination components. State management to manage data flow.
 
 **Filter DropDown/Search**
 Purpose: Allows users to filter the inventory based on predefined fields or perform open-ended searches.
@@ -113,7 +112,7 @@ Purpose: Allows users to create new inventory entries or edit existing ones.
 Input: User input for new or updated item details. Existing inventory data in case of edits.
 Output: API calls to the database to create new items or update. Update inventory state with new/update items.
 Internal Structure: Form inputs for item name, type, category, and quantity. Submission button to trigger API call.
-Dependencies: Supabase API for updating/adding. Inventory table for displaying updated data. State management for holding new or edited item data.
+Dependencies: SQL Server API for updating/adding. Inventory table for displaying updated data. State management for holding new or edited item data.
 
 **Database**
 Purpose: Store all inventory-related data. Central repository for system's data.
@@ -123,14 +122,14 @@ Internal Structure: Relational database structure with tables for storing invent
 Dependencies: Frontend components for sending API requests.
 
 ### 5.2 Data Flow
-The page initializes with a useEffect making an API request to Supabase and pulls an array of objects. Each object in the array contains key-value pairs related to the item name, category, type, quantity, and status. The array gets placed into a state, which is then sliced and mapped for the table to display each object as a row. When a filtered or searched term is applied, the array is filtered for strings that include the filtered options, and updates the state, which is then mapped/sliced again.
+The page initializes with a useEffect making an API request to SQL Server and pulls an array of objects. Each object in the array contains key-value pairs related to the item name, category, type, quantity, and status. The array gets placed into a state, which is then sliced and mapped for the table to display each object as a row. When a filtered or searched term is applied, the array is filtered for strings that include the filtered options, and updates the state, which is then mapped/sliced again.
 
-Adding/editing makes another API call to Supabase to create a new row in the SQL table or by updating existing row. The application then makes another GET request to update the data state and display the new array.
+Adding/editing makes another API call to SQL Server to create a new row in the SQL table or by updating existing row. The application then makes another GET request to update the data state and display the new array.
 
 ## 6. Security and Compliance
 
 ### 6.1 Security Considerations
-Authorization is based on the user's account level, which is determined with their Azure OAuth. Access to read/edit Supabase requires users to have an anon-key provided by Supabase and pre-approved by admin level users.
+Authorization is based on the user's account level, which is determined with their Azure OAuth. Access to read/edit SQL Server needs to be refined.
 
 Currently, the anon-key is input on the .env-local file, which is served to the client upon access. This may be changed later via server-side encryption to prevent exposure.
 

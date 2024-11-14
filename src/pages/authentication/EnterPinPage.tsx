@@ -1,22 +1,105 @@
 import React, { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 
+const VERIFY_API = '/data-api/rest/verify-pin'; // API endpoint for the stored procedure
+const VOLUNTEER_API = '/data-api/rest/volunteer/id'; // API endpoint for volunteer operations
+const HEADERS = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json;charset=utf-8',
+};
+
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<
+    'success' | 'warning'
+  >('warning');
+  const location = useLocation();
+  const { volunteerId } = location.state || {};
   const navigate = useNavigate();
 
-  const handleNextClick = () => {
-    if (pin.every((p) => p !== '')) {
-      //TODO: Implement the logic to check the PIN
-      navigate('/');
+  if (!volunteerId) {
+    navigate('/pick-your-name');
+  }
+
+  const verifyPin = async (id: number, enteredPin: string) => {
+    try {
+      const response = await fetch(VERIFY_API, {
+        method: 'POST',
+        headers: HEADERS,
+        body: JSON.stringify({
+          VolunteerId: id,
+          EnteredPin: enteredPin,
+          IsValid: null,
+          ErrorMessage: '',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to verify PIN.');
+      }
+
+      const data = await response.json();
+      const result = data.value[0]; // Get the result from the response
+
+      console.log('API Response:', result);
+      return result;
+    } catch (error) {
+      console.error('Error verifying PIN:', error);
+      setSnackbarMessage('Failed to verify PIN. Please try again.');
+      setSnackbarSeverity('warning');
+      setOpenSnackbar(true);
+      return null;
     }
-    setOpenSnackbar(true);
+  };
+
+  const updateLastSignedIn = async (id: number) => {
+    try {
+      const response = await fetch(`${VOLUNTEER_API}/${id}`, {
+        method: 'PATCH',
+        headers: HEADERS,
+        body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update last signed in.');
+      }
+
+      console.log('Successfully updated last signed in.');
+    } catch (error) {
+      console.error('Error updating last signed in:', error);
+    }
+  };
+
+  const handleNextClick = async () => {
+    if (pin.every((p) => p !== '')) {
+      const enteredPin = pin.join(''); // Combine array into a single string (e.g., '1234')
+      const result = await verifyPin(volunteerId, enteredPin);
+
+      if (result?.IsValid) {
+        setSnackbarMessage('Login successful! Redirecting...');
+        setSnackbarSeverity('success');
+        setOpenSnackbar(true);
+        await updateLastSignedIn(volunteerId); // Update last signed-in date after successful login
+        navigate('/');
+      } else {
+        setSnackbarMessage(
+          result?.ErrorMessage || 'Incorrect PIN. Please try again.',
+        );
+        setSnackbarSeverity('warning');
+        setOpenSnackbar(true);
+      }
+    } else {
+      setSnackbarMessage('Please enter your PIN before continuing.');
+      setSnackbarSeverity('warning');
+      setOpenSnackbar(true);
+    }
   };
 
   const handlePreviousClick = () => {
@@ -70,21 +153,21 @@ const EnterPinPage: React.FC = () => {
             <PinInput onPinChange={handlePinChange} />
           </Box>
 
-                    <Button
-          variant="contained"
-          onClick={handleNextClick}
-          sx={{
-            height: '45px',
-            width: '100%',
-            fontSize: '16px',
-            backgroundColor: 'black', 
-            color: 'white', 
-            marginTop: 2,
-            '&:hover': {
-              backgroundColor: '#4f4f4f', 
-            },
-          }}
-        >
+          <Button
+            variant="contained"
+            onClick={handleNextClick}
+            sx={{
+              height: '45px',
+              width: '100%',
+              fontSize: '16px',
+              backgroundColor: 'black',
+              color: 'white',
+              marginTop: 2,
+              '&:hover': {
+                backgroundColor: '#4f4f4f',
+              },
+            }}
+          >
             Continue
           </Button>
           <Typography
@@ -103,9 +186,9 @@ const EnterPinPage: React.FC = () => {
         <SnackbarAlert
           open={openSnackbar}
           onClose={handleSnackbarClose}
-          severity="warning"
+          severity={snackbarSeverity}
         >
-          Please enter your PIN before continuing.
+          {snackbarMessage}
         </SnackbarAlert>
       </CenteredLayout>
     </MinimalWrapper>

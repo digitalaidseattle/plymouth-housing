@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 
 // material-ui
 import {
@@ -20,10 +20,10 @@ import {
 
 // project import
 import AnalyticEcommerce from '../../components/cards/statistics/AnalyticEcommerce';
-import IncomeAreaChart from './IncomeAreaChart';
-import MonthlyBarChart from './MonthlyBarChart';
-import ReportAreaChart from './ReportAreaChart';
-import SalesColumnChart from './SalesColumnChart';
+const SalesColumnChart = React.lazy(() => import('./SalesColumnChart'));
+const IncomeAreaChart = React.lazy(() => import('./IncomeAreaChart'));
+const MonthlyBarChart = React.lazy(() => import('./MonthlyBarChart'));
+const ReportAreaChart = React.lazy(() => import('./ReportAreaChart'));
 
 // assets
 import {
@@ -37,7 +37,6 @@ import avatar1 from '/src/assets/images/users/avatar-1.png';
 import avatar2 from '/src/assets/images/users/avatar-2.png';
 import avatar3 from '/src/assets/images/users/avatar-3.png';
 import avatar4 from '/src/assets/images/users/avatar-4.png';
-import TicketsTable from '../../sections/tickets/TicketsTable';
 
 // avatar style
 const avatarSX = {
@@ -149,9 +148,6 @@ const DashboardDefault = () => {
             </Stack>
           </Grid>
         </Grid>
-        <MainCard sx={{ mt: 2 }} content={false}>
-          <TicketsTable />
-        </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">
@@ -170,6 +166,9 @@ const DashboardDefault = () => {
             </Stack>
           </Box>
           <MonthlyBarChart />
+          <Suspense fallback={<div>Loading...</div>}>
+            <MonthlyBarChart />
+          </Suspense>
         </MainCard>
       </Grid>
 
@@ -202,8 +201,10 @@ const DashboardDefault = () => {
         </Grid>
         <MainCard content={false} sx={{ mt: 1.5 }}>
           <Box sx={{ pt: 1, pr: 2 }}>
-            <IncomeAreaChart slot={slot} />
-          </Box>
+            <Suspense fallback={<div>Loading...</div>}>
+              <IncomeAreaChart slot={slot} />
+            </Suspense>
+        </Box>
         </MainCard>
       </Grid>
 
@@ -229,7 +230,9 @@ const DashboardDefault = () => {
               <Typography variant="h5">Low</Typography>
             </ListItemButton>
           </List>
-          <ReportAreaChart />
+          <Suspense fallback={<div>Loading...</div>}>
+            <ReportAreaChart />
+          </Suspense>
         </MainCard>
       </Grid>
 
@@ -265,7 +268,9 @@ const DashboardDefault = () => {
             </Typography>
             <Typography variant="h4">$1560</Typography>
           </Stack>
-          <SalesColumnChart />
+          <Suspense fallback={<div>Loading...</div>}>
+            <SalesColumnChart />
+          </Suspense>
         </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>

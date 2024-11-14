@@ -156,6 +156,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       open={addModal}
       onClose={resetInputsHandler}
     >
+      {/* Title Section */}
       <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '40%', height: '60%', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'space-evenly', width: '70%', margin: 'auto', height: '100%' }}>
           <Typography sx={{ fontSize: '20px', }}>

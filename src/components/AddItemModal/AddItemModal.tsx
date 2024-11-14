@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 type InventoryItem = {
   id: number;
@@ -138,7 +138,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       }
       catch (error) {
         console.error('Error updating to database:', error);
-        setErrorMessage(`Error updating to database: ${error.message}`)
         setErrorMessage(`${error}`)
       }
     }

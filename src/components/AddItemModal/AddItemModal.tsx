@@ -12,6 +12,14 @@ type InventoryItem = {
   status: string;
 };
 
+type FormData = {
+  name: string;
+  type: string;
+  quantity: number;
+  category: string;
+  description: string;
+};
+
 type AddItemModalProps = {
   addModal: boolean;
   handleAddClose: () => void;
@@ -26,29 +34,22 @@ const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/jso
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
 
   const [updateId, setUpdateId] = useState<number>();
-  const [updateItem, setUpdateItem] = useState<InventoryItem | string>();
-  const [addName, setAddName] = useState('');
-  const [addDescription, setAddDescription] = useState('');
-  const [addType, setAddType] = useState('');
-  const [addCategory, setAddCategory] = useState('');
-  const [addQuantity, setAddQuantity] = useState<number>(0);
+  const [updateItem, setUpdateItem] = useState<InventoryItem | string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    description: '',
+    type: '',
+    category: '',
+    quantity: 0,
+  });
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
 
-  const handleAddType = (event: { target: { value: string } }) => {
-    setAddType(event.target.value)
-  }
-
-  const handleAddCategory = (event: { target: { value: string } }) => {
-    setAddCategory(event.target.value)
-  }
-
-  const handleAddQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAddQuantity(Number(event.target.value));
-  };
-
-  const handleAddDescription = (event: { target: { value: string } }) => {
-    setAddDescription(event.target.value)
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [field]: value,
+    }))
   }
 
   const onChangeHandler = (
@@ -59,28 +60,36 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
   ) => {
     if (value && typeof (value) === 'object') { //If name already exists, type will be an object
       setUpdateId(value.id);
-      setAddName(value.name)
-      setAddDescription(value.description)
-      setAddType(value.type)
-      setAddCategory(value.category)
-      setAddQuantity(value.quantity)
+      setFormData({
+        name: value.name,
+        description: value.description,
+        type: value.type,
+        category: value.category,
+        quantity: value.quantity,
+      });
       setUpdateItem(value);
     } else if (typeof (value) === 'string') {
-      setAddName(value);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        name: value,
+      }));
       setUpdateItem(value);
     }
   };
 
   const resetInputsHandler = () => {
-    setAddType('');
-    setAddName('');
-    setAddCategory('');
-    setAddQuantity(0);
-    setAddDescription('');
+    setFormData({
+      name: '',
+      description: '',
+      type: '',
+      category: '',
+      quantity: 0
+    })
     handleAddClose();
+    setUpdateItem(null);
   }
 
-  const inputChangeHandler = (_event: React.SyntheticEvent, value: string) => {
+  const onInputChangeHandler = (_event: React.SyntheticEvent, value: string) => {
     // This function allows the dropdown menu to appear blank when initially clicking on the textbox. When a user types, it then updates the nameSearch options. nameSearch is then fed in as the possible options in the dropdown options
     if (value) {
       const filteredItems = originalData.filter(
@@ -91,16 +100,19 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     } else {
       setNameSearch([])
     }
-    setAddName(value);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      name: value,
+    }));
     setUpdateItem(value);
   }
 
   const createItemHandler = async () => {
-    if (addType === '' || addName === '' || addCategory === '' || addQuantity === 0 || addDescription === '') {
+    if (formData.type === '' || formData.name === '' || formData.category === '' || formData.quantity === 0 || formData.description === '') {
       setErrorMessage('Missing Information')
     } else {
       try {
-        const response = await fetch(API, { method: "POST", headers: HEADERS, body: JSON.stringify({ name: addName, type: addType, category: addCategory, quantity: addQuantity, description: addDescription }) });
+        const response = await fetch(API, { method: "POST", headers: HEADERS, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {
@@ -118,11 +130,11 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
   }
 
   const updateItemHandler = async () => {
-    if (addType === '' || addName === '' || addCategory === '' || addDescription === '') {
+    if (formData.type === '' || formData.name === '' || formData.category === '' || formData.description === '') {
       setErrorMessage('Missing Information')
     } else {
       try {
-        const response = await fetch(`${API}/id/${updateId}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify({ type: addType, category: addCategory, quantity: addQuantity, description: addDescription }) });
+        const response = await fetch(`${API}/id/${updateId}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {
@@ -157,7 +169,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             </Typography>
             <Autocomplete
               freeSolo
-              onInputChange={inputChangeHandler}
+              onInputChange={onInputChangeHandler}
               onChange={onChangeHandler}
               onBlur={(event) => onChangeHandler(event, updateItem)}
               options={nameSearch} // Pass the full array of objects
@@ -180,7 +192,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             <Typography fontWeight='bold'>
               Description
             </Typography>
-            <TextField sx={{ width: '100%' }} value={addDescription} onChange={handleAddDescription}></TextField>
+            <TextField sx={{ width: '100%' }} value={formData.description} onChange={(e) => handleInputChange('description', e.target.value)}></TextField>
           </Box>
 
           {/* Item Type */}
@@ -189,8 +201,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
               Type
             </Typography>
             <Select
-              value={addType}
-              onChange={handleAddType}
+              value={formData.type}
+              onChange={(e) => handleInputChange('type', e.target.value)}
               sx={{ width: '100%' }}
             >
               <MenuItem value={'Donation'}>Donation</MenuItem>
@@ -204,8 +216,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
               Category
             </Typography>
             <Select
-              value={addCategory}
-              onChange={handleAddCategory}
+              value={formData.category}
+              onChange={(e) => handleInputChange('category', e.target.value)}
               sx={{ width: '100%' }}
             >
               {uniqueCategories.map((category: string) => (
@@ -219,7 +231,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             <Typography fontWeight='bold'>
               Quantity
             </Typography>
-            <TextField sx={{ width: '100%' }} value={addQuantity} type="number" onChange={handleAddQuantity}></TextField>
+            <TextField sx={{ width: '100%' }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
           </Box>
           {errorMessage.length > 0 ? <Typography color='red'>{errorMessage}</Typography> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>

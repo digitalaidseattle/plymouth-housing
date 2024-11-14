@@ -21,7 +21,7 @@
     "host": {
       "cors": {
         "origins": ["http://localhost:4280", "http://localhost:3000"],
-        "allow-credentials": false
+        "allow-credentials": true
       },
       "authentication": {
         "provider": "StaticWebApps"
@@ -59,7 +59,8 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer"
+        "path": "/volunteer",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
@@ -67,7 +68,7 @@
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": ["read", "create", "update"],
           "role": "anonymous"
         }
       ]

@@ -11,6 +11,8 @@ const VOLUNTEER_API = '/data-api/rest/volunteer/id'; // API endpoint for volunte
 const HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',
+  'X-MS-API-ROLE' : 'volunteer',
+
 };
 
 const EnterPinPage: React.FC = () => {

@@ -1,225 +1,228 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  Pagination,
-  Paper,
-  SelectChangeEvent,
-  Chip,
-  IconButton,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
+import { Button, Pagination, Typography, Chip, Paper, Menu, MenuItem } from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { useNavigate } from 'react-router-dom';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import AddIcon from '@mui/icons-material/Add';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ClearIcon from '@mui/icons-material/Clear';
+import AddPeopleModal from '../../components/AddPeopleModal/AddPeopleModal';
 
 type Volunteer = {
   id: number;
   name: string;
   active: boolean;
-  last_signed_in: string;
+  created_at: string ;
+  last_signed_in: string| null;
 };
 
 const VOLUNTEERS_API = '/data-api/rest/volunteer';
-
-const People = () => {
-  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
-  const [totalVolunteers, setTotalVolunteers] = useState(0); // Total number of volunteers
-  const [status, setStatus] = useState<string>('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [itemsPerPage] = useState(10); // Number of items per page
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginationCursors, setPaginationCursors] = useState<string[]>([]); // Store Base64 cursors
-  const navigate = useNavigate();
-
-  // Fetch total number of volunteers to calculate total pages only once
-  useEffect(() => {
-    fetchTotalVolunteers();
-  }, []);
-
-  // Fetch data whenever page, status, or sort order changes
-  useEffect(() => {
-    fetchVolunteers();
-  }, [status, sortOrder, currentPage]);
-
-  // Fetch the total count of volunteers for pagination calculation
-  const fetchTotalVolunteers = async () => {
-    const queryParams = new URLSearchParams();
-    if (status) {
-      queryParams.set('$filter', `active eq ${status === 'active'}`);
-    }
-
-    try {
-      const response = await fetch(`${VOLUNTEERS_API}?${queryParams}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch total count');
-      }
-      const data = await response.json();
-      setTotalVolunteers(data.value.length);
-    } catch (error) {
-      console.error('Error fetching total volunteers count:', error);
-    }
-  };
-
-  // Fetch volunteers with correct sorting and pagination
-const fetchVolunteers = async () => {
-  const filterClauses = [];
-  if (status) filterClauses.push(`active eq ${status === 'active'}`);
-  const filter = filterClauses.join(' and ');
-
-  const queryParams = new URLSearchParams({
-    $orderby: `name ${sortOrder}`,
-    $first: itemsPerPage.toString(),
-  });
-
-  // Use cursor-based pagination
-  const cursor = paginationCursors[currentPage - 1];
-  if (cursor) {
-    queryParams.set('$after', cursor);
-  }
-
-  if (filter) queryParams.set('$filter', filter);
-
-  try {
-    const response = await fetch(`${VOLUNTEERS_API}?${queryParams}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch data');
-    }
-    const data = await response.json();
-    setVolunteers(data.value);
-
-    // Update the cursor for the next page
-    if (data.nextLink) {
-      const nextCursor = new URL(data.nextLink).searchParams.get("$after");
-      if (nextCursor) {
-        setPaginationCursors((prev) => {
-          const updatedCursors = [...prev];
-          updatedCursors[currentPage] = nextCursor; // Store cursor for the next page
-          return updatedCursors;
-        });
-      }
-    }
-  } catch (error) {
-    console.error('Error fetching volunteers:', error);
-  }
+const HEADERS = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json;charset=utf-8',
 };
 
+const PeoplePage = () => {
+  const [originalData, setOriginalData] = useState<Volunteer[]>([]);
+  const [displayData, setDisplayData] = useState<Volunteer[]>([]);
+  const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>('original');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
-  const handleStatusChange = (event: SelectChangeEvent<string>) => {
-    setStatus(event.target.value as string);
-    setCurrentPage(1); // Reset to the first page
-    setPaginationCursors([]); // Reset cursors when status changes
-  };
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handleSort = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    setCurrentPage(1); // Reset to the first page on sort change
-    setPaginationCursors([]); // Reset cursors when sort order changes
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
   };
 
   const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
 
-  const totalPages = Math.ceil(totalVolunteers / itemsPerPage); // Calculate total pages
+  const handleNameOrderToggle = () => {
+    setNameOrder(nameOrder === 'asc' ? 'desc' : nameOrder === 'desc' ? 'original' : 'asc');
+  };
+
+  const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorStatus(event.currentTarget);
+  };
+
+  const handleStatusClose = () => {
+    setAnchorStatus(null);
+  };
+
+  const handleStatusFilterClick = (status: string | null) => {
+    setStatusFilter(status);
+    setAnchorStatus(null);
+  };
+
+  const clearStatusFilter = () => {
+    setStatusFilter(null);
+  };
+
+  const handleFilter = () => {
+    let filteredData = originalData.filter((volunteer) => {
+      const matchesSearch = volunteer.name.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === null || (statusFilter === 'Active' ? volunteer.active : !volunteer.active);
+      return matchesSearch && matchesStatus;
+    });
+
+    if (nameOrder === 'asc') {
+      filteredData = filteredData.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (nameOrder === 'desc') {
+      filteredData = filteredData.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    setDisplayData(filteredData);
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(VOLUNTEERS_API, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      setOriginalData(data.value);
+      setDisplayData(data.value);
+    } catch (error) {
+      console.error('Error fetching volunteers:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (search) {
+      const handler = setTimeout(() => {
+        handleFilter();
+      }, 300);
+      return () => clearTimeout(handler);
+    } else {
+      fetchData();
+    }
+  }, [search]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [nameOrder, statusFilter]);
+
+  const openAddModal = () => setAddModalOpen(true);
+  const closeAddModal = () => setAddModalOpen(false);
 
   return (
     <Box>
-      {/* Add button */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/add-volunteer')}
-        >
+      {/* Add Button */}
+      <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
+        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={openAddModal}>
+          <AddIcon fontSize="small" sx={{ color: 'black' }} />
           Add
         </Button>
       </Box>
 
-      {/* Filter */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Select
-          value={status}
-          onChange={handleStatusChange}
-          displayEmpty
-          variant="outlined"
-          size="small"
-          sx={{ minWidth: 120 }}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="active">Active</MenuItem>
-          <MenuItem value="inactive">Inactive</MenuItem>
-        </Select>
+      {/* Add People Modal */}
+      <AddPeopleModal addModal={addModalOpen} handleAddClose={closeAddModal} fetchData={fetchData} />
+
+      {/* Search and Status Filter Container */}
+      <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
+        <Typography variant="body2">Filters</Typography>
+
+        {/* Status Filter */}
+        <Box sx={{ px: '8px' }} id="status-button-container">
+          <Button sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }} onClick={handleStatusClick}>
+            {statusFilter ? (
+              <>
+                {statusFilter}{' '}
+                <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearStatusFilter} />
+              </>
+            ) : (
+              <>
+                <Typography variant="body2">Status</Typography>
+                <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              </>
+            )}
+          </Button>
+          <Menu open={Boolean(anchorStatus)} onClose={handleStatusClose} anchorEl={anchorStatus}>
+            <MenuItem onClick={() => handleStatusFilterClick('Active')}>Active</MenuItem>
+            <MenuItem onClick={() => handleStatusFilterClick('Inactive')}>Inactive</MenuItem>
+          </Menu>
+        </Box>
+
+        {/* Search Filter */}
+        <Box id="search-container" sx={{ ml: 'auto' }}>
+          <TextField value={search} onChange={handleSearch} variant="standard" placeholder="Search" />
+        </Box>
       </Box>
 
       {/* Volunteers Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell onClick={handleSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                Name
-                {sortOrder === 'asc' ? (
-                  <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />
-                ) : (
-                  <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />
-                )}
-              </TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Last Signed In Date</TableCell>
-              <TableCell>
-                <MoreVertIcon />
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {volunteers.map((volunteer) => (
-              <TableRow key={volunteer.id}>
-                <TableCell>{volunteer.name}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={volunteer.active ? 'Active' : 'Inactive'}
-                    sx={{
-                      backgroundColor: volunteer.active ? '#E6F4EA' : '#FDECEA',
-                      color: volunteer.active ? '#357A38' : '#D32F2F',
-                      borderRadius: '8px',
-                      px: 1.5,
-                    }}
-                  />
+      <Box id="volunteer-container">
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  sx={{ fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  onClick={handleNameOrderToggle}
+                >
+                  Name
+                  {nameOrder === 'asc' ? (
+                    <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
+                  ) : nameOrder === 'desc' ? (
+                    <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
+                  ) : null}
                 </TableCell>
-                <TableCell>{new Date(volunteer.last_signed_in).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <IconButton>
-                    <MoreVertIcon />
-                  </IconButton>
-                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Date created</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Last Signed In Date</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {currentItems.map((volunteer, index) => (
+                <TableRow
+                  key={index}
+                  component={Paper}
+                  sx={{
+                    boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)',
+                  }}
+                >
+                  <TableCell>{volunteer.name}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={volunteer.active ? 'Active' : 'Inactive'}
+                      sx={{
+                        backgroundColor: volunteer.active ? '#E6F4EA' : '#FDECEA',
+                        color: volunteer.active ? '#357A38' : '#D32F2F',
+                        borderRadius: '8px',
+                        px: 1.5,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>  { new Date(volunteer.created_at).toLocaleDateString() }</TableCell>
+                  <TableCell>  {volunteer.last_signed_in ? new Date(volunteer.last_signed_in).toLocaleDateString() : 'None'}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-        />
+        <Pagination count={Math.ceil(displayData.length / itemsPerPage)} page={currentPage} onChange={handlePageChange} />
       </Box>
     </Box>
   );
 };
 
-export default People;
+export default PeoplePage;

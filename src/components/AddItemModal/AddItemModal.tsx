@@ -1,5 +1,6 @@
-import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete } from '@mui/material';
-import React, { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 
 type InventoryItem = {
   id: number;
@@ -24,11 +25,13 @@ const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/jso
 
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
 
+  const [updateId, setUpdateId] = useState<number>();
+  const [updateItem, setUpdateItem] = useState<boolean>(false);
   const [addName, setAddName] = useState('');
   const [addDescription, setAddDescription] = useState('');
   const [addType, setAddType] = useState('');
   const [addCategory, setAddCategory] = useState('');
-  const [addQuantity, setAddQuantity] = useState('');
+  const [addQuantity, setAddQuantity] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState(false);
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
 
@@ -44,19 +47,42 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     setAddCategory(event.target.value)
   }
 
-  const handleAddQuantity = (event: { target: { value: string } }) => {
-    setAddQuantity(event.target.value)
-  }
+  const handleAddQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setAddQuantity(Number(event.target.value));
+  };
 
   const handleAddDescription = (event: { target: { value: string } }) => {
     setAddDescription(event.target.value)
   }
 
+  const handleUpdate = (
+    _event: React.SyntheticEvent | React.FocusEvent<HTMLElement>,
+    value?: InventoryItem | string | null,
+    _reason?: AutocompleteChangeReason,
+    _details?: AutocompleteChangeDetails<InventoryItem>
+  ) => {
+    if (value && typeof (value) === 'object') { //If name already exists, type will be an object
+      setUpdateId(value.id);
+      setAddName(value.name)
+      setAddDescription(value.description)
+      setAddType(value.type)
+      setAddCategory(value.category)
+      setAddQuantity(value.quantity)
+      setUpdateItem(true);
+    } else if (typeof (value) === 'string') {
+      console.log('handleUpdate', value);
+      setAddName(value);
+      setUpdateItem(false);
+    } else {
+      setUpdateItem(false);
+    }
+  };
+
   const resetInputsHandler = () => {
     setAddType('');
     setAddName('');
     setAddCategory('');
-    setAddQuantity('');
+    setAddQuantity(0);
     setAddDescription('');
     handleAddClose();
   }
@@ -73,10 +99,11 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       setNameSearch([])
     }
     setAddName(value);
+    console.log('inputChangeHandler:', value)
   }
 
   const createItemHandler = async () => {
-    if (addType === '' || addName === '' || addCategory === '' || addQuantity === '' || addDescription === '') {
+    if (addType === '' || addName === '' || addCategory === '' || addQuantity === 0 || addDescription === '') {
       setErrorMessage(true)
     } else {
       try {
@@ -114,6 +141,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             <Autocomplete
               freeSolo
               onInputChange={inputChangeHandler}
+              onChange={handleUpdate}
+              onBlur={(event) => handleUpdate(event, null)}
               options={nameSearch} // Pass the full array of objects
               getOptionLabel={(option) => {
                 // Display the name property in the dropdown
@@ -134,7 +163,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             <Typography>
               Description
             </Typography>
-            <TextField sx={{ width: '100%' }} onChange={handleAddDescription}></TextField>
+            <TextField sx={{ width: '100%' }} value={addDescription} onChange={handleAddDescription}></TextField>
           </Box>
 
           {/* Item Type */}
@@ -173,12 +202,12 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             <Typography>
               Quantity
             </Typography>
-            <TextField sx={{ width: '100%' }} onChange={handleAddQuantity}></TextField>
+            <TextField sx={{ width: '100%' }} value={addQuantity} type="number" onChange={handleAddQuantity}></TextField>
           </Box>
           {errorMessage ? <Typography color='red'>Missing Information!</Typography> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-            <Button sx={{ color: 'black' }} onClick={createItemHandler}>Create</Button>
+            {updateItem ? <Button>Update</Button> : <Button sx={{ color: 'black' }} onClick={createItemHandler}>Create</Button>}
           </Box>
         </Box>
       </Box>

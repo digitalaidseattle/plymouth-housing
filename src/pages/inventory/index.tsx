@@ -188,6 +188,7 @@ const Inventory = () => {
       }
       const data = await response.json();
       const inventoryList = data.value;
+      console.log(inventoryList)
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
 

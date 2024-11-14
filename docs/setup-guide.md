@@ -76,8 +76,6 @@ There are tutorials that will help you get started:
 To allow the appropriate level of permissions on the API and the routes, you need to follow [these steps](https://learn.microsoft.com/en-us/azure/static-web-apps/authentication-custom?tabs=aad%2Cinvitations#manage-roles). 
 This will allow you to set the ```permissions``` on the ```entities``` in [```staticwebapp.database.config.json```](..//swa-db-connections/staticwebapp.database.config.json).
 
-
-
 ## Database 
 
 ### Production/Staging

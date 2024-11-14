@@ -4,7 +4,7 @@
     "database-type": "mssql",
     "connection-string": "@env('DATABASE_CONNECTION_STRING')",
     "options": {
-      "set-session-context": false
+      "set-session-context": true
     }
   },
   "runtime": {
@@ -13,20 +13,14 @@
       "path": "/rest",
       "request-body-strict": true
     },
-    "graphql": {
-      "enabled": true,
-      "path": "/graphql",
-      "allow-introspection": true
-    },
     "host": {
       "cors": {
         "origins": ["http://localhost:4280", "http://localhost:3000"],
-        "allow-credentials": false
+        "allow-credentials": true
       },
       "authentication": {
         "provider": "StaticWebApps"
-      },
-      "mode": "development"
+      }
     }
   },
   "entities": {
@@ -80,7 +74,7 @@
       "permissions": [
         {
           "actions": ["execute"],
-          "role": "authenticated"
+          "role": "volunteer"
         }
       ]
     }

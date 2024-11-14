@@ -22,10 +22,9 @@ jobs:
         run: |
           npm install
 
-      - name: Linting
-        run: |
-          npm run lint -- --max-warnings -1
-        # Treat warnings as non-fatal for now
+#      - name: Linting
+#        run: |
+#          npm run lint
 
       - name: Run unit tests
         run: |

@@ -6,16 +6,17 @@
  */
 
 // material-ui
-import { ListItemButton } from '@mui/material';
+// import { ListItemButton } from '@mui/material';
 
 // project import
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 // ==============================|| DRAWER HEADER ||============================== //
 
 const DrawerFooter = () => {
   return (
-    <ListItemButton style={{ position: 'fixed', bottom: 0, paddingBottom: 10 }}>
+      <>
+    {/* <ListItemButton style={{ position: 'fixed', bottom: 0, paddingBottom: 10 }}>
       <Link
         style={{ textDecoration: 'none' }}
         color="secondary"
@@ -23,7 +24,8 @@ const DrawerFooter = () => {
       >
         Privacy Policy
       </Link>
-    </ListItemButton>
+    </ListItemButton> */}
+    </>
   );
 };
 

@@ -57,7 +57,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     _reason?: AutocompleteChangeReason,
     _details?: AutocompleteChangeDetails<InventoryItem>
   ) => {
-    console.log(typeof (value));
     if (value && typeof (value) === 'object') { //If name already exists, type will be an object
       setUpdateId(value.id);
       setAddName(value.name)
@@ -67,7 +66,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       setAddQuantity(value.quantity)
       setUpdateItem(value);
     } else if (typeof (value) === 'string') {
-      console.log('handleUpdate', value);
       setAddName(value);
       setUpdateItem(value);
     }
@@ -95,7 +93,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     }
     setAddName(value);
     setUpdateItem(value);
-    console.log('inputChangeHandler:', value)
   }
 
   const createItemHandler = async () => {
@@ -121,7 +118,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
   }
 
   const updateItemHandler = async () => {
-    console.log(updateId);
     if (addType === '' || addName === '' || addCategory === '' || addDescription === '') {
       setErrorMessage('Missing Information')
     } else {

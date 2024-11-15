@@ -1,7 +1,7 @@
 // project import
 import {
   ChromeOutlined,
-  DashboardOutlined,
+//   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   QuestionOutlined,
@@ -15,7 +15,7 @@ import {
 } from '@ant-design/icons';
 
 const icons = {
-  DashboardOutlined,
+//   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   ChromeOutlined,
@@ -35,14 +35,14 @@ const dashboard = {
   title: 'Navigation',
   type: 'group',
   children: [
-    {
+/*     {
       id: 'dashboard',
       title: 'Dashboard',
       type: 'item',
       url: '/',
       icon: icons.DashboardOutlined,
       breadcrumbs: false,
-    },
+    }, */
     {
       id: 'inventory',
       title: 'Inventory',

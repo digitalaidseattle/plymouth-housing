@@ -34,7 +34,7 @@ const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/jso
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
 
   const [updateId, setUpdateId] = useState<number>();
-  const [updateItem, setUpdateItem] = useState<InventoryItem | string | null>(null);
+  const [updateItem, setUpdateItem] = useState<InventoryItem | string | null>('');
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -41,9 +41,7 @@ const Inventory = () => {
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
-  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
-    null,
-  );
+  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -78,7 +76,6 @@ const Inventory = () => {
 
   const handleMenuTypeClick = (value: string) => {
     setType(value);
-    // handleFilter(); Already called in the useEffect
     handleTypeClose();
   };
 
@@ -125,7 +122,7 @@ const Inventory = () => {
     setCurrentPage(value);
   };
 
-  const handleFilter = () => {
+  const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(
       (row: {
         name: string;
@@ -167,7 +164,7 @@ const Inventory = () => {
     }
 
     setDisplayData(searchFiltered);
-  };
+  }, [type, category, status, search, itemAlph, originalData]);
 
   const fetchData = async () => {
     try {
@@ -180,32 +177,31 @@ const Inventory = () => {
       setDisplayData(data.value);
     }
     catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user. 
-  }
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+    }
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      handleFilter();
+    }, 300); // Reduces calls to filter while typing in search
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [type, category, status, search, handleFilter]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [itemAlph, handleFilter]);
 
   if (isLoading) {
     return <p>Loading ...</p>;
   }
-
-  useEffect(() => {
-    if (type || category || status || search) {
-      const handler = setTimeout(() => {
-        handleFilter();
-      }, 300); // Reduces calls to filter while typing in search
-      return () => {
-        clearTimeout(handler);
-      };
-      // handleFilter()
-    } else {
-      fetchData();
-    }
-  }, [type, category, status, search]);
-
-  useEffect(() => {
-    handleFilter();
-  }, [itemAlph])
 
   return (
     <Box>

@@ -1,6 +1,7 @@
 // project import
 import {
   ChromeOutlined,
+// TODO Commenting out for now until PIT-52 (Admin dashboard)
 //   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,

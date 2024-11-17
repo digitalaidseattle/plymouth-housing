@@ -47,27 +47,6 @@ const MinimalFooter = () => {
           spacing={matchDownSM ? 1 : 3}
           textAlign={matchDownSM ? 'center' : 'inherit'}
         >
-        {/* Comment out the Github and Privacy Policy links */}
-        {/*  <Typography
-            variant="subtitle2"
-            color="secondary"
-            component={Link}
-            href="https://material-ui.com/store/contributors/codedthemes/"
-            target="_blank"
-            underline="hover"
-          >
-            Github
-          </Typography>
-          <Typography
-            variant="subtitle2"
-            color="secondary"
-            component={Link}
-            href="https://www.digitalaidseattle.org/privacy"
-            target="_blank"
-            underline="hover"
-          >
-            Privacy Policy
-          </Typography> */}
         </Stack>
       </Stack>
     </Container>

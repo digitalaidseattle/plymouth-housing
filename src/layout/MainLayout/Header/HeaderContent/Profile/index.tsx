@@ -1,4 +1,6 @@
-import { ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import {
+//     ReactNode,
+    useContext, useEffect, useRef, useState } from 'react';
 
 // material-ui
 import {
@@ -8,65 +10,67 @@ import {
   CardContent,
   ClickAwayListener,
   Grid,
-//   IconButton,
+  IconButton,
   Paper,
   Popper,
   Stack,
-  Tab,
+//   Tab,
   Tabs,
   Typography,
 } from '@mui/material';
-import { Direction, useTheme } from '@mui/material/styles';
+import {
+//     Direction,
+    useTheme } from '@mui/material/styles';
 
 // project import
 import Transitions from '../../../../../components/@extended/Transitions';
 import MainCard from '../../../../../components/MainCard';
-import ProfileTab from './ProfileTab';
-import SettingTab from './SettingTab';
+// import ProfileTab from './ProfileTab';
+// import SettingTab from './SettingTab';
 
 // assets
 import {
-//   LogoutOutlined,
-  SettingOutlined,
-  UserOutlined,
+  LogoutOutlined,
+//   SettingOutlined,
+//   UserOutlined,
 } from '@ant-design/icons';
 import { UserContext } from '../../../../../components/contexts/UserContext';
 import { useMsal } from '@azure/msal-react';
 
-interface TabPanelProps {
-  children: ReactNode;
-  index: number;
-  value: number;
-  dir: Direction;
-}
+// interface TabPanelProps {
+//   children: ReactNode;
+//   index: number;
+//   value: number;
+//   dir: Direction;
+// }
 // tab panel wrapper
-const TabPanel: React.FC<TabPanelProps> = ({
-  children,
-  value,
-  index,
-  dir,
-  ...other
-}) => {
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`profile-tabpanel-${index}`}
-      aria-labelledby={`profile-tab-${index}`}
-      dir={dir}
-      {...other}
-    >
-      {value === index && children}
-    </div>
-  );
-};
-
-function a11yProps(index: number) {
-  return {
-    id: `profile-tab-${index}`,
-    'aria-controls': `profile-tabpanel-${index}`,
-  };
-}
+// const TabPanel: React.FC<TabPanelProps> = ({
+//   children,
+//   value,
+//   index,
+//   dir,
+//   ...other
+// }) => {
+//   return (
+//     <div
+//       role="tabpanel"
+//       hidden={value !== index}
+//       id={`profile-tabpanel-${index}`}
+//       aria-labelledby={`profile-tab-${index}`}
+//       dir={dir}
+//       {...other}
+//     >
+//       {value === index && children}
+//     </div>
+//   );
+// };
+//
+// function a11yProps(index: number) {
+//   return {
+//     id: `profile-tab-${index}`,
+//     'aria-controls': `profile-tabpanel-${index}`,
+//   };
+// }
 
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
@@ -198,13 +202,13 @@ const Profile = () => {
                           </Stack>
                         </Grid>
                         <Grid item>
-                        {/*  <IconButton
+                         <IconButton
                             size="large"
                             color="secondary"
                             onClick={handleLogout}
                           >
                             <LogoutOutlined />
-                          </IconButton> */}
+                          </IconButton>
                         </Grid>
                       </Grid>
                     </CardContent>
@@ -217,7 +221,7 @@ const Profile = () => {
                             onChange={handleChange}
                             aria-label="profile tabs"
                           >
-                            <Tab
+                            {/* <Tab
                               sx={{
                                 display: 'flex',
                                 flexDirection: 'row',
@@ -254,15 +258,15 @@ const Profile = () => {
                               }
                               label="Setting"
                               {...a11yProps(1)}
-                            />
+                            /> */}
                           </Tabs>
                         </Box>
-                        <TabPanel value={value} index={0} dir={theme.direction}>
+                        {/* <TabPanel value={value} index={0} dir={theme.direction}>
                           <ProfileTab handleLogout={handleLogout} />
                         </TabPanel>
                         <TabPanel value={value} index={1} dir={theme.direction}>
                           <SettingTab />
-                        </TabPanel>
+                        </TabPanel>  */}
                       </>
                     )}
                   </MainCard>

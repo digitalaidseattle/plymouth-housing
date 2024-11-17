@@ -45,6 +45,22 @@ Now we can use **authenticated** for the REST calls (The StoredProc still only w
 We also tried adding the ```X-MS-API-ROLE``` to the header of the REST API call. 
 This also did not change the behavior. 
 
+It appears you need to do both according to the [DAP documentation](https://learn.microsoft.com/en-us/azure/data-api-builder/authorization):
+- use the json file
+- hard code a role in the ```X-MS-API-ROLE``` header. 
+
+However, it looks like the current implementation of Authentication collides with the use of the ```staticwebapp.config.json```.  
+
 ## Next Steps
 We will leave the current situation as-is during MVP and allow full access for anonymous on the API calls. 
 A bug is logged to fix this post MVP. 
+
+Current situation
+- empty ```staticwebapp.config.json```
+- full access for anonymous on API calls:
+```      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "anonymous"
+        }
+```

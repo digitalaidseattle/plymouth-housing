@@ -29,6 +29,7 @@ const API = '/data-api/rest/item';
 const HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',
+  'X-MS-API-ROLE': 'volunteer'
 };
 
 const Inventory = () => {

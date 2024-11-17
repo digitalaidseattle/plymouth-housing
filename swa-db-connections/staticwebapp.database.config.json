@@ -37,7 +37,7 @@
       "permissions": [
         {
           "actions": ["*"],
-          "role": "anonymous"
+          "role": "volunteer"
         }
       ]
     },

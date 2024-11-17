@@ -1,17 +1,15 @@
-import React, { useCallback, useState } from 'react';
+import React, { useContext, useCallback, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import {HEADERS} from '../../types/constants'
 
 const VERIFY_API = '/data-api/rest/verify-pin'; // API endpoint for the stored procedure
 const VOLUNTEER_API = '/data-api/rest/volunteer/id'; // API endpoint for volunteer operations
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -22,6 +20,7 @@ const EnterPinPage: React.FC = () => {
   >('warning');
   const location = useLocation();
   const { volunteerId } = location.state || {};
+  const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
   if (!volunteerId) {
@@ -30,6 +29,7 @@ const EnterPinPage: React.FC = () => {
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(VERIFY_API, {
         method: 'POST',
         headers: HEADERS,

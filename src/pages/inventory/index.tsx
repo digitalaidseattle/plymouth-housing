@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -15,6 +15,8 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { HEADERS } from "../../types/constants"
 
 type InventoryItem = {
   id: number;
@@ -26,13 +28,9 @@ type InventoryItem = {
 };
 
 const API = '/data-api/rest/item';
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-  'X-MS-API-ROLE': 'volunteer'
-};
 
 const Inventory = () => {
+  const {user} = useContext(UserContext);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
@@ -172,6 +170,7 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(API, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -10,12 +10,10 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import {HEADERS} from '../../types/constants'
 
 const API = '/data-api/rest/volunteer';
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
 
 interface Volunteer {
   id: number;
@@ -28,12 +26,14 @@ const PickYourNamePage: React.FC = () => {
   );
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-
+  const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
+        console.log('roles', user?.roles);
+        HEADERS['X-MS-API-ROLE'] = getRole(user);
         const response = await fetch(
           `${API}?$select=id,name&$filter=active eq true`,
           {
@@ -45,9 +45,7 @@ const PickYourNamePage: React.FC = () => {
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
         }
-
         const data = await response.json();
-        console.log('Volunteers:', data);
 
         setVolunteers(data.value);
       } catch (error) {

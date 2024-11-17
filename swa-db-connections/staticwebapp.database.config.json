@@ -36,7 +36,11 @@
       },
       "permissions": [
         {
-          "actions": ["*"],
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
           "role": "volunteer"
         }
       ]
@@ -53,8 +57,12 @@
       },
       "permissions": [
         {
-          "actions": ["*"],
-          "role": "anonymous"
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
         }
       ]
     },
@@ -69,8 +77,8 @@
       },
       "permissions": [
         {
-          "actions": ["*"],
-          "role": "anonymous"
+          "actions": ["execute"],
+          "role": "volunteer"
         }
       ]
     }

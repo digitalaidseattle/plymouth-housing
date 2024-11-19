@@ -4,10 +4,9 @@ import { useContext } from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 
 // project import
-import toolbarItems from '../../../../toolbar-items';
+// import toolbarItems from '../../../../toolbar-items';
 import MobileSection from './MobileSection';
 import Profile from './Profile';
-import Search from './Search';
 import VolunteerSwitcher from './VolunteerSwitcher';
 import { UserContext } from '../../../../components/contexts/UserContext';
 
@@ -19,10 +18,10 @@ const HeaderContent = () => {
   const { user } = useContext(UserContext);
   return (
     <>
-      {!matchesXs && <Search />}
       {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
       {user?.roles?.includes('volunteer') && <VolunteerSwitcher />}
-      {toolbarItems.items}
+      {/* {toolbarItems.items} */}
+      <Box sx={{ flexGrow: 1}}  />
       {!matchesXs && <Profile />}
       {matchesXs && <MobileSection />}
     </>

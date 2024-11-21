@@ -1,16 +1,12 @@
 import { useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
+import {AddVolunteerModalProps} from '../../types/interfaces';
 
-type AddPeopleModalProps = {
-  addModal: boolean;
-  handleAddClose: () => void;
-  fetchData: () => void;
-};
 
 const VOLUNTEER_API = '/data-api/rest/volunteer';
 const HEADERS = { Accept: 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
 
-const AddPeopleModal = ({ addModal, handleAddClose, fetchData }: AddPeopleModalProps) => {
+const AddVolunteerModal = ({ addModal, handleAddClose, fetchData }: AddVolunteerModalProps) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -98,7 +94,7 @@ const AddPeopleModal = ({ addModal, handleAddClose, fetchData }: AddPeopleModalP
         }}
       >
         <Typography variant="h6" sx={{ mb: 2 }}>
-          Add People
+          Add Volunteer
         </Typography>
 
         {/* Name Input */}
@@ -163,4 +159,4 @@ const AddPeopleModal = ({ addModal, handleAddClose, fetchData }: AddPeopleModalP
   );
 };
 
-export default AddPeopleModal;
+export default AddVolunteerModal;

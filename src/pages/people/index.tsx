@@ -13,15 +13,9 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
-import AddPeopleModal from '../../components/AddPeopleModal/AddPeopleModal';
-
-type Volunteer = {
-  id: number;
-  name: string;
-  active: boolean;
-  created_at: string ;
-  last_signed_in: string| null;
-};
+import AddVolunteerModal from '../../components/AddVolunteerModal/AddVolunteerModal';
+import { Volunteer } from '../../types/interfaces';
+import SnackbarAlert from '../../pages/authentication/SnackbarAlert'; 
 
 const VOLUNTEERS_API = '/data-api/rest/volunteer';
 const HEADERS = {
@@ -29,7 +23,7 @@ const HEADERS = {
   'Content-Type': 'application/json;charset=utf-8',
 };
 
-const PeoplePage = () => {
+const VolunteerPage = () => {
   const [originalData, setOriginalData] = useState<Volunteer[]>([]);
   const [displayData, setDisplayData] = useState<Volunteer[]>([]);
   const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>('original');
@@ -39,7 +33,11 @@ const PeoplePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [addModalOpen, setAddModalOpen] = useState(false);
-
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<
+  'success' | 'warning'
+>('warning');
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
@@ -100,9 +98,20 @@ const PeoplePage = () => {
       setDisplayData(data.value);
     } catch (error) {
       console.error('Error fetching volunteers:', error);
+      setSnackbarMessage('Error fetching volunteers: '+ error);
+      setSnackbarSeverity('warning');
+      setOpenSnackbar(true);
     }
   };
-
+    const handleSnackbarClose = (
+      _event?: React.SyntheticEvent | Event,
+      reason?: string,
+    ) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+      setOpenSnackbar(false);
+    };
   useEffect(() => {
     if (search) {
       const handler = setTimeout(() => {
@@ -131,8 +140,8 @@ const PeoplePage = () => {
         </Button>
       </Box>
 
-      {/* Add People Modal */}
-      <AddPeopleModal addModal={addModalOpen} handleAddClose={closeAddModal} fetchData={fetchData} />
+      {/* Add Volunteer Modal */}
+      <AddVolunteerModal addModal={addModalOpen} handleAddClose={closeAddModal} fetchData={fetchData} />
 
       {/* Search and Status Filter Container */}
       <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
@@ -221,8 +230,18 @@ const PeoplePage = () => {
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
         <Pagination count={Math.ceil(displayData.length / itemsPerPage)} page={currentPage} onChange={handlePageChange} />
       </Box>
+
+
+        <SnackbarAlert
+          open={openSnackbar}
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+        >{snackbarMessage}
+        </SnackbarAlert>
+
+
     </Box>
   );
 };
 
-export default PeoplePage;
+export default VolunteerPage;

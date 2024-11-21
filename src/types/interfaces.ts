@@ -21,4 +21,5 @@ export type Volunteer = {
   active: boolean;
   created_at: string ;
   last_signed_in: string| null;
+  PIN: string;
 };

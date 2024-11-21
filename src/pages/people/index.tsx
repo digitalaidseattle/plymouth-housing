@@ -6,7 +6,7 @@ import VolunteerTable from './VolunteerTable';
 import AddVolunteerModal from '../../components/AddVolunteerModal/AddVolunteerModal';
 import SnackbarAlert from '../../pages/authentication/SnackbarAlert';
 import useVolunteers from './useVolunteers';
-import { Volunteer } from '../../types/interfaces';
+
 
 const VolunteerPage = () => {
   const [search, setSearch] = useState('');
@@ -21,7 +21,7 @@ const VolunteerPage = () => {
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
 
-  const { originalData, filteredData, setFilteredData, loading, error, refetch } = useVolunteers();
+  const { originalData, filteredData, setFilteredData, loading, error, refetch, updateVolunteerStatus } = useVolunteers();
 
   // Handle filtering and sorting
   useEffect(() => {
@@ -81,6 +81,25 @@ const VolunteerPage = () => {
     }
   }, [error]);
 
+  // Handle status toggle
+  const handleStatusToggle = async (volunteerId: number) => {
+    try {
+      await updateVolunteerStatus(volunteerId);
+      setSnackbarState({
+        open: true,
+        message: 'Volunteer status updated successfully!',
+        severity: 'success',
+      });
+    } catch (error) {
+      setSnackbarState({
+        open: true,
+        message: 'Error updating volunteer: ' + error,
+        severity: 'warning',
+      });
+    }
+  };
+
+  
   return (
     <Box>
       {/* Add Button */}
@@ -107,6 +126,7 @@ const VolunteerPage = () => {
         volunteers={currentItems}
         nameOrder={nameOrder}
         onNameOrderToggle={handleNameOrderToggle}
+        onStatusToggle={handleStatusToggle} 
       />
 
       {/* Pagination */}

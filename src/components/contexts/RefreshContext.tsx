@@ -9,7 +9,7 @@
  */
 import { ReactNode, createContext, useEffect, useState } from 'react';
 
-export const useInterval = (callback: Function, delay: number) => {
+export const useInterval = (callback: () => void, delay: number) => {
   useEffect(() => {
     if (delay !== null) {
       const id = setInterval(callback, delay);

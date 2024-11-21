@@ -31,7 +31,7 @@ const MainDrawer: React.FC<MainDrawerProps> = ({
   // header content
   const drawerContent = useMemo(() => <DrawerContent />, []);
   const drawerHeader = useMemo(() => <DrawerHeader open={open} />, [open]);
-  const drawerFooter = useMemo(() => <DrawerFooter />, [open]);
+  const drawerFooter = useMemo(() => <DrawerFooter />, []);
 
   return (
     <Box

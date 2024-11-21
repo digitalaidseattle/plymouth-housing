@@ -36,7 +36,7 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
       onPinChange(newPin);
       return newPin;
     });
-  }, []);
+  }, [onPinChange]);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
@@ -62,7 +62,7 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
         return () => clearTimeout(timeout);
       }
     },
-    [updatePin, onPinChange],
+    [updatePin],
   );
 
   const handleKeyDown = useCallback(

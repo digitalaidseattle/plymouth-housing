@@ -2,21 +2,14 @@
  *  RefreshContext.ts
  *
  *  Method to broadcast an refresh signal.
- *  Combiningwith useInterval creates a central polling mechanism
+ *  Combining with useInterval creates a central polling mechanism
  *
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import { ReactNode, createContext, useEffect, useState } from 'react';
+import { ReactNode, createContext, useState } from 'react';
+import { useInterval } from '../../hooks/useInterval';
 
-export const useInterval = (callback: () => void, delay: number) => {
-  useEffect(() => {
-    if (delay !== null) {
-      const id = setInterval(callback, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-};
 
 interface RefreshContextType {
   refresh: number;

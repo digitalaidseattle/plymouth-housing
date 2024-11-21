@@ -26,7 +26,6 @@ const VolunteerPage = () => {
     originalData,
     filteredData,
     setFilteredData,
-    loading,
     error,
     refetch,
     updateVolunteerStatus,

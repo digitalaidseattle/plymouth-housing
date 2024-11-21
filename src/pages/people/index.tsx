@@ -7,11 +7,12 @@ import AddVolunteerModal from '../../components/AddVolunteerModal/AddVolunteerMo
 import SnackbarAlert from '../../pages/authentication/SnackbarAlert';
 import useVolunteers from './useVolunteers';
 
-
 const VolunteerPage = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>('original');
+  const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>(
+    'original',
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -21,7 +22,15 @@ const VolunteerPage = () => {
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
 
-  const { originalData, filteredData, setFilteredData, loading, error, refetch, updateVolunteerStatus } = useVolunteers();
+  const {
+    originalData,
+    filteredData,
+    setFilteredData,
+    loading,
+    error,
+    refetch,
+    updateVolunteerStatus,
+  } = useVolunteers();
 
   // Handle filtering and sorting
   useEffect(() => {
@@ -30,21 +39,23 @@ const VolunteerPage = () => {
     // Filter by search
     if (search) {
       filtered = filtered.filter((volunteer) =>
-        volunteer.name.toLowerCase().includes(search.toLowerCase())
+        volunteer.name.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
     // Filter by status
     if (statusFilter !== null) {
-      filtered = filtered.filter(
-        (volunteer) => (statusFilter === 'Active' ? volunteer.active : !volunteer.active)
+      filtered = filtered.filter((volunteer) =>
+        statusFilter === 'Active' ? volunteer.active : !volunteer.active,
       );
     }
 
     // Sort by name
     if (nameOrder !== 'original') {
       filtered.sort((a, b) =>
-        nameOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+        nameOrder === 'asc'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name),
       );
     }
 
@@ -53,11 +64,14 @@ const VolunteerPage = () => {
 
   const handleNameOrderToggle = () => {
     setNameOrder((prevOrder) =>
-      prevOrder === 'asc' ? 'desc' : prevOrder === 'desc' ? 'original' : 'asc'
+      prevOrder === 'asc' ? 'desc' : prevOrder === 'desc' ? 'original' : 'asc',
     );
   };
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number,
+  ) => {
     setCurrentPage(value);
   };
 
@@ -70,7 +84,10 @@ const VolunteerPage = () => {
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
 
-  const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
     if (reason === 'clickaway') return;
     setSnackbarState({ ...snackbarState, open: false });
   };
@@ -99,19 +116,25 @@ const VolunteerPage = () => {
     }
   };
 
-  
   return (
     <Box>
       {/* Add Button */}
       <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={openAddModal}>
+        <Button
+          sx={{ bgcolor: '#F5F5F5', color: 'black' }}
+          onClick={openAddModal}
+        >
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
           Add
         </Button>
       </Box>
 
       {/* Add Volunteer Modal */}
-      <AddVolunteerModal addModal={addModalOpen} handleAddClose={closeAddModal} fetchData={refetch} />
+      <AddVolunteerModal
+        addModal={addModalOpen}
+        handleAddClose={closeAddModal}
+        fetchData={refetch}
+      />
 
       {/* Filters */}
       <VolunteerFilters
@@ -126,16 +149,24 @@ const VolunteerPage = () => {
         volunteers={currentItems}
         nameOrder={nameOrder}
         onNameOrderToggle={handleNameOrderToggle}
-        onStatusToggle={handleStatusToggle} 
+        onStatusToggle={handleStatusToggle}
       />
 
       {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Pagination count={totalPages} page={currentPage} onChange={handlePageChange} />
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+        />
       </Box>
 
       {/* Snackbar */}
-      <SnackbarAlert open={snackbarState.open} onClose={handleSnackbarClose} severity={snackbarState.severity}>
+      <SnackbarAlert
+        open={snackbarState.open}
+        onClose={handleSnackbarClose}
+        severity={snackbarState.severity}
+      >
         {snackbarState.message}
       </SnackbarAlert>
     </Box>

@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Menu, MenuItem, Modal, Box,Typography,Button,} from '@mui/material';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  Modal,
+  Box,
+  Typography,
+  Button,
+} from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -14,14 +30,24 @@ interface VolunteerTableProps {
   onStatusToggle: (volunteerId: number) => void;
 }
 
-const VolunteerTable: React.FC<VolunteerTableProps> = ({ volunteers, nameOrder, onNameOrderToggle,onStatusToggle, }) => {
+const VolunteerTable: React.FC<VolunteerTableProps> = ({
+  volunteers,
+  nameOrder,
+  onNameOrderToggle,
+  onStatusToggle,
+}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
+    null,
+  );
   const [openPinModal, setOpenPinModal] = useState(false);
   const [selectedPin, setSelectedPin] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, volunteer: Volunteer) => {
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    volunteer: Volunteer,
+  ) => {
     setAnchorEl(event.currentTarget);
     setSelectedVolunteer(volunteer);
   };
@@ -40,34 +66,47 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({ volunteers, nameOrder, 
 
   const handleShowPin = () => {
     if (selectedVolunteer) {
-        if (selectedVolunteer.PIN) {
-            setSelectedPin(selectedVolunteer.PIN);
-            setOpenPinModal(true);
-        } else {
-            setSnackbarOpen(true);
-        }
+      if (selectedVolunteer.PIN) {
+        setSelectedPin(selectedVolunteer.PIN);
+        setOpenPinModal(true);
+      } else {
+        setSnackbarOpen(true);
       }
-      handleMenuClose();
+    }
+    handleMenuClose();
   };
-    return (
+  return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
             <TableCell
-              sx={{ fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              sx={{
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+              }}
               onClick={onNameOrderToggle}
             >
               Name
               {nameOrder === 'asc' ? (
-                <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />
+                <ArrowUpwardIcon
+                  fontSize="small"
+                  sx={{ ml: 0.5, color: 'gray' }}
+                />
               ) : nameOrder === 'desc' ? (
-                <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />
+                <ArrowDownwardIcon
+                  fontSize="small"
+                  sx={{ ml: 0.5, color: 'gray' }}
+                />
               ) : null}
             </TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Date Created</TableCell>
-            <TableCell sx={{ fontWeight: 'bold' }}>Last Signed In Date</TableCell>
+            <TableCell sx={{ fontWeight: 'bold' }}>
+              Last Signed In Date
+            </TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}></TableCell>
           </TableRow>
         </TableHead>
@@ -86,7 +125,9 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({ volunteers, nameOrder, 
                   }}
                 />
               </TableCell>
-              <TableCell>{new Date(volunteer.created_at).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(volunteer.created_at).toLocaleDateString()}
+              </TableCell>
               <TableCell>
                 {volunteer.last_signed_in
                   ? new Date(volunteer.last_signed_in).toLocaleDateString()
@@ -103,23 +144,26 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({ volunteers, nameOrder, 
       </Table>
 
       {/* Menu for actions */}
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         <MenuItem onClick={handleStatusToggle}>
           {selectedVolunteer?.active ? 'Deactivate Role' : 'Activate Role'}
         </MenuItem>
         <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>
       </Menu>
 
-
-        {/* PIN Modal */}
-        <Modal
+      {/* PIN Modal */}
+      <Modal
         open={openPinModal}
         onClose={() => setOpenPinModal(false)}
         aria-labelledby="pin-modal-title"
         aria-describedby="pin-modal-description"
-        >
+      >
         <Box
-            sx={{
+          sx={{
             position: 'absolute',
             top: '50%',
             left: '50%',
@@ -131,39 +175,38 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({ volunteers, nameOrder, 
             outline: 'none',
             width: 300,
             textAlign: 'center', // Center all text
-            }}
+          }}
         >
-            {/* Close Button */}
-            <IconButton
+          {/* Close Button */}
+          <IconButton
             aria-label="close"
             onClick={() => setOpenPinModal(false)}
             sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
             }}
-            >
+          >
             <CloseIcon />
-            </IconButton>
+          </IconButton>
 
-            <Typography id="pin-modal-title" variant="h6" component="h2">
+          <Typography id="pin-modal-title" variant="h6" component="h2">
             Pin code:
-            </Typography>
-            <Typography id="pin-modal-description" sx={{ mt: 2 }}>
+          </Typography>
+          <Typography id="pin-modal-description" sx={{ mt: 2 }}>
             <strong>{selectedPin}</strong>
-            </Typography>
+          </Typography>
         </Box>
-        </Modal>
+      </Modal>
 
-        <SnackbarAlert
-            open={snackbarOpen}
-            onClose={() => setSnackbarOpen(false)}
-            severity='warning'
-            >
-            'PIN not available.'
-        </SnackbarAlert>
-
+      <SnackbarAlert
+        open={snackbarOpen}
+        onClose={() => setSnackbarOpen(false)}
+        severity="warning"
+      >
+        'PIN not available.'
+      </SnackbarAlert>
     </TableContainer>
   );
 };

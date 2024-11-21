@@ -27,12 +27,12 @@ const routes = [
             <Inventory />
           </MainCard>
         ),
-      },      
+      },
       {
         path: 'people',
         element: (
           <MainCard title="People">
-            <People/>
+            <People />
           </MainCard>
         ),
       },
@@ -45,10 +45,10 @@ const routes = [
         ),
       },
       {
-        path: "checkout",
+        path: 'checkout',
         element: <CheckoutPage />,
       },
-    ]
+    ],
   },
   {
     path: '/',

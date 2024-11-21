@@ -1,5 +1,12 @@
 import React from 'react';
-import { Box, Button, Typography, TextField, Menu, MenuItem } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Menu,
+  MenuItem,
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 
@@ -16,7 +23,9 @@ const VolunteerFilters: React.FC<VolunteerFiltersProps> = ({
   statusFilter,
   onStatusFilterChange,
 }) => {
-  const [anchorStatus, setAnchorStatus] = React.useState<null | HTMLElement>(null);
+  const [anchorStatus, setAnchorStatus] = React.useState<null | HTMLElement>(
+    null,
+  );
 
   const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorStatus(event.currentTarget);
@@ -41,7 +50,10 @@ const VolunteerFilters: React.FC<VolunteerFiltersProps> = ({
           {statusFilter ? (
             <>
               {statusFilter}
-              <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} onClick={clearStatusFilter} />
+              <ClearIcon
+                sx={{ fontSize: 'large', ml: '6px' }}
+                onClick={clearStatusFilter}
+              />
             </>
           ) : (
             <>
@@ -50,9 +62,17 @@ const VolunteerFilters: React.FC<VolunteerFiltersProps> = ({
             </>
           )}
         </Button>
-        <Menu open={Boolean(anchorStatus)} onClose={handleStatusClose} anchorEl={anchorStatus}>
-          <MenuItem onClick={() => onStatusFilterChange('Active')}>Active</MenuItem>
-          <MenuItem onClick={() => onStatusFilterChange('Inactive')}>Inactive</MenuItem>
+        <Menu
+          open={Boolean(anchorStatus)}
+          onClose={handleStatusClose}
+          anchorEl={anchorStatus}
+        >
+          <MenuItem onClick={() => onStatusFilterChange('Active')}>
+            Active
+          </MenuItem>
+          <MenuItem onClick={() => onStatusFilterChange('Inactive')}>
+            Inactive
+          </MenuItem>
         </Menu>
       </Box>
       <Box sx={{ ml: 'auto' }}>

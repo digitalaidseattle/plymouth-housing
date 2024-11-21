@@ -15,7 +15,10 @@ const useVolunteers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(VOLUNTEERS_API, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(VOLUNTEERS_API, {
+        headers: HEADERS,
+        method: 'GET',
+      });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -39,38 +42,38 @@ const useVolunteers = () => {
     try {
       const volunteerToUpdate = originalData.find((v) => v.id === volunteerId);
       if (!volunteerToUpdate) throw new Error('Volunteer not found');
-  
+
       const updatedStatus = !volunteerToUpdate.active;
-  
+
       // Construct the request URL
       const requestUrl = `${VOLUNTEERS_API}/id/${volunteerId}`;
-  
+
       // Prepare the headers
       const headers = {
         ...HEADERS,
       };
-  
+
       // Send the PATCH request
       const response = await fetch(requestUrl, {
         method: 'PATCH',
         headers: headers,
         body: JSON.stringify({ active: updatedStatus }),
       });
-  
+
       if (!response.ok) {
         // Parse error details
         const errorData = await response.json();
         const errorMessage = errorData.error?.message || response.statusText;
         throw new Error(`Error updating volunteer: ${errorMessage}`);
       }
-  
+
       // Update the local data
       const updatedVolunteer = { ...volunteerToUpdate, active: updatedStatus };
-  
+
       const updatedOriginalData = originalData.map((volunteer) =>
-        volunteer.id === volunteerId ? updatedVolunteer : volunteer
+        volunteer.id === volunteerId ? updatedVolunteer : volunteer,
       );
-  
+
       setOriginalData(updatedOriginalData);
       setFilteredData(updatedOriginalData);
     } catch (error) {
@@ -78,7 +81,6 @@ const useVolunteers = () => {
       throw error;
     }
   };
-  
 
   return {
     originalData,

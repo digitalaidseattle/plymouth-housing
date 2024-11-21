@@ -12,7 +12,7 @@ import {
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
-  UserOutlined, 
+  UserOutlined,
 } from '@ant-design/icons';
 
 const icons = {
@@ -28,7 +28,7 @@ const icons = {
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
-  UserOutlined, 
+  UserOutlined,
 };
 
 // ==============================|| MENU ITEMS ||============================== //

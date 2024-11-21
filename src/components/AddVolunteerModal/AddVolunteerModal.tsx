@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
-import {AddVolunteerModalProps} from '../../types/interfaces';
-
+import { AddVolunteerModalProps } from '../../types/interfaces';
 
 const VOLUNTEER_API = '/data-api/rest/volunteer';
-const HEADERS = { Accept: 'application/json', 'Content-Type': 'application/json;charset=utf-8' };
+const HEADERS = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json;charset=utf-8',
+};
 
-const AddVolunteerModal = ({ addModal, handleAddClose, fetchData }: AddVolunteerModalProps) => {
+const AddVolunteerModal = ({
+  addModal,
+  handleAddClose,
+  fetchData,
+}: AddVolunteerModalProps) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,7 +34,7 @@ const AddVolunteerModal = ({ addModal, handleAddClose, fetchData }: AddVolunteer
       name: '',
       email: '',
       PIN: '',
-    created_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     });
     setErrorMessage('');
     setSuccessMessage('');
@@ -44,14 +50,18 @@ const AddVolunteerModal = ({ addModal, handleAddClose, fetchData }: AddVolunteer
     setErrorMessage('');
     setSuccessMessage('');
 
-    if (formData.name === '' || formData.email === '' || formData.PIN.length !== 4) {
+    if (
+      formData.name === '' ||
+      formData.email === '' ||
+      formData.PIN.length !== 4
+    ) {
       setErrorMessage('Please enter valid information. PIN must be 4 digits.');
       return;
     }
     if (!/^\d{4}$/.test(formData.PIN)) {
-        setErrorMessage('PIN must contain exactly 4 numeric digits.');
-        return;
-      }
+      setErrorMessage('PIN must contain exactly 4 numeric digits.');
+      return;
+    }
     if (!validateEmail(formData.email)) {
       setErrorMessage('Please enter a valid email address.');
       return;
@@ -64,7 +74,7 @@ const AddVolunteerModal = ({ addModal, handleAddClose, fetchData }: AddVolunteer
         body: JSON.stringify({ ...formData, active: true }),
       });
       if (!response.ok) {
-        const errorData = await response.json();  
+        const errorData = await response.json();
         const errorMessage = errorData?.error?.message || response.statusText;
         throw new Error(errorMessage);
       } else {
@@ -146,11 +156,18 @@ const AddVolunteerModal = ({ addModal, handleAddClose, fetchData }: AddVolunteer
         )}
 
         {/* Buttons */}
-        <Box id="modal-buttons" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Box
+          id="modal-buttons"
+          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+        >
           <Button onClick={resetInputsHandler} sx={{ mr: 2 }}>
             Cancel
           </Button>
-          <Button onClick={createVolunteerHandler} variant="contained" color="primary">
+          <Button
+            onClick={createVolunteerHandler}
+            variant="contained"
+            color="primary"
+          >
             Add
           </Button>
         </Box>

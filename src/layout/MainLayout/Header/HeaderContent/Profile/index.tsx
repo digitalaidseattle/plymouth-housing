@@ -1,6 +1,4 @@
-import {
-//     ReactNode,
-    useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 // material-ui
 import {
@@ -14,13 +12,10 @@ import {
   Paper,
   Popper,
   Stack,
-//   Tab,
   Tabs,
   Typography,
 } from '@mui/material';
-import {
-//     Direction,
-    useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 
 // project import
 import Transitions from '../../../../../components/@extended/Transitions';

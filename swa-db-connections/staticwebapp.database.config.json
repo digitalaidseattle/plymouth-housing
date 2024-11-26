@@ -61,7 +61,7 @@
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": ["*"],
           "role": "volunteer"
         }
       ]

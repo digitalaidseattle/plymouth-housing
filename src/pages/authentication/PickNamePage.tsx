@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -11,17 +11,10 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { HEADERS } from '../../types/constants'
+import { ENDPOINTS, HEADERS } from '../../types/constants'
+import { Volunteer } from '../../types/interfaces';
 import { IdTokenClaims } from '@azure/msal-common';
 import { useMsal } from '@azure/msal-react';
-
-
-const API = '/data-api/rest/volunteer';
-
-interface Volunteer {
-  id: number;
-  name: string;
-}
 
 const PickYourNamePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
@@ -29,9 +22,8 @@ const PickYourNamePage: React.FC = () => {
   );
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-  const { user, setUser } = useContext(UserContext);
+  const [user, setUser] = useState<IdTokenClaims | null>(null);
   const navigate = useNavigate();
-//  const [user, setUser] = useState<IdTokenClaims | null>(null);
   const { instance } = useMsal();
 
   useEffect(() => {
@@ -50,10 +42,7 @@ const PickYourNamePage: React.FC = () => {
           console.error('Error acquiring token', error);
         });
     }
-  }, [instance, setUser]);
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  }, [instance]);
 
   useEffect(() => {
     if (!user) return;
@@ -61,7 +50,7 @@ const PickYourNamePage: React.FC = () => {
       try {
         HEADERS['X-MS-API-ROLE'] = getRole(user);
         const response = await fetch(
-          `${API}?$select=id,name&$filter=active eq true`,
+          `${ENDPOINTS.VOLUNTEERS}?$select=id,name&$filter=active eq true`,
           {
             method: 'GET',
             headers: HEADERS,
@@ -90,7 +79,7 @@ const PickYourNamePage: React.FC = () => {
     if (selectedVolunteer) {
       // Navigate to the next page, passing the volunteer ID via state
       navigate('/enter-your-pin', {
-        state: { volunteerId: selectedVolunteer.id },
+        state: { volunteerId: selectedVolunteer.id, role: getRole(user) },
       });
     } else {
       setOpenSnackbar(true);
@@ -185,7 +174,6 @@ const PickYourNamePage: React.FC = () => {
         </CenteredLayout>
       </MinimalWrapper>
     </UserContext.Provider>
-
   );
 };
 

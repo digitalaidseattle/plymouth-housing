@@ -16,7 +16,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { HEADERS } from "../../types/constants"
+import { ENDPOINTS, HEADERS } from "../../types/constants"
 
 type InventoryItem = {
   id: number;
@@ -26,8 +26,6 @@ type InventoryItem = {
   category: string;
   status: string;
 };
-
-const API = '/data-api/rest/item';
 
 const Inventory = () => {
   const {user} = useContext(UserContext);
@@ -171,7 +169,7 @@ const Inventory = () => {
   const fetchData = async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(API, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.ITEMS, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

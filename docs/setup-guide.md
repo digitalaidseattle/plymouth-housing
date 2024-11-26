@@ -73,8 +73,17 @@ There are tutorials that will help you get started:
 
 ### Securing the API and the Routes
 
-To allow the appropriate level of permissions on the API and the routes, you need to follow [these steps](https://learn.microsoft.com/en-us/azure/static-web-apps/authentication-custom?tabs=aad%2Cinvitations#manage-roles). 
-This will allow you to set the ```permissions``` on the ```entities``` in [```staticwebapp.database.config.json```](..//swa-db-connections/staticwebapp.database.config.json).
+To allow the appropriate level of permissions on the API and the routes, you need to follow 
+- [these steps from the SWA documentation](https://learn.microsoft.com/en-us/azure/static-web-apps/authentication-custom?tabs=aad%2Cinvitations#manage-roles) and 
+- [these from the DAP documentation](https://learn.microsoft.com/en-us/azure/data-api-builder/authorization). 
+
+This will allow you to set the ```permissions``` on the ```entities``` in [```staticwebapp.database.config.json```](..//swa-db-connections/staticwebapp.database.config.json). 
+
+There are two requirements that need to be fullfilled:
+- the X-MS-API-ROLE HEADER needs to be present on all REST API calls. It should be one of the roles (or the built-in roles authenticated or anonymous)
+- the ```staticwebapp.config.json`` should not be blank but contain at least the default as in the documents. 
+
+When you start the application with ```swa start```, it will now create a proxy page that allows you to enter the role it will propagate to the REST API. 
 
 ## Database 
 

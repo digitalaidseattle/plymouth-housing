@@ -42,6 +42,7 @@
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^14.2.1",
     "@types/geojson": "^7946.0.14",
+    "@types/jest": "^29.5.14",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.11.16",
     "@types/react": "^18.2.55",

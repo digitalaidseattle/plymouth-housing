@@ -13,6 +13,7 @@ import {
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 
 const icons = {
@@ -28,6 +29,7 @@ const icons = {
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
+  UserOutlined,
 };
 
 // ==============================|| MENU ITEMS ||============================== //
@@ -58,6 +60,14 @@ const dashboard = {
       type: 'item',
       url: '/checkout',
       icon: icons.EyeInvisibleOutlined,
+      breadcrumbs: false,
+    },
+    {
+      id: 'people',
+      title: 'People',
+      type: 'admin',
+      url: '/people',
+      icon: icons.UserOutlined,
       breadcrumbs: false,
     },
   ],

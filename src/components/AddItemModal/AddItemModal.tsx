@@ -1,16 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
 import { useState } from 'react';
-
-type InventoryItem = {
-  id: number;
-  name: string;
-  type: string;
-  quantity: number;
-  category: string;
-  description: string;
-  status: string;
-};
+import { InventoryItem } from '../../types/interfaces.ts';
+import { DASSnackbar } from '../DASSnackbar.tsx';
 
 type FormData = {
   name: string;
@@ -29,7 +21,7 @@ type AddItemModalProps = {
 }
 
 const API = "/data-api/rest/item";
-const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', }; //The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
+const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', }; //TODO The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
 
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
 
@@ -234,7 +226,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
             </Typography>
             <TextField sx={{ width: '100%' }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
           </Box>
-          {errorMessage.length > 0 ? <Typography color='red'>{errorMessage}</Typography> : null}
+          {errorMessage.length > 0 ? <DASSnackbar open={true} severity='error' message={errorMessage} onClose={() => setErrorMessage('')} /> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
             {typeof (updateItem) === 'object' ? <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Update</Button> : <Button sx={{ color: 'black' }} onClick={createItemHandler}>Create</Button>}

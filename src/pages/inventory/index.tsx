@@ -17,16 +17,8 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
+import { InventoryItem } from '../../types/interfaces.ts';
 
-type InventoryItem = {
-  id: number;
-  name: string;
-  type: string;
-  quantity: number;
-  category: string;
-  description: string;
-  status: string;
-};
 
 const API = '/data-api/rest/item';
 const HEADERS = {
@@ -190,7 +182,6 @@ const Inventory = () => {
       }
       const data = await response.json();
       const inventoryList = data.value;
-      console.log(inventoryList)
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
 
@@ -203,7 +194,7 @@ const Inventory = () => {
 
     }
     catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user. 
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
   }
     setIsLoading(false);
   };

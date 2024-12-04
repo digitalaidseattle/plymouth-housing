@@ -53,7 +53,7 @@ const MainLayout: React.FC = () => {
       console.log('Cannot get account, redirecting to login');
       navigate('/login');
     }
-  }, [navigate]);
+  }, [instance, navigate]);
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);

@@ -8,7 +8,7 @@ import {
   Button,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CheckoutItem } from '../../types/interfaces'
+import { CheckoutItem } from '../../types/interfaces';
 
 type CheckoutDialogProps = {
   open: boolean;
@@ -26,9 +26,13 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   renderItemQuantityButtons,
 }) => {
   return (
-    <Dialog onClose={onClose} aria-labelledby="customized-dialog-title" open={open}>
+    <Dialog
+      onClose={onClose}
+      aria-labelledby="customized-dialog-title"
+      open={open}
+    >
       <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        <span style={{ fontSize: "1.5rem" }}>Checkout Summary</span>
+        <span style={{ fontSize: '1.5rem' }}>Checkout Summary</span>
       </DialogTitle>
       <IconButton
         aria-label="close"
@@ -42,17 +46,37 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       >
         <Close />
       </IconButton>
-      <DialogContent dividers style={{ width: "500px" }}>
+      <DialogContent dividers style={{ width: '500px' }}>
         {checkoutItems.map((item: CheckoutItem) => (
-          <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "10px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", width: "370px", alignItems: "center" }}>
+          <div
+            key={item.id}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderRadius: '10px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                width: '370px',
+                alignItems: 'center',
+              }}
+            >
               <div>
                 <h4>{item.name}</h4>
               </div>
               {renderItemQuantityButtons(item)}
             </div>
             <div>
-              <Button variant="text" onClick={() => removeItemFromCart(item.id)}>Remove</Button>
+              <Button
+                variant="text"
+                onClick={() => removeItemFromCart(item.id)}
+              >
+                Remove
+              </Button>
             </div>
           </div>
         ))}

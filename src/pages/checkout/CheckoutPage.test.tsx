@@ -6,9 +6,19 @@ import '@testing-library/jest-dom';
 // Mock categories and building codes data
 vi.mock('../../data/checkoutPage', () => ({
   categories: [
-    { id: 1, name: 'Electronics', items: [{ id: 'item1', name: 'Laptop' }, { id: 'item2', name: 'Phone' }] },
+    {
+      id: 1,
+      name: 'Electronics',
+      items: [
+        { id: 'item1', name: 'Laptop' },
+        { id: 'item2', name: 'Phone' },
+      ],
+    },
   ],
-  buildingCodes: [{ code: 'B1', name: 'Building 1' }, { code: 'B2', name: 'Building 2' }]
+  buildingCodes: [
+    { code: 'B1', name: 'Building 1' },
+    { code: 'B2', name: 'Building 2' },
+  ],
 }));
 
 describe('CheckoutPage', () => {
@@ -32,16 +42,16 @@ describe('CheckoutPage', () => {
 
   it('updates selected value when an option is chosen', () => {
     const select = screen.getByLabelText('Building Code');
-    
+
     // Open the dropdown
     fireEvent.mouseDown(select);
-    
+
     // Click the first option
     const firstOption = screen.getByText('B1 (Building 1)');
     fireEvent.click(firstOption);
-    
+
     // Verify the selection
-    expect(select).toHaveTextContent('B1 (Building 1)'); 
+    expect(select).toHaveTextContent('B1 (Building 1)');
   });
 
   it('adds an item to the cart and shows item quantity', () => {
@@ -55,7 +65,7 @@ describe('CheckoutPage', () => {
     // Check if the quantity is updated and item is added to the cart
     expect(screen.getByText('1 items selected')).toBeInTheDocument();
     expect(screen.getByTestId('test-id-quantity')); // Check for quantity
-  }); 
+  });
 
   it('removes an item from the cart', () => {
     // Add item to the cart

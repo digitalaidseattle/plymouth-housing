@@ -9,7 +9,7 @@ import { Box, TextField } from '@mui/material';
 import { styled } from '@mui/system';
 import SnackbarAlert from './SnackbarAlert';
 
-const PinInput = styled(TextField)(({}) => ({
+const PinInput = styled(TextField)({
   width: '50px',
   margin: '0 8px',
   textAlign: 'center',
@@ -19,7 +19,7 @@ const PinInput = styled(TextField)(({}) => ({
     fontSize: '24px',
     padding: '10px',
   },
-}));
+});
 
 const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
   onPinChange,
@@ -36,7 +36,7 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
       onPinChange(newPin);
       return newPin;
     });
-  }, []);
+  }, [onPinChange]);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
@@ -62,7 +62,7 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
         return () => clearTimeout(timeout);
       }
     },
-    [updatePin, onPinChange],
+    [updatePin],
   );
 
   const handleKeyDown = useCallback(

@@ -60,7 +60,8 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer"
+        "path": "/volunteer",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
@@ -68,7 +69,7 @@
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": ["read", "create", "update"],
           "role": "anonymous"
         }
       ]

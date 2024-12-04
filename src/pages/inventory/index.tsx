@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -29,18 +28,16 @@ const HEADERS = {
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
-  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
-  const [addModal, setAddModal] = useState(false);
+  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>(
+    'original',
+  );
   const [type, setType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
-  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
-    null,
-  );
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
+  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -76,7 +73,7 @@ const Inventory = () => {
     } else if (itemAlph === 'original') {
       setItemAlph('asc');
     }
-  }
+  };
 
   const handleTypeClose = () => {
     setAnchorType(null);
@@ -128,7 +125,7 @@ const Inventory = () => {
     setCurrentPage(value);
   };
 
-  const handleFilter = () => {
+  const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(
       (row: {
         name: string;
@@ -154,11 +151,10 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-          row.description.toLowerCase().includes(lowerCaseSearch) ||
-          row.type.toLowerCase().includes(lowerCaseSearch) ||
-          row.category.toLowerCase().includes(lowerCaseSearch) ||
-          row.status.toLowerCase().includes(lowerCaseSearch) ||
-          row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+            row.type.toLowerCase().includes(lowerCaseSearch) ||
+            row.category.toLowerCase().includes(lowerCaseSearch) ||
+            row.status.toLowerCase().includes(lowerCaseSearch) ||
+            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
         return matchesType && matchesCategory && matchesSearch && matchesStatus;
@@ -172,7 +168,7 @@ const Inventory = () => {
     }
 
     setDisplayData(searchFiltered);
-  };
+  }, [type, category, status, search, itemAlph, originalData]);
 
   const fetchData = async () => {
     try {
@@ -181,45 +177,35 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      const inventoryList = data.value;
-      setOriginalData(inventoryList);
-      setDisplayData(inventoryList);
-
-      inventoryList.forEach((obj: InventoryItem) => {
-        const uniqueCategory = obj.category;
-        categoryList.add(uniqueCategory)
-      })
-
-      setUniqueCategories([...categoryList]);
-
-    }
-    catch (error) {
+      setOriginalData(data.value);
+      setDisplayData(data.value);
+    } catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
-  }
+    }
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      handleFilter();
+    }, 300); // Reduces calls to filter while typing in search
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [type, category, status, search, handleFilter]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [itemAlph, handleFilter]);
 
   if (isLoading) {
     return <p>Loading ...</p>;
   }
 
-  useEffect(() => {
-    if (type || category || status || search) {
-      const handler = setTimeout(() => {
-        handleFilter();
-      }, 300); // Reduces calls to filter while typing in search
-      return () => {
-        clearTimeout(handler);
-      };
-      // handleFilter()
-    } else {
-      fetchData();
-    }
-  }, [type, category, status, search]);
-
-  useEffect(() => {
-    handleFilter();
-  }, [itemAlph])
 
   return (
     <Box>
@@ -401,12 +387,28 @@ const Inventory = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={itemAlphabetizeHandle}>Name
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  onClick={itemAlphabetizeHandle}
+                >
+                  Name
                   {itemAlph === 'asc' ? (
-                    <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
+                    <ArrowUpwardIcon
+                      fontSize="small"
+                      sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }}
+                    />
                   ) : itemAlph === 'desc' ? (
-                    <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
-                  ) : null}</TableCell>
+                    <ArrowDownwardIcon
+                      fontSize="small"
+                      sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }}
+                    />
+                  ) : null}
+                </TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>

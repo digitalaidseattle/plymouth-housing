@@ -23,47 +23,96 @@ const CheckoutPage = () => {
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
 
   const removeItemFromCart = (itemId: string) => {
-    setCheckoutItems(checkoutItems.filter((addedItem: CheckoutItem) => addedItem.id !== itemId));
-  }
+    setCheckoutItems(
+      checkoutItems.filter(
+        (addedItem: CheckoutItem) => addedItem.id !== itemId,
+      ),
+    );
+  };
 
   const addItemToCart = (item: Item, quantity: number) => {
-    const foundIndex = checkoutItems.findIndex((addedItem: CheckoutItem) => addedItem.id === item.id);
+    const foundIndex = checkoutItems.findIndex(
+      (addedItem: CheckoutItem) => addedItem.id === item.id,
+    );
     if (foundIndex !== -1) {
       const foundItem = checkoutItems[foundIndex];
       if (foundItem.quantity + quantity === 0) {
         removeItemFromCart(item.id);
       } else {
         const updatedItems = [...checkoutItems];
-        updatedItems[foundIndex] = { ...foundItem, quantity: foundItem.quantity + quantity };
+        updatedItems[foundIndex] = {
+          ...foundItem,
+          quantity: foundItem.quantity + quantity,
+        };
         setCheckoutItems(updatedItems);
       }
     } else {
       const updatedItems = [...checkoutItems, { ...item, quantity: 1 }];
       setCheckoutItems(updatedItems);
     }
-  }
+  };
 
   const renderItemQuantityButtons = (item: Item | CheckoutItem) => {
-    const foundInCart = checkoutItems.find((v: CheckoutItem) => v.id === item.id);
+    const foundInCart = checkoutItems.find(
+      (v: CheckoutItem) => v.id === item.id,
+    );
     if (foundInCart) {
       return (
-        <div style={{ display: "flex" }}>
-          <IconButton style={{ backgroundColor: "#E8E8E8", width: "20px", height: "20px" }} onClick={() => addItemToCart(item, -1)}><Remove fontSize="small" /></IconButton>
-          <span style={{ fontWeight: "bold", margin: "0 10px" }} data-testid="test-id-quantity">{foundInCart.quantity}</span>
-          <IconButton style={{ backgroundColor: "#E8E8E8", width: "20px", height: "20px" }} onClick={() => addItemToCart(item, 1)}><Add fontSize="small" /></IconButton>
+        <div style={{ display: 'flex' }}>
+          <IconButton
+            style={{
+              backgroundColor: '#E8E8E8',
+              width: '20px',
+              height: '20px',
+            }}
+            onClick={() => addItemToCart(item, -1)}
+          >
+            <Remove fontSize="small" />
+          </IconButton>
+          <span
+            style={{ fontWeight: 'bold', margin: '0 10px' }}
+            data-testid="test-id-quantity"
+          >
+            {foundInCart.quantity}
+          </span>
+          <IconButton
+            style={{
+              backgroundColor: '#E8E8E8',
+              width: '20px',
+              height: '20px',
+            }}
+            onClick={() => addItemToCart(item, 1)}
+          >
+            <Add fontSize="small" />
+          </IconButton>
         </div>
       );
     }
-    return <IconButton style={{ backgroundColor: "#E8E8E8", width: "30px", height: "30px" }} onClick={() => addItemToCart(item, 1)}><Add /></IconButton>
-  }
+    return (
+      <IconButton
+        style={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
+        onClick={() => addItemToCart(item, 1)}
+      >
+        <Add />
+      </IconButton>
+    );
+  };
 
   return (
-    <div style={{ margin: "auto 100px" }}>
+    <div style={{ margin: 'auto 100px' }}>
       <h2>Check out</h2>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end" }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'end',
+        }}
+      >
         <div>
-          <FormControl style={{ width: "150px" }}>
-            <InputLabel id="select-building-code-label">Building Code</InputLabel>
+          <FormControl style={{ width: '150px' }}>
+            <InputLabel id="select-building-code-label">
+              Building Code
+            </InputLabel>
             <Select
               labelId="select-building-code-label"
               id="select-building-code"
@@ -73,13 +122,18 @@ const CheckoutPage = () => {
               onChange={(event) => setSelectedBuildingCode(event.target.value)}
             >
               {buildingCodes.map((buildingCode) => (
-                <MenuItem key={buildingCode.code} value={buildingCode.code}>{buildingCode.code} ({buildingCode.name})</MenuItem>
+                <MenuItem key={buildingCode.code} value={buildingCode.code}>
+                  {buildingCode.code} ({buildingCode.name})
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
         </div>
         <div>
-          <TextField variant="standard" placeholder="Search..." type="search"
+          <TextField
+            variant="standard"
+            placeholder="Search..."
+            type="search"
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -90,20 +144,39 @@ const CheckoutPage = () => {
           />
         </div>
       </div>
-      <div style={{ borderRadius: "10px", backgroundColor: "#F0F0F0" }}>
+      <div style={{ borderRadius: '10px', backgroundColor: '#F0F0F0' }}>
         {categories.map((category) => (
           <div key={category.id}>
-            <h3 style={{ margin: "20px 20px" }}>{category.name}</h3>
-            <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
-              {category.items.map(item => (
-                <Card key={item.id} style={{
-                  display: "flex", justifyContent: "space-between", alignItems: "center", width: "238px", height: "70px", margin: "10px", borderRadius: "10px",
-                  backgroundColor: checkoutItems.find((v: CheckoutItem) => v.id === item.id) ? "#C0C0C0" : "white"
-                }}>
+            <h3 style={{ margin: '20px 20px' }}>{category.name}</h3>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+              }}
+            >
+              {category.items.map((item) => (
+                <Card
+                  key={item.id}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '238px',
+                    height: '70px',
+                    margin: '10px',
+                    borderRadius: '10px',
+                    backgroundColor: checkoutItems.find(
+                      (v: CheckoutItem) => v.id === item.id,
+                    )
+                      ? '#C0C0C0'
+                      : 'white',
+                  }}
+                >
                   <CardContent>
                     <h4>{item.name}</h4>
                   </CardContent>
-                  <CardActions style={{ border: "1px red blue" }}>
+                  <CardActions style={{ border: '1px red blue' }}>
                     {renderItemQuantityButtons(item)}
                   </CardActions>
                 </Card>
@@ -113,9 +186,31 @@ const CheckoutPage = () => {
         ))}
       </div>
       {checkoutItems.length > 0 && (
-        <div style={{ padding: "0 100px", display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", height: "100px", backgroundColor: "#C0C0C0" }}>
-          <p>{checkoutItems.reduce((accumulator, item) => accumulator + item.quantity, 0)} items selected</p>
-          <Button variant="text" style={{ color: "black", backgroundColor: "white" }} onClick={() => setOpenSummary(true)}>Continue</Button>
+        <div
+          style={{
+            padding: '0 100px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+            height: '100px',
+            backgroundColor: '#C0C0C0',
+          }}
+        >
+          <p>
+            {checkoutItems.reduce(
+              (accumulator, item) => accumulator + item.quantity,
+              0,
+            )}{' '}
+            items selected
+          </p>
+          <Button
+            variant="text"
+            style={{ color: 'black', backgroundColor: 'white' }}
+            onClick={() => setOpenSummary(true)}
+          >
+            Continue
+          </Button>
         </div>
       )}
 
@@ -128,6 +223,6 @@ const CheckoutPage = () => {
       />
     </div>
   );
-}
+};
 
 export default CheckoutPage;

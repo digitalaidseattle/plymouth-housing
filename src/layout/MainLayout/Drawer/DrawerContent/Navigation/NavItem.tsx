@@ -46,9 +46,8 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
     itemTarget = '_blank';
   }
 
-  // eslint-disable-next-line
   const listItemProps = {
-    component: forwardRef((props, ref: any) => (
+    component: forwardRef((props: React.ComponentProps<typeof Link>, ref: React.Ref<HTMLAnchorElement>) => (
       <Link ref={ref} {...props} to={item.url} target={itemTarget} />
     )),
   };
@@ -63,7 +62,7 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   const textColor = 'text.primary';
   const iconSelectedColor = 'primary.main';
-  const Icon = item.icon as unknown as React.ForwardRefExoticComponent<any>;
+  const Icon = item.icon as unknown as React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElement>>;
   const itemIcon = item.icon && (
     <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />
   );

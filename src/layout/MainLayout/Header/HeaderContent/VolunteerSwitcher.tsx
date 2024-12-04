@@ -43,7 +43,7 @@ const VolunteerSwitcher: React.FC = () => {
   return (
     <Box>
       <Button
-        aria-controls={Boolean(anchorEl) ? 'user-menu' : undefined}
+        aria-controls={anchorEl ? 'user-menu' : undefined}
         aria-haspopup="true"
         onClick={handleClick}
         sx={{

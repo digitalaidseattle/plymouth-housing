@@ -28,16 +28,18 @@ const HEADERS = {
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
-  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>(
-    'original',
-  );
+  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
+  const [addModal, setAddModal] = useState(false);
   const [type, setType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
-  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
+  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
+    null,
+  );
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -151,10 +153,11 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-            row.type.toLowerCase().includes(lowerCaseSearch) ||
-            row.category.toLowerCase().includes(lowerCaseSearch) ||
-            row.status.toLowerCase().includes(lowerCaseSearch) ||
-            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+          row.description.toLowerCase().includes(lowerCaseSearch) ||
+          row.type.toLowerCase().includes(lowerCaseSearch) ||
+          row.category.toLowerCase().includes(lowerCaseSearch) ||
+          row.status.toLowerCase().includes(lowerCaseSearch) ||
+          row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
         return matchesType && matchesCategory && matchesSearch && matchesStatus;
@@ -177,11 +180,21 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      setOriginalData(data.value);
-      setDisplayData(data.value);
-    } catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+      const inventoryList = data.value;
+      setOriginalData(inventoryList);
+      setDisplayData(inventoryList);
+
+      inventoryList.forEach((obj: InventoryItem) => {
+        const uniqueCategory = obj.category;
+        categoryList.add(uniqueCategory)
+      })
+
+      setUniqueCategories([...categoryList]);
+
     }
+    catch (error) {
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+  }
     setIsLoading(false);
   };
 
@@ -398,17 +411,10 @@ const Inventory = () => {
                 >
                   Name
                   {itemAlph === 'asc' ? (
-                    <ArrowUpwardIcon
-                      fontSize="small"
-                      sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }}
-                    />
+                    <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
                   ) : itemAlph === 'desc' ? (
-                    <ArrowDownwardIcon
-                      fontSize="small"
-                      sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }}
-                    />
-                  ) : null}
-                </TableCell>
+                    <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
+                  ) : null}</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>

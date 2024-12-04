@@ -28,7 +28,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          npm run test:unit 
+          npm run test:unit
 
       - name: Build And Deploy
         id: builddeploy

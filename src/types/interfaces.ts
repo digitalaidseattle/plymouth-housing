@@ -18,3 +18,18 @@ export type InventoryItem = {
   description: string;
   status: string;
 };
+
+export type AddVolunteerModalProps = {
+  addModal: boolean;
+  handleAddClose: () => void;
+  fetchData: () => void;
+};
+
+export type Volunteer = {
+  id: number;
+  name: string;
+  active: boolean;
+  created_at: string;
+  last_signed_in: string | null;
+  PIN: string;
+};

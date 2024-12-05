@@ -1,28 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Menu, MenuItem, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import VolunteerNames from '../../../../data/volunteers';
+import { VolunteerIdName } from '../../../../types/interfaces';
+import { UserContext } from '../../../../components/contexts/UserContext';
+
+
 
 const VolunteerSwitcher: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-  const [selectedUser, setSelectedUser] = useState<string>('');
-  const [users, setUsers] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        //TODO Implement the logic to get the user from the server
-        const data = await VolunteerNames;
-        setUsers(data);
-        setSelectedUser(data[0] || '');
-      } catch (error) {
-        console.error('Failed to fetch users', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const {loginedVolunteer, activatedVolunteers } = useContext(UserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -32,12 +19,15 @@ const VolunteerSwitcher: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleSelect = (user: string) => {
-    if (user !== selectedUser) {
-      setSelectedUser(user);
-      navigate(`/pick-your-name/`);
-    }
-    setAnchorEl(null);
+  const handleSelect = (selectedVolunteer: VolunteerIdName) => {
+    console.log('Switching to volunteer:', selectedVolunteer);
+    navigate('/enter-your-pin', {
+      state: { 
+        volunteerId: selectedVolunteer.id,
+        volunteers: activatedVolunteers 
+      },
+    });
+    handleClose();
   };
 
   return (
@@ -53,10 +43,10 @@ const VolunteerSwitcher: React.FC = () => {
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          maxWidth: '150px',
+          px: 2, 
         }}
       >
-        {selectedUser} ▼
+        {loginedVolunteer?.name || 'Select Volunteer'}  ▼
       </Button>
       <Menu
         id="user-menu"
@@ -66,12 +56,17 @@ const VolunteerSwitcher: React.FC = () => {
         MenuListProps={{
           'aria-labelledby': 'user-button',
         }}
-      >
-        {users.map((user) => (
-          <MenuItem key={user} onClick={() => handleSelect(user)}>
-            {user}
-          </MenuItem>
-        ))}
+        >
+        {activatedVolunteers
+          .filter((v) => v.id !== loginedVolunteer?.id)
+          .map((volunteer) => (
+            <MenuItem 
+              key={volunteer.id} 
+              onClick={() => handleSelect(volunteer)}
+            >
+              {volunteer.name}
+            </MenuItem>
+          ))}
       </Menu>
     </Box>
   );

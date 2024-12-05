@@ -10,6 +10,7 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
+import {VolunteerIdName} from '../../types/interfaces';
 
 const API = '/data-api/rest/volunteer';
 const HEADERS = {
@@ -17,19 +18,15 @@ const HEADERS = {
   'Content-Type': 'application/json;charset=utf-8',
 };
 
-interface Volunteer {
-  id: number;
-  name: string;
-}
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
+  const [selectedVolunteer, setSelectedVolunteer] = useState<VolunteerIdName | null>(
     null,
   );
-  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [volunteers, setVolunteers] = useState<VolunteerIdName[]>([]);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchVolunteers = async () => {
@@ -41,15 +38,14 @@ const PickYourNamePage: React.FC = () => {
             headers: HEADERS,
           },
         );
-
+   
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log('Volunteers:', data);
-
         setVolunteers(data.value);
+
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
       }
@@ -58,9 +54,9 @@ const PickYourNamePage: React.FC = () => {
     fetchVolunteers();
   }, []);
 
-  const handleNameChange = (
+  const handleNameChange =  (
     _event: React.SyntheticEvent,
-    value: Volunteer | null,
+    value: VolunteerIdName | null,
   ) => {
     setSelectedVolunteer(value);
   };
@@ -69,7 +65,7 @@ const PickYourNamePage: React.FC = () => {
     if (selectedVolunteer) {
       // Navigate to the next page, passing the volunteer ID via state
       navigate('/enter-your-pin', {
-        state: { volunteerId: selectedVolunteer.id },
+        state: { volunteerId: selectedVolunteer.id , volunteers: volunteers},
       });
     } else {
       setOpenSnackbar(true);

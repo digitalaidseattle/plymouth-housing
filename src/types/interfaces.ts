@@ -33,3 +33,8 @@ export type Volunteer = {
   last_signed_in: string | null;
   PIN: string;
 };
+
+export type  VolunteerIdName = {
+  id: number;
+  name: string;
+}

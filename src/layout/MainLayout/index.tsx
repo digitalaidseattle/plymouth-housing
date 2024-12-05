@@ -4,8 +4,8 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useEffect, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useContext  } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
 // material-ui
 import { Box, Toolbar, useMediaQuery } from '@mui/material';
@@ -24,6 +24,10 @@ import { RefreshContextProvider } from '../../components/contexts/RefreshContext
 import { UserContext } from '../../components/contexts/UserContext';
 import { useMsal } from '@azure/msal-react';
 import { IdTokenClaims } from '@azure/msal-common';
+import {VolunteerIdName} from '../../types/interfaces';
+
+
+
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout: React.FC = () => {
@@ -31,29 +35,51 @@ const MainLayout: React.FC = () => {
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const [user, setUser] = useState<IdTokenClaims | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const [loginedVolunteer, setLoginedVolunteer] = useState<VolunteerIdName|null>(null);
+  const [activatedVolunteers, setActivatedVolunteers] = useState<VolunteerIdName[]>([]);
+  const location = useLocation();
+  const { volunteerId, volunteers } = location.state || {};
   const navigate = useNavigate();
   const { instance } = useMsal();
 
   useEffect(() => {
-    const account = instance.getActiveAccount();
-    if (account) {
-      instance
-        .acquireTokenSilent({
+    const fetchTokenAndVolunteers = async () => {
+      const account = instance.getActiveAccount();
+      if (!account) {
+        console.log('Cannot get account, redirecting to login');
+        navigate('/login');
+        return;
+      }
+  
+      try {
+        const tokenResponse = await instance.acquireTokenSilent({
           account: account,
           scopes: ['openid', 'profile', 'email', 'User.Read'],
-        })
-        .then((response) => {
-          const userClaims = response.idTokenClaims;
-          setUser(userClaims || null);
-        })
-        .catch((error) => {
-          console.error('Error acquiring token', error);
         });
-    } else {
-      console.log('Cannot get account, redirecting to login');
-      navigate('/login');
-    }
-  }, [instance, navigate]);
+  
+        const userClaims = tokenResponse.idTokenClaims;
+        setUser(userClaims || null);
+
+        if (volunteers?.length > 0 && activatedVolunteers.length === 0) {
+          setActivatedVolunteers(volunteers);
+        }
+
+      // Find and set the current volunteer's name
+      if (volunteerId && volunteers?.length > 0) {
+          const currentVolunteer = volunteers.find(
+            (v: VolunteerIdName) => v.id === volunteerId
+          );
+          if (currentVolunteer) {
+            setLoginedVolunteer(currentVolunteer);
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchTokenAndVolunteers:', error);
+      }
+    };
+  
+    fetchTokenAndVolunteers();
+  }, [instance, navigate, volunteerId, volunteers, activatedVolunteers.length]);
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -65,7 +91,16 @@ const MainLayout: React.FC = () => {
   }, [matchDownLG]);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        loginedVolunteer,
+        setLoginedVolunteer,
+        activatedVolunteers,
+        setActivatedVolunteers,
+      }}
+    >
       {user && (
         <DrawerOpenContext.Provider value={{ drawerOpen, setDrawerOpen }}>
           <RefreshContextProvider>

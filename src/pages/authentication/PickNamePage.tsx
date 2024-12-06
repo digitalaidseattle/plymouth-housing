@@ -23,17 +23,22 @@ interface Volunteer {
 }
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
-    null,
-  );
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning';
+  }>({ open: false, message: '', severity: 'warning' });
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
+        setIsLoading(true);
+
         const response = await fetch(
           `${API}?$select=id,name&$filter=active eq true`,
           {
@@ -41,17 +46,23 @@ const PickYourNamePage: React.FC = () => {
             headers: HEADERS,
           },
         );
-
+        
         if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+          throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log('Volunteers:', data);
 
         setVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
+        setSnackbarState({
+          open: true,
+          message: 'Failed to load volunteer list. Please try again later.',
+          severity: 'warning'
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -72,7 +83,11 @@ const PickYourNamePage: React.FC = () => {
         state: { volunteerId: selectedVolunteer.id },
       });
     } else {
-      setOpenSnackbar(true);
+      setSnackbarState({
+        open: true,
+        message: 'Please select a name before continuing.',
+        severity: 'warning'
+      });
     }
   };
 
@@ -83,7 +98,7 @@ const PickYourNamePage: React.FC = () => {
     if (reason === 'clickaway') {
       return;
     }
-    setOpenSnackbar(false);
+    setSnackbarState(prev => ({ ...prev, open: false }));
   };
 
   return (
@@ -123,7 +138,7 @@ const PickYourNamePage: React.FC = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Select your name"
+                label={isLoading ? "Loading..." : "Select your name"}
                 variant="outlined"
                 sx={{ width: '100%' }}
               />
@@ -133,6 +148,7 @@ const PickYourNamePage: React.FC = () => {
               marginBottom: 8,
               '& .MuiAutocomplete-inputRoot': { height: '56px' },
             }}
+            disabled={isLoading}
           />
 
           <Button
@@ -148,17 +164,18 @@ const PickYourNamePage: React.FC = () => {
                 backgroundColor: '#4f4f4f',
               },
             }}
+            disabled={isLoading}
           >
             Continue
           </Button>
         </Box>
 
         <SnackbarAlert
-          open={openSnackbar}
+          open={snackbarState.open}
           onClose={handleSnackbarClose}
-          severity="warning"
+          severity={snackbarState.severity}
         >
-          Please select a name before continuing.
+          {snackbarState.message}
         </SnackbarAlert>
       </CenteredLayout>
     </MinimalWrapper>

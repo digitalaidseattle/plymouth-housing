@@ -8,6 +8,7 @@ This document outlines the design for the inventory page for PH volunteers and a
 ### 1.2 Scope
 In Scope:
 - Table of inventory items pulling from SQL database. Includes pagination.
+- Table of category items pulling from SQL database. Small table that serves the items table 
 - Dropdown buttons for filtering table based on category, type, and status.
 - Search input to filter for specific terms
 - Add button and popup modal to create new items in list
@@ -66,6 +67,11 @@ Inventory Table: Displays all items in the PH inventory, including fields such a
   - Responsibility: Displaying a list of all items in the inventory, including item-specific details such as type, category, status, and quantity
   - Interactions: Receives data from the state that is populated by fetching data from SQL Server. Interacts with the filtering and search components to display relevant data based on user input
 
+- **Category Table**
+  - Responsibility: Displaying a list of all categories in the inventory
+  - Interactions: Receives data from the state that is populated by fetching data from SQL Server. 
+  Determines max number of items that can be checked out per visit. 
+
 - **Filter DropDwon/Search**:
   - Responsibility: Allow users to narrow down the displayed items in the inventory table based on specific criteria.
   - Interactions: Triggers filtering functions that search through the state data for items that match the criteria. The search bar enables broader searching. Updates the inventory table dynamically.
@@ -88,10 +94,20 @@ Inventory Table: Displays all items in the PH inventory, including fields such a
 ### 5.1 Subsystems and Components
 **Inventory Table**
 Purpose: Display component that lists all items currently stored in the inventory. Its role is to show item details such as name, type category, status and quantity, and to respond dynamically to filters/sesarches.
+
 Input: Data from database and user input in the form of filters, search terms, or pagination actions.
+
 Output: Dynamically populated table displaying relevant items based on current filtering and search criteria.
+
 Internal Structure: Table structure using JSX. Table rows dynamically generated based on state data. Listeners to respond to changes in filters, search terms, or pagination controls.
+
 Dependencies: SQL Server database for fetching data. Filtering, search, and pagination components. State management to manage data flow.
+
+**Category Table**
+Purpose: Display component that lists all categories currently used in the inventory. 
+Its role is to show category details, currently limited to max checkout per visit. It is linked to the Inventory table with a PRIMARY/FOREIGN KEY relationship. 
+
+For other details, see Inventory table, above/ 
 
 **Filter DropDown/Search**
 Purpose: Allows users to filter the inventory based on predefined fields or perform open-ended searches.
@@ -170,9 +186,16 @@ Identify potential risks in the architecture and provide mitigation strategies.
 | `id`             | INT       | Primary key, auto-increment.         |
 | `name`     | VARCHAR   | Item's name.              |
 | `type`  | VARCHAR   | Donation Type (donation or welcome basket)  |
-| `category`            | VARCHAR   | Category of item    |
+| `category_id`            | INT   | ID of Category this items belongs to    |
 | `quantity` | INT  | Amount of item       |
  |`status`	 | VARCHAR |	If <20, "Low". 21-50 "Medium". 51+ "High" |
+
+### Category
+| Column Name      | Data Type | Description                          |
+|------------------|-----------|--------------------------------------|
+| `id`             | INT       | Primary key, auto-increment.         |
+| `name`           | VARCHAR   | Category's name.              |
+| `limit`            | INT  | Limit of items that can be checked out per visit       |
 
 ## 10. Conclusion
 The architecture of the inventory management tracker has been carefully designed to meet the goals of scalability, usability, flexibility, reusability, and security. The system effectively balances these objectives through a modular and maintainable structure that ensures consistent performance across various use cases.

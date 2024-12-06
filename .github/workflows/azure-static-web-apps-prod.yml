@@ -8,11 +8,7 @@ on:
       - 'package.json'
 
 jobs:
-  wait-for-cd:
-    uses: ./.github/workflows/azure-static-web-apps-CD.yml
-
   sync-tag:
-    needs: wait-for-cd
     runs-on: ubuntu-latest
     permissions:
       contents: write

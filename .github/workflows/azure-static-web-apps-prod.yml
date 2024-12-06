@@ -9,7 +9,7 @@ jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
-    environment: staging
+    environment: production
     steps:
       - name: Check out source
         uses: actions/checkout@v3
@@ -30,7 +30,7 @@ jobs:
             }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: 'upload'
-          deployment_environment: 'staging'
+          deployment_environment: 'production'
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: '/' # App source code path
           api_location: '' # Api source code path - optional

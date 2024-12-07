@@ -21,7 +21,7 @@ const EnterPinPage: React.FC = () => {
     'success' | 'warning'
   >('warning');
   const location = useLocation();
-  const { volunteerId } = location.state || {};
+  const { volunteerId, volunteers } = location.state || {};
   const navigate = useNavigate();
 
   if (!volunteerId) {
@@ -87,7 +87,9 @@ const EnterPinPage: React.FC = () => {
         setSnackbarSeverity('success');
         setOpenSnackbar(true);
         await updateLastSignedIn(volunteerId); // Update last signed-in date after successful login
-        navigate('/');
+        navigate('/', {
+          state: { volunteerId: volunteerId, volunteers: volunteers },
+        });
       } else {
         setSnackbarMessage(
           result?.ErrorMessage || 'Incorrect PIN. Please try again.',

@@ -76,18 +76,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, categ
     }
   };
 
-  const resetInputsHandler = () => {
-    setFormData({
-      name: '',
-      description: '',
-      type: '',
-      category: '',
-      quantity: 0
-    })
-    handleAddClose();
-    setUpdateItem(null);
-  }
-
   const onInputChangeHandler = (_event: React.SyntheticEvent, value: string) => {
     // This function allows the dropdown menu to appear blank when initially clicking on the textbox. When a user types, it then updates the nameSearch options. nameSearch is then fed in as the possible options in the dropdown options
     if (value) {
@@ -104,6 +92,18 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, categ
       name: value,
     }));
     setUpdateItem(value);
+  }
+
+  const resetInputsHandler = () => {
+    setFormData({
+      name: '',
+      description: '',
+      type: '',
+      category: '',
+      quantity: 0
+    })
+    handleAddClose();
+    setUpdateItem(null);
   }
 
   const createItemHandler = async () => {

@@ -17,6 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
 import { InventoryItem } from '../../types/interfaces.ts';
+import { CategoryType } from '../../types/interfaces.ts';
 
 
 const API = '/data-api/rest/inventorywithcategory';
@@ -39,12 +40,11 @@ const Inventory = () => {
   const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
     null,
   );
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryType[]>([]);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const categoryList = new Set<string>();
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
@@ -183,24 +183,27 @@ const Inventory = () => {
       const inventoryList = data.value;
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
-
-      inventoryList.forEach((obj: InventoryItem) => {
-        const uniqueCategory = obj.category;
-        categoryList.add(uniqueCategory)
-      })
-
-      setUniqueCategories([...categoryList]);
-
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
-  }
+    }
+    try {
+      const response = await fetch("/data-api/rest/categories", { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      setCategoryData(data.value);
+    }
+    catch (error) {
+      console.error('Error fetching categories', error);
+    }
     setIsLoading(false);
   };
 
   useEffect(() => {
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -230,7 +233,9 @@ const Inventory = () => {
           Add/Update
         </Button>
       </Box>
-      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories} originalData={originalData}/>
+      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData}
+        categoryData={categoryData}
+        originalData={originalData} />
 
       {/* Filter Container */}
       <Box

@@ -14,7 +14,7 @@ export type InventoryItem = {
   name: string;
   type: string;
   quantity: number;
-  category: string;
+  category: string | number;
   description: string;
   status: string;
 };
@@ -32,4 +32,10 @@ export type Volunteer = {
   created_at: string;
   last_signed_in: string | null;
   PIN: string;
+};
+
+export type CategoryType = {
+  id: number,
+  name: string,
+  check_limit: number,
 };

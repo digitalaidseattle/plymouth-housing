@@ -52,6 +52,28 @@
         }
       ]
     },
+    "Categories": {
+      "source": {
+        "object": "dbo.Categories",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/categories",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read", "create", "update"],
+          "role": "anonymous"
+        }
+      ]
+    },
     "InventoryWithCategory": {
       "source": {
         "object": "InventoryWithCategory",

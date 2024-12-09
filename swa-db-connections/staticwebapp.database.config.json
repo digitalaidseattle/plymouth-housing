@@ -52,6 +52,28 @@
         }
       ]
     },
+    "InventoryWithCategory": {
+      "source": {
+        "object": "InventoryWithCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/inventorywithcategory",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read", "create", "update"],
+          "role": "anonymous"
+        }
+      ]
+    },
     "Volunteer": {
       "source": {
         "object": "dbo.Volunteers",

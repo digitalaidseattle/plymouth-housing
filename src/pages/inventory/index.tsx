@@ -19,7 +19,7 @@ import AddItemModal from '../../components/AddItemModal/AddItemModal';
 import { InventoryItem } from '../../types/interfaces.ts';
 
 
-const API = '/data-api/rest/item';
+const API = '/data-api/rest/inventorywithcategory';
 const HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',

@@ -103,7 +103,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, categ
       quantity: 0
     })
     handleAddClose();
-    setUpdateItem(null);
+    setUpdateItem('');
   }
 
   const createItemHandler = async () => {

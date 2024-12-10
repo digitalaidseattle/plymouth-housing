@@ -33,3 +33,9 @@ export type Volunteer = {
   last_signed_in: string | null;
   PIN: string;
 };
+
+export type CategoryType = {
+  id: number,
+  name: string,
+  check_limit: number,
+};

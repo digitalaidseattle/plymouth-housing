@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import { DASSnackbar } from '../DASSnackbar.tsx';
+import { CategoryType } from '../../types/interfaces.ts';
 
 type FormData = {
   name: string;
   type: string;
   quantity: number;
-  category: string;
+  category: string | number | undefined;
   description: string;
 };
 
@@ -16,14 +17,14 @@ type AddItemModalProps = {
   addModal: boolean;
   handleAddClose: () => void;
   fetchData: () => void;
-  uniqueCategories: string[];
+  categoryData: CategoryType[];
   originalData: InventoryItem[];
 }
 
 const API = "/data-api/rest/item";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', }; //TODO The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
 
-const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
+const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, categoryData }: AddItemModalProps) => {
 
   const [updateId, setUpdateId] = useState<number>();
   const [updateItem, setUpdateItem] = useState<InventoryItem | string | null>('');
@@ -37,6 +38,13 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
 
+  const categoryMap = useMemo(() => {
+    const map = new Map<string | number, string | number>();
+    categoryData.forEach((category) => map.set(category.name, category.id));
+    return map;
+  }, [categoryData]);
+
+
   const handleInputChange = (field: string, value: string | number) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -44,6 +52,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     }))
   }
 
+  // Changes the value that appears on the inputs and what happens when an option is selected
   const onChangeHandler = (
     _event: React.SyntheticEvent | React.FocusEvent<HTMLElement>,
     value?: InventoryItem | string | null,
@@ -56,7 +65,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
         name: value.name,
         description: value.description,
         type: value.type,
-        category: value.category,
+        category: categoryMap.get(value.category), //Grabs the id of the string and sets the dropdown to it
         quantity: value.quantity,
       });
       setUpdateItem(value);
@@ -68,18 +77,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       setUpdateItem(value);
     }
   };
-
-  const resetInputsHandler = () => {
-    setFormData({
-      name: '',
-      description: '',
-      type: '',
-      category: '',
-      quantity: 0
-    })
-    handleAddClose();
-    setUpdateItem(null);
-  }
 
   const onInputChangeHandler = (_event: React.SyntheticEvent, value: string) => {
     // This function allows the dropdown menu to appear blank when initially clicking on the textbox. When a user types, it then updates the nameSearch options. nameSearch is then fed in as the possible options in the dropdown options
@@ -97,6 +94,18 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
       name: value,
     }));
     setUpdateItem(value);
+  }
+
+  const resetInputsHandler = () => {
+    setFormData({
+      name: '',
+      description: '',
+      type: '',
+      category: '',
+      quantity: 0
+    })
+    handleAddClose();
+    setUpdateItem('');
   }
 
   const createItemHandler = async () => {
@@ -125,6 +134,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
     if (formData.type === '' || formData.name === '' || formData.category === '' || formData.description === '') {
       setErrorMessage('Missing Information')
     } else {
+      console.log(formData);
       try {
         const response = await fetch(`${API}/id/${updateId}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify(formData) });
         if (!response.ok) {
@@ -213,9 +223,9 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
               onChange={(e) => handleInputChange('category', e.target.value)}
               sx={{ width: '100%' }}
             >
-              {uniqueCategories.map((category: string) => (
-                <MenuItem key={category} value={category}>
-                  {category}
+              {categoryData.map((category: CategoryType) => (
+                <MenuItem key={category.name} value={category.id}>
+                  {category.name}
                 </MenuItem>
               ))}
             </Select>

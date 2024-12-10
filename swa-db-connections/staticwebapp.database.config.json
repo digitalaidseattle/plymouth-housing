@@ -51,6 +51,22 @@
         }
       ]
     },
+    "FetchItems": {
+      "source": {
+        "object": "dbo.FetchItems",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/fetch-items"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "anonymous"
+        }
+      ]
+    },
     "Volunteer": {
       "source": {
         "object": "dbo.Volunteers",

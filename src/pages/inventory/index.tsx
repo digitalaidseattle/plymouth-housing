@@ -25,7 +25,7 @@ type InventoryItem = {
   status: string;
 };
 
-const API = '/data-api/rest/item';
+const FETCH_ITEMS_API = '/data-api/rest/fetch-items'; 
 const HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',
@@ -170,7 +170,7 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(API, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(FETCH_ITEMS_API, { headers: HEADERS, method: 'POST' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

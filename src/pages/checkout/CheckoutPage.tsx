@@ -15,7 +15,7 @@ import {
 import { Search, Add, Remove } from '@mui/icons-material';
 import { CheckoutItem, Item } from '../../types/interfaces';
 import CheckoutDialog from './CheckoutDialog';
-import { categories, buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
+import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 
 const API = "/data-api/rest/itemsbycategory";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', };
@@ -24,6 +24,7 @@ const CheckoutPage = () => {
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
+  const [data, setData] = useState<[]>([]);
 
   const fetchData = async () => {
     try {
@@ -32,7 +33,7 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log(data.value);
+      setData(data.value);
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
@@ -166,9 +167,9 @@ const CheckoutPage = () => {
         </div>
       </div>
       <div style={{ borderRadius: '10px', backgroundColor: '#F0F0F0' }}>
-        {categories.map((category) => (
-          <div key={category.id}>
-            <h3 style={{ margin: '20px 20px' }}>{category.name}</h3>
+        {data.map((category) => (
+          <div key={category.category}>
+            <h3 style={{ margin: '20px 20px' }}>{category.category}</h3>
             <div
               style={{
                 display: 'flex',

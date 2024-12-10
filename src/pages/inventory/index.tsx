@@ -25,7 +25,14 @@ type InventoryItem = {
   status: string;
 };
 
+type CategoryItem = {
+  id: number;
+  name: string;
+  item_limit: number;
+};
+
 const FETCH_ITEMS_API = '/data-api/rest/fetch-items'; 
+const CATEGORY_API = '/data-api/rest/category'; 
 const HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',
@@ -34,6 +41,7 @@ const HEADERS = {
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>(
     'original',
   );
@@ -183,8 +191,22 @@ const Inventory = () => {
     setIsLoading(false);
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(CATEGORY_API, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      setCategories(data.value);  // Assuming the categories are inside `data.value`
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  
   useEffect(() => {
     fetchData();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -284,49 +306,15 @@ const Inventory = () => {
             onClose={handleCategoryClose}
             anchorEl={anchorCategory}
           >
-            <MenuItem
-              onClick={() => handleMenuCategoryClick('Beddings & Linens')}
-            >
-              Beddings & Linens
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleMenuCategoryClick('Bath & Toiletries')}
-            >
-              Bath & Toiletries
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Kitchenware')}>
-              Kitchenware
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleMenuCategoryClick('Decorative & Home improvement')
-              }
-            >
-              Decorative & Home improvement
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleMenuCategoryClick('Health & Medical')}
-            >
-              Health & Medical
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Food')}>
-              Food
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleMenuCategoryClick('Electronics & Appliances')
-              }
-            >
-              Electronics & Appliances
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleMenuCategoryClick('Games, Books, Entertainment')
-              }
-            >
-              Games, Books, Entertainment
-            </MenuItem>
-          </Menu>
+            {categories.map((categoryItem) => (
+              <MenuItem
+                key={categoryItem.name}
+                onClick={() => handleMenuCategoryClick(categoryItem.name)}
+              >
+                {categoryItem.name}
+              </MenuItem>
+            ))} 
+           </Menu>
         </Box>
 
         {/* Status Filter */}

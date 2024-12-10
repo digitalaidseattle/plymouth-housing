@@ -67,6 +67,27 @@
         }
       ]
     },
+    "Category": {
+      "source": {
+        "object": "dbo.Categories",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/category"
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "anonymous"
+        }
+      ]
+    },
     "Volunteer": {
       "source": {
         "object": "dbo.Volunteers",

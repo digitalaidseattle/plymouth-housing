@@ -10,7 +10,7 @@ INSERT INTO Categories (name, checkout_limit) VALUES
 
 
 
-INSERT INTO Items (name, type, category, description, quantity) VALUES
+INSERT INTO Items (name, type, category_id, description, quantity) VALUES
 ('Bed Sheets', 'Donation', 1, 'Linens, sheets, covers', 12),
 ('Shampoo bottles', 'Donation', 2, 'Hair cleanser, hair wash, hair care', 30),
 ('Cooking pots', 'Donation', 3, 'Cookware, saucepans, stockpots', 50),

@@ -96,6 +96,28 @@
         }
       ]
     },
+    "ItemsByCategory": {
+      "source": {
+        "object": "ItemsByCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/itemsbycategory",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read", "create", "update"],
+          "role": "anonymous"
+        }
+      ]
+    },
     "Volunteer": {
       "source": {
         "object": "dbo.Volunteers",

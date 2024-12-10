@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import { DASSnackbar } from '../DASSnackbar.tsx';
 import { CategoryType } from '../../types/interfaces.ts';
@@ -38,10 +38,12 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, categ
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
 
-  const categoryMap = new Map<string | number, string | number>();
-  categoryData.forEach((category: CategoryType) => {
-    categoryMap.set(category.name, category.id); //Maps each category name to their id
-  })
+  const categoryMap = useMemo(() => {
+    const map = new Map<string | number, string | number>();
+    categoryData.forEach((category) => map.set(category.name, category.id));
+    return map;
+  }, [categoryData]);
+
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData((prevFormData) => ({

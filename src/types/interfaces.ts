@@ -1,13 +1,20 @@
 export type CheckoutItem = {
-    id: string;
-    name: string;
-    quantity: number;
-  }
+  id: string;
+  name: string;
+  quantity: number;
+};
 
-export type Item = {
-    id: string;
-    name: string;
-  }
+export type CategoryProps = {
+  id: number;
+  category: string;
+  items: CheckoutItem[];
+};
+
+export type CheckoutCardProps = {
+  item: CheckoutItem;
+  checkoutItems: CheckoutItem[];
+  setCheckoutItems: React.Dispatch<React.SetStateAction<CheckoutItem[]>>;
+};
 
 export type InventoryItem = {
   id: number;

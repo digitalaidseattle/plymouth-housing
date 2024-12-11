@@ -1,12 +1,8 @@
 import { Card, CardContent, CardActions } from '@mui/material';
-import { CheckoutItem } from '../../types/interfaces';
+import { CheckoutCardProps } from '../../types/interfaces';
+import ItemQuantityButton from './ItemQuantityButton';
 
-
-type CheckOutCardProps = {
-  item: CheckoutItem;
-};
-
-const CheckoutCard = ({item}: CheckOutCardProps) => {
+const CheckoutCard = ({item, checkoutItems, setCheckoutItems}: CheckoutCardProps) => {
 
   return (
     <Card
@@ -24,6 +20,7 @@ const CheckoutCard = ({item}: CheckOutCardProps) => {
         <h4>{item.name}</h4>
       </CardContent>
       <CardActions style={{ border: '1px red blue' }}>
+        <ItemQuantityButton item={item} checkoutItems={checkoutItems} setCheckoutItems={setCheckoutItems} />
       </CardActions>
     </Card>
   )

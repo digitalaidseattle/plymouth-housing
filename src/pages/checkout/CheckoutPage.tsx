@@ -18,6 +18,7 @@ import CheckoutDialog from './CheckoutDialog';
 import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import CategorySection from '../../components/Checkout/CategorySection';
+import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 
 const API = "/data-api/rest/itemsbycategory";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', };
@@ -48,7 +49,7 @@ const CheckoutPage = () => {
   }, [])
 
   return (
-    <div style={{ margin: 'auto 100px' }}>
+    <div style={{ margin: 'auto 100px', backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
       {/* <h2>Check out</h2>
       <div
         style={{
@@ -93,39 +94,10 @@ const CheckoutPage = () => {
           />
         </div>
       </div> */}
-      <div style={{ borderRadius: '10px', backgroundColor: '#F0F0F0' }}>
         {data.map((category) => (
           <CategorySection category={category} checkoutItems={checkoutItems} setCheckoutItems={setCheckoutItems}/>
         ))}
-      </div>
-      {/* {checkoutItems.length > 0 && (
-        <div
-          style={{
-            padding: '0 100px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-            height: '100px',
-            backgroundColor: '#C0C0C0',
-          }}
-        >
-          <p>
-            {checkoutItems.reduce(
-              (accumulator, item) => accumulator + item.quantity,
-              0,
-            )}{' '}
-            items selected
-          </p>
-          <Button
-            variant="text"
-            style={{ color: 'black', backgroundColor: 'white' }}
-            onClick={() => setOpenSummary(true)}
-          >
-            Continue
-          </Button>
-        </div>
-      )} */}
+        <CheckoutFooter checkoutItems={checkoutItems} />
 
       {/* <CheckoutDialog
         open={openSummary}

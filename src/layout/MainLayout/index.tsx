@@ -52,7 +52,7 @@ const MainLayout: React.FC = () => {
     } else {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [instance, navigate]);
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);

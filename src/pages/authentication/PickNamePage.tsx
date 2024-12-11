@@ -17,11 +17,14 @@ import { IdTokenClaims } from '@azure/msal-common';
 import { useMsal } from '@azure/msal-react';
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
-    null,
-  );
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning';
+  }>({ open: false, message: '', severity: 'warning' });
   const [user, setUser] = useState<IdTokenClaims | null>(null);
   const navigate = useNavigate();
   const { instance } = useMsal();
@@ -48,6 +51,8 @@ const PickYourNamePage: React.FC = () => {
     if (!user) return;
     const fetchVolunteers = async () => {
       try {
+        setIsLoading(true);
+
         HEADERS['X-MS-API-ROLE'] = getRole(user);
         const response = await fetch(
           `${ENDPOINTS.VOLUNTEERS}?$select=id,name&$filter=active eq true`,
@@ -57,12 +62,19 @@ const PickYourNamePage: React.FC = () => {
           },
         );
         if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+          throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
         }
         const data = await response.json();
         setVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
+        setSnackbarState({
+          open: true,
+          message: 'Failed to load volunteer list. Please try again later.',
+          severity: 'warning'
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchVolunteers();
@@ -82,7 +94,11 @@ const PickYourNamePage: React.FC = () => {
         state: { volunteerId: selectedVolunteer.id, role: getRole(user) },
       });
     } else {
-      setOpenSnackbar(true);
+      setSnackbarState({
+        open: true,
+        message: 'Please select a name before continuing.',
+        severity: 'warning'
+      });
     }
   };
 
@@ -93,7 +109,7 @@ const PickYourNamePage: React.FC = () => {
     if (reason === 'clickaway') {
       return;
     }
-    setOpenSnackbar(false);
+    setSnackbarState(prev => ({ ...prev, open: false }));
   };
 
   return (
@@ -126,50 +142,52 @@ const PickYourNamePage: React.FC = () => {
               contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
             </Typography>
 
-            <Autocomplete
-              value={selectedVolunteer}
-              onChange={handleNameChange}
-              options={volunteers}
-              getOptionLabel={(option) => option.name}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select your name"
-                  variant="outlined"
-                  sx={{ width: '100%' }}
-                />
-              )}
-              sx={{
-                width: '100%',
-                marginBottom: 8,
-                '& .MuiAutocomplete-inputRoot': { height: '56px' },
-              }}
-            />
+          <Autocomplete
+            value={selectedVolunteer}
+            onChange={handleNameChange}
+            options={volunteers}
+            getOptionLabel={(option) => option.name}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={isLoading ? "Loading..." : "Select your name"}
+                variant="outlined"
+                sx={{ width: '100%' }}
+              />
+            )}
+            sx={{
+              width: '100%',
+              marginBottom: 8,
+              '& .MuiAutocomplete-inputRoot': { height: '56px' },
+            }}
+            disabled={isLoading}
+          />
 
-            <Button
-              variant="contained"
-              onClick={handleNextClick}
-              sx={{
-                height: '45px',
-                width: '100%',
-                fontSize: '16px',
-                backgroundColor: 'black',
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: '#4f4f4f',
-                },
-              }}
-            >
-              Continue
-            </Button>
-          </Box>
+          <Button
+            variant="contained"
+            onClick={handleNextClick}
+            sx={{
+              height: '45px',
+              width: '100%',
+              fontSize: '16px',
+              backgroundColor: 'black',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#4f4f4f',
+              },
+            }}
+            disabled={isLoading}
+          >
+            Continue
+          </Button>
+        </Box>
 
           <SnackbarAlert
-            open={openSnackbar}
+            open={snackbarState.open}
             onClose={handleSnackbarClose}
-            severity="warning"
+            severity={snackbarState.severity}
           >
-            Please select a name before continuing.
+            {snackbarState.message}
           </SnackbarAlert>
         </CenteredLayout>
       </MinimalWrapper>

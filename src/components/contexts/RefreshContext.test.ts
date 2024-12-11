@@ -1,23 +1,44 @@
-import { act, renderHook } from '@testing-library/react';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { useInterval } from './RefreshContext';
+import React from 'react';
+import { render, act } from '@testing-library/react';
+import { RefreshContextProvider, RefreshContext } from './RefreshContext';
 
-describe('useInterval tests', () => {
-  beforeAll(() => {
-    vi.useFakeTimers();
-  });
-  afterAll(() => {
-    vi.useRealTimers();
+describe('RefreshContextProvider', () => {
+  it('provides the refresh context with initial value', () => {
+    let contextValue: any;
+    const TestComponent: React.FC = () => {
+      contextValue = React.useContext(RefreshContext);
+      return null;
+    };
+
+    render(
+      React.createElement(RefreshContextProvider, null,
+        React.createElement(TestComponent)
+      )
+    );
+
+    expect(typeof contextValue.refresh).toBe('number');
   });
 
-  it('should wait and callback', () => {
-    const cb = vi.fn();
-    const delay = 1000 * 10;
-    renderHook(() => useInterval(cb, delay));
+  it('allows setting refresh value manually', () => {
+    let contextValue: any;
+    const TestComponent: React.FC = () => {
+      contextValue = React.useContext(RefreshContext);
+      return null;
+    };
+
+    render(
+      React.createElement(RefreshContextProvider, null,
+        React.createElement(TestComponent)
+      )
+    );
+
+    const initialValue = contextValue.refresh;
 
     act(() => {
-      vi.advanceTimersByTime(delay); // Advance time by delay
+      contextValue.setRefresh(123456);
     });
-    expect(cb).toHaveBeenCalled();
+
+    expect(contextValue.refresh).toBe(123456);
+    expect(contextValue.refresh).not.toBe(initialValue);
   });
 });

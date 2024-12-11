@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -17,21 +17,16 @@ import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from "../../types/constants"
+import AddItemModal from '../../components/AddItemModal/AddItemModal';
+import { InventoryItem } from '../../types/interfaces.ts';
 
-type InventoryItem = {
-  id: number;
-  name: string;
-  type: string;
-  quantity: number;
-  category: string;
-  status: string;
-};
 
 const Inventory = () => {
   const {user} = useContext(UserContext);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
+  const [addModal, setAddModal] = useState(false);
   const [type, setType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
@@ -41,13 +36,23 @@ const Inventory = () => {
   const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
     null,
   );
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const categoryList = new Set<string>();
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleAddOpen = () => {
+    setAddModal(true)
+  }
+
+  const handleAddClose = () => {
+    setAddModal(false)
+  }
 
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorType(event.currentTarget);
@@ -67,7 +72,7 @@ const Inventory = () => {
     } else if (itemAlph === 'original') {
       setItemAlph('asc');
     }
-  }
+  };
 
   const handleTypeClose = () => {
     setAnchorType(null);
@@ -75,7 +80,6 @@ const Inventory = () => {
 
   const handleMenuTypeClick = (value: string) => {
     setType(value);
-    // handleFilter(); Already called in the useEffect
     handleTypeClose();
   };
 
@@ -85,7 +89,6 @@ const Inventory = () => {
 
   const handleMenuCategoryClick = (value: string) => {
     setCategory(value);
-    handleFilter();
     handleCategoryClose();
   };
 
@@ -95,7 +98,6 @@ const Inventory = () => {
 
   const handleMenuStatusClick = (value: string) => {
     setStatus(value);
-    handleFilter();
     handleStatusClose();
   };
 
@@ -122,11 +124,12 @@ const Inventory = () => {
     setCurrentPage(value);
   };
 
-  const handleFilter = () => {
+  const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(
       (row: {
         name: string;
         type: string;
+        description: string;
         category: string;
         quantity: number;
         status: string;
@@ -147,6 +150,7 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
+          row.description.toLowerCase().includes(lowerCaseSearch) ||
           row.type.toLowerCase().includes(lowerCaseSearch) ||
           row.category.toLowerCase().includes(lowerCaseSearch) ||
           row.status.toLowerCase().includes(lowerCaseSearch) ||
@@ -164,7 +168,7 @@ const Inventory = () => {
     }
 
     setDisplayData(searchFiltered);
-  };
+  }, [type, category, status, search, itemAlph, originalData]);
 
   const fetchData = async () => {
     try {
@@ -174,46 +178,57 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      setOriginalData(data.value);
-      setDisplayData(data.value);
+      const inventoryList = data.value;
+      setOriginalData(inventoryList);
+      setDisplayData(inventoryList);
+
+      inventoryList.forEach((obj: InventoryItem) => {
+        const uniqueCategory = obj.category;
+        categoryList.add(uniqueCategory)
+      })
+
+      setUniqueCategories([...categoryList]);
+
     }
     catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user. 
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
   }
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      handleFilter();
+    }, 300); // Reduces calls to filter while typing in search
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [type, category, status, search, handleFilter]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [itemAlph, handleFilter]);
 
   if (isLoading) {
     return <p>Loading ...</p>;
   }
 
-  useEffect(() => {
-    if (type || category || status || search) {
-      const handler = setTimeout(() => {
-        handleFilter();
-      }, 300); // Reduces calls to filter while typing in search
-      return () => {
-        clearTimeout(handler);
-      };
-      // handleFilter()
-    } else {
-      fetchData();
-    }
-  }, [type, category, status, search]);
-
-  useEffect(() => {
-    handleFilter();
-  }, [itemAlph])
 
   return (
     <Box>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }}>
+        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
+          Add/Update
         </Button>
       </Box>
+      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories} originalData={originalData}/>
 
       {/* Filter Container */}
       <Box
@@ -384,12 +399,21 @@ const Inventory = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={itemAlphabetizeHandle}>Name
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  onClick={itemAlphabetizeHandle}
+                >
+                  Name
                   {itemAlph === 'asc' ? (
-                  <ArrowUpwardIcon fontSize="small" sx={{fontWeight: 'normal', ml: 0.5, color: 'gray'}}/>
-                ) : itemAlph === 'desc' ? (
-                  <ArrowDownwardIcon fontSize="small" sx={{fontWeight: 'normal', ml: 0.5, color: 'gray'}}/>
-                ) : null}</TableCell>
+                    <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
+                  ) : itemAlph === 'desc' ? (
+                    <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
+                  ) : null}</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>

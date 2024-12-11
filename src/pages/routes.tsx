@@ -9,6 +9,7 @@ import Page404 from './error/404';
 import Inventory from './inventory';
 import VolunteerHome from './VolunteerHome';
 import CheckoutPage from './checkout/CheckoutPage';
+import People from './people';
 
 const routes = [
   {
@@ -28,6 +29,14 @@ const routes = [
         ),
       },
       {
+        path: 'people',
+        element: (
+          <MainCard title="People">
+            <People />
+          </MainCard>
+        ),
+      },
+      {
         path: 'volunteer-home',
         element: (
           <MainCard title="Volunteer Home">
@@ -36,10 +45,10 @@ const routes = [
         ),
       },
       {
-        path: "checkout",
+        path: 'checkout',
         element: <CheckoutPage />,
       },
-    ]
+    ],
   },
   {
     path: '/',

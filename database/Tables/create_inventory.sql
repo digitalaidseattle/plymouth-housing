@@ -12,6 +12,7 @@ CREATE TABLE Items (
     quantity INT NOT NULL,
     low INT NOT NULL,
     medium INT NOT NULL,
+    items_per_basket INT
 );
 GO
 

@@ -11,4 +11,5 @@ INSERT INTO Categories (Name, Checkout_Limit) VALUES
 ('Miscellaneous', 2),
 ('Personal care', 5),
 ('Harm reduction', 4),
-('Kitchen', 4);
+('Kitchen', 4),
+('Welcome Basket', 1);

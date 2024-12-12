@@ -13,7 +13,6 @@ const VolunteerHome: React.FC = () => {
   const navigate = useNavigate();
   const [addModal, setAddModal] = useState(false);
   const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
-  const categoryList = new Set<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
 
@@ -21,6 +20,7 @@ const VolunteerHome: React.FC = () => {
   const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const categoryList = new Set<string>();
       const response = await fetch(ENDPOINTS.ITEMS, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);

@@ -22,5 +22,5 @@ export function getRole(user: IdTokenClaims | null): string{
     return 'admin';
   }
   throw new Error('User is not a member of Admin or Volunteer role.');
-};
+}
 

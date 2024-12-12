@@ -154,3 +154,19 @@ By default, you can go to http://localhost:4280. (The default Vite port 3000 is 
 
 The REST API is serviced from 5000. You can see it live with Swagger: http://localhost:5000/swagger
 
+## CI/CD
+
+In .github/workflows you'll find three files: one for CI, one for CD, one for deployment to prod. 
+
+### CI
+The CI file runs on every push to the repo. It will run the linter, the unit tests, and builds the app. It will not deploy. 
+
+### CD
+CD runs on a merge to main. It will build and deploy to staging. 
+
+### Deploy to prod
+This workflow triggers on a version change in ```package.json```. 
+When that happens, a github tag for that version is created. 
+It then builds from that tag, and deploys to production. 
+
+The idea is that the version bump happens manually when staging has been tested and deemed stable. 

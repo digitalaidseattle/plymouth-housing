@@ -20,7 +20,6 @@ import { ENDPOINTS, HEADERS } from "../../types/constants"
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 
-
 const Inventory = () => {
   const {user} = useContext(UserContext);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
@@ -242,10 +241,10 @@ const Inventory = () => {
           Add/Update
         </Button>
       </Box>
-{/* 
+{ 
       <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData}
-        categoryData={categoryData}
-        originalData={originalData} /> */}
+        uniqueCategories={uniqueCategories}
+        originalData={originalData} /> }
 
       {/* Filter Container */}
       <Box

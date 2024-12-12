@@ -8,6 +8,6 @@ export const ENDPOINTS = {
   VOLUNTEERS: '/data-api/rest/volunteer',
   VERIFY_PIN: '/data-api/rest/verify-pin',
   ITEMS: '/data-api/rest/item',
-  FETCH_ITEMS_API: '/data-api/rest/fetch-items',
+  FETCH_ITEMS_API: '/data-api/rest/inventorywithcategory',
   CATEGORY_API: '/data-api/rest/category',
 };

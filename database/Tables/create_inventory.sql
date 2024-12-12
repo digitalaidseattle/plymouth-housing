@@ -1,4 +1,6 @@
 DROP TABLE IF EXISTS [dbo].[Items];
+DROP VIEW IF EXISTS InventoryWithCategory;
+DROP VIEW IF EXISTS ItemsByCategory;
 GO
 
 CREATE TABLE Items (
@@ -6,6 +8,7 @@ CREATE TABLE Items (
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
+    description VARCHAR(255),
     quantity INT NOT NULL,
     low INT NOT NULL,
     medium INT NOT NULL,
@@ -20,8 +23,7 @@ AS
         i.type, 
         c.name AS category, 
         i.description, 
-        i.quantity, 
-        i.status 
+        i.quantity
     FROM 
         Items i
     LEFT JOIN 

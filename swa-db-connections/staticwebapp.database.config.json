@@ -59,8 +59,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/inventorywithcategory",
-        "methods": ["get", "post", "patch"]
+        "path": "/inventorywithcategory"
       },
       "permissions": [
         {
@@ -81,8 +80,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/itemsbycategory",
-        "methods": ["get", "post", "patch"]
+        "path": "/itemsbycategory"
       },
       "permissions": [
         {
@@ -112,7 +110,7 @@
         },
         {
           "actions": ["read"],
-          "role": "volunteer"
+          "role": "anonymous"
         }
       ]
     },
@@ -124,8 +122,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer",
-        "methods": ["get", "post", "patch"]
+        "path": "/volunteer"
       },
       "permissions": [
         {

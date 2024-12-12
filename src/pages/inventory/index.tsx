@@ -158,7 +158,7 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(ENDPOINTS.FETCH_ITEMS_API, { headers: HEADERS, method: 'POST' });
+      const response = await fetch(ENDPOINTS.FETCH_ITEMS_API, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

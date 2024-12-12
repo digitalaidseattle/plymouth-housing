@@ -2,14 +2,14 @@ import React, { useState, useContext } from 'react';
 import { Menu, MenuItem, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { VolunteerIdName } from '../../../../types/interfaces';
-import { UserContext } from '../../../../components/contexts/UserContext';
+import { UserContext, getRole } from '../../../../components/contexts/UserContext';
 
 
 
 const VolunteerSwitcher: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-  const {loginedVolunteer, activatedVolunteers } = useContext(UserContext);
+  const {loginedVolunteer, activatedVolunteers, user  } = useContext(UserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -20,10 +20,10 @@ const VolunteerSwitcher: React.FC = () => {
   };
 
   const handleSelect = (selectedVolunteer: VolunteerIdName) => {
-    console.log('Switching to volunteer:', selectedVolunteer);
     navigate('/enter-your-pin', {
       state: { 
         volunteerId: selectedVolunteer.id,
+        role: getRole(user),
         volunteers: activatedVolunteers 
       },
     });

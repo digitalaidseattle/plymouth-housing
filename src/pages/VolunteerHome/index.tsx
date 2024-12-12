@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -18,7 +18,7 @@ const VolunteerHome: React.FC = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
 
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.ITEMS, { headers: HEADERS, method: 'GET' });
@@ -32,20 +32,19 @@ const VolunteerHome: React.FC = () => {
         const uniqueCategory = obj.category;
         categoryList.add(uniqueCategory)
       })
-
+  
       setUniqueCategories([...categoryList]);
-
+  
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
-  }
+    }
     setIsLoading(false);
-  };
-
-
+  }, [user]); 
+  
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleAddOpen = () => {
     setAddModal(true)

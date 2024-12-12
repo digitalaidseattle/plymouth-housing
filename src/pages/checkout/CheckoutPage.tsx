@@ -43,7 +43,7 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     fetchBuildings();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const removeItemFromCart = (itemId: string) => {
     setCheckoutItems(

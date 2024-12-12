@@ -15,33 +15,13 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
-
-type InventoryItem = {
-  id: number;
-  name: string;
-  type: string;
-  quantity: number;
-  category: string;
-  status: string;
-};
-
-type CategoryItem = {
-  id: number;
-  name: string;
-  item_limit: number;
-};
-
-const FETCH_ITEMS_API = '/data-api/rest/fetch-items'; 
-const CATEGORY_API = '/data-api/rest/category'; 
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
+import { CategoryItem, InventoryItem } from '../../types/interfaces';
+import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>(
     'original',
   );
@@ -178,7 +158,7 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(FETCH_ITEMS_API, { headers: HEADERS, method: 'POST' });
+      const response = await fetch(ENDPOINTS.FETCH_ITEMS_API, { headers: HEADERS, method: 'POST' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -193,12 +173,12 @@ const Inventory = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(CATEGORY_API, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.CATEGORY_API, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      setCategories(data.value);  // Assuming the categories are inside `data.value`
+      setCategoryData(data.value);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -236,6 +216,10 @@ const Inventory = () => {
           Add
         </Button>
       </Box>
+{/* 
+      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData}
+        categoryData={categoryData}
+        originalData={originalData} /> */}
 
       {/* Filter Container */}
       <Box
@@ -306,7 +290,7 @@ const Inventory = () => {
             onClose={handleCategoryClose}
             anchorEl={anchorCategory}
           >
-            {categories.map((categoryItem) => (
+            {categoryData.map((categoryItem) => (
               <MenuItem
                 key={categoryItem.name}
                 onClick={() => handleMenuCategoryClick(categoryItem.name)}

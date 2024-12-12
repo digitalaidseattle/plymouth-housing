@@ -9,6 +9,21 @@ export type Item = {
   name: string;
 };
 
+export type InventoryItem = {
+  id: number;
+  name: string;
+  type: string;
+  quantity: number;
+  category: string;
+  status: string;
+};
+
+export type CategoryItem = {
+  id: number;
+  name: string;
+  item_limit: number;
+};
+
 export type AddVolunteerModalProps = {
   addModal: boolean;
   handleAddClose: () => void;
@@ -23,3 +38,4 @@ export type Volunteer = {
   last_signed_in: string | null;
   PIN: string;
 };
+

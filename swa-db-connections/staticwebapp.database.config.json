@@ -51,18 +51,46 @@
         }
       ]
     },
-    "FetchItems": {
+    "InventoryWithCategory": {
       "source": {
-        "object": "dbo.FetchItems",
-        "type": "stored-procedure"
+        "object": "InventoryWithCategory",
+        "type": "table",
+        "key-fields": []
       },
       "rest": {
         "enabled": true,
-        "path": "/fetch-items"
+        "path": "/inventorywithcategory",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
-          "actions": ["execute"],
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read", "create", "update"],
+          "role": "anonymous"
+        }
+      ]
+    },
+    "ItemsByCategory": {
+      "source": {
+        "object": "ItemsByCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/itemsbycategory",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read", "create", "update"],
           "role": "anonymous"
         }
       ]
@@ -84,7 +112,7 @@
         },
         {
           "actions": ["read"],
-          "role": "anonymous"
+          "role": "volunteer"
         }
       ]
     },

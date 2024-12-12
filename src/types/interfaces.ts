@@ -1,3 +1,5 @@
+import { IdTokenClaims } from '@azure/msal-common';
+
 export type CheckoutItem = {
     id: string;
     name: string;
@@ -8,6 +10,11 @@ export type Item = {
     id: string;
     name: string;
   }
+  
+export interface UserContextType {
+  user: IdTokenClaims | null;
+  setUser: (user: IdTokenClaims) => void;
+}
 
 export type InventoryItem = {
   id: number;

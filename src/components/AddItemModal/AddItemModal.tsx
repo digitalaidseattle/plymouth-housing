@@ -21,7 +21,7 @@ type AddItemModalProps = {
 }
 
 const API = "/data-api/rest/item";
-const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', }; //TODO The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
+const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8','X-MS-API-ROLE':'volunteer' }; //TODO The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
 
 const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
 

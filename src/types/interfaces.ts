@@ -40,3 +40,9 @@ export type Volunteer = {
   last_signed_in: string | null;
   PIN: string;
 };
+
+export type Building = {
+  id: number;
+  name: string;
+  code: string;
+};

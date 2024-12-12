@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   MenuItem,
   Select,
@@ -13,14 +13,37 @@ import {
   Button,
 } from '@mui/material';
 import { Search, Add, Remove } from '@mui/icons-material';
-import { CheckoutItem, Item } from '../../types/interfaces';
+import { Building, CheckoutItem, Item } from '../../types/interfaces';
 import CheckoutDialog from './CheckoutDialog';
-import { categories, buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
+import { categories } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { HEADERS, ENDPOINTS } from '../../types/constants';
 
 const CheckoutPage = () => {
+  const {user} = useContext(UserContext);
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
+
+  const fetchBuildings = async () => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.BUILDINGS, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      setBuildings(data.value);
+    }
+    catch (error) {
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+    }
+  };
+
+  useEffect(() => {
+    fetchBuildings();
+  }, []);
 
   const removeItemFromCart = (itemId: string) => {
     setCheckoutItems(
@@ -121,9 +144,9 @@ const CheckoutPage = () => {
               value={selectedBuildingCode || ''}
               onChange={(event) => setSelectedBuildingCode(event.target.value)}
             >
-              {buildingCodes.map((buildingCode) => (
-                <MenuItem key={buildingCode.code} value={buildingCode.code}>
-                  {buildingCode.code} ({buildingCode.name})
+              {buildings.map((building) => (
+                <MenuItem key={building.code} value={building.code}>
+                  {building.code} ({building.name})
                 </MenuItem>
               ))}
             </Select>

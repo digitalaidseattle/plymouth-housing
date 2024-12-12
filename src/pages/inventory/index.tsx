@@ -212,7 +212,7 @@ const Inventory = () => {
   useEffect(() => {
     fetchData();
     fetchCategories();
-  }, []);
+  });
 
   useEffect(() => {
     const handler = setTimeout(() => {

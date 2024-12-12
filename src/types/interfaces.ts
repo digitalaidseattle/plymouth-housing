@@ -14,6 +14,10 @@ export type Item = {
 export interface UserContextType {
   user: IdTokenClaims | null;
   setUser: (user: IdTokenClaims) => void;
+  loginedVolunteer: VolunteerIdName| null;
+  setLoginedVolunteer: (loginedVolunteerName: VolunteerIdName | null) => void;
+  activatedVolunteers: VolunteerIdName[];
+  setActivatedVolunteers: (activateVolunteer: VolunteerIdName[]) => void;
 }
 
 export type InventoryItem = {
@@ -40,3 +44,8 @@ export type Volunteer = {
   last_signed_in: string | null;
   PIN: string;
 };
+
+export type  VolunteerIdName = {
+  id: number;
+  name: string;
+}

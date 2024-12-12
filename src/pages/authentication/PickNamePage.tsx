@@ -10,24 +10,29 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
+
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants'
-import { Volunteer } from '../../types/interfaces';
 import { IdTokenClaims } from '@azure/msal-common';
 import { useMsal } from '@azure/msal-react';
+import {VolunteerIdName} from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
-  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<VolunteerIdName | null>(null);
+  const [volunteers, setVolunteers] = useState<VolunteerIdName[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loginedVolunteer, setLoginedVolunteer] = useState<VolunteerIdName|null>(null);
+  const [activatedVolunteers, setActivatedVolunteers] = useState<VolunteerIdName[]>([]);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
   const [user, setUser] = useState<IdTokenClaims | null>(null);
+
   const navigate = useNavigate();
   const { instance } = useMsal();
+
 
   useEffect(() => {
     const account = instance.getActiveAccount();
@@ -66,6 +71,7 @@ const PickYourNamePage: React.FC = () => {
         }
         const data = await response.json();
         setVolunteers(data.value);
+
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
         setSnackbarState({
@@ -80,9 +86,9 @@ const PickYourNamePage: React.FC = () => {
     fetchVolunteers();
   }, [user]);
 
-  const handleNameChange = (
+  const handleNameChange =  (
     _event: React.SyntheticEvent,
-    value: Volunteer | null,
+    value: VolunteerIdName | null,
   ) => {
     setSelectedVolunteer(value);
   };
@@ -91,7 +97,7 @@ const PickYourNamePage: React.FC = () => {
     if (selectedVolunteer) {
       // Navigate to the next page, passing the volunteer ID via state
       navigate('/enter-your-pin', {
-        state: { volunteerId: selectedVolunteer.id, role: getRole(user) },
+        state: { volunteerId: selectedVolunteer.id, role: getRole(user) , volunteers: volunteers},
       });
     } else {
       setSnackbarState({
@@ -113,7 +119,13 @@ const PickYourNamePage: React.FC = () => {
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ 
+      user, 
+      setUser, 
+      loginedVolunteer,
+      setLoginedVolunteer,
+      activatedVolunteers,
+      setActivatedVolunteers, }}>
       <MinimalWrapper>
         <CenteredLayout>
           <Box sx={{ maxWidth: '350px', width: '100%' }}>

@@ -8,9 +8,15 @@ import { createContext } from 'react';
 import { IdTokenClaims } from '@azure/msal-common';
 import { UserContextType } from '../../types/interfaces';
 
+
+
 export const UserContext = createContext<UserContextType>({
   user: null,
   setUser: () => {},
+  loginedVolunteer: null, 
+  setLoginedVolunteer: () => {},
+  activatedVolunteers: [],
+  setActivatedVolunteers: () => {},
 });
 
 export function getRole(user: IdTokenClaims | null): string{

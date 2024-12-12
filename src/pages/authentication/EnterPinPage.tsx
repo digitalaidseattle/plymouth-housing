@@ -5,13 +5,7 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
-
-const VERIFY_API = '/data-api/rest/verify-pin'; // API endpoint for the stored procedure
-const VOLUNTEER_API = '/data-api/rest/volunteer/id'; // API endpoint for volunteer operations
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
+import {ENDPOINTS, HEADERS} from '../../types/constants'
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -21,7 +15,7 @@ const EnterPinPage: React.FC = () => {
     'success' | 'warning'
   >('warning');
   const location = useLocation();
-  const { volunteerId, volunteers } = location.state || {};
+  const { volunteerId, role, volunteers  } = location.state || {};
   const navigate = useNavigate();
 
   if (!volunteerId) {
@@ -30,7 +24,8 @@ const EnterPinPage: React.FC = () => {
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
-      const response = await fetch(VERIFY_API, {
+      HEADERS['X-MS-API-ROLE'] = role;
+      const response = await fetch(ENDPOINTS.VERIFY_PIN, {
         method: 'POST',
         headers: HEADERS,
         body: JSON.stringify({
@@ -48,7 +43,6 @@ const EnterPinPage: React.FC = () => {
       const data = await response.json();
       const result = data.value[0]; // Get the result from the response
 
-      console.log('API Response:', result);
       return result;
     } catch (error) {
       console.error('Error verifying PIN:', error);
@@ -61,7 +55,8 @@ const EnterPinPage: React.FC = () => {
 
   const updateLastSignedIn = async (id: number) => {
     try {
-      const response = await fetch(`${VOLUNTEER_API}/${id}`, {
+      HEADERS['X-MS-API-ROLE'] = role;
+      const response = await fetch(`${ENDPOINTS.VOLUNTEERS}/id/${id}`, {
         method: 'PATCH',
         headers: HEADERS,
         body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
@@ -70,8 +65,6 @@ const EnterPinPage: React.FC = () => {
       if (!response.ok) {
         throw new Error('Failed to update last signed in.');
       }
-
-      console.log('Successfully updated last signed in.');
     } catch (error) {
       console.error('Error updating last signed in:', error);
     }

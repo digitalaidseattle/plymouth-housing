@@ -4,18 +4,11 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import { IdTokenClaims } from '@azure/msal-common';
 import { createContext } from 'react';
-import { VolunteerIdName } from '../../types/interfaces';
+import { IdTokenClaims } from '@azure/msal-common';
+import { UserContextType } from '../../types/interfaces';
 
-interface UserContextType {
-  user: IdTokenClaims | null;
-  setUser: (user: IdTokenClaims) => void;
-  loginedVolunteer: VolunteerIdName| null;
-  setLoginedVolunteer: (loginedVolunteerName: VolunteerIdName | null) => void;
-  activatedVolunteers: VolunteerIdName[];
-  setActivatedVolunteers: (activateVolunteer: VolunteerIdName[]) => void;
-}
+
 
 export const UserContext = createContext<UserContextType>({
   user: null,
@@ -25,3 +18,15 @@ export const UserContext = createContext<UserContextType>({
   activatedVolunteers: [],
   setActivatedVolunteers: () => {},
 });
+
+export function getRole(user: IdTokenClaims | null): string{
+  if (user?.roles?.includes('volunteer')) {
+    return 'volunteer';
+  }
+
+  if (user?.roles?.includes('admin')) {
+    return 'admin';
+  }
+  throw new Error('User is not a member of Admin or Volunteer role.');
+}
+

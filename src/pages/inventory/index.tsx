@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -15,17 +15,14 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { ENDPOINTS, HEADERS } from "../../types/constants"
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
 import { InventoryItem } from '../../types/interfaces.ts';
 
 
-const API = '/data-api/rest/item';
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
-
 const Inventory = () => {
+  const {user} = useContext(UserContext);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
@@ -175,7 +172,8 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(API, { headers: HEADERS, method: 'GET' });
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.ITEMS, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

@@ -56,7 +56,7 @@ const MainLayout: React.FC = () => {
           account: account,
           scopes: ['openid', 'profile', 'email', 'User.Read'],
         });
-  
+
         const userClaims = tokenResponse.idTokenClaims;
         setUser(userClaims || null);
 
@@ -75,11 +75,13 @@ const MainLayout: React.FC = () => {
         }
       } catch (error) {
         console.error('Error in fetchTokenAndVolunteers:', error);
+        navigate('/login');
       }
     };
   
     fetchTokenAndVolunteers();
   }, [instance, navigate, volunteerId, volunteers, activatedVolunteers.length]);
+
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);

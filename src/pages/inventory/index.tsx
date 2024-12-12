@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -15,30 +15,45 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
-import { CategoryItem, InventoryItem } from '../../types/interfaces';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { ENDPOINTS, HEADERS } from "../../types/constants"
+import AddItemModal from '../../components/AddItemModal/AddItemModal';
+import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
+
 
 const Inventory = () => {
+  const {user} = useContext(UserContext);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
-  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>(
-    'original',
-  );
+  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
+  const [addModal, setAddModal] = useState(false);
   const [type, setType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
-  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
+  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
+    null,
+  );
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const categoryList = new Set<string>();
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleAddOpen = () => {
+    setAddModal(true)
+  }
+
+  const handleAddClose = () => {
+    setAddModal(false)
+  }
 
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorType(event.currentTarget);
@@ -75,7 +90,6 @@ const Inventory = () => {
 
   const handleMenuCategoryClick = (value: string) => {
     setCategory(value);
-    handleFilter();
     handleCategoryClose();
   };
 
@@ -85,7 +99,6 @@ const Inventory = () => {
 
   const handleMenuStatusClick = (value: string) => {
     setStatus(value);
-    handleFilter();
     handleStatusClose();
   };
 
@@ -117,6 +130,7 @@ const Inventory = () => {
       (row: {
         name: string;
         type: string;
+        description: string;
         category: string;
         quantity: number;
         status: string;
@@ -137,10 +151,11 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-            row.type.toLowerCase().includes(lowerCaseSearch) ||
-            row.category.toLowerCase().includes(lowerCaseSearch) ||
-            row.status.toLowerCase().includes(lowerCaseSearch) ||
-            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+          row.description.toLowerCase().includes(lowerCaseSearch) ||
+          row.type.toLowerCase().includes(lowerCaseSearch) ||
+          row.category.toLowerCase().includes(lowerCaseSearch) ||
+          row.status.toLowerCase().includes(lowerCaseSearch) ||
+          row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
         return matchesType && matchesCategory && matchesSearch && matchesStatus;
@@ -158,16 +173,27 @@ const Inventory = () => {
 
   const fetchData = async () => {
     try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.FETCH_ITEMS_API, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      setOriginalData(data.value);
-      setDisplayData(data.value);
-    } catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+      const inventoryList = data.value;
+      setOriginalData(inventoryList);
+      setDisplayData(inventoryList);
+
+      inventoryList.forEach((obj: InventoryItem) => {
+        const uniqueCategory = obj.category;
+        categoryList.add(uniqueCategory)
+      })
+
+      setUniqueCategories([...categoryList]);
+
     }
+    catch (error) {
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+  }
     setIsLoading(false);
   };
 
@@ -211,9 +237,9 @@ const Inventory = () => {
     <Box>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }}>
+        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
+          Add/Update
         </Button>
       </Box>
 {/* 
@@ -367,17 +393,10 @@ const Inventory = () => {
                 >
                   Name
                   {itemAlph === 'asc' ? (
-                    <ArrowUpwardIcon
-                      fontSize="small"
-                      sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }}
-                    />
+                    <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
                   ) : itemAlph === 'desc' ? (
-                    <ArrowDownwardIcon
-                      fontSize="small"
-                      sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }}
-                    />
-                  ) : null}
-                </TableCell>
+                    <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
+                  ) : null}</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>

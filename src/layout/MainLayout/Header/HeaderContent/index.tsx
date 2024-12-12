@@ -3,11 +3,10 @@ import { useContext } from 'react';
 // material-ui
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 
-// project import
-import toolbarItems from '../../../../toolbar-items';
+// project import, it's for post-MVP so we comment it out for now
+// import toolbarItems from '../../../../toolbar-items';
 import MobileSection from './MobileSection';
 import Profile from './Profile';
-import Search from './Search';
 import VolunteerSwitcher from './VolunteerSwitcher';
 import { UserContext } from '../../../../components/contexts/UserContext';
 
@@ -19,10 +18,11 @@ const HeaderContent = () => {
   const { user } = useContext(UserContext);
   return (
     <>
-      {!matchesXs && <Search />}
       {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
       {user?.roles?.includes('volunteer') && <VolunteerSwitcher />}
-      {toolbarItems.items}
+      {/* We hide the notification bell for now as it's for post-MVP*/}
+      {/* {toolbarItems.items} */}
+      <Box sx={{ flexGrow: 1}}  />
       {!matchesXs && <Profile />}
       {matchesXs && <MobileSection />}
     </>

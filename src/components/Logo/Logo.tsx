@@ -6,7 +6,7 @@
  */
 // material-ui
 
-import logo from '/src/assets/images/logo-dark.png';
+import logo from '/src/assets/images/ply_icon_white_goldbkgrnd.svg';
 
 // ==============================|| LOGO SVG ||============================== //
 

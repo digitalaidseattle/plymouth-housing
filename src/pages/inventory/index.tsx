@@ -188,7 +188,6 @@ const Inventory = () => {
       })
 
       setUniqueCategories([...categoryList]);
-
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
@@ -212,8 +211,8 @@ const Inventory = () => {
   useEffect(() => {
     fetchData();
     fetchCategories();
-  },[]);
-
+  },[user]);
+  
   useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();

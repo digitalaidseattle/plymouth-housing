@@ -22,16 +22,6 @@ export type InventoryItem = {
   type: string;
   quantity: number;
   category: string;
-  description: string;
-  status: string;
-};
-
-export type InventoryItem = {
-  id: number;
-  name: string;
-  type: string;
-  quantity: number;
-  category: string;
   status: string;
 };
 

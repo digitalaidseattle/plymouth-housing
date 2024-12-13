@@ -173,7 +173,7 @@ const Inventory = () => {
   const fetchData = async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.FETCH_ITEMS_API, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.FETCH_ITEMS, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -198,7 +198,7 @@ const Inventory = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(ENDPOINTS.CATEGORY_API, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.CATEGORY, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -212,7 +212,7 @@ const Inventory = () => {
   useEffect(() => {
     fetchData();
     fetchCategories();
-  });
+  },[]);
 
   useEffect(() => {
     const handler = setTimeout(() => {

@@ -45,7 +45,7 @@ export type Volunteer = {
   PIN: string;
 };
 
-export type  VolunteerIdName = {
+export type  Volunteer = {
   id: number;
   name: string;
 }

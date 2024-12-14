@@ -36,12 +36,10 @@ const Inventory = () => {
   const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
     null,
   );
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  const categoryList = new Set<string>();
+  const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
@@ -170,7 +168,7 @@ const Inventory = () => {
     setDisplayData(searchFiltered);
   }, [type, category, status, search, itemAlph, originalData]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.FETCH_ITEMS, { headers: HEADERS, method: 'GET' });
@@ -181,22 +179,16 @@ const Inventory = () => {
       const inventoryList = data.value;
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
-
-      inventoryList.forEach((obj: InventoryItem) => {
-        const uniqueCategory = obj.category;
-        categoryList.add(uniqueCategory)
-      })
-
-      setUniqueCategories([...categoryList]);
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
   }
     setIsLoading(false);
-  };
+  }, [user]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.CATEGORY, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
@@ -206,13 +198,13 @@ const Inventory = () => {
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, [user]);
   
   useEffect(() => {
     fetchData();
     fetchCategories();
-  },[user]);
-  
+  },[user, fetchData, fetchCategories]); 
+
   useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();
@@ -230,7 +222,6 @@ const Inventory = () => {
     return <p>Loading ...</p>;
   }
 
-
   return (
     <Box>
       {/* Add button */}
@@ -242,7 +233,7 @@ const Inventory = () => {
       </Box>
 { 
       <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData}
-        uniqueCategories={uniqueCategories}
+        categories={categoryData}
         originalData={originalData} /> }
 
       {/* Filter Container */}

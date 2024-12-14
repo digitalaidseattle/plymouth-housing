@@ -13,7 +13,7 @@ import { UserContextType } from '../../types/interfaces';
 export const UserContext = createContext<UserContextType>({
   user: null,
   setUser: () => {},
-  loginedVolunteer: null, 
+  loggedInVolunteer: null, 
   setLoginedVolunteer: () => {},
   activatedVolunteers: [],
   setActivatedVolunteers: () => {},

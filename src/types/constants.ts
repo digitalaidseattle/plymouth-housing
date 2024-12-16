@@ -9,4 +9,6 @@ export const ENDPOINTS = {
   VERIFY_PIN: '/data-api/rest/verify-pin',
   ITEMS: '/data-api/rest/item',
   BUILDINGS: '/data-api/rest/building',
+  FETCH_ITEMS: '/data-api/rest/inventorywithcategory',
+  CATEGORY: '/data-api/rest/category',
 };

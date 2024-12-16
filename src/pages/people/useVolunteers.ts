@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Volunteer } from '../../types/interfaces';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
@@ -10,7 +10,7 @@ const useVolunteers = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.VOLUNTEERS, {
@@ -30,11 +30,11 @@ const useVolunteers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [user, fetchData]);
 
   const updateVolunteerStatus = async (volunteerId: number) => {
     try {

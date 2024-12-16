@@ -14,15 +14,15 @@ type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
   checkoutItems: CheckoutItem[];
-  // removeItemFromCart: (itemId: string) => void;
-  // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
+  removeItemFromCart: (itemId: string) => void;
+  renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
 };
 
 const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   open,
   onClose,
   checkoutItems,
-  // removeItemFromCart,
+  removeItemFromCart,
   // renderItemQuantityButtons,
 }) => {
   return (
@@ -68,7 +68,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               <div>
                 <h4>{item.name}</h4>
               </div>
-              {renderItemQuantityButtons(item)}
+              {/* {renderItemQuantityButtons(item)} */}
             </div>
             <div>
               <Button

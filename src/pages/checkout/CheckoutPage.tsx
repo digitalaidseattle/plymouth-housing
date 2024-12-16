@@ -134,7 +134,7 @@ const CheckoutPage = () => {
         onClose={() => setOpenSummary(false)}
         checkoutItems={checkoutItems}
         removeItemFromCart={removeItemFromCart}
-        renderItemQuantityButtons={renderItemQuantityButtons}
+        // renderItemQuantityButtons={renderItemQuantityButtons}
       /> */}
     </Box>
   );

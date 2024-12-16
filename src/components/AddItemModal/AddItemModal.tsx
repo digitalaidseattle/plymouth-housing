@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { DASSnackbar } from '../DASSnackbar.tsx';
+import { ENDPOINTS, HEADERS } from '../../types/constants.ts';
+import { getRole, UserContext } from '../contexts/UserContext.ts';
 
 type FormData = {
   name: string;
@@ -20,11 +22,8 @@ type AddItemModalProps = {
   originalData: InventoryItem[];
 }
 
-const API = "/data-api/rest/item";
-const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', }; //TODO The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
-
 const AddItemModal = ({ addModal, handleAddClose, fetchData, categories, originalData }: AddItemModalProps) => {
-
+  const {user} = useContext(UserContext);
   const [updateId, setUpdateId] = useState<number>();
   const [updateItem, setUpdateItem] = useState<InventoryItem | string | null>('');
   const [formData, setFormData] = useState<FormData>({
@@ -104,7 +103,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, categories, origina
       setErrorMessage('Missing Information')
     } else {
       try {
-        const response = await fetch(API, { method: "POST", headers: HEADERS, body: JSON.stringify(formData) });
+        HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers: HEADERS, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {
@@ -126,7 +126,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, categories, origina
       setErrorMessage('Missing Information')
     } else {
       try {
-        const response = await fetch(`${API}/id/${updateId}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify(formData) });
+        HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {

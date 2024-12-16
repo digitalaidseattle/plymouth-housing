@@ -1,13 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Volunteer } from '../../types/interfaces';
-
-const VOLUNTEERS_API = '/data-api/rest/volunteer';
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 const useVolunteers = () => {
+  const {user} = useContext(UserContext);
   const [originalData, setOriginalData] = useState<Volunteer[]>([]);
   const [filteredData, setFilteredData] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -15,7 +12,8 @@ const useVolunteers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(VOLUNTEERS_API, {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.VOLUNTEERS, {
         headers: HEADERS,
         method: 'GET',
       });
@@ -45,18 +43,12 @@ const useVolunteers = () => {
 
       const updatedStatus = !volunteerToUpdate.active;
 
-      // Construct the request URL
-      const requestUrl = `${VOLUNTEERS_API}/id/${volunteerId}`;
+      const requestUrl = `${ENDPOINTS.VOLUNTEERS}/id/${volunteerId}`;
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
 
-      // Prepare the headers
-      const headers = {
-        ...HEADERS,
-      };
-
-      // Send the PATCH request
       const response = await fetch(requestUrl, {
         method: 'PATCH',
-        headers: headers,
+        headers: HEADERS,
         body: JSON.stringify({ active: updatedStatus }),
       });
 

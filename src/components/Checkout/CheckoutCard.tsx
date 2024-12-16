@@ -16,7 +16,7 @@ const CheckoutCard = ({item, checkoutItems, addItemToCart}: CheckoutCardProps) =
         borderRadius: '10px',
       }}
     >
-      <CardContent>
+      <CardContent sx={{flex: '1', overflow: 'hidden'}}>
         <Typography sx={{fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.name}</Typography>
       </CardContent>
       <CardActions style={{ border: '1px red blue' }}>

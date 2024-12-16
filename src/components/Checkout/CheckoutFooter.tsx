@@ -5,9 +5,10 @@ import { useContext } from 'react';
 
 type CheckoutItemsProp = {
   checkoutItems: CheckoutItem[];
+  setOpenSummary: (open: boolean) => void;
 }
 
-const CheckoutFooter = ({ checkoutItems }: CheckoutItemsProp) => {
+const CheckoutFooter = ({ checkoutItems, setOpenSummary }: CheckoutItemsProp) => {
 
   const { drawerOpen } = useContext(DrawerOpenContext);
 

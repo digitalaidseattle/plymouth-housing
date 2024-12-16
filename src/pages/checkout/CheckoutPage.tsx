@@ -127,7 +127,7 @@ const CheckoutPage = () => {
         {data.map((category) => (
           <CategorySection category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
         ))}
-        <CheckoutFooter checkoutItems={checkoutItems} />
+        <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
 
       {/* <CheckoutDialog
         open={openSummary}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { InventoryItem } from '../../types/interfaces.ts';
+import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { DASSnackbar } from '../DASSnackbar.tsx';
 import { CategoryType } from '../../types/interfaces.ts';
 
@@ -247,6 +247,5 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, categ
   )
 
 }
-
 
 export default AddItemModal;

@@ -4,7 +4,7 @@
     "database-type": "mssql",
     "connection-string": "@env('DATABASE_CONNECTION_STRING')",
     "options": {
-      "set-session-context": false
+      "set-session-context": true
     }
   },
   "runtime": {
@@ -13,11 +13,6 @@
       "path": "/rest",
       "request-body-strict": true
     },
-    "graphql": {
-      "enabled": true,
-      "path": "/graphql",
-      "allow-introspection": true
-    },
     "host": {
       "cors": {
         "origins": ["http://localhost:4280", "http://localhost:3000"],
@@ -25,8 +20,7 @@
       },
       "authentication": {
         "provider": "StaticWebApps"
-      },
-      "mode": "development"
+      }
     }
   },
   "entities": {
@@ -43,12 +37,75 @@
       },
       "permissions": [
         {
-          "actions": ["*"],
+          "actions": ["read"],
           "role": "admin"
         },
         {
           "actions": ["read", "create", "update"],
-          "role": "anonymous"
+          "role": "volunteer"
+        }
+      ]
+    },
+    "InventoryWithCategory": {
+      "source": {
+        "object": "InventoryWithCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/inventorywithcategory"
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "ItemsByCategory": {
+      "source": {
+        "object": "ItemsByCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/itemsbycategory"
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "Category": {
+      "source": {
+        "object": "dbo.Categories",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/category"
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
         }
       ]
     },
@@ -126,17 +183,16 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer",
-        "methods": ["get", "post", "patch"]
+        "path": "/volunteer"
       },
       "permissions": [
         {
-          "actions": ["*"],
+          "actions": ["read"],
           "role": "admin"
         },
         {
           "actions": ["read", "create", "update"],
-          "role": "anonymous"
+          "role": "volunteer"
         }
       ]
     },
@@ -152,7 +208,7 @@
       "permissions": [
         {
           "actions": ["execute"],
-          "role": "anonymous"
+          "role": "volunteer"
         }
       ]
     }

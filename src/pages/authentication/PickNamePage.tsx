@@ -10,53 +10,75 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
-
-const API = '/data-api/rest/volunteer';
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
-
-interface Volunteer {
-  id: number;
-  name: string;
-}
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { ENDPOINTS, HEADERS } from '../../types/constants'
+import { Volunteer } from '../../types/interfaces';
+import { IdTokenClaims } from '@azure/msal-common';
+import { useMsal } from '@azure/msal-react';
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
-    null,
-  );
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning';
+  }>({ open: false, message: '', severity: 'warning' });
+  const [user, setUser] = useState<IdTokenClaims | null>(null);
   const navigate = useNavigate();
+  const { instance } = useMsal();
 
   useEffect(() => {
+    const account = instance.getActiveAccount();
+    if (account) {
+      instance
+        .acquireTokenSilent({
+          account: account,
+          scopes: ['openid', 'profile', 'email', 'User.Read'],
+        })
+        .then((response) => {
+          const userClaims = response.idTokenClaims;
+          setUser(userClaims || null);
+        })
+        .catch((error) => {
+          console.error('Error acquiring token', error);
+        });
+    }
+  }, [instance]);
+
+  useEffect(() => {
+    if (!user) return;
     const fetchVolunteers = async () => {
       try {
+        setIsLoading(true);
+
+        HEADERS['X-MS-API-ROLE'] = getRole(user);
         const response = await fetch(
-          `${API}?$select=id,name&$filter=active eq true`,
+          `${ENDPOINTS.VOLUNTEERS}?$select=id,name&$filter=active eq true`,
           {
             method: 'GET',
             headers: HEADERS,
           },
         );
-
         if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+          throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
         }
-
         const data = await response.json();
-        console.log('Volunteers:', data);
-
         setVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
+        setSnackbarState({
+          open: true,
+          message: 'Failed to load volunteer list. Please try again later.',
+          severity: 'warning'
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
-
     fetchVolunteers();
-  }, []);
+  }, [user]);
 
   const handleNameChange = (
     _event: React.SyntheticEvent,
@@ -69,10 +91,14 @@ const PickYourNamePage: React.FC = () => {
     if (selectedVolunteer) {
       // Navigate to the next page, passing the volunteer ID via state
       navigate('/enter-your-pin', {
-        state: { volunteerId: selectedVolunteer.id },
+        state: { volunteerId: selectedVolunteer.id, role: getRole(user) },
       });
     } else {
-      setOpenSnackbar(true);
+      setSnackbarState({
+        open: true,
+        message: 'Please select a name before continuing.',
+        severity: 'warning'
+      });
     }
   };
 
@@ -83,37 +109,38 @@ const PickYourNamePage: React.FC = () => {
     if (reason === 'clickaway') {
       return;
     }
-    setOpenSnackbar(false);
+    setSnackbarState(prev => ({ ...prev, open: false }));
   };
 
   return (
-    <MinimalWrapper>
-      <CenteredLayout>
-        <Box sx={{ maxWidth: '350px', width: '100%' }}>
-          <Typography
-            variant="h4"
-            textAlign="left"
-            sx={{
-              height: '50px',
-              lineHeight: '50px',
-              marginBottom: 2,
-            }}
-          >
-            Pick Your Name
-          </Typography>
+    <UserContext.Provider value={{ user, setUser }}>
+      <MinimalWrapper>
+        <CenteredLayout>
+          <Box sx={{ maxWidth: '350px', width: '100%' }}>
+            <Typography
+              variant="h4"
+              textAlign="left"
+              sx={{
+                height: '50px',
+                lineHeight: '50px',
+                marginBottom: 2,
+              }}
+            >
+              Pick Your Name
+            </Typography>
 
-          <Typography
-            variant="body2"
-            sx={{
-              maxWidth: '100%',
-              textAlign: 'left',
-              marginBottom: 4,
-              lineHeight: 1.5,
-            }}
-          >
-            <strong>Can't find your name?</strong> Let a staff member know or
-            contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
-          </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                maxWidth: '100%',
+                textAlign: 'left',
+                marginBottom: 4,
+                lineHeight: 1.5,
+              }}
+            >
+              <strong>Can't find your name?</strong> Let a staff member know or
+              contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
+            </Typography>
 
           <Autocomplete
             value={selectedVolunteer}
@@ -123,7 +150,7 @@ const PickYourNamePage: React.FC = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Select your name"
+                label={isLoading ? "Loading..." : "Select your name"}
                 variant="outlined"
                 sx={{ width: '100%' }}
               />
@@ -133,6 +160,7 @@ const PickYourNamePage: React.FC = () => {
               marginBottom: 8,
               '& .MuiAutocomplete-inputRoot': { height: '56px' },
             }}
+            disabled={isLoading}
           />
 
           <Button
@@ -148,20 +176,22 @@ const PickYourNamePage: React.FC = () => {
                 backgroundColor: '#4f4f4f',
               },
             }}
+            disabled={isLoading}
           >
             Continue
           </Button>
         </Box>
 
-        <SnackbarAlert
-          open={openSnackbar}
-          onClose={handleSnackbarClose}
-          severity="warning"
-        >
-          Please select a name before continuing.
-        </SnackbarAlert>
-      </CenteredLayout>
-    </MinimalWrapper>
+          <SnackbarAlert
+            open={snackbarState.open}
+            onClose={handleSnackbarClose}
+            severity={snackbarState.severity}
+          >
+            {snackbarState.message}
+          </SnackbarAlert>
+        </CenteredLayout>
+      </MinimalWrapper>
+    </UserContext.Provider>
   );
 };
 

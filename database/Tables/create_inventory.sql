@@ -1,52 +1,35 @@
 DROP TABLE IF EXISTS [dbo].[Items];
-DROP TABLE IF EXISTS [dbo].[Categories];
 DROP VIEW IF EXISTS InventoryWithCategory;
 DROP VIEW IF EXISTS ItemsByCategory;
 GO
 
-CREATE TABLE Categories
-(
+CREATE TABLE Items (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    checkout_limit INT NOT NULL
-);
-
-CREATE TABLE Items
-(
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
-    description VARCHAR(255) NOT NULL DEFAULT '',
+    description VARCHAR(255),
     quantity INT NOT NULL,
-    status AS (
-        CASE
-            WHEN quantity < 15 THEN 'Low'
-            WHEN quantity BETWEEN 16 AND 30 THEN 'Medium'
-            ELSE 'High'
-        END
-    ),
-    CONSTRAINT FK_Items_Category FOREIGN KEY (category_id) REFERENCES Categories(id)
+    low INT NOT NULL,
+    medium INT NOT NULL,
+    items_per_basket INT
 );
-
 GO
 
 CREATE VIEW InventoryWithCategory
 AS
     SELECT
-        Items.id,
-        Items.name,
-        Items.type,
-        (SELECT Categories.name
-        FROM Categories
-        WHERE Categories.id = Items.category_id) AS category,
-        Items.description,
-        Items.quantity,
-        Items.status
+        i.id,
+        i.name,
+        i.type,
+        c.name AS category,
+        i.description,
+        i.quantity
     FROM
-        Items;
-
-    GO
+        Items i
+    LEFT JOIN
+        Categories c ON c.id = i.category_id;
+GO
 
 CREATE VIEW ItemsByCategory
 AS
@@ -66,5 +49,4 @@ AS
     ) AS items
     FROM
         Categories;
-
 GO

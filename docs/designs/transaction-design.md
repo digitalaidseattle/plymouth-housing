@@ -53,74 +53,70 @@ The Transaction History system consists of:
 
 **Tables:**  
 - **TransactionHistory**:  
-  - `TransactionID` (Primary Key) - Unique identifier for each transaction record (UUID or GUID).
-  - `UserID` (Foreign Key) - References the `Users` table to identify the admin user associated with the transaction.
-  - `TransactionGUID`- Unique identifier for each transaction session (UUID or GUID). Used to correlate multiple entries for the same transaction (e.g., for the same user interacting multiple times within one session).
-  - `ItemID` (Foreign Key): References the `Items` table to identify the item associated with the transaction.
-  - `TransactionType`: VARCHAR(50), Type of transaction (e.g., Add, Checkout).
-  - `TotalAmount`: DECIMAL(10, 2), Total amount of the transaction.
-  - `TransactionDate`: DATETIME, Date and time when the transaction occurred.
+  - `id` (Primary Key) - Unique identifier for each transaction record.
+  - `user_id` (Foreign Key) - References the `Users` table to identify the user (admin or volunteer) associated with the transaction.
+  - `transaction_id`- Unique identifier for each transaction session (UUID or GUID). Used to correlate multiple entries for the same transaction (e.g., for the same user checking out several items within one transaction, or tracking all the items in a welcome basket).
+  - `item_id` (Foreign Key): References the `Items` table to identify the item associated with the transaction.
+  - `transaction_type`: VARCHAR(50), Type of transaction (e.g., Add, Checkout).
+  - `quantity`: Total number of items with `item_id` in this transaction.
+  - `transaction_date`: DATETIME, Date and time when the transaction occurred.
 
 **SQL Schema:**
 ```sql
 CREATE TABLE TransactionHistory (
-    TransactionID UNIQUEIDENTIFIER PRIMARY KEY,       
-    UserID INT,                                        
-    TransactionGUID UNIQUEIDENTIFIER,                  
-    ItemID INT,                                         
-    TransactionType VARCHAR(50),                          
-    TotalAmount DECIMAL(10, 2),                         
-    TransactionDate DATETIME DEFAULT GETDATE(),         
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,       
+    user_id INT NOT NULL,                                        
+    transaction_id UNIQUEIDENTIFIER NOT NULL,                  
+    item_id INT NOT NULL,                                         
+    transaction_type VARCHAR(50) NOT NULL,                          
+    quantity INT NOT NULL,                         
+    transaction_date DATETIME DEFAULT GETDATE() NOT NULL,         
     
     -- Define foreign key constraints
     FOREIGN KEY (UserID) REFERENCES Users(UserID),      
     FOREIGN KEY (ItemID) REFERENCES Items(ItemID)       
 );
 
--- Optionally, we may want to create an index for faster searching by TransactionGUID, UserID, and TransactionDate
-CREATE INDEX IX_TransactionHistory_TransactionGUID ON TransactionHistory(TransactionGUID);
-CREATE INDEX IX_TransactionHistory_UserID ON TransactionHistory(UserID);
-CREATE INDEX IX_TransactionHistory_TransactionDate ON TransactionHistory(TransactionDate);
+-- Optionally, we may want to create an index for faster searching by transaction_id, user_id, and transaction_date
+CREATE INDEX IX_TransactionHistory_TransactionId ON TransactionHistory(transaction_id);
+CREATE INDEX IX_TransactionHistory_UserId ON TransactionHistory(user_id);
+CREATE INDEX IX_TransactionHistory_TransactionDate ON TransactionHistory(transaction_date);
 ```
 
 **Stored Procedures:**
 - **RecordTransaction**:  
   - Inserts a new transaction record into the `TransactionHistory` table.
-  - Parameters: `UserID`, `TransactionGUID`, `ItemID`, `TransactionType`, `TotalAmount`.
+  - Parameters: `user_id`, `transaction_id`, `item_id`, `transaction_type`, `quantity`.
   
 ```sql
 CREATE PROCEDURE LogTransaction
-    @UserID INT,                     
-    @TransactionGUID UNIQUEIDENTIFIER, 
-    @ItemID INT,                   
-    @TransactionType VARCHAR(50),     
-    @TotalAmount DECIMAL(10, 2)       
+    @user_id INT,                     
+    @transaction_id UNIQUEIDENTIFIER, 
+    @item_id INT,                   
+    @transaction_type VARCHAR(50),     
+    @quantity INT       
 AS
 BEGIN
     -- Insert a new record into the TransactionHistory table
     INSERT INTO TransactionHistory (
-        TransactionID,
-        UserID,
-        TransactionGUID,
-        ItemID,
-        TransactionType,
-        TotalAmount,
-        TransactionDate
+        user_id,
+        transaction_id,
+        item_id,
+        transaction_type,
+        quantity,
     )
     VALUES (
-        NEWID(),                     -- Generate a new GUID for the TransactionID
-        @UserID,                     
-        @TransactionGUID,           
-        @ItemID,                   
-        @TransactionType,             
-        @TotalAmount,               
-        GETDATE()                 
+        @user_id,                     
+        @transaction_id,           
+        @item_id,                   
+        @transaction_type,             
+        @quantity,                             
     );
 END;
 ```
 
 - **GetTransactionHistory**:
-- Retrieves all transactions associated with a specific `UserID`(admin user only).
+- Retrieves all transactions associated with a specific `user_id`(admin user only).
 
 ```sql
 CREATE PROCEDURE GetTransactionHistory
@@ -136,15 +132,15 @@ BEGIN
             th.UserID,
             th.TransactionGUID,
             th.ItemID,
-            th.TransactionType,
+            th.transaction_type,
             th.TotalAmount,
-            th.TransactionDate
+            th.transaction_date
         FROM 
             TransactionHistory th
         INNER JOIN 
             Items i ON th.ItemID = i.ItemID
         ORDER BY 
-            th.TransactionDate DESC;      -- Optionally order by transaction date or any other field
+            th.transaction_date DESC;      -- Optionally order by transaction date or any other field
     END
     ELSE
     BEGIN
@@ -216,7 +212,7 @@ This design allows for multiple items to be associated with a single Transaction
 - **Risk**: Data Integrity Issues 
   **Mitigation**: All transaction data will be logged with unique GUIDs and linked to the user performing the action. The `TransactionHistory` table will ensure that all actions are logged with accurate timestamps.  
 - **Risk**: Query Performance
-    **Mitigation**: Use indexes on frequently queried columns (e.g., `UserID`, `TransactionDate`, `TransactionGUID`) to improve query performance for large transaction datasets.
+    **Mitigation**: Use indexes on frequently queried columns (e.g., `UserID`, `transaction_date`, `TransactionGUID`) to improve query performance for large transaction datasets.
 - **Risk**: Front-end Validation Failure
     **Mitigation**: Ensure proper validation on the frontend to prevent unauthorized access and ensure that all data inputs are sanitized before sending to the backend.
 

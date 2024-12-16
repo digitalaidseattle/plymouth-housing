@@ -24,7 +24,12 @@ AS
         i.type,
         c.name AS category,
         i.description,
-        i.quantity
+        i.quantity,
+        CASE
+            WHEN i.quantity <= i.low THEN 'Low'
+            WHEN i.quantity > i.low AND i.quantity <= i.medium THEN 'Medium'
+            ELSE 'High'
+        END AS status
     FROM
         Items i
     LEFT JOIN

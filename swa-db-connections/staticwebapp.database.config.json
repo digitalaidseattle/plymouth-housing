@@ -54,16 +54,17 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/inventorywithcategory"
+        "path": "/inventorywithcategory",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": ["*"],
           "role": "admin"
         },
         {
-          "actions": ["read"],
-          "role": "volunteer"
+          "actions": ["read", "create", "update"],
+          "role": "anonymous"
         }
       ]
     },
@@ -75,16 +76,17 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/itemsbycategory"
+        "path": "/itemsbycategory",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": ["*"],
           "role": "admin"
         },
         {
-          "actions": ["read"],
-          "role": "volunteer"
+          "actions": ["read", "create", "update"],
+          "role": "anonymous"
         }
       ]
     },
@@ -118,50 +120,6 @@
       "rest": {
         "enabled": true,
         "path": "/categories",
-        "methods": ["get", "post", "patch"]
-      },
-      "permissions": [
-        {
-          "actions": ["*"],
-          "role": "admin"
-        },
-        {
-          "actions": ["read", "create", "update"],
-          "role": "anonymous"
-        }
-      ]
-    },
-    "InventoryWithCategory": {
-      "source": {
-        "object": "InventoryWithCategory",
-        "type": "table",
-        "key-fields": []
-      },
-      "rest": {
-        "enabled": true,
-        "path": "/inventorywithcategory",
-        "methods": ["get", "post", "patch"]
-      },
-      "permissions": [
-        {
-          "actions": ["*"],
-          "role": "admin"
-        },
-        {
-          "actions": ["read", "create", "update"],
-          "role": "anonymous"
-        }
-      ]
-    },
-    "ItemsByCategory": {
-      "source": {
-        "object": "ItemsByCategory",
-        "type": "table",
-        "key-fields": []
-      },
-      "rest": {
-        "enabled": true,
-        "path": "/itemsbycategory",
         "methods": ["get", "post", "patch"]
       },
       "permissions": [

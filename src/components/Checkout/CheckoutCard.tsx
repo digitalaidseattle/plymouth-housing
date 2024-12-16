@@ -1,11 +1,11 @@
-import { Card, CardContent, CardActions, Typography } from '@mui/material';
+import { Card, CardContent, CardActions, Typography, Tooltip } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 
-const CheckoutCard = ({item, checkoutItems, addItemToCart}: CheckoutCardProps) => {
+const CheckoutCard = ({ item, checkoutItems, addItemToCart }: CheckoutCardProps) => {
 
   return (
-    <Card
+    <Card key={item.name}
       style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -16,11 +16,13 @@ const CheckoutCard = ({item, checkoutItems, addItemToCart}: CheckoutCardProps) =
         borderRadius: '10px',
       }}
     >
-      <CardContent sx={{flex: '1', overflow: 'hidden'}}>
-        <Typography sx={{fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.name}</Typography>
+      <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
+        <Tooltip title={item.name} arrow>
+          <Typography sx={{ fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
+        </Tooltip>
       </CardContent>
       <CardActions style={{ border: '1px red blue' }}>
-        <ItemQuantityButton item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
+        <ItemQuantityButton item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} />
       </CardActions>
     </Card>
   )

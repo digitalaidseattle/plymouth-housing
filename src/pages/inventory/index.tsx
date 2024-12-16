@@ -132,7 +132,7 @@ const Inventory = () => {
       (row: {
         name: string;
         type: string;
-        description: string;
+        // description: string; //Disable until feature enabled
         category: string;
         quantity: number;
         status: string;
@@ -153,7 +153,7 @@ const Inventory = () => {
 
         const matchesSearch = search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-          row.description.toLowerCase().includes(lowerCaseSearch) ||
+          // row.description.toLowerCase().includes(lowerCaseSearch) || //Disable until feature enabled
           row.type.toLowerCase().includes(lowerCaseSearch) ||
           row.category.toLowerCase().includes(lowerCaseSearch) ||
           row.status.toLowerCase().includes(lowerCaseSearch) ||
@@ -181,6 +181,7 @@ const Inventory = () => {
       }
       const data = await response.json();
       const inventoryList = data.value;
+      console.log(inventoryList);
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     }

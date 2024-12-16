@@ -49,7 +49,7 @@ const CheckoutPage = () => {
   }, [])
 
   return (
-    <div style={{ margin: 'auto 100px', backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
+    <div style={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
       {/* <h2>Check out</h2>
       <div
         style={{

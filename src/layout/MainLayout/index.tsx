@@ -85,7 +85,7 @@ const MainLayout: React.FC = () => {
                 >
                   <Toolbar />
                   <Breadcrumbs navigation={navigation} title />
-                  <Outlet />
+                  <Outlet context={{ drawerOpen }} />
                 </Box>
               </Box>
             </ScrollTop>

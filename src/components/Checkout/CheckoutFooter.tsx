@@ -1,28 +1,38 @@
-import React from 'react'
 import { CheckoutItem } from '../../types/interfaces';
+import { Box, Button, Typography } from '@mui/material';
+import { useOutletContext } from 'react-router-dom';
 
-const CheckoutFooter = ({checkoutItems}: CheckoutItem[]) => {
+type CheckoutItemsProp = {
+  checkoutItems: CheckoutItem[];
+}
+
+const CheckoutFooter = ({ checkoutItems }: CheckoutItemsProp) => {
+
+  const { drawerOpen } = useOutletContext();
+
   return (
-    <div>
+    <>
       {checkoutItems.length > 0 && (
-        <div
-          style={{
-            padding: '0 100px',
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: drawerOpen ? '260px' : '0',
+            width: drawerOpen ? 'calc(100% - 260px)' : '100%',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            width: '100%',
             height: '100px',
             backgroundColor: '#C0C0C0',
           }}
         >
-          <p>
+          <Typography>
             {checkoutItems.reduce(
               (accumulator, item) => accumulator + item.quantity,
               0,
             )}{' '}
             items selected
-          </p>
+          </Typography>
           <Button
             variant="text"
             style={{ color: 'black', backgroundColor: 'white' }}
@@ -30,9 +40,9 @@ const CheckoutFooter = ({checkoutItems}: CheckoutItem[]) => {
           >
             Continue
           </Button>
-        </div>
+        </Box>
       )}
-    </div>
+    </>
   )
 }
 

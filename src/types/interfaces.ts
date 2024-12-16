@@ -13,7 +13,7 @@ export type CategoryProps = {
 export type CheckoutCardProps = {
   item: CheckoutItem;
   checkoutItems: CheckoutItem[];
-  setCheckoutItems: React.Dispatch<React.SetStateAction<CheckoutItem[]>>;
+  addItemToCart: (item: CheckoutItem, quantity: number) => void;
 };
 
 export type InventoryItem = {

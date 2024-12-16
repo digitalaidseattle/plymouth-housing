@@ -11,10 +11,11 @@ import {
   CardContent,
   IconButton,
   Button,
+  Box,
 } from '@mui/material';
 import { Search, Add, Remove } from '@mui/icons-material';
 import { CheckoutItem } from '../../types/interfaces';
-import CheckoutDialog from './CheckoutDialog';
+import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
 import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import CategorySection from '../../components/Checkout/CategorySection';
@@ -26,8 +27,38 @@ const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/jso
 const CheckoutPage = () => {
   const [data, setData] = useState<[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
-  // const [openSummary, setOpenSummary] = useState(false);
+  const [openSummary, setOpenSummary] = useState(false);
   // const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
+
+  const removeItemFromCart = (itemId: string) => {
+    setCheckoutItems(
+      checkoutItems.filter(
+        (addedItem: CheckoutItem) => addedItem.id !== itemId,
+      ),
+    );
+  };
+
+  const addItemToCart = (item: CheckoutItem, quantity: number) => {
+    const foundIndex = checkoutItems.findIndex(
+      (addedItem: CheckoutItem) => addedItem.id === item.id,
+    );
+    if (foundIndex !== -1) {
+      const foundItem = checkoutItems[foundIndex];
+      if (foundItem.quantity + quantity === 0) {
+        removeItemFromCart(item.id);
+      } else {
+        const updatedItems = [...checkoutItems];
+        updatedItems[foundIndex] = {
+          ...foundItem,
+          quantity: foundItem.quantity + quantity,
+        };
+        setCheckoutItems(updatedItems);
+      }
+    } else {
+      const updatedItems = [...checkoutItems, { ...item, quantity: 1 }];
+      setCheckoutItems(updatedItems);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -36,7 +67,6 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log(data.value);
       setData(data.value);
     }
     catch (error) {
@@ -49,7 +79,7 @@ const CheckoutPage = () => {
   }, [])
 
   return (
-    <div style={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
+    <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
       {/* <h2>Check out</h2>
       <div
         style={{
@@ -95,7 +125,7 @@ const CheckoutPage = () => {
         </div>
       </div> */}
         {data.map((category) => (
-          <CategorySection category={category} checkoutItems={checkoutItems} setCheckoutItems={setCheckoutItems}/>
+          <CategorySection category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} />
 
@@ -106,7 +136,7 @@ const CheckoutPage = () => {
         removeItemFromCart={removeItemFromCart}
         renderItemQuantityButtons={renderItemQuantityButtons}
       /> */}
-    </div>
+    </Box>
   );
 };
 

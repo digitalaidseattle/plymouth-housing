@@ -1,6 +1,7 @@
 import { CheckoutItem } from '../../types/interfaces';
 import { Box, Button, Typography } from '@mui/material';
-import { useOutletContext } from 'react-router-dom';
+import { DrawerOpenContext } from '../contexts/DrawerOpenContext';
+import { useContext } from 'react';
 
 type CheckoutItemsProp = {
   checkoutItems: CheckoutItem[];
@@ -8,7 +9,7 @@ type CheckoutItemsProp = {
 
 const CheckoutFooter = ({ checkoutItems }: CheckoutItemsProp) => {
 
-  const { drawerOpen } = useOutletContext();
+  const { drawerOpen } = useContext(DrawerOpenContext);
 
   return (
     <>
@@ -19,11 +20,13 @@ const CheckoutFooter = ({ checkoutItems }: CheckoutItemsProp) => {
             bottom: 0,
             left: drawerOpen ? '260px' : '0',
             width: drawerOpen ? 'calc(100% - 260px)' : '100%',
+            transition: 'left 0.3s ease, width 0.3s ease',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             height: '100px',
             backgroundColor: '#C0C0C0',
+            px: '5%'
           }}
         >
           <Typography>

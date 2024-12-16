@@ -14,16 +14,16 @@ type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
   checkoutItems: CheckoutItem[];
-  removeItemFromCart: (itemId: string) => void;
-  renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
+  // removeItemFromCart: (itemId: string) => void;
+  // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
 };
 
 const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   open,
   onClose,
   checkoutItems,
-  removeItemFromCart,
-  renderItemQuantityButtons,
+  // removeItemFromCart,
+  // renderItemQuantityButtons,
 }) => {
   return (
     <Dialog

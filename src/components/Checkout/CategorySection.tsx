@@ -1,22 +1,22 @@
-import React from 'react'
 import CheckoutCard from './CheckoutCard';
 import { CategoryProps, CheckoutItem } from "../../types/interfaces";
+import { Box } from '@mui/material';
 
 type CategorySectionProps = {
   category: CategoryProps;
   checkoutItems: CheckoutItem[];
-  setCheckoutItems: React.Dispatch<React.SetStateAction<CheckoutItem[]>>;
+  addItemToCart: (item: CheckoutItem, quantity: number) => void;
 };
 
 const CategorySection = ({
   category,
   checkoutItems,
-  setCheckoutItems,
+  addItemToCart
 }: CategorySectionProps) => {
   return (
-    <div key={category.category}>
+    <Box key={category.category}>
       <h3 style={{ margin: '20px 20px' }}>{category.category}</h3>
-      <div
+      <Box
         style={{
           display: 'flex',
           flexDirection: 'row',
@@ -24,10 +24,10 @@ const CategorySection = ({
         }}
       >
         {category.items.map((item) => (
-          <CheckoutCard item={item} checkoutItems={checkoutItems} setCheckoutItems={setCheckoutItems} />
+          <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 

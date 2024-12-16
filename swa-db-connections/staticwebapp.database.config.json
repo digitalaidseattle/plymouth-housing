@@ -46,6 +46,69 @@
         }
       ]
     },
+    "InventoryWithCategory": {
+      "source": {
+        "object": "InventoryWithCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/inventorywithcategory"
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "ItemsByCategory": {
+      "source": {
+        "object": "ItemsByCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/itemsbycategory"
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "Category": {
+      "source": {
+        "object": "dbo.Categories",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/category"
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
     "Volunteer": {
       "source": {
         "object": "dbo.Volunteers",
@@ -54,8 +117,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer",
-        "methods": ["get", "post", "patch"]
+        "path": "/volunteer"
       },
       "permissions": [
         {

@@ -20,10 +20,16 @@ export type InventoryItem = {
   id: number;
   name: string;
   type: string;
+  description: string, 
   quantity: number;
   category: string;
-  description: string;
   status: string;
+};
+
+export type CategoryItem = {
+  id: number;
+  name: string;
+  item_limit: number;
 };
 
 export type AddVolunteerModalProps = {
@@ -40,3 +46,4 @@ export type Volunteer = {
   last_signed_in: string | null;
   PIN: string;
 };
+

@@ -5,9 +5,17 @@ export const HEADERS = {
   };
   
 export const ENDPOINTS = {
-  VOLUNTEERS: '/data-api/rest/volunteer',
+  //tables
+  VOLUNTEERS: '/data-api/rest/volunteers',
+  ITEMS: '/data-api/rest/items',
+  CATEGORY: '/data-api/rest/categories',
+  //Stored Procedures
   VERIFY_PIN: '/data-api/rest/verify-pin',
-  ITEMS: '/data-api/rest/item',
-  FETCH_ITEMS: '/data-api/rest/inventorywithcategory',
-  CATEGORY: '/data-api/rest/category',
+  //Views
+  EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
+  CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',
 };
+
+export const SETTINGS = {
+  itemsPerPage: 10,
+}

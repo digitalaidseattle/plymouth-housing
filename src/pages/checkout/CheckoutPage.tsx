@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
 import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
 import { buildingCodes, welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
@@ -10,10 +12,8 @@ import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
 
-const API = "/data-api/rest/itemsbycategory";
-const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', };
-
 const CheckoutPage = () => {
+  const {user} = useContext(UserContext);
   const [data, setData] = useState<CategoryProps[]>([]);
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
@@ -63,20 +63,20 @@ const CheckoutPage = () => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback( async () => {
     try {
-      const response = await fetch(API, { headers: HEADERS, method: 'GET' });
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
       const responseData = await response.json();
-      console.log(responseData.value);
       setData(responseData.value);
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
     }
-  };
+  },[user]);
 
   const scrollToCategory = (id: string) => {
     const element = document.getElementById(id);
@@ -87,7 +87,7 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [])
+  }, [fetchData])
 
   useEffect(() => {
     setFilteredData(data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'));

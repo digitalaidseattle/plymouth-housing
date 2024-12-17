@@ -32,7 +32,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/item",
+        "path": "/items",
         "methods": ["get", "post", "patch"]
       },
       "permissions": [
@@ -46,7 +46,7 @@
         }
       ]
     },
-    "InventoryWithCategory": {
+    "ItemsWithCategory": {
       "source": {
         "object": "InventoryWithCategory",
         "type": "table",
@@ -54,17 +54,17 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/inventorywithcategory",
+        "path": "/itemswithcategory",
         "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
-          "actions": ["*"],
+          "actions": ["read"],
           "role": "admin"
         },
         {
-          "actions": ["read", "create", "update"],
-          "role": "anonymous"
+          "actions": ["read"],
+          "role": "volunteer"
         }
       ]
     },
@@ -81,12 +81,12 @@
       },
       "permissions": [
         {
-          "actions": ["*"],
+          "actions": ["read"],
           "role": "admin"
         },
         {
-          "actions": ["read", "create", "update"],
-          "role": "anonymous"
+          "actions": ["read"],
+          "role": "volunteer"
         }
       ]
     },
@@ -98,7 +98,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/category"
+        "path": "/categories"
       },
       "permissions": [
         {
@@ -111,28 +111,6 @@
         }
       ]
     },
-    "Categories": {
-      "source": {
-        "object": "dbo.Categories",
-        "type": "table",
-        "key-fields": []
-      },
-      "rest": {
-        "enabled": true,
-        "path": "/categories",
-        "methods": ["get", "post", "patch"]
-      },
-      "permissions": [
-        {
-          "actions": ["*"],
-          "role": "admin"
-        },
-        {
-          "actions": ["read", "create", "update"],
-          "role": "anonymous"
-        }
-      ]
-    },
     "Volunteer": {
       "source": {
         "object": "dbo.Volunteers",
@@ -141,7 +119,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer"
+        "path": "/volunteers"
       },
       "permissions": [
         {

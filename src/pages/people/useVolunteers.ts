@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Volunteer } from '../../types/interfaces';
 
-const VOLUNTEERS_API = '/data-api/rest/volunteer';
+const VOLUNTEERS_API = '/data-api/rest/volunteers';
 const HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',
@@ -23,7 +23,6 @@ const useVolunteers = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log('Fetched volunteers:', data.value);
       setOriginalData(data.value);
       setFilteredData(data.value);
     } catch (error) {

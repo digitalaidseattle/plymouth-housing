@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Box } from '@mui/material';
 import { KeyboardArrowUp } from '@mui/icons-material';
 
@@ -9,19 +9,18 @@ interface ScrollToTopButtonProps {
 const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ showAfter = 300 }) => {
   const [visible, setVisible] = useState(false);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (window.scrollY > showAfter) {
       setVisible(true);
     } else {
       setVisible(false);
     }
-  };
+  },[showAfter]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleScroll]);
 
   const scrollToTop = () => {
     const element = document.getElementById('top'); // Add 'top' as the target id

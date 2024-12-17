@@ -19,10 +19,6 @@ export type CheckoutCardProps = {
   removeItemFromCart: (itemId: number) => void;
   removeButton: boolean;
 };
-export type Item = {
-    id: string;
-    name: string;
-  }
 
 export interface UserContextType {
   user: IdTokenClaims | null;
@@ -58,11 +54,4 @@ export type Volunteer = {
   created_at: string;
   last_signed_in: string | null;
   PIN: string;
-};
-
-
-export type CategoryType = {
-  id: number,
-  name: string,
-  check_limit: number,
 };

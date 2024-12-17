@@ -32,8 +32,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, checkoutItems]);
 
 
   const handleCancel = () => {

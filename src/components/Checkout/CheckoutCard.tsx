@@ -2,7 +2,7 @@ import { Card, CardContent, CardActions, Typography, Tooltip } from '@mui/materi
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 
-const CheckoutCard = ({ item, checkoutItems, addItemToCart }: CheckoutCardProps) => {
+const CheckoutCard = ({ item, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CheckoutCardProps) => {
 
   return (
     <Card key={item.name}
@@ -22,7 +22,7 @@ const CheckoutCard = ({ item, checkoutItems, addItemToCart }: CheckoutCardProps)
         </Tooltip>
       </CardContent>
       <CardActions style={{ border: '1px red blue' }}>
-        <ItemQuantityButton item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} />
+        <ItemQuantityButton item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton}/>
       </CardActions>
     </Card>
   )

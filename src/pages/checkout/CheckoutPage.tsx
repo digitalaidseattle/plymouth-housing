@@ -17,7 +17,6 @@ import { Search, Add, Remove } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
 import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
-import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 
@@ -125,7 +124,7 @@ const CheckoutPage = () => {
         </div>
       </div> */}
         {data.map((category) => (
-          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={false}/>
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
 

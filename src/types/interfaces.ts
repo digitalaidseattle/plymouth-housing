@@ -16,6 +16,8 @@ export type CheckoutCardProps = {
   item: CheckoutItemProp;
   checkoutItems: CheckoutItemProp[];
   addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
+  removeItemFromCart: (itemId: string) => void;
+  removeButton: boolean;
 };
 export type Item = {
     id: string;

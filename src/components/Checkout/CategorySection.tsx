@@ -6,13 +6,11 @@ type CategorySectionProps = {
   category: CategoryProps;
   checkoutItems: CheckoutItemProp[];
   addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
+  removeItemFromCart: (itemId: string) => void;
+  removeButton: boolean;
 };
 
-const CategorySection = ({
-  category,
-  checkoutItems,
-  addItemToCart
-}: CategorySectionProps) => {
+const CategorySection = ({category, checkoutItems, addItemToCart, removeItemFromCart, removeButton}: CategorySectionProps) => {
   return (
     <Box>
       <h3 style={{ margin: '20px 20px' }}>{category.category}</h3>
@@ -24,7 +22,7 @@ const CategorySection = ({
         }}
       >
         {category.items.map((item) => (
-          <CheckoutCard key={item.id} item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
+          <CheckoutCard key={item.id} item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton}/>
         ))}
       </Box>
     </Box>

@@ -72,8 +72,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       <DialogContent dividers style={{ width: '500px' }}>
         {checkoutItems.map((item: CheckoutItemProp) => (
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} />
-            <Button onClick={() => removeItemFromCart(item.id)}>Remove</Button>
+            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} />
           </Box>
         ))}
       </DialogContent>

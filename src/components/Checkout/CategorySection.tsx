@@ -1,6 +1,6 @@
 import CheckoutCard from './CheckoutCard';
 import { CategoryProps, CheckoutItemProp } from "../../types/interfaces";
-import { Box } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
 type CategorySectionProps = {
   category: CategoryProps;
@@ -10,11 +10,11 @@ type CategorySectionProps = {
   removeButton: boolean;
 };
 
-const CategorySection = ({category, checkoutItems, addItemToCart, removeItemFromCart, removeButton}: CategorySectionProps) => {
+const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CategorySectionProps) => {
   return (
     <Box>
       <h3 style={{ margin: '20px 20px' }}>{category.category}</h3>
-      <Box
+      <Grid container spacing={2}
         style={{
           display: 'flex',
           flexDirection: 'row',
@@ -22,9 +22,11 @@ const CategorySection = ({category, checkoutItems, addItemToCart, removeItemFrom
         }}
       >
         {category.items.map((item) => (
-          <CheckoutCard key={item.id} item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton}/>
+          <Grid item xs={12} sm={6} md={4} key={item.id}>
+            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} />
+          </Grid>
         ))}
-      </Box>
+      </Grid>
     </Box>
   )
 }

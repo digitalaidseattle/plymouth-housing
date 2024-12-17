@@ -50,6 +50,14 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
   return (
     <Dialog
+      sx={{
+        '& .MuiDialog-paper': {
+          width: '70vh', // Custom width
+          height: '70vh', // Custom height
+          maxWidth: '90vw', // Ensure responsiveness
+          maxHeight: '90vh', // Prevent it from overflowing the screen
+        },
+      }}
       onClose={onClose}
       aria-labelledby="customized-dialog-title"
       open={open}
@@ -69,9 +77,9 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       >
         <Close />
       </IconButton>
-      <DialogContent dividers style={{ width: '500px' }}>
+      <DialogContent dividers sx={{ width: '100%', overflowY: 'auto' }}>
         {checkoutItems.map((item: CheckoutItemProp) => (
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} />
           </Box>
         ))}

@@ -28,7 +28,7 @@ const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFrom
       >
         <Add />
       </IconButton>
-      {removeButton ? <Button onClick={() => removeItemFromCart(item.id)}>Remove</Button> : null}
+      {removeButton ? <Button sx={{ ml: '5vh' }} onClick={() => removeItemFromCart(item.id)}>Remove</Button> : null}
     </Box>
   );
 };

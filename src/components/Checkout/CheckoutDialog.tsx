@@ -20,17 +20,11 @@ type CheckoutDialogProps = {
   removeItemFromCart: (itemId: number) => void;
   addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
   setCheckoutItems: (items: CheckoutItemProp[]) => void;
+  selectedBuildingCode: string;
   // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
 };
 
-const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
-  open,
-  onClose,
-  checkoutItems,
-  setCheckoutItems,
-  removeItemFromCart,
-  addItemToCart,
-}) => {
+const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
 
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItemProp[]>([]);
 
@@ -67,8 +61,8 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
-          <Typography>Building code: { }</Typography>
-          <Typography>Total Items Checked Out: { }</Typography>
+          <Typography>Building code: {selectedBuildingCode}</Typography>
+          <Typography>Total Items Checked Out: {checkoutItems.length}</Typography>
         </Box>
         <IconButton
           aria-label="close"
@@ -95,7 +89,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           ))}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancel}>Cancel</Button>
+          <Button onClick={handleCancel}>Return to Checkout Page</Button>
           <Button autoFocus>Confirm</Button>
         </DialogActions>
       </Box>

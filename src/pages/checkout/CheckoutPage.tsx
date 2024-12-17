@@ -125,6 +125,7 @@ const CheckoutPage = () => {
           addItemToCart={(item, quantity) => addItemToCart(item, quantity, activeSection)}
           setCheckoutItems={setCheckoutItems}
           removeItemFromCart={removeItemFromCart}
+          selectedBuildingCode={selectedBuildingCode}
         />
       </Box>
     </Box>

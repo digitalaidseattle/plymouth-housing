@@ -20,6 +20,7 @@ import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
 import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
+import Typography from '../../themes/overrides/Typography';
 
 const API = "/data-api/rest/itemsbycategory";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', };
@@ -28,7 +29,7 @@ const CheckoutPage = () => {
   const [data, setData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
-  // const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
+  const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
 
   const removeItemFromCart = (itemId: string) => {
     setCheckoutItems(
@@ -79,66 +80,69 @@ const CheckoutPage = () => {
   }, [])
 
   return (
-    <Grid container sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
-      {/* <h2>Check out</h2>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'end',
-        }}
-      >
-        <div>
-          <FormControl style={{ width: '150px' }}>
-            <InputLabel id="select-building-code-label">
-              Building Code
-            </InputLabel>
-            <Select
-              labelId="select-building-code-label"
-              id="select-building-code"
-              data-testid="test-id-select-building-code"
-              label="Building Code"
-              value={selectedBuildingCode || ''}
-              onChange={(event) => setSelectedBuildingCode(event.target.value)}
-            >
-              {buildingCodes.map((buildingCode) => (
-                <MenuItem key={buildingCode.code} value={buildingCode.code}>
-                  {buildingCode.code} ({buildingCode.name})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        <div>
-          <TextField
-            variant="standard"
-            placeholder="Search..."
-            type="search"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </div>
-      </div> */}
+    <Box>
+      <Box>
+        <Box
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'end',
+          }}
+        >
+          <Box>
+            <FormControl style={{ width: '150px' }}>
+              <InputLabel id="select-building-code-label">
+                Building Code
+              </InputLabel>
+              <Select
+                labelId="select-building-code-label"
+                id="select-building-code"
+                data-testid="test-id-select-building-code"
+                label="Building Code"
+                value={selectedBuildingCode || ''}
+                onChange={(event) => setSelectedBuildingCode(event.target.value)}
+              >
+                {buildingCodes.map((buildingCode) => (
+                  <MenuItem key={buildingCode.code} value={buildingCode.code}>
+                    {buildingCode.code} ({buildingCode.name})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box>
+            <TextField
+              variant="standard"
+              placeholder="Search..."
+              type="search"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+        </Box>
+      </Box>
+      <Grid container sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
         {data.map((category) => (
-          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={false}/>
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={false} />
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
 
-      <CheckoutDialog
-        open={openSummary}
-        onClose={() => setOpenSummary(false)}
-        checkoutItems={checkoutItems}
-        addItemToCart={addItemToCart}
-        setCheckoutItems={setCheckoutItems}
-        removeItemFromCart={removeItemFromCart}
+        <CheckoutDialog
+          open={openSummary}
+          onClose={() => setOpenSummary(false)}
+          checkoutItems={checkoutItems}
+          addItemToCart={addItemToCart}
+          setCheckoutItems={setCheckoutItems}
+          removeItemFromCart={removeItemFromCart}
         // renderItemQuantityButtons={renderItemQuantityButtons}
-      />
-    </Grid>
+        />
+      </Grid>
+    </Box>
   );
 };
 

@@ -8,13 +8,16 @@ import {
   InputAdornment,
   Box,
   Grid,
+  Typography
 } from '@mui/material';
-import { Search, Add, Remove, Typography } from '@mui/icons-material';
+import { Search, Add, Remove } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
-import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
+import { buildingCodes, welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
+import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
+import SearchBar from '../../components/Checkout/SearchBar';
 
 const API = "/data-api/rest/itemsbycategory";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', };
@@ -25,7 +28,7 @@ const CheckoutPage = () => {
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
 
-  const removeItemFromCart = (itemId: string) => {
+  const removeItemFromCart = (itemId: number) => {
     setCheckoutItems(
       checkoutItems.filter(
         (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
@@ -62,6 +65,7 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
+      console.log(data.value);
       setData(data.value);
     }
     catch (error) {
@@ -75,52 +79,16 @@ const CheckoutPage = () => {
 
   return (
     <Box>
-      <Box>
-        <Box
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'end',
-          }}
-        >
-          <Box>
-            <FormControl style={{ width: '150px' }}>
-              <InputLabel id="select-building-code-label">
-                Building Code
-              </InputLabel>
-              <Select
-                labelId="select-building-code-label"
-                id="select-building-code"
-                data-testid="test-id-select-building-code"
-                label="Building Code"
-                value={selectedBuildingCode || ''}
-                onChange={(event) => setSelectedBuildingCode(event.target.value)}
-              >
-                {buildingCodes.map((buildingCode) => (
-                  <MenuItem key={buildingCode.code} value={buildingCode.code}>
-                    {buildingCode.code} ({buildingCode.name})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <Box>
-            <TextField
-              variant="standard"
-              placeholder="Search..."
-              type="search"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
-        </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
+        <BuildingCodeSelect buildingCodes={buildingCodes} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
+        <SearchBar />
       </Box>
-      <Grid container sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
+      <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
+        <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
+        {welcomeBasketData.map((category) => (
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={false} />
+        ))}
+        <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
         {data.map((category) => (
           <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={false} />
         ))}
@@ -135,7 +103,7 @@ const CheckoutPage = () => {
           removeItemFromCart={removeItemFromCart}
         // renderItemQuantityButtons={renderItemQuantityButtons}
         />
-      </Grid>
+      </Box>
     </Box>
   );
 };

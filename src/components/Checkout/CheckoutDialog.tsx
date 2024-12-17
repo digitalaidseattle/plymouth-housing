@@ -17,7 +17,7 @@ type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
   checkoutItems: CheckoutItemProp[];
-  removeItemFromCart: (itemId: string) => void;
+  removeItemFromCart: (itemId: number) => void;
   addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
   setCheckoutItems: (items: CheckoutItemProp[]) => void;
   // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;

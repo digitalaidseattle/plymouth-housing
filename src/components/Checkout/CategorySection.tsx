@@ -6,7 +6,7 @@ type CategorySectionProps = {
   category: CategoryProps;
   checkoutItems: CheckoutItemProp[];
   addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
-  removeItemFromCart: (itemId: string) => void;
+  removeItemFromCart: (itemId: number) => void;
   removeButton: boolean;
 };
 

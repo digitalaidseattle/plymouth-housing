@@ -14,7 +14,7 @@ import {
   Box,
 } from '@mui/material';
 import { Search, Add, Remove } from '@mui/icons-material';
-import { CheckoutItem } from '../../types/interfaces';
+import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
 import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
@@ -25,22 +25,22 @@ const API = "/data-api/rest/itemsbycategory";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', };
 
 const CheckoutPage = () => {
-  const [data, setData] = useState<[]>([]);
-  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
+  const [data, setData] = useState<CategoryProps[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   // const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
 
   const removeItemFromCart = (itemId: string) => {
     setCheckoutItems(
       checkoutItems.filter(
-        (addedItem: CheckoutItem) => addedItem.id !== itemId,
+        (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
       ),
     );
   };
 
-  const addItemToCart = (item: CheckoutItem, quantity: number) => {
+  const addItemToCart = (item: CheckoutItemProp, quantity: number) => {
     const foundIndex = checkoutItems.findIndex(
-      (addedItem: CheckoutItem) => addedItem.id === item.id,
+      (addedItem: CheckoutItemProp) => addedItem.id === item.id,
     );
     if (foundIndex !== -1) {
       const foundItem = checkoutItems[foundIndex];
@@ -125,17 +125,19 @@ const CheckoutPage = () => {
         </div>
       </div> */}
         {data.map((category) => (
-          <CategorySection category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart}/>
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
 
-      {/* <CheckoutDialog
+      <CheckoutDialog
         open={openSummary}
         onClose={() => setOpenSummary(false)}
         checkoutItems={checkoutItems}
+        addItemToCart={addItemToCart}
+        setCheckoutItems={setCheckoutItems}
         removeItemFromCart={removeItemFromCart}
         // renderItemQuantityButtons={renderItemQuantityButtons}
-      /> */}
+      />
     </Box>
   );
 };

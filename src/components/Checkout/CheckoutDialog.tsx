@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,25 +6,48 @@ import {
   DialogActions,
   IconButton,
   Button,
+  Typography,
+  Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CheckoutItem } from '../../types/interfaces';
+import { CheckoutItemProp } from '../../types/interfaces';
+import CheckoutCard from './CheckoutCard';
 
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  checkoutItems: CheckoutItem[];
+  checkoutItems: CheckoutItemProp[];
   removeItemFromCart: (itemId: string) => void;
-  renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
+  addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
+  setCheckoutItems: (items: CheckoutItemProp[]) => void;
+  // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
 };
 
 const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   open,
   onClose,
   checkoutItems,
+  setCheckoutItems,
   removeItemFromCart,
+  addItemToCart,
   // renderItemQuantityButtons,
 }) => {
+
+  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItemProp[]>([]);
+
+  useEffect(() => {
+    if (open) {
+      setOriginalCheckoutItems([...checkoutItems]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+
+  const handleCancel = () => {
+    setCheckoutItems(originalCheckoutItems);
+    onClose();
+  };
+
   return (
     <Dialog
       onClose={onClose}
@@ -32,7 +55,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       open={open}
     >
       <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        <span style={{ fontSize: '1.5rem' }}>Checkout Summary</span>
+        <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
       </DialogTitle>
       <IconButton
         aria-label="close"
@@ -47,42 +70,15 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         <Close />
       </IconButton>
       <DialogContent dividers style={{ width: '500px' }}>
-        {checkoutItems.map((item: CheckoutItem) => (
-          <div
-            key={item.id}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderRadius: '10px',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                width: '370px',
-                alignItems: 'center',
-              }}
-            >
-              <div>
-                <h4>{item.name}</h4>
-              </div>
-              {/* {renderItemQuantityButtons(item)} */}
-            </div>
-            <div>
-              <Button
-                variant="text"
-                onClick={() => removeItemFromCart(item.id)}
-              >
-                Remove
-              </Button>
-            </div>
-          </div>
+        {checkoutItems.map((item: CheckoutItemProp) => (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} />
+            <Button onClick={() => removeItemFromCart(item.id)}>Remove</Button>
+          </Box>
         ))}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleCancel}>Cancel</Button>
         <Button autoFocus>Confirm</Button>
       </DialogActions>
     </Dialog>

@@ -1,10 +1,10 @@
-import { CheckoutItem } from '../../types/interfaces';
+import { CheckoutItemProp } from '../../types/interfaces';
 import { Box, Button, Typography } from '@mui/material';
 import { DrawerOpenContext } from '../contexts/DrawerOpenContext';
 import { useContext } from 'react';
 
 type CheckoutItemsProp = {
-  checkoutItems: CheckoutItem[];
+  checkoutItems: CheckoutItemProp[];
   setOpenSummary: (open: boolean) => void;
 }
 

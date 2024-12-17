@@ -6,21 +6,15 @@ import {
   InputLabel,
   TextField,
   InputAdornment,
-  Card,
-  CardActions,
-  CardContent,
-  IconButton,
-  Button,
   Box,
   Grid,
 } from '@mui/material';
-import { Search, Add, Remove } from '@mui/icons-material';
+import { Search, Add, Remove, Typography } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
 import { buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
-import Typography from '../../themes/overrides/Typography';
 
 const API = "/data-api/rest/itemsbycategory";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', };

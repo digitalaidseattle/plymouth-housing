@@ -19,7 +19,7 @@ const CheckoutPage = () => {
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string>('');
 
   const removeItemFromCart = (itemId: number) => {
     setCheckoutItems(
@@ -58,7 +58,7 @@ const CheckoutPage = () => {
 
       // Reset activeSection if the cart becomes empty
       if (updatedItems.length === 0) {
-        setActiveSection(null);
+        setActiveSection('');
       }
     }
   };
@@ -106,13 +106,13 @@ const CheckoutPage = () => {
         <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
         {welcomeBasketData.map((category) => (
           <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'welcomeBasket')} removeItemFromCart={removeItemFromCart} removeButton={false}
-          disabled={activeSection !== null && activeSection !== 'welcomeBasket'}
+          disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
           />
         ))}
         <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
         {filteredData.map((category) => (
           <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'general')} removeItemFromCart={removeItemFromCart} removeButton={false}
-          disabled={activeSection !== null && activeSection !== 'general'}
+          disabled={activeSection !== '' && activeSection !== 'general'}
           />
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
@@ -122,7 +122,7 @@ const CheckoutPage = () => {
           open={openSummary}
           onClose={() => setOpenSummary(false)}
           checkoutItems={checkoutItems}
-          addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'dialog')}
+          addItemToCart={(item, quantity) => addItemToCart(item, quantity, activeSection)}
           setCheckoutItems={setCheckoutItems}
           removeItemFromCart={removeItemFromCart}
         />

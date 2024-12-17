@@ -51,42 +51,54 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     <Dialog
       sx={{
         '& .MuiDialog-paper': {
-          width: '70vh',
-          height: '70vh',
-          maxWidth: '90vw',
-          maxHeight: '90vh',
+          width: '50vw',
+          minHeight: '60vh',
+          display: 'flex',
+          alignItems: 'center',
+          borderRadius: '10px'
         },
       }}
       onClose={onClose}
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
-      </DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <Close />
-      </IconButton>
-      <DialogContent dividers sx={{ width: '100%', overflowY: 'auto' }}>
-        {checkoutItems.map((item: CheckoutItemProp) => (
-          <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} />
-          </Box>
-        ))}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleCancel}>Cancel</Button>
-        <Button autoFocus>Confirm</Button>
-      </DialogActions>
+      <Box sx={{ width: '80%', paddingTop: '20px' }}>
+        <DialogTitle sx={{ padding: '20px 0px 0px 0px' }} id="customized-dialog-title">
+          <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
+        </DialogTitle>
+        <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
+          <Typography>Building code: { }</Typography>
+          <Typography>Total Items Checked Out: { }</Typography>
+        </Box>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <Close />
+        </IconButton>
+        <DialogContent dividers sx={{
+          flex: 1, // Allows this area to expand
+          overflowY: 'auto', // Enables vertical scrolling
+          padding: '0 20px',
+          maxHeight: '40vh', // Adjust maxHeight based on title/footer space
+        }}>
+          {checkoutItems.map((item: CheckoutItemProp) => (
+            <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
+              <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} />
+            </Box>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel}>Cancel</Button>
+          <Button autoFocus>Confirm</Button>
+        </DialogActions>
+      </Box>
     </Dialog>
   );
 };

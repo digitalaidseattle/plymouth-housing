@@ -12,7 +12,7 @@ import {
   Paper,
   Popper,
   Stack,
-  Tabs,
+//   Tabs,
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -73,6 +73,7 @@ const Profile = () => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
   const [username, setUsername] = useState<string>('');
+  const [role, setRole] = useState<string>(''); // New state for role
   // const [avatar, setAvatar] = useState<string>(''); //TODO add avatar
   const { instance } = useMsal();
 
@@ -80,6 +81,7 @@ const Profile = () => {
     if (user) {
       // setAvatar(user.user_metadata.avatar_url) //TODO add avatar
       setUsername(user.name ?? 'Null');
+      setRole(user.roles ? user.roles[0] : ''); // Set the role based on user context
     }
   }, [user]);
 
@@ -105,11 +107,13 @@ const Profile = () => {
     setOpen(false);
   };
 
-  const [value, setValue] = useState(0);
+    // hide two tabs for MVP
+//   const [value, setValue] = useState(0);
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+
+//   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+//     setValue(newValue);
+//   };
 
   const iconBackColorOpen = 'grey.300';
 
@@ -191,23 +195,24 @@ const Profile = () => {
                             <Stack>
                               <Typography variant="h6">{username}</Typography>
                               <Typography variant="body2" color="textSecondary">
-                                Dude
+                                {role === 'admin' ? 'admin' : 'volunteer'}
                               </Typography>
                             </Stack>
                           </Stack>
-                        </Grid>
-                        <Grid item>
-                         <IconButton
-                            size="large"
-                            color="secondary"
-                            onClick={handleLogout}
-                          >
-                            <LogoutOutlined />
+                          <IconButton
+                             size="large"
+                             color="secondary"
+                             onClick={handleLogout}
+                             >
+                              <LogoutOutlined />
+                              <Typography variant="subtitle1" sx={{ ml: 1 }}>
+                                 Log out
+                              </Typography>
                           </IconButton>
                         </Grid>
                       </Grid>
                     </CardContent>
-                    {open && (
+                    {/* {open && (
                       <>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                           <Tabs
@@ -216,7 +221,7 @@ const Profile = () => {
                             onChange={handleChange}
                             aria-label="profile tabs"
                           >
-                            {/* <Tab
+                             <Tab
                               sx={{
                                 display: 'flex',
                                 flexDirection: 'row',
@@ -253,7 +258,7 @@ const Profile = () => {
                               }
                               label="Setting"
                               {...a11yProps(1)}
-                            /> */}
+                            />
                           </Tabs>
                         </Box>
                         {/* <TabPanel value={value} index={0} dir={theme.direction}>
@@ -261,9 +266,9 @@ const Profile = () => {
                         </TabPanel>
                         <TabPanel value={value} index={1} dir={theme.direction}>
                           <SettingTab />
-                        </TabPanel>  */}
+                        </TabPanel>
                       </>
-                    )}
+                    )}  */}
                   </MainCard>
                 </ClickAwayListener>
               </Paper>

@@ -13,7 +13,7 @@ type CategorySectionProps = {
 const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CategorySectionProps) => {
   return (
     <Box sx={{paddingLeft: '5%', paddingRight: '5%'}}>
-      <Typography sx={{ fontSize: '24px', marginY: '3%' }}>{category.category}</Typography>
+      <Typography sx={{ fontSize: '20px', marginY: '3%' }}>{category.category}</Typography>
       <Grid container spacing={2}
         style={{
           display: 'flex',

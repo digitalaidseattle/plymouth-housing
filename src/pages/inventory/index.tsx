@@ -271,8 +271,8 @@ const Inventory = () => {
             onClose={handleTypeClose}
             anchorEl={anchorType}
           >
-            <MenuItem onClick={() => handleMenuTypeClick('Donation')}>
-              Donation
+            <MenuItem onClick={() => handleMenuTypeClick('General')}>
+              General
             </MenuItem>
             <MenuItem onClick={() => handleMenuTypeClick('Welcome Basket')}>
               Welcome Basket

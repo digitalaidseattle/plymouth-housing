@@ -1,15 +1,16 @@
 import React, { useState, useContext } from 'react';
 import { Menu, MenuItem, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { VolunteerIdName } from '../../../../types/interfaces';
-import { UserContext, getRole } from '../../../../components/contexts/UserContext';
-
-
+import {
+  UserContext,
+  getRole,
+} from '../../../../components/contexts/UserContext';
+import { Volunteer } from '../../../../types/interfaces';
 
 const VolunteerSwitcher: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-  const {loginedVolunteer, activatedVolunteers, user  } = useContext(UserContext);
+  const { loggedInVolunteer, activeVolunteers, user } = useContext(UserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -19,12 +20,12 @@ const VolunteerSwitcher: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleSelect = (selectedVolunteer: VolunteerIdName) => {
+  const handleSelect = (selectedVolunteer: Volunteer) => {
     navigate('/enter-your-pin', {
-      state: { 
+      state: {
         volunteerId: selectedVolunteer.id,
         role: getRole(user),
-        volunteers: activatedVolunteers 
+        volunteers: activeVolunteers,
       },
     });
     handleClose();
@@ -43,10 +44,10 @@ const VolunteerSwitcher: React.FC = () => {
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          px: 2, 
+          px: 2,
         }}
       >
-        {loginedVolunteer?.name || 'Select Volunteer'}  ▼
+        {loggedInVolunteer?.name || 'Select Volunteer'} ▼
       </Button>
       <Menu
         id="user-menu"
@@ -56,12 +57,12 @@ const VolunteerSwitcher: React.FC = () => {
         MenuListProps={{
           'aria-labelledby': 'user-button',
         }}
-        >
-        {activatedVolunteers
-          .filter((v) => v.id !== loginedVolunteer?.id)
+      >
+        {activeVolunteers
+          .filter((v) => v.id !== loggedInVolunteer?.id)
           .map((volunteer) => (
-            <MenuItem 
-              key={volunteer.id} 
+            <MenuItem
+              key={volunteer.id}
               onClick={() => handleSelect(volunteer)}
             >
               {volunteer.name}

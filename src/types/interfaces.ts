@@ -1,30 +1,30 @@
 import { IdTokenClaims } from '@azure/msal-common';
 
 export type CheckoutItem = {
-    id: string;
-    name: string;
-    quantity: number;
-  }
+  id: string;
+  name: string;
+  quantity: number;
+};
 
 export type Item = {
-    id: string;
-    name: string;
-  }
-  
+  id: string;
+  name: string;
+};
+
 export interface UserContextType {
   user: IdTokenClaims | null;
   setUser: (user: IdTokenClaims) => void;
-  loginedVolunteer: Volunteer| null;
-  setLoginedVolunteer: (loginedVolunteerName: Volunteer | null) => void;
-  activatedVolunteers: Volunteer[];
-  setActivatedVolunteers: (activateVolunteer: Volunteer[]) => void;
+  loggedInVolunteer: Volunteer | null;
+  setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
+  activeVolunteers: Volunteer[];
+  setActiveVolunteers: (activeVolunteers: Volunteer[]) => void;
 }
 
 export type InventoryItem = {
   id: number;
   name: string;
   type: string;
-  description: string, 
+  description: string;
   quantity: number;
   category: string;
   status: string;
@@ -45,13 +45,8 @@ export type AddVolunteerModalProps = {
 export type Volunteer = {
   id: number;
   name: string;
-  active: boolean| null;
-  created_at: string| null;
+  active: boolean | null;
+  created_at: string;
   last_signed_in: string | null;
-  PIN: string| null;
+  PIN: string | null;
 };
-
-export type  VolunteerIdName = {
-  id: number;
-  name: string;
-}

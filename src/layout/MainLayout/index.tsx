@@ -24,9 +24,7 @@ import { RefreshContextProvider } from '../../components/contexts/RefreshContext
 import { UserContext } from '../../components/contexts/UserContext';
 import { useMsal } from '@azure/msal-react';
 import { IdTokenClaims } from '@azure/msal-common';
-import {VolunteerIdName} from '../../types/interfaces';
-
-
+import { Volunteer } from '../../types/interfaces';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
@@ -35,8 +33,10 @@ const MainLayout: React.FC = () => {
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const [user, setUser] = useState<IdTokenClaims | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const [loginedVolunteer, setLoginedVolunteer] = useState<VolunteerIdName|null>(null);
-  const [activatedVolunteers, setActivatedVolunteers] = useState<VolunteerIdName[]>([]);
+  const [loggedInVolunteer, setLoggedInVolunteer] = useState<Volunteer | null>(
+    null,
+  );
+  const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
   const location = useLocation();
   const { volunteerId, volunteers } = location.state || {};
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ const MainLayout: React.FC = () => {
         navigate('/login');
         return;
       }
-  
+
       try {
         const tokenResponse = await instance.acquireTokenSilent({
           account: account,
@@ -60,17 +60,17 @@ const MainLayout: React.FC = () => {
         const userClaims = tokenResponse.idTokenClaims;
         setUser(userClaims || null);
 
-        if (volunteers?.length > 0 && activatedVolunteers.length === 0) {
-          setActivatedVolunteers(volunteers);
+        if (volunteers?.length > 0 && activeVolunteers.length === 0) {
+          setActiveVolunteers(volunteers);
         }
 
-      // Find and set the current volunteer's name
-      if (volunteerId && volunteers?.length > 0) {
+        // Find and set the current volunteer's name
+        if (volunteerId && volunteers?.length > 0) {
           const currentVolunteer = volunteers.find(
-            (v: VolunteerIdName) => v.id === volunteerId
+            (v: Volunteer) => v.id === volunteerId,
           );
           if (currentVolunteer) {
-            setLoginedVolunteer(currentVolunteer);
+            setLoggedInVolunteer(currentVolunteer);
           }
         }
       } catch (error) {
@@ -78,10 +78,9 @@ const MainLayout: React.FC = () => {
         navigate('/login');
       }
     };
-  
-    fetchTokenAndVolunteers();
-  }, [instance, navigate, volunteerId, volunteers, activatedVolunteers.length]);
 
+    fetchTokenAndVolunteers();
+  }, [instance, navigate, volunteerId, volunteers, activeVolunteers.length]);
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -97,10 +96,10 @@ const MainLayout: React.FC = () => {
       value={{
         user,
         setUser,
-        loginedVolunteer,
-        setLoginedVolunteer,
-        activatedVolunteers,
-        setActivatedVolunteers,
+        loggedInVolunteer: loggedInVolunteer,
+        setLoggedInVolunteer: setLoggedInVolunteer,
+        activeVolunteers: activeVolunteers,
+        setActiveVolunteers: setActiveVolunteers,
       }}
     >
       {user && (

@@ -11,7 +11,7 @@ const CheckoutCard = ({ item, checkoutItems, addItemToCart, removeItemFromCart, 
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '90%',
-        height: '100px',
+        minHeight: '10vh',
         borderRadius: '10px',
       }}
     >

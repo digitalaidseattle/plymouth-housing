@@ -1,1 +1,1 @@
-Select * FROM InventoryWithCategory;
+Select * FROM ItemsByCategory;

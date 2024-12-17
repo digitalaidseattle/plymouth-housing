@@ -14,10 +14,10 @@ export type Item = {
 export interface UserContextType {
   user: IdTokenClaims | null;
   setUser: (user: IdTokenClaims) => void;
-  loginedVolunteer: VolunteerIdName| null;
-  setLoginedVolunteer: (loginedVolunteerName: VolunteerIdName | null) => void;
-  activatedVolunteers: VolunteerIdName[];
-  setActivatedVolunteers: (activateVolunteer: VolunteerIdName[]) => void;
+  loginedVolunteer: Volunteer| null;
+  setLoginedVolunteer: (loginedVolunteerName: Volunteer | null) => void;
+  activatedVolunteers: Volunteer[];
+  setActivatedVolunteers: (activateVolunteer: Volunteer[]) => void;
 }
 
 export type InventoryItem = {
@@ -45,12 +45,11 @@ export type AddVolunteerModalProps = {
 export type Volunteer = {
   id: number;
   name: string;
-  active: boolean;
-  created_at: string;
+  active: boolean| null;
+  created_at: string| null;
   last_signed_in: string | null;
-  PIN: string;
+  PIN: string| null;
 };
-
 
 export type  VolunteerIdName = {
   id: number;

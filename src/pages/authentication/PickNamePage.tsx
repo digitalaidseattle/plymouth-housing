@@ -15,14 +15,14 @@ import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants'
 import { IdTokenClaims } from '@azure/msal-common';
 import { useMsal } from '@azure/msal-react';
-import {VolunteerIdName} from '../../types/interfaces';
+import {Volunteer} from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<VolunteerIdName | null>(null);
-  const [volunteers, setVolunteers] = useState<VolunteerIdName[]>([]);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [loginedVolunteer, setLoginedVolunteer] = useState<VolunteerIdName|null>(null);
-  const [activatedVolunteers, setActivatedVolunteers] = useState<VolunteerIdName[]>([]);
+  const [loginedVolunteer, setLoginedVolunteer] = useState<Volunteer|null>(null);
+  const [activatedVolunteers, setActivatedVolunteers] = useState<Volunteer[]>([]);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
@@ -88,7 +88,7 @@ const PickYourNamePage: React.FC = () => {
 
   const handleNameChange =  (
     _event: React.SyntheticEvent,
-    value: VolunteerIdName | null,
+    value: Volunteer | null,
   ) => {
     setSelectedVolunteer(value);
   };

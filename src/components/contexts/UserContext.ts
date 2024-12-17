@@ -13,10 +13,10 @@ import { UserContextType } from '../../types/interfaces';
 export const UserContext = createContext<UserContextType>({
   user: null,
   setUser: () => {},
-  loginedVolunteer: null, 
-  setLoginedVolunteer: () => {},
-  activatedVolunteers: [],
-  setActivatedVolunteers: () => {},
+  loggedInVolunteer: null, 
+  setLoggedInVolunteer: () => {},
+  activeVolunteers: [],
+  setActiveVolunteers: () => {},
 });
 
 export function getRole(user: IdTokenClaims | null): string{

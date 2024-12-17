@@ -16,8 +16,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
-import { InventoryItem } from '../../types/interfaces.ts';
-import { CategoryType } from '../../types/interfaces.ts';
+import { CategoryType, InventoryItem } from '../../types/interfaces.ts';
 
 
 const API = '/data-api/rest/inventorywithcategory';

@@ -1,4 +1,3 @@
-import React from 'react'
 import { CategoryProps } from '../../types/interfaces'
 import { Box, Button} from '@mui/material';
 

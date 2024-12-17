@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
 import { useState } from 'react';
-import { InventoryItem } from '../../types/interfaces.ts';
+import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { DASSnackbar } from '../DASSnackbar.tsx';
 
 type FormData = {
@@ -16,14 +16,14 @@ type AddItemModalProps = {
   addModal: boolean;
   handleAddClose: () => void;
   fetchData: () => void;
-  uniqueCategories: string[];
+  categories: CategoryItem[];
   originalData: InventoryItem[];
 }
 
 const API = "/data-api/rest/item";
 const HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=utf-8', }; //TODO The server is denying me access to post. In the swa config file, if I add 'create' to the anonymous role, it will grant access. Needs to be updated later.
 
-const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, originalData }: AddItemModalProps) => {
+const AddItemModal = ({ addModal, handleAddClose, fetchData, categories, originalData }: AddItemModalProps) => {
 
   const [updateId, setUpdateId] = useState<number>();
   const [updateItem, setUpdateItem] = useState<InventoryItem | string | null>('');
@@ -213,9 +213,9 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
               onChange={(e) => handleInputChange('category', e.target.value)}
               sx={{ width: '100%' }}
             >
-              {uniqueCategories.map((category: string) => (
-                <MenuItem key={category} value={category}>
-                  {category}
+              {categories.map((category: CategoryItem) => (
+                <MenuItem key={category.id} value={category.name}>
+                  {category.name}
                 </MenuItem>
               ))}
             </Select>
@@ -237,6 +237,5 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, uniqueCategories, o
   )
 
 }
-
 
 export default AddItemModal;

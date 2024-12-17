@@ -28,7 +28,7 @@ describe('CheckoutPage', () => {
 
   it('renders the checkout page correctly', () => {
     // Check if the heading is rendered
-    expect(screen.getByText(/Checkout/i)).toBeInTheDocument();
+    expect(screen.getByText('Checkout')).toBeInTheDocument();
 
     // Check if categories and items are rendered
     // expect(screen.getByText(/Electronics/i)).toBeInTheDocument();

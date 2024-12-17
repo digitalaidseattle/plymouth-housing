@@ -1,6 +1,6 @@
 import CheckoutCard from './CheckoutCard';
 import { CategoryProps, CheckoutItemProp } from "../../types/interfaces";
-import { Box, Grid } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 
 type CategorySectionProps = {
   category: CategoryProps;
@@ -12,8 +12,8 @@ type CategorySectionProps = {
 
 const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CategorySectionProps) => {
   return (
-    <Box>
-      <h3 style={{ margin: '20px 20px' }}>{category.category}</h3>
+    <Box sx={{paddingLeft: '5%', paddingRight: '5%'}}>
+      <Typography sx={{ fontSize: '24px', marginY: '3%' }}>{category.category}</Typography>
       <Grid container spacing={2}
         style={{
           display: 'flex',

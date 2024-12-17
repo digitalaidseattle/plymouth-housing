@@ -1,5 +1,5 @@
 import { Remove, Add } from "@mui/icons-material";
-import { Box, Button, IconButton } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material";
 import { CheckoutCardProps, CheckoutItemProp } from "../../types/interfaces";
 
 const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CheckoutCardProps) => {
@@ -11,19 +11,19 @@ const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFrom
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', overflow: 'hidden' }}>
       {foundInCart ? <><IconButton
-        style={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
+        sx={{ backgroundColor: '#E8E8E8', width: '34px', height: '34px' }}
         onClick={() => addItemToCart(item, -1)}
       >
         <Remove />
       </IconButton>
-        <Box
-          style={{ fontWeight: 'bold', margin: '0 10px' }}
+        <Typography
+          sx={{ margin: '0 15px' }}
           data-testid="test-id-quantity"
         >
           {foundInCart.quantity}
-        </Box></> : null}
+        </Typography></> : null}
       <IconButton
-        style={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
+        style={{ backgroundColor: '#E8E8E8', width: '34px', height: '34px' }}
         onClick={() => addItemToCart(item, 1)}
       >
         <Add />

@@ -30,7 +30,6 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   setCheckoutItems,
   removeItemFromCart,
   addItemToCart,
-  // renderItemQuantityButtons,
 }) => {
 
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItemProp[]>([]);
@@ -52,10 +51,10 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     <Dialog
       sx={{
         '& .MuiDialog-paper': {
-          width: '70vh', // Custom width
-          height: '70vh', // Custom height
-          maxWidth: '90vw', // Ensure responsiveness
-          maxHeight: '90vh', // Prevent it from overflowing the screen
+          width: '70vh',
+          height: '70vh',
+          maxWidth: '90vw',
+          maxHeight: '90vh',
         },
       }}
       onClose={onClose}

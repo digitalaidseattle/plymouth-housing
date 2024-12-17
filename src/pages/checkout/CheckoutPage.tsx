@@ -12,6 +12,7 @@ import {
   IconButton,
   Button,
   Box,
+  Grid,
 } from '@mui/material';
 import { Search, Add, Remove } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
@@ -78,7 +79,7 @@ const CheckoutPage = () => {
   }, [])
 
   return (
-    <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
+    <Grid container sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
       {/* <h2>Check out</h2>
       <div
         style={{
@@ -137,7 +138,7 @@ const CheckoutPage = () => {
         removeItemFromCart={removeItemFromCart}
         // renderItemQuantityButtons={renderItemQuantityButtons}
       />
-    </Box>
+    </Grid>
   );
 };
 

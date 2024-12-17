@@ -19,6 +19,7 @@ const CheckoutPage = () => {
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const removeItemFromCart = (itemId: number) => {
     setCheckoutItems(
@@ -28,25 +29,37 @@ const CheckoutPage = () => {
     );
   };
 
-  const addItemToCart = (item: CheckoutItemProp, quantity: number) => {
-    const foundIndex = checkoutItems.findIndex(
-      (addedItem: CheckoutItemProp) => addedItem.id === item.id,
-    );
-    if (foundIndex !== -1) {
-      const foundItem = checkoutItems[foundIndex];
-      if (foundItem.quantity + quantity === 0) {
-        removeItemFromCart(item.id);
-      } else {
-        const updatedItems = [...checkoutItems];
-        updatedItems[foundIndex] = {
-          ...foundItem,
-          quantity: foundItem.quantity + quantity,
-        };
-        setCheckoutItems(updatedItems);
+  const addItemToCart = (item: CheckoutItemProp, quantity: number, section: string) => {
+    // Lock active section if none is set, or allow only the active section
+    if (!activeSection || activeSection === section) {
+      const updatedItems = [...checkoutItems];
+      const foundIndex = updatedItems.findIndex(
+        (addedItem: CheckoutItemProp) => addedItem.id === item.id,
+      );
+
+      if (foundIndex !== -1) {
+        // Update quantity or remove item if quantity is zero
+        const foundItem = updatedItems[foundIndex];
+        const newQuantity = foundItem.quantity + quantity;
+
+        if (newQuantity <= 0) {
+          updatedItems.splice(foundIndex, 1); // Remove item
+        } else {
+          updatedItems[foundIndex] = { ...foundItem, quantity: newQuantity };
+        }
+      } else if (quantity > 0) {
+        // Add a new item to the cart
+        updatedItems.push({ ...item, quantity: 1 });
+        setActiveSection(section); // Lock the active section
       }
-    } else {
-      const updatedItems = [...checkoutItems, { ...item, quantity: 1 }];
+
+      // Update the checkoutItems state
       setCheckoutItems(updatedItems);
+
+      // Reset activeSection if the cart becomes empty
+      if (updatedItems.length === 0) {
+        setActiveSection(null);
+      }
     }
   };
 
@@ -68,7 +81,7 @@ const CheckoutPage = () => {
   const scrollToCategory = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element?.scrollIntoView({behavior: 'smooth', block: 'center' })
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
 
@@ -92,11 +105,15 @@ const CheckoutPage = () => {
       <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
         <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
         {welcomeBasketData.map((category) => (
-          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={false} />
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'welcomeBasket')} removeItemFromCart={removeItemFromCart} removeButton={false}
+          disabled={activeSection !== null && activeSection !== 'welcomeBasket'}
+          />
         ))}
         <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
         {filteredData.map((category) => (
-          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={false} />
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'general')} removeItemFromCart={removeItemFromCart} removeButton={false}
+          disabled={activeSection !== null && activeSection !== 'general'}
+          />
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
 
@@ -105,7 +122,7 @@ const CheckoutPage = () => {
           open={openSummary}
           onClose={() => setOpenSummary(false)}
           checkoutItems={checkoutItems}
-          addItemToCart={addItemToCart}
+          addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'dialog')}
           setCheckoutItems={setCheckoutItems}
           removeItemFromCart={removeItemFromCart}
         />

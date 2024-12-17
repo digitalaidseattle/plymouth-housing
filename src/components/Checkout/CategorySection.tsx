@@ -8,11 +8,12 @@ type CategorySectionProps = {
   addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
   removeItemFromCart: (itemId: number) => void;
   removeButton: boolean;
+  disabled: boolean;
 };
 
-const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CategorySectionProps) => {
+const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFromCart, removeButton, disabled }: CategorySectionProps) => {
   return (
-    <Box sx={{paddingLeft: '5%', paddingRight: '5%'}}>
+    <Box sx={{paddingLeft: '5%', paddingRight: '5%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto'}}>
       <Typography sx={{ fontSize: '20px', marginY: '3%' }} id={category.category}>{category.category}</Typography>
       <Grid container spacing={2}
         style={{

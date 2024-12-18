@@ -1,18 +1,15 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import { AddVolunteerModalProps } from '../../types/interfaces';
-
-const VOLUNTEER_API = '/data-api/rest/volunteer';
-const HEADERS = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json;charset=utf-8',
-};
+import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { getRole, UserContext } from '../contexts/UserContext';
 
 const AddVolunteerModal = ({
   addModal,
   handleAddClose,
   fetchData,
 }: AddVolunteerModalProps) => {
+  const {user} = useContext(UserContext);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -68,7 +65,8 @@ const AddVolunteerModal = ({
     }
 
     try {
-      const response = await fetch(VOLUNTEER_API, {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.VOLUNTEERS, {
         method: 'POST',
         headers: HEADERS,
         body: JSON.stringify({ ...formData, active: true }),

@@ -52,7 +52,7 @@ The Transaction History system consists of:
 #### Database  
 
 **Tables:**  
-- **TransactionHistory**:  
+- **Transactions**:  
   - `id` (Primary Key) - Unique identifier for each transaction record.
   - `user_id` (Foreign Key) - References the `Users` table to identify the user (admin or volunteer) associated with the transaction.
   - `transaction_id`- Unique identifier for each transaction session (UUID or GUID). Used to correlate multiple entries for the same transaction (e.g., for the same user checking out several items within one transaction, or tracking all the items in a welcome basket).
@@ -63,7 +63,7 @@ The Transaction History system consists of:
 
 **SQL Schema:**
 ```sql
-CREATE TABLE TransactionHistory (
+CREATE TABLE Transactions (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,       
     user_id INT NOT NULL,                                        
     transaction_id UNIQUEIDENTIFIER NOT NULL,                  
@@ -73,19 +73,19 @@ CREATE TABLE TransactionHistory (
     transaction_date DATETIME DEFAULT GETDATE() NOT NULL,         
     
     -- Define foreign key constraints
-    FOREIGN KEY (UserID) REFERENCES Users(UserID),      
-    FOREIGN KEY (ItemID) REFERENCES Items(ItemID)       
+    FOREIGN KEY (user_id) REFERENCES Users(id),      
+    FOREIGN KEY (item_id) REFERENCES Items(id)       
 );
 
 -- Optionally, we may want to create an index for faster searching by transaction_id, user_id, and transaction_date
-CREATE INDEX IX_TransactionHistory_TransactionId ON TransactionHistory(transaction_id);
-CREATE INDEX IX_TransactionHistory_UserId ON TransactionHistory(user_id);
-CREATE INDEX IX_TransactionHistory_TransactionDate ON TransactionHistory(transaction_date);
+CREATE INDEX IX_TransactionHistory_TransactionId ON Transactions(transaction_id);
+CREATE INDEX IX_TransactionHistory_UserId ON Transactions(user_id);
+CREATE INDEX IX_TransactionHistory_TransactionDate ON Transactions(transaction_date);
 ```
 
 **Stored Procedures:**
 - **RecordTransaction**:  
-  - Inserts a new transaction record into the `TransactionHistory` table.
+  - Inserts a new transaction record into the `Transactions` table.
   - Parameters: `user_id`, `transaction_id`, `item_id`, `transaction_type`, `quantity`.
   
 ```sql
@@ -97,8 +97,8 @@ CREATE PROCEDURE LogTransaction
     @quantity INT       
 AS
 BEGIN
-    -- Insert a new record into the TransactionHistory table
-    INSERT INTO TransactionHistory (
+    -- Insert a new record into the Transactions table
+    INSERT INTO Transactions (
         user_id,
         transaction_id,
         item_id,
@@ -124,21 +124,21 @@ CREATE PROCEDURE GetTransactionHistory
 AS
 BEGIN
     -- Check if the requesting user is an admin
-    IF EXISTS (SELECT 1 FROM Users WHERE UserID = @AdminUserID AND IsAdmin = 1)
+    IF EXISTS (SELECT 1 FROM Users WHERE user_id = @AdminUserID AND IsAdmin = 1)
     BEGIN
         -- Retrieve all transaction history records
         SELECT 
             th.TransactionID,
-            th.UserID,
+            th.user_id,
             th.TransactionGUID,
-            th.ItemID,
+            th.item_id,
             th.transaction_type,
             th.TotalAmount,
             th.transaction_date
         FROM 
-            TransactionHistory th
+            Transactions th
         INNER JOIN 
-            Items i ON th.ItemID = i.ItemID
+            Items i ON th.item_id = i.item_id
         ORDER BY 
             th.transaction_date DESC;      -- Optionally order by transaction date or any other field
     END
@@ -193,12 +193,12 @@ END;
 #### When a transaction occurs (items added or checked out):
 - Front-end sends a POST request to the `/api/transactions` endpoint with transaction details and generates a TransactionGUID for the transaction.
 - For each item in the transaction, the front-end sends item details along with the TransactionGUID to the API.
-- The API records each item as a separate entry in the `TransactionHistory` table with the same TransactionGUID.
+- The API records each item as a separate entry in the `Transactions` table with the same TransactionGUID.
 - The API returns the TransactionID for the transaction to the front-end.
 
 #### When an admin views the Transaction History page:
 - Front-end sends a GET request to the `/api/transactions` endpoint with the `userID` parameter.
-- The API retrieves all transactions associated with the `UserID` from the `TransactionHistory` table.
+- The API retrieves all transactions associated with the `user_id` from the `Transactions` table.
 - The API returns the transaction history to the front-end for display.
 - The front-end groups the results by the TransactionGUID and renders the grouped data in a table with expandable rows for items details.
 - Admins can view, filter, and search for transactions based on various criteria.
@@ -210,9 +210,9 @@ This design allows for multiple items to be associated with a single Transaction
 - **Risk**: Unauthorized Access
   **Mitigation**: Role-based access control ensures that only admin users can access transaction history.
 - **Risk**: Data Integrity Issues 
-  **Mitigation**: All transaction data will be logged with unique GUIDs and linked to the user performing the action. The `TransactionHistory` table will ensure that all actions are logged with accurate timestamps.  
+  **Mitigation**: All transaction data will be logged with unique GUIDs and linked to the user performing the action. The `Transactions` table will ensure that all actions are logged with accurate timestamps.  
 - **Risk**: Query Performance
-    **Mitigation**: Use indexes on frequently queried columns (e.g., `UserID`, `transaction_date`, `TransactionGUID`) to improve query performance for large transaction datasets.
+    **Mitigation**: Use indexes on frequently queried columns (e.g., `user_id`, `transaction_date`, `TransactionGUID`) to improve query performance for large transaction datasets.
 - **Risk**: Front-end Validation Failure
     **Mitigation**: Ensure proper validation on the frontend to prevent unauthorized access and ensure that all data inputs are sanitized before sending to the backend.
 

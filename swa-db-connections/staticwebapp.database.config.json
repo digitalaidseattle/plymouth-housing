@@ -32,7 +32,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/item",
+        "path": "/items",
         "methods": ["get", "post", "patch"]
       },
       "permissions": [
@@ -46,7 +46,7 @@
         }
       ]
     },
-    "InventoryWithCategory": {
+    "ItemsWithCategory": {
       "source": {
         "object": "InventoryWithCategory",
         "type": "table",
@@ -54,7 +54,8 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/inventorywithcategory"
+        "path": "/itemswithcategory",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
@@ -75,7 +76,8 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/itemsbycategory"
+        "path": "/itemsbycategory",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
@@ -96,7 +98,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/category"
+        "path": "/categories"
       },
       "permissions": [
         {
@@ -117,7 +119,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer"
+        "path": "/volunteers"
       },
       "permissions": [
         {

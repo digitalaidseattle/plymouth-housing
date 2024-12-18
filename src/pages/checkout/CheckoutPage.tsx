@@ -1,227 +1,134 @@
-import { useState } from 'react';
-import {
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  TextField,
-  InputAdornment,
-  Card,
-  CardActions,
-  CardContent,
-  IconButton,
-  Button,
-} from '@mui/material';
-import { Search, Add, Remove } from '@mui/icons-material';
-import { CheckoutItem, Item } from '../../types/interfaces';
-import CheckoutDialog from './CheckoutDialog';
-import { categories, buildingCodes } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
+import { useState, useEffect, useContext, useCallback } from 'react';
+import { Box, Typography } from '@mui/material';
+import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
+import { buildingCodes, welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
+import CategorySection from '../../components/Checkout/CategorySection';
+import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
+import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
+import SearchBar from '../../components/Checkout/SearchBar';
+import Navbar from '../../components/Checkout/Navbar';
+import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
 
 const CheckoutPage = () => {
-  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
+  const {user} = useContext(UserContext);
+  const [data, setData] = useState<CategoryProps[]>([]);
+  const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
+  const [activeSection, setActiveSection] = useState<string>('');
 
-  const removeItemFromCart = (itemId: string) => {
+  const removeItemFromCart = (itemId: number) => {
     setCheckoutItems(
       checkoutItems.filter(
-        (addedItem: CheckoutItem) => addedItem.id !== itemId,
+        (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
       ),
     );
   };
 
-  const addItemToCart = (item: Item, quantity: number) => {
-    const foundIndex = checkoutItems.findIndex(
-      (addedItem: CheckoutItem) => addedItem.id === item.id,
-    );
-    if (foundIndex !== -1) {
-      const foundItem = checkoutItems[foundIndex];
-      if (foundItem.quantity + quantity === 0) {
-        removeItemFromCart(item.id);
-      } else {
-        const updatedItems = [...checkoutItems];
-        updatedItems[foundIndex] = {
-          ...foundItem,
-          quantity: foundItem.quantity + quantity,
-        };
-        setCheckoutItems(updatedItems);
+  const addItemToCart = (item: CheckoutItemProp, quantity: number, section: string) => {
+    // Lock active section if none is set, or allow only the active section
+    if (!activeSection || activeSection === section) {
+      const updatedItems = [...checkoutItems];
+      const foundIndex = updatedItems.findIndex(
+        (addedItem: CheckoutItemProp) => addedItem.id === item.id,
+      );
+
+      if (foundIndex !== -1) {
+        // Update quantity or remove item if quantity is zero
+        const foundItem = updatedItems[foundIndex];
+        const newQuantity = foundItem.quantity + quantity;
+
+        if (newQuantity <= 0) {
+          updatedItems.splice(foundIndex, 1); // Remove item
+        } else {
+          updatedItems[foundIndex] = { ...foundItem, quantity: newQuantity };
+        }
+      } else if (quantity > 0) {
+        // Add a new item to the cart
+        updatedItems.push({ ...item, quantity: 1 });
+        setActiveSection(section); // Lock the active section
       }
-    } else {
-      const updatedItems = [...checkoutItems, { ...item, quantity: 1 }];
+
+      // Update the checkoutItems state
       setCheckoutItems(updatedItems);
+
+      // Reset activeSection if the cart becomes empty
+      if (updatedItems.length === 0) {
+        setActiveSection('');
+      }
     }
   };
 
-  const renderItemQuantityButtons = (item: Item | CheckoutItem) => {
-    const foundInCart = checkoutItems.find(
-      (v: CheckoutItem) => v.id === item.id,
-    );
-    if (foundInCart) {
-      return (
-        <div style={{ display: 'flex' }}>
-          <IconButton
-            style={{
-              backgroundColor: '#E8E8E8',
-              width: '20px',
-              height: '20px',
-            }}
-            onClick={() => addItemToCart(item, -1)}
-          >
-            <Remove fontSize="small" />
-          </IconButton>
-          <span
-            style={{ fontWeight: 'bold', margin: '0 10px' }}
-            data-testid="test-id-quantity"
-          >
-            {foundInCart.quantity}
-          </span>
-          <IconButton
-            style={{
-              backgroundColor: '#E8E8E8',
-              width: '20px',
-              height: '20px',
-            }}
-            onClick={() => addItemToCart(item, 1)}
-          >
-            <Add fontSize="small" />
-          </IconButton>
-        </div>
-      );
+  const fetchData = useCallback( async () => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const responseData = await response.json();
+      setData(responseData.value);
     }
-    return (
-      <IconButton
-        style={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
-        onClick={() => addItemToCart(item, 1)}
-      >
-        <Add />
-      </IconButton>
-    );
-  };
+    catch (error) {
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+    }
+  },[user]);
+
+  const scrollToCategory = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData])
+
+  useEffect(() => {
+    setFilteredData(data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'));
+  }, [data])
 
   return (
-    <div style={{ margin: 'auto 100px' }}>
-      <h2>Check out</h2>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'end',
-        }}
-      >
-        <div>
-          <FormControl style={{ width: '150px' }}>
-            <InputLabel id="select-building-code-label">
-              Building Code
-            </InputLabel>
-            <Select
-              labelId="select-building-code-label"
-              id="select-building-code"
-              data-testid="test-id-select-building-code"
-              label="Building Code"
-              value={selectedBuildingCode || ''}
-              onChange={(event) => setSelectedBuildingCode(event.target.value)}
-            >
-              {buildingCodes.map((buildingCode) => (
-                <MenuItem key={buildingCode.code} value={buildingCode.code}>
-                  {buildingCode.code} ({buildingCode.name})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        <div>
-          <TextField
-            variant="standard"
-            placeholder="Search..."
-            type="search"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
+        <BuildingCodeSelect buildingCodes={buildingCodes} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
+        <SearchBar />
+      </Box>
+      <Box>
+        <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />
+      </Box>
+      <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
+        <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
+        {welcomeBasketData.map((category) => (
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'welcomeBasket')} removeItemFromCart={removeItemFromCart} removeButton={false}
+          disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
           />
-        </div>
-      </div>
-      <div style={{ borderRadius: '10px', backgroundColor: '#F0F0F0' }}>
-        {categories.map((category) => (
-          <div key={category.id}>
-            <h3 style={{ margin: '20px 20px' }}>{category.name}</h3>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-              }}
-            >
-              {category.items.map((item) => (
-                <Card
-                  key={item.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    width: '238px',
-                    height: '70px',
-                    margin: '10px',
-                    borderRadius: '10px',
-                    backgroundColor: checkoutItems.find(
-                      (v: CheckoutItem) => v.id === item.id,
-                    )
-                      ? '#C0C0C0'
-                      : 'white',
-                  }}
-                >
-                  <CardContent>
-                    <h4>{item.name}</h4>
-                  </CardContent>
-                  <CardActions style={{ border: '1px red blue' }}>
-                    {renderItemQuantityButtons(item)}
-                  </CardActions>
-                </Card>
-              ))}
-            </div>
-          </div>
         ))}
-      </div>
-      {checkoutItems.length > 0 && (
-        <div
-          style={{
-            padding: '0 100px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-            height: '100px',
-            backgroundColor: '#C0C0C0',
-          }}
-        >
-          <p>
-            {checkoutItems.reduce(
-              (accumulator, item) => accumulator + item.quantity,
-              0,
-            )}{' '}
-            items selected
-          </p>
-          <Button
-            variant="text"
-            style={{ color: 'black', backgroundColor: 'white' }}
-            onClick={() => setOpenSummary(true)}
-          >
-            Continue
-          </Button>
-        </div>
-      )}
+        <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
+        {filteredData.map((category) => (
+          <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'general')} removeItemFromCart={removeItemFromCart} removeButton={false}
+          disabled={activeSection !== '' && activeSection !== 'general'}
+          />
+        ))}
+        <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
 
-      <CheckoutDialog
-        open={openSummary}
-        onClose={() => setOpenSummary(false)}
-        checkoutItems={checkoutItems}
-        removeItemFromCart={removeItemFromCart}
-        renderItemQuantityButtons={renderItemQuantityButtons}
-      />
-    </div>
+        <ScrollToTopButton showAfter={300} />
+        <CheckoutDialog
+          open={openSummary}
+          onClose={() => setOpenSummary(false)}
+          checkoutItems={checkoutItems}
+          addItemToCart={(item, quantity) => addItemToCart(item, quantity, activeSection)}
+          setCheckoutItems={setCheckoutItems}
+          removeItemFromCart={removeItemFromCart}
+          selectedBuildingCode={selectedBuildingCode}
+        />
+      </Box>
+    </Box>
   );
 };
 

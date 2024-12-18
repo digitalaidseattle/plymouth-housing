@@ -1,14 +1,23 @@
 import { IdTokenClaims } from '@azure/msal-common';
 
-export type CheckoutItem = {
-  id: string;
+export type CheckoutItemProp = {
+  id: number;
   name: string;
   quantity: number;
 };
 
-export type Item = {
-  id: string;
-  name: string;
+export type CategoryProps = {
+  id: number;
+  category: string;
+  items: CheckoutItemProp[];
+};
+
+export type CheckoutCardProps = {
+  item: CheckoutItemProp;
+  checkoutItems: CheckoutItemProp[];
+  addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
+  removeItemFromCart: (itemId: number) => void;
+  removeButton: boolean;
 };
 
 export interface UserContextType {

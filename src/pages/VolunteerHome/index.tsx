@@ -1,20 +1,66 @@
-import React from 'react';
+import React, { useState, useContext, useEffect, useCallback  } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
+import AddItemModal from '../../components/AddItemModal/AddItemModal';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { ENDPOINTS, HEADERS } from "../../types/constants"
+import { InventoryItem } from '../../types/interfaces.ts';
 
 const VolunteerHome: React.FC = () => {
+  const {user} = useContext(UserContext);
   const navigate = useNavigate();
+  const [addModal, setAddModal] = useState(false);
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
 
-  const handleAddItemClick = () => {
-    navigate('/inventory');
-  };
+
+  const fetchData = useCallback(async () => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const categoryList = new Set<string>();
+      const response = await fetch(ENDPOINTS.ITEMS, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      const inventoryList = data.value;
+      setOriginalData(inventoryList);
+      inventoryList.forEach((obj: InventoryItem) => {
+        const uniqueCategory = obj.category;
+        categoryList.add(uniqueCategory)
+      })
+  
+      setUniqueCategories([...categoryList]);
+  
+    }
+    catch (error) {
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+    }
+    setIsLoading(false);
+  }, [user]); 
+  
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleAddOpen = () => {
+    setAddModal(true)
+  }
+
+  const handleAddClose = () => {
+    setAddModal(false)
+  }
 
   const handleCheckOutClick = () => {
     navigate('/checkout');
   };
 
+  if (isLoading) {
+    return <p>Loading ...</p>;
+  }
   return (
     <Box sx={{ paddingX: 20, paddingY: 5, height: '75vh' }}>
       {/* Header */}
@@ -75,7 +121,7 @@ const VolunteerHome: React.FC = () => {
         <Grid item xs={12} sm={6} md={6}>
           <Button
             variant="outlined"
-            onClick={handleAddItemClick}
+            onClick={handleAddOpen}
             sx={{
               height: '100%',
               width: '100%',
@@ -96,6 +142,8 @@ const VolunteerHome: React.FC = () => {
             <AddIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
             <Typography variant="h6">Add Item</Typography>
           </Button>
+
+          <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories} originalData={originalData}/>
         </Grid>
       </Grid>
     </Box>

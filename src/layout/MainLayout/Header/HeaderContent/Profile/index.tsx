@@ -195,7 +195,7 @@ const Profile = () => {
                             <Stack>
                               <Typography variant="h6">{username}</Typography>
                               <Typography variant="body2" color="textSecondary">
-                                {role === 'admin' ? 'admin' : 'volunteer'}
+                                {role}
                               </Typography>
                             </Stack>
                           </Stack>

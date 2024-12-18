@@ -23,6 +23,10 @@ export type CheckoutCardProps = {
 export interface UserContextType {
   user: IdTokenClaims | null;
   setUser: (user: IdTokenClaims) => void;
+  loggedInVolunteer: Volunteer | null;
+  setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
+  activeVolunteers: Volunteer[];
+  setActiveVolunteers: (activeVolunteers: Volunteer[]) => void;
 }
 
 export type InventoryItem = {
@@ -50,8 +54,8 @@ export type AddVolunteerModalProps = {
 export type Volunteer = {
   id: number;
   name: string;
-  active: boolean;
+  active: boolean | null;
   created_at: string;
   last_signed_in: string | null;
-  PIN: string;
+  PIN: string | null;
 };

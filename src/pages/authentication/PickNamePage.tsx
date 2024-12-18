@@ -10,22 +10,30 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
+
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { ENDPOINTS, HEADERS } from '../../types/constants'
-import { Volunteer } from '../../types/interfaces';
+import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { IdTokenClaims } from '@azure/msal-common';
 import { useMsal } from '@azure/msal-react';
+import { Volunteer } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
+    null,
+  );
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loggedInVolunteer, setLoggedInVolunteer] = useState<Volunteer | null>(
+    null,
+  );
+  const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
   const [user, setUser] = useState<IdTokenClaims | null>(null);
+
   const navigate = useNavigate();
   const { instance } = useMsal();
 
@@ -71,7 +79,7 @@ const PickYourNamePage: React.FC = () => {
         setSnackbarState({
           open: true,
           message: 'Failed to load volunteer list. Please try again later.',
-          severity: 'warning'
+          severity: 'warning',
         });
       } finally {
         setIsLoading(false);
@@ -91,13 +99,17 @@ const PickYourNamePage: React.FC = () => {
     if (selectedVolunteer) {
       // Navigate to the next page, passing the volunteer ID via state
       navigate('/enter-your-pin', {
-        state: { volunteerId: selectedVolunteer.id, role: getRole(user) },
+        state: {
+          volunteerId: selectedVolunteer.id,
+          role: getRole(user),
+          volunteers: volunteers,
+        },
       });
     } else {
       setSnackbarState({
         open: true,
         message: 'Please select a name before continuing.',
-        severity: 'warning'
+        severity: 'warning',
       });
     }
   };
@@ -109,11 +121,20 @@ const PickYourNamePage: React.FC = () => {
     if (reason === 'clickaway') {
       return;
     }
-    setSnackbarState(prev => ({ ...prev, open: false }));
+    setSnackbarState((prev) => ({ ...prev, open: false }));
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        loggedInVolunteer,
+        setLoggedInVolunteer,
+        activeVolunteers,
+        setActiveVolunteers,
+      }}
+    >
       <MinimalWrapper>
         <CenteredLayout>
           <Box sx={{ maxWidth: '350px', width: '100%' }}>
@@ -142,45 +163,45 @@ const PickYourNamePage: React.FC = () => {
               contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
             </Typography>
 
-          <Autocomplete
-            value={selectedVolunteer}
-            onChange={handleNameChange}
-            options={volunteers}
-            getOptionLabel={(option) => option.name}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={isLoading ? "Loading..." : "Select your name"}
-                variant="outlined"
-                sx={{ width: '100%' }}
-              />
-            )}
-            sx={{
-              width: '100%',
-              marginBottom: 8,
-              '& .MuiAutocomplete-inputRoot': { height: '56px' },
-            }}
-            disabled={isLoading}
-          />
+            <Autocomplete
+              value={selectedVolunteer}
+              onChange={handleNameChange}
+              options={volunteers}
+              getOptionLabel={(option) => option.name}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={isLoading ? 'Loading...' : 'Select your name'}
+                  variant="outlined"
+                  sx={{ width: '100%' }}
+                />
+              )}
+              sx={{
+                width: '100%',
+                marginBottom: 8,
+                '& .MuiAutocomplete-inputRoot': { height: '56px' },
+              }}
+              disabled={isLoading}
+            />
 
-          <Button
-            variant="contained"
-            onClick={handleNextClick}
-            sx={{
-              height: '45px',
-              width: '100%',
-              fontSize: '16px',
-              backgroundColor: 'black',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: '#4f4f4f',
-              },
-            }}
-            disabled={isLoading}
-          >
-            Continue
-          </Button>
-        </Box>
+            <Button
+              variant="contained"
+              onClick={handleNextClick}
+              sx={{
+                height: '45px',
+                width: '100%',
+                fontSize: '16px',
+                backgroundColor: 'black',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#4f4f4f',
+                },
+              }}
+              disabled={isLoading}
+            >
+              Continue
+            </Button>
+          </Box>
 
           <SnackbarAlert
             open={snackbarState.open}

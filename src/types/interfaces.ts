@@ -29,7 +29,7 @@ export type InventoryItem = {
   id: number;
   name: string;
   type: string;
-  description: string,
+  description: string;
   quantity: number;
   category: string;
   status: string;

@@ -85,8 +85,11 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
         {!darkTitle && title && (
           <CardHeader
             sx={headerSX}
-            titleTypographyProps={{ variant: 'subtitle1' }}
-            title={title}
+            title={
+              <Typography sx={{ fontSize: '28px' }}>
+                {title}
+              </Typography>
+            }
             action={secondary}
           />
         )}

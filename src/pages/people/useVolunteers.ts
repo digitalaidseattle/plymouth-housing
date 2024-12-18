@@ -21,7 +21,6 @@ const useVolunteers = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log('Fetched volunteers:', data.value);
       setOriginalData(data.value);
       setFilteredData(data.value);
     } catch (error) {

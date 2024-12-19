@@ -47,9 +47,16 @@ describe('CheckoutPage', () => {
       }),
     )as unknown as typeof fetch;
 
-    const mockUser = { role: 'admin' };
+    const mockUser = { role: 'admin', name: 'Admin User', email: 'admin@example.com' }; // Add required properties
     render(
-      <UserContext.Provider value={{ user: mockUser, setUser: vi.fn() }}>
+      <UserContext.Provider value={{ 
+        user: mockUser, 
+        setUser: vi.fn(), 
+        loggedInVolunteer: null, 
+        setLoggedInVolunteer: vi.fn(), 
+        activeVolunteers: [], 
+        setActiveVolunteers: vi.fn() 
+      }}>
         <CheckoutPage />
       </UserContext.Provider>,
     );    await waitFor(() => {

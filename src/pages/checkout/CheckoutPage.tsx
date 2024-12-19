@@ -22,7 +22,7 @@ const CheckoutPage = () => {
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
   const [activeSection, setActiveSection] = useState<string>('');
 
-  const fetchBuildings = async () => {
+  const fetchBuildings = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.BUILDINGS, { headers: HEADERS, method: 'GET' });
@@ -35,11 +35,11 @@ const CheckoutPage = () => {
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchBuildings();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchBuildings]); 
 
   const removeItemFromCart = (itemId: number) => {
     setCheckoutItems(

@@ -16,18 +16,23 @@ CREATE TABLE Items (
 );
 GO
 
-CREATE VIEW InventoryWithCategory 
-AS 
-    SELECT 
-        i.id, 
-        i.name, 
-        i.type, 
-        c.name AS category, 
-        i.description, 
-        i.quantity
-    FROM 
+CREATE VIEW InventoryWithCategory
+AS
+    SELECT
+        i.id,
+        i.name,
+        i.type,
+        c.name AS category,
+        i.description,
+        i.quantity,
+        CASE
+            WHEN i.quantity <= i.low THEN 'Low'
+            WHEN i.quantity > i.low AND i.quantity <= i.medium THEN 'Medium'
+            ELSE 'High'
+        END AS status
+    FROM
         Items i
-    LEFT JOIN 
+    LEFT JOIN
         Categories c ON c.id = i.category_id;
 GO
 

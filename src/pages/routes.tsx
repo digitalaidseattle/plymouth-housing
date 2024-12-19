@@ -46,7 +46,11 @@ const routes = [
       },
       {
         path: 'checkout',
-        element: <CheckoutPage />,
+        element: (
+          <MainCard title="Checkout">
+            <CheckoutPage />
+          </MainCard>
+        ),
       },
     ],
   },

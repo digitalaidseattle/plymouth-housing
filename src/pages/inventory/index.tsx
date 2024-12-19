@@ -16,9 +16,9 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { ENDPOINTS, HEADERS } from "../../types/constants"
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
+import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants"
 
 const Inventory = () => {
   const {user} = useContext(UserContext);
@@ -39,9 +39,8 @@ const Inventory = () => {
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const itemsPerPage = 10;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const indexOfLastItem = currentPage * SETTINGS.itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - SETTINGS.itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleAddOpen = () => {
@@ -171,7 +170,7 @@ const Inventory = () => {
   const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.FETCH_ITEMS, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -232,8 +231,11 @@ const Inventory = () => {
         </Button>
       </Box>
 { 
-      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData}
-        categories={categoryData}
+      <AddItemModal 
+        addModal={addModal} 
+        handleAddClose={handleAddClose}   
+        fetchData={fetchData}
+        categoryData={categoryData}
         originalData={originalData} /> }
 
       {/* Filter Container */}
@@ -269,8 +271,8 @@ const Inventory = () => {
             onClose={handleTypeClose}
             anchorEl={anchorType}
           >
-            <MenuItem onClick={() => handleMenuTypeClick('Donation')}>
-              Donation
+            <MenuItem onClick={() => handleMenuTypeClick('General')}>
+              General
             </MenuItem>
             <MenuItem onClick={() => handleMenuTypeClick('Welcome Basket')}>
               Welcome Basket
@@ -417,7 +419,7 @@ const Inventory = () => {
       {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Pagination
-          count={Math.ceil(displayData.length / itemsPerPage)}
+          count={Math.ceil(displayData.length / SETTINGS.itemsPerPage)}
           page={currentPage}
           onChange={handlePageChange}
         />

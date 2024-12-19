@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
-import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
-import { buildingCodes, welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
+import { welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
@@ -116,7 +116,7 @@ const CheckoutPage = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
-        <BuildingCodeSelect buildingCodes={buildingCodes} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
+        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
         <SearchBar />
       </Box>
       <Box>

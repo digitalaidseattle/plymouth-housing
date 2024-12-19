@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import CheckoutPage from './CheckoutPage';
 import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom';

@@ -145,7 +145,7 @@
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": ["read", "create", "update"],
           "role": "admin"
         },
         {

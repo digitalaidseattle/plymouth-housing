@@ -191,10 +191,9 @@ END;
 
 ### Data Flow
 #### When a transaction occurs (items added or checked out):
-- Front-end sends a POST request to the `/api/transactions` endpoint with transaction details and generates a TransactionGUID for the transaction.
-- For each item in the transaction, the front-end sends item details along with the TransactionGUID to the API.
-- The API records each item as a separate entry in the `Transactions` table with the same TransactionGUID.
-- The API returns the TransactionID for the transaction to the front-end.
+- Front-end sends transaction details to the backend.
+- The backend calls a stored procedure to generate a `transaction_id`, update the inventory, and log the transaction in the Transactions table.
+- The backend returns the `transaction_id` for the front-end to confirm that transaction was successfully logged in the backend.
 
 #### When an admin views the Transaction History page:
 - Front-end sends a GET request to the `/api/transactions` endpoint with the `userID` parameter.

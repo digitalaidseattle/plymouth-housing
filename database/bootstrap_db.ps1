@@ -5,21 +5,24 @@
 # Invoke-Sqlcmd -Query "SELECT COUNT(*) AS Count FROM Items" -ConnectionString $env:DATABASE_CONNECTION_STRING
 #
 
-function Run-Scripts-In-Folder {
-    param(
-        [string]$Folder
-    )
-    Write-Host "Processing $Folder"
+function Invoke-Scripts-In-Folder { param([string]$Folder)
+    Write-Host "Processing Folder: $_"
     Get-ChildItem -Path $Folder | ForEach-Object {
-        Invoke-Sqlcmd -InputFile $_.FullName -ConnectionString $env:DATABASE_CONNECTION_STRING | Out-File -FilePath "bootstrap_db_results.rpt"
-        Write-Host "- executed $_"
+        Write-Host "- running $_" -ForegroundColor Blue
+        Invoke-Sqlcmd -InputFile $_.FullName -ConnectionString $env:DATABASE_CONNECTION_STRING -ErrorAction Stop
+        Write-Host "    - done"
     }
 }
 
-Run-Scripts-In-Folder -Folder "./database/tables/"
-Run-Scripts-In-Folder -Folder "./database/procedure/"
-Run-Scripts-In-Folder -Folder "./database/testdata/"
-
+try{
+# These have to be executed in order, hence you can't loop through them. 
+Invoke-Scripts-In-Folder -Folder "./database/tables/"
+Invoke-Scripts-In-Folder -Folder "./database/procedure/"
+Invoke-Scripts-In-Folder -Folder "./database/data_seed/"
+Invoke-Scripts-In-Folder -Folder "./database/data_test/"
 Write-Host "All done."
+} catch {
+    Write-Host "An error occurred : $($_.Exception.Message)" -ForegroundColor Red
+}
 
 

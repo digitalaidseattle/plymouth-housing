@@ -32,7 +32,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/item",
+        "path": "/items",
         "methods": ["get", "post", "patch"]
       },
       "permissions": [
@@ -46,6 +46,71 @@
         }
       ]
     },
+    "ItemsWithCategory": {
+      "source": {
+        "object": "InventoryWithCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/itemswithcategory",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "ItemsByCategory": {
+      "source": {
+        "object": "ItemsByCategory",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/itemsbycategory",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "Category": {
+      "source": {
+        "object": "dbo.Categories",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/categories"
+      },
+      "permissions": [
+        {
+          "actions": ["*"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },
     "Volunteer": {
       "source": {
         "object": "dbo.Volunteers",
@@ -54,12 +119,11 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteer",
-        "methods": ["get", "post", "patch"]
+        "path": "/volunteers"
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": ["read", "create", "update"],
           "role": "admin"
         },
         {

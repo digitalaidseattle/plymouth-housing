@@ -137,6 +137,40 @@ Make sure that you add your local IP to **Security/Networking** of the SQL Serve
 Just make sure that you can access the database from your local machine. 
 You can verify by adding it to the VS Code extension. 
 
+### Bootstrapping the Database
+
+There are .sql scripts under ./database. 
+You can run them one by one or with the ```bootstrap_db.ps1``` PS script. 
+
+In order to run the script you need to
+
+- open a admin PowerShell prompt
+- change the PS Execution Policies (defined [here](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies)). 
+
+    ```Set-ExecutionPolicy -ExecutionPolicy Unrestricted```
+- from that same admin PS session, run: 
+
+    ```Import-Module SQLPS```
+
+Now you can run the ```bootstrap_db.ps1``` PS script from a non-admin PS window (e.g., in VS Code).
+
+Steps: 
+
+1. set the environment variable for your connection string, e.g.:
+
+    ```$env:DATABASE_CONNECTION_STRING="Server=CUDA-BOX\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;"```
+
+1. run the ```bootstrap_db.ps1```
+
+The database should be recreated. 
+
+>CAREFULL!!! THIS WILL WIPE OUT ALL EXISTING DATA IN THE DATABASE
+
+Make sure you reset the Execution scope back to restricted with 
+
+    ```Set-ExecutionPolicy -ExecutionPolicy Undefined```
+
+
 ## Local Development
 
 You need to install all dependencies with ```npm install```. One of the dev dependencies is the [SWA CLI](https://azure.github.io/static-web-apps-cli/docs/intro). You can start the app with ```npm run dev``` but that doesn't set up the Data API layer. 

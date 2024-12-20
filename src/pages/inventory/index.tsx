@@ -16,15 +16,15 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { ENDPOINTS, HEADERS } from "../../types/constants"
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
-import { InventoryItem } from '../../types/interfaces.ts';
-
+import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
+import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants"
 
 const Inventory = () => {
   const {user} = useContext(UserContext);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
   const [addModal, setAddModal] = useState(false);
   const [type, setType] = useState('');
@@ -36,14 +36,11 @@ const Inventory = () => {
   const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
     null,
   );
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  const categoryList = new Set<string>();
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const indexOfLastItem = currentPage * SETTINGS.itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - SETTINGS.itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleAddOpen = () => {
@@ -170,10 +167,10 @@ const Inventory = () => {
     setDisplayData(searchFiltered);
   }, [type, category, status, search, itemAlph, originalData]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.ITEMS, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS, { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -181,25 +178,31 @@ const Inventory = () => {
       const inventoryList = data.value;
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
-
-      inventoryList.forEach((obj: InventoryItem) => {
-        const uniqueCategory = obj.category;
-        categoryList.add(uniqueCategory)
-      })
-
-      setUniqueCategories([...categoryList]);
-
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
   }
     setIsLoading(false);
-  };
+  }, [user]);
 
+  const fetchCategories = useCallback(async () => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORY, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      setCategoryData(data.value);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  }, [user]);
+  
   useEffect(() => {
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchCategories();
+  },[user, fetchData, fetchCategories]); 
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -218,7 +221,6 @@ const Inventory = () => {
     return <p>Loading ...</p>;
   }
 
-
   return (
     <Box>
       {/* Add button */}
@@ -228,7 +230,13 @@ const Inventory = () => {
           Add/Update
         </Button>
       </Box>
-      <AddItemModal addModal={addModal} handleAddClose={handleAddClose} fetchData={fetchData} uniqueCategories={uniqueCategories} originalData={originalData}/>
+{ 
+      <AddItemModal 
+        addModal={addModal} 
+        handleAddClose={handleAddClose}   
+        fetchData={fetchData}
+        categoryData={categoryData}
+        originalData={originalData} /> }
 
       {/* Filter Container */}
       <Box
@@ -263,8 +271,8 @@ const Inventory = () => {
             onClose={handleTypeClose}
             anchorEl={anchorType}
           >
-            <MenuItem onClick={() => handleMenuTypeClick('Donation')}>
-              Donation
+            <MenuItem onClick={() => handleMenuTypeClick('General')}>
+              General
             </MenuItem>
             <MenuItem onClick={() => handleMenuTypeClick('Welcome Basket')}>
               Welcome Basket
@@ -299,49 +307,15 @@ const Inventory = () => {
             onClose={handleCategoryClose}
             anchorEl={anchorCategory}
           >
-            <MenuItem
-              onClick={() => handleMenuCategoryClick('Beddings & Linens')}
-            >
-              Beddings & Linens
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleMenuCategoryClick('Bath & Toiletries')}
-            >
-              Bath & Toiletries
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Kitchenware')}>
-              Kitchenware
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleMenuCategoryClick('Decorative & Home improvement')
-              }
-            >
-              Decorative & Home improvement
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleMenuCategoryClick('Health & Medical')}
-            >
-              Health & Medical
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuCategoryClick('Food')}>
-              Food
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleMenuCategoryClick('Electronics & Appliances')
-              }
-            >
-              Electronics & Appliances
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleMenuCategoryClick('Games, Books, Entertainment')
-              }
-            >
-              Games, Books, Entertainment
-            </MenuItem>
-          </Menu>
+            {categoryData.map((categoryItem) => (
+              <MenuItem
+                key={categoryItem.name}
+                onClick={() => handleMenuCategoryClick(categoryItem.name)}
+              >
+                {categoryItem.name}
+              </MenuItem>
+            ))} 
+           </Menu>
         </Box>
 
         {/* Status Filter */}
@@ -445,7 +419,7 @@ const Inventory = () => {
       {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Pagination
-          count={Math.ceil(displayData.length / itemsPerPage)}
+          count={Math.ceil(displayData.length / SETTINGS.itemsPerPage)}
           page={currentPage}
           onChange={handlePageChange}
         />

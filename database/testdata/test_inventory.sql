@@ -1,0 +1,1 @@
+Select * FROM ItemsByCategory;

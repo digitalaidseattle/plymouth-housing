@@ -5,7 +5,7 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
-import {ENDPOINTS, HEADERS} from '../../types/constants'
+import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -15,7 +15,7 @@ const EnterPinPage: React.FC = () => {
     'success' | 'warning'
   >('warning');
   const location = useLocation();
-  const { volunteerId, role } = location.state || {};
+  const { volunteerId, role, volunteers } = location.state || {};
   const navigate = useNavigate();
 
   if (!volunteerId) {
@@ -80,7 +80,9 @@ const EnterPinPage: React.FC = () => {
         setSnackbarSeverity('success');
         setOpenSnackbar(true);
         await updateLastSignedIn(volunteerId); // Update last signed-in date after successful login
-        navigate('/');
+        navigate('/', {
+          state: { volunteerId: volunteerId, volunteers: volunteers },
+        });
       } else {
         setSnackbarMessage(
           result?.ErrorMessage || 'Incorrect PIN. Please try again.',

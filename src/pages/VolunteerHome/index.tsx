@@ -27,8 +27,7 @@ const VolunteerHome: React.FC = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      const inventoryList = data.value;
-      setOriginalData(inventoryList);
+      setOriginalData(data.value);
     } catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
     }

@@ -79,7 +79,6 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const data = await response.json();
-      console.log(data.value);
       setBuildings(data.value);
     }
     catch (error) {
@@ -95,7 +94,6 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const responseData = await response.json();
-      console.log(responseData.value);
       setData(responseData.value);
     }
     catch (error) {

@@ -22,33 +22,6 @@ const CheckoutPage = () => {
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
   const [activeSection, setActiveSection] = useState<string>('');
 
-  const fetchBuildings = useCallback(async () => {
-    try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.BUILDINGS, { headers: HEADERS, method: 'GET' });
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      const data = await response.json();
-      setBuildings(data.value);
-    }
-    catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchBuildings();
-  }, [fetchBuildings]); 
-
-  const removeItemFromCart = (itemId: number) => {
-    setCheckoutItems(
-      checkoutItems.filter(
-        (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
-      ),
-    );
-  };
-
   const addItemToCart = (item: CheckoutItemProp, quantity: number, section: string) => {
     // Lock active section if none is set, or allow only the active section
     if (!activeSection || activeSection === section) {
@@ -83,20 +56,13 @@ const CheckoutPage = () => {
     }
   };
 
-  const fetchData = useCallback( async () => {
-    try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      const responseData = await response.json();
-      setData(responseData.value);
-    }
-    catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
-    }
-  },[user]);
+  const removeItemFromCart = (itemId: number) => {
+    setCheckoutItems(
+      checkoutItems.filter(
+        (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
+      ),
+    );
+  };
 
   const scrollToCategory = (id: string) => {
     const element = document.getElementById(id);
@@ -105,9 +71,42 @@ const CheckoutPage = () => {
     }
   }
 
+  const fetchBuildings = useCallback(async () => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.BUILDINGS, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      console.log(data.value);
+      setBuildings(data.value);
+    }
+    catch (error) {
+      console.error('Error fetching buildings:', error); //TODO show more meaningful error to end user.
+    }
+  }, [user]);
+
+  const fetchData = useCallback( async () => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const responseData = await response.json();
+      console.log(responseData.value);
+      setData(responseData.value);
+    }
+    catch (error) {
+      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+    }
+  },[user]);
+
   useEffect(() => {
+    fetchBuildings();
     fetchData();
-  }, [fetchData])
+  }, [fetchData, fetchBuildings])
 
   useEffect(() => {
     setFilteredData(data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'));

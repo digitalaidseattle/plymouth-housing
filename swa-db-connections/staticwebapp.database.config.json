@@ -147,6 +147,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "ProcessCheckout": {
+      "source": {
+        "object": "dbo.ProcessCheckout",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/process-checkout"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

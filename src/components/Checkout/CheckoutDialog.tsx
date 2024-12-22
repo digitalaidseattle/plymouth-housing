@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,23 +10,25 @@ import {
   Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CheckoutItemProp } from '../../types/interfaces';
+import { CheckoutItem } from '../../types/interfaces';
 import CheckoutCard from './CheckoutCard';
+import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { getRole, UserContext } from '../contexts/UserContext';
 
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  checkoutItems: CheckoutItemProp[];
+  checkoutItems: CheckoutItem[];
   removeItemFromCart: (itemId: number) => void;
-  addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
-  setCheckoutItems: (items: CheckoutItemProp[]) => void;
+  addItemToCart: (item: CheckoutItem, quantity: number) => void;
+  setCheckoutItems: (items: CheckoutItem[]) => void;
   selectedBuildingCode: string;
   // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
 };
 
 const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
-
-  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItemProp[]>([]);
+  const {user} = useContext(UserContext);
+  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -37,6 +39,39 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
 
   const handleCancel = () => {
     setCheckoutItems(originalCheckoutItems);
+    onClose();
+  };
+
+  const handleConfirm = async () => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.PROCESS_CHECKOUT, {
+        method: 'POST',
+        headers: HEADERS,
+        body: JSON.stringify({
+            user_id: 12,
+            items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
+          }),
+      });
+
+      console.log('json: ', response.json);
+      if (!response.ok) {
+        console.log(response.statusText);
+        throw new Error('Failed to process transaction.');
+      }
+
+      const data = await response.json();
+      const result = data.value[0]; // Get the GUID
+      console.log('return: ', result);
+
+      return result;
+    } catch (error) {
+      console.error('Failed to process transaction:', error);
+      // setSnackbarMessage('Failed to verify PIN. Please try again.');
+      // setSnackbarSeverity('warning');
+      // setOpenSnackbar(true);
+      return null;
+    }
     onClose();
   };
 
@@ -81,7 +116,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
           padding: '0 20px',
           maxHeight: '40vh', // Adjust maxHeight based on title/footer space
         }}>
-          {checkoutItems.map((item: CheckoutItemProp) => (
+          {checkoutItems.map((item: CheckoutItem) => (
             <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
               <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} />
             </Box>
@@ -89,7 +124,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancel}>Return to Checkout Page</Button>
-          <Button autoFocus>Confirm</Button>
+          <Button onClick={handleConfirm} autoFocus>Confirm</Button>
         </DialogActions>
       </Box>
     </Dialog>

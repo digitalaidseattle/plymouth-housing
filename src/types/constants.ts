@@ -11,6 +11,7 @@ export const ENDPOINTS = {
   CATEGORY: '/data-api/rest/categories',
   //Stored Procedures
   VERIFY_PIN: '/data-api/rest/verify-pin',
+  PROCESS_CHECKOUT: '/data-api/rest/process-checkout',
   //Views
   EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
   CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',

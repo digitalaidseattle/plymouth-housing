@@ -6,7 +6,7 @@
 #
 
 function Invoke-Scripts-In-Folder { param([string]$Folder)
-    Write-Host "Processing Folder: $_"
+    Write-Host "Processing Folder: $Folder" -ForegroundColor Green
     Get-ChildItem -Path $Folder | ForEach-Object {
         Write-Host "- running $_" -ForegroundColor Blue
         Invoke-Sqlcmd -InputFile $_.FullName -ConnectionString $env:DATABASE_CONNECTION_STRING -ErrorAction Stop
@@ -17,6 +17,7 @@ function Invoke-Scripts-In-Folder { param([string]$Folder)
 try{
 # These have to be executed in order, hence you can't loop through them. 
 Invoke-Scripts-In-Folder -Folder "./database/tables/"
+Invoke-Scripts-In-Folder -Folder "./database/dependencies/"
 Invoke-Scripts-In-Folder -Folder "./database/procedure/"
 Invoke-Scripts-In-Folder -Folder "./database/data_seed/"
 Invoke-Scripts-In-Folder -Folder "./database/data_test/"

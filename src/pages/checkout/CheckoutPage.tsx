@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
-import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { CategoryProps, CheckoutItem } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
@@ -16,7 +16,7 @@ const CheckoutPage = () => {
   const {user} = useContext(UserContext);
   const [data, setData] = useState<CategoryProps[]>([]);
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
-  const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
   const [activeSection, setActiveSection] = useState<string>('');
@@ -24,17 +24,17 @@ const CheckoutPage = () => {
   const removeItemFromCart = (itemId: number) => {
     setCheckoutItems(
       checkoutItems.filter(
-        (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
+        (addedItem: CheckoutItem) => addedItem.id !== itemId,
       ),
     );
   };
 
-  const addItemToCart = (item: CheckoutItemProp, quantity: number, section: string) => {
+  const addItemToCart = (item: CheckoutItem, quantity: number, section: string) => {
     // Lock active section if none is set, or allow only the active section
     if (!activeSection || activeSection === section) {
       const updatedItems = [...checkoutItems];
       const foundIndex = updatedItems.findIndex(
-        (addedItem: CheckoutItemProp) => addedItem.id === item.id,
+        (addedItem: CheckoutItem) => addedItem.id === item.id,
       );
 
       if (foundIndex !== -1) {

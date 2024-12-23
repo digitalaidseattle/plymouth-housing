@@ -1,21 +1,11 @@
--- DECLARE @basket NVARCHAR(MAX);
--- SET @basket = N'
--- {
---     "user_id": 12,
---     "items": [
---       {
---         "id": 1,
---         "quantity": 1
---       }
---     ]
--- }';
+-- Simple test file to test transactions. 
 
-exec ProcessCheckout @user_id = 12, @items = N'[
+exec ProcessCheckout @user_id = 1, @items = N'[
       {
-        "id": 1,
+        "id": 2,
         "quantity": 1
       }
     ]'
 
---select * from Transactions
---select name, quantity from Items where id = 2
+select * from Transaction
+select name, quantity from Items where id = 2

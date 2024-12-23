@@ -7,5 +7,5 @@ exec ProcessCheckout @user_id = 1, @items = N'[
       }
     ]'
 
-select * from Transaction
+select * from Transactions
 select name, quantity from Items where id = 2

@@ -28,6 +28,18 @@ BEGIN
         Quantity = JSON_VALUE([value], '$.quantity')
     FROM OPENJSON(@items, '$')
 
+    -- Check if the cart exceeds the item limit
+    BEGIN TRY
+        EXEC CheckCartItemLimit @CartItems;
+    END TRY
+    BEGIN CATCH
+        print 'Error in cart item limit'
+        SELECT 
+            'Error' AS Status,
+            ERROR_MESSAGE() AS message;
+        RETURN;
+    END CATCH
+
     -- Check if we have sufficient inventory for all items
     BEGIN TRY
         EXEC CheckInsufficientInventory @CartItems;
@@ -35,11 +47,7 @@ BEGIN
     BEGIN CATCH
         SELECT 
             'Error' AS Status,
-            CONCAT(
-                'Error: ', ERROR_MESSAGE(),
-                ', Error Number: ', ERROR_NUMBER(),
-                ', State: ', ERROR_STATE()
-            ) AS ErrorMessage;
+            ERROR_MESSAGE() AS message;
         RETURN;
     END CATCH
 
@@ -106,7 +114,7 @@ BEGIN
                 'Error: ', ERROR_MESSAGE(),
                 ', Error Number: ', ERROR_NUMBER(),
                 ', State: ', ERROR_STATE()
-            ) AS ErrorMessage;
+            ) AS message;
             
     END CATCH
 END

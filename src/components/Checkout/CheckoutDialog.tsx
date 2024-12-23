@@ -23,56 +23,55 @@ type CheckoutDialogProps = {
   addItemToCart: (item: CheckoutItem, quantity: number) => void;
   setCheckoutItems: (items: CheckoutItem[]) => void;
   selectedBuildingCode: string;
-  // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
 };
 
 const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  const { loggedInVolunteer } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
+  const [statusMessage, setStatusMessage] = useState<string>('');
 
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
+      setStatusMessage('')
     }
   }, [open, checkoutItems]);
 
-
   const handleCancel = () => {
     setCheckoutItems(originalCheckoutItems);
+    setStatusMessage('')
     onClose();
   };
 
   const handleConfirm = async () => {
     try {
+      if (!loggedInVolunteer)
+        throw new Error('Volunteer not found.');
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.PROCESS_CHECKOUT, {
         method: 'POST',
         headers: HEADERS,
         body: JSON.stringify({
-            user_id: 12,
-            items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
-          }),
+          user_id: loggedInVolunteer?.id,
+          items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
+        }),
       });
 
-      console.log('json: ', response.json);
-      if (!response.ok) {
-        console.log(response.statusText);
-        throw new Error('Failed to process transaction.');
-      }
-
       const data = await response.json();
-      const result = data.value[0]; // Get the GUID
-      console.log('return: ', result);
+      const result = data.value[0];
+      if (result.Status !== 'Success') {
+        throw new Error(result.message);
+      }
+      setCheckoutItems([]);
+      setStatusMessage('Transaction Successful');
 
-      return result;
+      return null;
     } catch (error) {
-      console.error('Failed to process transaction:', error);
-      // setSnackbarMessage('Failed to verify PIN. Please try again.');
-      // setSnackbarSeverity('warning');
-      // setOpenSnackbar(true);
+      console.error('Transaction failed:', error);
+      setStatusMessage('Transaction failed: ' + error);
       return null;
     }
-    onClose();
   };
 
   return (
@@ -126,6 +125,16 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
           <Button onClick={handleCancel}>Return to Checkout Page</Button>
           <Button onClick={handleConfirm} autoFocus>Confirm</Button>
         </DialogActions>
+          <Box sx={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: '10px',
+            textAlign: 'center',
+          }}>          
+          <Typography>{statusMessage}</Typography>
+        </Box>
       </Box>
     </Dialog>
   );

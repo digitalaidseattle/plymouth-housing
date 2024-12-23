@@ -14,6 +14,8 @@ CREATE PROCEDURE CheckInsufficientInventory
     @CartItems CartItemsType READONLY
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     DECLARE @ErrorMessage NVARCHAR(MAX);
 
     IF EXISTS (
@@ -35,11 +37,7 @@ BEGIN
             FOR JSON PATH
         );
 
-        -- Return failure status 
-        SELECT 
-            'Error' as Status,
-            @ErrorMessage AS message;
-
-        RETURN;
+        -- Throw an error with the insufficient inventory details
+        THROW 51003, @ErrorMessage, 1;
     END
 END;

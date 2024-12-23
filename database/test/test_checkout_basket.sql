@@ -2,10 +2,10 @@
 
 exec ProcessCheckout @user_id = 1, @items = N'[
       {
-        "id": 1,
+        "id": 2,
         "quantity": 1
       }
     ]'
 
 select * from Transactions
-select name, quantity from Items where id = 1
+select name, quantity from Items where id = 2

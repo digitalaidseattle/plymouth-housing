@@ -29,7 +29,19 @@ BEGIN
     FROM OPENJSON(@items, '$')
 
     -- Check if we have sufficient inventory for all items
-    EXEC CheckInsufficientInventory @CartItems;
+    BEGIN TRY
+        EXEC CheckInsufficientInventory @CartItems;
+    END TRY
+    BEGIN CATCH
+        SELECT 
+            'Error' AS Status,
+            CONCAT(
+                'Error: ', ERROR_MESSAGE(),
+                ', Error Number: ', ERROR_NUMBER(),
+                ', State: ', ERROR_STATE()
+            ) AS ErrorMessage;
+        RETURN;
+    END CATCH
 
     -- Generate a single transaction ID for the entire basket
     DECLARE @TransactionId UNIQUEIDENTIFIER = NEWID()

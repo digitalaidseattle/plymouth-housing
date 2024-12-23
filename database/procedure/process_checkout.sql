@@ -19,10 +19,7 @@ BEGIN
     END
     
     -- Create a table variable to hold our parsed JSON items
-    DECLARE @CartItems TABLE (
-        ItemId INT,
-        Quantity INT
-    )
+    DECLARE @CartItems CartItemsType
     
     -- Parse the JSON array into our table variable
     INSERT INTO @CartItems (ItemId, Quantity)
@@ -32,41 +29,7 @@ BEGIN
     FROM OPENJSON(@items, '$')
 
     -- Check if we have sufficient inventory for all items
-    IF EXISTS (
-        SELECT 1
-        FROM @CartItems ci
-        JOIN Items i ON i.id = ci.ItemId
-        WHERE i.quantity < ci.Quantity
-    )
-    BEGIN
-        -- Retrieve the details of items with insufficient inventory
-        DECLARE @ErrorMessage NVARCHAR(MAX);
-
-        SELECT @ErrorMessage = (
-            SELECT 
-                'Insufficient inventory' AS Reason,
-                i.name AS ItemName,
-                ci.Quantity AS Requested,
-                i.quantity AS Available
-            FROM @CartItems ci
-            JOIN Items i ON i.id = ci.ItemId
-            WHERE i.quantity < ci.Quantity
-            FOR JSON PATH
-        )
-        FROM @CartItems ci
-        JOIN Items i ON i.id = ci.ItemId
-        WHERE i.quantity < ci.Quantity;
-
-        -- Return failure status 
-        -- DAB swallows all information on THROW, 
-        -- so we return error like this
-        SELECT 
-            'Error' as Status,
-            @ErrorMessage AS message;
-
-        RETURN;
-    END;
-
+    EXEC CheckInsufficientInventory @CartItems;
 
     -- Generate a single transaction ID for the entire basket
     DECLARE @TransactionId UNIQUEIDENTIFIER = NEWID()
@@ -80,7 +43,7 @@ BEGIN
         FROM Items i
         JOIN @CartItems ci ON i.id = ci.ItemId
         
-        -- Log each item in the transactiona
+        -- Log each item in the transaction
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
         

@@ -27,12 +27,12 @@ export const welcomeBasketData = [
     category: '',
     items: [
       {
-        id: 3241,
+        id: 163,
         name: 'Full Size Set',
         quantity: 5,
       },
       {
-        id: 3242,
+        id: 162,
         name: 'Twin Size Set',
         quantity: 19,
       },

@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { CategoryProps, CheckoutItem } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
+import {CheckoutDialog} from '../../components/Checkout/CheckoutDialog';
 import { buildingCodes, welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';

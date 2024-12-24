@@ -12,8 +12,8 @@ import {
 import { Close } from '@mui/icons-material';
 import { CheckoutItem } from '../../types/interfaces';
 import CheckoutCard from './CheckoutCard';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { getRole, UserContext } from '../contexts/UserContext';
+import { UserContext } from '../contexts/UserContext';
+import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 
 type CheckoutDialogProps = {
   open: boolean;
@@ -25,9 +25,8 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
 };
 
-const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
-  const { user } = useContext(UserContext);
-  const { loggedInVolunteer } = useContext(UserContext);
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
+  const { user, loggedInVolunteer } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
 
@@ -48,17 +47,15 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
     try {
       if (!loggedInVolunteer)
         throw new Error('Volunteer not found.');
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.PROCESS_CHECKOUT, {
-        method: 'POST',
-        headers: HEADERS,
-        body: JSON.stringify({
-          user_id: loggedInVolunteer?.id,
-          items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
-        }),
-      });
 
-      const data = await response.json();
+      const isWelcomeBasket = checkoutItems.some(item => item.id === 162 || item.id === 163);//TODO remove hardcoded IDs. 
+      let data = null;
+      if (isWelcomeBasket) {
+        data = await processWelcomeBasket(user, loggedInVolunteer, checkoutItems);
+      } else {
+        data = await processGeneralItems(user, loggedInVolunteer, checkoutItems);
+      }
+
       const result = data.value[0];
       if (result.Status !== 'Success') {
         throw new Error(result.message);
@@ -125,19 +122,17 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
           <Button onClick={handleCancel}>Return to Checkout Page</Button>
           <Button onClick={handleConfirm} autoFocus>Confirm</Button>
         </DialogActions>
-          <Box sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: '10px',
-            textAlign: 'center',
-          }}>          
+        <Box sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: '10px',
+          textAlign: 'center',
+        }}>
           <Typography>{statusMessage}</Typography>
         </Box>
       </Box>
     </Dialog>
   );
 };
-
-export default CheckoutDialog;

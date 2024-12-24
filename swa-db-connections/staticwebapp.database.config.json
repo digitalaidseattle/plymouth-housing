@@ -155,7 +155,27 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/process-checkout"
+        "path": "/checkout-general-items"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "ProcessWelcomeBasket": {
+      "source": {
+        "object": "dbo.ProcessWelcomeBasketCheckout",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/checkout-welcome-basket"
       },
       "permissions": [
         {
@@ -168,5 +188,6 @@
         }
       ]
     }
+
   }
 }

@@ -3,8 +3,8 @@ GO
 
 CREATE PROCEDURE ProcessWelcomeBasketCheckout
     @user_id INT,
-    @quantity INT,
     @mattress_size INT,
+    @quantity INT,
     @message NVARCHAR(MAX) = NULL OUTPUT
 AS
 BEGIN

@@ -1,15 +1,6 @@
 DROP PROCEDURE IF EXISTS [dbo].[CheckInsufficientInventory];
 GO
 
-DROP TYPE IF EXISTS [dbo].[CartItemsType];
-GO
-
-CREATE TYPE CartItemsType AS TABLE (
-    ItemId INT,
-    Quantity INT
-);
-GO
-
 CREATE PROCEDURE CheckInsufficientInventory
     @CartItems CartItemsType READONLY
 AS

@@ -14,6 +14,6 @@ BEGIN
 
     IF @TotalItems > 10
     BEGIN
-        THROW 51004, 'The cart exceeds the maximum limit of 10 items.', 1;
+        THROW 51001, 'The cart exceeds the maximum limit of 10 items.', 1;
     END
 END;

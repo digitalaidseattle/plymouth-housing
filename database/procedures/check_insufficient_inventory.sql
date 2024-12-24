@@ -7,28 +7,23 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @ErrorMessage NVARCHAR(MAX);
+    DECLARE @ErrorDetails NVARCHAR(MAX);
 
-    IF EXISTS (
-        SELECT 1
-        FROM @CartItems ci
-        JOIN Items i ON i.id = ci.ItemId
-        WHERE i.quantity < ci.Quantity
+    SELECT @ErrorDetails = STRING_AGG(
+        CONCAT(
+            'Item: ', i.name,
+            ', Requested: ', ci.Quantity,
+            ', Available: ', i.quantity
+        ), '; '
     )
-    BEGIN
-        SELECT @ErrorMessage = (
-            SELECT 
-                'Insufficient inventory' AS Reason,
-                i.name AS ItemName,
-                ci.Quantity AS Requested,
-                i.quantity AS Available
-            FROM @CartItems ci
-            JOIN Items i ON i.id = ci.ItemId
-            WHERE i.quantity < ci.Quantity
-            FOR JSON PATH
-        );
+    FROM @CartItems ci
+    JOIN Items i ON i.id = ci.ItemId
+    WHERE i.quantity < ci.Quantity;
 
-        -- Throw an error with the insufficient inventory details
+    IF @ErrorDetails IS NOT NULL
+    BEGIN
+        DECLARE @ErrorMessage NVARCHAR(MAX) = CONCAT('Insufficient inventory for the following items: ', @ErrorDetails);
         THROW 51003, @ErrorMessage, 1;
     END
 END;
+GO

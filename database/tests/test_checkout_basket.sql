@@ -24,3 +24,21 @@ exec ProcessCheckout @user_id = 1, @items = N'[
       }
     ]'
 
+print 'Test Category violation'
+exec ProcessCheckout @user_id = 1, @items = N'[
+      {
+        "id": 10,
+        "quantity": 1
+      },
+      {
+        "id": 11,
+        "quantity": 1
+      },
+      {
+        "id": 12,
+        "quantity": 1
+      }
+    ]'
+
+select * from items where category_id = 2
+

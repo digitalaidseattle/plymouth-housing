@@ -51,6 +51,17 @@ BEGIN
         RETURN;
     END CATCH
 
+    -- Check if there is no violation of the max per category
+    BEGIN TRY
+        EXEC CheckCategoryCheckoutLimit @CartItems;
+    END TRY
+    BEGIN CATCH
+        SELECT 
+            'Error' AS Status,
+            ERROR_MESSAGE() AS message;
+        RETURN;
+    END CATCH
+
     -- Generate a single transaction ID for the entire basket
     DECLARE @TransactionId UNIQUEIDENTIFIER = NEWID()
     

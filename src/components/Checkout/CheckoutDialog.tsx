@@ -10,7 +10,7 @@ import {
   Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CheckoutItem } from '../../types/interfaces';
+import { CategoryProps, CheckoutItem } from '../../types/interfaces';
 import CheckoutCard from './CheckoutCard';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
@@ -19,13 +19,14 @@ type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
   checkoutItems: CheckoutItem[];
+  welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number) => void;
   addItemToCart: (item: CheckoutItem, quantity: number) => void;
   setCheckoutItems: (items: CheckoutItem[]) => void;
   selectedBuildingCode: string;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
   const { user, loggedInVolunteer } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -48,7 +49,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       if (!loggedInVolunteer)
         throw new Error('Volunteer not found.');
 
-      const isWelcomeBasket = checkoutItems.some(item => item.id === 162 || item.id === 163);//TODO remove hardcoded IDs. 
+      const welcomeBasketItemIds = welcomeBasketData.flatMap(basket => basket.items.map(item => item.id));
+      const isWelcomeBasket = checkoutItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
       if (isWelcomeBasket) {
         data = await processWelcomeBasket(user, loggedInVolunteer, checkoutItems);

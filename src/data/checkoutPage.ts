@@ -20,22 +20,3 @@ export const buildingCodes = [
     name: 'Elm Ridge Drive',
   },
 ];
-
-export const welcomeBasketData = [
-  {
-    id: 1,
-    category: '',
-    items: [
-      {
-        id: 163,
-        name: 'Full Size Set',
-        quantity: 5,
-      },
-      {
-        id: 162,
-        name: 'Twin Size Set',
-        quantity: 19,
-      },
-    ],
-  },
-]

@@ -13,7 +13,7 @@ import Navbar from '../../components/Checkout/Navbar';
 import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
 
 const CheckoutPage = () => {
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const [data, setData] = useState<CategoryProps[]>([]);
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
@@ -63,7 +63,7 @@ const CheckoutPage = () => {
     }
   };
 
-  const fetchData = useCallback( async () => {
+  const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
@@ -76,7 +76,7 @@ const CheckoutPage = () => {
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
     }
-  },[user]);
+  }, [user]);
 
   const scrollToCategory = (id: string) => {
     const element = document.getElementById(id);
@@ -106,13 +106,13 @@ const CheckoutPage = () => {
         <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
         {welcomeBasketData.map((category) => (
           <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'welcomeBasket')} removeItemFromCart={removeItemFromCart} removeButton={false}
-          disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
+            disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
           />
         ))}
         <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
         {filteredData.map((category) => (
           <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'general')} removeItemFromCart={removeItemFromCart} removeButton={false}
-          disabled={activeSection !== '' && activeSection !== 'general'}
+            disabled={activeSection !== '' && activeSection !== 'general'}
           />
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />

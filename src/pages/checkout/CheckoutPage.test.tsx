@@ -1,28 +1,19 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import CheckoutPage from './CheckoutPage';
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import '@testing-library/jest-dom';
-import { createContext } from 'react';
+import { UserContext } from '../../components/contexts/UserContext';
 
 const mockUserContext = {
   user: { id: 1, name: 'Test User', roles: ['volunteer'] },
+  setUser: vi.fn(),
+  loggedInVolunteer: null,
+  setLoggedInVolunteer: vi.fn(),
+  activeVolunteers: [],
+  setActiveVolunteers: vi.fn(),
 };
 
-vi.mock('../../components/contexts/UserContext', () => ({
-  UserContext: createContext(mockUserContext),
-}));
-
 vi.mock('../../data/checkoutPage', () => ({
-  data: [
-    {
-      id: 1,
-      name: 'Electronics',
-      items: [
-        { id: 'item1', name: 'Laptop' },
-        { id: 'item2', name: 'Phone' },
-      ],
-    },
-  ],
   buildingCodes: [
     { code: 'B1', name: 'Building 1' },
     { code: 'B2', name: 'Building 2' },
@@ -38,32 +29,38 @@ vi.mock('../../data/checkoutPage', () => ({
   ],
 }));
 
-describe('CheckoutPage', () => {
-  beforeEach(() => {
+describe('CheckoutPage', async () => {
+  beforeEach(async () => {
     global.fetch = vi.fn(() =>{
-      console.log('fetching data');
-      Promise.resolve({
+      return {
         ok: true,
         json: () => Promise.resolve({
           value: [
             {
               id: 1,
-              name: 'Electronics',
+              category: 'Electronics',
               items: [
-                { id: 'item1', name: 'Laptop' },
-                { id: 'item2', name: 'Phone' },
+                { id: 1, name: 'Laptop', quantity: 1 },
+                { id: 2, name: 'Phone', quantity: 1 },
               ],
             },
           ],
         }),
-      })
+      }
     }) as Mock;
-    render(<CheckoutPage />);
+    await act(async () => {
+      render(
+        <UserContext.Provider value={mockUserContext}>
+          <CheckoutPage />
+        </UserContext.Provider>
+      );
+    });
   });
 
-  it('renders the checkout page correctly', () => {
+  it('renders the checkout page correctly', async () => {
+
     // Check if categories and items are rendered
-    expect(screen.getByText(/Electronics/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Electronics/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Laptop/i)).toBeInTheDocument();
     expect(screen.getByText(/Phone/i)).toBeInTheDocument();
   });

@@ -9,6 +9,7 @@ export const ENDPOINTS = {
   VOLUNTEERS: '/data-api/rest/volunteers',
   ITEMS: '/data-api/rest/items',
   CATEGORY: '/data-api/rest/categories',
+  BUILDINGS: '/data-api/rest/building',
   //Stored Procedures
   VERIFY_PIN: '/data-api/rest/verify-pin',
   //Views

@@ -7,19 +7,9 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { ReactNode, createContext, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useInterval } from '../../hooks/useInterval';
-
-
-interface RefreshContextType {
-  refresh: number;
-  setRefresh: (refresh: number) => void;
-}
-
-export const RefreshContext = createContext<RefreshContextType>({
-  refresh: 0,
-  setRefresh: () => {},
-});
+import { RefreshContext } from './RefreshContext';
 
 export const RefreshContextProvider = (props: { children: ReactNode }) => {
   const [refresh, setRefresh] = useState(Date.now());

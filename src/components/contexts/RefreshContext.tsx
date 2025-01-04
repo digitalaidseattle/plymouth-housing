@@ -7,7 +7,7 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import { ReactNode, createContext, useState } from 'react';
+import React, { ReactNode, createContext, useState } from 'react';
 import { useInterval } from '../../hooks/useInterval';
 
 

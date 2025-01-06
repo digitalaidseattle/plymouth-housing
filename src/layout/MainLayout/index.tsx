@@ -20,7 +20,7 @@ import Header from './Header';
 import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 import ScrollTop from '../../components/ScrollTop';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
-import { RefreshContextProvider } from '../../components/contexts/RefreshContext';
+import { RefreshContextProvider } from '../../components/contexts/RefreshContextProvider';
 import { UserContext } from '../../components/contexts/UserContext';
 import { useMsal } from '@azure/msal-react';
 import { IdTokenClaims } from '@azure/msal-common';

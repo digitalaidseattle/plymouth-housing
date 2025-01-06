@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
-import { RefreshContextProvider, RefreshContext } from './RefreshContext';
+import { RefreshContextProvider } from './RefreshContextProvider';
+import { RefreshContext } from './RefreshContext';
 
 describe('RefreshContextProvider', () => {
   it('provides the refresh context with initial value', () => {

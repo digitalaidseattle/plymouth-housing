@@ -1,11 +1,11 @@
 import CheckoutCard from './CheckoutCard';
-import { CategoryProps, CheckoutItemProp } from "../../types/interfaces";
+import { CategoryProps, CheckoutItem } from "../../types/interfaces";
 import { Box, Grid, Typography } from '@mui/material';
 
 type CategorySectionProps = {
   category: CategoryProps;
-  checkoutItems: CheckoutItemProp[];
-  addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
+  checkoutItems: CheckoutItem[];
+  addItemToCart: (item: CheckoutItem, quantity: number) => void;
   removeItemFromCart: (itemId: number) => void;
   removeButton: boolean;
   disabled: boolean;

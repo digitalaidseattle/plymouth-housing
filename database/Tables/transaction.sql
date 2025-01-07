@@ -9,9 +9,6 @@ CREATE TABLE Transactions (
     transaction_type VARCHAR(50) NOT NULL,
     quantity INT NOT NULL,
     transaction_date DATETIME DEFAULT GETDATE() NOT NULL,
-
-    -- Define foreign key constraints
-    FOREIGN KEY (item_id) REFERENCES Items(id)
 );
 
 GO

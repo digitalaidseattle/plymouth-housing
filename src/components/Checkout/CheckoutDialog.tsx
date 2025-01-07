@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,34 +10,67 @@ import {
   Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CheckoutItemProp } from '../../types/interfaces';
+import { CategoryProps, CheckoutItem } from '../../types/interfaces';
 import CheckoutCard from './CheckoutCard';
+import { UserContext } from '../contexts/UserContext';
+import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  checkoutItems: CheckoutItemProp[];
+  checkoutItems: CheckoutItem[];
+  welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number) => void;
-  addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
-  setCheckoutItems: (items: CheckoutItemProp[]) => void;
+  addItemToCart: (item: CheckoutItem, quantity: number) => void;
+  setCheckoutItems: (items: CheckoutItem[]) => void;
   selectedBuildingCode: string;
-  // renderItemQuantityButtons: (item: CheckoutItem) => JSX.Element;
 };
 
-const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
-
-  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItemProp[]>([]);
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
+  const { user, loggedInVolunteer } = useContext(UserContext);
+  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
+  const [statusMessage, setStatusMessage] = useState<string>('');
 
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
+      setStatusMessage('')
     }
   }, [open, checkoutItems]);
 
-
   const handleCancel = () => {
     setCheckoutItems(originalCheckoutItems);
+    setStatusMessage('')
     onClose();
+  };
+
+  const handleConfirm = async () => {
+    try {
+      if (!loggedInVolunteer)
+        throw new Error('Volunteer not found.');
+
+      const welcomeBasketItemIds = welcomeBasketData.flatMap(basket => basket.items.map(item => item.id));
+      const isWelcomeBasket = checkoutItems.some(item => welcomeBasketItemIds.includes(item.id));
+      let data = null;
+      if (isWelcomeBasket) {
+        data = await processWelcomeBasket(user, loggedInVolunteer, checkoutItems);
+      } else {
+        data = await processGeneralItems(user, loggedInVolunteer, checkoutItems);
+      }
+
+      const result = data.value[0];
+      if (result.Status !== 'Success') {
+        throw new Error(result.message);
+      }
+      setCheckoutItems([]);
+      setStatusMessage('Transaction Successful');
+
+      return null;
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      setStatusMessage('Transaction failed: ' + error);
+      return null;
+    }
   };
 
   return (
@@ -81,7 +114,7 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
           padding: '0 20px',
           maxHeight: '40vh', // Adjust maxHeight based on title/footer space
         }}>
-          {checkoutItems.map((item: CheckoutItemProp) => (
+          {checkoutItems.map((item: CheckoutItem) => (
             <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
               <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} />
             </Box>
@@ -89,11 +122,19 @@ const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkout
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancel}>Return to Checkout Page</Button>
-          <Button autoFocus>Confirm</Button>
+          <Button onClick={handleConfirm} autoFocus>Confirm</Button>
         </DialogActions>
+        <Box sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: '10px',
+          textAlign: 'center',
+        }}>
+          <Typography>{statusMessage}</Typography>
+        </Box>
       </Box>
     </Dialog>
   );
 };
-
-export default CheckoutDialog;

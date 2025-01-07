@@ -121,14 +121,35 @@ You can also develop locally against a local install of SQL server. There are fr
 
 - After that you can create the [Tables](../database/Tables/) and the [testdata](../database/testdata/).
 
-- make sure to update the ```DATABASE_CONNECTION_STRING``` in ```.env.local``` and reload with ```source .env.local``` on Linux. On Windows you will have to set the connection string with:
+#### Environment Variables
 
+Make sure to update the `DATABASE_CONNECTION_STRING` in your environment:
+
+- **Linux**
+  - Update the `DATABASE_CONNECTION_STRING` in `.env.local`.
+  - Then run:
+    ```bash
+    source .env.local
     ```
-    SET DATABASE_CONNECTION_STRING=
-    localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;
+    to load your updated connection string.
+
+- **Windows**
+  - You have to set the connection string with:
+    ```powershell
+    SET DATABASE_CONNECTION_STRING=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;
     ```
 
-    Adding ```TrustServerCertificate=True``` to the connection string will get you around a security error. (Obviously, not recommended for any scenario other than local dev.)
+- **macOS**
+  - You can set the connection string in your zsh terminal by typing:
+    ```bash
+    export DATABASE_CONNECTION_STRING="YOUR_CONNECTION_STRING"
+    ```
+  - Then verify by:
+    ```bash
+    echo $DATABASE_CONNECTION_STRING
+    ```
+
+- Adding `TrustServerCertificate=True` to the connection string will help you avoid a security error. (Obviously, not recommended for any scenario other than local dev.)
 
 ### Cloud Database for Development
 

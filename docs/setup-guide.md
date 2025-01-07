@@ -144,7 +144,8 @@ Make sure to update the `DATABASE_CONNECTION_STRING` in your environment:
     ```bash
     export DATABASE_CONNECTION_STRING="YOUR_CONNECTION_STRING"
     ```
-  - Then verify by:
+    > **Warning:** If your `DATABASE_CONNECTION_STRING` contains an exclamation mark (`!`), you may need to escape it by adding a backslash (`\`) before the exclamation mark to avoid issues with zsh history expansion. 
+- Then verify by:
     ```bash
     echo $DATABASE_CONNECTION_STRING
     ```

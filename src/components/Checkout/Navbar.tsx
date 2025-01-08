@@ -22,7 +22,7 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
           Welcome Basket
         </Button>
       {filteredData.map((categories) => (
-        <Button onClick={() => scrollToCategory(categories.category)} sx={{ color: 'black' }}>
+        <Button key={categories.category} onClick={() => scrollToCategory(categories.category)} sx={{ color: 'black' }}>
           {categories.category}
         </Button>
       ))}

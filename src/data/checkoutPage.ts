@@ -1,41 +1,52 @@
-export const buildingCodes = [
+export const categories = [
   {
-    code: 'ALM',
-    name: 'Bob and Marcia Almquist Place',
-  },
-  {
-    code: 'BHR',
-    name: 'Baker Hill Road',
-  },
-  {
-    code: 'CST',
-    name: 'Central Street',
-  },
-  {
-    code: 'DFR',
-    name: 'Deerfield Road',
-  },
-  {
-    code: 'EMR',
-    name: 'Elm Ridge Drive',
-  },
-];
-
-export const welcomeBasketData = [
-  {
-    id: 1,
-    category: '',
+    id: '1',
+    name: 'personal care',
+    description: 'All electronics',
     items: [
       {
-        id: 3241,
-        name: 'Full Size Set',
-        quantity: 5,
+        id: '11',
+        name: 'shaving kits',
       },
       {
-        id: 3242,
-        name: 'Twin Size Set',
-        quantity: 19,
+        id: '12',
+        name: 'deodorant',
+      },
+      {
+        id: '13',
+        name: 'hair care',
+      },
+      {
+        id: '14',
+        name: 'skin care',
+      },
+      {
+        id: '15',
+        name: 'oral care',
+      },
+      {
+        id: '16',
+        name: 'sanitary care',
       },
     ],
   },
-]
+  {
+    id: '2',
+    name: 'cleaning supplies',
+    description: 'All cleaning supplies',
+    items: [
+      {
+        id: '21',
+        name: 'cleaning tools',
+      },
+      {
+        id: '22',
+        name: 'cleaning chemicals',
+      },
+      {
+        id: '23',
+        name: 'cleaning equipment',
+      },
+    ],
+  },
+];

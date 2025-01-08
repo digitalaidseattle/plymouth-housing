@@ -1,19 +1,15 @@
 import React from 'react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-
-type BuildingCode = {
-  code: string;
-  name: string;
-};
+import { Building } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
-  buildingCodes: BuildingCode[];
+  buildings: Building[];
   selectedBuildingCode: string;
   setSelectedBuildingCode: (code: string) => void;
 }
 
 const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
-  buildingCodes,
+  buildings,
   selectedBuildingCode,
   setSelectedBuildingCode,
 }) => {
@@ -28,9 +24,9 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         value={selectedBuildingCode || ''}
         onChange={(event) => setSelectedBuildingCode(event.target.value)}
       >
-        {buildingCodes.map((buildingCode) => (
-          <MenuItem key={buildingCode.code} value={buildingCode.code}>
-            {buildingCode.code} ({buildingCode.name})
+        {buildings.map((building) => (
+          <MenuItem key={building.code} value={building.code}>
+            {building.code} ({building.name})
           </MenuItem>
         ))}
       </Select>

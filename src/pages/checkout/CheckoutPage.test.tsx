@@ -3,6 +3,7 @@ import CheckoutPage from './CheckoutPage';
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import '@testing-library/jest-dom';
 import { UserContext } from '../../components/contexts/UserContext';
+import { ENDPOINTS } from '../../types/constants';
 
 const mockUserContext = {
   user: { id: 1, name: 'Test User', roles: ['volunteer'] },
@@ -13,40 +14,45 @@ const mockUserContext = {
   setActiveVolunteers: vi.fn(),
 };
 
-vi.mock('../../data/checkoutPage', () => ({
-  buildingCodes: [
-    { code: 'B1', name: 'Building 1' },
-    { code: 'B2', name: 'Building 2' },
-  ],
-  welcomeBasketData: [
-    {
-      category: 'Welcome Basket',
-      items: [
-        { id: 162, name: 'Full-size sheet set' },
-        { id: 163, name: 'Twin size sheet set' },
-      ],
-    },
-  ],
-}));
-
 describe('CheckoutPage', async () => {
   beforeEach(async () => {
-    global.fetch = vi.fn(() =>{
-      return {
-        ok: true,
-        json: () => Promise.resolve({
-          value: [
-            {
-              id: 1,
-              category: 'Electronics',
-              items: [
-                { id: 1, name: 'Laptop', quantity: 1 },
-                { id: 2, name: 'Phone', quantity: 1 },
-              ],
-            },
-          ],
-        }),
+    global.fetch = vi.fn((url) => {
+      if (url.includes(ENDPOINTS.BUILDINGS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, name: 'Building 1', code: 'B1' },
+              { id: 2, name: 'Building 2', code: 'B2' },
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.CATEGORIZED_ITEMS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              {
+                id: 1,
+                category: 'Electronics',
+                items: [
+                  { id: 1, name: 'Laptop', quantity: 1 },
+                  { id: 2, name: 'Phone', quantity: 1 },
+                ],
+              },
+              {
+                id: 2,
+                category: 'Welcome Basket',
+                items: [
+                  { id: 162, name: 'Full-size sheet set' },
+                  { id: 163, name: 'Twin size sheet set' },
+                ],
+              },
+            ],
+          }),
+        });
       }
+      return Promise.reject(new Error('Unknown endpoint'));
     }) as Mock;
     await act(async () => {
       render(

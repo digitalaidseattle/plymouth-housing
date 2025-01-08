@@ -1,11 +1,11 @@
 import { Remove, Add } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
-import { CheckoutCardProps, CheckoutItemProp } from "../../types/interfaces";
+import { CheckoutCardProps, CheckoutItem } from "../../types/interfaces";
 
 const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CheckoutCardProps) => {
 
   const foundInCart = checkoutItems.find(
-    (v: CheckoutItemProp) => v.id === item.id,
+    (v: CheckoutItem) => v.id === item.id,
   );
 
   return (

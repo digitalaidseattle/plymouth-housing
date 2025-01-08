@@ -169,6 +169,47 @@
           "role": "volunteer"
         }
       ]
+    },
+    "ProcessCheckout": {
+      "source": {
+        "object": "dbo.ProcessCheckout",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/checkout-general-items"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "ProcessWelcomeBasket": {
+      "source": {
+        "object": "dbo.ProcessWelcomeBasketCheckout",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/checkout-welcome-basket"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
+
   }
 }

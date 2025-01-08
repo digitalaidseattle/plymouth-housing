@@ -1,6 +1,6 @@
 import { IdTokenClaims } from '@azure/msal-common';
 
-export type CheckoutItemProp = {
+export type CheckoutItem = {
   id: number;
   name: string;
   quantity: number;
@@ -9,13 +9,13 @@ export type CheckoutItemProp = {
 export type CategoryProps = {
   id: number;
   category: string;
-  items: CheckoutItemProp[];
+  items: CheckoutItem[];
 };
 
 export type CheckoutCardProps = {
-  item: CheckoutItemProp;
-  checkoutItems: CheckoutItemProp[];
-  addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
+  item: CheckoutItem;
+  checkoutItems: CheckoutItem[];
+  addItemToCart: (item: CheckoutItem, quantity: number) => void;
   removeItemFromCart: (itemId: number) => void;
   removeButton: boolean;
 };
@@ -65,3 +65,8 @@ export type Building = {
   name: string;
   code: string;
 };
+
+export type ShoppingCart = {
+  user_id: string;
+  items: CheckoutItem[];
+}

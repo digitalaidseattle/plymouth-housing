@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
-import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { Building, CategoryProps, CheckoutItem } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import CheckoutDialog from '../../components/Checkout/CheckoutDialog';
+import {CheckoutDialog} from '../../components/Checkout/CheckoutDialog';
 import { welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
@@ -13,21 +13,22 @@ import Navbar from '../../components/Checkout/Navbar';
 import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
 
 const CheckoutPage = () => {
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>([]);
   const [data, setData] = useState<CategoryProps[]>([]);
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
-  const [checkoutItems, setCheckoutItems] = useState<CheckoutItemProp[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [openSummary, setOpenSummary] = useState(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
   const [activeSection, setActiveSection] = useState<string>('');
 
-  const addItemToCart = (item: CheckoutItemProp, quantity: number, section: string) => {
+  const addItemToCart = (item: CheckoutItem, quantity: number, section: string) => {
     // Lock active section if none is set, or allow only the active section
     if (!activeSection || activeSection === section) {
       const updatedItems = [...checkoutItems];
       const foundIndex = updatedItems.findIndex(
-        (addedItem: CheckoutItemProp) => addedItem.id === item.id,
+        (addedItem: CheckoutItem) => addedItem.id === item.id,
       );
 
       if (foundIndex !== -1) {
@@ -59,7 +60,7 @@ const CheckoutPage = () => {
   const removeItemFromCart = (itemId: number) => {
     setCheckoutItems(
       checkoutItems.filter(
-        (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
+        (addedItem: CheckoutItem) => addedItem.id !== itemId,
       ),
     );
   };
@@ -86,7 +87,7 @@ const CheckoutPage = () => {
     }
   }, [user]);
 
-  const fetchData = useCallback( async () => {
+  const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
@@ -95,6 +96,14 @@ const CheckoutPage = () => {
       }
       const responseData = await response.json();
       setData(responseData.value);
+
+      //this part is a bit tricky. PH has 2 different welcome baskets: one for full-size and one for twin-size. See documentation
+      const welcomeBasket = responseData.value.filter((category: CategoryProps) => category.category === 'Welcome Basket') || [];
+      welcomeBasket[0].items = welcomeBasket[0].items.filter((item: CheckoutItem) => 
+        item.name.toLowerCase().includes('full-size sheet set') ||
+        item.name.toLowerCase().includes('twin-size sheet set')
+      );
+      setWelcomeBasketData(welcomeBasket);
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
@@ -123,13 +132,13 @@ const CheckoutPage = () => {
         <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
         {welcomeBasketData.map((category) => (
           <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'welcomeBasket')} removeItemFromCart={removeItemFromCart} removeButton={false}
-          disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
+            disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
           />
         ))}
         <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
         {filteredData.map((category) => (
           <CategorySection key={category.id} category={category} checkoutItems={checkoutItems} addItemToCart={(item, quantity) => addItemToCart(item, quantity, 'general')} removeItemFromCart={removeItemFromCart} removeButton={false}
-          disabled={activeSection !== '' && activeSection !== 'general'}
+            disabled={activeSection !== '' && activeSection !== 'general'}
           />
         ))}
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
@@ -139,6 +148,7 @@ const CheckoutPage = () => {
           open={openSummary}
           onClose={() => setOpenSummary(false)}
           checkoutItems={checkoutItems}
+          welcomeBasketData={welcomeBasketData}
           addItemToCart={(item, quantity) => addItemToCart(item, quantity, activeSection)}
           setCheckoutItems={setCheckoutItems}
           removeItemFromCart={removeItemFromCart}

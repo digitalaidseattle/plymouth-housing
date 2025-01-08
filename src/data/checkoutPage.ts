@@ -50,22 +50,3 @@ export const categories = [
     ],
   },
 ];
-
-export const welcomeBasketData = [
-  {
-    id: 1,
-    category: '',
-    items: [
-      {
-        id: 3241,
-        name: 'Full Size Set',
-        quantity: 5,
-      },
-      {
-        id: 3242,
-        name: 'Twin Size Set',
-        quantity: 19,
-      },
-    ],
-  },
-]

@@ -60,6 +60,12 @@ export type Volunteer = {
   PIN: string | null;
 };
 
+export type Building = {
+  id: number;
+  name: string;
+  code: string;
+};
+
 export type ShoppingCart = {
   user_id: string;
   items: CheckoutItem[];

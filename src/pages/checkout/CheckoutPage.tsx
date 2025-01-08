@@ -4,7 +4,6 @@ import { Building, CategoryProps, CheckoutItem } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import {CheckoutDialog} from '../../components/Checkout/CheckoutDialog';
-import { welcomeBasketData } from '../../data/checkoutPage'; //TODO remove when SQL Is hooked up
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';

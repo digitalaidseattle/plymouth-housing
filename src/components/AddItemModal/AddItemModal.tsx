@@ -96,7 +96,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
       onClose={resetInputsHandler}
     >
       {/* Title Section */}
-      <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '30%', height: '30%', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto' }}>
+      <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', minWidth: '500px', width: '30%', height: '400px', minHeight: '30%', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'space-evenly', width: '70%', margin: 'auto', height: '100%' }}>
           <Typography sx={{ fontSize: '20px', }}>
             Add Item
@@ -126,10 +126,19 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
               <Autocomplete
                 onChange={(_, value) => onChangeHandler(value)}
                 options={nameSearch} // Pass the full array of objects
-                getOptionLabel={(option) => {
-                  // Display the name property in the dropdown
-                  return typeof option === 'string' ? option : option.name || '';
-                }}
+                getOptionLabel={(option) => option.name}
+                renderOption={(props, option) => (
+                  <li {...props} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <span>
+                      {option.name}
+                    </span>
+                    {option.category && (
+                      <span style={{ fontSize: '0.8rem', color: 'gray' }}>
+                        {option.category}
+                      </span>
+                    )}
+                  </li>
+                )}
                 filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
                   return options.filter((option) =>
                     option.name.toLowerCase().includes(inputValue.toLowerCase()) ||

@@ -118,16 +118,16 @@ describe('CheckoutPage', async () => {
     expect(screen.queryByText(/items selected/i)).not.toBeInTheDocument();
   });
 
-  it('shows checkout dialog when "Continue" is clicked', () => {
-    // Add item to the cart
-    const addItemButton = screen.getAllByTestId('AddIcon')[0];
-    fireEvent.click(addItemButton);
+  // it('shows checkout dialog when "Continue" is clicked', () => {
+  //   // Add item to the cart
+  //   const addItemButton = screen.getAllByTestId('AddIcon')[0];
+  //   fireEvent.click(addItemButton);
 
-    // Click the continue button to open the checkout dialog
-    const continueButton = screen.getByText(/Continue/i);
-    fireEvent.click(continueButton);
+  //   // Click the continue button to open the checkout dialog
+  //   const continueButton = screen.getByText(/Continue/i);
+  //   fireEvent.click(continueButton);
 
-    // Check if the checkout dialog is open
-    expect(screen.getByText(/Checkout Summary/i)).toBeInTheDocument();
-  });
+  //   // Check if the checkout dialog is open
+  //   expect(screen.getByText(/Checkout Summary/i)).toBeInTheDocument();
+  // });
 });

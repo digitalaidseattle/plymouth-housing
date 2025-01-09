@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS [dbo].[Transactions]; -- Has a Foreign Key constraint on Items. 
+DROP TABLE IF EXISTS [dbo].[Transactions]; -- Has a Foreign Key constraint on Items.
 DROP TABLE IF EXISTS [dbo].[Items];
 DROP VIEW IF EXISTS InventoryWithCategory;
 DROP VIEW IF EXISTS ItemsByCategory;
@@ -17,7 +17,7 @@ CREATE TABLE Items (
 );
 GO
 
-CREATE VIEW InventoryWithCategory
+CREATE VIEW ItemsWithCategory
 AS
     SELECT
         i.id,

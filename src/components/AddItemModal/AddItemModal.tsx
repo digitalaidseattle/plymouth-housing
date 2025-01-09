@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
@@ -151,7 +150,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
           {errorMessage.length > 0 ? <DASSnackbar open={true} severity='error' message={errorMessage} onClose={() => setErrorMessage('')} /> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-            <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Update</Button>
+            <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Add</Button>
           </Box>
         </Box>
       </Box>

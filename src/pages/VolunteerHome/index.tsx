@@ -6,13 +6,12 @@ import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/AddItemModal/AddItemModal';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
+import { InventoryItem } from '../../types/interfaces.ts';
 
 const VolunteerHome: React.FC = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const [addModal, setAddModal] = useState(false);
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
 
@@ -34,24 +33,9 @@ const VolunteerHome: React.FC = () => {
     setIsLoading(false);
   }, [user]);
 
-  const fetchCategories = useCallback(async () => {
-    try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORY, { headers: HEADERS, method: 'GET' });
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      const data = await response.json();
-      setCategories(data.value);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  }, [user]);
-
   useEffect(() => {
     fetchData();
-    fetchCategories();
-  }, [fetchData, fetchCategories]);
+  }, [fetchData]);
 
   const handleAddOpen = () => {
     setAddModal(true);
@@ -154,7 +138,6 @@ const VolunteerHome: React.FC = () => {
             addModal={addModal}
             handleAddClose={handleAddClose}
             fetchData={fetchData}
-            categoryData={categories}
             originalData={originalData}
           />
         </Grid>

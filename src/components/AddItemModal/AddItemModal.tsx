@@ -21,15 +21,7 @@ type AddItemModalProps = {
 
 const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: AddItemModalProps) => {
   const { user } = useContext(UserContext);
-  const [updateItem, setUpdateItem] = useState<InventoryItem | null>({
-    id: -1,
-    name: '',
-    type: '',
-    description: '',
-    quantity: 0,
-    category: '',
-    status: ''
-  });
+  const [updateItem, setUpdateItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState<FormData>({
     type: '',
     name: '',
@@ -71,15 +63,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
       type: '',
       quantity: 0
     })
-    setUpdateItem({
-      id: -1,
-      name: '',
-      type: '',
-      description: '',
-      quantity: 0,
-      category: '',
-      status: ''
-    });
+    setUpdateItem(null);
     handleAddClose();
   }
 

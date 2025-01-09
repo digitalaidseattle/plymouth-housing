@@ -118,16 +118,26 @@ describe('CheckoutPage', async () => {
     expect(screen.queryByText(/items selected/i)).not.toBeInTheDocument();
   });
 
-  // it('shows checkout dialog when "Continue" is clicked', () => {
-  //   // Add item to the cart
-  //   const addItemButton = screen.getAllByTestId('AddIcon')[0];
-  //   fireEvent.click(addItemButton);
+  it('shows checkout dialog when "Continue" is clicked', () => {
 
-  //   // Click the continue button to open the checkout dialog
-  //   const continueButton = screen.getByText(/Continue/i);
-  //   fireEvent.click(continueButton);
+    const select = screen.getByLabelText('Building Code');
 
-  //   // Check if the checkout dialog is open
-  //   expect(screen.getByText(/Checkout Summary/i)).toBeInTheDocument();
-  // });
+    // Open the dropdown
+    fireEvent.mouseDown(select);
+
+    // Click the first option
+    const firstOption = screen.getByText('B1 (Building 1)');
+    fireEvent.click(firstOption);
+
+    // Add item to the cart
+    const addItemButton = screen.getAllByTestId('AddIcon')[0];
+    fireEvent.click(addItemButton);
+
+    // Click the continue button to open the checkout dialog
+    const continueButton = screen.getByText(/Continue/i);
+    fireEvent.click(continueButton);
+
+    // Check if the checkout dialog is open
+    expect(screen.getByText(/Checkout Summary/i)).toBeInTheDocument();
+  });
 });

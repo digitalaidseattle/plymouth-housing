@@ -41,7 +41,7 @@
     "@azure/static-web-apps-cli": "^2.0.1",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.1.0",
-    "@types/geojson": "^7946.0.14",
+    "@types/geojson": "^7946.0.15",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.14.202",
     "@types/node": "^22.10.5",

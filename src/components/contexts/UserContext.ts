@@ -5,8 +5,7 @@
  *
  */
 import { createContext } from 'react';
-import { IdTokenClaims } from '@azure/msal-common';
-import { UserContextType } from '../../types/interfaces';
+import { UserContextType, User } from '../../types/interfaces';
 
 export const UserContext = createContext<UserContextType>({
   user: null,
@@ -17,12 +16,12 @@ export const UserContext = createContext<UserContextType>({
   setActiveVolunteers: () => {},
 });
 
-export function getRole(user: IdTokenClaims | null): string {
-  if (user?.roles?.includes('volunteer')) {
+export function getRole(user: User | null): string {
+  if (user?.userRoles?.includes('volunteer')) {
     return 'volunteer';
   }
 
-  if (user?.roles?.includes('admin')) {
+  if (user?.userRoles?.includes('admin')) {
     return 'admin';
   }
   throw new Error('User is not a member of Admin or Volunteer role.');

@@ -36,8 +36,8 @@ msalInstance.addEventCallback((event: EventMessage) => {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <MsalProvider instance={msalInstance}>
+//    <MsalProvider instance={msalInstance}>
       <App />
-    </MsalProvider>
+//    </MsalProvider>
   </React.StrictMode>,
 );

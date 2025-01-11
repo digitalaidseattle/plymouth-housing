@@ -80,8 +80,8 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       // setAvatar(user.user_metadata.avatar_url) //TODO add avatar
-      setUsername(user.name ?? 'Null');
-      setRole(user.roles ? user.roles[0] : ''); // Set the role based on user context
+      setUsername(user.userDetails ?? 'Null');
+      setRole(user.userRoles ? user.userRoles[0] : ''); // Set the role based on user context
     }
   }, [user]);
 

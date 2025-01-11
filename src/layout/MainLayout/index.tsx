@@ -23,15 +23,14 @@ import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { RefreshContextProvider } from '../../components/contexts/RefreshContextProvider';
 import { UserContext } from '../../components/contexts/UserContext';
 import { useMsal } from '@azure/msal-react';
-import { IdTokenClaims } from '@azure/msal-common';
-import { Volunteer } from '../../types/interfaces';
+import { Volunteer, User } from '../../types/interfaces';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const [user, setUser] = useState<IdTokenClaims | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [loggedInVolunteer, setLoggedInVolunteer] = useState<Volunteer | null>(
     null,
@@ -44,20 +43,26 @@ const MainLayout: React.FC = () => {
 
   useEffect(() => {
     const fetchTokenAndVolunteers = async () => {
-      const account = instance.getActiveAccount();
-      if (!account) {
-        console.log('Cannot get account, redirecting to login');
-        navigate('/login');
-        return;
-      }
+
+      const response = await fetch('/.auth/me');
+      const payload = await response.json();
+      const { clientPrincipal } = payload;
+      console.log (clientPrincipal);
+    
+      // const account = instance.getActiveAccount();
+      // if (!account) {
+      //   console.log('Cannot get account, redirecting to login');
+      //   navigate('/login');
+      //   return;
+      // }
 
       try {
-        const tokenResponse = await instance.acquireTokenSilent({
-          account: account,
-          scopes: ['openid', 'profile', 'email', 'User.Read'],
-        });
+        // const tokenResponse = await instance.acquireTokenSilent({
+        //   account: account,
+        //   scopes: ['openid', 'profile', 'email', 'User.Read'],
+        // });
 
-        const userClaims = tokenResponse.idTokenClaims;
+        const userClaims = clientPrincipal;//tokenResponse.idTokenClaims;
         setUser(userClaims || null);
 
         if (volunteers?.length > 0 && activeVolunteers.length === 0) {

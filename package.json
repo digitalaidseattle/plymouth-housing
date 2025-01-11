@@ -23,7 +23,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
-    "@mui/x-data-grid": "^6.19.6",
+    "@mui/x-data-grid": "^7.23.6",
     "airtable": "^0.12.2",
     "lodash": "^4.17.21",
     "maplibre-gl": "^1.15.3",

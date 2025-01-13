@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@azure/static-web-apps-cli": "^2.0.1",
-    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@types/geojson": "^7946.0.15",
     "@types/jest": "^29.5.14",

@@ -38,7 +38,7 @@
     "uuidv4": "^6.2.13"
   },
   "devDependencies": {
-    "@azure/static-web-apps-cli": "^2.0.1",
+    "@azure/static-web-apps-cli": "^2.0.2",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.1.0",
     "@types/geojson": "^7946.0.15",

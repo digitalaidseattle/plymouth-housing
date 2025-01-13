@@ -1,7 +1,7 @@
 import CheckoutCard from './CheckoutCard';
 import { CategoryProps, CheckoutItem } from "../../types/interfaces";
 import { Box, Grid, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 type CategorySectionProps = {
   category: CategoryProps;
@@ -17,17 +17,17 @@ const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFro
   const [categoryCount, setCategoryCount] = useState<number>(0);
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
 
-  const checkLimit = () => {
+  const checkLimit = useCallback(() => {
     if (categoryCount >= category.checkout_limit) {
       setDisableAdd(true);
     } else {
       setDisableAdd(false);
     }
-  }
+  }, [categoryCount, category.checkout_limit]);
 
   useEffect(() => {
     checkLimit();
-  }, [categoryCount])
+  }, [categoryCount, checkLimit])
 
   return (
     <Box sx={{ paddingLeft: '5%', paddingRight: '5%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>

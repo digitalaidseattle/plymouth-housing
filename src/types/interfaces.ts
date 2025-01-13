@@ -10,6 +10,7 @@ export type CategoryProps = {
   id: number;
   category: string;
   items: CheckoutItem[];
+  checkout_limit: number;
 };
 
 export type CheckoutCardProps = {
@@ -18,6 +19,8 @@ export type CheckoutCardProps = {
   addItemToCart: (item: CheckoutItem, quantity: number) => void;
   removeItemFromCart: (itemId: number) => void;
   removeButton: boolean;
+  setCategoryCount: React.Dispatch<React.SetStateAction<number>>;
+  disableAdd: boolean;
 };
 
 export interface UserContextType {

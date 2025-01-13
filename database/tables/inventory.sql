@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS [dbo].[Transactions]; -- Has a Foreign Key constraint on Items.
 DROP TABLE IF EXISTS [dbo].[Items];
-DROP VIEW IF EXISTS InventoryWithCategory;
+DROP VIEW IF EXISTS ItemsWithCategory;
 DROP VIEW IF EXISTS ItemsByCategory;
 GO
 
@@ -41,6 +41,7 @@ CREATE VIEW ItemsByCategory
 AS
     SELECT
         Categories.id,
+        Categories.checkout_limit,
         Categories.name AS category,
         (
         SELECT

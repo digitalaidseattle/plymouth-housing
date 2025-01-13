@@ -2,17 +2,27 @@ import { Remove, Add } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { CheckoutCardProps, CheckoutItem } from "../../types/interfaces";
 
-const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CheckoutCardProps) => {
+const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFromCart, removeButton, setCategoryCount, disableAdd }: CheckoutCardProps) => {
 
   const foundInCart = checkoutItems.find(
     (v: CheckoutItem) => v.id === item.id,
   );
 
+  const handleAddClick = () => {
+    addItemToCart(item, 1);
+    setCategoryCount((prevCount: number) => prevCount + 1);
+  }
+
+  const handleRemoveClick = () => {
+    addItemToCart(item, -1);
+    setCategoryCount((prevCount: number) => prevCount - 1);
+  }
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', overflow: 'hidden' }}>
       {foundInCart ? <><IconButton
         sx={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
-        onClick={() => addItemToCart(item, -1)}
+        onClick={handleRemoveClick}
       >
         <Remove />
       </IconButton>
@@ -23,8 +33,9 @@ const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFrom
           {foundInCart.quantity}
         </Typography></> : null}
       <IconButton
-        style={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
-        onClick={() => addItemToCart(item, 1)}
+        sx={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
+        onClick={handleAddClick}
+        disabled={disableAdd}
       >
         <Add />
       </IconButton>

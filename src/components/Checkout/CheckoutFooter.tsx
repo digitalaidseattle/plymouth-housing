@@ -36,17 +36,28 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
               (accumulator, item) => accumulator + item.quantity,
               0,
             )}{' '}
-            items selected
+            /10 items selected
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {!selectedBuildingCode || selectedBuildingCode.length === 0 ? (
-              <Typography sx={{ color: 'red', marginRight: '15px' }}>Building Code Not Selected</Typography>
+              <Typography sx={{ color: 'red', marginRight: '15px' }}>
+                Building Code Not Selected
+              </Typography>
+            ) : checkoutItems.reduce((accumulator, item) => accumulator + item.quantity, 0) > 10 ? (
+              <Typography sx={{ color: 'red', marginRight: '15px' }}>
+                Cart Exceeds 10 Items
+              </Typography>
             ) : null}
+
             <Button
               variant="contained"
               color="primary"
               onClick={() => setOpenSummary(true)}
-              disabled={!selectedBuildingCode || selectedBuildingCode.length === 0}
+              disabled={
+                !selectedBuildingCode ||
+                selectedBuildingCode.length === 0 ||
+                checkoutItems.reduce((accumulator, item) => accumulator + item.quantity, 0) > 10
+              }
             >
               Continue
             </Button>

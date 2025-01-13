@@ -18,15 +18,15 @@ export type CheckoutCardProps = {
   removeButton: boolean;
 };
 
-export interface User{
+export interface ClientPrincipal{
   userDetails: string, 
   userID: string,
   userRoles: string[]
 }
 
 export interface UserContextType {
-  user: User | null;
-  setUser: (user: User) => void;
+  user: ClientPrincipal | null;
+  setUser: (user: ClientPrincipal) => void;
   loggedInVolunteer: Volunteer | null;
   setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
   activeVolunteers: Volunteer[];

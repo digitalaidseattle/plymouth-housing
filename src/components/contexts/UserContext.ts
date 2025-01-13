@@ -5,7 +5,7 @@
  *
  */
 import { createContext } from 'react';
-import { UserContextType, User } from '../../types/interfaces';
+import { UserContextType, ClientPrincipal } from '../../types/interfaces';
 
 export const UserContext = createContext<UserContextType>({
   user: null,
@@ -16,7 +16,7 @@ export const UserContext = createContext<UserContextType>({
   setActiveVolunteers: () => {},
 });
 
-export function getRole(user: User | null): string {
+export function getRole(user: ClientPrincipal | null): string {
   if (user?.userRoles?.includes('volunteer')) {
     return 'volunteer';
   }

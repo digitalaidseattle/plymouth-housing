@@ -31,6 +31,11 @@ export interface UserContextType {
   setLoggedInAdmin: (loggedInAdmin: Admin | null) => void;
 }
 
+export interface ExtendedIdTokenClaims extends IdTokenClaims {
+  email?: string;            
+}
+
+
 export type InventoryItem = {
   id: number;
   name: string;

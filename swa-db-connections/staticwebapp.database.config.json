@@ -37,7 +37,7 @@
       },
       "permissions": [
         {
-          "actions": ["read", "create", "update","patch"],
+          "actions": ["read", "create", "update"],
           "role": "admin"
         },
         {

@@ -24,6 +24,7 @@ import { RefreshContextProvider } from '../../components/contexts/RefreshContext
 import { UserContext } from '../../components/contexts/UserContext';
 import { useMsal } from '@azure/msal-react';
 import { IdTokenClaims } from '@azure/msal-common';
+import { ExtendedIdTokenClaims } from '../../types/interfaces';
 import { Volunteer, Admin } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 // ==============================|| MAIN LAYOUT ||============================== //
@@ -59,7 +60,7 @@ const MainLayout: React.FC = () => {
           scopes: ['openid', 'profile', 'email', 'User.Read'],
         });
 
-        const userClaims = tokenResponse.idTokenClaims as any & { roles?: string[] };
+        const userClaims = tokenResponse.idTokenClaims as ExtendedIdTokenClaims & { roles?: string[] };
         setUser(userClaims || null);
 
        // If volunteer logic applies (we might have a list of volunteers)
@@ -77,9 +78,9 @@ const MainLayout: React.FC = () => {
           }
         }
       // If the user's role is 'Admin', handle admin-specific logic
-      if ((userClaims as any)?.roles?.[0] === 'admin') {
+      if (userClaims?.roles?.[0] === 'admin') {
           HEADERS['X-MS-API-ROLE'] = 'admin';
-          
+
           try {
             // Create or update the admin record in the database
             const createdOrUpdatedAdmin = await upsertAdminUser({

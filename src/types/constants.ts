@@ -6,7 +6,7 @@ export const HEADERS = {
   
 export const ENDPOINTS = {
   //tables
-  VOLUNTEERS: '/data-api/rest/volunteers',
+  USERS: '/data-api/rest/users',
   ITEMS: '/data-api/rest/items',
   CATEGORY: '/data-api/rest/categories',
   BUILDINGS: '/data-api/rest/building',

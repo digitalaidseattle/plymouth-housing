@@ -56,7 +56,7 @@ const EnterPinPage: React.FC = () => {
   const updateLastSignedIn = async (id: number) => {
     try {
       HEADERS['X-MS-API-ROLE'] = role;
-      const response = await fetch(`${ENDPOINTS.VOLUNTEERS}/id/${id}`, {
+      const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
         method: 'PATCH',
         headers: HEADERS,
         body: JSON.stringify({ last_signed_in: new Date().toISOString() }),

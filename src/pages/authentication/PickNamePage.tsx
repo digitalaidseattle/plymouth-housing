@@ -63,7 +63,7 @@ const PickYourNamePage: React.FC = () => {
 
         HEADERS['X-MS-API-ROLE'] = getRole(user);
         const response = await fetch(
-          `${ENDPOINTS.VOLUNTEERS}?$select=id,name&$filter=active eq true`,
+          `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`,
           {
             method: 'GET',
             headers: HEADERS,

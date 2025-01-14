@@ -15,6 +15,9 @@ export const UserContext = createContext<UserContextType>({
   setLoggedInVolunteer: () => {},
   activeVolunteers: [],
   setActiveVolunteers: () => {},
+  loggedInAdmin: null,
+  setLoggedInAdmin: () => {},
+
 });
 
 export function getRole(user: IdTokenClaims | null): string {

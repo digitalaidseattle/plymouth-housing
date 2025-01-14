@@ -133,6 +133,8 @@ const PickYourNamePage: React.FC = () => {
         setLoggedInVolunteer,
         activeVolunteers,
         setActiveVolunteers,
+        loggedInAdmin: null, 
+        setLoggedInAdmin: () => {}, 
       }}
     >
       <MinimalWrapper>

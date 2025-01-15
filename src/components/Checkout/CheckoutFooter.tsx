@@ -5,10 +5,11 @@ import { useContext } from 'react';
 
 type CheckoutItemsProp = {
   checkoutItems: CheckoutItem[];
+  selectedBuildingCode: string;
   setOpenSummary: (open: boolean) => void;
 }
 
-const CheckoutFooter = ({ checkoutItems, setOpenSummary }: CheckoutItemsProp) => {
+const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }: CheckoutItemsProp) => {
 
   const { drawerOpen } = useContext(DrawerOpenContext);
 
@@ -37,13 +38,20 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary }: CheckoutItemsProp) =>
             )}{' '}
             items selected
           </Typography>
-          <Button
-            variant="text"
-            style={{ color: 'black', backgroundColor: 'white' }}
-            onClick={() => setOpenSummary(true)}
-          >
-            Continue
-          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {!selectedBuildingCode || selectedBuildingCode.length === 0 ? (
+              <Typography sx={{ color: 'red', marginRight: '15px' }}>Building Code Not Selected</Typography>
+            ) : null}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpenSummary(true)}
+              disabled={!selectedBuildingCode || selectedBuildingCode.length === 0}
+            >
+              Continue
+            </Button>
+          </Box>
+
         </Box>
       )}
     </>

@@ -98,7 +98,7 @@ const CheckoutPage = () => {
 
       //this part is a bit tricky. PH has 2 different welcome baskets: one for full-size and one for twin-size. See documentation
       const welcomeBasket = responseData.value.filter((category: CategoryProps) => category.category === 'Welcome Basket') || [];
-      welcomeBasket[0].items = welcomeBasket[0].items.filter((item: CheckoutItem) => 
+      welcomeBasket[0].items = welcomeBasket[0].items.filter((item: CheckoutItem) =>
         item.name.toLowerCase().includes('full-size sheet set') ||
         item.name.toLowerCase().includes('twin-size sheet set')
       );
@@ -140,7 +140,7 @@ const CheckoutPage = () => {
             disabled={activeSection !== '' && activeSection !== 'general'}
           />
         ))}
-        <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} />
+        <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
 
         <ScrollToTopButton showAfter={300} />
         <CheckoutDialog

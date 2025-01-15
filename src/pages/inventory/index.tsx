@@ -171,7 +171,7 @@ const Inventory = () => {
   const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS+'?$first=10000', { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS+'?$first=1000', { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

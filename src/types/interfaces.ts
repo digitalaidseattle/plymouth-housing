@@ -21,6 +21,8 @@ export type CheckoutCardProps = {
   removeButton: boolean;
   setCategoryCount: React.Dispatch<React.SetStateAction<number>>;
   disableAdd: boolean;
+  categoryCount: number;
+  categoryLimit: number;
 };
 
 export interface UserContextType {

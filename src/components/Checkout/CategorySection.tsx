@@ -44,7 +44,7 @@ const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFro
       >
         {category.items.map((item) => (
           <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
-            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} setCategoryCount={setCategoryCount} disableAdd={disableAdd}/>
+            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} setCategoryCount={setCategoryCount} disableAdd={disableAdd} categoryCount={categoryCount} categoryLimit={category.checkout_limit}/>
           </Grid>
         ))}
       </Grid>

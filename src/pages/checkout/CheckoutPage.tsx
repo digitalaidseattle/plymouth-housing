@@ -94,7 +94,7 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const responseData = await response.json();
-      // console.log(responseData.value);
+      console.log(responseData.value);
       setData(responseData.value);
 
       //this part is a bit tricky. PH has 2 different welcome baskets: one for full-size and one for twin-size. See documentation

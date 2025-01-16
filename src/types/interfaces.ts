@@ -31,14 +31,9 @@ export interface UserContextType {
   setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
   activeVolunteers: Volunteer[];
   setActiveVolunteers: (activeVolunteers: Volunteer[]) => void;
-  loggedInAdmin: Admin| null;
+  loggedInAdmin: Admin | null;
   setLoggedInAdmin: (loggedInAdmin: Admin | null) => void;
 }
-
-export interface ExtendedIdTokenClaims extends IdTokenClaims {
-  email?: string;            
-}
-
 
 export type InventoryItem = {
   id: number;

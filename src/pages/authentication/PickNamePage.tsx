@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -10,27 +10,18 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
-
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { Volunteer, ClientPrincipal } from '../../types/interfaces';
+import { Volunteer } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
-    null,
-  );
-  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const { user, loggedInVolunteer, setLoggedInVolunteer, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [loggedInVolunteer, setLoggedInVolunteer] = useState<Volunteer | null>(
-    null,
-  );
-  const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
-  const [user, setUser] = useState<ClientPrincipal | null>(null);
 
   const navigate = useNavigate();
 
@@ -52,7 +43,7 @@ const PickYourNamePage: React.FC = () => {
           throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
         }
         const data = await response.json();
-        setVolunteers(data.value);
+        setActiveVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
         setSnackbarState({
@@ -71,17 +62,17 @@ const PickYourNamePage: React.FC = () => {
     _event: React.SyntheticEvent,
     value: Volunteer | null,
   ) => {
-    setSelectedVolunteer(value);
+    setLoggedInVolunteer(value);
   };
 
   const handleNextClick = () => {
-    if (selectedVolunteer) {
+    if (loggedInVolunteer) {
       // Navigate to the next page, passing the volunteer ID via state
       navigate('/enter-your-pin', {
         state: {
-          volunteerId: selectedVolunteer.id,
+          volunteerId: loggedInVolunteer.id,
           role: getRole(user),
-          volunteers: volunteers,
+          volunteers: activeVolunteers,
         },
       });
     } else {
@@ -104,18 +95,6 @@ const PickYourNamePage: React.FC = () => {
   };
 
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser,
-        loggedInVolunteer,
-        setLoggedInVolunteer,
-        activeVolunteers,
-        setActiveVolunteers,
-        loggedInAdmin: null, 
-        setLoggedInAdmin: () => {}, 
-      }}
-    >
       <MinimalWrapper>
         <CenteredLayout>
           <Box sx={{ maxWidth: '350px', width: '100%' }}>
@@ -145,9 +124,9 @@ const PickYourNamePage: React.FC = () => {
             </Typography>
 
             <Autocomplete
-              value={selectedVolunteer}
+              value={loggedInVolunteer}
               onChange={handleNameChange}
-              options={volunteers}
+              options={activeVolunteers}
               getOptionLabel={(option) => option.name}
               renderInput={(params) => (
                 <TextField
@@ -193,7 +172,6 @@ const PickYourNamePage: React.FC = () => {
           </SnackbarAlert>
         </CenteredLayout>
       </MinimalWrapper>
-    </UserContext.Provider>
   );
 };
 

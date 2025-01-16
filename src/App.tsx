@@ -5,20 +5,38 @@
  *
  */
 // project import
-import React from 'react';
+import React, { useState } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './pages/routes';
 import ThemeCustomization from './themes/themeCustomization';
-
-// ==============================|| APP - THEME, ROUTER, LOCAL  ||============================== //
+import { UserContext } from './components/contexts/UserContext';
+import { Admin, ClientPrincipal, Volunteer } from './types/interfaces';
 
 const router = createBrowserRouter(routes);
 
 const App: React.FC = () => {
+  const [user, setUser] = useState<ClientPrincipal | null>(null);
+  const [loggedInVolunteer, setLoggedInVolunteer] = useState<Volunteer | null>(null);
+  const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
+  const [loggedInAdmin, setLoggedInAdmin] = useState<Admin | null>(null);
+  
   return (
+      <UserContext.Provider
+        value={{
+          user,
+          setUser,
+          loggedInVolunteer: loggedInVolunteer,
+          setLoggedInVolunteer: setLoggedInVolunteer,
+          activeVolunteers: activeVolunteers,
+          setActiveVolunteers: setActiveVolunteers,
+          loggedInAdmin: loggedInAdmin,
+          setLoggedInAdmin: setLoggedInAdmin,
+        }}
+      >
     <ThemeCustomization>
       <RouterProvider router={router} />
     </ThemeCustomization>
+    </UserContext.Provider>
   );
 };
 

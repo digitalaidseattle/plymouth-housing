@@ -2,7 +2,7 @@ import { getRole } from '../contexts/UserContext';
 import { CheckoutItem, Volunteer, ClientPrincipal } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 
-export async function processWelcomeBasket(user: ClientPrincipal | null, loggedInVolunteer: Volunteer, checkoutItems: CheckoutItem[]) {
+export async function processWelcomeBasket(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[]) {
   HEADERS['X-MS-API-ROLE'] = getRole(user);
   const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
     method: 'POST',
@@ -17,7 +17,7 @@ export async function processWelcomeBasket(user: ClientPrincipal | null, loggedI
   return await response.json();
 }
 
-export async function processGeneralItems(user: TokenClaims | null, currentUserId: number, checkoutItems: CheckoutItem[]) {
+export async function processGeneralItems(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[]) {
   HEADERS['X-MS-API-ROLE'] = getRole(user);
   const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
     method: 'POST',

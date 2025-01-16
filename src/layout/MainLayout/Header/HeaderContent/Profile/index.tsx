@@ -81,7 +81,7 @@ const Profile = () => {
     if (user) {
       // setAvatar(user.user_metadata.avatar_url) //TODO add avatar
       setUsername(user.userDetails ?? 'Null');
-      setRole(user.userRoles ? user.userRoles[0] : ''); // Set the role based on user context
+      setRole(user.userRoles?.includes('admin') ? 'admin' : user.userRoles?.includes('volunteer') ? 'volunteer' : '');
     }
   }, [user]);
 

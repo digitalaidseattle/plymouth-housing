@@ -11,6 +11,7 @@ export async function processWelcomeBasket(user: ClientPrincipal | null, loggedI
       user_id: loggedInVolunteer?.id,
       mattress_size: checkoutItems[0].id,
       quantity: checkoutItems[0].quantity,
+      message: "",
     }),
   });
   return await response.json();
@@ -24,6 +25,7 @@ export async function processGeneralItems(user: ClientPrincipal | null, loggedIn
     body: JSON.stringify({
       user_id: loggedInVolunteer?.id,
       items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
+      message: "",
     }),
   });
   return await response.json();

@@ -13,9 +13,7 @@ import SnackbarAlert from './SnackbarAlert';
 
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { IdTokenClaims } from '@azure/msal-common';
-import { useMsal } from '@azure/msal-react';
-import { Volunteer } from '../../types/interfaces';
+import { Volunteer, ClientPrincipal } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
@@ -32,28 +30,9 @@ const PickYourNamePage: React.FC = () => {
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
-  const [user, setUser] = useState<IdTokenClaims | null>(null);
+  const [user, setUser] = useState<ClientPrincipal | null>(null);
 
   const navigate = useNavigate();
-  const { instance } = useMsal();
-
-  useEffect(() => {
-    const account = instance.getActiveAccount();
-    if (account) {
-      instance
-        .acquireTokenSilent({
-          account: account,
-          scopes: ['openid', 'profile', 'email', 'User.Read'],
-        })
-        .then((response) => {
-          const userClaims = response.idTokenClaims;
-          setUser(userClaims || null);
-        })
-        .catch((error) => {
-          console.error('Error acquiring token', error);
-        });
-    }
-  }, [instance]);
 
   useEffect(() => {
     if (!user) return;

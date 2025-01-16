@@ -1,9 +1,8 @@
 import { getRole } from '../contexts/UserContext';
-import { CheckoutItem} from '../../types/interfaces';
+import { CheckoutItem, Volunteer, ClientPrincipal } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { TokenClaims } from '@azure/msal-common';
 
-export async function processWelcomeBasket(user: TokenClaims | null, currentUserId: number, checkoutItems: CheckoutItem[]) {
+export async function processWelcomeBasket(user: ClientPrincipal | null, loggedInVolunteer: Volunteer, checkoutItems: CheckoutItem[]) {
   HEADERS['X-MS-API-ROLE'] = getRole(user);
   const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
     method: 'POST',

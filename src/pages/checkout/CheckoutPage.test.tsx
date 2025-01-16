@@ -6,7 +6,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS } from '../../types/constants';
 
 const mockUserContext = {
-  user: { id: 1, name: 'Test User', roles: ['volunteer'] },
+  user: { id: 1, userDetails: 'Test User', userRoles: ['volunteer'], userID: "bob" },
   setUser: vi.fn(),
   loggedInVolunteer: null,
   setLoggedInVolunteer: vi.fn(),

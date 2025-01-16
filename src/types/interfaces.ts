@@ -1,5 +1,3 @@
-import { IdTokenClaims } from '@azure/msal-common';
-
 export type CheckoutItem = {
   id: number;
   name: string;
@@ -20,9 +18,15 @@ export type CheckoutCardProps = {
   removeButton: boolean;
 };
 
+export interface ClientPrincipal{
+  userDetails: string, 
+  userID: string,
+  userRoles: string[]
+}
+
 export interface UserContextType {
-  user: IdTokenClaims | null;
-  setUser: (user: IdTokenClaims) => void;
+  user: ClientPrincipal | null;
+  setUser: (user: ClientPrincipal) => void;
   loggedInVolunteer: Volunteer | null;
   setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
   activeVolunteers: Volunteer[];

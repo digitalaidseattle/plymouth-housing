@@ -121,6 +121,16 @@ describe('CheckoutPage', async () => {
   });
 
   it('shows checkout dialog when "Continue" is clicked', () => {
+
+    const select = screen.getByLabelText('Building Code');
+
+    // Open the dropdown
+    fireEvent.mouseDown(select);
+
+    // Click the first option
+    const firstOption = screen.getByText('B1 (Building 1)');
+    fireEvent.click(firstOption);
+
     // Add item to the cart
     const addItemButton = screen.getAllByTestId('AddIcon')[0];
     fireEvent.click(addItemButton);

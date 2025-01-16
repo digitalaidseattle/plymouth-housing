@@ -12,6 +12,7 @@ export async function processWelcomeBasket(user: TokenClaims | null, currentUser
       user_id: currentUserId,
       mattress_size: checkoutItems[0].id,
       quantity: checkoutItems[0].quantity,
+      message: "",
     }),
   });
   return await response.json();
@@ -25,6 +26,7 @@ export async function processGeneralItems(user: TokenClaims | null, currentUserI
     body: JSON.stringify({
       user_id: currentUserId,
       items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
+      message: "",
     }),
   });
   return await response.json();

@@ -16,12 +16,13 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import AddItemModal from '../../components/AddItemModal/AddItemModal';
+// import UpdateItemModal from '../../components/UpdateItemModal/UpdateItemModal';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants"
+import AddItemModal from '../../components/AddItemModal/AddItemModal.tsx';
 
 const Inventory = () => {
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
@@ -170,7 +171,7 @@ const Inventory = () => {
   const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS, { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS+'?$first=10000', { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -181,7 +182,7 @@ const Inventory = () => {
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
-  }
+    }
     setIsLoading(false);
   }, [user]);
 
@@ -198,11 +199,11 @@ const Inventory = () => {
       console.error('Error fetching categories:', error);
     }
   }, [user]);
-  
+
   useEffect(() => {
     fetchData();
     fetchCategories();
-  },[user, fetchData, fetchCategories]); 
+  }, [user, fetchData, fetchCategories]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -227,16 +228,22 @@ const Inventory = () => {
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
         <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add/Update
+          Add
         </Button>
       </Box>
-{ 
-      <AddItemModal 
-        addModal={addModal} 
-        handleAddClose={handleAddClose}   
-        fetchData={fetchData}
-        categoryData={categoryData}
-        originalData={originalData} /> }
+      {
+        <AddItemModal
+          addModal={addModal}
+          handleAddClose={handleAddClose}
+          fetchData={fetchData}
+          originalData={originalData} />}
+      {/* {
+        <UpdateItemModal
+          addModal={addModal}
+          handleAddClose={handleAddClose}
+          fetchData={fetchData}
+          categoryData={categoryData}
+          originalData={originalData} />} */}
 
       {/* Filter Container */}
       <Box
@@ -314,8 +321,8 @@ const Inventory = () => {
               >
                 {categoryItem.name}
               </MenuItem>
-            ))} 
-           </Menu>
+            ))}
+          </Menu>
         </Box>
 
         {/* Status Filter */}

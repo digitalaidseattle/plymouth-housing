@@ -32,7 +32,7 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
         return <NavItem key={menuItem.id} item={menuItem} level={1} />;
       case 'admin':
         return (
-          user?.roles?.includes('admin') && (
+          user?.userRoles?.includes('admin') && (
             <NavItem key={menuItem.id} item={menuItem} level={1} />
           )
         );

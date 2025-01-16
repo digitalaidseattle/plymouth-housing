@@ -19,7 +19,7 @@ const HeaderContent = () => {
   return (
     <>
       {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
-      {user?.roles?.includes('volunteer') && <VolunteerSwitcher />}
+      {user?.userRoles?.includes('volunteer') && <VolunteerSwitcher />}
       {/* We hide the notification bell for now as it's for post-MVP*/}
       {/* {toolbarItems.items} */}
       <Box sx={{ flexGrow: 1}}  />

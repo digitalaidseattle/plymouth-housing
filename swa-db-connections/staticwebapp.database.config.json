@@ -37,7 +37,7 @@
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": ["read", "create", "update"],
           "role": "admin"
         },
         {
@@ -48,7 +48,7 @@
     },
     "ItemsWithCategory": {
       "source": {
-        "object": "InventoryWithCategory",
+        "object": "ItemsWithCategory",
         "type": "table",
         "key-fields": []
       },

@@ -1,7 +1,7 @@
 {
   "name": "plymouth-housing",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.9.1",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
@@ -23,7 +23,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^7.1.1",
-    "react-router-dom": "^6.22.0"
+    "react-router-dom": "^7.1.1"
   },
   "devDependencies": {
     "@azure/static-web-apps-cli": "^2.0.1",
@@ -47,8 +47,8 @@
     "jsdom": "^26.0.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "source-map-explorer": "^2.5.3",
-    "typescript": "^5.2.2",
-    "vite": "^5.4.11",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
     "vitest": "^2.1.8"
   }
 }

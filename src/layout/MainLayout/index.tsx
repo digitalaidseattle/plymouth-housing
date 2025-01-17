@@ -22,7 +22,7 @@ import { ENDPOINTS, HEADERS } from '../../types/constants';
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const { setUser, loggedInVolunteerId, activeVolunteers, setLoggedInAdmin } = useContext(UserContext);
+  const { setUser, loggedInVolunteerId, activeVolunteers, setLoggedInAdminId } = useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const navigate = useNavigate();
 
@@ -48,11 +48,11 @@ const MainLayout: React.FC = () => {
           try {
             // Create or update the admin record in the database
             const createdOrUpdatedAdmin = await upsertAdminUser({
-              name: userClaims.name ?? '',
-              email: userClaims.email ?? ''
+              name: userClaims.userDetails ?? '',
+              email: userClaims.userId ?? ''
             });
             // Now we have an Admin object with id, name, created_at, last_signed_in
-            setLoggedInAdmin(createdOrUpdatedAdmin);
+            setLoggedInAdminId(createdOrUpdatedAdmin.id);
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
             //TODO error handling
@@ -64,7 +64,7 @@ const MainLayout: React.FC = () => {
       }
     };
     fetchTokenAndVolunteers();
-  }, [navigate, loggedInVolunteerId, activeVolunteers, activeVolunteers, setUser, setLoggedInAdmin]);
+  }, [navigate, loggedInVolunteerId, activeVolunteers, activeVolunteers, setUser, setLoggedInAdminId]);
 
   /**
    * Create or update an Admin entry in the "Users" table:

@@ -10,7 +10,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './pages/routes';
 import ThemeCustomization from './themes/themeCustomization';
 import { UserContext } from './components/contexts/UserContext';
-import { Admin, ClientPrincipal, Volunteer } from './types/interfaces';
+import { ClientPrincipal, Volunteer } from './types/interfaces';
 
 const router = createBrowserRouter(routes);
 
@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<ClientPrincipal | null>(null);
   const [loggedInVolunteerId, setLoggedInVolunteerId] = useState<number | null>(null);
   const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
-  const [loggedInAdmin, setLoggedInAdmin] = useState<Admin | null>(null);
+  const [loggedInAdminId, setLoggedInAdminId] = useState<number | null>(null);
   
   return (
       <UserContext.Provider
@@ -29,8 +29,8 @@ const App: React.FC = () => {
           setLoggedInVolunteerId: setLoggedInVolunteerId,
           activeVolunteers: activeVolunteers,
           setActiveVolunteers: setActiveVolunteers,
-          loggedInAdmin: loggedInAdmin,
-          setLoggedInAdmin: setLoggedInAdmin,
+          loggedInAdminId: loggedInAdminId,
+          setLoggedInAdminId: setLoggedInAdminId,
         }}
       >
     <ThemeCustomization>

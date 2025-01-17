@@ -12,8 +12,8 @@ const mockUserContext = {
   setLoggedInVolunteerId: vi.fn(),
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
-  loggedInAdmin: null,
-  setLoggedInAdmin: vi.fn(),
+  loggedInAdminId: null,
+  setLoggedInAdminId: vi.fn(),
 };
 
 describe('CheckoutPage', async () => {

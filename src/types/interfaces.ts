@@ -31,8 +31,8 @@ export interface UserContextType {
   setLoggedInVolunteerId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: Volunteer[];
   setActiveVolunteers: (activeVolunteers: Volunteer[]) => void;
-  loggedInAdmin: Admin | null;
-  setLoggedInAdmin: (loggedInAdmin: Admin | null) => void;
+  loggedInAdminId: number | null;
+  setLoggedInAdminId: (loggedInAdminId: number | null) => void;
 }
 
 export type InventoryItem = {

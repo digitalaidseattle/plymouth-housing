@@ -3,13 +3,12 @@ import { Menu, MenuItem, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
   UserContext,
-  getRole,
 } from '../../../../components/contexts/UserContext';
 
 const VolunteerSwitcher: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-  const { loggedInVolunteerId: loggedInVolunteer, activeVolunteers, user } = useContext(UserContext);
+  const { loggedInVolunteerId, setLoggedInVolunteerId, activeVolunteers } = useContext(UserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -20,13 +19,8 @@ const VolunteerSwitcher: React.FC = () => {
   };
 
   const handleSelect = (selectedVolunteer: number) => {
-    navigate('/enter-your-pin', {
-      state: {
-        volunteerId: selectedVolunteer,
-        role: getRole(user),
-        volunteers: activeVolunteers,
-      },
-    });
+    setLoggedInVolunteerId(selectedVolunteer);
+    navigate('/enter-your-pin');
     handleClose();
   };
 
@@ -46,7 +40,7 @@ const VolunteerSwitcher: React.FC = () => {
           px: 2,
         }}
       >
-        {activeVolunteers.find(volunteer => volunteer.id === loggedInVolunteer)?.name || 'Select Volunteer'} 
+        {activeVolunteers.find(volunteer => volunteer.id === loggedInVolunteerId)?.name || 'Select Volunteer'} 
       </Button>
       <Menu
         id="user-menu"
@@ -58,7 +52,7 @@ const VolunteerSwitcher: React.FC = () => {
         }}
       >
         {activeVolunteers
-          .filter((v) => v.id !== loggedInVolunteer)
+          .filter((v) => v.id !== loggedInVolunteerId)
           .map((volunteer) => (
             <MenuItem
               key={volunteer.id}

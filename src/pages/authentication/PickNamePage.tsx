@@ -67,14 +67,7 @@ const PickYourNamePage: React.FC = () => {
 
   const handleNextClick = () => {
     if (loggedInVolunteerId) {
-      // Navigate to the next page, passing the volunteer ID via state
-      navigate('/enter-your-pin', {
-        state: {
-          volunteerId: loggedInVolunteerId,
-          role: getRole(user),
-          volunteers: activeVolunteers,
-        },
-      });
+      navigate('/enter-your-pin');
     } else {
       setSnackbarState({
         open: true,

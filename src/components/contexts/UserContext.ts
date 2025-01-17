@@ -14,8 +14,8 @@ export const UserContext = createContext<UserContextType>({
   setLoggedInVolunteerId: () => {},
   activeVolunteers: [],
   setActiveVolunteers: () => {},
-  loggedInAdmin: null,
-  setLoggedInAdmin: () => {},
+  loggedInAdminId: null,
+  setLoggedInAdminId: () => {},
 
 });
 

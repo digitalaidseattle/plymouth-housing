@@ -1,21 +1,19 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { UserContext } from '../../components/contexts/UserContext';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'warning' >('warning');
-  const location = useLocation();
-  const { role, volunteers } = location.state || {};
-  const { loggedInVolunteerId } = useContext(UserContext);
+  const { loggedInVolunteerId, user } = useContext(UserContext);
   const navigate = useNavigate();
 
   if (!loggedInVolunteerId) {
@@ -30,7 +28,7 @@ const EnterPinPage: React.FC = () => {
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
-      HEADERS['X-MS-API-ROLE'] = role;
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.VERIFY_PIN, {
         method: 'POST',
         headers: HEADERS,
@@ -59,7 +57,7 @@ const EnterPinPage: React.FC = () => {
 
   const updateLastSignedIn = async (id: number) => {
     try {
-      HEADERS['X-MS-API-ROLE'] = role;
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
         method: 'PATCH',
         headers: HEADERS,
@@ -89,9 +87,7 @@ const EnterPinPage: React.FC = () => {
         if (loggedInVolunteerId !== null) {
           result = await updateLastSignedIn(loggedInVolunteerId); // Update last signed-in date after successful login
         }
-        navigate('/volunteer-home', {
-          state: { volunteerId: loggedInVolunteerId, volunteers: volunteers },
-        });
+        navigate('/volunteer-home');
       } else {
         setSnackbarMessage(
           result?.ErrorMessage || 'Incorrect PIN. Please try again.',

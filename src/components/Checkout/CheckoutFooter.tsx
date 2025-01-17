@@ -1,10 +1,10 @@
-import { CheckoutItem } from '../../types/interfaces';
+import { CheckoutItemProp } from '../../types/interfaces';
 import { Box, Button, Typography } from '@mui/material';
 import { DrawerOpenContext } from '../contexts/DrawerOpenContext';
 import { useContext } from 'react';
 
 type CheckoutItemsProp = {
-  checkoutItems: CheckoutItem[];
+  checkoutItems: CheckoutItemProp[];
   selectedBuildingCode: string;
   setOpenSummary: (open: boolean) => void;
 }
@@ -13,9 +13,18 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
 
   const { drawerOpen } = useContext(DrawerOpenContext);
 
+  const hasNonZeroCategoryCount = checkoutItems.some((category) => category.categoryCount > 0);
+
+  const totalCategoryCount = checkoutItems.reduce(
+    (accumulator, category) => accumulator + category.categoryCount,
+    0
+  );
+
+
+
   return (
     <>
-      {checkoutItems.length > 0 && (
+      {hasNonZeroCategoryCount && (
         <Box
           sx={{
             position: 'fixed',
@@ -32,10 +41,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
           }}
         >
           <Typography>
-            {checkoutItems.reduce(
-              (accumulator, item) => accumulator + item.quantity,
-              0,
-            )}{' '}
+            {totalCategoryCount}{' '}
             / 10 items added
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

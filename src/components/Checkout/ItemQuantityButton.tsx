@@ -1,6 +1,6 @@
 import { Remove, Add } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
-import { CategoryProps, CheckoutCardProps, CheckoutItemProp } from "../../types/interfaces";
+import { CheckoutCardProps, CheckoutItemProp } from "../../types/interfaces";
 
 const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromCart, removeButton, disableAdd, categoryLimit, category }: CheckoutCardProps) => {
 
@@ -11,12 +11,13 @@ const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromC
 
 
   const handleAddClick = () => {
-    if (checkoutItem.categoryCount && checkoutItem.categoryCount < categoryLimit) {
+    if (checkoutItem.categoryCount !== undefined && checkoutItem.categoryCount < categoryLimit) {
       addItemToCart(item, 1, category);
     } else {
       return;
     }
-  }
+  };
+
 
   const handleRemoveClick = () => {
     addItemToCart(item, -1, category);

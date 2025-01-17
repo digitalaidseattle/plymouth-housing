@@ -12,16 +12,20 @@ const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<
-    'success' | 'warning'
-  >('warning');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'warning' >('warning');
   const location = useLocation();
   const { role, volunteers } = location.state || {};
-  const { loggedInVolunteerId, setLoggedInVolunteerId } = useContext(UserContext);
-    const navigate = useNavigate();
+  const { loggedInVolunteerId } = useContext(UserContext);
+  const navigate = useNavigate();
 
   if (!loggedInVolunteerId) {
     navigate('/pick-your-name');
+  }
+
+  const handleTheSnackies = (message: string, severity: 'success' | 'warning') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
   }
 
   const verifyPin = async (id: number, enteredPin: string) => {
@@ -48,9 +52,7 @@ const EnterPinPage: React.FC = () => {
       return result;
     } catch (error) {
       console.error('Error verifying PIN:', error);
-      setSnackbarMessage('Failed to verify PIN. Please try again.');
-      setSnackbarSeverity('warning');
-      setOpenSnackbar(true);
+      handleTheSnackies('Failed to verify PIN. Please try again.', 'warning');
       return null;
     }
   };
@@ -75,21 +77,16 @@ const EnterPinPage: React.FC = () => {
   const handleNextClick = async () => {
     if (pin.every((p) => p !== '')) {
       const enteredPin = pin.join(''); // Combine array into a single string (e.g., '1234')
-      var result = null;
+      let result = null;
       if (loggedInVolunteerId !== null) {
         result = await verifyPin(loggedInVolunteerId, enteredPin);
       } else {
-        setSnackbarMessage('Volunteer ID is missing. Please try again.');
-        setSnackbarSeverity('warning');
-        setOpenSnackbar(true);
+        handleTheSnackies('Volunteer ID is missing. Please try again.', 'warning');
       }
 
       if (result?.IsValid) {
-        setSnackbarMessage('Login successful! Redirecting...');
-        setSnackbarSeverity('success');
-        setOpenSnackbar(true);
+        handleTheSnackies('Login successful! Redirecting...', 'success');
         if (loggedInVolunteerId !== null) {
-          setLoggedInVolunteerId
           result = await updateLastSignedIn(loggedInVolunteerId); // Update last signed-in date after successful login
         }
         navigate('/volunteer-home', {
@@ -101,11 +98,11 @@ const EnterPinPage: React.FC = () => {
         );
         setSnackbarSeverity('warning');
         setOpenSnackbar(true);
+
+        handleTheSnackies(result?.ErrorMessage || 'Incorrect PIN. Please try again.', 'warning');
       }
     } else {
-      setSnackbarMessage('Please enter your PIN before continuing.');
-      setSnackbarSeverity('warning');
-      setOpenSnackbar(true);
+      handleTheSnackies('Please enter your PIN before continuing.', 'warning');
     }
   };
 

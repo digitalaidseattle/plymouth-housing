@@ -5,7 +5,7 @@
  *
  */
 import React, { useContext, useEffect, useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Box, Toolbar, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import navigation from '../../menu-items';
@@ -16,20 +16,15 @@ import ScrollTop from '../../components/ScrollTop';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { RefreshContextProvider } from '../../components/contexts/RefreshContextProvider';
 import { UserContext } from '../../components/contexts/UserContext';
-import { useMsal } from '@azure/msal-react';
-import { Volunteer, Admin, ClientPrincipal } from '../../types/interfaces';
+import { Admin } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const { user, setUser, loggedInVolunteerId: loggedInVolunteer, setLoggedInVolunteerId: setLoggedInVolunteer, activeVolunteers, setActiveVolunteers, loggedInAdmin, setLoggedInAdmin } = useContext(UserContext);
-
+  const { setUser, loggedInVolunteerId, activeVolunteers, setLoggedInAdmin } = useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const location = useLocation();
-  const { volunteerId, volunteers } = location.state || {};
   const navigate = useNavigate();
-  const { instance } = useMsal();
 
   useEffect(() => {
     const fetchTokenAndVolunteers = async () => {
@@ -42,7 +37,7 @@ const MainLayout: React.FC = () => {
         setUser(userClaims || null);
 
         // If volunteer logic applies (we might have a list of volunteers)
-        if (userClaims.userRoles?.includes('volunteer') && !loggedInVolunteer) {
+        if (userClaims.userRoles?.includes('volunteer') && !loggedInVolunteerId) {
           navigate('/pick-your-name');
           return;
         }
@@ -50,7 +45,6 @@ const MainLayout: React.FC = () => {
         // If the user's role is 'Admin', handle admin-specific logic
         if (userClaims?.userRoles?.includes('admin')) {
           HEADERS['X-MS-API-ROLE'] = 'admin';
-
           try {
             // Create or update the admin record in the database
             const createdOrUpdatedAdmin = await upsertAdminUser({
@@ -70,7 +64,7 @@ const MainLayout: React.FC = () => {
       }
     };
     fetchTokenAndVolunteers();
-  }, [instance, navigate, volunteerId, volunteers, activeVolunteers.length]);
+  }, [navigate, loggedInVolunteerId, activeVolunteers, activeVolunteers, setUser, setLoggedInAdmin]);
 
   /**
    * Create or update an Admin entry in the "Users" table:

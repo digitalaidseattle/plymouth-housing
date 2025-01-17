@@ -1,5 +1,5 @@
 import { getRole } from '../contexts/UserContext';
-import { CheckoutItem, Volunteer, ClientPrincipal } from '../../types/interfaces';
+import { CheckoutItem, ClientPrincipal } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 export async function processWelcomeBasket(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[]) {

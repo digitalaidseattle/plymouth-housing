@@ -23,7 +23,7 @@ import { ENDPOINTS, HEADERS } from '../../types/constants';
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const { user, setUser, loggedInVolunteer, setLoggedInVolunteer, activeVolunteers, setActiveVolunteers, loggedInAdmin, setLoggedInAdmin } = useContext(UserContext);
+  const { user, setUser, loggedInVolunteerId: loggedInVolunteer, setLoggedInVolunteerId: setLoggedInVolunteer, activeVolunteers, setActiveVolunteers, loggedInAdmin, setLoggedInAdmin } = useContext(UserContext);
 
   const [drawerOpen, setDrawerOpen] = useState(true);
   const location = useLocation();

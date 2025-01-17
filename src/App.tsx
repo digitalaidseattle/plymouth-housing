@@ -16,7 +16,7 @@ const router = createBrowserRouter(routes);
 
 const App: React.FC = () => {
   const [user, setUser] = useState<ClientPrincipal | null>(null);
-  const [loggedInVolunteer, setLoggedInVolunteer] = useState<Volunteer | null>(null);
+  const [loggedInVolunteerId, setLoggedInVolunteerId] = useState<number | null>(null);
   const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
   const [loggedInAdmin, setLoggedInAdmin] = useState<Admin | null>(null);
   
@@ -25,8 +25,8 @@ const App: React.FC = () => {
         value={{
           user,
           setUser,
-          loggedInVolunteer: loggedInVolunteer,
-          setLoggedInVolunteer: setLoggedInVolunteer,
+          loggedInVolunteerId: loggedInVolunteerId,
+          setLoggedInVolunteerId: setLoggedInVolunteerId,
           activeVolunteers: activeVolunteers,
           setActiveVolunteers: setActiveVolunteers,
           loggedInAdmin: loggedInAdmin,

@@ -15,7 +15,7 @@ import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { Volunteer } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const { user, loggedInVolunteer, setLoggedInVolunteer, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
+  const { user, loggedInVolunteerId, setLoggedInVolunteerId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -62,15 +62,15 @@ const PickYourNamePage: React.FC = () => {
     _event: React.SyntheticEvent,
     value: Volunteer | null,
   ) => {
-    setLoggedInVolunteer(value);
+    setLoggedInVolunteerId(value?.id ?? null);
   };
 
   const handleNextClick = () => {
-    if (loggedInVolunteer) {
+    if (loggedInVolunteerId) {
       // Navigate to the next page, passing the volunteer ID via state
       navigate('/enter-your-pin', {
         state: {
-          volunteerId: loggedInVolunteer.id,
+          volunteerId: loggedInVolunteerId,
           role: getRole(user),
           volunteers: activeVolunteers,
         },
@@ -124,7 +124,7 @@ const PickYourNamePage: React.FC = () => {
             </Typography>
 
             <Autocomplete
-              value={loggedInVolunteer}
+              value={activeVolunteers.find(volunteer => volunteer.id === loggedInVolunteerId)}
               onChange={handleNameChange}
               options={activeVolunteers}
               getOptionLabel={(option) => option.name}

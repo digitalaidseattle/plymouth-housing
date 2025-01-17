@@ -27,8 +27,8 @@ export interface ClientPrincipal{
 export interface UserContextType {
   user: ClientPrincipal | null;
   setUser: (user: ClientPrincipal) => void;
-  loggedInVolunteer: Volunteer | null;
-  setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
+  loggedInVolunteerId: number | null;
+  setLoggedInVolunteerId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: Volunteer[];
   setActiveVolunteers: (activeVolunteers: Volunteer[]) => void;
   loggedInAdmin: Admin | null;

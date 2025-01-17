@@ -5,12 +5,11 @@ import {
   UserContext,
   getRole,
 } from '../../../../components/contexts/UserContext';
-import { Volunteer } from '../../../../types/interfaces';
 
 const VolunteerSwitcher: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-  const { loggedInVolunteer, activeVolunteers, user } = useContext(UserContext);
+  const { loggedInVolunteerId: loggedInVolunteer, activeVolunteers, user } = useContext(UserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -20,10 +19,10 @@ const VolunteerSwitcher: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleSelect = (selectedVolunteer: Volunteer) => {
+  const handleSelect = (selectedVolunteer: number) => {
     navigate('/enter-your-pin', {
       state: {
-        volunteerId: selectedVolunteer.id,
+        volunteerId: selectedVolunteer,
         role: getRole(user),
         volunteers: activeVolunteers,
       },
@@ -47,7 +46,7 @@ const VolunteerSwitcher: React.FC = () => {
           px: 2,
         }}
       >
-        {loggedInVolunteer?.name || 'Select Volunteer'} ▼
+        {activeVolunteers.find(volunteer => volunteer.id === loggedInVolunteer)?.name || 'Select Volunteer'} 
       </Button>
       <Menu
         id="user-menu"
@@ -59,11 +58,11 @@ const VolunteerSwitcher: React.FC = () => {
         }}
       >
         {activeVolunteers
-          .filter((v) => v.id !== loggedInVolunteer?.id)
+          .filter((v) => v.id !== loggedInVolunteer)
           .map((volunteer) => (
             <MenuItem
               key={volunteer.id}
-              onClick={() => handleSelect(volunteer)}
+              onClick={() => handleSelect(volunteer.id)}
             >
               {volunteer.name}
             </MenuItem>

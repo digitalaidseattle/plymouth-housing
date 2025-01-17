@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
@@ -6,6 +6,7 @@ import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { UserContext } from '../../components/contexts/UserContext';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -15,10 +16,11 @@ const EnterPinPage: React.FC = () => {
     'success' | 'warning'
   >('warning');
   const location = useLocation();
-  const { volunteerId, role, volunteers } = location.state || {};
-  const navigate = useNavigate();
+  const { role, volunteers } = location.state || {};
+  const { loggedInVolunteerId, setLoggedInVolunteerId } = useContext(UserContext);
+    const navigate = useNavigate();
 
-  if (!volunteerId) {
+  if (!loggedInVolunteerId) {
     navigate('/pick-your-name');
   }
 
@@ -73,15 +75,25 @@ const EnterPinPage: React.FC = () => {
   const handleNextClick = async () => {
     if (pin.every((p) => p !== '')) {
       const enteredPin = pin.join(''); // Combine array into a single string (e.g., '1234')
-      const result = await verifyPin(volunteerId, enteredPin);
+      var result = null;
+      if (loggedInVolunteerId !== null) {
+        result = await verifyPin(loggedInVolunteerId, enteredPin);
+      } else {
+        setSnackbarMessage('Volunteer ID is missing. Please try again.');
+        setSnackbarSeverity('warning');
+        setOpenSnackbar(true);
+      }
 
       if (result?.IsValid) {
         setSnackbarMessage('Login successful! Redirecting...');
         setSnackbarSeverity('success');
         setOpenSnackbar(true);
-        await updateLastSignedIn(volunteerId); // Update last signed-in date after successful login
+        if (loggedInVolunteerId !== null) {
+          setLoggedInVolunteerId
+          result = await updateLastSignedIn(loggedInVolunteerId); // Update last signed-in date after successful login
+        }
         navigate('/volunteer-home', {
-          state: { volunteerId: volunteerId, volunteers: volunteers },
+          state: { volunteerId: loggedInVolunteerId, volunteers: volunteers },
         });
       } else {
         setSnackbarMessage(

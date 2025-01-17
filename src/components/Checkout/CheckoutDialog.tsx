@@ -27,7 +27,7 @@ type CheckoutDialogProps = {
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
-  const { user, loggedInVolunteer, loggedInAdmin } = useContext(UserContext);
+  const { user, loggedInVolunteerId: loggedInVolunteer, loggedInAdmin } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
 

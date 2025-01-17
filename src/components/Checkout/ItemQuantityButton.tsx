@@ -2,7 +2,7 @@ import { Remove, Add } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { CheckoutCardProps, CheckoutItemProp } from "../../types/interfaces";
 
-const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromCart, removeButton, disableAdd, categoryLimit, category }: CheckoutCardProps) => {
+const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromCart, removeButton, disableAdd, categoryLimit, categoryName }: CheckoutCardProps) => {
 
   const foundInCart = checkoutItem?.items?.find(
     (v: CheckoutItemProp) => v.id === item.id
@@ -12,7 +12,7 @@ const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromC
 
   const handleAddClick = () => {
     if (checkoutItem.categoryCount !== undefined && checkoutItem.categoryCount < categoryLimit) {
-      addItemToCart(item, 1, category);
+      addItemToCart(item, 1, categoryName);
     } else {
       return;
     }
@@ -20,7 +20,7 @@ const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromC
 
 
   const handleRemoveClick = () => {
-    addItemToCart(item, -1, category);
+    addItemToCart(item, -1, categoryName);
   }
 
   return (
@@ -44,7 +44,7 @@ const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromC
       >
         <Add />
       </IconButton>
-      {removeButton ? <Button sx={{ ml: '5vh' }} onClick={() => removeItemFromCart(item.id)}>Remove</Button> : null}
+      {removeButton ? <Button sx={{ ml: '5vh' }} onClick={() => removeItemFromCart(item.id, categoryName)}>Remove</Button> : null}
     </Box>
   );
 };

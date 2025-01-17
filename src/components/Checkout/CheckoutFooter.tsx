@@ -1,10 +1,10 @@
-import { CheckoutItemProp } from '../../types/interfaces';
+import { CategoryProps } from '../../types/interfaces';
 import { Box, Button, Typography } from '@mui/material';
 import { DrawerOpenContext } from '../contexts/DrawerOpenContext';
 import { useContext } from 'react';
 
 type CheckoutItemsProp = {
-  checkoutItems: CheckoutItemProp[];
+  checkoutItems: CategoryProps[];
   selectedBuildingCode: string;
   setOpenSummary: (open: boolean) => void;
 }

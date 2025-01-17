@@ -7,7 +7,7 @@ type CategorySectionProps = {
   category: CategoryProps;
   checkoutItem: CategoryProps;
   addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
-  removeItemFromCart: (itemId: number) => void;
+  removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disabled: boolean;
 };
@@ -47,7 +47,7 @@ const CategorySection = ({ category, checkoutItem, addItemToCart, removeItemFrom
       >
         {category.items.map((item) => (
           <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
-            <CheckoutCard item={item} checkoutItem={checkoutItem} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={category.checkout_limit} category={category.category} />
+            <CheckoutCard item={item} checkoutItem={checkoutItem} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={category.checkout_limit} categoryName={category.category} />
           </Grid>
         ))}
       </Grid>

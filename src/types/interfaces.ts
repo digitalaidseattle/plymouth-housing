@@ -18,11 +18,11 @@ export type CheckoutCardProps = {
   item: CheckoutItemProp;
   checkoutItem: CategoryProps;
   addItemToCart: (item: CheckoutItemProp, quantity: number, category: string) => void;
-  removeItemFromCart: (itemId: number) => void;
+  removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disableAdd: boolean;
   categoryLimit: number;
-  category: string,
+  categoryName: string,
 };
 
 export interface UserContextType {

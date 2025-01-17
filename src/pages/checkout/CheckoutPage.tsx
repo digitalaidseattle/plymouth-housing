@@ -16,18 +16,10 @@ const CheckoutPage = () => {
   const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>([]);
   const [data, setData] = useState<CategoryProps[]>([]);
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
-  const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([
-    {
-      id: 0,
-      category: '',
-      categoryCount: 0,
-      items: [],
-      checkout_limit: 0,
-    },
-  ]);
+  const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
-  const [openSummary, setOpenSummary] = useState(false);
-  const [selectedBuildingCode, setSelectedBuildingCode] = useState('');
+  const [openSummary, setOpenSummary] = useState<boolean>(false);
+  const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('');
 
   const addItemToCart = (
@@ -81,7 +73,7 @@ const CheckoutPage = () => {
 
       // Update the `checkoutItems` state
       setCheckoutItems(updatedCheckoutItems);
-      console.log('This is updatedCheckoutItems:', updatedCheckoutItems);
+      // console.log('This is updatedCheckoutItems:', updatedCheckoutItems);
 
       // Reset activeSection if the cart becomes empty
       const isCartEmpty = updatedCheckoutItems.every(
@@ -148,7 +140,7 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const responseData = await response.json();
-      // console.log(responseData.value);
+      console.log(responseData.value);
       setData(responseData.value);
 
       const cleanCheckout = responseData.value.map((category: CategoryProps) => ({
@@ -159,7 +151,7 @@ const CheckoutPage = () => {
 
       // Create clean checkout array
       setCheckoutItems(cleanCheckout);
-      console.log('This is cleanCheckout:', cleanCheckout)
+      // console.log('This is cleanCheckout:', cleanCheckout)
 
       //this part is a bit tricky. PH has 2 different welcome baskets: one for full-size and one for twin-size. See documentation
       const welcomeBasket = responseData.value.filter((category: CategoryProps) => category.category === 'Welcome Basket') || [];
@@ -198,13 +190,14 @@ const CheckoutPage = () => {
         {welcomeBasketData.map((category) => {
           const matchingCategory = checkoutItems.find(
             (cat) => cat.category === category.category
-          );
+          ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
+          console.log('This is matchingCategory:', matchingCategory)
 
           return (
             <CategorySection
               key={category.id}
               category={category}
-              checkoutItem={matchingCategory || null}
+              checkoutItem={matchingCategory}
               addItemToCart={(item, quantity) =>
                 addItemToCart(item, quantity, category.category, 'welcomeBasket')}
               removeItemFromCart={removeItemFromCart}
@@ -217,7 +210,7 @@ const CheckoutPage = () => {
         {filteredData.map((category) => {
           const matchingCategory = checkoutItems.find(
             (cat) => cat.category === category.category
-          );
+          ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
 
           return (
             <CategorySection

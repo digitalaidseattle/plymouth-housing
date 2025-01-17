@@ -1,39 +1,42 @@
 import CheckoutCard from './CheckoutCard';
-import { CategoryProps, CheckoutItem } from "../../types/interfaces";
+import { CategoryProps, CheckoutItemProp } from "../../types/interfaces";
 import { Box, Grid, Typography } from '@mui/material';
 import { useEffect, useState, useCallback } from 'react';
 
 type CategorySectionProps = {
   category: CategoryProps;
-  checkoutItems: CheckoutItem[];
-  addItemToCart: (item: CheckoutItem, quantity: number) => void;
+  checkoutItem: CategoryProps;
+  addItemToCart: (item: CheckoutItemProp, quantity: number) => void;
   removeItemFromCart: (itemId: number) => void;
   removeButton: boolean;
   disabled: boolean;
 };
 
-const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFromCart, removeButton, disabled }: CategorySectionProps) => {
+const CategorySection = ({ category, checkoutItem, addItemToCart, removeItemFromCart, removeButton, disabled }: CategorySectionProps) => {
 
-  const [categoryCount, setCategoryCount] = useState<number>(0);
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
 
   const checkLimit = useCallback(() => {
-    if (categoryCount >= category.checkout_limit) {
+    if ((checkoutItem?.categoryCount ?? 0) >= category.checkout_limit) {
       setDisableAdd(true);
     } else {
       setDisableAdd(false);
     }
-  }, [categoryCount, category.checkout_limit]);
+
+  }, [checkoutItem?.categoryCount, category.checkout_limit]);
 
   useEffect(() => {
     checkLimit();
-  }, [categoryCount, checkLimit])
+  }, [checkoutItem?.categoryCount, checkLimit])
 
   return (
     <Box sx={{ paddingLeft: '5%', paddingRight: '5%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography sx={{ fontSize: '20px', marginY: '3%' }} id={category.category}>{category.category}</Typography>
-        <Typography sx={{ fontSize: '20px', marginY: '3%' }}>{categoryCount} of {category.checkout_limit}</Typography>
+        <Typography sx={{ fontSize: '20px', marginY: '3%' }}>
+          {checkoutItem?.categoryCount} of {category.checkout_limit}
+        </Typography>
+
       </Box>
       <Grid container spacing={2}
         style={{
@@ -44,7 +47,7 @@ const CategorySection = ({ category, checkoutItems, addItemToCart, removeItemFro
       >
         {category.items.map((item) => (
           <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
-            <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} setCategoryCount={setCategoryCount} disableAdd={disableAdd} categoryCount={categoryCount} categoryLimit={category.checkout_limit}/>
+            <CheckoutCard item={item} checkoutItem={checkoutItem} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={category.checkout_limit} category={category.category} />
           </Grid>
         ))}
       </Grid>

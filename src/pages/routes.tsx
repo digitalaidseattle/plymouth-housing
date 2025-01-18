@@ -1,7 +1,6 @@
 import MainCard from '../components/MainCard';
 import MainLayout from '../layout/MainLayout';
 import MinimalLayout from '../layout/MinimalLayout';
-import Login from './authentication/Login';
 import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
 import DashboardDefault from './dashboard';
@@ -58,10 +57,6 @@ const routes = [
     path: '/',
     element: <MinimalLayout />,
     children: [
-      {
-        path: 'login',
-        element: <Login />,
-      },
       {
         path: 'pick-your-name',
         element: <PickYourNamePage />,

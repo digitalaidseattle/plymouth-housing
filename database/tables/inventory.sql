@@ -41,6 +41,7 @@ CREATE VIEW ItemsByCategory
 AS
     SELECT
         Categories.id,
+        Categories.checkout_limit,
         Categories.name AS category,
         (
         SELECT

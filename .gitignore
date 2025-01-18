@@ -26,3 +26,4 @@ coverage
 .env
 
 bundle-visualization.html
+bootstrap_db_results.rpt

@@ -66,10 +66,10 @@ const AddVolunteerModal = ({
 
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.VOLUNTEERS, {
+      const response = await fetch(ENDPOINTS.USERS, {
         method: 'POST',
         headers: HEADERS,
-        body: JSON.stringify({ ...formData, active: true }),
+        body: JSON.stringify({ ...formData, active: true, role: 'volunteer' }),
       });
       if (!response.ok) {
         const errorData = await response.json();

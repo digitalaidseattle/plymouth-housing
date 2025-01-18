@@ -13,10 +13,13 @@ const useVolunteers = () => {
   const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.VOLUNTEERS, {
-        headers: HEADERS,
-        method: 'GET',
-      });
+      const response = await fetch(
+        `${ENDPOINTS.USERS}?$filter=role eq 'volunteer' and active eq true`,
+        {
+          headers: HEADERS,
+          method: 'GET',
+        },
+      );
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -42,7 +45,7 @@ const useVolunteers = () => {
 
       const updatedStatus = !volunteerToUpdate.active;
 
-      const requestUrl = `${ENDPOINTS.VOLUNTEERS}/id/${volunteerId}`;
+      const requestUrl = `${ENDPOINTS.USERS}/id/${volunteerId}`;
       HEADERS['X-MS-API-ROLE'] = getRole(user);
 
       const response = await fetch(requestUrl, {

@@ -1,30 +1,34 @@
-import React, { useCallback, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useCallback, useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<
-    'success' | 'warning'
-  >('warning');
-  const location = useLocation();
-  const { volunteerId, role, volunteers } = location.state || {};
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'warning' >('warning');
+  const { loggedInVolunteerId, user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  if (!volunteerId) {
+  if (!loggedInVolunteerId) {
     navigate('/pick-your-name');
+  }
+
+  const handleTheSnackies = (message: string, severity: 'success' | 'warning') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
   }
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
-      HEADERS['X-MS-API-ROLE'] = role;
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.VERIFY_PIN, {
         method: 'POST',
         headers: HEADERS,
@@ -46,17 +50,15 @@ const EnterPinPage: React.FC = () => {
       return result;
     } catch (error) {
       console.error('Error verifying PIN:', error);
-      setSnackbarMessage('Failed to verify PIN. Please try again.');
-      setSnackbarSeverity('warning');
-      setOpenSnackbar(true);
+      handleTheSnackies('Failed to verify PIN. Please try again.', 'warning');
       return null;
     }
   };
 
   const updateLastSignedIn = async (id: number) => {
     try {
-      HEADERS['X-MS-API-ROLE'] = role;
-      const response = await fetch(`${ENDPOINTS.VOLUNTEERS}/id/${id}`, {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
         method: 'PATCH',
         headers: HEADERS,
         body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
@@ -73,27 +75,30 @@ const EnterPinPage: React.FC = () => {
   const handleNextClick = async () => {
     if (pin.every((p) => p !== '')) {
       const enteredPin = pin.join(''); // Combine array into a single string (e.g., '1234')
-      const result = await verifyPin(volunteerId, enteredPin);
+      let result = null;
+      if (loggedInVolunteerId !== null) {
+        result = await verifyPin(loggedInVolunteerId, enteredPin);
+      } else {
+        handleTheSnackies('Volunteer ID is missing. Please try again.', 'warning');
+      }
 
       if (result?.IsValid) {
-        setSnackbarMessage('Login successful! Redirecting...');
-        setSnackbarSeverity('success');
-        setOpenSnackbar(true);
-        await updateLastSignedIn(volunteerId); // Update last signed-in date after successful login
-        navigate('/volunteer-home', {
-          state: { volunteerId: volunteerId, volunteers: volunteers },
-        });
+        handleTheSnackies('Login successful! Redirecting...', 'success');
+        if (loggedInVolunteerId !== null) {
+          result = await updateLastSignedIn(loggedInVolunteerId); // Update last signed-in date after successful login
+        }
+        navigate('/volunteer-home');
       } else {
         setSnackbarMessage(
           result?.ErrorMessage || 'Incorrect PIN. Please try again.',
         );
         setSnackbarSeverity('warning');
         setOpenSnackbar(true);
+
+        handleTheSnackies(result?.ErrorMessage || 'Incorrect PIN. Please try again.', 'warning');
       }
     } else {
-      setSnackbarMessage('Please enter your PIN before continuing.');
-      setSnackbarSeverity('warning');
-      setOpenSnackbar(true);
+      handleTheSnackies('Please enter your PIN before continuing.', 'warning');
     }
   };
 

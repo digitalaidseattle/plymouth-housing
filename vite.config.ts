@@ -13,15 +13,14 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      treeshake: true,  // Ensure tree shaking is enabled
+      treeshake: true,  
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'react-apexcharts': ['react-apexcharts'],
         },
       },
     },
-    chunkSizeWarningLimit: 1000, // Increase the limit to 1000 kB
+    chunkSizeWarningLimit: 1000, 
   },
   server: {
     host: true, // Needed for running on devcontainers.

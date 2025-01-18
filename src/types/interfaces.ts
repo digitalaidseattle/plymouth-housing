@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import { IdTokenClaims } from '@azure/msal-common';
 
 export type CheckoutItemProp = {
+=======
+export type CheckoutItem = {
+>>>>>>> 53051c1a4d8648cb20f3bd5ec52ad4f81973ed7f
   id: number;
   name: string;
   quantity: number;
@@ -25,9 +29,15 @@ export type CheckoutCardProps = {
   categoryName: string,
 };
 
+export interface ClientPrincipal{
+  userDetails: string,
+  userID: string,
+  userRoles: string[]
+}
+
 export interface UserContextType {
-  user: IdTokenClaims | null;
-  setUser: (user: IdTokenClaims) => void;
+  user: ClientPrincipal | null;
+  setUser: (user: ClientPrincipal) => void;
   loggedInVolunteer: Volunteer | null;
   setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
   activeVolunteers: Volunteer[];

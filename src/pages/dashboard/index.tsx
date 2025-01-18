@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import { useState } from 'react';
 
 // material-ui
 import {
@@ -20,10 +20,6 @@ import {
 
 // project import
 import AnalyticEcommerce from '../../components/cards/statistics/AnalyticEcommerce';
-const SalesColumnChart = React.lazy(() => import('./SalesColumnChart'));
-const IncomeAreaChart = React.lazy(() => import('./IncomeAreaChart'));
-const MonthlyBarChart = React.lazy(() => import('./MonthlyBarChart'));
-const ReportAreaChart = React.lazy(() => import('./ReportAreaChart'));
 
 // assets
 import {
@@ -165,10 +161,6 @@ const DashboardDefault = () => {
               <Typography variant="h3">$7,650</Typography>
             </Stack>
           </Box>
-          <MonthlyBarChart />
-          <Suspense fallback={<div>Loading...</div>}>
-            <MonthlyBarChart />
-          </Suspense>
         </MainCard>
       </Grid>
 
@@ -201,9 +193,6 @@ const DashboardDefault = () => {
         </Grid>
         <MainCard content={false} sx={{ mt: 1.5 }}>
           <Box sx={{ pt: 1, pr: 2 }}>
-            <Suspense fallback={<div>Loading...</div>}>
-              <IncomeAreaChart slot={slot} />
-            </Suspense>
         </Box>
         </MainCard>
       </Grid>
@@ -230,9 +219,6 @@ const DashboardDefault = () => {
               <Typography variant="h5">Low</Typography>
             </ListItemButton>
           </List>
-          <Suspense fallback={<div>Loading...</div>}>
-            <ReportAreaChart />
-          </Suspense>
         </MainCard>
       </Grid>
 
@@ -268,9 +254,6 @@ const DashboardDefault = () => {
             </Typography>
             <Typography variant="h4">$1560</Typography>
           </Stack>
-          <Suspense fallback={<div>Loading...</div>}>
-            <SalesColumnChart />
-          </Suspense>
         </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>

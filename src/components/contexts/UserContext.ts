@@ -27,5 +27,7 @@ export function getRole(user: ClientPrincipal | null): string {
   if (user?.userRoles?.includes('admin')) {
     return 'admin';
   }
-  throw new Error('User is not a member of Admin or Volunteer role.');
+  
+  throw new Error(`${user} - User is not a member of Admin or Volunteer role.`);
 }
+

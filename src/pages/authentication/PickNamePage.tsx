@@ -56,7 +56,7 @@ const PickYourNamePage: React.FC = () => {
       }
     };
     fetchVolunteers();
-  }, [user, setActiveVolunteers]);
+  }, [user]);
 
   const handleNameChange = (
     _event: React.SyntheticEvent,

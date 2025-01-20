@@ -64,6 +64,9 @@ const MainLayout: React.FC = () => {
       }
     };
     fetchTokenAndVolunteers();
+  
+  // The effect is intended to run only once on mount.
+  /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []);
 
   /**

@@ -56,6 +56,9 @@ const PickYourNamePage: React.FC = () => {
       }
     };
     fetchVolunteers();
+
+  // The effect is intended to run only when the 'user' value changes (or on mount if user is set).
+  /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [user]);
 
   const handleNameChange = (

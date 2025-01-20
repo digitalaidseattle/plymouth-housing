@@ -121,6 +121,54 @@ You can also develop locally against a local install of SQL server. There are fr
 
 - After that you can create the [Tables](../database/Tables/) and the [testdata](../database/testdata/).
 
+- **For maxOS users**
+  - Setup SQL Server in Docker and Execute `bootstrap_db.ps1` on macOS
+    - This guide walks you through downloading SQL Server via Docker and executing a PowerShell bootstrap script (`bootstrap_db.ps1`) to initialize your database.
+    - 1. Install and Start Docker Desktop
+      - Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your operating system.
+      - Launch Docker Desktop and ensure that Docker is running.
+    - 2. Download and Run SQL Server 2022 Docker Container
+      - Open your terminal and run the following commands:
+
+        ```bash
+        # Pull the SQL Server 2022 image
+        docker pull mcr.microsoft.com/mssql/server:2022-latest
+
+        # Run a container (replace YourStrongPassword123! with your desired password)
+        docker run -d --name local_sql_server \
+        -e 'ACCEPT_EULA=Y' \
+        -e 'SA_PASSWORD=YourStrongPassword123!' \
+        -p 1433:1433 \
+        mcr.microsoft.com/mssql/server:2022-latest
+        ```
+
+    - 3. Install PowerShell and the SqlServer Module on macOS
+      - Install PowerShell 7, If you haven't already installed PowerShell (version 7 or higher is recommended), use Homebrew:
+        ```bash
+        brew install --cask powershell
+        ```
+      - Launch PowerShell by typing:
+        ```bash
+        pwsh
+        ```
+    - 4. Install the SqlServer Module
+      - Inside PowerShell, run:
+        ```powershell
+        brew install --cask powershell
+        ```
+    - 5. Configure the Database Connection String Environment Variable
+      - In PowerShell, set the environment variable for your database connection string. Adjust the database name and credentials as necessary:
+        ```powershell
+        $env:DATABASE_CONNECTION_STRING = "Server=localhost,1433;Database=Inventory;User ID=sa;Password=YourStrongPassword123!;Encrypt=False;TrustServerCertificate=True;"
+        ```
+      - Note: Ensure that the Password matches the one used when starting the container.
+    - 6. Execute the ```bootstrap_db.ps1``` Script
+      - Assuming your PowerShell bootstrap script is located at /Users/yourusername/path/to/database/bootstrap_db.ps1, run:
+        ```powershell
+        pwsh -File "/Users/yourusername/path/to/database/bootstrap_db.ps1"
+        ```
+    - 7. After completing these steps, your SQL Server Docker container is set up, and your database is initialized using the PowerShell bootstrap script. Enjoy your development!
+
 #### Environment Variables
 
 Make sure to update the `DATABASE_CONNECTION_STRING` in your environment:

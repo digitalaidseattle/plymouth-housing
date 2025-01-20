@@ -2,9 +2,9 @@ import { getRole } from '../contexts/UserContext';
 import { CheckoutItem, ClientPrincipal } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 
-export async function processWelcomeBasket(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[]) {
+export async function processWelcomeBasket(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[], buildingCode: string) {
   HEADERS['X-MS-API-ROLE'] = getRole(user);
-  const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
+  const response = await fetch(`${ENDPOINTS.CHECKOUT_WELCOME_BASKET}?buildingCode=${buildingCode}`, {
     method: 'POST',
     headers: HEADERS,
     body: JSON.stringify({
@@ -17,9 +17,9 @@ export async function processWelcomeBasket(user: ClientPrincipal | null, current
   return await response.json();
 }
 
-export async function processGeneralItems(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[]) {
+export async function processGeneralItems(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[], buildingCode: string) {
   HEADERS['X-MS-API-ROLE'] = getRole(user);
-  const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
+  const response = await fetch(`${ENDPOINTS.CHECKOUT_GENERAL_ITEMS}?buildingCode=${buildingCode}`, {
     method: 'POST',
     headers: HEADERS,
     body: JSON.stringify({

@@ -9,6 +9,7 @@ CREATE TABLE Transactions (
     transaction_type VARCHAR(50) NOT NULL,
     quantity INT NOT NULL,
     transaction_date DATETIME DEFAULT GETDATE() NOT NULL,
+    building_id INT NOT NULL
 );
 
 GO

@@ -66,6 +66,10 @@ export type Volunteer = {
   PIN: string | null;
 };
 
+export type User = Volunteer & {
+  role: string;
+};
+
 export type Admin = {
   id: number;
   name: string;

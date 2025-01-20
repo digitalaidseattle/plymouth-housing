@@ -1,3 +1,9 @@
+/**
+ *  pages/authentication/EnterPinPage.tsx
+ *
+ *  @copyright 2024 Digital Aid Seattle
+ *
+ */
 import React, { useCallback, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';

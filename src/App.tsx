@@ -4,38 +4,38 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-// project import
-import React, { useState } from 'react';
+import React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './pages/routes';
 import ThemeCustomization from './themes/themeCustomization';
 import { UserContext } from './components/contexts/UserContext';
 import { ClientPrincipal, Volunteer } from './types/interfaces';
+import usePersistentState from './hooks/usePersistentState';
 
 const router = createBrowserRouter(routes);
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<ClientPrincipal | null>(null);
-  const [loggedInVolunteerId, setLoggedInVolunteerId] = useState<number | null>(null);
-  const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
-  const [loggedInAdminId, setLoggedInAdminId] = useState<number | null>(null);
-  
+  const [user, setUser] = usePersistentState<ClientPrincipal | null>('user', null);
+  const [loggedInVolunteerId, setLoggedInVolunteerId] = usePersistentState<number | null>('loggedInVolunteerId', null);
+  const [activeVolunteers, setActiveVolunteers] = usePersistentState<Volunteer[]>('activeVolunteers', []);
+  const [loggedInAdminId, setLoggedInAdminId] = usePersistentState<number | null>('loggedInAdminId', null);
+
   return (
-      <UserContext.Provider
-        value={{
-          user,
-          setUser,
-          loggedInVolunteerId: loggedInVolunteerId,
-          setLoggedInVolunteerId: setLoggedInVolunteerId,
-          activeVolunteers: activeVolunteers,
-          setActiveVolunteers: setActiveVolunteers,
-          loggedInAdminId: loggedInAdminId,
-          setLoggedInAdminId: setLoggedInAdminId,
-        }}
-      >
-    <ThemeCustomization>
-      <RouterProvider router={router} />
-    </ThemeCustomization>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        loggedInVolunteerId,
+        setLoggedInVolunteerId,
+        activeVolunteers,
+        setActiveVolunteers,
+        loggedInAdminId,
+        setLoggedInAdminId,
+      }}
+    >
+      <ThemeCustomization>
+        <RouterProvider router={router} />
+      </ThemeCustomization>
     </UserContext.Provider>
   );
 };

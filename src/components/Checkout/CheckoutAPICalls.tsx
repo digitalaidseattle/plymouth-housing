@@ -4,13 +4,14 @@ import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 export async function processWelcomeBasket(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[], buildingCode: string) {
   HEADERS['X-MS-API-ROLE'] = getRole(user);
-  const response = await fetch(`${ENDPOINTS.CHECKOUT_WELCOME_BASKET}?buildingCode=${buildingCode}`, {
+  const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
     method: 'POST',
     headers: HEADERS,
     body: JSON.stringify({
       user_id: currentUserId,
       mattress_size: checkoutItems[0].id,
       quantity: checkoutItems[0].quantity,
+      building_code: buildingCode,
       message: "",
     }),
   });
@@ -19,12 +20,13 @@ export async function processWelcomeBasket(user: ClientPrincipal | null, current
 
 export async function processGeneralItems(user: ClientPrincipal | null, currentUserId: number, checkoutItems: CheckoutItem[], buildingCode: string) {
   HEADERS['X-MS-API-ROLE'] = getRole(user);
-  const response = await fetch(`${ENDPOINTS.CHECKOUT_GENERAL_ITEMS}?buildingCode=${buildingCode}`, {
+  const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
     method: 'POST',
     headers: HEADERS,
     body: JSON.stringify({
       user_id: currentUserId,
       items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
+      building_code: buildingCode,
       message: "",
     }),
   });

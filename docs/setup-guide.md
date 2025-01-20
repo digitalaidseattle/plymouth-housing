@@ -121,7 +121,7 @@ You can also develop locally against a local install of SQL server. There are fr
 
 - After that you can create the [Tables](../database/Tables/) and the [testdata](../database/testdata/).
 
-- **For maxOS users**
+- **For macOS users**
   - Setup SQL Server in Docker and Execute `bootstrap_db.ps1` on macOS
     - This guide walks you through downloading SQL Server via Docker and executing a PowerShell bootstrap script (`bootstrap_db.ps1`) to initialize your database.
     - 1. Install and Start Docker Desktop
@@ -139,6 +139,7 @@ You can also develop locally against a local install of SQL server. There are fr
         -e 'ACCEPT_EULA=Y' \
         -e 'SA_PASSWORD=YourStrongPassword123!' \
         -p 1433:1433 \
+        -v sqlserverdata:/var/opt/mssql \
         mcr.microsoft.com/mssql/server:2022-latest
         ```
 
@@ -159,7 +160,7 @@ You can also develop locally against a local install of SQL server. There are fr
     - 5. Configure the Database Connection String Environment Variable
       - In PowerShell, set the environment variable for your database connection string. Adjust the database name and credentials as necessary:
         ```powershell
-        $env:DATABASE_CONNECTION_STRING = "Server=localhost,1433;Database=Inventory;User ID=sa;Password=YourStrongPassword123!;Encrypt=False;TrustServerCertificate=True;"
+        $env:DATABASE_CONNECTION_STRING = "Server=localhost,1433;Initial Catalog=master;User ID=sa;Password=YourStrongPassword123!;Encrypt=False;TrustServerCertificate=True;"
         ```
       - Note: Ensure that the Password matches the one used when starting the container.
     - 6. Execute the ```bootstrap_db.ps1``` Script

@@ -119,7 +119,7 @@ You can also develop locally against a local install of SQL server. There are fr
 
 - Once you have that installed, you can create your database with the [create_db.sql](../database/create_db.sql) script. (hit the play button) .
 
-- After that you can create the [Tables](../database/Tables/) and the [testdata](../database/testdata/).
+- After that you can bootstrap the database with script in /database/bootstrap_db.ps1/.
 
 - **For macOS users**
   - Setup SQL Server in Docker and Execute `bootstrap_db.ps1` on macOS

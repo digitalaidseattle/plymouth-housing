@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -10,27 +10,18 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
-
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { Volunteer, ClientPrincipal } from '../../types/interfaces';
+import { Volunteer } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
-    null,
-  );
-  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const { user, loggedInVolunteerId, setLoggedInVolunteerId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [loggedInVolunteer, setLoggedInVolunteer] = useState<Volunteer | null>(
-    null,
-  );
-  const [activeVolunteers, setActiveVolunteers] = useState<Volunteer[]>([]);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
-  const [user, setUser] = useState<ClientPrincipal | null>(null);
 
   const navigate = useNavigate();
 
@@ -42,7 +33,7 @@ const PickYourNamePage: React.FC = () => {
 
         HEADERS['X-MS-API-ROLE'] = getRole(user);
         const response = await fetch(
-          `${ENDPOINTS.VOLUNTEERS}?$select=id,name&$filter=active eq true`,
+          `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`,
           {
             method: 'GET',
             headers: HEADERS,
@@ -52,7 +43,7 @@ const PickYourNamePage: React.FC = () => {
           throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
         }
         const data = await response.json();
-        setVolunteers(data.value);
+        setActiveVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
         setSnackbarState({
@@ -65,25 +56,18 @@ const PickYourNamePage: React.FC = () => {
       }
     };
     fetchVolunteers();
-  }, [user]);
+  }, [user, setActiveVolunteers]);
 
   const handleNameChange = (
     _event: React.SyntheticEvent,
     value: Volunteer | null,
   ) => {
-    setSelectedVolunteer(value);
+    setLoggedInVolunteerId(value?.id ?? null);
   };
 
   const handleNextClick = () => {
-    if (selectedVolunteer) {
-      // Navigate to the next page, passing the volunteer ID via state
-      navigate('/enter-your-pin', {
-        state: {
-          volunteerId: selectedVolunteer.id,
-          role: getRole(user),
-          volunteers: volunteers,
-        },
-      });
+    if (loggedInVolunteerId) {
+      navigate('/enter-your-pin');
     } else {
       setSnackbarState({
         open: true,
@@ -104,16 +88,6 @@ const PickYourNamePage: React.FC = () => {
   };
 
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser,
-        loggedInVolunteer,
-        setLoggedInVolunteer,
-        activeVolunteers,
-        setActiveVolunteers,
-      }}
-    >
       <MinimalWrapper>
         <CenteredLayout>
           <Box sx={{ maxWidth: '350px', width: '100%' }}>
@@ -143,9 +117,9 @@ const PickYourNamePage: React.FC = () => {
             </Typography>
 
             <Autocomplete
-              value={selectedVolunteer}
+              value={activeVolunteers.find(volunteer => volunteer.id === loggedInVolunteerId)}
               onChange={handleNameChange}
-              options={volunteers}
+              options={activeVolunteers}
               getOptionLabel={(option) => option.name}
               renderInput={(params) => (
                 <TextField
@@ -191,7 +165,6 @@ const PickYourNamePage: React.FC = () => {
           </SnackbarAlert>
         </CenteredLayout>
       </MinimalWrapper>
-    </UserContext.Provider>
   );
 };
 

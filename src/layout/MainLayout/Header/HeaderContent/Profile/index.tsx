@@ -30,7 +30,7 @@ import {
 //   UserOutlined,
 } from '@ant-design/icons';
 import { UserContext } from '../../../../../components/contexts/UserContext';
-import { useMsal } from '@azure/msal-react';
+import { useNavigate } from 'react-router-dom';
 
 // interface TabPanelProps {
 //   children: ReactNode;
@@ -75,20 +75,19 @@ const Profile = () => {
   const [username, setUsername] = useState<string>('');
   const [role, setRole] = useState<string>(''); // New state for role
   // const [avatar, setAvatar] = useState<string>(''); //TODO add avatar
-  const { instance } = useMsal();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
       // setAvatar(user.user_metadata.avatar_url) //TODO add avatar
       setUsername(user.userDetails ?? 'Null');
-      setRole(user.userRoles ? user.userRoles[0] : ''); // Set the role based on user context
+      setRole(user.userRoles?.includes('admin') ? 'admin' : user.userRoles?.includes('volunteer') ? 'volunteer' : '');
     }
   }, [user]);
 
   const handleLogout = async () => {
-    instance.logoutRedirect({
-      postLogoutRedirectUri: '/',
-    });
+    window.location.href = "/.auth/logout?post_logout_redirect_uri=/";
+    navigate("");
   };
 
   const anchorRef = useRef(null);

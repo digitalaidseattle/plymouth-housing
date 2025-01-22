@@ -12,7 +12,7 @@ BEGIN
 
     -- Fetch the stored PIN for the given Volunteer ID
     SELECT @StoredPin = PIN
-    FROM [dbo].[Volunteers]
+    FROM [dbo].[Users]
     WHERE id = @VolunteerId;
 
     -- Check if the PIN was found

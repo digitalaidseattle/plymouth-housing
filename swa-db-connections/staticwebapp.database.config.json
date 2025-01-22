@@ -132,16 +132,16 @@
           "role": "volunteer"
         }
       ]
-    },
-    "Volunteer": {
+    },   
+    "Users": {
       "source": {
-        "object": "dbo.Volunteers",
+        "object": "dbo.Users",
         "type": "table",
         "key-fields": []
       },
       "rest": {
         "enabled": true,
-        "path": "/volunteers"
+        "path": "/users"
       },
       "permissions": [
         {

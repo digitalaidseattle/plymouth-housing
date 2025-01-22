@@ -32,10 +32,12 @@ export interface ClientPrincipal{
 export interface UserContextType {
   user: ClientPrincipal | null;
   setUser: (user: ClientPrincipal) => void;
-  loggedInVolunteer: Volunteer | null;
-  setLoggedInVolunteer: (loggedInVolunteer: Volunteer | null) => void;
+  loggedInVolunteerId: number | null;
+  setLoggedInVolunteerId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: Volunteer[];
   setActiveVolunteers: (activeVolunteers: Volunteer[]) => void;
+  loggedInAdminId: number | null;
+  setLoggedInAdminId: (loggedInAdminId: number | null) => void;
 }
 
 export type InventoryItem = {
@@ -67,6 +69,13 @@ export type Volunteer = {
   created_at: string;
   last_signed_in: string | null;
   PIN: string | null;
+};
+
+export type Admin = {
+  id: number;
+  name: string;
+  created_at: string| null;
+  last_signed_in: string | null;
 };
 
 export type Building = {

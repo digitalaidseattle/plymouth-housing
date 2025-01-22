@@ -24,6 +24,7 @@ The Transaction History system consists of:
 - A SQL Server table for storing transaction records.
 - API endpoints for CRUD transaction data.
 - A front-end page for displaying transaction history to admin users.
+- user_id references the Users table.
 
 ## Architecture Goals and Constraints
 
@@ -44,6 +45,7 @@ The Transaction History system consists of:
 - The transaction history page should be able to display all transactions for a specific user.
 - The transaction history page should be able to display detailed information for each transaction.
 - The transaction history page should be able to filter and search transactions based on various criteria.
+- The Transactions table references user_id from Users.
 
 ## Detailed Design  
 

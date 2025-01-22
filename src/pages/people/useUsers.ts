@@ -14,7 +14,7 @@ const useUsers = () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(
-        `${ENDPOINTS.USERS}?$filter=(role eq 'volunteer' and active eq true) or role eq 'admin'`,
+        `${ENDPOINTS.USERS}`,
         {
           headers: HEADERS,
           method: 'GET',

@@ -98,7 +98,6 @@ const MainLayout: React.FC = () => {
         }
         const getData = await getResp.json();
 
-        console.log('getData:', getData);
 
         // Step 2: If there's an existing record, update last_signed_in
         if (getData.value && getData.value.length > 0) {

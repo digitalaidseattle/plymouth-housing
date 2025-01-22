@@ -101,6 +101,7 @@ const UserTable: React.FC<UserTableProps> = ({
                 />
               ) : null}
             </TableCell>
+            <TableCell sx={{ fontWeight: 'bold' }}>Role</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Date Created</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>
@@ -113,6 +114,7 @@ const UserTable: React.FC<UserTableProps> = ({
           {users.map((user, index) => (
             <TableRow key={index}>
               <TableCell>{user.name}</TableCell>
+              <TableCell>{user.role}</TableCell>
               <TableCell>
                 <Chip
                   label={user.active ? 'Active' : 'Inactive'}
@@ -133,10 +135,9 @@ const UserTable: React.FC<UserTableProps> = ({
                   : 'None'}
               </TableCell>
               <TableCell>
-                 {user.role !== 'admin'&&(
                 <IconButton onClick={(e) => handleMenuOpen(e, user)}>
                   <MoreVertIcon />
-                </IconButton>)}
+                </IconButton>
               </TableCell>
             </TableRow>
           ))}
@@ -152,7 +153,8 @@ const UserTable: React.FC<UserTableProps> = ({
         <MenuItem onClick={handleStatusToggle}>
           {selectedUser?.active ? 'Deactivate Role' : 'Activate Role'}
         </MenuItem>
-        <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>
+        {selectedUser?.role !== 'admin'&&(
+        <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>)}
       </Menu>
 
       {/* PIN Modal */}

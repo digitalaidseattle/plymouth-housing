@@ -19,10 +19,10 @@ const EnterPinPage: React.FC = () => {
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'warning' >('warning');
-  const { loggedInVolunteerId, user } = useContext(UserContext);
+  const { loggedInUserId, user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  if (!loggedInVolunteerId) {
+  if (!loggedInUserId) {
     navigate('/pick-your-name');
   }
 
@@ -82,16 +82,16 @@ const EnterPinPage: React.FC = () => {
     if (pin.every((p) => p !== '')) {
       const enteredPin = pin.join(''); // Combine array into a single string (e.g., '1234')
       let result = null;
-      if (loggedInVolunteerId !== null) {
-        result = await verifyPin(loggedInVolunteerId, enteredPin);
+      if (loggedInUserId !== null) {
+        result = await verifyPin(loggedInUserId, enteredPin);
       } else {
         handleTheSnackies('Volunteer ID is missing. Please try again.', 'warning');
       }
 
       if (result?.IsValid) {
         handleTheSnackies('Login successful! Redirecting...', 'success');
-        if (loggedInVolunteerId !== null) {
-          result = await updateLastSignedIn(loggedInVolunteerId); // Update last signed-in date after successful login
+        if (loggedInUserId !== null) {
+          result = await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
         navigate('/volunteer-home');
       } else {

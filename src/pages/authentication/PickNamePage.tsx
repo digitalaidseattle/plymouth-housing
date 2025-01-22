@@ -15,7 +15,7 @@ import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { User } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const { user, loggedInVolunteerId, setLoggedInVolunteerId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
+  const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -65,11 +65,11 @@ const PickYourNamePage: React.FC = () => {
     _event: React.SyntheticEvent,
     value: User | null,
   ) => {
-    setLoggedInVolunteerId(value?.id ?? null);
+    setLoggedInUserId(value?.id ?? null);
   };
 
   const handleNextClick = () => {
-    if (loggedInVolunteerId) {
+    if (loggedInUserId) {
       navigate('/enter-your-pin');
     } else {
       setSnackbarState({
@@ -120,7 +120,7 @@ const PickYourNamePage: React.FC = () => {
             </Typography>
 
             <Autocomplete
-              value={activeVolunteers.find(volunteer => volunteer.id === loggedInVolunteerId)}
+              value={activeVolunteers.find(volunteer => volunteer.id === loggedInUserId)}
               onChange={handleNameChange}
               options={activeVolunteers}
               getOptionLabel={(option) => option.name}

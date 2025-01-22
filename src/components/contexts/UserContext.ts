@@ -10,13 +10,10 @@ import { UserContextType, ClientPrincipal } from '../../types/interfaces';
 export const UserContext = createContext<UserContextType>({
   user: null,
   setUser: () => {},
-  loggedInVolunteerId: null,
-  setLoggedInVolunteerId: () => {},
+  loggedInUserId: null,
+  setLoggedInUserId: () => {},
   activeVolunteers: [],
   setActiveVolunteers: () => {},
-  loggedInAdminId: null,
-  setLoggedInAdminId: () => {},
-
 });
 
 export function getRole(user: ClientPrincipal | null): string {

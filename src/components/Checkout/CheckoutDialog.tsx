@@ -27,7 +27,7 @@ type CheckoutDialogProps = {
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
-  const { user, loggedInVolunteerId, loggedInAdminId } = useContext(UserContext);
+  const { user, loggedInUserId} = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
 
@@ -46,13 +46,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
 
   const handleConfirm = async () => {
     try {
-      // 1. Decide who the user is (volunteer or admin).
-      let currentUserId = null;
-      if (loggedInVolunteerId) {
-        currentUserId = loggedInVolunteerId;
-      } else if (loggedInAdminId) {
-        currentUserId = loggedInAdminId;
-      } else {
+      // 1. If no user is logged in, throw an error
+      if (!loggedInUserId) {
         throw new Error('No valid user (volunteer or admin) found. Cannot checkout.');
       }
 
@@ -60,10 +55,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const isWelcomeBasket = checkoutItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
       if (isWelcomeBasket) {
-        // pass "currentUserId" to the processWelcomeBasket function
-        data = await processWelcomeBasket(user, currentUserId, checkoutItems);
+        // pass "loggedInUserId" to the processWelcomeBasket function
+        data = await processWelcomeBasket(user, loggedInUserId, checkoutItems);
       } else {
-        data = await processGeneralItems(user, currentUserId, checkoutItems);
+        data = await processGeneralItems(user, loggedInUserId, checkoutItems);
       }
 
       const result = data.value[0];

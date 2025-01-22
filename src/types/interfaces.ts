@@ -27,12 +27,10 @@ export interface ClientPrincipal{
 export interface UserContextType {
   user: ClientPrincipal | null;
   setUser: (user: ClientPrincipal) => void;
-  loggedInVolunteerId: number | null;
-  setLoggedInVolunteerId: (loggedInVolunteer: number | null) => void;
+  loggedInUserId: number | null;
+  setLoggedInUserId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: User[];
   setActiveVolunteers: (activeVolunteers: User[]) => void;
-  loggedInAdminId: number | null;
-  setLoggedInAdminId: (loggedInAdminId: number | null) => void;
 }
 
 export type InventoryItem = {

@@ -16,21 +16,18 @@ const router = createBrowserRouter(routes);
 
 const App: React.FC = () => {
   const [user, setUser] = usePersistentState<ClientPrincipal | null>('user', null);
-  const [loggedInVolunteerId, setLoggedInVolunteerId] = usePersistentState<number | null>('loggedInVolunteerId', null);
+  const [loggedInUserId, setLoggedInUserId] = usePersistentState<number | null>('loggedInUserId', null);
   const [activeVolunteers, setActiveVolunteers] = usePersistentState<User[]>('activeVolunteers', []);
-  const [loggedInAdminId, setLoggedInAdminId] = usePersistentState<number | null>('loggedInAdminId', null);
 
   return (
     <UserContext.Provider
       value={{
         user,
         setUser,
-        loggedInVolunteerId,
-        setLoggedInVolunteerId,
+        loggedInUserId,
+        setLoggedInUserId,
         activeVolunteers,
         setActiveVolunteers,
-        loggedInAdminId,
-        setLoggedInAdminId,
       }}
     >
       <ThemeCustomization>

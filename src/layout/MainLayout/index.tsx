@@ -22,7 +22,7 @@ import { ENDPOINTS, HEADERS } from '../../types/constants';
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const { setUser, loggedInVolunteerId, setLoggedInAdminId } = useContext(UserContext);
+  const { setUser, loggedInUserId, setLoggedInUserId } = useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ const MainLayout: React.FC = () => {
         setUser(userClaims || null);
 
         // If volunteer logic applies (we might have a list of volunteers)
-        if (userClaims.userRoles?.includes('volunteer') && !loggedInVolunteerId) {
+        if (userClaims.userRoles?.includes('volunteer') && !loggedInUserId) {
           navigate('/pick-your-name');
           return;
         }
@@ -52,7 +52,7 @@ const MainLayout: React.FC = () => {
               email: userClaims.userId ?? ''
             });
             // Now we have an User object with id, name, created_at, last_signed_in
-            setLoggedInAdminId(createdOrUpdatedAdmin.id);
+            setLoggedInUserId(createdOrUpdatedAdmin.id);
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
             //TODO error handling

@@ -1,20 +1,118 @@
 # Plymouth Housing
+This repo provides an inventory management system for Plymouth Housing. 
 
-This repo is bootstrapped from our DAS admin template, that forms the basis for line-of-business web applications.  Frequently, partners need a simple CRUD interface for applications like:
-* inventory management
-* project/task tracking
-* document submittal
+![License](https://img.shields.io/github/license/username/repository) ![Issues](https://img.shields.io/github/issues/username/repository) ![Contributors](https://img.shields.io/github/contributors/username/repository)
 
-The template supports these application types by providing an application shell with common features such as:
-* authentication
-* dialogs for data entry
-* data tables
-* form validation
-* file uploads
-* drag-and-drop
-* Excel spreadsheet support
+## **Table of Contents**  
+1. [About the Project](#about-the-project)  
+2. [Getting Started](#getting-started)  
+3. [Usage](#usage)  
+4. [Contributing](#contributing)  
+5. [License](#license)  
+6. [Acknowledgments](#acknowledgments)  
 
-A venture squad will be able to copy this template and modify it to suit their venture's need.
+---
+
+## **About the Project**  
+A brief overview of the project, its purpose, and its key features. Add visuals if necessary to capture attention.
+
+### **Built With**  
+- [React](https://example.com)  
+- [Vite](https://example.com)  
+- [Azure Static Web Apps](https://example.com)
+- [Azure SQL server](https://example.com)
+
+## **Getting Started**  
+
+### **Prerequisites**  
+
+- [**Visual Studio Code**](https://code.visualstudio.com/download). 
+
+- **PowerShell** is required for bootstrapping the database. PowerShell is already installed on Windows. See database setup in next step for instruction to set it up on Mac.
+
+- **SQL Server**. Either a locally running edition (highly recommended) or your own running in Azure. Developing against Staging will lead to conflicts. 
+
+    See the [database section in the setup guide](/docs/setup-guide.md#local-database-for-development) for instructions how to set it up. 
+
+- [**Node**](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+
+### **Installation**  
+Steps to set up the project locally:  
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/digitalaidseattle/plymouth-housing.git
+   ```  
+1. Navigate to the project directory:  
+   ```bash
+   cd plymouth-housing
+   ```  
+1. Install dependencies:  
+   ```bash
+   npm install
+   ```  
+1. Set the environment variable for the connection string, for example in PowerShell: 
+   ```bash
+   $env:DATABASE_CONNECTION_STRING='Server=CUDA-BOX\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'"
+1. Start the app locally with 
+    ```
+    swa start 
+    ```
+    For debugging you can add ```--verbose=silly``` to the ```swa``` command.
+
+    You can start the app with ```npm run dev``` but that doesn't set up the Data API layer. That is why you need to use the [SWA CLI](https://azure.github.io/static-web-apps-cli/docs/intro).  
+1. Go to http://localhost:4280.
+
+    The default Vite port 3000 is also available, but the app won't be able to access the REST API from there. This back end API is bootstrapped with configuration out of [```staticwebapp.database.config.json```](../swa-db-connections/staticwebapp.database.config.json). See documentation for all the settings. 
+
+
+---
+
+## **Usage**  
+Provide instructions or examples for using the project. Optionally, include screenshots or code snippets.  
+```bash
+npm start
+```
+swa start 
+---
+
+## **Contributing**  
+Contributions are what make the open-source community such a great place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.  
+
+### **How to Contribute**  
+1. Fork the repository.  
+2. Create your feature branch:  
+   ```bash
+   git checkout -b feature/YourFeatureName
+   ```  
+3. Commit your changes:  
+   ```bash
+   git commit -m 'Add a meaningful commit message'
+   ```  
+4. Push to the branch:  
+   ```bash
+   git push origin feature/YourFeatureName
+   ```  
+5. Open a Pull Request.  
+
+### **Code of Conduct**  
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) for the project guidelines.
+
+---
+
+## **License**  
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## **Acknowledgments**  
+- [Resource 1](https://example.com)  
+- [Resource 2](https://example.com)  
+- [Resource 3](https://example.com)  
+
+---
+
+This template is a solid starting point and can be customized based on the project’s requirements. Let me know if you need additional sections or tweaks!
+
 
 ## Dependencies
 The template is built with:

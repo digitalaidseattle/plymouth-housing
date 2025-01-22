@@ -113,13 +113,15 @@ There are tutorials here:
 
 ### Local Database for Development
 
-You can also develop locally against a local install of SQL server. There are free editions for developers and SQL Express. 
+You will have to use a local installation of SQL server for development. There are [free editions](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) for developers and SQL Express. 
 
-- use the VS Code Extension **SQL Server (mssql)** from Microsoft to work with your SQL Server. 
+Once you have one installed:
 
-- Once you have that installed, you can create your database with the [create_db.sql](../database/create_db.sql) script. (hit the play button) .
+- install the VS Code Extension **SQL Server (mssql)** from Microsoft to work with your SQL Server. 
 
-- After that you can bootstrap the database with script in /database/bootstrap_db.ps1/.
+- create your database with the [create_db.sql](../database/create_db.sql) script. (hit the play button) .
+
+- After that you can bootstrap the database with the PowerShell script in ./database/bootstrap_db.ps1.
 
 - **For macOS users**
   - Setup SQL Server in Docker and Execute `bootstrap_db.ps1` on macOS
@@ -240,24 +242,6 @@ The database should be recreated.
 Make sure you reset the Execution scope back to restricted with 
 
     ```Set-ExecutionPolicy -ExecutionPolicy Undefined```
-
-
-## Local Development
-
-You need to install all dependencies with ```npm install```. One of the dev dependencies is the [SWA CLI](https://azure.github.io/static-web-apps-cli/docs/intro). You can start the app with ```npm run dev``` but that doesn't set up the Data API layer. 
-
-The back end API is bootstrapped with configuration out of [```staticwebapp.database.config.json```](../swa-db-connections/staticwebapp.database.config.json). See documentation for all the settings. 
-
-Start the app locally with 
-
-```
-swa start --data-api-location swa-db-connections 
-```
-Note: for debugging you can add ```--verbose=silly``` to the ```swa``` command.
-
-By default, you can go to http://localhost:4280. (The default Vite port 3000 is also available, but the app won't be able to access the REST API from there.) 
-
-The REST API is serviced from 5000. You can see it live with Swagger: http://localhost:5000/swagger
 
 ## CI/CD
 

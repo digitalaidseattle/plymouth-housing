@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-import { IdTokenClaims } from '@azure/msal-common';
-
 export type CheckoutItemProp = {
-=======
-export type CheckoutItem = {
->>>>>>> 53051c1a4d8648cb20f3bd5ec52ad4f81973ed7f
   id: number;
   name: string;
   quantity: number;

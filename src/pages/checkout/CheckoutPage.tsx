@@ -73,7 +73,6 @@ const CheckoutPage = () => {
 
       // Update the `checkoutItems` state
       setCheckoutItems(updatedCheckoutItems);
-      // console.log('This is updatedCheckoutItems:', updatedCheckoutItems);
 
       // Reset activeSection if the cart becomes empty
       const isCartEmpty = updatedCheckoutItems.every(
@@ -128,7 +127,7 @@ const CheckoutPage = () => {
       setBuildings(data.value);
     }
     catch (error) {
-      console.error('Error fetching buildings:', error); //TODO show more meaningful error to end user.
+      console.error('Error fetching buildings:', error);
     }
   }, [user]);
 
@@ -140,7 +139,6 @@ const CheckoutPage = () => {
         throw new Error(response.statusText);
       }
       const responseData = await response.json();
-      console.log(responseData.value);
       setData(responseData.value);
 
       const cleanCheckout = responseData.value.map((category: CategoryProps) => ({
@@ -151,7 +149,6 @@ const CheckoutPage = () => {
 
       // Create clean checkout array
       setCheckoutItems(cleanCheckout);
-      // console.log('This is cleanCheckout:', cleanCheckout)
 
       //this part is a bit tricky. PH has 2 different welcome baskets: one for full-size and one for twin-size. See documentation
       const welcomeBasket = responseData.value.filter((category: CategoryProps) => category.category === 'Welcome Basket') || [];
@@ -187,12 +184,12 @@ const CheckoutPage = () => {
       </Box>
       <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
         <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
+
+        {/* Filters for welcome basket  */}
         {welcomeBasketData.map((category) => {
           const matchingCategory = checkoutItems.find(
             (cat) => cat.category === category.category
           ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
-          console.log('This is matchingCategory:', matchingCategory)
-
           return (
             <CategorySection
               key={category.id}
@@ -206,7 +203,10 @@ const CheckoutPage = () => {
             />
           );
         })}
+
         <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
+
+        {/* Filters for general items */}
         {filteredData.map((category) => {
           const matchingCategory = checkoutItems.find(
             (cat) => cat.category === category.category
@@ -216,7 +216,7 @@ const CheckoutPage = () => {
             <CategorySection
               key={category.id}
               category={category}
-              checkoutItem={matchingCategory || null}
+              checkoutItem={matchingCategory}
               addItemToCart={(item, quantity) =>
                 addItemToCart(item, quantity, category.category, 'general')}
               removeItemFromCart={removeItemFromCart}
@@ -225,10 +225,11 @@ const CheckoutPage = () => {
             />
           );
         })}
+
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
 
         <ScrollToTopButton showAfter={300} />
-        {/* <CheckoutDialog
+        <CheckoutDialog
           open={openSummary}
           onClose={() => setOpenSummary(false)}
           checkoutItems={checkoutItems}
@@ -237,7 +238,7 @@ const CheckoutPage = () => {
           setCheckoutItems={setCheckoutItems}
           removeItemFromCart={removeItemFromCart}
           selectedBuildingCode={selectedBuildingCode}
-        /> */}
+        />
       </Box>
     </Box>
   );

@@ -16,7 +16,7 @@ import ScrollTop from '../../components/ScrollTop';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { RefreshContextProvider } from '../../components/contexts/RefreshContextProvider';
 import { UserContext } from '../../components/contexts/UserContext';
-import { Admin } from '../../types/interfaces';
+import { User} from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 const MainLayout: React.FC = () => {
@@ -51,7 +51,7 @@ const MainLayout: React.FC = () => {
               name: userClaims.userDetails ?? '',
               email: userClaims.userId ?? ''
             });
-            // Now we have an Admin object with id, name, created_at, last_signed_in
+            // Now we have an User object with id, name, created_at, last_signed_in
             setLoggedInAdminId(createdOrUpdatedAdmin.id);
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
@@ -75,9 +75,9 @@ const MainLayout: React.FC = () => {
    *  - If it exists, update the last_signed_in field and return the updated record.
    *  - Otherwise, insert a new admin record and return it.
    */
-  const requestCache = new Map<string, Promise<Admin>>();
+  const requestCache = new Map<string, Promise<User>>();
 
-  const upsertAdminUser = async (adminInfo: { name: string; email: string }): Promise<Admin> => {
+  const upsertAdminUser = async (adminInfo: { name: string; email: string }): Promise<User> => {
     const cacheKey = adminInfo.email; // Use email as the unique cache key
 
     // Step 0: Prevent duplicate requests using a cache
@@ -127,12 +127,15 @@ const MainLayout: React.FC = () => {
           const updatedData = await updatedRecordResp.json();
           const updated = updatedData.value[0];
 
-          // Return an Admin object matching { id, name, created_at, last_signed_in }
+          // Return an Admin User object matching { id, name, created_at, last_signed_in }
           return {
             id: updated.id,
             name: updated.name,
             created_at: updated.created_at,
             last_signed_in: updated.last_signed_in,
+            role: updated.role,
+            active: updated.active,
+            PIN: updated.pin, 
           };
 
         } else {
@@ -163,6 +166,10 @@ const MainLayout: React.FC = () => {
             name: result.name,
             created_at: result.created_at,
             last_signed_in: result.last_signed_in,
+            role: result.role,
+            active: result.active,
+            PIN: result.pin, 
+
           };
         }
       } finally {

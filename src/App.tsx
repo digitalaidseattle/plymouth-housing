@@ -9,7 +9,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './pages/routes';
 import ThemeCustomization from './themes/themeCustomization';
 import { UserContext } from './components/contexts/UserContext';
-import { ClientPrincipal, Volunteer } from './types/interfaces';
+import { ClientPrincipal, User } from './types/interfaces';
 import usePersistentState from './hooks/usePersistentState';
 
 const router = createBrowserRouter(routes);
@@ -17,7 +17,7 @@ const router = createBrowserRouter(routes);
 const App: React.FC = () => {
   const [user, setUser] = usePersistentState<ClientPrincipal | null>('user', null);
   const [loggedInVolunteerId, setLoggedInVolunteerId] = usePersistentState<number | null>('loggedInVolunteerId', null);
-  const [activeVolunteers, setActiveVolunteers] = usePersistentState<Volunteer[]>('activeVolunteers', []);
+  const [activeVolunteers, setActiveVolunteers] = usePersistentState<User[]>('activeVolunteers', []);
   const [loggedInAdminId, setLoggedInAdminId] = usePersistentState<number | null>('loggedInAdminId', null);
 
   return (

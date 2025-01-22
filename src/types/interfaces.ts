@@ -29,8 +29,8 @@ export interface UserContextType {
   setUser: (user: ClientPrincipal) => void;
   loggedInVolunteerId: number | null;
   setLoggedInVolunteerId: (loggedInVolunteer: number | null) => void;
-  activeVolunteers: Volunteer[];
-  setActiveVolunteers: (activeVolunteers: Volunteer[]) => void;
+  activeVolunteers: User[];
+  setActiveVolunteers: (activeVolunteers: User[]) => void;
   loggedInAdminId: number | null;
   setLoggedInAdminId: (loggedInAdminId: number | null) => void;
 }
@@ -57,25 +57,32 @@ export type AddVolunteerModalProps = {
   fetchData: () => void;
 };
 
-export type Volunteer = {
+// BaseUser defines the common properties shared by all user types.
+export type BaseUser = {
   id: number;
   name: string;
-  active: boolean | null;
+  active: boolean;
   created_at: string;
-  last_signed_in: string | null;
-  PIN: string | null;
-};
-
-export type User = Volunteer & {
+  last_signed_in: string| null;
   role: string;
 };
 
-export type Admin = {
-  id: number;
-  name: string;
-  created_at: string| null;
-  last_signed_in: string | null;
+// AdminUser extends BaseUser and represents an admin user.
+export type AdminUser = BaseUser & {
+  role: 'admin';
+  PIN: null;
 };
+
+// VolunteerUser extends BaseUser and represents a volunteer user.
+export type VolunteerUser = BaseUser & {
+  role: 'volunteer';
+  PIN: string;
+};
+
+// User is a union type that can be either an AdminUser or a VolunteerUser.
+// Using a union type for User allows us to enforce different constraints
+// This approach aim to provide compile-time safety and better code maintainability.
+export type User = AdminUser | VolunteerUser;
 
 export type Building = {
   id: number;

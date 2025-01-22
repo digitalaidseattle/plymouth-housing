@@ -46,7 +46,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
 
   const handleConfirm = async () => {
     try {
-      // 1. Decide who the "actor" is (volunteer or admin).
+      // 1. Decide who the user is (volunteer or admin).
       let currentUserId = null;
       if (loggedInVolunteerId) {
         currentUserId = loggedInVolunteerId;

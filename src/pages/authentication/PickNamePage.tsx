@@ -12,7 +12,7 @@ import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from './SnackbarAlert';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { Volunteer } from '../../types/interfaces';
+import { User } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
   const { user, loggedInVolunteerId, setLoggedInVolunteerId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
@@ -63,7 +63,7 @@ const PickYourNamePage: React.FC = () => {
 
   const handleNameChange = (
     _event: React.SyntheticEvent,
-    value: Volunteer | null,
+    value: User | null,
   ) => {
     setLoggedInVolunteerId(value?.id ?? null);
   };

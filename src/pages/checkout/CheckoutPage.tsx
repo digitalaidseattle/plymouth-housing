@@ -7,17 +7,17 @@ import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
-import SearchBar from '../../components/Checkout/SearchBar';
+// import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
-import CheckoutCard from '../../components/Checkout/CheckoutCard';
+// import CheckoutCard from '../../components/Checkout/CheckoutCard';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
   const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>([]);
   const [data, setData] = useState<CategoryProps[]>([]);
-  const [searchData, setSearchData] = useState<CategoryProps[]>([]);
-  const [searchActive, setSearchActive] = useState<boolean>(false);
+  // const [searchData, setSearchData] = useState<CategoryProps[]>([]);
+  // const [searchActive, setSearchActive] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -180,13 +180,13 @@ const CheckoutPage = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
-        <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
+        {/* <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} /> */}
       </Box>
       <Box>
         <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />
       </Box>
       <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
-        {searchActive ? (
+        {/* {searchActive ? (
           <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
             {searchData.map((section: CategoryProps) => {
               const matchingCategory =
@@ -216,9 +216,9 @@ const CheckoutPage = () => {
             })}
 
           </Grid>
-        ) :
+        ) : */}
 
-          <Box>
+          {/* <Box> */}
             <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
 
             {/* Filters for welcome basket  */}
@@ -260,7 +260,7 @@ const CheckoutPage = () => {
                 />
               );
             })}
-          </Box>}
+          {/* </Box>} */}
 
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
 

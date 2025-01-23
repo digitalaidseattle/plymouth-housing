@@ -87,6 +87,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     }
   };
 
+  console.log('This is an example of allItems:', allItems);
+
   return (
     <Dialog
       sx={{

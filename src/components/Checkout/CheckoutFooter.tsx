@@ -49,7 +49,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
               <Typography sx={{ color: 'red', marginRight: '15px' }}>
                 Building Code Not Selected
               </Typography>
-            ) : checkoutItems.reduce((accumulator, item) => accumulator + item.quantity, 0) > 10 ? (
+            ) : totalCategoryCount > 10 ? (
               <Typography sx={{ color: 'red', marginRight: '15px' }}>
                 Cart Exceeds 10 Items
               </Typography>
@@ -62,7 +62,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
               disabled={
                 !selectedBuildingCode ||
                 selectedBuildingCode.length === 0 ||
-                checkoutItems.reduce((accumulator, item) => accumulator + item.quantity, 0) > 10
+                totalCategoryCount > 10
               }
             >
               Continue

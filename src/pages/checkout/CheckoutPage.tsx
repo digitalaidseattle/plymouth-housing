@@ -140,6 +140,7 @@ const CheckoutPage = () => {
       }
       const responseData = await response.json();
       setData(responseData.value);
+      console.log(responseData.value);
 
       const cleanCheckout = responseData.value.map((category: CategoryProps) => ({
         ...category,

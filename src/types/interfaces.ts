@@ -9,7 +9,7 @@ export type CategoryProps = {
   category: string;
   items: CheckoutItemProp[];
   checkout_limit: number;
-  categoryCount?: number;
+  categoryCount: number;
 };
 
 export type CheckoutCardProps = {

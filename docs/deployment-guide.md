@@ -32,39 +32,12 @@ There are tutorials that will help you get started:
 - https://learn.microsoft.com/en-us/azure/static-web-apps/add-authentication
 - https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph
 
-1. For OAuth to work, you will need callback URIs. The [substeps in this Tutorial](https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph#create-a-microsoft-entra-application) will tell you how to create an Entra App Registration and set up the callback URIs.
-
-    >Create only the App Registration and stop at **Create a client secret**. That is only required in case you need APIs (used for custom Role Authentication in the tutorial).
-
-1. Make sure you add both the URL for your production site as well as http://localhost:3000 to the callback URLs. The last one ensures you can debug locally. 
-
-1. Add the following settings to your ```.env.local```:
-
-    ```
-    # appid as in Entra App Registration
-    VITE_AUTH_CLIENT_ID=7c5c1bb2-faea-4bcf-babd-4fd023fabfd6 
-    VITE_AUTH_AUTHORITY=https://login.microsoftonline.com/common 
-    VITE_AUTH_REDIRECT_URI=http://localhost:3000 # callback URI
-    ```
-
-    >Note that Vite will pick up ```.env.local``` [all by itself](https://vite.dev/guide/env-and-mode), even without executing ```source```. 
-
-
-1. You also need to add these settings for your build process. When the github action builds your app, it wil pull the variables out of the github repo section and inject them in the build process. 
-    
-    a. add these settings to your ```.github/workflows/{name}.yml file```:
-
-    ```
-        env:
-          VITE_AUTH_CLIENT_ID: ${{ vars.VITE_AUTH_CLIENT_ID }}
-          VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
-          VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
-    ```
-    b. Make sure these same variables are also under ```Secrets and variables/Actions/Variables/Repository variables``` in your Github repo settings. 
 
 1. Create the roles as is explained [a bit further in the Tutorial](https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph#create-roles).
 
 1. Add users to the roles. Follow the steps on the page "Assign users to a Role". 
+
+1. Make sure you have a ```staticwebapp.config.json``` as mentioned below. 
 
 1. Now OAuth is enabled on the website and you will have to sign in to access it. 
 
@@ -80,7 +53,7 @@ Permission on the routes only work for server side routing. This React app is pu
 
 There are two requirements that need to be fullfilled:
 - the X-MS-API-ROLE HEADER needs to be present on all REST API calls. It should be one of the roles (or the built-in roles authenticated or anonymous)
-- the ```staticwebapp.config.json`` should not be blank but contain at least the default as in the documents. 
+- the ```staticwebapp.config.json``` should not be blank but contain at least the default as in the documents. 
 
 When you start the application with ```swa start```, it will now create a proxy page that allows you to enter the role it will propagate to the REST API. 
 

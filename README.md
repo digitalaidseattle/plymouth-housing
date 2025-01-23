@@ -10,7 +10,11 @@
 ---
 
 ## **About the Project**  
-This repo provides an inventory management system for Plymouth Housing. 
+At Plymouth Housing, managing in-kind donations efficiently has been a significant challenge. Currently, these donations are tracked manually, leading to frequent errors and inconsistencies. This outdated system complicates the distribution of essential items to residents, delaying their access to necessary resources and impacting their quality of life.
+
+Digital Aid Seattle is stepping in to revolutionize Plymouth Housing’s operations with a new, centralized inventory management system. Designed with ease of use in mind, the system will require minimal training, enabling staff and volunteers to quickly adapt. It will feature real-time updates, straightforward data export capabilities, and comprehensive dashboards.
+
+The deployment of this inventory management system is set to significantly enhance operational efficiency at Plymouth Housing. By ensuring a smoother flow of donations from intake to distribution, we will facilitate faster and more reliable access to necessary resources for residents.
 
 ### **Built With**  
 - [React](https://example.com)  

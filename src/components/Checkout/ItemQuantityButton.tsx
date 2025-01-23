@@ -2,22 +2,19 @@ import { Remove, Add } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { CheckoutCardProps, CheckoutItemProp } from "../../types/interfaces";
 
-const ItemQuantityButton = ({ item, checkoutItem, addItemToCart, removeItemFromCart, removeButton, disableAdd, categoryLimit, categoryName }: CheckoutCardProps) => {
+const ItemQuantityButton = ({ item, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disableAdd, categoryLimit, categoryName }: CheckoutCardProps) => {
 
-  const foundInCart = checkoutItem?.items?.find(
+  const foundInCart = categoryCheckout?.items?.find(
     (v: CheckoutItemProp) => v.id === item.id
   );
 
-
-
   const handleAddClick = () => {
-    if (checkoutItem.categoryCount !== undefined && checkoutItem.categoryCount < categoryLimit) {
+    if (categoryCheckout.categoryCount !== undefined && categoryCheckout.categoryCount < categoryLimit) {
       addItemToCart(item, 1, categoryName);
     } else {
       return;
     }
   };
-
 
   const handleRemoveClick = () => {
     addItemToCart(item, -1, categoryName);

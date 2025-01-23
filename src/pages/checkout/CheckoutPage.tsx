@@ -194,7 +194,7 @@ const CheckoutPage = () => {
             <CategorySection
               key={category.id}
               category={category}
-              checkoutItem={matchingCategory}
+              categoryCheckout={matchingCategory}
               addItemToCart={(item, quantity) =>
                 addItemToCart(item, quantity, category.category, 'welcomeBasket')}
               removeItemFromCart={removeItemFromCart}
@@ -211,12 +211,11 @@ const CheckoutPage = () => {
           const matchingCategory = checkoutItems.find(
             (cat) => cat.category === category.category
           ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
-
           return (
             <CategorySection
               key={category.id}
               category={category}
-              checkoutItem={matchingCategory}
+              categoryCheckout={matchingCategory}
               addItemToCart={(item, quantity) =>
                 addItemToCart(item, quantity, category.category, 'general')}
               removeItemFromCart={removeItemFromCart}
@@ -234,10 +233,12 @@ const CheckoutPage = () => {
           onClose={() => setOpenSummary(false)}
           checkoutItems={checkoutItems}
           welcomeBasketData={welcomeBasketData}
-          addItemToCart={(item, quantity) => addItemToCart(item, quantity, activeSection)}
+          addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}
           setCheckoutItems={setCheckoutItems}
           removeItemFromCart={removeItemFromCart}
           selectedBuildingCode={selectedBuildingCode}
+          setActiveSection={setActiveSection}
+          fetchData={fetchData}
         />
       </Box>
     </Box>

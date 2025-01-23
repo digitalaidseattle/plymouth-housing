@@ -14,11 +14,11 @@ export type CategoryProps = {
 
 export type CheckoutCardProps = {
   item: CheckoutItemProp;
-  checkoutItem: CategoryProps;
+  categoryCheckout: CategoryProps;
   addItemToCart: (item: CheckoutItemProp, quantity: number, category: string) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
-  disableAdd: boolean;
+  disableAdd?: boolean;
   categoryLimit: number;
   categoryName: string,
 };

@@ -1,8 +1,24 @@
 import { Card, CardContent, CardActions, Typography, Tooltip } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
+import { useCallback, useEffect, useState } from 'react';
 
-const CheckoutCard = ({ item, checkoutItem, addItemToCart, removeItemFromCart, removeButton, disableAdd, categoryLimit, categoryName }: CheckoutCardProps) => {
+const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, categoryLimit, categoryName }: CheckoutCardProps) => {
+
+  const [disableAdd, setDisableAdd] = useState<boolean>(false);
+
+  const checkLimit = useCallback(() => {
+    if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
+      setDisableAdd(true);
+    } else {
+      setDisableAdd(false);
+    }
+
+  }, [categoryCheckout?.categoryCount, categoryLimit]);
+
+  useEffect(() => {
+    checkLimit();
+  }, [categoryCheckout?.categoryCount, checkLimit])
 
   return (
     <Card key={item.name}
@@ -21,7 +37,7 @@ const CheckoutCard = ({ item, checkoutItem, addItemToCart, removeItemFromCart, r
         </Tooltip>
       </CardContent>
       <CardActions style={{ border: '1px red blue', marginRight: '20px' }}>
-        <ItemQuantityButton item={item} checkoutItem={checkoutItem} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
+        <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
       </CardActions>
     </Card>
   )

@@ -2,6 +2,7 @@ export type CheckoutItemProp = {
   id: number;
   name: string;
   quantity: number;
+  description: string;
 };
 
 export type CategoryProps = {

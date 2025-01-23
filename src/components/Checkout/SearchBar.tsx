@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
 import { Search } from '@mui/icons-material';
+import { CategoryProps } from '../../types/interfaces';
 
 interface SearchBarProps {
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
+  data: CategoryProps[];
+  setSearchData: (s: string) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData }) => {
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
   return (
     <TextField
       variant="standard"

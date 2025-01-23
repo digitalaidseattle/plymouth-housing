@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import UserFilters from './UserFilters';
 import UserTable from './UserTable';
 import AddVolunteerModal from '../../components/AddVolunteerModal/AddVolunteerModal';
-import SnackbarAlert from '../../pages/authentication/SnackbarAlert';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import useUsers from './useUsers';
 
 const UserPage = () => {

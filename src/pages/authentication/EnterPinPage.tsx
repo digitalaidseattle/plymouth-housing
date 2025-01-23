@@ -10,7 +10,7 @@ import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
-import SnackbarAlert from './SnackbarAlert';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 

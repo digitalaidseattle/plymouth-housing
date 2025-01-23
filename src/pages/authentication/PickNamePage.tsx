@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
-import SnackbarAlert from './SnackbarAlert';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { User } from '../../types/interfaces';

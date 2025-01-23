@@ -20,7 +20,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
 import { User } from '../../types/interfaces';
-import SnackbarAlert from '../authentication/SnackbarAlert';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 interface UserTableProps {
   users: User[];

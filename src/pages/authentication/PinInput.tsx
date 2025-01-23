@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { Box, TextField } from '@mui/material';
 import { styled } from '@mui/system';
-import SnackbarAlert from './SnackbarAlert';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 const PinInput = styled(TextField)({
   width: '50px',

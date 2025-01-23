@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
@@ -10,12 +10,14 @@ import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
+import CheckoutCard from '../../components/Checkout/CheckoutCard';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
   const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>([]);
   const [data, setData] = useState<CategoryProps[]>([]);
   const [searchData, setSearchData] = useState<CategoryProps[]>([]);
+  const [searchActive, setSearchActive] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -178,53 +180,87 @@ const CheckoutPage = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
-        <SearchBar data={data} setSearchData={setSearchData} />
+        <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       <Box>
         <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />
       </Box>
       <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
-        <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
+        {searchActive ? (
+          <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+            {searchData.map((section: CategoryProps) => {
+              const matchingCategory =
+                checkoutItems.find((cat) => cat.category === section.category) || {
+                  id: 0,
+                  category: '',
+                  items: [],
+                  checkout_limit: 0,
+                  categoryCount: 0,
+                };
 
-        {/* Filters for welcome basket  */}
-        {welcomeBasketData.map((category) => {
-          const matchingCategory = checkoutItems.find(
-            (cat) => cat.category === category.category
-          ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
-          return (
-            <CategorySection
-              key={category.id}
-              category={category}
-              categoryCheckout={matchingCategory}
-              addItemToCart={(item, quantity) =>
-                addItemToCart(item, quantity, category.category, 'welcomeBasket')}
-              removeItemFromCart={removeItemFromCart}
-              removeButton={false}
-              disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
-            />
-          );
-        })}
+              return section.items.map((item: CheckoutItemProp) => (
+                <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
+                  <CheckoutCard
+                    item={item}
+                    categoryCheckout={matchingCategory}
+                    addItemToCart={(item, quantity) => {
+                      addItemToCart(item, quantity, section.category, section.category);
+                    }}
+                    removeItemFromCart={removeItemFromCart}
+                    removeButton={false}
+                    categoryLimit={section.checkout_limit}
+                    categoryName={section.category}
+                  />
+                </Grid>
+              ));
+            })}
 
-        <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
+          </Grid>
+        ) :
 
-        {/* Filters for general items */}
-        {filteredData.map((category) => {
-          const matchingCategory = checkoutItems.find(
-            (cat) => cat.category === category.category
-          ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
-          return (
-            <CategorySection
-              key={category.id}
-              category={category}
-              categoryCheckout={matchingCategory}
-              addItemToCart={(item, quantity) =>
-                addItemToCart(item, quantity, category.category, 'general')}
-              removeItemFromCart={removeItemFromCart}
-              removeButton={false}
-              disabled={activeSection !== '' && activeSection !== 'general'}
-            />
-          );
-        })}
+          <Box>
+            <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
+
+            {/* Filters for welcome basket  */}
+            {welcomeBasketData.map((category) => {
+              const matchingCategory = checkoutItems.find(
+                (cat) => cat.category === category.category
+              ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
+              return (
+                <CategorySection
+                  key={category.id}
+                  category={category}
+                  categoryCheckout={matchingCategory}
+                  addItemToCart={(item, quantity) =>
+                    addItemToCart(item, quantity, category.category, 'welcomeBasket')}
+                  removeItemFromCart={removeItemFromCart}
+                  removeButton={false}
+                  disabled={activeSection !== '' && activeSection !== 'welcomeBasket'}
+                />
+              );
+            })}
+
+            <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
+
+            {/* Filters for general items */}
+            {filteredData.map((category) => {
+              const matchingCategory = checkoutItems.find(
+                (cat) => cat.category === category.category
+              ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
+              return (
+                <CategorySection
+                  key={category.id}
+                  category={category}
+                  categoryCheckout={matchingCategory}
+                  addItemToCart={(item, quantity) =>
+                    addItemToCart(item, quantity, category.category, 'general')}
+                  removeItemFromCart={removeItemFromCart}
+                  removeButton={false}
+                  disabled={activeSection !== '' && activeSection !== 'general'}
+                />
+              );
+            })}
+          </Box>}
 
         <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
 

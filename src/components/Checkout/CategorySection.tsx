@@ -23,7 +23,7 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
 
       </Box>
       <Grid container spacing={2}
-        style={{
+        sx={{
           display: 'flex',
           flexDirection: 'row',
           flexWrap: 'wrap',

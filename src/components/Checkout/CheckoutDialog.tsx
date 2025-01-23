@@ -68,7 +68,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         data = await processWelcomeBasket(user, currentUserId, allItems);
       } else {
         data = await processGeneralItems(user, currentUserId, allItems);
-        console.log(data);
       }
 
       const result = data.value[0];
@@ -86,8 +85,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       return null;
     }
   };
-
-  // console.log('This is an example of allItems:', allItems);
 
   return (
     <Dialog

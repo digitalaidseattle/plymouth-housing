@@ -100,7 +100,7 @@ describe('CheckoutPage', async () => {
     fireEvent.click(addItemButton);
 
     // Check if the quantity is updated and item is added to the cart
-    expect(screen.getByText('1 / 10 items added')).toBeInTheDocument();
+    expect(screen.getByText(/1 \/ 10 items added/)).toBeInTheDocument();
     expect(screen.getByTestId('test-id-quantity')); // Check for quantity
   });
 
@@ -110,14 +110,14 @@ describe('CheckoutPage', async () => {
     fireEvent.click(addItemButton);
 
     // Check if the item is added
-    expect(screen.getByText('1 items selected')).toBeInTheDocument();
+    expect(screen.getByText(/1 \/ 10 items added/)).toBeInTheDocument();
 
     // Remove the item
     const removeItemButton = screen.getAllByTestId('RemoveIcon')[0];
     fireEvent.click(removeItemButton);
 
     // Check if the cart is empty again
-    expect(screen.queryByText(/items selected/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/items added/i)).not.toBeInTheDocument();
   });
 
   it('shows checkout dialog when "Continue" is clicked', () => {

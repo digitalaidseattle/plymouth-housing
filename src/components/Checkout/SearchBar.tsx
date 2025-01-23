@@ -3,17 +3,18 @@ import { TextField, InputAdornment } from '@mui/material';
 import { Search } from '@mui/icons-material';
 
 interface SearchBarProps {
-  placeholder?: string;
-  onSearchChange?: (value: string) => void;
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onSearchChange }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm }) => {
   return (
     <TextField
       variant="standard"
-      placeholder={placeholder || 'Search...'}
+      placeholder={'Search...'}
       type="search"
-      onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

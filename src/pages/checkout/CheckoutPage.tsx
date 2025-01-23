@@ -21,6 +21,7 @@ const CheckoutPage = () => {
   const [openSummary, setOpenSummary] = useState<boolean>(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -140,6 +141,7 @@ const CheckoutPage = () => {
       }
       const responseData = await response.json();
       setData(responseData.value);
+      console.log('This is initial data:', responseData.value);
 
       const cleanCheckout = responseData.value.map((category: CategoryProps) => ({
         ...category,
@@ -177,7 +179,7 @@ const CheckoutPage = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
-        <SearchBar />
+        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </Box>
       <Box>
         <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />

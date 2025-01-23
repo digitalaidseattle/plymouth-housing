@@ -10,6 +10,7 @@ import useUsers from './useUsers';
 const UserPage = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>(
     'original',
   );
@@ -49,6 +50,13 @@ const UserPage = () => {
       );
     }
 
+    // Filter by role
+    if (roleFilter !== null) {
+      filtered = filtered.filter((user) =>
+        user.role === roleFilter,
+      );
+    }
+
     // Sort by name
     if (nameOrder !== 'original') {
       filtered.sort((a, b) =>
@@ -59,7 +67,7 @@ const UserPage = () => {
     }
 
     setFilteredData(filtered);
-  }, [search, statusFilter, nameOrder, originalData, setFilteredData]);
+  }, [search, statusFilter, roleFilter, nameOrder, originalData, setFilteredData]);
 
   const handleNameOrderToggle = () => {
     setNameOrder((prevOrder) =>
@@ -140,7 +148,9 @@ const UserPage = () => {
         search={search}
         onSearchChange={(e) => setSearch(e.target.value)}
         statusFilter={statusFilter}
+        roleFilter={roleFilter}
         onStatusFilterChange={setStatusFilter}
+        onRoleFilterChange={setRoleFilter}
       />
 
       {/* Users Table */}

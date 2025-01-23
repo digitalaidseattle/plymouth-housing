@@ -41,8 +41,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
           }}
         >
           <Typography>
-            {totalCategoryCount}{' '}
-            / 10 items added
+            {totalCategoryCount} / 10 items added
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {!selectedBuildingCode || selectedBuildingCode.length === 0 ? (

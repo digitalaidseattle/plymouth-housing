@@ -16,13 +16,13 @@ import ScrollTop from '../../components/ScrollTop';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { RefreshContextProvider } from '../../components/contexts/RefreshContextProvider';
 import { UserContext } from '../../components/contexts/UserContext';
-import { Admin } from '../../types/interfaces';
+import { User} from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const { setUser, loggedInVolunteerId, activeVolunteers, setLoggedInAdminId } = useContext(UserContext);
+  const { setUser, loggedInUserId, setLoggedInUserId } = useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ const MainLayout: React.FC = () => {
         setUser(userClaims || null);
 
         // If volunteer logic applies (we might have a list of volunteers)
-        if (userClaims.userRoles?.includes('volunteer') && !loggedInVolunteerId) {
+        if (userClaims.userRoles?.includes('volunteer') && !loggedInUserId) {
           navigate('/pick-your-name');
           return;
         }
@@ -51,8 +51,8 @@ const MainLayout: React.FC = () => {
               name: userClaims.userDetails ?? '',
               email: userClaims.userId ?? ''
             });
-            // Now we have an Admin object with id, name, created_at, last_signed_in
-            setLoggedInAdminId(createdOrUpdatedAdmin.id);
+            // Now we have an User object with id, name, created_at, last_signed_in
+            setLoggedInUserId(createdOrUpdatedAdmin.id);
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
             //TODO error handling
@@ -64,7 +64,10 @@ const MainLayout: React.FC = () => {
       }
     };
     fetchTokenAndVolunteers();
-  }, [navigate, loggedInVolunteerId, activeVolunteers, activeVolunteers, setUser, setLoggedInAdminId]);
+  
+  // The effect is intended to run only once on mount.
+  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
 
   /**
    * Create or update an Admin entry in the "Users" table:
@@ -72,78 +75,110 @@ const MainLayout: React.FC = () => {
    *  - If it exists, update the last_signed_in field and return the updated record.
    *  - Otherwise, insert a new admin record and return it.
    */
-  const upsertAdminUser = async (adminInfo: { name: string; email: string }): Promise<Admin> => {
+  const requestCache = new Map<string, Promise<User>>();
+
+  const upsertAdminUser = async (adminInfo: { name: string; email: string }): Promise<User> => {
+    const cacheKey = adminInfo.email; // Use email as the unique cache key
+
+    // Step 0: Prevent duplicate requests using a cache
+    if (requestCache.has(cacheKey)) {
+      return requestCache.get(cacheKey)!; // Return the cached promise if it exists
+    }
+
     // Step 1: Query whether this user already exists by email
-    const getResp = await fetch(`${ENDPOINTS.USERS}?$filter=email eq '${adminInfo.email}'`, {
-      method: 'GET',
-      headers: HEADERS,
-    });
-    if (!getResp.ok) {
-      throw new Error(`Failed to query user: ${getResp.statusText}`);
-    }
-    const getData = await getResp.json();
+    const promise = (async () => {
+      try {
+        const getResp = await fetch(`${ENDPOINTS.USERS}?$filter=email eq '${adminInfo.email}'`, {
+          method: 'GET',
+          headers: HEADERS,
+        });
 
-    // If there's an existing record, update last_signed_in
-    if (getData.value && getData.value.length > 0) {
-      const userRecord = getData.value[0]; // e.g. { id, name, email, created_at, last_signed_in, ... }
-      const userId = userRecord.id;
+        if (!getResp.ok) {
+          throw new Error(`Failed to query user: ${getResp.statusText}`);
+        }
+        const getData = await getResp.json();
 
-      const patchResp = await fetch(`${ENDPOINTS.USERS}/id/${userId}`, {
-        method: 'PATCH',
-        headers: HEADERS,
-        body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
-      });
-      if (!patchResp.ok) {
-        throw new Error(`Failed to patch user: ${patchResp.statusText}`);
+
+        // Step 2: If there's an existing record, update last_signed_in
+        if (getData.value && getData.value.length > 0) {
+          const userRecord = getData.value[0]; // e.g. { id, name, email, created_at, last_signed_in, ... }
+          const userId = userRecord.id;
+
+          const patchResp = await fetch(`${ENDPOINTS.USERS}/id/${userId}`, {
+            method: 'PATCH',
+            headers: HEADERS,
+            body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
+          });
+
+          if (!patchResp.ok) {
+            throw new Error(`Failed to patch user: ${patchResp.statusText}`);
+          }
+
+          // Step 3: Re-fetch updated record to ensure it reflects the latest state
+          const updatedRecordResp = await fetch(`${ENDPOINTS.USERS}?$filter=id eq ${userId}`, {
+            method: 'GET',
+            headers: HEADERS,
+          });
+
+          if (!updatedRecordResp.ok) {
+            throw new Error(`Failed to retrieve updated admin record: ${updatedRecordResp.statusText}`);
+          }
+
+          const updatedData = await updatedRecordResp.json();
+          const updated = updatedData.value[0];
+
+          // Return an Admin User object matching { id, name, created_at, last_signed_in }
+          return {
+            id: updated.id,
+            name: updated.name,
+            created_at: updated.created_at,
+            last_signed_in: updated.last_signed_in,
+            role: updated.role,
+            active: updated.active,
+            PIN: updated.pin, 
+          };
+
+        } else {
+          // Step 4: No record found, create a new admin entry
+          const createResp = await fetch(ENDPOINTS.USERS, {
+            method: 'POST',
+            headers: HEADERS,
+            body: JSON.stringify({
+              name: adminInfo.name,
+              email: adminInfo.email,
+              role: 'admin',
+              active: true,
+              created_at: new Date().toISOString(),
+              last_signed_in: new Date().toISOString(),
+            }),
+          });
+
+          if (!createResp.ok) {
+            throw new Error(`Failed to create admin user: ${createResp.statusText}`);
+          }
+
+          // Step 5: Parse created record from response
+          const createdRecord = await createResp.json();
+          const result = createdRecord.value ? createdRecord.value[0] : createdRecord;
+
+          return {
+            id: result.id,
+            name: result.name,
+            created_at: result.created_at,
+            last_signed_in: result.last_signed_in,
+            role: result.role,
+            active: result.active,
+            PIN: result.pin, 
+
+          };
+        }
+      } finally {
+        requestCache.delete(cacheKey); // Step 6: Remove cache entry after request completion
       }
+    })();
 
-      // For convenience, you could re-GET or parse patchResp body if Data API Builder returns updated info.
-      // Let's assume we do a second GET to get the latest record:
-      const updatedRecordResp = await fetch(`${ENDPOINTS.USERS}?$filter=id eq ${userId}`, {
-        method: 'GET',
-        headers: HEADERS,
-      });
-      if (!updatedRecordResp.ok) {
-        throw new Error(`Failed to retrieve updated admin record: ${updatedRecordResp.statusText}`);
-      }
-      const updatedData = await updatedRecordResp.json();
-      const updated = updatedData.value[0];
-
-      // Return an Admin object matching { id, name, created_at, last_signed_in }
-      return {
-        id: updated.id,
-        name: updated.name,
-        created_at: updated.created_at,
-        last_signed_in: updated.last_signed_in
-      };
-
-    } else {
-      // No record found, create a new admin entry
-      const createResp = await fetch(ENDPOINTS.USERS, {
-        method: 'POST',
-        headers: HEADERS,
-        body: JSON.stringify({
-          name: adminInfo.name,
-          email: adminInfo.email,
-          role: 'admin',
-          created_at: new Date().toISOString(),
-          last_signed_in: new Date().toISOString(),
-        })
-      });
-      if (!createResp.ok) {
-        throw new Error(`Failed to create admin user: ${createResp.statusText}`);
-      }
-      // parse created record from response
-      const createdRecord = await createResp.json();
-      const result = createdRecord.value ? createdRecord.value[0] : createdRecord;
-
-      return {
-        id: result.id,
-        name: result.name,
-        created_at: result.created_at,
-        last_signed_in: result.last_signed_in
-      };
-    }
+    requestCache.set(cacheKey, promise); // Step 7: Cache the promise to prevent duplicate requests
+    return promise;
   };
 
   const handleDrawerToggle = () => {

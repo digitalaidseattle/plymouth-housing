@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import VolunteerFilters from './VolunteerFilters';
-import VolunteerTable from './VolunteerTable';
+import UserFilters from './UserFilters';
+import UserTable from './UserTable';
 import AddVolunteerModal from '../../components/AddVolunteerModal/AddVolunteerModal';
-import SnackbarAlert from '../../pages/authentication/SnackbarAlert';
-import useVolunteers from './useVolunteers';
+import SnackbarAlert from '../../components/SnackbarAlert';
+import useUsers from './useUsers';
 
-const VolunteerPage = () => {
+const UserPage = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>(
     'original',
   );
@@ -28,8 +29,8 @@ const VolunteerPage = () => {
     setFilteredData,
     error,
     refetch,
-    updateVolunteerStatus,
-  } = useVolunteers();
+    updateUserStatus,
+  } = useUsers();
 
   // Handle filtering and sorting
   useEffect(() => {
@@ -37,15 +38,22 @@ const VolunteerPage = () => {
 
     // Filter by search
     if (search) {
-      filtered = filtered.filter((volunteer) =>
-        volunteer.name.toLowerCase().includes(search.toLowerCase()),
+      filtered = filtered.filter((user) =>
+        user.name.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
     // Filter by status
     if (statusFilter !== null) {
-      filtered = filtered.filter((volunteer) =>
-        statusFilter === 'Active' ? volunteer.active : !volunteer.active,
+      filtered = filtered.filter((user) =>
+        statusFilter === 'Active' ? user.active : !user.active,
+      );
+    }
+
+    // Filter by role
+    if (roleFilter !== null) {
+      filtered = filtered.filter((user) =>
+        user.role === roleFilter,
       );
     }
 
@@ -59,7 +67,7 @@ const VolunteerPage = () => {
     }
 
     setFilteredData(filtered);
-  }, [search, statusFilter, nameOrder, originalData, setFilteredData]);
+  }, [search, statusFilter, roleFilter, nameOrder, originalData, setFilteredData]);
 
   const handleNameOrderToggle = () => {
     setNameOrder((prevOrder) =>
@@ -98,18 +106,18 @@ const VolunteerPage = () => {
   }, [error]);
 
   // Handle status toggle
-  const handleStatusToggle = async (volunteerId: number) => {
+  const handleStatusToggle = async (userId: number) => {
     try {
-      await updateVolunteerStatus(volunteerId);
+      await updateUserStatus(userId);
       setSnackbarState({
         open: true,
-        message: 'Volunteer status updated successfully!',
+        message: 'User status updated successfully!',
         severity: 'success',
       });
     } catch (error) {
       setSnackbarState({
         open: true,
-        message: 'Error updating volunteer: ' + error,
+        message: 'Error updating user: ' + error,
         severity: 'warning',
       });
     }
@@ -136,16 +144,18 @@ const VolunteerPage = () => {
       />
 
       {/* Filters */}
-      <VolunteerFilters
+      <UserFilters
         search={search}
         onSearchChange={(e) => setSearch(e.target.value)}
         statusFilter={statusFilter}
+        roleFilter={roleFilter}
         onStatusFilterChange={setStatusFilter}
+        onRoleFilterChange={setRoleFilter}
       />
 
-      {/* Volunteers Table */}
-      <VolunteerTable
-        volunteers={currentItems}
+      {/* Users Table */}
+      <UserTable
+        users={currentItems}
         nameOrder={nameOrder}
         onNameOrderToggle={handleNameOrderToggle}
         onStatusToggle={handleStatusToggle}
@@ -172,4 +182,4 @@ const VolunteerPage = () => {
   );
 };
 
-export default VolunteerPage;
+export default UserPage;

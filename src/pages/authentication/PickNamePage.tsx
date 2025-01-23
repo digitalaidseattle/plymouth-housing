@@ -9,13 +9,13 @@ import {
 } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
-import SnackbarAlert from './SnackbarAlert';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
-import { Volunteer } from '../../types/interfaces';
+import { User } from '../../types/interfaces';
 
 const PickYourNamePage: React.FC = () => {
-  const { user, loggedInVolunteerId, setLoggedInVolunteerId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
+  const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -56,17 +56,20 @@ const PickYourNamePage: React.FC = () => {
       }
     };
     fetchVolunteers();
-  }, [user, setActiveVolunteers]);
+
+  // The effect is intended to run only when the 'user' value changes (or on mount if user is set).
+  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [user]);
 
   const handleNameChange = (
     _event: React.SyntheticEvent,
-    value: Volunteer | null,
+    value: User | null,
   ) => {
-    setLoggedInVolunteerId(value?.id ?? null);
+    setLoggedInUserId(value?.id ?? null);
   };
 
   const handleNextClick = () => {
-    if (loggedInVolunteerId) {
+    if (loggedInUserId) {
       navigate('/enter-your-pin');
     } else {
       setSnackbarState({
@@ -117,7 +120,7 @@ const PickYourNamePage: React.FC = () => {
             </Typography>
 
             <Autocomplete
-              value={activeVolunteers.find(volunteer => volunteer.id === loggedInVolunteerId)}
+              value={activeVolunteers.find(volunteer => volunteer.id === loggedInUserId)}
               onChange={handleNameChange}
               options={activeVolunteers}
               getOptionLabel={(option) => option.name}

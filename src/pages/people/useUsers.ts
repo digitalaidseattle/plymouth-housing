@@ -1,12 +1,12 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Volunteer } from '../../types/interfaces';
+import { User } from '../../types/interfaces';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 
-const useVolunteers = () => {
+const useUsers = () => {
   const {user} = useContext(UserContext);
-  const [originalData, setOriginalData] = useState<Volunteer[]>([]);
-  const [filteredData, setFilteredData] = useState<Volunteer[]>([]);
+  const [originalData, setOriginalData] = useState<User[]>([]);
+  const [filteredData, setFilteredData] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,7 +14,7 @@ const useVolunteers = () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(
-        `${ENDPOINTS.USERS}?$filter=role eq 'volunteer' and active eq true`,
+        `${ENDPOINTS.USERS}`,
         {
           headers: HEADERS,
           method: 'GET',
@@ -27,8 +27,8 @@ const useVolunteers = () => {
       setOriginalData(data.value);
       setFilteredData(data.value);
     } catch (error) {
-      console.error('Error fetching volunteers:', error);
-      setError('Error fetching volunteers: ' + error);
+      console.error('Error fetching users:', error);
+      setError('Error fetching users: ' + error);
     } finally {
       setLoading(false);
     }
@@ -38,14 +38,14 @@ const useVolunteers = () => {
     fetchData();
   }, [user, fetchData]);
 
-  const updateVolunteerStatus = async (volunteerId: number) => {
+  const updateUserStatus = async (userId: number) => {
     try {
-      const volunteerToUpdate = originalData.find((v) => v.id === volunteerId);
-      if (!volunteerToUpdate) throw new Error('Volunteer not found');
+      const userToUpdate = originalData.find((v) => v.id === userId);
+      if (!userToUpdate) throw new Error('User not found');
 
-      const updatedStatus = !volunteerToUpdate.active;
+      const updatedStatus = !userToUpdate.active;
 
-      const requestUrl = `${ENDPOINTS.USERS}/id/${volunteerId}`;
+      const requestUrl = `${ENDPOINTS.USERS}/id/${userId}`;
       HEADERS['X-MS-API-ROLE'] = getRole(user);
 
       const response = await fetch(requestUrl, {
@@ -58,20 +58,20 @@ const useVolunteers = () => {
         // Parse error details
         const errorData = await response.json();
         const errorMessage = errorData.error?.message || response.statusText;
-        throw new Error(`Error updating volunteer: ${errorMessage}`);
+        throw new Error(`Error updating user: ${errorMessage}`);
       }
 
       // Update the local data
-      const updatedVolunteer = { ...volunteerToUpdate, active: updatedStatus };
+      const updatedUser = { ...userToUpdate, active: updatedStatus };
 
-      const updatedOriginalData = originalData.map((volunteer) =>
-        volunteer.id === volunteerId ? updatedVolunteer : volunteer,
+      const updatedOriginalData = originalData.map((user) =>
+        user.id === userId ? updatedUser : user,
       );
 
       setOriginalData(updatedOriginalData);
       setFilteredData(updatedOriginalData);
     } catch (error) {
-      console.error('Error updating volunteer:', error);
+      console.error('Error updating user:', error);
       throw error;
     }
   };
@@ -83,8 +83,8 @@ const useVolunteers = () => {
     loading,
     error,
     refetch: fetchData,
-    updateVolunteerStatus,
+    updateUserStatus,
   };
 };
 
-export default useVolunteers;
+export default useUsers;

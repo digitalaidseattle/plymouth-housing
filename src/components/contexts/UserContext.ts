@@ -10,13 +10,10 @@ import { UserContextType, ClientPrincipal } from '../../types/interfaces';
 export const UserContext = createContext<UserContextType>({
   user: null,
   setUser: () => {},
-  loggedInVolunteerId: null,
-  setLoggedInVolunteerId: () => {},
+  loggedInUserId: null,
+  setLoggedInUserId: () => {},
   activeVolunteers: [],
   setActiveVolunteers: () => {},
-  loggedInAdminId: null,
-  setLoggedInAdminId: () => {},
-
 });
 
 export function getRole(user: ClientPrincipal | null): string {
@@ -27,5 +24,7 @@ export function getRole(user: ClientPrincipal | null): string {
   if (user?.userRoles?.includes('admin')) {
     return 'admin';
   }
-  throw new Error('User is not a member of Admin or Volunteer role.');
+  
+  throw new Error(`${user} - User is not a member of Admin or Volunteer role.`);
 }
+

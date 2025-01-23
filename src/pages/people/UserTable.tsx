@@ -19,24 +19,24 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
-import { Volunteer } from '../../types/interfaces';
-import SnackbarAlert from '../../pages/authentication/SnackbarAlert';
+import { User } from '../../types/interfaces';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
-interface VolunteerTableProps {
-  volunteers: Volunteer[];
+interface UserTableProps {
+  users: User[];
   nameOrder: 'asc' | 'desc' | 'original';
   onNameOrderToggle: () => void;
-  onStatusToggle: (volunteerId: number) => void;
+  onStatusToggle: (userId: number) => void;
 }
 
-const VolunteerTable: React.FC<VolunteerTableProps> = ({
-  volunteers,
+const UserTable: React.FC<UserTableProps> = ({
+  users,
   nameOrder,
   onNameOrderToggle,
   onStatusToggle,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(
+  const [selectedUser, setSelectedUser] = useState<User | null>(
     null,
   );
   const [openPinModal, setOpenPinModal] = useState(false);
@@ -45,28 +45,28 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
-    volunteer: Volunteer,
+    user: User,
   ) => {
     setAnchorEl(event.currentTarget);
-    setSelectedVolunteer(volunteer);
+    setSelectedUser(user);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedVolunteer(null);
+    setSelectedUser(null);
   };
 
   const handleStatusToggle = () => {
-    if (selectedVolunteer) {
-      onStatusToggle(selectedVolunteer.id);
+    if (selectedUser) {
+      onStatusToggle(selectedUser.id);
     }
     handleMenuClose();
   };
 
   const handleShowPin = () => {
-    if (selectedVolunteer) {
-      if (selectedVolunteer.PIN) {
-        setSelectedPin(selectedVolunteer.PIN);
+    if (selectedUser) {
+      if (selectedUser.PIN) {
+        setSelectedPin(selectedUser.PIN);
         setOpenPinModal(true);
       } else {
         setSnackbarOpen(true);
@@ -101,6 +101,7 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({
                 />
               ) : null}
             </TableCell>
+            <TableCell sx={{ fontWeight: 'bold' }}>Role</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Date Created</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>
@@ -110,30 +111,31 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {volunteers.map((volunteer, index) => (
+          {users.map((user, index) => (
             <TableRow key={index}>
-              <TableCell>{volunteer.name}</TableCell>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.role}</TableCell>
               <TableCell>
                 <Chip
-                  label={volunteer.active ? 'Active' : 'Inactive'}
+                  label={user.active ? 'Active' : 'Inactive'}
                   sx={{
-                    backgroundColor: volunteer.active ? '#E6F4EA' : '#FDECEA',
-                    color: volunteer.active ? '#357A38' : '#D32F2F',
+                    backgroundColor: user.active ? '#E6F4EA' : '#FDECEA',
+                    color: user.active ? '#357A38' : '#D32F2F',
                     borderRadius: '8px',
                     px: 1.5,
                   }}
                 />
               </TableCell>
               <TableCell>
-                {new Date(volunteer.created_at).toLocaleDateString()}
+                {new Date(user.created_at).toLocaleDateString()}
               </TableCell>
               <TableCell>
-                {volunteer.last_signed_in
-                  ? new Date(volunteer.last_signed_in).toLocaleDateString()
+                {user.last_signed_in
+                  ? new Date(user.last_signed_in).toLocaleDateString()
                   : 'None'}
               </TableCell>
               <TableCell>
-                <IconButton onClick={(e) => handleMenuOpen(e, volunteer)}>
+                <IconButton onClick={(e) => handleMenuOpen(e, user)}>
                   <MoreVertIcon />
                 </IconButton>
               </TableCell>
@@ -149,9 +151,10 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({
         onClose={handleMenuClose}
       >
         <MenuItem onClick={handleStatusToggle}>
-          {selectedVolunteer?.active ? 'Deactivate Role' : 'Activate Role'}
+          {selectedUser?.active ? 'Deactivate Role' : 'Activate Role'}
         </MenuItem>
-        <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>
+        {selectedUser?.role !== 'admin'&&(
+        <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>)}
       </Menu>
 
       {/* PIN Modal */}
@@ -210,4 +213,4 @@ const VolunteerTable: React.FC<VolunteerTableProps> = ({
   );
 };
 
-export default VolunteerTable;
+export default UserTable;

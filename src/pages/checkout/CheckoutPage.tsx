@@ -212,6 +212,7 @@ const CheckoutPage = () => {
                       const sectionType = section.category === 'Welcome Basket' ? 'welcomeBasket' : 'general';
                       addItemToCart(item, quantity, section.category, sectionType);
                     }}
+                    activeSection={activeSection}
                     removeItemFromCart={removeItemFromCart}
                     removeButton={false}
                     categoryLimit={section.checkout_limit}

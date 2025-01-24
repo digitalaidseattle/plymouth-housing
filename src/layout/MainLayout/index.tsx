@@ -60,7 +60,7 @@ const MainLayout: React.FC = () => {
         }
       } catch (error) {
         console.error('Error in fetchTokenAndVolunteers:', error);
-        navigate('/login');
+        navigate('/login.html');
       }
     };
     fetchTokenAndVolunteers();

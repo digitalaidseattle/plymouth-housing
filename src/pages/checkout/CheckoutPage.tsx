@@ -143,7 +143,6 @@ const CheckoutPage = () => {
       }
       const responseData = await response.json();
       setData(responseData.value);
-      console.log(responseData.value);
 
       const cleanCheckout = responseData.value.map((category: CategoryProps) => ({
         ...category,
@@ -177,10 +176,6 @@ const CheckoutPage = () => {
     setFilteredData(data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'));
   }, [data])
 
-  // console.log('This is checkoutItems:', checkoutItems);
-  console.log('This is searchActive:', searchActive);
-  console.log('This is activeSection:', activeSection);
-
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
@@ -188,11 +183,12 @@ const CheckoutPage = () => {
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       <Box>
-        <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />
+        {searchActive ? <Box sx={{ display: 'flex', overflowX: 'auto', gap: 2, p: 1, height: '64px' }}
+        ></Box> : <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
       </Box>
-      <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px' }}>
+      <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
         {searchActive ? (
-          <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+          <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%' }}>
             {searchData.map((section: CategoryProps) => {
               const matchingCategory =
                 checkoutItems.find((cat) => cat.category === section.category) || {

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { CategoryProps } from '../../types/interfaces';
@@ -13,7 +13,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  // const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const searchChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
@@ -22,16 +22,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
       setSearchActive(false);
     }
     setSearchTerm(e.target.value);
+    filterFunction(e.target.value);
 
-    // Clear the existing timeout if typing continues
-    if (timeoutId.current) {
-      clearTimeout(timeoutId.current);
-    }
+    // Debounce the filter so it doesn't run on every letter
+    // if (timeoutId.current) {
+    //   clearTimeout(timeoutId.current);
+    // }
 
-    // Set a new timeout to call the filterFunction after 500ms
-    timeoutId.current = setTimeout(() => {
-      filterFunction(e.target.value);
-    }, 500); // 500ms debounce delay
+    // timeoutId.current = setTimeout(() => {
+    //   filterFunction(e.target.value);
+    // }, 500); // 500ms debounce delay
   };
 
   const filterFunction = (term: string) => {

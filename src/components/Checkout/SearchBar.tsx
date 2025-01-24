@@ -13,6 +13,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  // Part of search filter debounce
   // const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const searchChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {

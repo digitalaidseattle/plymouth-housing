@@ -18,7 +18,7 @@
     "@azure/msal-browser": "^3.28.0",
     "@azure/msal-react": "^2.2.0",
     "@mui/icons-material": "^5.16.14",
-    "@mui/material": "^5.16.7",
+    "@mui/material": "^6.4.1",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

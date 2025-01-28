@@ -45,18 +45,25 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 
 #### **Step 1: Install SQL Server**
 - Install a local edition of SQL Server.  
-  - Recommended: Free editions like **SQL Server Developer Edition** or **SQL Server Express**.  
+  - Recommended: Free editions like **SQL Server Express** (highly recommended because of its size) or **SQL Server Developer Edition**. 
+  - At the end of the install sequence, take note of the connection string if it is displayed. 
 
 #### **Step 2: Install SQL Server Extension for VS Code**
 - Install the **SQL Server (mssql)** extension from Microsoft in VS Code.  
 
 #### **Step 3: Create and Bootstrap the Database**
-1.  Set the environment var:
+1.  Set the environment var, e.g.:
 
-    ```$env:DATABASE_CONNECTION_STRING = "Server=localhost,1433;Initial Catalog=master;User ID=sa;Password={Password};Encrypt=False;TrustServerCertificate=True;"```
+    ```$env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=master;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'```
 
 1. Use the `create_db.sql` script in VS Code:  
-   - Open the script and click the **play button** to execute.  
+   - Open the script and click the **play button** to execute.
+   - This will create the **inventory** database
+
+1.  Change the connection string to point to the inventory database instead of master:
+
+    ```$env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'```
+
 1. Initialize the database:  
    - Run the PowerShell script located at `./database/bootstrap_db.ps1`.  
 

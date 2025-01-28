@@ -67,6 +67,8 @@ Steps to set up the project locally:
 
     - You can start the app with ```npm run dev``` but again, that doesn't set up the Data API layer. That is why you need to use the [SWA CLI](https://azure.github.io/static-web-apps-cli/docs/intro).  
 
+1. Here you get the default SWA emulation screen as descibed in the documentation. It requires you to fill out the user name. You also need to add either 'admin' or 'volunteer' in the roles section. This app uses it for the backend API.
+
 
 ---
 

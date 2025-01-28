@@ -1,101 +1,14 @@
-# Deployment Guide
+# Database Setup
 
 ## Intro
 
-In Azure we use Static Web Apps (SWA) as our hosting platform. All the documentation for SWA is [here](https://learn.microsoft.com/en-us/azure/static-web-apps/). In addition we are using Azure SQL and the [SWA database connection feature](https://learn.microsoft.com/en-us/azure/static-web-apps/database-overview) based on [Data API builder](https://learn.microsoft.com/en-us/azure/data-api-builder/).
-
-## Requirements
-
-- Access to an Azure subscription, either one for yourself or for venture partner.
-
-## Create the App
-
-1. Fork this repo. 
-
-1. Log into the Azure portal and create a new resource. Search for "Static Web App" (SWA). Create or select a **Resource Group** and give your app a name. 
-    
-1. For hosting plan you can select **Free**, but if you need Managed Identity for your SWA (see later), you'll have to select **Standard**
-
-1. Under **deployment** select Github. Point it to the repo you just created under 1.
-
-1. Click Next to go to the **Advanced** tab. We are not using Azure Functions so we can leave this alone. 
-
-1. We are also not using **Tags** in the next tab, so you can click Create
-
-1. This will bootstrap your github repo with some deployment details under `.github/workflows/{file}.yml`. This file contains the workflows that Github will perform when there is a PR and a merge on the repo. It also added a secret to the Github repo that is referenced in the yml file. See below for other workflows in CI/CD
-
-## Adding OAuth
-
-You might need help from your partner's Azure admin. Some of the Azure Entra ID steps are privileged. 
-
-There are tutorials that will help you get started:
-- https://learn.microsoft.com/en-us/azure/static-web-apps/add-authentication
-- https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph
-
-
-1. For OAuth to work, you will need callback URIs. The [substeps in this Tutorial](https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph#create-a-microsoft-entra-application) will tell you how to create an Entra App Registration and set up the callback URIs.
-
-    >Create only the App Registration and stop at **Create a client secret**. That is only required in case you need APIs (used for custom Role Authentication in the tutorial).
-
-1. Make sure you add both the URL for your production site as well as http://localhost:3000 to the callback URLs. The last one ensures you can debug locally. 
-
-1. Add the following settings to your ```.env.local```:
-
-    ```
-    # appid as in Entra App Registration
-    VITE_AUTH_CLIENT_ID=7c5c1bb2-faea-4bcf-babd-4fd023fabfd6 
-    VITE_AUTH_AUTHORITY=https://login.microsoftonline.com/common 
-    VITE_AUTH_REDIRECT_URI=http://localhost:3000 # callback URI
-    ```
-
-    >Note that Vite will pick up ```.env.local``` [all by itself](https://vite.dev/guide/env-and-mode), even without executing ```source```. 
-
-
-1. You also need to add these settings for your build process. When the github action builds your app, it wil pull the variables out of the github repo section and inject them in the build process. 
-    
-    a. add these settings to your ```.github/workflows/{name}.yml file```:
-
-    ```
-        env:
-          VITE_AUTH_CLIENT_ID: ${{ vars.VITE_AUTH_CLIENT_ID }}
-          VITE_AUTH_AUTHORITY: ${{ vars.VITE_AUTH_AUTHORITY }}
-          VITE_AUTH_REDIRECT_URI: ${{ vars.VITE_AUTH_REDIRECT_URI }}
-    ```
-    b. Make sure these same variables are also under ```Secrets and variables/Actions/Variables/Repository variables``` in your Github repo settings. 
-
-
-
-1. Create the roles as is explained [a bit further in the Tutorial](https://learn.microsoft.com/en-us/azure/static-web-apps/assign-roles-microsoft-graph#create-roles).
-
-1. Add users to the roles. Follow the steps on the page "Assign users to a Role". 
-
-1. Now OAuth is enabled on the website and you will have to sign in to access it. 
-
-### Securing the API and the Routes
-
-To allow the appropriate level of permissions on the API and the routes, you need to follow 
-- [these steps from the SWA documentation](https://learn.microsoft.com/en-us/azure/static-web-apps/authentication-custom?tabs=aad%2Cinvitations#manage-roles) and 
-- [these from the DAP documentation](https://learn.microsoft.com/en-us/azure/data-api-builder/authorization). 
-
-This will allow you to set the ```permissions``` on the ```entities``` in [```staticwebapp.database.config.json```](..//swa-db-connections/staticwebapp.database.config.json). 
-
-Permission on the routes only work for server side routing. This React app is purely client side, so routing permissions with roles don't work. 
-
-There are two requirements that need to be fullfilled:
-- the X-MS-API-ROLE HEADER needs to be present on all REST API calls. It should be one of the roles (or the built-in roles authenticated or anonymous)
-- the ```staticwebapp.config.json`` should not be blank but contain at least the default as in the documents. 
-
-When you start the application with ```swa start```, it will now create a proxy page that allows you to enter the role it will propagate to the REST API. 
-
-## Database 
-
-### Production/Staging
-
-The template uses a SQL database. We will use an Azure SQL Serverless database with Managed Identity. 
+The app uses a SQL database. We will use an Azure SQL Serverless database with Managed Identity. 
 
 There are tutorials here:
 - https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql
 - https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-msi-azure-database
+
+## Production/Staging
 
 1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)
 
@@ -113,10 +26,10 @@ There are tutorials here:
 
 1. The rest of the steps to connect the database are in [the tutorial mentioned earlier](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest).  
 
-### Database for Development
+## Database for Development
 
 A note on permission with PowerShell. 
-You might get a warning that untrusted scripts are not allowed to run. Here is how to turn that off. 
+You might get a warning that untrusted scripts are not allowed to run. Here is how to turn that off on Windows. 
 1. Open an admin PowerShell prompt.  
 1. Allow unrestricted script execution:  
    ```powershell
@@ -128,16 +41,16 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
    Set-ExecutionPolicy -ExecutionPolicy Undefined
    ```
 
-#### Local Database on Windows
+### Local Database on Windows
 
-##### **Step 1: Install SQL Server**
+#### **Step 1: Install SQL Server**
 - Install a local edition of SQL Server.  
   - Recommended: Free editions like **SQL Server Developer Edition** or **SQL Server Express**.  
 
-##### **Step 2: Install SQL Server Extension for VS Code**
+#### **Step 2: Install SQL Server Extension for VS Code**
 - Install the **SQL Server (mssql)** extension from Microsoft in VS Code.  
 
-##### **Step 3: Create and Bootstrap the Database**
+#### **Step 3: Create and Bootstrap the Database**
 1.  Set the environment var:
 
     ```$env:DATABASE_CONNECTION_STRING = "Server=localhost,1433;Initial Catalog=master;User ID=sa;Password={Password};Encrypt=False;TrustServerCertificate=True;"```
@@ -147,17 +60,17 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 1. Initialize the database:  
    - Run the PowerShell script located at `./database/bootstrap_db.ps1`.  
 
-> **Warning:** Running `bootstrap_db.ps1` will wipe out all existing data in the database. Proceed with caution.  
+> **Warning:** Running `bootstrap_db.ps1` will wipe out all existing data in the database. Proceed with caution. Especially if you are pointing to staging or prod!
 
 ---
 
-#### **macOS: SQL Server Setup via Docker**
+### **macOS: SQL Server Setup via Docker**
 
-##### **Step 1: Install Docker**
+#### **Step 1: Install Docker**
 - Download and install **Docker Desktop** for macOS.  
 - Start Docker Desktop and verify it is running.
 
-##### **Step 2: Set Up SQL Server in Docker**
+#### **Step 2: Set Up SQL Server in Docker**
 1. Open your terminal and run the following commands:  
    ```bash
    # Pull the SQL Server 2022 image
@@ -172,7 +85,7 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
    mcr.microsoft.com/mssql/server:2022-latest
    ```
 
-##### **Step 3: Install PowerShell and SqlServer Module**
+#### **Step 3: Install PowerShell and SqlServer Module**
 1. Install **PowerShell 7** using Homebrew:  
    ```bash
    brew install --cask powershell
@@ -186,14 +99,14 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
    Install-Module SqlServer
    ```
 
-##### **Step 4: Configure the Database Connection**
+#### **Step 4: Configure the Database Connection**
 1. Set the connection string as an environment variable:  
    ```powershell
    $env:DATABASE_CONNECTION_STRING = "Server=localhost,1433;Initial Catalog=master;User ID=sa;Password={Password};Encrypt=False;TrustServerCertificate=True;"
    ```
    > **Note:** Ensure the password matches the one used in the Docker container.  
 
-##### **Step 5: Initialize the Database**
+#### **Step 5: Initialize the Database**
 1. Run the bootstrap script:  
    ```powershell
    pwsh -File "/Users/yourusername/path/to/database/bootstrap_db.ps1"
@@ -212,9 +125,13 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
    ```
 
 ### **Windows**
-1. Set the connection string:  
+1. Set the connection string in command prompt :
    ```cmd
    SET DATABASE_CONNECTION_STRING="YOUR_CONNECTION_STRING"
+   ```
+1. Or with powershell:
+   ```PowerShell
+   $env:DATABASE_CONNECTION_STRING='YOUR_CONNECTION_STRING'   
    ```
 
 ### **macOS**
@@ -231,25 +148,10 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 
 ### **Cloud Database Setup**
 
+You can use an Azure SQL database for development as well. It is not recommended to use the staging database for reasons of conflicts. 
+
 1. Create an **Azure SQL Database**.  
 1. Use SQL Authentication for easier connection.  
 1. Add your local IP to the **Security/Networking** section of the Azure SQL Server (not the database).  
 1. Test the connection by adding it to the VS Code SQL Server extension.
 
----  
-
-## CI/CD
-
-In .github/workflows you'll find three files: one for CI, one for CD, one for deployment to prod. 
-
-- [azure-static-web-apps-CI.yml](../.github/workflows/azure-static-web-apps-CI.yml).
-The CI action runs on every push to the repo. It will run the linter, the unit tests, and builds the app. It will not deploy. 
-
-- [azure-static-web-apps-CD.yml](../.github/workflows/azure-static-web-apps-CD.yml). The CD action runs on a merge to main. It will build and deploy to staging. 
-
-- [azure-static-web-apps-prod.yml](../.github/workflows/azure-static-web-apps-prod.yml).
-This workflow triggers on a version change in ```package.json```. 
-When that happens, a github tag for that version is created. 
-It then builds from that tag, and deploys to production. 
-
-The idea is that the version bump happens manually when staging has been tested and deemed stable. 

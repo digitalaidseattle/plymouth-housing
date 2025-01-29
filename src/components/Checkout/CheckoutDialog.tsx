@@ -65,9 +65,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       let data = null;
       if (isWelcomeBasket) {
         // pass "currentUserId" to the processWelcomeBasket function
-        data = await processWelcomeBasket(user, currentUserId, allItems);
+        data = await processWelcomeBasket(user, currentUserId, allItems, selectedBuildingCode);
       } else {
-        data = await processGeneralItems(user, currentUserId, allItems);
+        data = await processGeneralItems(user, currentUserId, allItems, selectedBuildingCode);
       }
 
       const result = data.value[0];

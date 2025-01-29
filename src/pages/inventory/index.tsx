@@ -28,11 +28,11 @@ const Inventory = () => {
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
   const [addModal, setAddModal] = useState(false);
-  const [type, setType] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [category, setCategory] = useState('');
-  const [status, setStatus] = useState('');
-  const [search, setSearch] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [type, setType] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
+  const [search, setSearch] = useState<string>('');
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
   const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
     null,
@@ -395,6 +395,7 @@ const Inventory = () => {
                   ) : itemAlph === 'desc' ? (
                     <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
                   ) : null}</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Description</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
@@ -412,6 +413,7 @@ const Inventory = () => {
                   }}
                 >
                   <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.description}</TableCell>
                   <TableCell>{row.type}</TableCell>
                   <TableCell>{row.category}</TableCell>
                   <TableCell>{row.status}</TableCell>

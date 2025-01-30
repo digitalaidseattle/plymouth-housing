@@ -19,7 +19,7 @@ import { getRole, UserContext } from '../../components/contexts/UserContext';
 // import UpdateItemModal from '../../components/UpdateItemModal/UpdateItemModal';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants"
-import AddItemModal from '../../components/AddItemModal/AddItemModal.tsx';
+import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -434,8 +434,8 @@ const Inventory = () => {
                     <Chip
                       label={row.status}
                       sx={{
-                        backgroundColor: row.status === 'Low' ? '#FDECEA' : row.status === 'Medium' ? '#FFF9C4' : '#E6F4EA', // red for Low, yellow for Medium, green for High
-                        color: row.status === 'Low' ? '#D32F2F' : row.status === 'Medium' ? '#6A4E23' : '#357A38', // red for Low, orange for Medium, green for High
+                        backgroundColor: row.status === 'Low' ? '#FDECEA' : row.status === 'Medium' ? '#FFF9C4' : '#E6F4EA',
+                        color: row.status === 'Low' ? '#D32F2F' : row.status === 'Medium' ? '#6A4E23' : '#357A38',
                         borderRadius: '8px',
                         px: 1.5,
                       }}

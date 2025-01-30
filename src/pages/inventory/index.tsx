@@ -8,7 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import { Button, Menu, Pagination, Typography } from '@mui/material';
+import { Button, Menu, Pagination, Tooltip, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -113,6 +113,7 @@ const Inventory = () => {
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (
@@ -171,7 +172,7 @@ const Inventory = () => {
   const fetchData = useCallback(async () => {
     try {
       HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS+'?$first=10000', { headers: HEADERS, method: 'GET' });
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -375,9 +376,9 @@ const Inventory = () => {
       </Box>
 
       {/* Inventory Table */}
-      <Box id="inventory-container">
+      <Box id="inventory-container" sx={{ marginY: '10px' }}>
         <TableContainer component={Paper}>
-          <Table>
+          <Table sx={{ tableLayout: 'fixed' }}>
             <TableHead>
               <TableRow>
                 <TableCell
@@ -386,6 +387,7 @@ const Inventory = () => {
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
+                    width: '20%',
                   }}
                   onClick={itemAlphabetizeHandle}
                 >
@@ -395,11 +397,11 @@ const Inventory = () => {
                   ) : itemAlph === 'desc' ? (
                     <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
                   ) : null}</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Description</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Quantity</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '30%' }}>Description</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Type</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Category</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Quantity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -412,12 +414,22 @@ const Inventory = () => {
                       '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)',
                   }}
                 >
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.description}</TableCell>
-                  <TableCell>{row.type}</TableCell>
-                  <TableCell>{row.category}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>{row.quantity}</TableCell>
+                  <TableCell sx={{ width: '20%' }}>{row.name}</TableCell>
+                  <TableCell sx={{
+                    width: '30%',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    <Tooltip title={row.description} arrow>
+                      <span>{row.description}</span>
+                    </Tooltip>
+                  </TableCell>
+
+                  <TableCell sx={{ width: '12,5%' }}>{row.type}</TableCell>
+                  <TableCell sx={{ width: '12.5%' }}>{row.category}</TableCell>
+                  <TableCell sx={{ width: '12.5%' }}>{row.status}</TableCell>
+                  <TableCell sx={{ width: '12.5%' }}>{row.quantity}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

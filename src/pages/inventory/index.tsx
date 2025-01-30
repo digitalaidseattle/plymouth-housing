@@ -113,7 +113,6 @@ const Inventory = () => {
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
-    setCurrentPage(1);
   };
 
   const handlePageChange = (
@@ -167,6 +166,7 @@ const Inventory = () => {
     }
 
     setDisplayData(searchFiltered);
+    setCurrentPage(1);
   }, [type, category, status, search, itemAlph, originalData]);
 
   const fetchData = useCallback(async () => {

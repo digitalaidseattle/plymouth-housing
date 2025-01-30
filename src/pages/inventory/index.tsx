@@ -1,8 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, MenuItem, Button, Chip, Menu, Pagination, Tooltip, Typography, Paper } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ClearIcon from '@mui/icons-material/Clear';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Chip, Pagination, Tooltip, Paper } from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
@@ -11,7 +9,7 @@ import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants";
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
-
+import InventoryFilter from '../../components/inventory/InventoryFilter.tsx';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -39,12 +37,12 @@ const Inventory = () => {
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleAddOpen = () => {
-    setAddModal(true)
-  }
+    setAddModal(true);
+  };
 
   const handleAddClose = () => {
-    setAddModal(false)
-  }
+    setAddModal(false);
+  };
 
   // Consolidated function for handling all filter clicks
   const handleFilterClick = (filter: 'type' | 'category' | 'status', event: React.MouseEvent<HTMLButtonElement>) => {
@@ -89,10 +87,7 @@ const Inventory = () => {
     }));
   };
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
 
@@ -206,141 +201,24 @@ const Inventory = () => {
           Add
         </Button>
       </Box>
-      {
-        <AddItemModal
-          addModal={addModal}
-          handleAddClose={handleAddClose}
-          fetchData={fetchData}
-          originalData={originalData} />}
 
-      {/* Filter Container */}
-      <Box
-        id="filter-container"
-        sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}
-      >
-        <Typography variant="body2">Filters</Typography>
+      <AddItemModal
+        addModal={addModal}
+        handleAddClose={handleAddClose}
+        fetchData={fetchData}
+        originalData={originalData}
+      />
 
-        {/* Type Filter */}
-        <Box sx={{ px: '8px' }} id="type-button-container">
-          <Button
-            sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-            onClick={(event) => handleFilterClick('type', event)}
-          >
-            {filters.type ? (
-              <>
-                {filters.type}{' '}
-                <ClearIcon
-                  sx={{ fontSize: 'large', ml: '6px' }}
-                  onClick={() => clearFilter('type')}
-                />
-              </>
-            ) : (
-              <>
-                <Typography variant="body2">Type</Typography>
-                <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
-              </>
-            )}
-          </Button>
-          <Menu
-            open={Boolean(anchors.type)}
-            onClose={() => handleMenuClose('type')}
-            anchorEl={anchors.type}
-          >
-            <MenuItem onClick={() => handleMenuClick('type', 'General')}>
-              General
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuClick('type', 'Welcome Basket')}>
-              Welcome Basket
-            </MenuItem>
-          </Menu>
-        </Box>
-
-        {/* Category Filter */}
-        <Box sx={{ px: '8px' }} id="category-button-container">
-          <Button
-            sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-            onClick={(event) => handleFilterClick('category', event)}
-          >
-            {' '}
-            {filters.category ? (
-              <>
-                {filters.category}{' '}
-                <ClearIcon
-                  sx={{ fontSize: 'large', ml: '6px' }}
-                  onClick={() => clearFilter('category')}
-                />
-              </>
-            ) : (
-              <>
-                <Typography variant="body2">Category</Typography>
-                <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
-              </>
-            )}
-          </Button>
-          <Menu
-            open={Boolean(anchors.category)}
-            onClose={() => handleMenuClose('category')}
-            anchorEl={anchors.category}
-          >
-            {categoryData.map((categoryItem) => (
-              <MenuItem
-                key={categoryItem.name}
-                onClick={() => handleMenuClick('category', categoryItem.name)}
-              >
-                {categoryItem.name}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-
-        {/* Status Filter */}
-        <Box sx={{ px: '8px' }} id="status-button-container">
-          <Button
-            sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-            onClick={(event) => handleFilterClick('status', event)}
-          >
-            {filters.status ? (
-              <>
-                {filters.status}{' '}
-                <ClearIcon
-                  sx={{ fontSize: 'large', ml: '6px' }}
-                  onClick={() => clearFilter('status')}
-                />
-              </>
-            ) : (
-              <>
-                <Typography variant="body2">Status</Typography>
-                <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
-              </>
-            )}
-          </Button>
-          <Menu
-            open={Boolean(anchors.status)}
-            onClose={() => handleMenuClose('status')}
-            anchorEl={anchors.status}
-          >
-            <MenuItem onClick={() => handleMenuClick('status', 'Low')}>
-              Low
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuClick('status', 'Medium')}>
-              Medium
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuClick('status', 'High')}>
-              High
-            </MenuItem>
-          </Menu>
-        </Box>
-
-        {/* Search Filter */}
-        <Box id="search-container" sx={{ ml: 'auto' }}>
-          <TextField
-            value={filters.search}
-            onChange={handleSearch}
-            variant="standard"
-            placeholder="Search"
-          />
-        </Box>
-      </Box>
+      {/* Inventory Filter */}
+      <InventoryFilter
+        filters={filters}
+        anchors={anchors}
+        categoryData={categoryData}
+        handleFilterClick={handleFilterClick}
+        handleMenuClick={handleMenuClick}
+        clearFilter={clearFilter}
+        handleSearch={handleSearch}
+      />
 
       {/* Inventory Table */}
       <Box id="inventory-container" sx={{ marginY: '10px' }}>

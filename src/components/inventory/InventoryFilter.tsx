@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Menu, MenuItem, Typography, TextField, Chip } from '@mui/material';
+import { Box, Button, Menu, MenuItem, Typography, TextField } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import { CategoryItem } from '../../types/interfaces.ts';

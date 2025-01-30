@@ -1,15 +1,12 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Chip, Pagination, Tooltip, Paper } from '@mui/material';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-
+import AddItemModal from '../../components/inventory/AddItemModal.tsx';
+import InventoryFilter from '../../components/inventory/InventoryFilter';
+import InventoryTable from '../../components/inventory/InventoryTable';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants";
-import AddItemModal from '../../components/inventory/AddItemModal.tsx';
-import InventoryFilter from '../../components/inventory/InventoryFilter.tsx';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -221,77 +218,11 @@ const Inventory = () => {
       />
 
       {/* Inventory Table */}
-      <Box id="inventory-container" sx={{ marginY: '10px' }}>
-        <TableContainer component={Paper}>
-          <Table sx={{ tableLayout: 'fixed' }}>
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    width: '20%',
-                  }}
-                  onClick={itemAlphabetizeHandle}
-                >
-                  Name
-                  {itemAlph === 'asc' ? (
-                    <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
-                  ) : itemAlph === 'desc' ? (
-                    <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
-                  ) : null}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '30%' }}>Description</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Category</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Quantity</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentItems.map((row, index) => (
-                <TableRow
-                  key={index}
-                  component={Paper}
-                  sx={{
-                    boxShadow:
-                      '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)',
-                  }}
-                >
-                  <TableCell sx={{ width: '20%' }}>{row.name}</TableCell>
-                  <TableCell sx={{
-                    width: '30%',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    <Tooltip title={row.description} arrow>
-                      <span>{row.description}</span>
-                    </Tooltip>
-                  </TableCell>
-
-                  <TableCell sx={{ width: '12,5%' }}>{row.type}</TableCell>
-                  <TableCell sx={{ width: '12.5%' }}>{row.category}</TableCell>
-                  <TableCell sx={{ width: '12.5%' }}>
-                    <Chip
-                      label={row.status}
-                      sx={{
-                        backgroundColor: row.status === 'Low' ? '#FDECEA' : row.status === 'Medium' ? '#FFF9C4' : '#E6F4EA',
-                        color: row.status === 'Low' ? '#D32F2F' : row.status === 'Medium' ? '#6A4E23' : '#357A38',
-                        borderRadius: '8px',
-                        px: 1.5,
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ width: '12.5%' }}>{row.quantity}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+      <InventoryTable
+        currentItems={currentItems}
+        itemAlph={itemAlph}
+        itemAlphabetizeHandle={itemAlphabetizeHandle}
+      />
 
       {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>

@@ -1,24 +1,17 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import { Button, Chip, Menu, Pagination, Tooltip, Typography } from '@mui/material';
+
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, MenuItem, Button, Chip, Menu, Pagination, Tooltip, Typography, Paper } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
-import Paper from '@mui/material/Paper';
+
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
-import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants"
+import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants";
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
+
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -53,16 +46,9 @@ const Inventory = () => {
     setAddModal(false)
   }
 
-  const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchors((prev) => ({ ...prev, type: event.currentTarget }));
-  };
-
-  const handleCategoryClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchors((prev) => ({ ...prev, category: event.currentTarget }));
-  };
-
-  const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchors((prev) => ({ ...prev, status: event.currentTarget }));
+  // Consolidated function for handling all filter clicks
+  const handleFilterClick = (filter: 'type' | 'category' | 'status', event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchors((prev) => ({ ...prev, [filter]: event.currentTarget }));
   };
 
   const itemAlphabetizeHandle = () => {
@@ -79,28 +65,13 @@ const Inventory = () => {
     setAnchors((prev) => ({ ...prev, [menu]: null }));
   };
 
-  const handleMenuTypeClick = (value: string) => {
+  // Consolidated function for handling all menu item clicks (type, category, status)
+  const handleMenuClick = (filter: 'type' | 'category' | 'status', value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
-      type: value,
+      [filter]: value,
     }));
-    handleMenuClose('type');
-  };
-
-  const handleMenuCategoryClick = (value: string) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      category: value,
-    }));
-    handleMenuClose('category');
-  };
-
-  const handleMenuStatusClick = (value: string) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      status: value,
-    }));
-    handleMenuClose('status');
+    handleMenuClose(filter);
   };
 
   // Consolidated filter clearing function
@@ -253,7 +224,7 @@ const Inventory = () => {
         <Box sx={{ px: '8px' }} id="type-button-container">
           <Button
             sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-            onClick={handleTypeClick}
+            onClick={(event) => handleFilterClick('type', event)}
           >
             {filters.type ? (
               <>
@@ -275,10 +246,10 @@ const Inventory = () => {
             onClose={() => handleMenuClose('type')}
             anchorEl={anchors.type}
           >
-            <MenuItem onClick={() => handleMenuTypeClick('General')}>
+            <MenuItem onClick={() => handleMenuClick('type', 'General')}>
               General
             </MenuItem>
-            <MenuItem onClick={() => handleMenuTypeClick('Welcome Basket')}>
+            <MenuItem onClick={() => handleMenuClick('type', 'Welcome Basket')}>
               Welcome Basket
             </MenuItem>
           </Menu>
@@ -288,7 +259,7 @@ const Inventory = () => {
         <Box sx={{ px: '8px' }} id="category-button-container">
           <Button
             sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-            onClick={handleCategoryClick}
+            onClick={(event) => handleFilterClick('category', event)}
           >
             {' '}
             {filters.category ? (
@@ -314,7 +285,7 @@ const Inventory = () => {
             {categoryData.map((categoryItem) => (
               <MenuItem
                 key={categoryItem.name}
-                onClick={() => handleMenuCategoryClick(categoryItem.name)}
+                onClick={() => handleMenuClick('category', categoryItem.name)}
               >
                 {categoryItem.name}
               </MenuItem>
@@ -326,7 +297,7 @@ const Inventory = () => {
         <Box sx={{ px: '8px' }} id="status-button-container">
           <Button
             sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-            onClick={handleStatusClick}
+            onClick={(event) => handleFilterClick('status', event)}
           >
             {filters.status ? (
               <>
@@ -348,13 +319,13 @@ const Inventory = () => {
             onClose={() => handleMenuClose('status')}
             anchorEl={anchors.status}
           >
-            <MenuItem onClick={() => handleMenuStatusClick('Low')}>
+            <MenuItem onClick={() => handleMenuClick('status', 'Low')}>
               Low
             </MenuItem>
-            <MenuItem onClick={() => handleMenuStatusClick('Medium')}>
+            <MenuItem onClick={() => handleMenuClick('status', 'Medium')}>
               Medium
             </MenuItem>
-            <MenuItem onClick={() => handleMenuStatusClick('High')}>
+            <MenuItem onClick={() => handleMenuClick('status', 'High')}>
               High
             </MenuItem>
           </Menu>

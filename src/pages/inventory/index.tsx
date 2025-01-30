@@ -16,7 +16,6 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddIcon from '@mui/icons-material/Add';
 import Paper from '@mui/material/Paper';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-// import UpdateItemModal from '../../components/UpdateItemModal/UpdateItemModal';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants"
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
@@ -29,14 +28,14 @@ const Inventory = () => {
   const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
   const [addModal, setAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [type, setType] = useState<string>('');
-  const [category, setCategory] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
-  const [search, setSearch] = useState<string>('');
+  const [filters, setFilters] = useState({
+    type: '',
+    category: '',
+    status: '',
+    search: '',
+  });
   const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
-  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(
-    null,
-  );
+  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -55,9 +54,11 @@ const Inventory = () => {
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorType(event.currentTarget);
   };
+
   const handleCategoryClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorCategory(event.currentTarget);
   };
+
   const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorStatus(event.currentTarget);
   };
@@ -77,7 +78,10 @@ const Inventory = () => {
   };
 
   const handleMenuTypeClick = (value: string) => {
-    setType(value);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      type: value,
+    }));
     handleTypeClose();
   };
 
@@ -86,7 +90,10 @@ const Inventory = () => {
   };
 
   const handleMenuCategoryClick = (value: string) => {
-    setCategory(value);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      category: value,
+    }));
     handleCategoryClose();
   };
 
@@ -95,24 +102,39 @@ const Inventory = () => {
   };
 
   const handleMenuStatusClick = (value: string) => {
-    setStatus(value);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      status: value,
+    }));
     handleStatusClose();
   };
 
   const clearTypeFilter = () => {
-    setType('');
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      type: '',
+    }));
   };
 
   const clearCategoryFilter = () => {
-    setCategory('');
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      category: '',
+    }));
   };
 
   const clearStatusFilter = () => {
-    setStatus('');
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      status: '',
+    }));
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(event.target.value);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      search: event.target.value,
+    }));
   };
 
   const handlePageChange = (
@@ -132,21 +154,21 @@ const Inventory = () => {
         quantity: number;
         status: string;
       }) => {
-        const matchesType = type
-          ? row.type.toLowerCase().includes(type.toLowerCase())
+        const matchesType = filters.type
+          ? row.type.toLowerCase().includes(filters.type.toLowerCase())
           : true;
 
-        const matchesCategory = category
-          ? row.category.toLowerCase().includes(category.toLowerCase())
+        const matchesCategory = filters.category
+          ? row.category.toLowerCase().includes(filters.category.toLowerCase())
           : true;
 
-        const matchesStatus = status
-          ? row.status.toLowerCase().includes(status.toLowerCase())
+        const matchesStatus = filters.status
+          ? row.status.toLowerCase().includes(filters.status.toLowerCase())
           : true;
 
-        const lowerCaseSearch = search.toLowerCase();
+        const lowerCaseSearch = filters.search.toLowerCase();
 
-        const matchesSearch = search
+        const matchesSearch = filters.search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
           row.description.toLowerCase().includes(lowerCaseSearch) ||
           row.type.toLowerCase().includes(lowerCaseSearch) ||
@@ -167,7 +189,7 @@ const Inventory = () => {
 
     setDisplayData(searchFiltered);
     setCurrentPage(1);
-  }, [type, category, status, search, itemAlph, originalData]);
+  }, [filters, itemAlph, originalData]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -213,7 +235,7 @@ const Inventory = () => {
     return () => {
       clearTimeout(handler);
     };
-  }, [type, category, status, search, handleFilter]);
+  }, [filters, handleFilter]);
 
   useEffect(() => {
     handleFilter();
@@ -239,15 +261,6 @@ const Inventory = () => {
           fetchData={fetchData}
           originalData={originalData} />}
 
-      {/* Update Modal is disabled for now */}
-      {/* {
-        <UpdateItemModal
-          addModal={addModal}
-          handleAddClose={handleAddClose}
-          fetchData={fetchData}
-          categoryData={categoryData}
-          originalData={originalData} />} */}
-
       {/* Filter Container */}
       <Box
         id="filter-container"
@@ -261,9 +274,9 @@ const Inventory = () => {
             sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
             onClick={handleTypeClick}
           >
-            {type ? (
+            {filters.type ? (
               <>
-                {type}{' '}
+                {filters.type}{' '}
                 <ClearIcon
                   sx={{ fontSize: 'large', ml: '6px' }}
                   onClick={clearTypeFilter}
@@ -297,9 +310,9 @@ const Inventory = () => {
             onClick={handleCategoryClick}
           >
             {' '}
-            {category ? (
+            {filters.category ? (
               <>
-                {category}{' '}
+                {filters.category}{' '}
                 <ClearIcon
                   sx={{ fontSize: 'large', ml: '6px' }}
                   onClick={clearCategoryFilter}
@@ -334,9 +347,9 @@ const Inventory = () => {
             sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
             onClick={handleStatusClick}
           >
-            {status ? (
+            {filters.status ? (
               <>
-                {status}{' '}
+                {filters.status}{' '}
                 <ClearIcon
                   sx={{ fontSize: 'large', ml: '6px' }}
                   onClick={clearStatusFilter}
@@ -369,7 +382,7 @@ const Inventory = () => {
         {/* Search Filter */}
         <Box id="search-container" sx={{ ml: 'auto' }}>
           <TextField
-            value={search}
+            value={filters.search}
             onChange={handleSearch}
             variant="standard"
             placeholder="Search"
@@ -398,7 +411,8 @@ const Inventory = () => {
                     <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
                   ) : itemAlph === 'desc' ? (
                     <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
-                  ) : null}</TableCell>
+                  ) : null}
+                </TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '30%' }}>Description</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Type</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Category</TableCell>

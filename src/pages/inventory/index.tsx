@@ -34,9 +34,11 @@ const Inventory = () => {
     status: '',
     search: '',
   });
-  const [anchorType, setAnchorType] = useState<null | HTMLElement>(null);
-  const [anchorCategory, setAnchorCategory] = useState<null | HTMLElement>(null);
-  const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
+  const [anchors, setAnchors] = useState({
+    type: null as null | HTMLElement,
+    category: null as null | HTMLElement,
+    status: null as null | HTMLElement,
+  });
   const [currentPage, setCurrentPage] = useState(1);
 
   const indexOfLastItem = currentPage * SETTINGS.itemsPerPage;
@@ -52,15 +54,15 @@ const Inventory = () => {
   }
 
   const handleTypeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorType(event.currentTarget);
+    setAnchors((prev) => ({ ...prev, type: event.currentTarget }));
   };
 
   const handleCategoryClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorCategory(event.currentTarget);
+    setAnchors((prev) => ({ ...prev, category: event.currentTarget }));
   };
 
   const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorStatus(event.currentTarget);
+    setAnchors((prev) => ({ ...prev, status: event.currentTarget }));
   };
 
   const itemAlphabetizeHandle = () => {
@@ -73,8 +75,8 @@ const Inventory = () => {
     }
   };
 
-  const handleTypeClose = () => {
-    setAnchorType(null);
+  const handleMenuClose = (menu: keyof typeof anchors) => {
+    setAnchors((prev) => ({ ...prev, [menu]: null }));
   };
 
   const handleMenuTypeClick = (value: string) => {
@@ -82,11 +84,7 @@ const Inventory = () => {
       ...prevFilters,
       type: value,
     }));
-    handleTypeClose();
-  };
-
-  const handleCategoryClose = () => {
-    setAnchorCategory(null);
+    handleMenuClose('type');
   };
 
   const handleMenuCategoryClick = (value: string) => {
@@ -94,11 +92,7 @@ const Inventory = () => {
       ...prevFilters,
       category: value,
     }));
-    handleCategoryClose();
-  };
-
-  const handleStatusClose = () => {
-    setAnchorStatus(null);
+    handleMenuClose('category');
   };
 
   const handleMenuStatusClick = (value: string) => {
@@ -106,27 +100,14 @@ const Inventory = () => {
       ...prevFilters,
       status: value,
     }));
-    handleStatusClose();
+    handleMenuClose('status');
   };
 
-  const clearTypeFilter = () => {
+  // Consolidated filter clearing function
+  const clearFilter = (filter: 'type' | 'category' | 'status') => {
     setFilters((prevFilters) => ({
       ...prevFilters,
-      type: '',
-    }));
-  };
-
-  const clearCategoryFilter = () => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      category: '',
-    }));
-  };
-
-  const clearStatusFilter = () => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      status: '',
+      [filter]: '',
     }));
   };
 
@@ -279,7 +260,7 @@ const Inventory = () => {
                 {filters.type}{' '}
                 <ClearIcon
                   sx={{ fontSize: 'large', ml: '6px' }}
-                  onClick={clearTypeFilter}
+                  onClick={() => clearFilter('type')}
                 />
               </>
             ) : (
@@ -290,9 +271,9 @@ const Inventory = () => {
             )}
           </Button>
           <Menu
-            open={Boolean(anchorType)}
-            onClose={handleTypeClose}
-            anchorEl={anchorType}
+            open={Boolean(anchors.type)}
+            onClose={() => handleMenuClose('type')}
+            anchorEl={anchors.type}
           >
             <MenuItem onClick={() => handleMenuTypeClick('General')}>
               General
@@ -315,7 +296,7 @@ const Inventory = () => {
                 {filters.category}{' '}
                 <ClearIcon
                   sx={{ fontSize: 'large', ml: '6px' }}
-                  onClick={clearCategoryFilter}
+                  onClick={() => clearFilter('category')}
                 />
               </>
             ) : (
@@ -326,9 +307,9 @@ const Inventory = () => {
             )}
           </Button>
           <Menu
-            open={Boolean(anchorCategory)}
-            onClose={handleCategoryClose}
-            anchorEl={anchorCategory}
+            open={Boolean(anchors.category)}
+            onClose={() => handleMenuClose('category')}
+            anchorEl={anchors.category}
           >
             {categoryData.map((categoryItem) => (
               <MenuItem
@@ -352,7 +333,7 @@ const Inventory = () => {
                 {filters.status}{' '}
                 <ClearIcon
                   sx={{ fontSize: 'large', ml: '6px' }}
-                  onClick={clearStatusFilter}
+                  onClick={() => clearFilter('status')}
                 />
               </>
             ) : (
@@ -363,9 +344,9 @@ const Inventory = () => {
             )}
           </Button>
           <Menu
-            open={Boolean(anchorStatus)}
-            onClose={handleStatusClose}
-            anchorEl={anchorStatus}
+            open={Boolean(anchors.status)}
+            onClose={() => handleMenuClose('status')}
+            anchorEl={anchors.status}
           >
             <MenuItem onClick={() => handleMenuStatusClick('Low')}>
               Low

@@ -8,7 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import { Button, Menu, Pagination, Tooltip, Typography } from '@mui/material';
+import { Button, Chip, Menu, Pagination, Tooltip, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -238,6 +238,8 @@ const Inventory = () => {
           handleAddClose={handleAddClose}
           fetchData={fetchData}
           originalData={originalData} />}
+
+      {/* Update Modal is disabled for now */}
       {/* {
         <UpdateItemModal
           addModal={addModal}
@@ -428,7 +430,17 @@ const Inventory = () => {
 
                   <TableCell sx={{ width: '12,5%' }}>{row.type}</TableCell>
                   <TableCell sx={{ width: '12.5%' }}>{row.category}</TableCell>
-                  <TableCell sx={{ width: '12.5%' }}>{row.status}</TableCell>
+                  <TableCell sx={{ width: '12.5%' }}>
+                    <Chip
+                      label={row.status}
+                      sx={{
+                        backgroundColor: row.status === 'Low' ? '#FDECEA' : row.status === 'Medium' ? '#FFF9C4' : '#E6F4EA', // red for Low, yellow for Medium, green for High
+                        color: row.status === 'Low' ? '#D32F2F' : row.status === 'Medium' ? '#6A4E23' : '#357A38', // red for Low, orange for Medium, green for High
+                        borderRadius: '8px',
+                        px: 1.5,
+                      }}
+                    />
+                  </TableCell>
                   <TableCell sx={{ width: '12.5%' }}>{row.quantity}</TableCell>
                 </TableRow>
               ))}

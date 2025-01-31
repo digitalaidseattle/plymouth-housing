@@ -22,17 +22,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
     } else {
       setSearchActive(false);
     }
+    console.log(e.target.value);
     setSearchTerm(e.target.value);
     filterFunction(e.target.value);
-
-    // Debounce the filter so it doesn't run on every letter
-    // if (timeoutId.current) {
-    //   clearTimeout(timeoutId.current);
-    // }
-
-    // timeoutId.current = setTimeout(() => {
-    //   filterFunction(e.target.value);
-    // }, 500); // 500ms debounce delay
   };
 
   const filterFunction = (term: string) => {
@@ -40,8 +32,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
       const filteredCategoryItems = category.items.filter((item) => {
         const searchTermLower = term.toLowerCase();
         return (
-          item.name.toLowerCase().includes(searchTermLower) ||
-          item.description.toLowerCase().includes(searchTermLower)
+          (item.name?.toLowerCase().includes(searchTermLower) || '') ||
+          (item.description?.toLowerCase().includes(searchTermLower) || '')
         );
       });
 

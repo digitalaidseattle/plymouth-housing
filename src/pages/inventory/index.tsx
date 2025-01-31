@@ -405,10 +405,9 @@ const Inventory = () => {
               {currentItems.map((row, index) => (
                 <TableRow
                   key={index}
-                  component={Paper}
                   sx={{
                     boxShadow:
-                      '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)',
+                      '0px -1px 0px 0px rgb(212, 212, 212);',
                   }}
                 >
                   <TableCell>{row.name}</TableCell>

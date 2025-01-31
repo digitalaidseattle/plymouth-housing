@@ -1,25 +1,31 @@
-export type CheckoutItem = {
+export type CheckoutItemProp = {
   id: number;
   name: string;
   quantity: number;
+  description: string;
 };
 
 export type CategoryProps = {
   id: number;
   category: string;
-  items: CheckoutItem[];
+  items: CheckoutItemProp[];
+  checkout_limit: number;
+  categoryCount: number;
 };
 
 export type CheckoutCardProps = {
-  item: CheckoutItem;
-  checkoutItems: CheckoutItem[];
-  addItemToCart: (item: CheckoutItem, quantity: number) => void;
-  removeItemFromCart: (itemId: number) => void;
+  item: CheckoutItemProp;
+  categoryCheckout: CategoryProps;
+  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string) => void;
+  removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
+  disableAdd?: boolean;
+  categoryLimit: number;
+  categoryName: string,
 };
 
 export interface ClientPrincipal{
-  userDetails: string, 
+  userDetails: string,
   userID: string,
   userRoles: string[]
 }
@@ -81,5 +87,5 @@ export type Building = {
 
 export type ShoppingCart = {
   user_id: string;
-  items: CheckoutItem[];
+  items: CheckoutItemProp[];
 }

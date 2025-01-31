@@ -47,6 +47,7 @@ AS
         SELECT
             Items.id,
             Items.name,
+            Items.description,
             Items.quantity
         FROM
             Items

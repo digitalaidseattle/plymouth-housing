@@ -3,7 +3,7 @@ import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 import { useCallback, useEffect, useState } from 'react';
 
-const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, categoryLimit, categoryName }: CheckoutCardProps) => {
+const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, categoryLimit, categoryName, activeSection }: CheckoutCardProps) => {
 
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
 
@@ -16,9 +16,21 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
 
   }, [categoryCheckout?.categoryCount, categoryLimit]);
 
+  const checkActiveSection = useCallback(() => {
+    if (activeSection === 'welcomeBasket') {
+      setDisableAdd(categoryName !== 'Welcome Basket');
+    } else if (activeSection === 'general') {
+      setDisableAdd(categoryName === 'Welcome Basket');
+    }
+  }, [activeSection, categoryName]);
+
   useEffect(() => {
     checkLimit();
   }, [categoryCheckout?.categoryCount, checkLimit])
+
+  useEffect(() => {
+    checkActiveSection();
+  }, [checkActiveSection])
 
   return (
     <Card key={item.name}

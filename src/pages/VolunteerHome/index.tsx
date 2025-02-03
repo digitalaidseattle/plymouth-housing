@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
-import AddItemModal from '../../components/AddItemModal/AddItemModal';
+import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { InventoryItem } from '../../types/interfaces.ts';

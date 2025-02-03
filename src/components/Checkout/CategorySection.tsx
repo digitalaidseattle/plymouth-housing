@@ -14,10 +14,10 @@ type CategorySectionProps = {
 const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disabled }: CategorySectionProps) => {
 
   return (
-    <Box sx={{ paddingLeft: '5%', paddingRight: '5%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+    <Box sx={{ paddingLeft: '5%', paddingRight: '5%', paddingBottom: '3%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography sx={{ fontSize: '20px', marginY: '3%' }} id={category.category}>{category.category}</Typography>
-        <Typography sx={{ fontSize: '20px', marginY: '3%' }}>
+        <Typography sx={{ fontSize: '20px' }}>
           {categoryCheckout?.categoryCount} of {category.checkout_limit}
         </Typography>
 

@@ -63,6 +63,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
       quantity: 0
     })
     setUpdateItem(null);
+    setErrorMessage('');
     handleAddClose();
   }
 

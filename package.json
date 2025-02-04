@@ -15,8 +15,12 @@
   "dependencies": {
     "@ant-design/colors": "^7.2.0",
     "@ant-design/icons": "^5.5.2",
-    "@mui/icons-material": "^5.16.14",
-    "@mui/material": "^5.16.7",
+    "@azure/msal-browser": "^3.28.0",
+    "@azure/msal-react": "^2.2.0",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^6.4.2",
+    "@mui/material": "^6.4.2",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -46,7 +50,7 @@
     "rollup-plugin-visualizer": "^5.14.0",
     "source-map-explorer": "^2.5.3",
     "typescript": "^5.7.3",
-    "vite": "^6.0.7",
+    "vite": "^6.0.11",
     "vitest": "^3.0.2"
   }
 }

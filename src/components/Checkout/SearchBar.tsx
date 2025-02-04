@@ -13,9 +13,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Part of search filter debounce
-  // const timeoutId = useRef<NodeJS.Timeout | null>(null);
-
   const searchChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
       setSearchActive(true)
@@ -24,15 +21,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
     }
     setSearchTerm(e.target.value);
     filterFunction(e.target.value);
-
-    // Debounce the filter so it doesn't run on every letter
-    // if (timeoutId.current) {
-    //   clearTimeout(timeoutId.current);
-    // }
-
-    // timeoutId.current = setTimeout(() => {
-    //   filterFunction(e.target.value);
-    // }, 500); // 500ms debounce delay
   };
 
   const filterFunction = (term: string) => {

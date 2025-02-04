@@ -29,7 +29,7 @@ type CheckoutDialogProps = {
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData }) => {
-  const { user, loggedInVolunteerId, loggedInAdminId } = useContext(UserContext);
+  const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
@@ -59,11 +59,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const isWelcomeBasket = allItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
       if (isWelcomeBasket) {
-        // pass "currentUserId" to the processWelcomeBasket function
-        data = await processWelcomeBasket(user, currentUserId, allItems, selectedBuildingCode);
+        // pass "loggedInUserId" to the processWelcomeBasket function
+        data = await processWelcomeBasket(user, loggedInUserId, allItems, selectedBuildingCode);
       } else {
-        data = await processGeneralItems(user, currentUserId, allItems, selectedBuildingCode);
+        data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
       }
+      console.log('data:', data);
 
       const result = data.value[0];
       if (result.Status !== 'Success') {

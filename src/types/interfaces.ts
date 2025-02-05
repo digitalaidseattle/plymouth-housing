@@ -22,6 +22,7 @@ export type CheckoutCardProps = {
   disableAdd?: boolean;
   categoryLimit: number;
   categoryName: string,
+  activeSection?: string,
 };
 
 export interface ClientPrincipal{

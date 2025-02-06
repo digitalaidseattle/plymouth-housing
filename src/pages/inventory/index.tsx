@@ -114,7 +114,7 @@ const Inventory = () => {
 
         const matchesSearch = filters.search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-          row.description.toLowerCase().includes(lowerCaseSearch) ||
+          row.description?.toLowerCase().includes(lowerCaseSearch) ||
           row.type.toLowerCase().includes(lowerCaseSearch) ||
           row.category.toLowerCase().includes(lowerCaseSearch) ||
           row.status.toLowerCase().includes(lowerCaseSearch) ||

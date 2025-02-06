@@ -16,7 +16,7 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
   return (
     <Box sx={{ paddingLeft: '5%', paddingRight: '5%', paddingBottom: '3%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography sx={{ fontSize: '20px', marginY: '3%', marginRight: '30px' }} id={category.category}>{category.category}</Typography>
           <Typography sx={{ fontSize: '16px', color: '#666666' }}>{category.items.length} items</Typography>
         </Box>

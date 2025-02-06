@@ -8,12 +8,10 @@ import { ENDPOINTS } from '../../types/constants';
 const mockUserContext = {
   user: { id: 1, userDetails: 'Test User', userRoles: ['volunteer'], userID: "bob" },
   setUser: vi.fn(),
-  loggedInVolunteerId: null,
-  setLoggedInVolunteerId: vi.fn(),
+  loggedInUserId: null,
+  setLoggedInUserId: vi.fn(),
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
-  loggedInAdminId: null,
-  setLoggedInAdminId: vi.fn(),
 };
 
 describe('CheckoutPage', async () => {

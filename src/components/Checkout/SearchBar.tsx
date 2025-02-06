@@ -28,8 +28,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
       const filteredCategoryItems = category.items.filter((item) => {
         const searchTermLower = term.toLowerCase();
         return (
-          item.name.toLowerCase().includes(searchTermLower) ||
-          item.description.toLowerCase().includes(searchTermLower)
+          (item.name?.toLowerCase().includes(searchTermLower) || '') ||
+          (item.description?.toLowerCase().includes(searchTermLower) || '')
         );
       });
 

@@ -1,5 +1,5 @@
 import { CategoryProps } from '../../types/interfaces'
-import { Box, Button} from '@mui/material';
+import { Box, Button } from '@mui/material';
 
 type dataProps = {
   filteredData: CategoryProps[];
@@ -13,14 +13,13 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
       sx={{
         display: 'flex',
         overflowX: 'auto',
-        gap: 2,
-        whiteSpace: 'nowrap',
+        gap: 0,
         height: '64px',
       }}
     >
       <Button onClick={() => scrollToCategory('Welcome Basket')} sx={{ color: 'black' }}>
-          Welcome Basket
-        </Button>
+        Welcome Basket
+      </Button>
       {filteredData.map((categories) => (
         <Button key={categories.category} onClick={() => scrollToCategory(categories.category)} sx={{ color: 'black' }}>
           {categories.category}

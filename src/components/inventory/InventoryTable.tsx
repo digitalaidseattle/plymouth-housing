@@ -6,11 +6,16 @@ import { InventoryItem } from '../../types/interfaces.ts';
 
 interface InventoryTableProps {
   currentItems: InventoryItem[];
-  itemAlph: 'asc' | 'desc' | 'original';
-  itemAlphabetizeHandle: () => void;
+  sortDirection: 'asc' | 'desc' | 'original';
+  handleSort: () => void;
 }
 
-const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, itemAlph, itemAlphabetizeHandle }) => {
+const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, handleSort }) => {
+
+  if (!currentItems?.length) {
+    return <Box>No items to display</Box>;
+  }
+
   return (
     <Box id="inventory-container" sx={{ marginY: '10px' }}>
       <TableContainer component={Paper}>
@@ -25,12 +30,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, itemAlph,
                   alignItems: 'center',
                   width: '20%',
                 }}
-                onClick={itemAlphabetizeHandle}
+                onClick={handleSort}
               >
                 Name
-                {itemAlph === 'asc' ? (
+                {sortDirection === 'asc' ? (
                   <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
-                ) : itemAlph === 'desc' ? (
+                ) : sortDirection === 'desc' ? (
                   <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
                 ) : null}
               </TableCell>

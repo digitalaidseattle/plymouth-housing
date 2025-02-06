@@ -19,7 +19,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
     } else {
       setSearchActive(false);
     }
-    console.log(e.target.value);
     setSearchTerm(e.target.value);
     filterFunction(e.target.value);
   };

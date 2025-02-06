@@ -13,7 +13,7 @@ const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
-  const [itemAlph, setItemAlph] = useState<'asc' | 'desc' | 'original'>('original');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'original'>('original');
   const [addModal, setAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
@@ -46,13 +46,13 @@ const Inventory = () => {
     setAnchors((prev) => ({ ...prev, [filter]: event.currentTarget }));
   };
 
-  const itemAlphabetizeHandle = () => {
-    if (itemAlph === 'asc') {
-      setItemAlph('desc');
-    } else if (itemAlph === 'desc') {
-      setItemAlph('original');
-    } else if (itemAlph === 'original') {
-      setItemAlph('asc');
+  const handleSort = () => {
+    if (sortDirection === 'asc') {
+      setSortDirection('desc');
+    } else if (sortDirection === 'desc') {
+      setSortDirection('original');
+    } else if (sortDirection === 'original') {
+      setSortDirection('asc');
     }
   };
 
@@ -125,15 +125,15 @@ const Inventory = () => {
       },
     );
 
-    if (itemAlph === 'asc') {
+    if (sortDirection === 'asc') {
       searchFiltered.sort((a, b) => a.name.localeCompare(b.name)); // Ascending A-Z
-    } else if (itemAlph === 'desc') {
+    } else if (sortDirection === 'desc') {
       searchFiltered.sort((a, b) => b.name.localeCompare(a.name)); // Descending Z-A
     }
 
     setDisplayData(searchFiltered);
     setCurrentPage(1);
-  }, [filters, itemAlph, originalData]);
+  }, [filters, sortDirection, originalData]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -183,7 +183,7 @@ const Inventory = () => {
 
   useEffect(() => {
     handleFilter();
-  }, [itemAlph, handleFilter]);
+  }, [sortDirection, handleFilter]);
 
   if (isLoading) {
     return <p>Loading ...</p>;
@@ -220,8 +220,8 @@ const Inventory = () => {
       {/* Inventory Table */}
       <InventoryTable
         currentItems={currentItems}
-        itemAlph={itemAlph}
-        itemAlphabetizeHandle={itemAlphabetizeHandle}
+        sortDirection={sortDirection}
+        handleSort={handleSort}
       />
 
       {/* Pagination */}

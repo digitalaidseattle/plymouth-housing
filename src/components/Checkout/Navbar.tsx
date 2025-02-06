@@ -14,7 +14,6 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
         display: 'flex',
         overflowX: 'auto',
         gap: 2,
-        whiteSpace: 'nowrap',
         height: '64px',
       }}
     >

@@ -7,6 +7,12 @@ The results are created in the [database folder /import_from_excel](../../databa
 Make sure you check the results before copying them over. 
 ChatGPT makes mistakes!
 
+Known issues:
+- the spreadsheet contains text on **Welcome Basket Inventory** tab, **quantity per basket column**,  row 6 and 7. 
+Those needs to be set to 0 after .sql file generation.
+- There are sometimes N/A values in the **Actual amount on hand**. Those need to be set to 0 as well. 
+- the last few statements in the **Floor Inventory** tab are totals. Remove the last few lines in ```inventory_data.sql```. 
+
 ## Categories
 
 You need to give the prompt:

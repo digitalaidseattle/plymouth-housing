@@ -195,7 +195,7 @@ const CheckoutPage = () => {
 
       <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
         {searchActive ? (
-          <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%' }}>
+          <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%', paddingY: '2.5%' }}>
             {searchData.map((section: CategoryProps) => {
               const matchingCategory =
                 checkoutItems.find((cat) => cat.category === section.category) || {

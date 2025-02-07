@@ -102,7 +102,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
         )}
 
         {/* card content */}
-        {content && <CardContent sx={contentSX}>{children}</CardContent>}
+        {content && <CardContent sx={contentSX} id="scrollContainer">{children}</CardContent>}
         {!content && children}
       </Card>
     );

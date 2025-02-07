@@ -21,6 +21,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
     }
     setSearchTerm(e.target.value);
     filterFunction(e.target.value);
+    // reset scroll position
+    const scrollContainer = document.getElementById('scrollContainer');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
   };
 
   const filterFunction = (term: string) => {

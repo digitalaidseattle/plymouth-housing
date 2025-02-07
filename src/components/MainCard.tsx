@@ -37,7 +37,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
       boxShadow,
       children,
       content = true,
-      contentSX = {},
+      contentSX = {height: '70vh', overflow: 'auto'}, 
       darkTitle,
       elevation,
       secondary,
@@ -59,6 +59,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
         ref={ref as any}
         {...others}
         sx={{
+          height: '100%',
           border: border ? '1px solid' : 'none',
           borderRadius: 2,
           borderColor:

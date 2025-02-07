@@ -102,6 +102,8 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
         )}
 
         {/* card content */}
+        // id is used to select container,
+        // to reset its scroll value as needed for the checkout page
         {content && <CardContent sx={contentSX} id="scrollContainer">{children}</CardContent>}
         {!content && children}
       </Card>

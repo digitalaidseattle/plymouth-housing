@@ -115,6 +115,7 @@ const CheckoutPage = () => {
   const scrollToCategory = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
+      // margin added to the scroll position, to account for the sticky nav
       element.style.scrollMarginTop = "150px";
       element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
@@ -179,6 +180,7 @@ const CheckoutPage = () => {
 
   return (
     <>
+    {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky', 
       top: 0, 
@@ -193,101 +195,101 @@ const CheckoutPage = () => {
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
     </Box>
 
-      <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
-        {searchActive ? (
-          <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%', paddingY: '2.5%' }}>
-            {searchData.map((section: CategoryProps) => {
-              const matchingCategory =
-                checkoutItems.find((cat) => cat.category === section.category) || {
-                  id: 0,
-                  category: '',
-                  items: [],
-                  checkout_limit: 0,
-                  categoryCount: 0,
-                };
+    <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
+      {searchActive ? (
+        <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%', paddingY: '2.5%' }}>
+          {searchData.map((section: CategoryProps) => {
+            const matchingCategory =
+              checkoutItems.find((cat) => cat.category === section.category) || {
+                id: 0,
+                category: '',
+                items: [],
+                checkout_limit: 0,
+                categoryCount: 0,
+              };
 
-              return section.items.map((item: CheckoutItemProp) => (
-                <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
-                  <CheckoutCard
-                    item={item}
-                    categoryCheckout={matchingCategory}
-                    addItemToCart={(item, quantity) => {
-                      const sectionType = section.category === 'Welcome Basket' ? 'welcomeBasket' : 'general';
-                      addItemToCart(item, quantity, section.category, sectionType);
-                    }}
-                    activeSection={activeSection}
-                    removeItemFromCart={removeItemFromCart}
-                    removeButton={false}
-                    categoryLimit={section.checkout_limit}
-                    categoryName={section.category}
-                  />
-                </Grid>
-              ));
-            })}
-
-          </Grid>
-        ) :
-
-          <Box>
-            <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
-
-            {/* Filters for welcome basket  */}
-            {welcomeBasketData.map((category) => {
-              const matchingCategory = checkoutItems.find(
-                (cat) => cat.category === category.category
-              ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
-              return (
-                <CategorySection
-                  key={category.id}
-                  category={category}
+            return section.items.map((item: CheckoutItemProp) => (
+              <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
+                <CheckoutCard
+                  item={item}
                   categoryCheckout={matchingCategory}
-                  addItemToCart={(item, quantity) =>
-                    addItemToCart(item, quantity, category.category, 'welcomeBasket')}
+                  addItemToCart={(item, quantity) => {
+                    const sectionType = section.category === 'Welcome Basket' ? 'welcomeBasket' : 'general';
+                    addItemToCart(item, quantity, section.category, sectionType);
+                  }}
+                  activeSection={activeSection}
                   removeItemFromCart={removeItemFromCart}
                   removeButton={false}
-                  disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
+                  categoryLimit={section.checkout_limit}
+                  categoryName={section.category}
                 />
-              );
-            })}
+              </Grid>
+            ));
+          })}
 
-            <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
+        </Grid>
+      ) :
 
-            {/* Filters for general items */}
-            {filteredData.map((category) => {
-              const matchingCategory = checkoutItems.find(
-                (cat) => cat.category === category.category
-              ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
-              return (
-                <CategorySection
-                  key={category.id}
-                  category={category}
-                  categoryCheckout={matchingCategory}
-                  addItemToCart={(item, quantity) =>
-                    addItemToCart(item, quantity, category.category, 'general')}
-                  removeItemFromCart={removeItemFromCart}
-                  removeButton={false}
-                  disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
-                />
-              );
-            })}
-          </Box>}
+        <Box>
+          <Typography id="Welcome Basket" sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>Welcome Basket</Typography>
 
-        <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
+          {/* Filters for welcome basket  */}
+          {welcomeBasketData.map((category) => {
+            const matchingCategory = checkoutItems.find(
+              (cat) => cat.category === category.category
+            ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
+            return (
+              <CategorySection
+                key={category.id}
+                category={category}
+                categoryCheckout={matchingCategory}
+                addItemToCart={(item, quantity) =>
+                  addItemToCart(item, quantity, category.category, 'welcomeBasket')}
+                removeItemFromCart={removeItemFromCart}
+                removeButton={false}
+                disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
+              />
+            );
+          })}
 
-        <ScrollToTopButton showAfter={300} />
-        <CheckoutDialog
-          open={openSummary}
-          onClose={() => setOpenSummary(false)}
-          checkoutItems={checkoutItems}
-          welcomeBasketData={welcomeBasketData}
-          addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}
-          setCheckoutItems={setCheckoutItems}
-          removeItemFromCart={removeItemFromCart}
-          selectedBuildingCode={selectedBuildingCode}
-          setActiveSection={setActiveSection}
-          fetchData={fetchData}
-        />
-      </Box>
+          <Typography sx={{ paddingLeft: '5%', paddingTop: '5%', fontSize: '24px', fontWeight: 'bold' }}>General</Typography>
+
+          {/* Filters for general items */}
+          {filteredData.map((category) => {
+            const matchingCategory = checkoutItems.find(
+              (cat) => cat.category === category.category
+            ) || { id: 0, category: '', items: [], checkout_limit: 0, categoryCount: 0 };
+            return (
+              <CategorySection
+                key={category.id}
+                category={category}
+                categoryCheckout={matchingCategory}
+                addItemToCart={(item, quantity) =>
+                  addItemToCart(item, quantity, category.category, 'general')}
+                removeItemFromCart={removeItemFromCart}
+                removeButton={false}
+                disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
+              />
+            );
+          })}
+        </Box>}
+
+      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
+
+      <ScrollToTopButton showAfter={300} />
+      <CheckoutDialog
+        open={openSummary}
+        onClose={() => setOpenSummary(false)}
+        checkoutItems={checkoutItems}
+        welcomeBasketData={welcomeBasketData}
+        addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}
+        setCheckoutItems={setCheckoutItems}
+        removeItemFromCart={removeItemFromCart}
+        selectedBuildingCode={selectedBuildingCode}
+        setActiveSection={setActiveSection}
+        fetchData={fetchData}
+      />
+    </Box>
     </>
   );
 };

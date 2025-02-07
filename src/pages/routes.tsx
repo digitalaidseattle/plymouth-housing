@@ -46,7 +46,7 @@ const routes = [
       {
         path: 'checkout',
         element: (
-          <MainCard title="Checkout">
+          <MainCard title="Checkout" contentSX={{height: '75vh', padding: 0, overflow: 'auto'}}>
             <CheckoutPage />
           </MainCard>
         ),

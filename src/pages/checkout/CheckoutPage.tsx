@@ -183,12 +183,10 @@ const CheckoutPage = () => {
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       <Box>
-        {searchActive ? <Box sx={{ display: 'flex', overflowX: 'auto', gap: 2, p: 1, height: '64px' }}
-        ></Box> : <></>}
+        {searchActive && <Box sx={{ display: 'flex', overflowX: 'auto', gap: 2, p: 1, height: '64px' }}
+        ></Box>}
       </Box>
-      <Box className="boogaloo" sx={{position: 'sticky', top: 0, background: 'cyan', height: '64px', zIndex: 2002}}>
-            <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />
-        </Box>
+      {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
       <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
         {searchActive ? (
           <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%' }}>

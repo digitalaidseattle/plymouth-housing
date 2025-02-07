@@ -11,7 +11,11 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
   return (
     <Box
       sx={{
-        position: 'sticky', top: 0, background: 'cyan', height: '64px', zIndex: 2002,
+        position: 'sticky', 
+        top: 0, 
+        height: '64px', 
+        zIndex: 2002,
+        background: 'white',
         display: 'flex',
         overflowX: 'auto',
         gap: 2,

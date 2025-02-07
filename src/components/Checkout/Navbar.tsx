@@ -15,6 +15,7 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
         top: 0, 
         height: '64px', 
         zIndex: 2002,
+        p: 1,
         background: 'white',
         display: 'flex',
         overflowX: 'auto',

@@ -19,7 +19,7 @@ try {
     # Process each row
     for ($row = 2; $row -le $lastRow; $row++) {
         $name = $worksheet.Cells($row, 1).Text
-        $quantity = $worksheet.Cells($row, 2).Text
+        $quantity = $worksheet.Cells($row, 4).Text
         $itemsPerBasket = $worksheet.Cells($row, 5).Text
         
         if ($name) {

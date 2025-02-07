@@ -46,10 +46,10 @@ try {
     
     # Process each row
     for ($row = 2; $row -le $lastRow; $row++) {
-        $name = $worksheet.Cells($row, 1).Text
-        $category = $worksheet.Cells($row, 2).Text
-        $quantity = $worksheet.Cells($row, 3).Text
-        $description = $worksheet.Cells($row, 4).Text
+        $name = $worksheet.Cells($row, 2).Text
+        $category = $worksheet.Cells($row, 1).Text
+        $quantity = $worksheet.Cells($row, 5).Text
+        $description = $worksheet.Cells($row, 6).Text
         
         if ($name) {
             $categoryId = Get-CategoryId -category $category

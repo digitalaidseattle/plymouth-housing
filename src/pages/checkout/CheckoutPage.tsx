@@ -182,7 +182,7 @@ const CheckoutPage = () => {
     <Box sx={{
       position: 'sticky', 
       top: 0, 
-      zIndex: 2002,
+      zIndex: 2,
       p: 1,
       background: 'white',
     }}>

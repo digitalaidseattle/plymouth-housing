@@ -10,7 +10,7 @@ import {
   Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CategoryProps, CheckoutItem } from '../../types/interfaces';
+import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import CheckoutCard from './CheckoutCard';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
@@ -18,23 +18,27 @@ import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  checkoutItems: CheckoutItem[];
+  checkoutItems: CategoryProps[];
   welcomeBasketData: CategoryProps[];
-  removeItemFromCart: (itemId: number) => void;
-  addItemToCart: (item: CheckoutItem, quantity: number) => void;
-  setCheckoutItems: (items: CheckoutItem[]) => void;
+  removeItemFromCart: (itemId: number, categoryName: string) => void;
+  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string, active: string) => void;
+  setCheckoutItems: (items: CategoryProps[]) => void;
   selectedBuildingCode: string;
+  setActiveSection: (s: string) => void;
+  fetchData: () => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode }) => {
-  const { user, loggedInVolunteerId, loggedInAdminId } = useContext(UserContext);
-  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CheckoutItem[]>([]);
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData }) => {
+  const { user, loggedInUserId } = useContext(UserContext);
+  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
+  const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
 
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
       setStatusMessage('')
+      setAllItems(checkoutItems.flatMap((item) => item.items));
     }
   }, [open, checkoutItems]);
 
@@ -46,31 +50,28 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
 
   const handleConfirm = async () => {
     try {
-      // 1. Decide who the "actor" is (volunteer or admin).
-      let currentUserId = null;
-      if (loggedInVolunteerId) {
-        currentUserId = loggedInVolunteerId;
-      } else if (loggedInAdminId) {
-        currentUserId = loggedInAdminId;
-      } else {
+      // 1. If no user is logged in, throw an error
+      if (!loggedInUserId) {
         throw new Error('No valid user (volunteer or admin) found. Cannot checkout.');
       }
 
       const welcomeBasketItemIds = welcomeBasketData.flatMap(basket => basket.items.map(item => item.id));
-      const isWelcomeBasket = checkoutItems.some(item => welcomeBasketItemIds.includes(item.id));
+      const isWelcomeBasket = allItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
       if (isWelcomeBasket) {
-        // pass "currentUserId" to the processWelcomeBasket function
-        data = await processWelcomeBasket(user, currentUserId, checkoutItems);
+        // pass "loggedInUserId" to the processWelcomeBasket function
+        data = await processWelcomeBasket(user, loggedInUserId, allItems, selectedBuildingCode);
       } else {
-        data = await processGeneralItems(user, currentUserId, checkoutItems);
+        data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
       }
+      console.log('data:', data);
 
       const result = data.value[0];
       if (result.Status !== 'Success') {
         throw new Error(result.message);
       }
-      setCheckoutItems([]);
+      setActiveSection('');
+      fetchData();
       setStatusMessage('Transaction Successful');
 
       return null;
@@ -102,7 +103,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
           <Typography>Building code: {selectedBuildingCode}</Typography>
-          <Typography>Total Items Checked Out: {checkoutItems.length}</Typography>
+          <Typography>Total Items Checked Out: {allItems.reduce((acc, item) => acc + item.quantity, 0)}</Typography>
         </Box>
         <IconButton
           aria-label="close"
@@ -117,16 +118,30 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Close />
         </IconButton>
         <DialogContent dividers sx={{
-          flex: 1, // Allows this area to expand
-          overflowY: 'auto', // Enables vertical scrolling
+          flex: 1,
+          overflowY: 'auto',
           padding: '0 20px',
-          maxHeight: '40vh', // Adjust maxHeight based on title/footer space
+          maxHeight: '40vh',
         }}>
-          {checkoutItems.map((item: CheckoutItem) => (
-            <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
-              <CheckoutCard item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} />
-            </Box>
-          ))}
+          {checkoutItems.map((section: CategoryProps) => {
+            return section.items.map((item: CheckoutItemProp) => (
+              <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
+                <CheckoutCard
+                  key={item.id}
+                  item={item}
+                  categoryCheckout={section}
+                  addItemToCart={(item, quantity) => {
+                    addItemToCart(item, quantity, section.category, section.category);
+                  }}
+                  removeItemFromCart={removeItemFromCart}
+                  removeButton={true}
+                  categoryLimit={section.checkout_limit}
+                  categoryName={section.category}
+                />
+              </Box>
+            ));
+          })}
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancel}>Return to Checkout Page</Button>

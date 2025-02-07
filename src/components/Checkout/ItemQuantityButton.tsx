@@ -1,18 +1,30 @@
 import { Remove, Add } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
-import { CheckoutCardProps, CheckoutItem } from "../../types/interfaces";
+import { CheckoutCardProps, CheckoutItemProp } from "../../types/interfaces";
 
-const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CheckoutCardProps) => {
+const ItemQuantityButton = ({ item, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disableAdd, categoryLimit, categoryName }: CheckoutCardProps) => {
 
-  const foundInCart = checkoutItems.find(
-    (v: CheckoutItem) => v.id === item.id,
+  const foundInCart = categoryCheckout?.items?.find(
+    (v: CheckoutItemProp) => v.id === item.id
   );
+
+  const handleAddClick = () => {
+    if (categoryCheckout.categoryCount !== undefined && categoryCheckout.categoryCount < categoryLimit) {
+      addItemToCart(item, 1, categoryName);
+    } else {
+      return;
+    }
+  };
+
+  const handleRemoveClick = () => {
+    addItemToCart(item, -1, categoryName);
+  }
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', overflow: 'hidden' }}>
       {foundInCart ? <><IconButton
         sx={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
-        onClick={() => addItemToCart(item, -1)}
+        onClick={handleRemoveClick}
       >
         <Remove />
       </IconButton>
@@ -23,12 +35,13 @@ const ItemQuantityButton = ({ item, checkoutItems, addItemToCart, removeItemFrom
           {foundInCart.quantity}
         </Typography></> : null}
       <IconButton
-        style={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
-        onClick={() => addItemToCart(item, 1)}
+        sx={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
+        onClick={handleAddClick}
+        disabled={disableAdd}
       >
         <Add />
       </IconButton>
-      {removeButton ? <Button sx={{ ml: '5vh' }} onClick={() => removeItemFromCart(item.id)}>Remove</Button> : null}
+      {removeButton ? <Button sx={{ ml: '5vh' }} onClick={() => removeItemFromCart(item.id, categoryName)}>Remove</Button> : null}
     </Box>
   );
 };

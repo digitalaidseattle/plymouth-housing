@@ -4,6 +4,7 @@ GO
 CREATE PROCEDURE ProcessCheckout
     @user_id INT,
     @items NVARCHAR(MAX),
+    @building_code NVARCHAR(50),
     @message NVARCHAR(MAX) = NULL OUTPUT
 AS
 BEGIN
@@ -11,6 +12,17 @@ BEGIN
 
     print @user_id
     print @items
+    print @building_code
+
+    -- Get the building_id from the building_code
+    DECLARE @building_id INT;
+    SELECT @building_id = id FROM Buildings WHERE code = @building_code;
+
+    IF @building_id IS NULL
+    BEGIN
+        SELECT 'Error' AS Status, 'Invalid building code' AS message;
+        RETURN;
+    END
     
     -- Validate JSON
     IF ISJSON(@items) = 0
@@ -91,7 +103,8 @@ BEGIN
                 @transaction_id = @TransactionId,
                 @item_id = @CurrentItemId,
                 @transaction_type = 'CHECKOUT',
-                @quantity = @CurrentQuantity
+                @quantity = @CurrentQuantity,
+                @building_id = @building_id;
                 
             FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
         END

@@ -178,15 +178,20 @@ const CheckoutPage = () => {
 
   return (
     <>
+    <Box sx={{
+      position: 'sticky', 
+      top: 0, 
+      zIndex: 2002,
+      p: 1,
+      background: 'white',
+    }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
-      <Box>
-        {searchActive && <Box sx={{ display: 'flex', overflowX: 'auto', gap: 2, p: 1, height: '64px' }}
-        ></Box>}
-      </Box>
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
+    </Box>
+
       <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
         {searchActive ? (
           <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%' }}>

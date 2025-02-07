@@ -122,6 +122,26 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 
 ---
 
+### SQL on WSL 
+
+1. Follow the steps [here](https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-wsl-2). Make sure you install SQL Express, as that is the lightest and quickest option. Just install SQL. 
+1. Make sure you remember the username (likely sa) and password. 
+1. You can use this connection string to the **Master** database:
+
+   ```Server=localhost,1433;Database=Master;User Id=your_username;Password=your_password;TrustServerCertificate=True```
+
+1. Install the SQL Server Visual Studio Code Add-In. 
+1. In the VS Code SQL server add-in, connect to the SQL server with the connection string above. 
+1. Now you can create the database by running [create_db.sql](database/create_db.sql) and hitting the play button. 
+1. Install Powershell from [here](https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.5)
+1. Once in Powershell, set the environment variable for the connection string to the **Inventory** database:
+   ```$env:DATABASE_CONNECTION_STRING='Server=localhost,1433;Database=Inventory;User Id=your_username;Password=your_password;TrustServerCertificate=True'```
+1. Install the PS module for SQL server:
+
+   ```Install-Module -Name SqlServer```
+1. Now you can bootstrap the database by running [bootstrap_db.ps1](../database/bootstrap_db.ps1)
+
+
 ## **Environment Variables**
 
 ### **Linux**

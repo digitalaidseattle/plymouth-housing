@@ -115,6 +115,7 @@ const CheckoutPage = () => {
   const scrollToCategory = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
+      element.style.scrollMarginTop = "150px";
       element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }

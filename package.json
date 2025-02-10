@@ -16,7 +16,7 @@
     "@ant-design/colors": "^7.2.0",
     "@ant-design/icons": "^5.5.2",
     "@azure/msal-browser": "^3.28.0",
-    "@azure/msal-react": "^2.2.0",
+    "@azure/msal-react": "^3.0.4",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^6.4.2",

@@ -40,7 +40,7 @@
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
-    "@vitejs/plugin-react-swc": "^3.7.2",
+    "@vitejs/plugin-react-swc": "^3.8.0",
     "depcheck": "^1.4.7",
     "eslint": "^9.18.0",
     "eslint-plugin-react-hooks": "^5.1.0",

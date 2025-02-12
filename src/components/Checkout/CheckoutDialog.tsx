@@ -97,7 +97,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <Box sx={{ width: '80%', paddingTop: '20px', height: '100%' }}>
+      <Box sx={{ width: '70%', paddingTop: '20px', height: '100%' }}>
         <DialogTitle sx={{ padding: '20px 0px 0px 0px' }} id="customized-dialog-title">
           <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
@@ -121,7 +121,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           flex: 1,
           overflowY: 'auto',
           padding: '0 20px',
-          height: '40vh'
+          height: '40vh',
+          borderTop: 'none',
         }}>
           {checkoutItems.map((section: CategoryProps) => {
             if (section.categoryCount > 0) {
@@ -130,7 +131,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
               }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} />
             }
           })}
-
         </DialogContent>
         <DialogContent sx={{
           padding: '10px',

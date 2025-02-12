@@ -14,6 +14,7 @@ import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import CheckoutCard from './CheckoutCard';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
+import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
   open: boolean;
@@ -82,6 +83,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     }
   };
 
+  console.log('checkoutItems:', checkoutItems);
+
   return (
     <Dialog
       sx={{
@@ -104,7 +107,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
           <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
-          <Typography><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / allowed</Typography>
+          <Typography><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
         </Box>
         <IconButton
           aria-label="close"
@@ -125,6 +128,11 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           height: '40vh'
         }}>
           {checkoutItems.map((section: CategoryProps) => {
+            if (section.categoryCount > 0) {
+              return <CategorySection category={section} categoryCheckout={section} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} />
+            }
+          })}
+          {/* {checkoutItems.map((section: CategoryProps) => {
             return section.items.map((item: CheckoutItemProp) => (
               <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
                 <CheckoutCard
@@ -141,7 +149,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
                 />
               </Box>
             ));
-          })}
+          })} */}
 
         </DialogContent>
         <DialogContent sx={{

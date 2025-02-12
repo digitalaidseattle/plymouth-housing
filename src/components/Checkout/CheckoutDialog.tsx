@@ -26,9 +26,10 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
+  setSelectedBuildingCode: (building: string) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, setSelectedBuildingCode }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -70,6 +71,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         throw new Error(result.message);
       }
       setActiveSection('');
+      setSelectedBuildingCode('');
       fetchData();
       setStatusMessage('Transaction Successful');
 

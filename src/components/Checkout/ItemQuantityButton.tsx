@@ -47,7 +47,7 @@ const ItemQuantityButton = ({ item, categoryCheckout, addItemToCart, removeItemF
       >
         <Add sx={{ fontSize: {xs: 'small', md: 'large' }}}/>
       </IconButton>
-      {removeButton ? <Button sx={{ color: 'black', fontSize: {xs: '14px', md: '16px'}, paddingX: { xs: '10px', md: '30px'}}} onClick={() => removeItemFromCart(item.id, categoryName)}>Remove</Button> : null}
+      {removeButton ? <Button sx={{ color: 'black', fontSize: {xs: '14px', md: '16px'}, paddingX: { xs: '10px', md: '40px'}}} onClick={() => removeItemFromCart(item.id, categoryName)}>Remove</Button> : null}
     </Box>
   );
 };

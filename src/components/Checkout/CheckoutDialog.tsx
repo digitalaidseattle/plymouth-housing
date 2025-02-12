@@ -87,7 +87,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       sx={{
         '& .MuiDialog-paper': {
           width: '55vw',
-          Height: '80vh',
+          maxHeight: '80vh',
           display: 'flex',
           alignItems: 'center',
           flexDirection: 'column',
@@ -103,8 +103,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
-          <Typography>Building code: {selectedBuildingCode}</Typography>
-          <Typography>Total Items Checked Out: {allItems.reduce((acc, item) => acc + item.quantity, 0)}</Typography>
+          <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
+          <Typography><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / allowed</Typography>
         </Box>
         <IconButton
           aria-label="close"

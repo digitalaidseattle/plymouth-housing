@@ -18,9 +18,9 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography sx={{ fontSize: { xs: '14px', md: '20px' }, marginY: '3%', marginRight: '30px' }} id={category.category}>{category.category}</Typography>
-          {removeButton ? null : <Typography sx={{ fontSize: '16px', color: '#666666' }}>{category.items.length} items</Typography>}
+          {removeButton ? null : <Typography sx={{ fontSize: { xs: '12px', md: '16px' }, color: '#666666' }}>{category.items.length} items</Typography>}
         </Box>
-        <Typography sx={{ fontSize: '16px', backgroundColor: '#ECECEC', borderRadius: '20px', paddingY: '4px', paddingX: '12px' }}>
+        <Typography sx={{ fontSize: {xs: '12px', md: '16px'}, backgroundColor: '#ECECEC', borderRadius: '20px', paddingY: '4px', paddingX: '12px' }}>
           {categoryCheckout?.categoryCount} of {category.checkout_limit}
         </Typography>
 

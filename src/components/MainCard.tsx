@@ -37,7 +37,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
       boxShadow,
       children,
       content = true,
-      contentSX = {},
+      contentSX = {}, 
       darkTitle,
       elevation,
       secondary,
@@ -102,7 +102,8 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
         )}
 
         {/* card content */}
-        {content && <CardContent sx={contentSX}>{children}</CardContent>}
+        {/* id is used to select container, to reset its scroll value in the checkout page */}
+        {content && <CardContent sx={contentSX} id="scrollContainer">{children}</CardContent>}
         {!content && children}
       </Card>
     );

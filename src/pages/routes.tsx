@@ -46,7 +46,9 @@ const routes = [
       {
         path: 'checkout',
         element: (
-          <MainCard title="Checkout">
+          // checkout card content is given a fixed height and scrollbar
+          // to work with the sticky nav inside it
+          <MainCard title="Checkout" contentSX={{height: '75vh', padding: 0, overflow: 'auto'}}>
             <CheckoutPage />
           </MainCard>
         ),

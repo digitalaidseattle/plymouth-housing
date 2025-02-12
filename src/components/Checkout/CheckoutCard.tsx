@@ -33,14 +33,16 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
   }, [checkActiveSection])
 
   return (
-    <Card key={item.name}
+    <Card key={item.name} variant='outlined'
       sx={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
         minHeight: '10vh',
-        borderRadius: '10px',
+        borderColor: removeButton ? '#D9D9D9' : null,
+        borderWidth: removeButton ? '1px' : null,
+        borderRadius: '15px',
         paddingX: '10px'
       }}
     >

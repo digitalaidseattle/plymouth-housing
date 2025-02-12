@@ -130,24 +130,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
               }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} />
             }
           })}
-          {/* {checkoutItems.map((section: CategoryProps) => {
-            return section.items.map((item: CheckoutItemProp) => (
-              <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
-                <CheckoutCard
-                  key={item.id}
-                  item={item}
-                  categoryCheckout={section}
-                  addItemToCart={(item, quantity) => {
-                    addItemToCart(item, quantity, section.category, section.category);
-                  }}
-                  removeItemFromCart={removeItemFromCart}
-                  removeButton={true}
-                  categoryLimit={section.checkout_limit}
-                  categoryName={section.category}
-                />
-              </Box>
-            ));
-          })} */}
 
         </DialogContent>
         <DialogContent sx={{

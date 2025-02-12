@@ -5,7 +5,7 @@ import { Box, Grid, Typography } from '@mui/material';
 type CategorySectionProps = {
   category: CategoryProps;
   categoryCheckout: CategoryProps;
-  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string, section: string) => void;
+  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disabled: boolean;
@@ -13,11 +13,8 @@ type CategorySectionProps = {
 
 const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disabled }: CategorySectionProps) => {
 
-  console.log('This is category', category);
-  console.log('This is categoryCheckout', categoryCheckout);
-
   return (
-    <Box sx={{ paddingLeft: '5%', paddingRight: '5%', paddingBottom: '3%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+    <Box sx={{ paddingX: removeButton ? '0%' : '5%', paddingBottom: '3%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography sx={{ fontSize: '20px', marginY: '3%' }} id={category.category}>{category.category}</Typography>
         <Typography sx={{ fontSize: '20px' }}>

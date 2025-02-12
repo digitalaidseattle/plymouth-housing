@@ -182,8 +182,8 @@ const CheckoutPage = () => {
     <>
     {/* Container for the sticky nav */}
     <Box sx={{
-      position: 'sticky', 
-      top: 0, 
+      position: 'sticky',
+      top: 0,
       zIndex: 2,
       p: 1,
       background: 'white',

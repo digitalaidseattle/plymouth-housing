@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
-import CheckoutCard from './CheckoutCard';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -65,7 +64,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       } else {
         data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
       }
-      console.log('data:', data);
 
       const result = data.value[0];
       if (result.Status !== 'Success') {
@@ -82,8 +80,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       return null;
     }
   };
-
-  console.log('checkoutItems:', checkoutItems);
 
   return (
     <Dialog
@@ -129,7 +125,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         }}>
           {checkoutItems.map((section: CategoryProps) => {
             if (section.categoryCount > 0) {
-              return <CategorySection category={section} categoryCheckout={section} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} />
+              return <CategorySection category={section} categoryCheckout={section} addItemToCart={(item, quantity) => {
+                addItemToCart(item, quantity, section.category, section.category);
+              }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} />
             }
           })}
           {/* {checkoutItems.map((section: CategoryProps) => {

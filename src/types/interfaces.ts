@@ -16,7 +16,7 @@ export type CategoryProps = {
 export type CheckoutCardProps = {
   item: CheckoutItemProp;
   categoryCheckout: CategoryProps;
-  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string, section: string) => void;
+  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disableAdd?: boolean;

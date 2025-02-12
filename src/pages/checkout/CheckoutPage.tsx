@@ -9,7 +9,6 @@ import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
-import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 
 const CheckoutPage = () => {
@@ -195,7 +194,7 @@ const CheckoutPage = () => {
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
     </Box>
 
-    <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
+    <Box sx={{ backgroundColor: '#F9F9F9', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
       {searchActive ? (
         <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%', paddingY: '2.5%' }}>
           {searchData.map((section: CategoryProps) => {
@@ -276,7 +275,6 @@ const CheckoutPage = () => {
 
       <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
 
-      <ScrollToTopButton showAfter={300} />
       <CheckoutDialog
         open={openSummary}
         onClose={() => setOpenSummary(false)}

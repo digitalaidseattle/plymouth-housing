@@ -139,8 +139,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Typography>{statusMessage}</Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
-          <Button onClick={handleCancel}>Return to Checkout Page</Button>
-          <Button onClick={handleConfirm} autoFocus>Confirm</Button>
+          <Button onClick={handleCancel} sx={{ color: 'black', textDecoration: 'underline' }}>Return to Checkout Page</Button>
+          <Button onClick={handleConfirm} sx={{ color: 'black', backgroundColor: '#F2F2F2' }}>Confirm</Button>
         </DialogActions>
       </Box>
     </Dialog>

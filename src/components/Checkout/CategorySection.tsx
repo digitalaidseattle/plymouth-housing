@@ -20,7 +20,7 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
           <Typography sx={{ fontSize: '20px', marginY: '3%', marginRight: '30px' }} id={category.category}>{category.category}</Typography>
           {removeButton ? null : <Typography sx={{ fontSize: '16px', color: '#666666' }}>{category.items.length} items</Typography>}
         </Box>
-        <Typography sx={{ fontSize: '20px', backgroundColor: '#e0e0e0', borderRadius: '20px', paddingY: '4px', paddingX: '12px' }}>
+        <Typography sx={{ fontSize: '16px', backgroundColor: '#e0e0e0', borderRadius: '20px', paddingY: '4px', paddingX: '12px' }}>
           {categoryCheckout?.categoryCount} of {category.checkout_limit}
         </Typography>
 

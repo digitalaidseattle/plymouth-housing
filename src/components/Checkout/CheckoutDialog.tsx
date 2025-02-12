@@ -86,18 +86,19 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     <Dialog
       sx={{
         '& .MuiDialog-paper': {
-          width: '50vw',
-          minHeight: '60vh',
+          width: '55vw',
+          Height: '80vh',
           display: 'flex',
           alignItems: 'center',
-          borderRadius: '10px'
+          flexDirection: 'column',
+          borderRadius: '15px',
         },
       }}
       onClose={onClose}
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <Box sx={{ width: '80%', paddingTop: '20px' }}>
+      <Box sx={{ width: '80%', paddingTop: '20px', height: '100%' }}>
         <DialogTitle sx={{ padding: '20px 0px 0px 0px' }} id="customized-dialog-title">
           <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
@@ -121,7 +122,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           flex: 1,
           overflowY: 'auto',
           padding: '0 20px',
-          maxHeight: '40vh',
+          height: '40vh'
         }}>
           {checkoutItems.map((section: CategoryProps) => {
             return section.items.map((item: CheckoutItemProp) => (
@@ -143,20 +144,16 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           })}
 
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel}>Return to Checkout Page</Button>
-          <Button onClick={handleConfirm} autoFocus>Confirm</Button>
-        </DialogActions>
-        <Box sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
+        <DialogContent sx={{
           padding: '10px',
           textAlign: 'center',
         }}>
           <Typography>{statusMessage}</Typography>
-        </Box>
+        </DialogContent>
+        <DialogActions sx={{ marginTop: 'auto' }}>
+          <Button onClick={handleCancel}>Return to Checkout Page</Button>
+          <Button onClick={handleConfirm} autoFocus>Confirm</Button>
+        </DialogActions>
       </Box>
     </Dialog>
   );

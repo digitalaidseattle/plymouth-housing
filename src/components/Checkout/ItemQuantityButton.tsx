@@ -23,25 +23,31 @@ const ItemQuantityButton = ({ item, categoryCheckout, addItemToCart, removeItemF
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', overflow: 'hidden' }}>
       {foundInCart ? <><IconButton
-        sx={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
+        sx={{
+          backgroundColor: '#E8E8E8', width: { xs: '20px', md: '30px' },
+          height: { xs: '20px', md: '30px' }
+        }}
         onClick={handleRemoveClick}
       >
-        <Remove />
+        <Remove/>
       </IconButton>
         <Typography
-          sx={{ fontSize: '20px', margin: '0 15px' }}
+          sx={{ fontSize: { xs: '14px', md: '20px' }, margin: '0 15px' }}
           data-testid="test-id-quantity"
         >
           {foundInCart.quantity}
         </Typography></> : null}
       <IconButton
-        sx={{ backgroundColor: '#E8E8E8', width: '30px', height: '30px' }}
+        sx={{
+          backgroundColor: '#E8E8E8', width: { xs: '20px', md: '30px' },
+          height: { xs: '20px', md: '30px' }
+        }}
         onClick={handleAddClick}
         disabled={disableAdd}
       >
         <Add />
       </IconButton>
-      {removeButton ? <Button sx={{ ml: '5vh' }} onClick={() => removeItemFromCart(item.id, categoryName)}>Remove</Button> : null}
+      {removeButton ? <Button sx={{ color: 'black', fontSize: {xs: '14px', md: '16px'}, paddingX: { xs: '10px', md: '30px'}}} onClick={() => removeItemFromCart(item.id, categoryName)}>Remove</Button> : null}
     </Box>
   );
 };

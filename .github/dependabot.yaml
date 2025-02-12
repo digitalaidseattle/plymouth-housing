@@ -3,5 +3,5 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "biweekly"
+      interval: "weekly"
     open-pull-requests-limit: 10

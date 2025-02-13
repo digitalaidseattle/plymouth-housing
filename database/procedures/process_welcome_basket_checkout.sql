@@ -39,16 +39,23 @@ BEGIN
         @mattress_size as ItemId,
         @quantity AS Quantity
 
+    -- ****************************************
+    -- Commented out because we are not using this procedure.
+    -- It happens frequently that the inventory is off. 
+    -- Rejecting the checkout does not make much sence, 
+    -- when a customer arrives with an article that, according to inventory, is not available.
+    -- ****************************************
+    --
     -- Check if we have sufficient inventory for all items
-    BEGIN TRY
-        EXEC CheckInsufficientInventory @CartItems;
-    END TRY
-    BEGIN CATCH
-        SELECT 
-            'Error' AS Status,
-            ERROR_MESSAGE() AS message;
-        RETURN;
-    END CATCH
+    -- BEGIN TRY
+    --     EXEC CheckInsufficientInventory @CartItems;
+    -- END TRY
+    -- BEGIN CATCH
+    --     SELECT 
+    --         'Error' AS Status,
+    --         ERROR_MESSAGE() AS message;
+    --     RETURN;
+    -- END CATCH
 
     -- Generate a single transaction ID for the entire basket
     DECLARE @TransactionId UNIQUEIDENTIFIER = NEWID();

@@ -2,7 +2,7 @@
 import { Box, Chip, Grid, Stack, Typography } from '@mui/material';
 
 // project import
-import MainCard from '../../../components/MainCard';
+import MainCard from '../../MainCard';
 
 // assets
 import { FallOutlined, RiseOutlined } from '@ant-design/icons';
@@ -33,7 +33,7 @@ const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({
   isLoss,
   extra,
 }) => (
-  <MainCard contentSX={{ p: 2.25 }}>
+  <MainCard>
     <Stack spacing={0.5}>
       <Typography variant="h6" color="textSecondary">
         {title}

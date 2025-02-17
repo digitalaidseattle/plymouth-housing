@@ -182,7 +182,6 @@ const CheckoutPage = () => {
   return (
     <>
     {/* Container for the sticky nav */}
-    <PageHeading title="Check out"/>
     <Box sx={{
       position: 'sticky', 
       top: '3.5rem', 

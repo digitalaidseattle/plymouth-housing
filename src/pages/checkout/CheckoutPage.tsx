@@ -181,9 +181,10 @@ const CheckoutPage = () => {
   return (
     <>
     {/* Container for the sticky nav */}
+    <Typography sx={{ fontSize: '28px', marginBottom: '2rem' }}>Checkout</Typography>
     <Box sx={{
       position: 'sticky', 
-      top: 0, 
+      top: '3.5rem', 
       zIndex: 2,
       p: 1,
       background: 'white',

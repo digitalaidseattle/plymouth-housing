@@ -13,8 +13,8 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
       sx={{
         display: 'flex',
         overflowX: 'auto',
-        gap: 2,
-        whiteSpace: 'nowrap',
+        gap: 0,
+        // whiteSpace: 'nowrap',
       }}
     >
       <Button onClick={() => scrollToCategory('Welcome Basket')} sx={{ color: 'black', minWidth: 'auto' }}>

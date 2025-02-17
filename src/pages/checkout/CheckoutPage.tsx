@@ -11,6 +11,7 @@ import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
+import PageHeading from '../../components/PageHeading';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -181,7 +182,7 @@ const CheckoutPage = () => {
   return (
     <>
     {/* Container for the sticky nav */}
-    <Typography sx={{ fontSize: '28px', marginBottom: '2rem' }}>Checkout</Typography>
+    <PageHeading title="Check out"/>
     <Box sx={{
       position: 'sticky', 
       top: '3.5rem', 

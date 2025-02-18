@@ -26,14 +26,10 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
         width: {sm: '100%', lg: '90%', xl: '80%'},
         margin: '0 auto'  
       }}>
-        {/* card header and action */}
         {title && (
           <PageHeading 
             title={title}/>
         )}
-
-        {/* card content */}
-        {/* id is used to select container, to reset its scroll value in the checkout page */}
         {content && children}
         {!content && children}
       </Box>

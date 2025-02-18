@@ -22,7 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
     setSearchTerm(e.target.value);
     filterFunction(e.target.value);
     // reset scroll position
-    window.scrollTo(0,200);
+    window.scrollTo(0,0);
   };
 
   const filterFunction = (term: string) => {

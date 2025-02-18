@@ -119,7 +119,7 @@ const CheckoutPage = () => {
     const element = document.getElementById(id);
     if (element) {
       // margin added to the scroll position, to account for the sticky nav
-      element.style.scrollMarginTop = "150px";
+      element.style.scrollMarginTop = "200px";
       element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }

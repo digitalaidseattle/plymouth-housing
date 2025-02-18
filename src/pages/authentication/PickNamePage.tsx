@@ -5,11 +5,7 @@ import {
   Button,
   Autocomplete,
   TextField,
-  Box,
-  Dialog,
-  DialogContent,
-  CircularProgress,
-  DialogTitle,
+  Box
 } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
@@ -17,6 +13,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { User } from '../../types/interfaces';
+import SpinUpDialog from './SpinUpDialog';
 
 const PickYourNamePage: React.FC = () => {
   const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
@@ -28,6 +25,8 @@ const PickYourNamePage: React.FC = () => {
   }>({ open: false, message: '', severity: 'warning' });
   const [retryCount, setRetryCount] = useState(0);
   const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
+  const RETRY_ATTEMPTS = 5;
+  const RETRY_DELAY = 20000;
 
   const navigate = useNavigate();
 
@@ -50,11 +49,11 @@ const PickYourNamePage: React.FC = () => {
       return response.json();
       
     } catch (error) {
-      if (attempt < 5) {
+      if (attempt < RETRY_ATTEMPTS) {
         setShowSpinUpDialog(true);
         setRetryCount(attempt);
         // Wait 20 seconds before retrying
-        await new Promise(resolve => setTimeout(resolve, 20000));
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         return fetchWithRetry(attempt + 1);
       }
       throw error;
@@ -191,18 +190,7 @@ const PickYourNamePage: React.FC = () => {
             {snackbarState.message}
           </SnackbarAlert>
         </CenteredLayout>
-
-        <Dialog open={showSpinUpDialog} disableEscapeKeyDown>
-          <DialogTitle>Database is starting up</DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2 }}>
-              <CircularProgress size={24} />
-              <Typography>
-                Please wait while the database spins up... (Attempt {retryCount} of 5)
-              </Typography>
-            </Box>
-          </DialogContent>
-        </Dialog>
+        <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
       </MinimalWrapper>
   );
 };

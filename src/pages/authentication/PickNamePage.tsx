@@ -6,6 +6,10 @@ import {
   Autocomplete,
   TextField,
   Box,
+  Dialog,
+  DialogContent,
+  CircularProgress,
+  DialogTitle,
 } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
@@ -22,27 +26,48 @@ const PickYourNamePage: React.FC = () => {
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
+  const [retryCount, setRetryCount] = useState(0);
+  const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
 
   const navigate = useNavigate();
 
+  const fetchWithRetry = async (attempt: number = 1): Promise<any> => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(
+        `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`,
+        {
+          method: 'GET',
+          headers: HEADERS,
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
+      }
+      
+      setShowSpinUpDialog(false);
+      return response.json();
+      
+    } catch (error) {
+      if (attempt < 5) {
+        setShowSpinUpDialog(true);
+        setRetryCount(attempt);
+        // Wait 20 seconds before retrying
+        await new Promise(resolve => setTimeout(resolve, 20000));
+        return fetchWithRetry(attempt + 1);
+      }
+      throw error;
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
+    
     const fetchVolunteers = async () => {
       try {
         setIsLoading(true);
-
-        HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(
-          `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`,
-          {
-            method: 'GET',
-            headers: HEADERS,
-          },
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
-        }
-        const data = await response.json();
+        const data = await fetchWithRetry();
         setActiveVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
@@ -53,12 +78,11 @@ const PickYourNamePage: React.FC = () => {
         });
       } finally {
         setIsLoading(false);
+        setShowSpinUpDialog(false);
       }
     };
+    
     fetchVolunteers();
-
-  // The effect is intended to run only when the 'user' value changes (or on mount if user is set).
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [user]);
 
   const handleNameChange = (
@@ -167,6 +191,18 @@ const PickYourNamePage: React.FC = () => {
             {snackbarState.message}
           </SnackbarAlert>
         </CenteredLayout>
+
+        <Dialog open={showSpinUpDialog} disableEscapeKeyDown>
+          <DialogTitle>Database is starting up</DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2 }}>
+              <CircularProgress size={24} />
+              <Typography>
+                Please wait while the database spins up... (Attempt {retryCount} of 5)
+              </Typography>
+            </Box>
+          </DialogContent>
+        </Dialog>
       </MinimalWrapper>
   );
 };

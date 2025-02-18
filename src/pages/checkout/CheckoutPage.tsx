@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Grid, Typography, useTheme } from '@mui/material';
 import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
@@ -26,6 +26,8 @@ const CheckoutPage = () => {
   const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('');
 
+  const theme = useTheme();
+  
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
@@ -187,7 +189,7 @@ const CheckoutPage = () => {
       top: '3.5rem', 
       zIndex: 2,
       p: 1,
-      background: 'white',
+      background: theme.palette.common.white,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
@@ -196,7 +198,7 @@ const CheckoutPage = () => {
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
     </Box>
 
-    <Box sx={{ backgroundColor: '#F0F0F0', borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
+    <Box sx={{ backgroundColor: theme.palette.grey[100], borderRadius: '15px', paddingBottom: '20px', minHeight: '100vh' }}>
       {searchActive ? (
         <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', paddingLeft: '5%', paddingRight: '5%', paddingY: '2.5%' }}>
           {searchData.map((section: CategoryProps) => {

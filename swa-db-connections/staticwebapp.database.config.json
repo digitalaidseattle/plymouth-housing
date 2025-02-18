@@ -209,6 +209,48 @@
           "role": "volunteer"
         }
       ]
+    },
+    "DashBoardTransactionsThisWeek": {
+      "source": {
+        "object": "dbo.DashBoardTransactionsThisWeek",
+        "type": "stored-procedure",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/transactions-this-week"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "DashBoardTransactionsLastWeek": {
+      "source": {
+        "object": "dbo.DashBoardTransactionsLastWeek",
+        "type": "stored-procedure",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/transactions-last-week"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
 
   }

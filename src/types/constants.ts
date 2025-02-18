@@ -14,6 +14,8 @@ export const ENDPOINTS = {
   VERIFY_PIN: '/data-api/rest/verify-pin',
   CHECKOUT_GENERAL_ITEMS: '/data-api/rest/checkout-general-items',
   CHECKOUT_WELCOME_BASKET: '/data-api/rest/checkout-welcome-basket',
+  TRANSACTIONS_THIS_WEEK: '/data-api/rest/transactions-this-week',
+  TRANSACTIONS_LAST_WEEK: '/data-api/rest/transactions-last-week',
   //Views
   EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
   CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',

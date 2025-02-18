@@ -1,6 +1,4 @@
-import { useState } from 'react';
-
-// material-ui
+import { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Avatar,
   AvatarGroup,
@@ -17,11 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-
-// project import
 import AnalyticEcommerce from '../../components/cards/statistics/AnalyticEcommerce';
-
-// assets
 import {
   GiftOutlined,
   MessageOutlined,
@@ -33,6 +27,8 @@ import avatar1 from '/src/assets/images/users/avatar-1.png';
 import avatar2 from '/src/assets/images/users/avatar-2.png';
 import avatar3 from '/src/assets/images/users/avatar-3.png';
 import avatar4 from '/src/assets/images/users/avatar-4.png';
+import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
 
 // avatar style
 const avatarSX = {
@@ -67,13 +63,51 @@ const status = [
   },
 ];
 
-// ==============================|| DASHBOARD - DEFAULT ||============================== //
-
 const DashboardDefault = () => {
   const [value, setValue] = useState('today');
   const [slot, setSlot] = useState('week');
+  const { user } = useContext(UserContext);
+  const [transactionsThisWeek, setTransactionsThisWeek] = useState<string>('');
+  const [transactionsLastWeek, setTransactionsLastWeek] = useState<string>('');
 
   const navigate = useNavigate();
+
+  const fetchWeeklyTransactions = async(endpoint: string) => {
+    try {
+      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(endpoint, {
+        headers: HEADERS,
+        method: 'POST',
+        body: JSON.stringify({
+          TransactionCount: 0
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const data = await response.json();
+      return (data.value[0].TransactionCount.toString());
+    } catch (error) {
+      console.error('Error fetching transaction data:', error);
+    }
+  }
+
+
+  const fetchTransactionsThisWeek = useCallback(async () => {
+    const endpoint_tw = ENDPOINTS.TRANSACTIONS_THIS_WEEK;
+    const result_tw = await fetchWeeklyTransactions(endpoint_tw);
+    setTransactionsThisWeek(result_tw);
+
+    const endpoint_lw = ENDPOINTS.TRANSACTIONS_LAST_WEEK;
+    const result_lw = await fetchWeeklyTransactions(endpoint_lw);
+    setTransactionsLastWeek(result_lw);
+
+  }, [user]);
+
+  useEffect(() => {
+    fetchTransactionsThisWeek();
+  }, [fetchTransactionsThisWeek]);
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -81,22 +115,26 @@ const DashboardDefault = () => {
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <Typography variant="h5">Dashboard</Typography>
       </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce
-          title="Total Page Views"
-          count="4,42,236"
-          percentage={59.3}
-          extra="35,000"
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce
-          title="Total Users"
-          count="78,250"
-          percentage={70.5}
-          extra="8,900"
-        />
-      </Grid>
+      <MainCard sx={{ mt: 4, marginLeft: (theme: { spacing: (arg0: number) => any; }) => theme.spacing(3) }} content={false}>
+        <Box sx={{ p: 3, pb: 0 }}>
+          <Stack spacing={2}>
+            <Typography variant="h6" color="textSecondary">
+              Transactions This Week
+            </Typography>
+            <Typography variant="h3">{transactionsThisWeek}</Typography>
+          </Stack>
+        </Box>
+      </MainCard>
+      <MainCard sx={{ mt: 4, marginLeft: (theme: { spacing: (arg0: number) => any; }) => theme.spacing(3) }} content={false}>
+        <Box sx={{ p: 3, pb: 0 }}>
+          <Stack spacing={2}>
+            <Typography variant="h6" color="textSecondary">
+              Transactions Last Week
+            </Typography>
+            <Typography variant="h3">{transactionsLastWeek}</Typography>
+          </Stack>
+        </Box>
+      </MainCard>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <AnalyticEcommerce
           title="Total Order"
@@ -193,7 +231,7 @@ const DashboardDefault = () => {
         </Grid>
         <MainCard content={false} sx={{ mt: 1.5 }}>
           <Box sx={{ pt: 1, pr: 2 }}>
-        </Box>
+          </Box>
         </MainCard>
       </Grid>
 

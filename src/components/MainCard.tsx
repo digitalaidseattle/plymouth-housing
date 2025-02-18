@@ -1,8 +1,8 @@
 import { ReactNode, forwardRef } from 'react';
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
 import PageHeading from './PageHeading';
+import { Box } from '@mui/material';
 
 // ==============================|| CUSTOM - MAIN CARD ||============================== //
 
@@ -22,7 +22,10 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
   ) => {
 
     return (
-      <>
+      <Box sx={{
+        width: {sm: '100%', lg: '90%', xl: '80%'},
+        margin: '0 auto'  
+      }}>
         {/* card header and action */}
         {title && (
           <PageHeading 
@@ -33,7 +36,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
         {/* id is used to select container, to reset its scroll value in the checkout page */}
         {content && children}
         {!content && children}
-      </>
+      </Box>
     );
   },
 );

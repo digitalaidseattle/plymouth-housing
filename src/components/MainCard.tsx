@@ -19,9 +19,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
       content = true,
       title,
     },
-    ref,
   ) => {
-    const theme = useTheme();
 
     return (
       <>

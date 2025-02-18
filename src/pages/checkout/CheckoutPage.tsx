@@ -9,9 +9,7 @@ import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
-import ScrollToTopButton from '../../components/Checkout/ScrollToTopButton';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
-import PageHeading from '../../components/PageHeading';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -279,7 +277,6 @@ const CheckoutPage = () => {
 
       <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
 
-      <ScrollToTopButton showAfter={300} />
       <CheckoutDialog
         open={openSummary}
         onClose={() => setOpenSummary(false)}

@@ -9,8 +9,7 @@ const PageHeading = ({ title }: PageHeadingProps) => {
     return (
         <Typography sx={{ 
             variant: 'h3',
-            fontSize: '28px',
-            marginBottom: '2rem' }}>
+            fontSize: '28px' }}>
             {title}
         </Typography>
     )

@@ -1,4 +1,4 @@
-import MainCard from '../components/MainCard';
+import MainContainer from '../components/MainContainer';
 import MainLayout from '../layout/MainLayout';
 import MinimalLayout from '../layout/MinimalLayout';
 import EnterPin from './authentication/EnterPinPage';
@@ -22,25 +22,25 @@ const routes = [
       {
         path: 'inventory',
         element: (
-          <MainCard title="Inventory">
+          <MainContainer title="Inventory">
             <Inventory />
-          </MainCard>
+          </MainContainer>
         ),
       },
       {
         path: 'people',
         element: (
-          <MainCard title="People">
+          <MainContainer title="People">
             <People />
-          </MainCard>
+          </MainContainer>
         ),
       },
       {
         path: 'volunteer-home',
         element: (
-          <MainCard title="Volunteer Home">
+          <MainContainer title="Volunteer Home">
             <VolunteerHome />
-          </MainCard>
+          </MainContainer>
         ),
       },
       {
@@ -48,9 +48,9 @@ const routes = [
         element: (
           // checkout card content is given a fixed height and scrollbar
           // to work with the sticky nav inside it
-          <MainCard title="Check out">
+          <MainContainer title="Check out">
             <CheckoutPage />
-          </MainCard>
+          </MainContainer>
         ),
       },
     ],

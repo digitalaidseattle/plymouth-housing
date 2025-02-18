@@ -42,7 +42,7 @@ export default function ThemeCustomization(props: { children: ReactNode }) {
           minHeight: 60,
           paddingTop: 8,
           paddingBottom: 8,
-        }
+        },
       },
       palette: theme.palette,
       customShadows: themeCustomShadows,

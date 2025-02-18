@@ -33,7 +33,7 @@ const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({
   isLoss,
   extra,
 }) => (
-  <MainCard>
+  <MainCard contentSX={{ p: 2.25 }}>
     <Stack spacing={0.5}>
       <Typography variant="h6" color="textSecondary">
         {title}

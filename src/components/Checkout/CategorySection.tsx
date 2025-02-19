@@ -1,6 +1,6 @@
 import CheckoutCard from './CheckoutCard';
 import { CategoryProps, CheckoutItemProp } from "../../types/interfaces";
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 type CategorySectionProps = {
   category: CategoryProps;
@@ -27,12 +27,10 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
       </Box>
       <Box
         sx={{
-          // doesnt work bc Grid is actually a Flexbox in MUI
           display: 'grid',
           gridTemplateColumns: {sm: '1fr', md: 'repeat(2, 1fr)', lg:'repeat(4, 1fr)'},
           gridTemplateRows: 'auto',
           gap: '1rem',
-          /* this is key to preventing most gaps */
           gridAutoFlow: 'row dense' 
         }}
       >
@@ -44,7 +42,6 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
           </Box>)
           } else {
             return (
-              //
               <Box sx={{gridColumn: {sm: 'auto', md: 'span 2'}}}>
               <CheckoutCard item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} categoryLimit={category.checkout_limit} categoryName={category.category} />
             </Box>)

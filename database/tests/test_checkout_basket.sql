@@ -1,10 +1,10 @@
 -- Simple test file to test transactions. 
 
 print 'Test insufficient inventory'
-exec ProcessCheckout @user_id = 1, @items = N'[
+exec ProcessCheckout @user_id = 1, @building_code = "ALM", @items = N'[
       {
-        "id": 2,
-        "quantity": 1
+        "id": 3,
+        "quantity": 4
       }
     ]'
 
@@ -13,7 +13,7 @@ select name, quantity from Items where id = 2
 
 
 print 'Test more than 10 items in cart'
-exec ProcessCheckout @user_id = 1, @items = N'[
+exec ProcessCheckout @user_id = 1, @building_code = "ALM", @items = N'[
       {
         "id": 407,
         "quantity": 0
@@ -25,7 +25,7 @@ exec ProcessCheckout @user_id = 1, @items = N'[
     ]'
 
 print 'Test Category violation'
-exec ProcessCheckout @user_id = 1, @items = N'[
+exec ProcessCheckout @user_id = 1, @building_code = "ALM", @items = N'[
       {
         "id": 10,
         "quantity": 1

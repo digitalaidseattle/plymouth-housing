@@ -1,19 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
 import { Search } from '@mui/icons-material';
+import { CategoryProps } from '../../types/interfaces';
 
 interface SearchBarProps {
-  placeholder?: string;
-  onSearchChange?: (value: string) => void;
+  data: CategoryProps[];
+  setSearchData: React.Dispatch<React.SetStateAction<CategoryProps[]>>;
+  setSearchActive: (arg0: boolean) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onSearchChange }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchActive }) => {
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const searchChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      setSearchActive(true)
+    } else {
+      setSearchActive(false);
+    }
+    setSearchTerm(e.target.value);
+    filterFunction(e.target.value);
+    // reset scroll position
+    const scrollContainer = document.getElementById('scrollContainer');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
+  };
+
+  const filterFunction = (term: string) => {
+    const filteredItems = data.map((category) => {
+      const filteredCategoryItems = category.items.filter((item) => {
+        const searchTermLower = term.toLowerCase();
+        return (
+          (item.name?.toLowerCase().includes(searchTermLower) || '') ||
+          (item.description?.toLowerCase().includes(searchTermLower) || '')
+        );
+      });
+
+      return {
+        ...category,
+        items: filteredCategoryItems,
+      };
+    }).filter((category) => category.items.length > 0);
+
+    setSearchData(filteredItems)
+  }
+
   return (
     <TextField
       variant="standard"
-      placeholder={placeholder || 'Search...'}
+      placeholder={'Search...'}
       type="search"
-      onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+      value={searchTerm}
+      onChange={searchChangeHandler}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

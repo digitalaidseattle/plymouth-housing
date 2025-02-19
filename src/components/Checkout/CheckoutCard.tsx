@@ -1,8 +1,36 @@
 import { Card, CardContent, CardActions, Typography, Tooltip } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
+import { useCallback, useEffect, useState } from 'react';
 
-const CheckoutCard = ({ item, checkoutItems, addItemToCart, removeItemFromCart, removeButton }: CheckoutCardProps) => {
+const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, categoryLimit, categoryName, activeSection }: CheckoutCardProps) => {
+
+  const [disableAdd, setDisableAdd] = useState<boolean>(false);
+
+  const checkLimit = useCallback(() => {
+    if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
+      setDisableAdd(true);
+    } else {
+      setDisableAdd(false);
+    }
+
+  }, [categoryCheckout?.categoryCount, categoryLimit]);
+
+  const checkActiveSection = useCallback(() => {
+    if (activeSection === 'welcomeBasket') {
+      setDisableAdd(categoryName !== 'Welcome Basket');
+    } else if (activeSection === 'general') {
+      setDisableAdd(categoryName === 'Welcome Basket');
+    }
+  }, [activeSection, categoryName]);
+
+  useEffect(() => {
+    checkLimit();
+  }, [categoryCheckout?.categoryCount, checkLimit])
+
+  useEffect(() => {
+    checkActiveSection();
+  }, [checkActiveSection])
 
   return (
     <Card key={item.name}
@@ -21,7 +49,7 @@ const CheckoutCard = ({ item, checkoutItems, addItemToCart, removeItemFromCart, 
         </Tooltip>
       </CardContent>
       <CardActions style={{ border: '1px red blue', marginRight: '20px' }}>
-        <ItemQuantityButton item={item} checkoutItems={checkoutItems} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton}/>
+        <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
       </CardActions>
     </Card>
   )

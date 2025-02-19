@@ -63,12 +63,16 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
       quantity: 0
     })
     setUpdateItem(null);
+    setErrorMessage('');
     handleAddClose();
   }
 
   const updateItemHandler = async () => {
     if (formData.type === '' || formData.name === '' || formData.quantity === 0 || !updateItem) {
       setErrorMessage('Missing Information or Quantity cannot be 0')
+      return;
+    } else if (Number(updateItem.quantity) + Number(formData.quantity) < 0) {
+      setErrorMessage('Item quantity cannot go below 0.')
       return;
     } else {
       try {

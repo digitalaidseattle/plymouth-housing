@@ -1,7 +1,7 @@
 {
   "name": "plymouth-housing",
   "private": true,
-  "version": "0.9.1",
+  "version": "0.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
@@ -17,8 +17,10 @@
     "@ant-design/icons": "^5.5.2",
     "@azure/msal-browser": "^3.28.0",
     "@azure/msal-react": "^2.2.0",
-    "@mui/icons-material": "^5.16.14",
-    "@mui/material": "^5.16.7",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^6.4.2",
+    "@mui/material": "^6.4.2",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

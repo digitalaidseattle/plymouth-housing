@@ -10,10 +10,10 @@ import {
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
 import SpinUpDialog from './SpinUpDialog';
+import { fetchWithRetry } from './fetchWithRetry';
 
 const PickYourNamePage: React.FC = () => {
   const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
@@ -25,40 +25,8 @@ const PickYourNamePage: React.FC = () => {
   }>({ open: false, message: '', severity: 'warning' });
   const [retryCount, setRetryCount] = useState(0);
   const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
-  const RETRY_ATTEMPTS = 5;
-  const RETRY_DELAY = 20000;
 
   const navigate = useNavigate();
-
-  const fetchWithRetry = async (attempt: number = 1): Promise<any> => {
-    try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(
-        `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`,
-        {
-          method: 'GET',
-          headers: HEADERS,
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
-      }
-      
-      setShowSpinUpDialog(false);
-      return response.json();
-      
-    } catch (error) {
-      if (attempt < RETRY_ATTEMPTS) {
-        setShowSpinUpDialog(true);
-        setRetryCount(attempt);
-        // Wait 20 seconds before retrying
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-        return fetchWithRetry(attempt + 1);
-      }
-      throw error;
-    }
-  };
 
   useEffect(() => {
     if (!user) return;
@@ -66,7 +34,11 @@ const PickYourNamePage: React.FC = () => {
     const fetchVolunteers = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchWithRetry();
+        const data = await fetchWithRetry({
+          user,
+          setShowSpinUpDialog,
+          setRetryCount
+        });
         setActiveVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
@@ -80,9 +52,10 @@ const PickYourNamePage: React.FC = () => {
         setShowSpinUpDialog(false);
       }
     };
-    
     fetchVolunteers();
-  }, [user]);
+    // The effect is intended to run only once on mount.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  },[]);
 
   const handleNameChange = (
     _event: React.SyntheticEvent,

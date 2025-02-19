@@ -25,19 +25,32 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
         </Typography>
 
       </Box>
-      <Grid container spacing={2}
+      <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          flexWrap: 'wrap',
+          // doesnt work bc Grid is actually a Flexbox in MUI
+          display: 'grid',
+          gridTemplateColumns: {sm: '1fr', md: 'repeat(2, 1fr)', lg:'repeat(4, 1fr)'},
+          gridTemplateRows: 'auto',
+          gap: '1rem',
+          /* this is key to preventing most gaps */
+          gridAutoFlow: 'row dense' 
         }}
       >
-        {category.items.map((item) => (
-          <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
+        {category.items.map((item) => {
+          if (!item.description) {
+            return (
+            <Box>
             <CheckoutCard item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} categoryLimit={category.checkout_limit} categoryName={category.category} />
-          </Grid>
-        ))}
-      </Grid>
+          </Box>)
+          } else {
+            return (
+              //
+              <Box sx={{gridColumn: {sm: 'auto', md: 'span 2'}}}>
+              <CheckoutCard item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} categoryLimit={category.checkout_limit} categoryName={category.category} />
+            </Box>)
+          }
+        })}
+      </Box>
     </Box>
   )
 }

@@ -71,10 +71,13 @@ const UserFilters: React.FC<UserFiltersProps> = ({
           {statusFilter ? (
             <>
               {statusFilter}
-              <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
-                onClick={clearStatusFilter} // include stopPropagation to prevent unintended menu closure
-              />
+              <Button
+                aria-label="Clear Status Filter"
+                onClick={clearStatusFilter}
+                sx={{ minWidth: 0, padding: 0, color: 'black' }}
+              >
+                <ClearIcon sx={{ fontSize: 'large', ml: '6px',  }} />
+              </Button>
             </>
           ) : (
             <>
@@ -106,10 +109,13 @@ const UserFilters: React.FC<UserFiltersProps> = ({
           {roleFilter ? (
             <>
               {roleFilter}
-              <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
-                onClick={clearRoleFilter} // Updated to include stopPropagation to prevent unintended menu closure
-              />
+              <Button
+                aria-label="Clear Role Filter"
+                onClick={clearRoleFilter}
+                sx={{ minWidth: 0, padding: 0 ,color: 'black' }}
+              >
+                <ClearIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              </Button>
             </>
           ) : (
             <>

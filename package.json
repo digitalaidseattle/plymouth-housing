@@ -1,7 +1,7 @@
 {
   "name": "plymouth-housing",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
@@ -51,6 +51,6 @@
     "source-map-explorer": "^2.5.3",
     "typescript": "^5.7.3",
     "vite": "^6.0.11",
-    "vitest": "^3.0.2"
+    "vitest": "^3.0.5"
   }
 }

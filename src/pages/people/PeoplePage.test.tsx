@@ -528,7 +528,7 @@ describe('Additional Filtering, Sorting, Pagination, and Status Update Tests', (
       await waitFor(() => {
         const lastCall =
           mockSetFilteredData.mock.calls[mockSetFilteredData.mock.calls.length - 1][0];
-        const names = lastCall.map((u) => u.name);
+        const names = lastCall.map((u:any) => u.name);
         // Expect only volunteer users (Alice and Bob) to remain after filtering
         expect(names).toEqual(['Alice', 'Bob']);
       });
@@ -558,7 +558,7 @@ describe('Additional Filtering, Sorting, Pagination, and Status Update Tests', (
       });
       let lastCall =
         mockSetFilteredData.mock.calls[mockSetFilteredData.mock.calls.length - 1][0];
-      let names = lastCall.map((u) => u.name);
+      let names = lastCall.map((u:any) => u.name);
       expect(names).toEqual(['Alice', 'Bob', 'Charlie']);
   
       // Second click: toggle to descending order; expected order: Charlie, Bob, Alice
@@ -567,7 +567,7 @@ describe('Additional Filtering, Sorting, Pagination, and Status Update Tests', (
         expect(mockSetFilteredData).toHaveBeenCalled();
       });
       lastCall = mockSetFilteredData.mock.calls[mockSetFilteredData.mock.calls.length - 1][0];
-      names = lastCall.map((u) => u.name);
+      names = lastCall.map((u:any) => u.name);
       expect(names).toEqual(['Charlie', 'Bob', 'Alice']);
   
       // Third click: return to original order (original customUsers order: Charlie, Alice, Bob)
@@ -576,7 +576,7 @@ describe('Additional Filtering, Sorting, Pagination, and Status Update Tests', (
         expect(mockSetFilteredData).toHaveBeenCalled();
       });
       lastCall = mockSetFilteredData.mock.calls[mockSetFilteredData.mock.calls.length - 1][0];
-      names = lastCall.map((u) => u.name);
+      names = lastCall.map((u:any) => u.name);
       expect(names).toEqual(['Charlie', 'Alice', 'Bob']);
     });
   

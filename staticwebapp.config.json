@@ -8,6 +8,14 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/logout.html",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/favicon.ico",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/*",
       "allowedRoles": [ "authenticated" ]
     }

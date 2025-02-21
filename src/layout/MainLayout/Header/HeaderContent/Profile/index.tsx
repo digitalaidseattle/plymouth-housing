@@ -84,7 +84,7 @@ const Profile = () => {
   }, [user]);
 
   const handleLogout = async () => {
-    window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
+    window.location.href = "/.auth/logout?post_logout_redirect_uri=/logout.html";
   };
 
   const anchorRef = useRef(null);

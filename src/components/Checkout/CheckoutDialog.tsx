@@ -87,7 +87,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     <Dialog
       sx={{
         '& .MuiDialog-paper': {
-          width: {xs: '80vw', md: '55vw' },
+          width: {xs: '80vw', md: '65vw' },
           maxHeight: '80vh',
           display: 'flex',
           alignItems: 'center',

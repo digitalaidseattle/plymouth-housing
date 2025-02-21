@@ -28,6 +28,7 @@ jobs:
       id: check-tag
       run: |
         # Check if the tag already exists
+        git fetch --tags # First fetch all tags from remote
         if git show-ref --tags | grep -q "refs/tags/${{ steps.package-version.outputs.PACKAGE_VERSION }}"; then
           echo "Tag already exists"
           echo "TAG_EXISTS=true" >> $GITHUB_OUTPUT

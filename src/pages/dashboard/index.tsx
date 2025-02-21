@@ -84,7 +84,7 @@ const DashboardDefault = () => {
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <AnalyticEcommerce
           title="Total Page Views"
-          count="4,42,236"
+          count="442,236"
           percentage={59.3}
           extra="35,000"
         />

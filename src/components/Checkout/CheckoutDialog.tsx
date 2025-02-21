@@ -87,7 +87,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     <Dialog
       sx={{
         '& .MuiDialog-paper': {
-          width: '55vw',
+          width: {xs: '80vw', md: '55vw' },
           maxHeight: '80vh',
           display: 'flex',
           alignItems: 'center',
@@ -99,9 +99,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <Box sx={{ width: '70%', paddingTop: '20px', height: '100%' }}>
+      <Box sx={{ width: {xs: '90%', s: '80%', md: '70%' }, paddingTop: '20px', height: '100%' }}>
         <DialogTitle sx={{ padding: '20px 0px 0px 0px' }} id="customized-dialog-title">
-          <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
+          <Typography sx={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
           <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>

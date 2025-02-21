@@ -46,7 +46,7 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
         paddingX: '10px',
       }}
     >
-      <CardContent sx={{ flex: '1', minWidth: '40%', overflow: 'hidden' }}>
+      <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
         <Tooltip title={item.name} arrow>
           <Typography sx={{ fontSize: removeButton ? '14px' : '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
         </Tooltip>

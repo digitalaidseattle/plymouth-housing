@@ -146,6 +146,7 @@ const Inventory = () => {
       const inventoryList = data.value;
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
+      console.log(inventoryList);
     }
     catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.

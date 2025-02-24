@@ -162,5 +162,5 @@ INSERT INTO Items (name, type, category_id, quantity, description, threshold) VA
 ('Tea Kettle', 'General', 2, 0, 'Electric tea kettle', 3),
 ('Television', 'General', 2, 0, '', 2),
 ('Toaster / Toaster Oven', 'General', 2, 2, '', 3),
-('Appliance Miscellaneous', 'General', 2, 0, 'Waffle maker, blender, rice cooker, air fryer', 5);
+('Appliance Miscellaneous', 'General', 2, 0, 'Waffle maker, blender, rice cooker, air fryer', 5),
 GO

@@ -2,7 +2,7 @@
 import { Box, Chip, Grid, Stack, Typography } from '@mui/material';
 
 // project import
-import MainCard from '../../../components/MainCard';
+import MainCard from '../../MainCard';
 
 // assets
 import { FallOutlined, RiseOutlined } from '@ant-design/icons';

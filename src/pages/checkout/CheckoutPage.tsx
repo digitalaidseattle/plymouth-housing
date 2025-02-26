@@ -288,6 +288,7 @@ const CheckoutPage = () => {
         selectedBuildingCode={selectedBuildingCode}
         setActiveSection={setActiveSection}
         fetchData={fetchData}
+        setSelectedBuildingCode={setSelectedBuildingCode}
       />
     </Box>
     </>

@@ -30,7 +30,6 @@ import {
 //   UserOutlined,
 } from '@ant-design/icons';
 import { UserContext } from '../../../../../components/contexts/UserContext';
-import { useNavigate } from 'react-router-dom';
 
 // interface TabPanelProps {
 //   children: ReactNode;
@@ -75,7 +74,6 @@ const Profile = () => {
   const [username, setUsername] = useState<string>('');
   const [role, setRole] = useState<string>(''); // New state for role
   // const [avatar, setAvatar] = useState<string>(''); //TODO add avatar
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -86,8 +84,7 @@ const Profile = () => {
   }, [user]);
 
   const handleLogout = async () => {
-    window.location.href = "/.auth/logout?post_logout_redirect_uri=/";
-    navigate("");
+    window.location.href = "/.auth/logout?post_logout_redirect_uri=/logout.html";
   };
 
   const anchorRef = useRef(null);

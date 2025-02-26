@@ -39,7 +39,7 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-        minHeight: '10vh',
+        height: '100%',
         borderRadius: '10px',
       }}
     >

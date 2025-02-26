@@ -5,14 +5,15 @@ import {
   Button,
   Autocomplete,
   TextField,
-  Box,
+  Box
 } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
+import SpinUpDialog from './SpinUpDialog';
+import { fetchWithRetry } from './fetchWithRetry';
 
 const PickYourNamePage: React.FC = () => {
   const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
@@ -22,27 +23,22 @@ const PickYourNamePage: React.FC = () => {
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
+  const [retryCount, setRetryCount] = useState(0);
+  const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
+    
     const fetchVolunteers = async () => {
       try {
         setIsLoading(true);
-
-        HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(
-          `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`,
-          {
-            method: 'GET',
-            headers: HEADERS,
-          },
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
-        }
-        const data = await response.json();
+        const data = await fetchWithRetry({
+          user,
+          setShowSpinUpDialog,
+          setRetryCount
+        });
         setActiveVolunteers(data.value);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
@@ -53,13 +49,13 @@ const PickYourNamePage: React.FC = () => {
         });
       } finally {
         setIsLoading(false);
+        setShowSpinUpDialog(false);
       }
     };
     fetchVolunteers();
-
-  // The effect is intended to run only when the 'user' value changes (or on mount if user is set).
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [user]);
+    // The effect is intended to run only once on mount.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  },[]);
 
   const handleNameChange = (
     _event: React.SyntheticEvent,
@@ -167,6 +163,7 @@ const PickYourNamePage: React.FC = () => {
             {snackbarState.message}
           </SnackbarAlert>
         </CenteredLayout>
+        <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
       </MinimalWrapper>
   );
 };

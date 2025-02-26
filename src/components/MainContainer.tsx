@@ -22,10 +22,7 @@ const MainContainer: React.FC<MainContainerProp> = forwardRef(
   ) => {
 
     return (
-      <Box sx={{
-        width: {sm: '100%', lg: '90%', xl: '80%'},
-        margin: '0 auto'  
-      }}>
+      <Box>
         {title && (
           <PageHeading 
             title={title}/>

@@ -33,23 +33,27 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
   }, [checkActiveSection])
 
   return (
-    <Card key={item.name}
+    <Card key={item.name} variant='outlined'
       sx={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
         height: '100%',
-        borderRadius: '10px',
+        minHeight: '10vh',
+        borderColor: removeButton ? '#D9D9D9' : null,
+        borderWidth: removeButton ? '1px' : null,
+        borderRadius: '15px',
+        paddingX: '10px',
       }}
     >
-      <CardContent sx={{ flex: '1', overflow: 'hidden', marginLeft: '10px', width: '100%' }}>
-        <Tooltip title={item.name} arrow> 
-          <Typography sx={{ fontSize: '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
+      <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
+        <Tooltip title={item.name} arrow>
+          <Typography sx={{ fontSize: removeButton ? '14px' : '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
         </Tooltip>
         {item.description && <Typography>{item.description}</Typography>}
       </CardContent>
-      <CardActions style={{ border: '1px red blue', marginRight: '20px' }}>
+      <CardActions sx={{ overflow: 'hidden'}}>
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
       </CardActions>
     </Card>

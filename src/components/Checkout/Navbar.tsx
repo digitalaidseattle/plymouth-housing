@@ -29,4 +29,4 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
   )
 }
 
-export default Navbar
+export default Navbar;

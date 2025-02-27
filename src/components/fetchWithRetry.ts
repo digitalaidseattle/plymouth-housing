@@ -1,24 +1,22 @@
-import { User, ClientPrincipal } from '../types/interfaces';
 import { HEADERS, SETTINGS } from '../types/constants';
-import { getRole } from './contexts/UserContext';
 
-interface VolunteersResponse {
-  value: User[];
+interface FetchResponse<T> {
+  value: T;
 }
 
 interface FetchConfig {
   url: string;
-  user: ClientPrincipal | null;
+  role: string;
   setShowSpinUpDialog: (show: boolean) => void;
   setRetryCount: (count: number) => void;
 }
 
-export const fetchWithRetry = async (
-  { url, user, setShowSpinUpDialog, setRetryCount }: FetchConfig,
+export const fetchWithRetry = async <T>(
+  { url, role, setShowSpinUpDialog, setRetryCount }: FetchConfig,
   attempt: number = 1
-): Promise<VolunteersResponse> => {
+): Promise<FetchResponse<T>> => {
   try {
-    HEADERS['X-MS-API-ROLE'] = getRole(user);
+    HEADERS['X-MS-API-ROLE'] = role;
     const response = await fetch(
       url,
       {
@@ -28,7 +26,7 @@ export const fetchWithRetry = async (
     );
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch volunteers: ${response.statusText}`);
+      throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
     
     setShowSpinUpDialog(false);
@@ -39,7 +37,7 @@ export const fetchWithRetry = async (
       setShowSpinUpDialog(true);
       setRetryCount(attempt);
       await new Promise(resolve => setTimeout(resolve, SETTINGS.database_retry_delay));
-      return fetchWithRetry({ url, user, setShowSpinUpDialog, setRetryCount }, attempt + 1);
+      return fetchWithRetry<T>({ url, role, setShowSpinUpDialog, setRetryCount }, attempt + 1);
     }
     throw error;
   }

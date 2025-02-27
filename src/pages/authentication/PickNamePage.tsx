@@ -14,7 +14,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
 import SpinUpDialog from './SpinUpDialog';
 import { fetchWithRetry } from '../../components/fetchWithRetry';
-import { ENDPOINTS } from '../../types/constants';
+import { ENDPOINTS, ROLES } from '../../types/constants';
 
 const PickYourNamePage: React.FC = () => {
   const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
@@ -36,9 +36,9 @@ const PickYourNamePage: React.FC = () => {
       try {
         setIsLoading(true);
         const url = `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`
-        const data = await fetchWithRetry({
+        const data = await fetchWithRetry<User[]>({
           url, 
-          user,
+          role: ROLES.VOLUNTEER,
           setShowSpinUpDialog,
           setRetryCount
         });

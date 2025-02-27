@@ -24,3 +24,8 @@ export const SETTINGS = {
   database_retry_attempts: 20,
   database_retry_delay: 5000
 }
+
+export const ROLES = {
+  ADMIN: 'admin',
+  VOLUNTEER: 'volunteer'
+} 

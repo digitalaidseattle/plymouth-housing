@@ -1,25 +1,26 @@
-import { User, ClientPrincipal } from '../../types/interfaces';
-import { ENDPOINTS, HEADERS, SETTINGS } from '../../types/constants';
-import { getRole } from '../../components/contexts/UserContext';
+import { User, ClientPrincipal } from '../types/interfaces';
+import { HEADERS, SETTINGS } from '../types/constants';
+import { getRole } from './contexts/UserContext';
 
 interface VolunteersResponse {
   value: User[];
 }
 
 interface FetchConfig {
+  url: string;
   user: ClientPrincipal | null;
   setShowSpinUpDialog: (show: boolean) => void;
   setRetryCount: (count: number) => void;
 }
 
 export const fetchWithRetry = async (
-  { user, setShowSpinUpDialog, setRetryCount }: FetchConfig,
+  { url, user, setShowSpinUpDialog, setRetryCount }: FetchConfig,
   attempt: number = 1
 ): Promise<VolunteersResponse> => {
   try {
     HEADERS['X-MS-API-ROLE'] = getRole(user);
     const response = await fetch(
-      `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`,
+      url,
       {
         method: 'GET',
         headers: HEADERS,
@@ -38,7 +39,7 @@ export const fetchWithRetry = async (
       setShowSpinUpDialog(true);
       setRetryCount(attempt);
       await new Promise(resolve => setTimeout(resolve, SETTINGS.database_retry_delay));
-      return fetchWithRetry({ user, setShowSpinUpDialog, setRetryCount }, attempt + 1);
+      return fetchWithRetry({ url, user, setShowSpinUpDialog, setRetryCount }, attempt + 1);
     }
     throw error;
   }

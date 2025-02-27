@@ -18,6 +18,8 @@ import { RefreshContextProvider } from '../../components/contexts/RefreshContext
 import { UserContext } from '../../components/contexts/UserContext';
 import { User} from '../../types/interfaces';
 import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { fetchModule } from 'vite';
+import { fetchWithRetry } from '../../components/fetchWithRetry';
 
 const MainLayout: React.FC = () => {
   const theme = useTheme();
@@ -88,10 +90,16 @@ const MainLayout: React.FC = () => {
     // Step 1: Query whether this user already exists by email
     const promise = (async () => {
       try {
-        const getResp = await fetch(`${ENDPOINTS.USERS}?$filter=email eq '${adminInfo.email}'`, {
-          method: 'GET',
-          headers: HEADERS,
+        const getResp = await fetchWithRetry({
+          url: `${ENDPOINTS.USERS}?$filter=email eq '${adminInfo.email}'`,  
+          user: null,
+          setShowSpinUpDialog: () => {},  
+          setRetryCount: () => {},
         });
+        // const getResp = await fetch(`${ENDPOINTS.USERS}?$filter=email eq '${adminInfo.email}'`, {
+        //   method: 'GET',
+        //   headers: HEADERS,
+        // });
 
         if (!getResp.ok) {
           throw new Error(`Failed to query user: ${getResp.statusText}`);

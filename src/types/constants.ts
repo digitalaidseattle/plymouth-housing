@@ -21,6 +21,6 @@ export const ENDPOINTS = {
 
 export const SETTINGS = {
   itemsPerPage: 10,
-  database_retry_attempts: 5,
-  database_retry_delay: 20000
+  database_retry_attempts: 20,
+  database_retry_delay: 5000
 }

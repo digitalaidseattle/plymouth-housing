@@ -37,10 +37,10 @@ const Inventory = () => {
 
   const calculateItemsPerPage = () => {
     if (tableContainerRef.current) {
-      const parentHeight = tableContainerRef.current?.parentElement?.clientHeight ?? 0; //Calculates the parent container height in px
-      const tableHeight = (parentHeight * 80) / 100; //Calculates the table height in px as 80% of the parent height
-      const items = Math.floor(tableHeight / 64); //Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
-      setItemsPerPage(items > 0 ? items - 1 : 1); //Subtract 1 because of header row
+      const parentHeight = tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
+      const tableHeight = (parentHeight * 80) / 100; // Calculates the table height in px as 80% of the parent height
+      const items = Math.floor(tableHeight / 64); // Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
+      setItemsPerPage(items > 0 ? items - 1 : 1); // Subtract 1 because of header row
     }
   }
 

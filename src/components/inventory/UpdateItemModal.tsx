@@ -2,7 +2,7 @@
 import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
 import { useContext, useMemo, useState } from 'react';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
-import { DASSnackbar } from '../DASSnackbar.tsx';
+import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
 
@@ -235,7 +235,7 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
             </Typography>
             <TextField sx={{ width: '100%' }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
           </Box>
-          {errorMessage.length > 0 ? <DASSnackbar open={true} severity='error' message={errorMessage} onClose={() => setErrorMessage('')} /> : null}
+          {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
             {typeof (updateItem) === 'object' ? <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Update</Button> : <Button sx={{ color: 'black' }} onClick={createItemHandler}>Create</Button>}

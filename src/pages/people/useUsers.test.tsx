@@ -45,10 +45,13 @@ describe('useUsers hook', () => {
     global.fetch = vi.fn().mockResolvedValueOnce(mockResponse);
 
     const { result } = renderHook(() => useUsers(), { wrapper });
+    console.log('result', result.current);
     await waitFor(() => result.current.loading === false);
-
+    console.log('result.current.originalData', result.current.originalData);
     expect(result.current.originalData).toEqual(mockUsers);
+    console.log('result.current.filteredData', result.current.filteredData);
     expect(result.current.filteredData).toEqual(mockUsers);
+    console.log('result.current.error', result.current.error);
     expect(result.current.error).toBeNull();
   });
 

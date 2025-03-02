@@ -198,9 +198,11 @@ const Inventory = () => {
     handleFilter();
   }, [sortDirection, handleFilter]);
 
-  if (isLoading) {
-    return <p>Loading ...</p>;
-  }
+  useEffect(() => {
+    if (error) {
+      setSnackbarState({ open: true, message: error, severity: 'warning' });
+    }
+  }, [error]);
 
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
@@ -210,11 +212,9 @@ const Inventory = () => {
     setSnackbarState({ ...snackbarState, open: false });
   };
 
-  useEffect(() => {
-    if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'warning' });
-    }
-  }, [error]);
+  if (isLoading) {
+    return <p>Loading ...</p>;
+  }
 
   return (
     <Box>

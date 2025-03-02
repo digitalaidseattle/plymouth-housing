@@ -2,7 +2,7 @@
  * A custom hook that manages user inactivity tracking and triggers a callback after a specified timeout.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 interface InactivityTimerProps {
   onInactivity: () => void;
@@ -12,12 +12,12 @@ interface InactivityTimerProps {
 export const useInactivityTimer = ({ onInactivity, timeout }: InactivityTimerProps) => {
   const timerRef = useRef<NodeJS.Timeout>();
 
-  const resetTimer = () => {
+  const resetTimer = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
     timerRef.current = setTimeout(onInactivity, timeout);
-  };
+  }, [onInactivity, timeout]);
 
   useEffect(() => {
     const activities = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
@@ -36,7 +36,7 @@ export const useInactivityTimer = ({ onInactivity, timeout }: InactivityTimerPro
         document.removeEventListener(activity, resetTimer);
       });
     };
-  }, [onInactivity, timeout]);
+  }, [resetTimer]);
 
   return resetTimer;
 };

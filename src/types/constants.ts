@@ -1,4 +1,4 @@
-export const HEADERS = {
+export const API_HEADERS = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=utf-8',
     'X-MS-API-ROLE': ''
@@ -17,15 +17,15 @@ export const ENDPOINTS = {
   //Views
   EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
   CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',
-};
+} as const;
 
-export const SETTINGS = {
+export const settings = {
   itemsPerPage: 10,
   database_retry_attempts: 20,
   database_retry_delay: 5000
 }
 
-export const ROLES = {
+export const USER_ROLES = {
   ADMIN: 'admin',
   VOLUNTEER: 'volunteer'
-} 
+} as const;

@@ -2,7 +2,7 @@ import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomple
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import { DASSnackbar } from '../DASSnackbar.tsx';
-import { ENDPOINTS, HEADERS } from '../../types/constants.ts';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
 
 type FormData = {
@@ -76,8 +76,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
       return;
     } else {
       try {
-        HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateItem.id}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify({ quantity: Number(updateItem.quantity) + Number(formData.quantity) }) });
+        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateItem.id}`, { method: "PATCH", headers: API_HEADERS, body: JSON.stringify({ quantity: Number(updateItem.quantity) + Number(formData.quantity) }) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {

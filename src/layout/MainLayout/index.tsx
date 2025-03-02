@@ -17,7 +17,7 @@ import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { RefreshContextProvider } from '../../components/contexts/RefreshContextProvider';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User} from '../../types/interfaces';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { fetchWithRetry } from '../../components/fetchWithRetry';
 import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
 
@@ -46,7 +46,7 @@ const MainLayout: React.FC = () => {
         }
 
         if (userClaims?.userRoles?.includes('admin')) {
-          HEADERS['X-MS-API-ROLE'] = 'admin';
+          API_HEADERS['X-MS-API-ROLE'] = 'admin';
           try {
             const createdOrUpdatedAdmin = await upsertAdminUser({
               name: userClaims.userDetails ?? '',
@@ -103,7 +103,7 @@ const MainLayout: React.FC = () => {
 
           const patchResp = await fetch(`${ENDPOINTS.USERS}/id/${userId}`, {
             method: 'PATCH',
-            headers: HEADERS,
+            headers: API_HEADERS,
             body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
           });
 
@@ -114,7 +114,7 @@ const MainLayout: React.FC = () => {
           // Re-fetch updated record to ensure it reflects the latest state
           const updatedRecordResp = await fetch(`${ENDPOINTS.USERS}?$filter=id eq ${userId}`, {
             method: 'GET',
-            headers: HEADERS,
+            headers: API_HEADERS,
           });
 
           if (!updatedRecordResp.ok) {
@@ -129,7 +129,7 @@ const MainLayout: React.FC = () => {
           // No record found, create a new admin entry
           const createResp = await fetch(ENDPOINTS.USERS, {
             method: 'POST',
-            headers: HEADERS,
+            headers: API_HEADERS,
             body: JSON.stringify({
               name: adminInfo.name,
               email: adminInfo.email,

@@ -6,7 +6,7 @@
  */
 import { createContext } from 'react';
 import { UserContextType, ClientPrincipal } from '../../types/interfaces';
-import { ROLES } from '../../types/constants';
+import { USER_ROLES } from '../../types/constants';
 
 export const UserContext = createContext<UserContextType>({
   user: null,
@@ -18,12 +18,12 @@ export const UserContext = createContext<UserContextType>({
 });
 
 export function getRole(user: ClientPrincipal | null): string {
-  if (user?.userRoles?.includes(ROLES.VOLUNTEER)) {
-    return ROLES.VOLUNTEER;
+  if (user?.userRoles?.includes(USER_ROLES.VOLUNTEER)) {
+    return USER_ROLES.VOLUNTEER;
   }
 
-  if (user?.userRoles?.includes(ROLES.ADMIN)) {
-    return ROLES.ADMIN;
+  if (user?.userRoles?.includes(USER_ROLES.ADMIN)) {
+    return USER_ROLES.ADMIN;
   }
   
   throw new Error(`${user} - User is not a member of Admin or Volunteer role.`);

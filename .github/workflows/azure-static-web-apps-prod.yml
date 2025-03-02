@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      tag_exists: ${{ steps.check-tag.outputs.TAG_EXISTS }}
 
     steps:
     - name: Checkout code
@@ -56,6 +58,7 @@ jobs:
 
   build_and_deploy_job:
     needs: sync-tag
+    if: needs.sync-tag.outputs.tag_exists == 'false'
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     environment: production

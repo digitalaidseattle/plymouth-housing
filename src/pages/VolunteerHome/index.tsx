@@ -5,7 +5,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { InventoryItem } from '../../types/interfaces.ts';
 
 const VolunteerHome: React.FC = () => {
@@ -17,9 +17,9 @@ const VolunteerHome: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.ITEMS, {
-        headers: HEADERS,
+        headers: API_HEADERS,
         method: 'GET',
       });
       if (!response.ok) {

@@ -11,7 +11,7 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 
 const EnterPinPage: React.FC = () => {
@@ -34,10 +34,10 @@ const EnterPinPage: React.FC = () => {
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.VERIFY_PIN, {
         method: 'POST',
-        headers: HEADERS,
+        headers: API_HEADERS,
         body: JSON.stringify({
           VolunteerId: id,
           EnteredPin: enteredPin,
@@ -63,10 +63,10 @@ const EnterPinPage: React.FC = () => {
 
   const updateLastSignedIn = async (id: number) => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
         method: 'PATCH',
-        headers: HEADERS,
+        headers: API_HEADERS,
         body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
       });
 

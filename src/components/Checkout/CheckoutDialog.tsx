@@ -66,6 +66,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
       }
 
+      if (data.error){
+        throw new Error(`status: ${data.error.status}, message: ${data.error.message}`);
+      }
+
       const result = data.value[0];
       if (result.Status !== 'Success') {
         throw new Error(result.message);

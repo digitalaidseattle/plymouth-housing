@@ -30,7 +30,7 @@ const MainLayout: React.FC = () => {
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
-    onInactivity: () => window.location.href = "/.auth/logout?post_logout_redirect_uri=/logout.html",
+    onInactivity: () => window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html",
     timeout: SETTINGS.inactivity_timeout
   });
 

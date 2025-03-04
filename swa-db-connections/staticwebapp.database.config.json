@@ -209,6 +209,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "GetRecentTransactions": {
+      "source": {
+        "object": "dbo.GetRecentTransactions",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/get-recent-transactions"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
 
   }

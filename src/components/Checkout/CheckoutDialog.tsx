@@ -8,12 +8,14 @@ import {
   Button,
   Typography,
   Box,
+  CircularProgress,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
+import { useNavigate } from 'react-router-dom';
 
 type CheckoutDialogProps = {
   open: boolean;
@@ -34,6 +36,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (open) {
@@ -50,6 +54,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
   };
 
   const handleConfirm = async () => {
+    setIsProcessing(true);
     try {
       // 1. If no user is logged in, throw an error
       if (!loggedInUserId) {
@@ -67,19 +72,21 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       }
 
       const result = data.value[0];
-      if (result.Status !== 'Success') {
+      if (result.Status === 'Success') {
+        setActiveSection('');
+        setSelectedBuildingCode('');
+        fetchData();
+        setStatusMessage('Transaction Successful');
+        onClose();
+        navigate('/volunteer-home'); // Navigate only after successful transaction
+      } else {
         throw new Error(result.message);
       }
-      setActiveSection('');
-      setSelectedBuildingCode('');
-      fetchData();
-      setStatusMessage('Transaction Successful');
-
-      return null;
     } catch (error) {
       console.error('Transaction failed:', error);
       setStatusMessage('Transaction failed: ' + error);
-      return null;
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -87,7 +94,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     <Dialog
       sx={{
         '& .MuiDialog-paper': {
-          width: {xs: '80vw', md: '65vw' },
+          width: { xs: '80vw', md: '65vw' },
           maxHeight: '80vh',
           display: 'flex',
           alignItems: 'center',
@@ -99,7 +106,25 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <Box sx={{ width: {xs: '90%', s: '80%', md: '70%' }, paddingTop: '20px', height: '100%' }}>
+      <Box sx={{ width: { xs: '90%', s: '80%', md: '70%' }, paddingTop: '20px', height: '100%', position: 'relative' }}>
+        {isProcessing && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              zIndex: 1,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
         <DialogTitle sx={{ padding: '20px 0px 0px 0px' }} id="customized-dialog-title">
           <Typography sx={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
@@ -141,8 +166,25 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Typography>{statusMessage}</Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
-          <Button onClick={handleCancel} sx={{ color: 'black', textDecoration: 'underline' }}>Return to Checkout Page</Button>
-          <Button onClick={handleConfirm} sx={{ color: 'black', backgroundColor: '#F2F2F2' }}>Confirm</Button>
+          <Button 
+            onClick={handleCancel} 
+            sx={{
+            color: 'black', textDecoration: 'underline'
+            }}>Return to Checkout Page</Button>
+          <Button
+            onClick={handleConfirm}
+            disabled={isProcessing}
+            sx={{
+              color: 'black',
+              backgroundColor: '#F2F2F2',
+              '&.Mui-disabled': {
+                backgroundColor: '#E0E0E0',
+                color: '#757575'
+              }
+            }}
+          >
+            {isProcessing ? 'Working...' : 'Confirm'}
+          </Button>
         </DialogActions>
       </Box>
     </Dialog>

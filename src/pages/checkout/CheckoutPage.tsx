@@ -25,7 +25,7 @@ const CheckoutPage = () => {
   const [activeSection, setActiveSection] = useState<string>('');
 
   const theme = useTheme();
-  
+
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
@@ -279,7 +279,9 @@ const CheckoutPage = () => {
 
       <CheckoutDialog
         open={openSummary}
-        onClose={() => setOpenSummary(false)}
+        onClose={() => {
+          setOpenSummary(false);
+        }}
         checkoutItems={checkoutItems}
         welcomeBasketData={welcomeBasketData}
         addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}

@@ -217,7 +217,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/get-recent-transactions"
+        "path": "/recent-transactions"
       },
       "permissions": [
         {

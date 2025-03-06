@@ -6,7 +6,7 @@ import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
-import { ENDPOINTS, HEADERS } from "../../types/constants";
+import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants";
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -28,7 +28,7 @@ const Inventory = () => {
     status: null as null | HTMLElement,
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
   const tableContainerRef = useRef<HTMLElement | null>(null);
 
   const indexOfLastItem = currentPage * itemsPerPage;

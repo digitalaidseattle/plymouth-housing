@@ -39,6 +39,7 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
+        height: '100%',
         minHeight: '10vh',
         borderColor: removeButton ? '#D9D9D9' : null,
         borderWidth: removeButton ? '1px' : null,
@@ -50,6 +51,7 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
         <Tooltip title={item.name} arrow>
           <Typography sx={{ fontSize: removeButton ? '14px' : '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
         </Tooltip>
+        {item.description && <Typography>{item.description}</Typography>}
       </CardContent>
       <CardActions sx={{ overflow: 'hidden'}}>
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />

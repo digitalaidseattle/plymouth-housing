@@ -135,7 +135,7 @@ const UserTable: React.FC<UserTableProps> = ({
                   : 'None'}
               </TableCell>
               <TableCell>
-                <IconButton onClick={(e) => handleMenuOpen(e, user)}>
+                <IconButton aria-label="more" onClick={(e) => handleMenuOpen(e, user)}>
                   <MoreVertIcon />
                 </IconButton>
               </TableCell>

@@ -15,11 +15,11 @@ import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
-import { useNavigate } from 'react-router-dom';
 
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
+  onSuccess: () => void; 
   checkoutItems: CategoryProps[];
   welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
@@ -31,13 +31,12 @@ type CheckoutDialogProps = {
   setSelectedBuildingCode: (building: string) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, setSelectedBuildingCode }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, setSelectedBuildingCode, onSuccess }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (open) {
@@ -56,7 +55,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
   const handleConfirm = async () => {
     setIsProcessing(true);
     try {
-      // 1. If no user is logged in, throw an error
       if (!loggedInUserId) {
         throw new Error('No valid user (volunteer or admin) found. Cannot checkout.');
       }
@@ -65,7 +63,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const isWelcomeBasket = allItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
       if (isWelcomeBasket) {
-        // pass "loggedInUserId" to the processWelcomeBasket function
         data = await processWelcomeBasket(user, loggedInUserId, allItems, selectedBuildingCode);
       } else {
         data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
@@ -78,7 +75,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
-        navigate('/volunteer-home'); // Navigate only after successful transaction
+        onSuccess(); 
       } else {
         throw new Error(result.message);
       }

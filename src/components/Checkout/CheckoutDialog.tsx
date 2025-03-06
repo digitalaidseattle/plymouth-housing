@@ -11,9 +11,9 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
-import CheckoutCard from './CheckoutCard';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
+import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
   open: boolean;
@@ -26,9 +26,10 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
+  setSelectedBuildingCode: (building: string) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, setSelectedBuildingCode }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -64,13 +65,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       } else {
         data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
       }
-      console.log('data:', data);
 
       const result = data.value[0];
       if (result.Status !== 'Success') {
         throw new Error(result.message);
       }
       setActiveSection('');
+      setSelectedBuildingCode('');
       fetchData();
       setStatusMessage('Transaction Successful');
 
@@ -86,24 +87,25 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     <Dialog
       sx={{
         '& .MuiDialog-paper': {
-          width: '50vw',
-          minHeight: '60vh',
+          width: {xs: '80vw', md: '65vw' },
+          maxHeight: '80vh',
           display: 'flex',
           alignItems: 'center',
-          borderRadius: '10px'
+          flexDirection: 'column',
+          borderRadius: '15px',
         },
       }}
       onClose={onClose}
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <Box sx={{ width: '80%', paddingTop: '20px' }}>
+      <Box sx={{ width: {xs: '90%', s: '80%', md: '70%' }, paddingTop: '20px', height: '100%' }}>
         <DialogTitle sx={{ padding: '20px 0px 0px 0px' }} id="customized-dialog-title">
-          <Typography style={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
+          <Typography sx={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
-          <Typography>Building code: {selectedBuildingCode}</Typography>
-          <Typography>Total Items Checked Out: {allItems.reduce((acc, item) => acc + item.quantity, 0)}</Typography>
+          <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
+          <Typography><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
         </Box>
         <IconButton
           aria-label="close"
@@ -121,42 +123,27 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           flex: 1,
           overflowY: 'auto',
           padding: '0 20px',
-          maxHeight: '40vh',
+          height: '40vh',
+          borderTop: 'none',
         }}>
           {checkoutItems.map((section: CategoryProps) => {
-            return section.items.map((item: CheckoutItemProp) => (
-              <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
-                <CheckoutCard
-                  key={item.id}
-                  item={item}
-                  categoryCheckout={section}
-                  addItemToCart={(item, quantity) => {
-                    addItemToCart(item, quantity, section.category, section.category);
-                  }}
-                  removeItemFromCart={removeItemFromCart}
-                  removeButton={true}
-                  categoryLimit={section.checkout_limit}
-                  categoryName={section.category}
-                />
-              </Box>
-            ));
+            if (section.categoryCount > 0) {
+              return <CategorySection category={section} categoryCheckout={section} addItemToCart={(item, quantity) => {
+                addItemToCart(item, quantity, section.category, section.category);
+              }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} />
+            }
           })}
-
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel}>Return to Checkout Page</Button>
-          <Button onClick={handleConfirm} autoFocus>Confirm</Button>
-        </DialogActions>
-        <Box sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
+        <DialogContent sx={{
           padding: '10px',
           textAlign: 'center',
         }}>
           <Typography>{statusMessage}</Typography>
-        </Box>
+        </DialogContent>
+        <DialogActions sx={{ marginTop: 'auto' }}>
+          <Button onClick={handleCancel} sx={{ color: 'black', textDecoration: 'underline' }}>Return to Checkout Page</Button>
+          <Button onClick={handleConfirm} sx={{ color: 'black', backgroundColor: '#F2F2F2' }}>Confirm</Button>
+        </DialogActions>
       </Box>
     </Dialog>
   );

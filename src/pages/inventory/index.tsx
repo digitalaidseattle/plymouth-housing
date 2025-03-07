@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
@@ -28,10 +28,21 @@ const Inventory = () => {
     status: null as null | HTMLElement,
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
+  const tableContainerRef = useRef<HTMLElement | null>(null);
 
-  const indexOfLastItem = currentPage * SETTINGS.itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - SETTINGS.itemsPerPage;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const calculateItemsPerPage = () => {
+    if (tableContainerRef.current) {
+      const parentHeight = tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
+      const tableHeight = (parentHeight * 80) / 100; // Calculates the table height in px as 80% of the parent height
+      const items = Math.floor(tableHeight / 64); // Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
+      setItemsPerPage(items > 0 ? items - 1 : 1); // Subtract 1 because of header row
+    }
+  }
 
   const handleAddOpen = () => {
     setAddModal(true);
@@ -173,6 +184,14 @@ const Inventory = () => {
   }, [user, fetchData, fetchCategories]);
 
   useEffect(() => {
+    calculateItemsPerPage();
+    window.addEventListener('resize', calculateItemsPerPage);
+    return () => {
+      window.removeEventListener('resize', calculateItemsPerPage);
+    };
+  }, []);
+
+  useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();
     }, 300); // Reduces calls to filter while typing in search
@@ -190,7 +209,7 @@ const Inventory = () => {
   }
 
   return (
-    <Box>
+    <Box ref={tableContainerRef} sx={{ height: '100%' }}>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
         <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
@@ -225,9 +244,9 @@ const Inventory = () => {
       />
 
       {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '15px'}}>
         <Pagination
-          count={Math.ceil(displayData.length / SETTINGS.itemsPerPage)}
+          count={Math.ceil(displayData.length / itemsPerPage)}
           page={currentPage}
           onChange={handlePageChange}
         />

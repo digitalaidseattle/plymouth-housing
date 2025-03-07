@@ -1,3 +1,12 @@
+/**
+ * SnackbarAlert.tsx
+ *
+ * Display an alert
+ * user sererity for "error", "warning", "info", "success"
+ *
+ *
+ */
+
 import React from 'react';
 import { Snackbar, Alert } from '@mui/material';
 

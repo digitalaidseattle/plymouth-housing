@@ -22,8 +22,11 @@ export const ENDPOINTS = {
 export const SETTINGS = {
   itemsPerPage: 10,
   database_retry_attempts: 20,
-  database_retry_delay: 5000
+  database_retry_delay: 5000,
+  inactivity_timeout: 15 * 60 * 1000 // 15 minutes in milliseconds
 }
+
+
 
 export const USER_ROLES = {
   ADMIN: 'admin',

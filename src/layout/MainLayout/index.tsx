@@ -18,6 +18,8 @@ import { RefreshContextProvider } from '../../components/contexts/RefreshContext
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User} from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
+import { useInactivityTimer } from '../../hooks/useInactivityTimer';
+import { SETTINGS } from '../../types/constants';
 import { fetchWithRetry } from '../../components/fetchWithRetry';
 import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
 
@@ -29,7 +31,13 @@ const MainLayout: React.FC = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
   const navigate = useNavigate();
-  
+
+  // Add inactivity timer
+  const resetTimer = useInactivityTimer({
+    onInactivity: () => window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html",
+    timeout: SETTINGS.inactivity_timeout
+  });
+
   useEffect(() => {
     const fetchTokenAndRole = async () => {
       const response = await fetch('/.auth/me');
@@ -171,7 +179,12 @@ const MainLayout: React.FC = () => {
     <DrawerOpenContext.Provider value={{ drawerOpen, setDrawerOpen }}>
       <RefreshContextProvider>
         <ScrollTop>
-          <Box sx={{ display: 'flex', width: '100%' }}>
+          <Box 
+            sx={{ display: 'flex', width: '100%' }}
+            onMouseMove={resetTimer}
+            onClick={resetTimer}
+            onKeyPress={resetTimer}
+          >
             <Header
               open={drawerOpen}
               handleDrawerToggle={handleDrawerToggle}

@@ -10,6 +10,7 @@ import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -23,6 +24,13 @@ const CheckoutPage = () => {
   const [openSummary, setOpenSummary] = useState<boolean>(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning';
+  }>({ open: false, message: '', severity: 'warning' });
+
 
   const theme = useTheme();
   
@@ -127,12 +135,18 @@ const CheckoutPage = () => {
       API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.BUILDINGS, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
-        throw new Error(response.statusText);
+        if (response.status === 500) {
+          throw new Error('Database is likely starting up. Try again in 30 seconds.');
+        } else { 
+          throw new Error(response.statusText);
+        }
       }
+
       const data = await response.json();
       setBuildings(data.value);
     }
     catch (error) {
+      setError('Could not get data. \r\n' + error);
       console.error('Error fetching buildings:', error);
     }
   }, [user]);
@@ -169,6 +183,20 @@ const CheckoutPage = () => {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
     }
   }, [user]);
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') return;
+    setSnackbarState({ ...snackbarState, open: false });
+  };
+
+  useEffect(() => {
+    if (error) {
+      setSnackbarState({ open: true, message: error, severity: 'warning' });
+    }
+  }, [error]);
 
   useEffect(() => {
     fetchBuildings();
@@ -290,6 +318,13 @@ const CheckoutPage = () => {
         fetchData={fetchData}
         setSelectedBuildingCode={setSelectedBuildingCode}
       />
+      <SnackbarAlert
+        open={snackbarState.open}
+        onClose={handleSnackbarClose}
+        severity={snackbarState.severity}
+      >
+        {snackbarState.message}
+      </SnackbarAlert>
     </Box>
     </>
   );

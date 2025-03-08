@@ -127,14 +127,14 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({ filters, anchors, cat
           onClose={() => handleMenuClick('status', '')}
           anchorEl={anchors.status}
         >
-          <MenuItem onClick={() => handleMenuClick('status', 'Low')}>
-            Low
+          <MenuItem onClick={() => handleMenuClick('status', 'Out of Stock')}>
+            Out of Stock
           </MenuItem>
-          <MenuItem onClick={() => handleMenuClick('status', 'Medium')}>
-            Medium
+          <MenuItem onClick={() => handleMenuClick('status', 'Low Stock')}>
+            Low Stock
           </MenuItem>
-          <MenuItem onClick={() => handleMenuClick('status', 'High')}>
-            High
+          <MenuItem onClick={() => handleMenuClick('status', 'Normal Stock')}>
+            Normal Stock
           </MenuItem>
         </Menu>
       </Box>

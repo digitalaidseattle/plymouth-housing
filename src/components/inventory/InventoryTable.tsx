@@ -17,11 +17,11 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
   }
 
   return (
-    <Box id="inventory-container" sx={{ marginY: '10px' }}>
+    <Box id="inventory-container" sx={{ marginTop: '10px'}}>
       <TableContainer component={Paper}>
         <Table sx={{ tableLayout: 'fixed' }}>
           <TableHead>
-            <TableRow>
+            <TableRow sx={{ height: '64px' }}>
               <TableCell
                 sx={{
                   fontWeight: 'bold',
@@ -50,13 +50,14 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
             {currentItems.map((row, index) => (
               <TableRow
                 key={index}
-                component={Paper}
                 sx={{
+                  height: '64px',
                   boxShadow:
-                    '0px 3px 6px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3)',
+                  '0px -1px 0px 0px rgb(212, 212, 212);',
                 }}
               >
-                <TableCell sx={{ width: '20%' }}>{row.name}</TableCell>
+                <TableCell sx={{
+                  width: '20%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{row.name}</TableCell>
                 <TableCell sx={{
                   width: '30%',
                   overflow: 'hidden',
@@ -68,14 +69,14 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   </Tooltip>
                 </TableCell>
 
-                <TableCell sx={{ width: '12,5%' }}>{row.type}</TableCell>
-                <TableCell sx={{ width: '12.5%' }}>{row.category}</TableCell>
-                <TableCell sx={{ width: '12.5%' }}>
+                <TableCell sx={{ width: '12,5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{row.type}</TableCell>
+                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{row.category}</TableCell>
+                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                   <Chip
                     label={row.status}
                     sx={{
-                      backgroundColor: row.status === 'Low' ? '#FDECEA' : row.status === 'Medium' ? '#FFF9C4' : '#E6F4EA',
-                      color: row.status === 'Low' ? '#D32F2F' : row.status === 'Medium' ? '#6A4E23' : '#357A38',
+                      backgroundColor: row.status === 'Out of Stock' ? '#FDECEA' : row.status === 'Low Stock' ? '#FFF9C4' : '#E6F4EA',
+                      color: row.status === 'Out of Stock' ? '#D32F2F' : row.status === 'Low Stock' ? '#6A4E23' : '#357A38',
                       borderRadius: '8px',
                       px: 1.5,
                     }}

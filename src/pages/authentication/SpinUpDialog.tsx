@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, Box, CircularProgress, Typography } from "@mui/material";
-import { settings } from "../../types/constants";
+import { SETTINGS } from "../../types/constants";
 
 interface SpinUpDialogProps {
   open: boolean;
@@ -13,7 +13,7 @@ const SpinUpDialog: React.FC<SpinUpDialogProps> = ({ open, retryCount }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2 }}>
         <CircularProgress size={24} />
         <Typography>
-          Please wait while the database is starting... (Attempt {retryCount} of {settings.database_retry_attempts})
+          Please wait while the database is starting... (Attempt {retryCount} of {SETTINGS.database_retry_attempts})
         </Typography>
       </Box>
     </DialogContent>

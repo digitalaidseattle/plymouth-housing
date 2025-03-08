@@ -17,7 +17,7 @@ vi.mock('react-router-dom', () => ({
 vi.mock('./fetchWithRetry', () => ({
   fetchWithRetry: vi.fn(),
 }));
-import { fetchWithRetry } from './fetchWithRetry';
+import { fetchWithRetry } from '../../components/fetchWithRetry';
 
 // Mock SpinUpDialog to render a simple div with a test id.
 vi.mock('./SpinUpDialog', () => ({

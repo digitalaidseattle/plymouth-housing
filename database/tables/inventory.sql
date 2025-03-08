@@ -11,8 +11,7 @@ CREATE TABLE Items (
     category_id INT NOT NULL,
     description VARCHAR(255),
     quantity INT NOT NULL,
-    low INT NOT NULL,
-    medium INT NOT NULL,
+    threshold INT NOT NULL,
     items_per_basket INT
 );
 GO
@@ -27,9 +26,9 @@ AS
         i.description,
         i.quantity,
         CASE
-            WHEN i.quantity <= i.low THEN 'Low'
-            WHEN i.quantity > i.low AND i.quantity <= i.medium THEN 'Medium'
-            ELSE 'High'
+            WHEN i.quantity <= 0 THEN 'Out of Stock'
+            WHEN i.quantity > 0 AND i.quantity <= i.threshold THEN 'Low Stock'
+            ELSE 'Normal Stock'
         END AS status
     FROM
         Items i

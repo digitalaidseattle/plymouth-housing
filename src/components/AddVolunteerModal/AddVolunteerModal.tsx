@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import { AddVolunteerModalProps } from '../../types/interfaces';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../contexts/UserContext';
 
 const AddVolunteerModal = ({
@@ -65,10 +65,10 @@ const AddVolunteerModal = ({
     }
 
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.USERS, {
         method: 'POST',
-        headers: HEADERS,
+        headers: API_HEADERS,
         body: JSON.stringify({ ...formData, active: true, role: 'volunteer' }),
       });
       if (!response.ok) {

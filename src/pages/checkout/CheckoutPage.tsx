@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Grid, Typography, useTheme } from '@mui/material';
 import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
@@ -11,6 +11,7 @@ import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -24,6 +25,13 @@ const CheckoutPage = () => {
   const [openSummary, setOpenSummary] = useState<boolean>(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning';
+  }>({ open: false, message: '', severity: 'warning' });
+
 
   const theme = useTheme();
   const navigate = useNavigate(); 
@@ -125,23 +133,29 @@ const CheckoutPage = () => {
 
   const fetchBuildings = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.BUILDINGS, { headers: HEADERS, method: 'GET' });
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.BUILDINGS, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
-        throw new Error(response.statusText);
+        if (response.status === 500) {
+          throw new Error('Database is likely starting up. Try again in 30 seconds.');
+        } else { 
+          throw new Error(response.statusText);
+        }
       }
+
       const data = await response.json();
       setBuildings(data.value);
     }
     catch (error) {
+      setError('Could not get data. \r\n' + error);
       console.error('Error fetching buildings:', error);
     }
   }, [user]);
 
   const fetchData = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -170,6 +184,20 @@ const CheckoutPage = () => {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
     }
   }, [user]);
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') return;
+    setSnackbarState({ ...snackbarState, open: false });
+  };
+
+  useEffect(() => {
+    if (error) {
+      setSnackbarState({ open: true, message: error, severity: 'warning' });
+    }
+  }, [error]);
 
   useEffect(() => {
     fetchBuildings();
@@ -298,6 +326,13 @@ const CheckoutPage = () => {
         fetchData={fetchData}
         setSelectedBuildingCode={setSelectedBuildingCode}
       />
+      <SnackbarAlert
+        open={snackbarState.open}
+        onClose={handleSnackbarClose}
+        severity={snackbarState.severity}
+      >
+        {snackbarState.message}
+      </SnackbarAlert>
     </Box>
     </>
   );

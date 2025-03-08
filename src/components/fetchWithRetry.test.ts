@@ -14,6 +14,7 @@ const createFetchConfig = (overrides = {}) => ({
   url: 'https://example.com',
   options: {},
   user: dummyUser,
+  role: 'volunteer', 
   setShowSpinUpDialog: vi.fn(),
   setRetryCount: vi.fn(),
   ...overrides,

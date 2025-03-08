@@ -6,7 +6,7 @@ import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
-import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants";
+import { ENDPOINTS, API_HEADERS, SETTINGS } from "../../types/constants";
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -148,8 +148,8 @@ const Inventory = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: HEADERS, method: 'GET' });
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -166,8 +166,8 @@ const Inventory = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORY, { headers: HEADERS, method: 'GET' });
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORY, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

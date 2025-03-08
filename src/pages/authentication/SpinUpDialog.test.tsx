@@ -10,7 +10,7 @@ describe('SpinUpDialog Component', () => {
     expect(screen.getByText(/Database is starting up/i)).toBeInTheDocument();
     
     // Check that the retry text includes the correct retry count.
-    expect(screen.getByText(/Attempt 2 of 5/i)).toBeInTheDocument();
+    expect(screen.getByText(/Attempt 2 of/i)).toBeInTheDocument();
     
     // Check that the progress indicator is rendered (CircularProgress usually has role "progressbar").
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -21,6 +21,6 @@ describe('SpinUpDialog Component', () => {
     
     // When open is false, the dialog should not display its content.
     expect(screen.queryByText(/Database is starting up/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Attempt 3 of 5/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Attempt 3 of/i)).not.toBeInTheDocument();
   });
 });

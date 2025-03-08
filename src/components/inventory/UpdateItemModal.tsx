@@ -3,7 +3,7 @@ import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomple
 import { useContext, useMemo, useState } from 'react';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
-import { ENDPOINTS, HEADERS } from '../../types/constants.ts';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
 
 type FormData = {
@@ -111,8 +111,8 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
       setErrorMessage('Missing Information')
     } else {
       try {
-        HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers: HEADERS, body: JSON.stringify(formData) });
+        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers: API_HEADERS, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {
@@ -134,8 +134,8 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
       setErrorMessage('Missing Information')
     } else {
       try {
-        HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify(formData) });
+        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers: API_HEADERS, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {

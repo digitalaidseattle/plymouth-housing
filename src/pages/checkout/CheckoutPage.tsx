@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Grid, Typography, useTheme } from '@mui/material';
 import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
@@ -132,8 +132,8 @@ const CheckoutPage = () => {
 
   const fetchBuildings = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.BUILDINGS, { headers: HEADERS, method: 'GET' });
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.BUILDINGS, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error('Database is likely starting up. Try again in 30 seconds.');
@@ -153,8 +153,8 @@ const CheckoutPage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: HEADERS, method: 'GET' });
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
@@ -6,7 +6,7 @@ import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
-import { ENDPOINTS, HEADERS, SETTINGS } from "../../types/constants";
+import { ENDPOINTS, API_HEADERS, SETTINGS } from "../../types/constants";
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 const Inventory = () => {
@@ -35,10 +35,21 @@ const Inventory = () => {
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
+  const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
+  const tableContainerRef = useRef<HTMLElement | null>(null);
 
-  const indexOfLastItem = currentPage * SETTINGS.itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - SETTINGS.itemsPerPage;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const calculateItemsPerPage = () => {
+    if (tableContainerRef.current) {
+      const parentHeight = tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
+      const tableHeight = (parentHeight * 80) / 100; // Calculates the table height in px as 80% of the parent height
+      const items = Math.floor(tableHeight / 64); // Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
+      setItemsPerPage(items > 0 ? items - 1 : 1); // Subtract 1 because of header row
+    }
+  }
 
   const handleAddOpen = () => {
     setAddModal(true);
@@ -144,9 +155,8 @@ const Inventory = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: HEADERS, method: 'GET' });
-
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error('Database is likely starting up. Try again in 30 seconds.');
@@ -168,8 +178,8 @@ const Inventory = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORY, { headers: HEADERS, method: 'GET' });
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.CATEGORY, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -184,6 +194,14 @@ const Inventory = () => {
     fetchData();
     fetchCategories();
   }, [user, fetchData, fetchCategories]);
+
+  useEffect(() => {
+    calculateItemsPerPage();
+    window.addEventListener('resize', calculateItemsPerPage);
+    return () => {
+      window.removeEventListener('resize', calculateItemsPerPage);
+    };
+  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -217,7 +235,7 @@ const Inventory = () => {
   }
 
   return (
-    <Box>
+    <Box ref={tableContainerRef} sx={{ height: '100%' }}>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
         <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
@@ -252,9 +270,9 @@ const Inventory = () => {
       />
 
       {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '15px'}}>
         <Pagination
-          count={Math.ceil(displayData.length / SETTINGS.itemsPerPage)}
+          count={Math.ceil(displayData.length / itemsPerPage)}
           page={currentPage}
           onChange={handlePageChange}
         />

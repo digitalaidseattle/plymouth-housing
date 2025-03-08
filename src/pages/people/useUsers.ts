@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { User } from '../../types/interfaces';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
-import { ENDPOINTS, HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
 const useUsers = () => {
   const { user } = useContext(UserContext);
@@ -12,11 +12,11 @@ const useUsers = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      HEADERS['X-MS-API-ROLE'] = getRole(user);
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(
         `${ENDPOINTS.USERS}`,
         {
-          headers: HEADERS,
+          headers: API_HEADERS,
           method: 'GET',
         },
       );
@@ -48,14 +48,14 @@ const updateUserStatus = async (userId: number) => {
 
     const updatedStatus = !userToUpdate.active;
 
-    const requestUrl = `${ENDPOINTS.USERS}/id/${userId}`;
-    HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const requestUrl = `${ENDPOINTS.USERS}/id/${userId}`;
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
 
-    const response = await fetch(requestUrl, {
-      method: 'PATCH',
-      headers: HEADERS,
-      body: JSON.stringify({ active: updatedStatus }),
-    });
+      const response = await fetch(requestUrl, {
+        method: 'PATCH',
+        headers: API_HEADERS,
+        body: JSON.stringify({ active: updatedStatus }),
+      });
 
     if (!response.ok) {
       // Parse error details

@@ -10,6 +10,7 @@ import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
+import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 const CheckoutPage = () => {
@@ -33,7 +34,7 @@ const CheckoutPage = () => {
 
 
   const theme = useTheme();
-  
+  const navigate = useNavigate(); 
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
@@ -207,6 +208,10 @@ const CheckoutPage = () => {
     setFilteredData(data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'));
   }, [data])
 
+  const handleCheckoutSuccess = () => {
+    navigate('/volunteer-home');
+  };
+
   return (
     <>
     {/* Container for the sticky nav */}
@@ -307,7 +312,10 @@ const CheckoutPage = () => {
 
       <CheckoutDialog
         open={openSummary}
-        onClose={() => setOpenSummary(false)}
+        onClose={() => {
+          setOpenSummary(false);
+        }}
+        onSuccess={handleCheckoutSuccess}
         checkoutItems={checkoutItems}
         welcomeBasketData={welcomeBasketData}
         addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}

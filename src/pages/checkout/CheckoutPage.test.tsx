@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import '@testing-library/jest-dom';
 import { UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS } from '../../types/constants';
+import { BrowserRouter } from 'react-router-dom';
 
 const mockUserContext = {
   user: { id: 1, userDetails: 'Test User', userRoles: ['volunteer'], userID: "bob" },
@@ -56,9 +57,11 @@ describe('CheckoutPage', async () => {
     }) as Mock;
     await act(async () => {
       render(
-        <UserContext.Provider value={mockUserContext}>
-          <CheckoutPage />
-        </UserContext.Provider>
+        <BrowserRouter>
+          <UserContext.Provider value={mockUserContext}>
+            <CheckoutPage />
+          </UserContext.Provider>
+        </BrowserRouter>
       );
     });
   });

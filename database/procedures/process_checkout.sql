@@ -8,7 +8,7 @@ CREATE PROCEDURE ProcessCheckout
     @message NVARCHAR(MAX) = NULL OUTPUT,
     @unit_number VARCHAR(10),
     @resident_name VARCHAR(50),
-    @additional_notes TEXT
+    @additional_notes TEXT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -123,7 +123,8 @@ BEGIN
             EXEC LogTransactionItem
                 @transaction_id = @TransactionId,
                 @item_id = @CurrentItemId,
-                @quantity = @CurrentQuantity;
+                @quantity = @CurrentQuantity,
+                @additional_notes = @additional_notes;
                 
             FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
             

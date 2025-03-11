@@ -5,7 +5,10 @@ CREATE PROCEDURE ProcessCheckout
     @user_id INT,
     @items NVARCHAR(MAX),
     @building_code NVARCHAR(50),
-    @message NVARCHAR(MAX) = NULL OUTPUT
+    @message NVARCHAR(MAX) = NULL OUTPUT,
+    @unit_number VARCHAR(10),
+    @resident_name VARCHAR(50),
+    @additional_notes TEXT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -103,17 +106,27 @@ BEGIN
         OPEN item_cursor
         FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
         
+        EXEC LogTransaction
+            @user_id = @user_id,
+            @transaction_type = 'CHECKOUT',
+            @building_id = @building_id,
+            @resident_name = @resident_name,
+            @unit_number = @unit_number;
+        
+        -- get id from the transaction
+        SELECT TOP 1 @TransactionId = id
+        FROM [dbo].[Transactions]
+        ORDER BY id DESC;
+
         WHILE @@FETCH_STATUS = 0
         BEGIN
-            EXEC LogTransaction 
-                @user_id = @user_id,
+            EXEC LogTransactionItem
                 @transaction_id = @TransactionId,
                 @item_id = @CurrentItemId,
-                @transaction_type = 'CHECKOUT',
-                @quantity = @CurrentQuantity,
-                @building_id = @building_id;
+                @quantity = @CurrentQuantity;
                 
             FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
+            
         END
         
         CLOSE item_cursor

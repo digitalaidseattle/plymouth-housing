@@ -3,27 +3,24 @@ GO
 
 CREATE PROCEDURE LogTransaction
     @user_id INT,
-    @transaction_id UNIQUEIDENTIFIER,
-    @item_id INT,
     @transaction_type VARCHAR(50),
-    @quantity INT,
-    @building_id INT
+    @building_id INT,
+    @unit_number VARCHAR(10),
+    @resident_name VARCHAR(50)
 AS
 BEGIN
     INSERT INTO Transactions (
         user_id,
-        transaction_id,
-        item_id,
         transaction_type,
-        quantity,
-        building_id
+        building_id,
+        unit_number,
+        resident_name
     )
     VALUES (
         @user_id,
-        @transaction_id,
-        @item_id,
         @transaction_type,
-        @quantity,
-        @building_id
+        @building_id,
+        @unit_number,
+        @resident_name
     );
 END;

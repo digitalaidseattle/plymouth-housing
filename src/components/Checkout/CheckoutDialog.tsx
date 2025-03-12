@@ -4,13 +4,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  IconButton,
   Button,
   Typography,
   Box,
   CircularProgress,
 } from '@mui/material';
-import { Close } from '@mui/icons-material';
 import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';

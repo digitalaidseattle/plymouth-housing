@@ -1,17 +1,23 @@
-print 'Test checkout'
-exec ProcessCheckout 
+-- should create an entry in Transactions 
+-- then an entry for each item in TransactionItems
+PRINT 'Checkout test with two items'
+EXEC ProcessCheckout 
     @user_id = 1, 
     @building_code = "ALM", 
     @items = N'[
       {
-        "id": 3,
+        "id": 13,
         "quantity": 1
       },
       {
-        "id": 4,
+        "id": 14,
         "quantity": 2
+      },
+      {
+        "id": 100,
+        "quantity": 1
       }
     ]', 
-    @additional_notes = 'Test notes', 
-    @resident_name = 'John Doe', 
-    @unit_number = '101'
+    @additional_notes = 'martins stuff', 
+    @resident_name = 'martin', 
+    @unit_number = '301'

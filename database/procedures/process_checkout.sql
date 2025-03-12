@@ -113,10 +113,10 @@ BEGIN
             @resident_name = @resident_name,
             @unit_number = @unit_number;
         
-        -- get id from the transaction
+        -- get id from the latest transaction
         SELECT TOP 1 @TransactionId = id
         FROM [dbo].[Transactions]
-        ORDER BY id DESC;
+        ORDER BY transaction_date DESC;
 
         WHILE @@FETCH_STATUS = 0
         BEGIN

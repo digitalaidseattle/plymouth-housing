@@ -8,6 +8,7 @@ DROP PROCEDURE IF EXISTS CheckCartItemLimit;
 
 DROP TYPE IF EXISTS CartItemsType;
 
+DROP TABLE IF EXISTS TransactionItems; -- Has a Foreign Key constraint on Items.
 DROP TABLE IF EXISTS Transactions; -- Has a Foreign Key constraint on Items.
 DROP TABLE IF EXISTS Items;
 DROP TABLE IF EXISTS Categories;

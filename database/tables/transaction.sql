@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS [dbo].[TransactionItems]; -- Has a Foreign Key constraint on Transactions.
 DROP TABLE IF EXISTS [dbo].[Transactions];
 GO
 

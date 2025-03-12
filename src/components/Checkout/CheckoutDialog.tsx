@@ -19,7 +19,7 @@ import CategorySection from './CategorySection';
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void; 
+  onSuccess: () => void;
   checkoutItems: CategoryProps[];
   welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
@@ -79,7 +79,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
-        onSuccess(); 
+        onSuccess();
       } else {
         throw new Error(result.message);
       }
@@ -133,18 +133,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
           <Typography><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
         </Box>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <Close />
-        </IconButton>
         <DialogContent dividers sx={{
           flex: 1,
           overflowY: 'auto',
@@ -167,8 +155,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Typography>{statusMessage}</Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
-          <Button 
-            onClick={handleCancel} 
+          <Button
+            onClick={handleCancel}
             sx={{
             color: 'black', textDecoration: 'underline'
             }}>Return to Checkout Page</Button>

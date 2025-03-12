@@ -33,11 +33,8 @@ const VolunteerHome: React.FC = () => {
     setIsLoading(false);
   }, [user]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const handleAddOpen = () => {
+  const handleAddOpen = async () => {
+    await fetchData();
     setAddModal(true);
   };
 

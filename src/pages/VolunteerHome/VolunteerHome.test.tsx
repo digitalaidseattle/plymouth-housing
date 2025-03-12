@@ -50,22 +50,11 @@ describe('VolunteerHome Component', () => {
   });
 
   test('renders header and buttons correctly on successful fetch', async () => {
-    // Mock fetch to return inventory data (even though the component does not directly display the inventory data,
-    // it passes the data to AddItemModal)
-    const fakeData = { value: [{ id: 1 }, { id: 2 }] };
-    (global.fetch as any) = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => fakeData,
-    });
-
     render(
       <Wrapper>
         <VolunteerHome />
       </Wrapper>
     );
-
-    // Wait for fetch to complete (the component calls fetchData and sets isLoading to false)
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
 
     // Verify header content; note that the date part cannot be compared precisely, so only keywords are checked
     expect(screen.getByText(/Thanks for being here!/i)).toBeInTheDocument();
@@ -73,24 +62,14 @@ describe('VolunteerHome Component', () => {
     // Verify that the Check Out and Add Item buttons exist
     expect(screen.getByRole('button', { name: /Check Out/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Add Item/i })).toBeInTheDocument();
-
-    // Verify that AddItemModal is initially closed and that the inventory data count is correct (2 items in this case)
-    expect(screen.getByTestId('add-item-modal')).toHaveTextContent('Modal Closed - 2 items');
   });
 
   test('navigates to checkout when Check Out button is clicked', async () => {
-    (global.fetch as any) = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ value: [] }),
-    });
-
     render(
       <Wrapper>
         <VolunteerHome />
       </Wrapper>
     );
-
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
     const checkOutButton = screen.getByRole('button', { name: /Check Out/i });
     fireEvent.click(checkOutButton);
@@ -110,8 +89,6 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-
     // Initially, the modal should be closed
     const modal = screen.getByTestId('add-item-modal');
     expect(modal).toHaveTextContent('Modal Closed');
@@ -119,6 +96,8 @@ describe('VolunteerHome Component', () => {
     // After clicking the Add Item button, the modal should open
     const addItemButton = screen.getByRole('button', { name: /Add Item/i });
     fireEvent.click(addItemButton);
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
     await waitFor(() => {
       expect(screen.getByTestId('add-item-modal')).toHaveTextContent('Modal Open');
@@ -149,10 +128,36 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
+    // After clicking the Add Item button, the fetch call should happen
+    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
+    fireEvent.click(addItemButton);
+
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
     // Check that console.error was called (the component logs error via console.error)
     expect(consoleErrorSpy).toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
+  });
+
+  test('fetches data successfully and updates state', async () => {
+    const mockData = [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }];
+    (global.fetch as any) = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ value: mockData }),
+    });
+
+    render(
+      <Wrapper>
+        <VolunteerHome />
+      </Wrapper>
+    );
+
+    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
+    fireEvent.click(addItemButton);
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+
+    // Check if the state is updated with fetched data
+    expect(screen.getByTestId('add-item-modal')).toHaveTextContent('2 items');
   });
 });

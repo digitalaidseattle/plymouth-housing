@@ -3,7 +3,6 @@ import MainLayout from '../layout/MainLayout';
 import MinimalLayout from '../layout/MinimalLayout';
 import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
-import DashboardDefault from './dashboard';
 import Page404 from './error/404';
 import Inventory from './inventory';
 import VolunteerHome from './VolunteerHome';
@@ -17,7 +16,7 @@ const routes = [
     children: [
       {
         path: '',
-        element: <DashboardDefault />,
+        element: <VolunteerHome />,
       },
       {
         path: 'inventory',

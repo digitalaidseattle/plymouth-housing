@@ -3,21 +3,17 @@
 PRINT 'Checkout test with two items'
 EXEC ProcessCheckout 
     @user_id = 1, 
-    @building_code = "ALM", 
+    @building_code = "HUM", 
     @items = N'[
       {
-        "id": 13,
+        "id": 79,
         "quantity": 1
       },
       {
-        "id": 14,
-        "quantity": 2
-      },
-      {
-        "id": 100,
+        "id": 46,
         "quantity": 1
       }
     ]', 
-    @additional_notes = 'martins stuff', 
-    @resident_name = 'martin', 
-    @unit_number = '301'
+    @additional_notes = 'nicos stuff', 
+    @resident_name = 'nico', 
+    @unit_number = '201'

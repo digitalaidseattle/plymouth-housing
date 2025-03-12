@@ -10,9 +10,10 @@ AS
 BEGIN
     SELECT *
     FROM Transactions t
+    JOIN TransactionItems ti ON t.id = ti.transaction_id
     JOIN Buildings b ON t.building_id = b.id
     WHERE b.code = @building_code
       AND t.unit_number = @unit_number
-      AND t.item_id = @item_id
+      AND ti.item_id = @item_id
       AND t.transaction_date >= DATEADD(MONTH, -@months, GETDATE());
 END;

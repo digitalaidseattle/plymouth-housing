@@ -5,7 +5,7 @@ exec ProcessCheckout
     @items = N'[
       {
         "id": 3,
-        "quantity": 4
+        "quantity": 1
       },
       {
         "id": 4,

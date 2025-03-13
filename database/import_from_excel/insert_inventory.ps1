@@ -4,19 +4,20 @@ function Get-CategoryId {
     )
     
     $categoryMap = @{
-        'Bathroom' = 5
-        'Bedding' = 8
-        'Cleaning' = 11
-        'Jacket' = 13
-        'Food' = 6
-        'Home goods' = 1
-        'Miscellaneous' = 4
-        'Personal care' = 10
-        'Harm reduction' = 7
-        'Kitchen' = 3
+        'Home Goods' = 1
         'Appliance' = 2
+        'Kitchen' = 3
+        'Miscellaneous' = 4
+        'Bathroom' = 5
+        'Food' = 6
+        'Harm Reduction' = 7
+        'Bedding' = 8
         'Décor' = 9
-        'Garments' = 12
+        'Personal Care' = 10
+        'Pet Supplies' = 11
+        'Cleaning' = 12
+        'Garments' = 13
+        'Jacket' = 14
     }
     
     # Remove anything after parenthesis and trim
@@ -42,7 +43,7 @@ try {
     
     # Create SQL file
     $output = "DELETE FROM Items;`nGO`n`n"
-    $output += "INSERT INTO Items (name, type, category_id, quantity, low, medium, description) VALUES`n"
+    $output += "INSERT INTO Items (name, type, category_id, quantity, description, threshold) VALUES`n"
     
     # Process each row
     for ($row = 2; $row -le $lastRow; $row++) {
@@ -53,14 +54,13 @@ try {
         
         if ($name) {
             $categoryId = Get-CategoryId -category $category
-            $low = Get-Random -Minimum 1 -Maximum 11
-            $medium = Get-Random -Minimum 10 -Maximum 31
+            $threshold = $worksheet.Cells($row, 7).Text
             
             # Escape single quotes in strings
             $name = $name.Replace("'", "''")
             $description = $description.Replace("'", "''")
             
-            $output += "('$name', 'General', $categoryId, $quantity, $low, $medium, '$description'),`n"
+            $output += "('$name', 'General', $categoryId, $quantity, '$description', $threshold),`n"
         }
     }
     

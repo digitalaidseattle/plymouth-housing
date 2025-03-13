@@ -83,9 +83,6 @@ BEGIN
             ERROR_MESSAGE() AS message;
         RETURN;
     END CATCH
-
-    -- Generate a single transaction ID for the entire basket
-    DECLARE @TransactionId UNIQUEIDENTIFIER = NEWID()
     
     BEGIN TRANSACTION
     
@@ -115,6 +112,7 @@ BEGIN
             @unit_number = @unit_number;
         
         -- get id from the latest transaction
+        DECLARE @TransactionId UNIQUEIDENTIFIER
         SELECT TOP 1 @TransactionId = id
         FROM [dbo].[Transactions]
         ORDER BY transaction_date DESC;

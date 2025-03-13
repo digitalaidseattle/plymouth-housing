@@ -7,8 +7,7 @@ CREATE PROCEDURE ProcessCheckout
     @building_code NVARCHAR(50),
     @message NVARCHAR(MAX) = NULL OUTPUT,
     @unit_number VARCHAR(10),
-    @resident_name VARCHAR(50),
-    @additional_notes TEXT = NULL
+    @resident_name VARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;

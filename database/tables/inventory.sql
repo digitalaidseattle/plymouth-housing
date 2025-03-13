@@ -14,6 +14,7 @@ CREATE TABLE Items (
     low INT NOT NULL,
     medium INT NOT NULL,
     items_per_basket INT,
+    requires_tracking BIT NOT NULL DEFAULT 0
 );
 GO
 

@@ -37,10 +37,11 @@ BEGIN
     DECLARE @CartItems CartItemsType
     
     -- Parse the JSON array into our table variable
-    INSERT INTO @CartItems (ItemId, Quantity)
+    INSERT INTO @CartItems (ItemId, Quantity, AdditionalNotes)
     SELECT 
         ItemId = JSON_VALUE([value], '$.id'),
-        Quantity = JSON_VALUE([value], '$.quantity')
+        Quantity = JSON_VALUE([value], '$.quantity'),
+        AdditionalNotes = JSON_VALUE([value], '$.additional_notes')
     FROM OPENJSON(@items, '$')
 
     -- Check if the cart exceeds the item limit
@@ -99,12 +100,13 @@ BEGIN
         -- Log each item in the transaction
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
+        DECLARE @CurrentAdditionalNotes VARCHAR(255)
         
         DECLARE item_cursor CURSOR FOR
-        SELECT ItemId, Quantity FROM @CartItems
+        SELECT ItemId, Quantity, AdditionalNotes FROM @CartItems
         
         OPEN item_cursor
-        FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
+        FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity, @CurrentAdditionalNotes
         
         EXEC LogTransaction
             @user_id = @user_id,
@@ -124,7 +126,7 @@ BEGIN
                 @transaction_id = @TransactionId,
                 @item_id = @CurrentItemId,
                 @quantity = @CurrentQuantity,
-                @additional_notes = @additional_notes;
+                @additional_notes = @CurrentAdditionalNotes;
                 
             FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
             

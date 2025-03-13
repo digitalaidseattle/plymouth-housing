@@ -26,8 +26,6 @@ export const SETTINGS = {
   inactivity_timeout: 15 * 60 * 1000 // 15 minutes in milliseconds
 }
 
-
-
 export const USER_ROLES = {
   ADMIN: 'admin',
   VOLUNTEER: 'volunteer'

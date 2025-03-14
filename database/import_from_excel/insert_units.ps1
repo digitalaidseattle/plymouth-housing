@@ -14,7 +14,7 @@ function Get-BuildingId {
         'PFH' = 8
         'PPL' = 9
         'PST' = 10
-        'SGO/LEW' = 11
+        'SGOLEW' = 11
         'SIM' = 12
         'SYL' = 13
         'TFT' = 14
@@ -31,8 +31,8 @@ try {
     $excel.DisplayAlerts = $false
 
     # Open workbook and select Sheet1 sheet
-    $workbook = $excel.Workbooks.Open("$PSScriptRoot\All_Buildings_All_Units.xlsx")
-    $worksheet = $workbook.Worksheets("Sheet1")
+    $workbook = $excel.Workbooks.Open("$PSScriptRoot\PSC_Inventory.xlsx")
+    $worksheet = $workbook.Worksheets("All Units")
 
     # Get used range
     $usedRange = $worksheet.UsedRange

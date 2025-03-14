@@ -14,8 +14,8 @@ try {
     
     # Create SQL file
     $output = "-- Welcome Basket Items`n"
-    $output += "INSERT INTO Items (name, type, category_id, quantity, low, medium, items_per_basket, description) VALUES`n"
-    
+    $output += "INSERT INTO Items (name, type, category_id, quantity, items_per_basket, description, threshold) VALUES`n"
+        
     # Process each row
     for ($row = 2; $row -le $lastRow; $row++) {
         $name = $worksheet.Cells($row, 1).Text
@@ -23,13 +23,12 @@ try {
         $itemsPerBasket = $worksheet.Cells($row, 5).Text
         
         if ($name) {
-            $low = Get-Random -Minimum 1 -Maximum 11
-            $medium = Get-Random -Minimum 11 -Maximum 21
+            $threshold = Get-Random -Minimum 11 -Maximum 21
             
             # Escape single quotes in strings
             $name = $name.Replace("'", "''")
             
-            $output += "('$name', 'Welcome Basket', 14, $quantity, $low, $medium, $itemsPerBasket, NULL),`n"
+            $output += "('$name', 'Welcome Basket', 15, $quantity, $itemsPerBasket, NULL, $threshold),`n"
         }
     }
     

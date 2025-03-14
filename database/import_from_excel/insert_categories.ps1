@@ -55,9 +55,10 @@ function Get-UniqueExcelValues {
             $sql += "($id, '$($category.Key)', $($category.Value)),`n"
             $id++
         }
+        
 
-        $sql = $sql.TrimEnd(",`n")
-        $sql += ";`n`nSET IDENTITY_INSERT Categories OFF;`nGO"
+        $sql += "(15, 'Welcome Basket', 1);"
+        $sql += "`n`nSET IDENTITY_INSERT Categories OFF;`nGO"
         
         # Save to file
         $sql | Out-File "$PSScriptRoot\category_data.sql" -Encoding UTF8

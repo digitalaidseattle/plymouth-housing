@@ -16,8 +16,7 @@ const MainContainer: React.FC<MainContainerProp> = forwardRef(
   (
     {
       children,
-      content = true,
-      title,
+      title
     },
   ) => {
 
@@ -30,8 +29,7 @@ const MainContainer: React.FC<MainContainerProp> = forwardRef(
           <PageHeading
             title={title}/>
         )}
-        {content && children}
-        {!content && children}
+        {children}
       </Box>
     );
   },

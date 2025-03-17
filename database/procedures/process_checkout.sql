@@ -104,23 +104,20 @@ BEGIN
         OPEN item_cursor
         FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity, @CurrentAdditionalNotes
         
+        DECLARE @new_transaction_id UNIQUEIDENTIFIER;
+
         EXEC LogTransaction
             @user_id = @user_id,
             @transaction_type = 'CHECKOUT',
             @building_id = @building_id,
             @resident_name = @resident_name,
-            @unit_number = @unit_number;
-        
-        -- get id from the latest transaction
-        DECLARE @TransactionId UNIQUEIDENTIFIER
-        SELECT TOP 1 @TransactionId = id
-        FROM [dbo].[Transactions]
-        ORDER BY transaction_date DESC;
+            @unit_number = @unit_number,
+            @new_transaction_id = @new_transaction_id OUTPUT;
 
         WHILE @@FETCH_STATUS = 0
         BEGIN
             EXEC LogTransactionItem
-                @transaction_id = @TransactionId,
+                @transaction_id = @new_transaction_id,
                 @item_id = @CurrentItemId,
                 @quantity = @CurrentQuantity,
                 @additional_notes = @CurrentAdditionalNotes;
@@ -137,7 +134,7 @@ BEGIN
         -- Return success status with transaction ID
         SELECT 
             'Success' as Status,
-            @TransactionId AS message
+            @new_transaction_id AS message
         
     END TRY
     BEGIN CATCH

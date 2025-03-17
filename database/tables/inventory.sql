@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS [dbo].[TransactionsItems]; -- Has a Foreign Key constraint on Items.
+DROP TABLE IF EXISTS [dbo].[Tracking]; -- Has a Foreign Key constraint on Items.
 DROP TABLE IF EXISTS [dbo].[Items];
 DROP VIEW IF EXISTS ItemsWithCategory;
 DROP VIEW IF EXISTS ItemsByCategory;
@@ -13,9 +14,8 @@ CREATE TABLE Items (
     quantity INT NOT NULL,
     low INT NOT NULL,
     medium INT NOT NULL,
-    items_per_basket INT,
-    requires_tracking BIT NOT NULL DEFAULT 0
-);
+    items_per_basket INT
+    );
 GO
 
 CREATE VIEW ItemsWithCategory

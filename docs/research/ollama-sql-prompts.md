@@ -10,6 +10,7 @@ INSTRUCTIONS:
 4. Write a clean, efficient SQL query that answers the question
 5. Explain your approach and any assumptions you made
 6. For complex queries, add comments to explain key parts
+7. Make sure this is SQL Server compatible SQL
 
 USER QUESTION:
 [USER_QUESTION]

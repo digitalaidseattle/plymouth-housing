@@ -6,7 +6,9 @@ CREATE PROCEDURE ProcessWelcomeBasketCheckout
     @mattress_size INT,
     @quantity INT,
     @building_code NVARCHAR(50),
-    @message NVARCHAR(MAX) = NULL OUTPUT
+    @message NVARCHAR(MAX) = NULL OUTPUT,
+    @unit_number VARCHAR(10),
+    @resident_name VARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -58,7 +60,7 @@ BEGIN
     -- END CATCH
 
     -- Generate a single transaction ID for the entire basket
-    DECLARE @TransactionId UNIQUEIDENTIFIER = NEWID();
+    DECLARE @new_transaction_id UNIQUEIDENTIFIER;
 
     BEGIN TRANSACTION
 
@@ -69,9 +71,18 @@ BEGIN
         FROM Items i
         JOIN @CartItems ci ON i.id = ci.ItemId;
 
+        EXEC LogTransaction
+            @user_id = @user_id,
+            @transaction_type = 'CHECKOUT',
+            @building_id = @building_id,
+            @resident_name = @resident_name,
+            @unit_number = @unit_number,
+            @new_transaction_id = @new_transaction_id OUTPUT;
+
         -- Log each item in the transaction
         DECLARE @CurrentItemId INT;
         DECLARE @CurrentQuantity INT;
+        DECLARE @CurrentAdditionalNotes VARCHAR(255) = NULL; -- Welcome baskets don't have additional notes
 
         DECLARE item_cursor CURSOR FOR
         SELECT ItemId, Quantity FROM @CartItems;
@@ -81,13 +92,11 @@ BEGIN
 
         WHILE @@FETCH_STATUS = 0
         BEGIN
-            EXEC LogTransaction 
-                @user_id = @user_id,
-                @transaction_id = @TransactionId,
+            EXEC LogTransactionItem
+                @transaction_id = @new_transaction_id,
                 @item_id = @CurrentItemId,
-                @transaction_type = 'CHECKOUT',
                 @quantity = @CurrentQuantity,
-                @building_id = @building_id;
+                @additional_notes = @CurrentAdditionalNotes;
 
             FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity;
         END
@@ -100,7 +109,7 @@ BEGIN
         -- Return success status with transaction ID
         SELECT 
             'Success' as Status,
-            @TransactionId AS message;
+            @new_transaction_id AS message;
 
     END TRY
     BEGIN CATCH

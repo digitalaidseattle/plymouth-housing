@@ -24,7 +24,7 @@ const MainContainer: React.FC<MainContainerProp> = forwardRef(
     return (
       <Box sx={{
         padding: '1rem',
-        height: '100vh',
+        minHeight: '100vh',
       }}>
         {title && (
           <PageHeading

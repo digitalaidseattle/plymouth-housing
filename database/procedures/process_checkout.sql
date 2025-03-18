@@ -6,8 +6,8 @@ CREATE PROCEDURE ProcessCheckout
     @items NVARCHAR(MAX),
     @building_code NVARCHAR(50),
     @message NVARCHAR(MAX) = NULL OUTPUT,
-    @unit_number VARCHAR(10),
-    @resident_name VARCHAR(50)
+    @unit_number NVARCHAR(10),
+    @resident_name NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -96,7 +96,7 @@ BEGIN
         -- Log each item in the transaction
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
-        DECLARE @CurrentAdditionalNotes VARCHAR(255)
+        DECLARE @CurrentAdditionalNotes NVARCHAR(255)
         
         DECLARE item_cursor CURSOR FOR
         SELECT ItemId, Quantity, AdditionalNotes FROM @CartItems
@@ -108,7 +108,7 @@ BEGIN
 
         EXEC LogTransaction
             @user_id = @user_id,
-            @transaction_type = 'CHECKOUT',
+            @transaction_type = 1,
             @building_id = @building_id,
             @resident_name = @resident_name,
             @unit_number = @unit_number,

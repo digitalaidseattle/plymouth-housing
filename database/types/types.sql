@@ -7,6 +7,6 @@ GO
 CREATE TYPE CartItemsType AS TABLE (
     ItemId INT,
     Quantity INT,
-    AdditionalNotes VARCHAR(255)
+    AdditionalNotes NVARCHAR(255)
 );
 GO

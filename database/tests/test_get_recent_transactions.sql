@@ -1,7 +1,7 @@
 print 'test get recent transactions';
 
-declare @building_code VARCHAR(7)
-declare @unit_number VARCHAR(50)
+declare @building_code NVARCHAR(7)
+declare @unit_number NVARCHAR(50)
 declare @item_id INT
 declare @months INT
 

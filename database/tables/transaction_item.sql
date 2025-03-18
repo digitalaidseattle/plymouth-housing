@@ -6,7 +6,7 @@ CREATE TABLE TransactionItems (
     transaction_id UNIQUEIDENTIFIER NOT NULL,
     item_id INT NOT NULL,
     quantity INT NOT NULL,
-    additional_notes TEXT
+    additional_notes NVARCHAR(100)
 );
 
 GO

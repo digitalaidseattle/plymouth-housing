@@ -2,8 +2,8 @@ DROP PROCEDURE IF EXISTS [dbo].[GetRecentTransactions];
 GO
 
 CREATE PROCEDURE GetRecentTransactions
-    @building_code VARCHAR(7),
-    @unit_number VARCHAR(50),
+    @building_code NVARCHAR(7),
+    @unit_number NVARCHAR(50),
     @item_id INT,
     @months INT
 AS

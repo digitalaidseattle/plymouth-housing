@@ -7,8 +7,8 @@ CREATE PROCEDURE ProcessWelcomeBasketCheckout
     @quantity INT,
     @building_code NVARCHAR(50),
     @message NVARCHAR(MAX) = NULL OUTPUT,
-    @unit_number VARCHAR(10),
-    @resident_name VARCHAR(50)
+    @unit_number NVARCHAR(10),
+    @resident_name NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -73,7 +73,7 @@ BEGIN
 
         EXEC LogTransaction
             @user_id = @user_id,
-            @transaction_type = 'CHECKOUT',
+            @transaction_type = 1,
             @building_id = @building_id,
             @resident_name = @resident_name,
             @unit_number = @unit_number,
@@ -82,7 +82,7 @@ BEGIN
         -- Log each item in the transaction
         DECLARE @CurrentItemId INT;
         DECLARE @CurrentQuantity INT;
-        DECLARE @CurrentAdditionalNotes VARCHAR(255) = NULL; -- Welcome baskets don't have additional notes
+        DECLARE @CurrentAdditionalNotes NVARCHAR(255) = NULL; -- Welcome baskets don't have additional notes
 
         DECLARE item_cursor CURSOR FOR
         SELECT ItemId, Quantity FROM @CartItems;

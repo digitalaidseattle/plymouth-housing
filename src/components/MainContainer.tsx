@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef } from 'react';
+import { ForwardedRef, ReactNode, forwardRef } from 'react';
 
 // material-ui
 import PageHeading from './PageHeading';
@@ -19,12 +19,15 @@ const MainContainer: React.FC<MainContainerProp> = forwardRef(
       content = true,
       title,
     },
+    ref: ForwardedRef<HTMLDivElement>
   ) => {
 
     return (
-      <Box sx={{
+      <Box 
+        ref={ref}
+        sx={{
         padding: '1rem',
-        height: '100vh',
+        minHeight: '100vh',
       }}>
         {title && (
           <PageHeading

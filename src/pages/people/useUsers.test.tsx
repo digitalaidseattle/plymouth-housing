@@ -58,7 +58,7 @@ describe('useUsers hook', () => {
     const { result } = renderHook(() => useUsers(), { wrapper });
     await waitFor(() => result.current.loading === false);
     expect(result.current.originalData).toEqual([]);
-  });
+      });
 
   it('updateUserStatus toggles active status successfully', async () => {
     const initialUsers = [
@@ -131,6 +131,8 @@ describe('useUsers hook', () => {
     const { result } = renderHook(() => useUsers(), { wrapper });
     await waitFor(() => result.current.loading === false);
 
-    await expect(result.current.updateUserStatus(1)).rejects.toThrow(`Error updating user: ${errorMsg}`);
+    await act(async () => {
+      await expect(result.current.updateUserStatus(1)).rejects.toThrow(`Error updating user: ${errorMsg}`);
+    });
   });
 });

@@ -40,7 +40,7 @@ export async function processGeneralItems(user: ClientPrincipal | null, loggedIn
 export async function getRecentTransactions(buildingCode: string, unitNumber: string, itemId: number, months: number) {
   const response = await fetch(ENDPOINTS.RECENT_TRANSACTIONS, {
     method: 'GET',
-    headers: HEADERS,
+    headers: API_HEADERS,
     body: JSON.stringify({
       building_code: buildingCode,
       unit_number: unitNumber,

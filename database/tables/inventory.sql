@@ -1,19 +1,17 @@
-DROP TABLE IF EXISTS [dbo].[Transactions]; -- Has a Foreign Key constraint on Items.
 DROP TABLE IF EXISTS [dbo].[Items];
-DROP VIEW IF EXISTS ItemsWithCategory;
-DROP VIEW IF EXISTS ItemsByCategory;
+
 GO
 
 CREATE TABLE Items (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    type VARCHAR(255) NOT NULL,
+    name NVARCHAR(255) NOT NULL,
+    type NVARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
-    description VARCHAR(255),
+    description NVARCHAR(255),
     quantity INT NOT NULL,
     threshold INT NOT NULL,
     items_per_basket INT
-);
+    );
 GO
 
 CREATE VIEW ItemsWithCategory

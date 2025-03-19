@@ -14,11 +14,11 @@ INSERT INTO Categories (id, Name, Checkout_Limit) VALUES
 (8, 'Bedding', 3),
 (9, 'Décor', 2),
 (10, 'Personal Care', 5),
-(11, 'Cleaning', 4),
-(12, 'Garments', 2),
-(13, 'Jacket', 1),
-(14, 'Welcome Basket', 1);
-
+(11, 'Pet Supplies', 3),
+(12, 'Cleaning', 4),
+(13, 'Garments', 2),
+(14, 'Jacket', 1),
+(15, 'Welcome Basket', 1);
 
 SET IDENTITY_INSERT Categories OFF;
 GO

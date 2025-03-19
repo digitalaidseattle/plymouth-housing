@@ -5,7 +5,9 @@ CREATE PROCEDURE ProcessCheckout
     @user_id INT,
     @items NVARCHAR(MAX),
     @building_code NVARCHAR(50),
-    @message NVARCHAR(MAX) = NULL OUTPUT
+    @message NVARCHAR(MAX) = NULL OUTPUT,
+    @unit_number NVARCHAR(10),
+    @resident_name NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -34,10 +36,11 @@ BEGIN
     DECLARE @CartItems CartItemsType
     
     -- Parse the JSON array into our table variable
-    INSERT INTO @CartItems (ItemId, Quantity)
+    INSERT INTO @CartItems (ItemId, Quantity, AdditionalNotes)
     SELECT 
         ItemId = JSON_VALUE([value], '$.id'),
-        Quantity = JSON_VALUE([value], '$.quantity')
+        Quantity = JSON_VALUE([value], '$.quantity'),
+        AdditionalNotes = JSON_VALUE([value], '$.additional_notes')
     FROM OPENJSON(@items, '$')
 
     -- Check if the cart exceeds the item limit
@@ -80,9 +83,6 @@ BEGIN
             ERROR_MESSAGE() AS message;
         RETURN;
     END CATCH
-
-    -- Generate a single transaction ID for the entire basket
-    DECLARE @TransactionId UNIQUEIDENTIFIER = NEWID()
     
     BEGIN TRANSACTION
     
@@ -96,24 +96,34 @@ BEGIN
         -- Log each item in the transaction
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
+        DECLARE @CurrentAdditionalNotes NVARCHAR(255)
         
         DECLARE item_cursor CURSOR FOR
-        SELECT ItemId, Quantity FROM @CartItems
+        SELECT ItemId, Quantity, AdditionalNotes FROM @CartItems
         
         OPEN item_cursor
-        FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
+        FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity, @CurrentAdditionalNotes
         
+        DECLARE @new_transaction_id UNIQUEIDENTIFIER;
+
+        EXEC LogTransaction
+            @user_id = @user_id,
+            @transaction_type = 1,
+            @building_id = @building_id,
+            @resident_name = @resident_name,
+            @unit_number = @unit_number,
+            @new_transaction_id = @new_transaction_id OUTPUT;
+
         WHILE @@FETCH_STATUS = 0
         BEGIN
-            EXEC LogTransaction 
-                @user_id = @user_id,
-                @transaction_id = @TransactionId,
+            EXEC LogTransactionItem
+                @transaction_id = @new_transaction_id,
                 @item_id = @CurrentItemId,
-                @transaction_type = 'CHECKOUT',
                 @quantity = @CurrentQuantity,
-                @building_id = @building_id;
+                @additional_notes = @CurrentAdditionalNotes;
                 
-            FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity
+            FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity, @CurrentAdditionalNotes
+            
         END
         
         CLOSE item_cursor
@@ -124,7 +134,7 @@ BEGIN
         -- Return success status with transaction ID
         SELECT 
             'Success' as Status,
-            @TransactionId AS message
+            @new_transaction_id AS message
         
     END TRY
     BEGIN CATCH

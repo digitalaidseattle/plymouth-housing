@@ -64,7 +64,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
                 totalCategoryCount > 10
               }
             >
-              Continue
+              Proceed to Checkout
             </Button>
           </Box>
 

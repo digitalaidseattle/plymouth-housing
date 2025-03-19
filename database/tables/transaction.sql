@@ -2,14 +2,13 @@ DROP TABLE IF EXISTS [dbo].[Transactions];
 GO
 
 CREATE TABLE Transactions (
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    id UNIQUEIDENTIFIER PRIMARY KEY,
     user_id INT NOT NULL,
-    transaction_id UNIQUEIDENTIFIER NOT NULL,
-    item_id INT NOT NULL,
-    transaction_type VARCHAR(50) NOT NULL,
-    quantity INT NOT NULL,
+    transaction_type INT NOT NULL,
     transaction_date DATETIME DEFAULT GETDATE() NOT NULL,
-    building_id INT NOT NULL
+    building_id INT NOT NULL,
+    unit_number NVARCHAR(10),
+    resident_name NVARCHAR(50),
 );
 
 GO

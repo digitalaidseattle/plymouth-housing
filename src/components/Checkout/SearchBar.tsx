@@ -67,7 +67,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
               onClick={() => {
                 setSearchTerm('');
                 setSearchActive(false);
-                setSearchData(data);
               }}
             />
           </InputAdornment>

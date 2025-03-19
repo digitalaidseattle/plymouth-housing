@@ -49,6 +49,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
       variant="standard"
       placeholder={'Search...'}
       type="search" 
+      sx={{'input[type="search"]::-webkit-search-cancel-button ': {display: 'none'}}}
       value={searchTerm}
       onChange={searchChangeHandler}
       InputProps={{

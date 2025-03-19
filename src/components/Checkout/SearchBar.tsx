@@ -51,6 +51,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
       type="search"
       value={searchTerm}
       onChange={searchChangeHandler}
+      sx={{ width: '30%'}}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

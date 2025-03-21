@@ -27,9 +27,10 @@ type CheckoutDialogProps = {
   setActiveSection: (s: string) => void;
   fetchData: () => void;
   setSelectedBuildingCode: (building: string) => void;
+  activeSection: string;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, setSelectedBuildingCode, onSuccess }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, setSelectedBuildingCode, onSuccess, activeSection }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -142,7 +143,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
             if (section.categoryCount > 0) {
               return <CategorySection key={section.id} category={section} categoryCheckout={section} addItemToCart={(item, quantity) => {
                 addItemToCart(item, quantity, section.category, section.category);
-              }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} />
+              }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} activeSection={activeSection} />
             }
           })}
         </DialogContent>

@@ -7,30 +7,40 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
 
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
 
-  const checkLimit = useCallback(() => {
+  const checkConditions = useCallback(() => {
     if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
       setDisableAdd(true);
-    } else {
+      return;
+    }
+
+    if (activeSection === '') {
       setDisableAdd(false);
+      return;
     }
 
-  }, [categoryCheckout?.categoryCount, categoryLimit]);
-
-  const checkActiveSection = useCallback(() => {
-    if (activeSection === 'welcomeBasket') {
-      setDisableAdd(categoryName !== 'Welcome Basket');
-    } else if (activeSection === 'general') {
+    if (activeSection === 'general') {
       setDisableAdd(categoryName === 'Welcome Basket');
+      return;
     }
-  }, [activeSection, categoryName]);
+
+    if (activeSection === 'welcomeBasket') {
+      if (categoryName !== 'Welcome Basket') {
+        setDisableAdd(true);
+        return;
+      }
+
+      const itemName = categoryCheckout.items[0].name.toLowerCase();
+      if (itemName === item.name.toLowerCase()) {
+        setDisableAdd(false);
+      } else {
+        setDisableAdd(true);
+      }
+    }
+  }, [categoryCheckout, categoryLimit, categoryName, item.name, activeSection]);
 
   useEffect(() => {
-    checkLimit();
-  }, [categoryCheckout?.categoryCount, checkLimit])
-
-  useEffect(() => {
-    checkActiveSection();
-  }, [checkActiveSection])
+    checkConditions();
+  }, [categoryCheckout.categoryCount, checkConditions])
 
   return (
     <Card key={item.name} variant='outlined'

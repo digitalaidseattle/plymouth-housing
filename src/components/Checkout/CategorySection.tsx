@@ -9,7 +9,7 @@ type CategorySectionProps = {
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disabled: boolean;
-  activeSection: string;
+  activeSection?: string;
 };
 
 const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disabled, activeSection }: CategorySectionProps) => {

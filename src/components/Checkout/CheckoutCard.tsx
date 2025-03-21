@@ -13,37 +13,34 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
       return;
     }
 
-    if (categoryName === 'Welcome Basket' && categoryCheckout.items[0] && categoryCheckout.items[0].name) {
+    if (activeSection === '') {
+      setDisableAdd(false);
+      return;
+    }
+
+    if (activeSection === 'general') {
+      setDisableAdd(categoryName === 'Welcome Basket');
+      return;
+    }
+
+    if (activeSection === 'welcomeBasket') {
+      if (categoryName !== 'Welcome Basket') {
+        setDisableAdd(true);
+        return;
+      }
+
       const itemName = categoryCheckout.items[0].name.toLowerCase();
       if (itemName === item.name.toLowerCase()) {
         setDisableAdd(false);
       } else {
         setDisableAdd(true);
       }
-    } else {
-      setDisableAdd(false);
     }
-  }, [categoryCheckout, categoryLimit, categoryName, item.name]);
-
-
-  const checkActiveSection = useCallback(() => {
-    if (activeSection === '') {
-      setDisableAdd(false);
-    }
-    if (activeSection === 'welcomeBasket') {
-      setDisableAdd(categoryName !== 'Welcome Basket');
-    } else if (activeSection === 'general') {
-      setDisableAdd(categoryName === 'Welcome Basket');
-    }
-  }, [activeSection, categoryName]);
+  }, [categoryCheckout, categoryLimit, categoryName, item.name, activeSection]);
 
   useEffect(() => {
     checkConditions();
   }, [categoryCheckout.categoryCount, checkConditions])
-
-  useEffect(() => {
-    checkActiveSection();
-  }, [checkActiveSection])
 
   return (
     <Card key={item.name} variant='outlined'

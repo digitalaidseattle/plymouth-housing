@@ -283,6 +283,7 @@ const CheckoutPage = () => {
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
+                activeSection={activeSection}
               />
             );
           })}
@@ -304,6 +305,7 @@ const CheckoutPage = () => {
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
+                activeSection={activeSection}
               />
             );
           })}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
-import { Search } from '@mui/icons-material';
+import { Search, Close } from '@mui/icons-material';
 import { CategoryProps } from '../../types/interfaces';
 
 interface SearchBarProps {
@@ -48,7 +48,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
     <TextField
       variant="standard"
       placeholder={'Search...'}
-      type="search"
+      type="search" 
+      sx={{'input[type="search"]::-webkit-search-cancel-button ': {display: 'none'}}}
       value={searchTerm}
       onChange={searchChangeHandler}
       sx={{ width: '30%' }}
@@ -58,6 +59,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
         startAdornment: (
           <InputAdornment position="start">
             <Search />
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="end">
+            <Close
+              style={{ 
+                cursor: 'pointer',
+                visibility: searchTerm ? 'visible' : 'hidden',}}
+              onClick={() => {
+                setSearchTerm('');
+                setSearchActive(false);
+              }}
+            />
           </InputAdornment>
         ),
       }}

@@ -22,7 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
     setSearchTerm(e.target.value);
     filterFunction(e.target.value);
     // reset scroll position
-    window.scrollTo(0,0);
+    window.scrollTo(0, 0);
   };
 
   const filterFunction = (term: string) => {
@@ -51,6 +51,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
       type="search"
       value={searchTerm}
       onChange={searchChangeHandler}
+      sx={{ width: '30%' }}
+      inputProps={{ sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } }} // font size of input text
+      InputLabelProps={{ sx: { xs: '24px', md: '20px', lg: '16px'}}} // font size of input label
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

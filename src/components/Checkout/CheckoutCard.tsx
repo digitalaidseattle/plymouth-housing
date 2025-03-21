@@ -7,14 +7,24 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
 
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
 
-  const checkLimit = useCallback(() => {
+  const checkConditions = useCallback(() => {
     if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
       setDisableAdd(true);
+      return;
+    }
+
+    if (categoryName === 'Welcome Basket' && categoryCheckout.items[0] && categoryCheckout.items[0].name) {
+      const itemName = categoryCheckout.items[0].name.toLowerCase();
+      if (itemName === item.name.toLowerCase()) {
+        setDisableAdd(false);
+      } else {
+        setDisableAdd(true);
+      }
     } else {
       setDisableAdd(false);
     }
+  }, [categoryCheckout, categoryLimit, categoryName, item.name]);
 
-  }, [categoryCheckout?.categoryCount, categoryLimit]);
 
   const checkActiveSection = useCallback(() => {
     if (activeSection === '') {
@@ -28,8 +38,8 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
   }, [activeSection, categoryName]);
 
   useEffect(() => {
-    checkLimit();
-  }, [categoryCheckout?.categoryCount, checkLimit])
+    checkConditions();
+  }, [categoryCheckout.categoryCount, checkConditions])
 
   useEffect(() => {
     checkActiveSection();

@@ -34,7 +34,8 @@ const CheckoutPage = () => {
 
 
   const theme = useTheme();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
@@ -138,7 +139,7 @@ const CheckoutPage = () => {
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error('Database is likely starting up. Try again in 30 seconds.');
-        } else { 
+        } else {
           throw new Error(response.statusText);
         }
       }
@@ -216,8 +217,8 @@ const CheckoutPage = () => {
     <>
     {/* Container for the sticky nav */}
     <Box sx={{
-      position: 'sticky', 
-      top: '3.5rem', 
+      position: 'sticky',
+      top: '3.5rem',
       zIndex: 2,
       p: 1,
       background: theme.palette.common.white,

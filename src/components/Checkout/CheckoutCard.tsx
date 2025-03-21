@@ -17,6 +17,9 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
   }, [categoryCheckout?.categoryCount, categoryLimit]);
 
   const checkActiveSection = useCallback(() => {
+    if (activeSection === '') {
+      setDisableAdd(false);
+    }
     if (activeSection === 'welcomeBasket') {
       setDisableAdd(categoryName !== 'Welcome Basket');
     } else if (activeSection === 'general') {

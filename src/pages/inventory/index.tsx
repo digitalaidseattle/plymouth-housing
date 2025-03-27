@@ -55,8 +55,13 @@ const Inventory = () => {
     setAddModal(true);
   };
 
-  const handleAddClose = () => {
+  const handleAddClose = (quantity: number, itemName: string) => {
     setAddModal(false);
+    setSnackbarState({
+      open: true,
+      message: `Added ${quantity} ${itemName} to inventory.`,
+      severity: 'success',
+    });
   };
 
   // Consolidated function for handling all filter clicks

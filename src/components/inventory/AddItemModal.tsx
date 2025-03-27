@@ -13,7 +13,7 @@ type FormData = {
 
 type AddItemModalProps = {
   addModal: boolean;
-  handleAddClose: () => void;
+  handleAddClose: (quantity: number, itemName: string) => void;
   fetchData: () => void;
   originalData: InventoryItem[];
 }
@@ -55,8 +55,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
     }
   };
 
-
   const resetInputsHandler = () => {
+    handleAddClose(formData.quantity, formData.name);
     setFormData({
       name: '',
       type: '',
@@ -64,7 +64,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
     })
     setUpdateItem(null);
     setErrorMessage('');
-    handleAddClose();
   }
 
   const updateItemHandler = async () => {
@@ -83,7 +82,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
         } else {
           setErrorMessage('');
           fetchData();
-          handleAddClose();
           resetInputsHandler();
         }
       }
@@ -169,7 +167,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
       </Box>
     </Modal>
   )
-
 }
 
 export default AddItemModal;

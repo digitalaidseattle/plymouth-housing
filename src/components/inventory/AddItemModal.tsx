@@ -145,8 +145,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
                 )}
                 filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
                   return options.filter((option) =>
-                    option.name.toLowerCase().includes(inputValue.toLowerCase()) ||
-                    option.description.toLowerCase().includes(inputValue.toLowerCase())
+                    option.name?.toLowerCase().includes(inputValue.toLowerCase()) ||
+                    option.description?.toLowerCase().includes(inputValue.toLowerCase())
                   );
                 }}
                 renderInput={(params) => <TextField {...params} />}

@@ -216,7 +216,9 @@ const CheckoutPage = () => {
 
   return (
     <>
-    {showResidentDetailDialog && <ResidentDetailDialog/>}
+    {showResidentDetailDialog && <ResidentDetailDialog 
+      showDialog={showResidentDetailDialog} 
+      handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}/>}
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky', 

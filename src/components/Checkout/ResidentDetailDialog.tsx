@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { MouseEventHandler, useContext, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -15,8 +15,12 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
+type ResidentDetailDialogProps = {
+    showDialog: boolean,
+    handleShowDialog: MouseEventHandler<HTMLButtonElement>
+}
 
-const ResidentDetailDialog = () => {
+const ResidentDetailDialog = ({showDialog, handleShowDialog}: ResidentDetailDialogProps) => {
 
     return (
         <Dialog 
@@ -32,13 +36,13 @@ const ResidentDetailDialog = () => {
               position: 'relative'
             },
           }}
-            open={true}>
+            open={showDialog}>
             <Box sx={{ 
                 position: 'absolute',
                 top: '1.5rem',
                 right: '1.5rem'
             }}>
-                <Close/>
+                <Button onClick={handleShowDialog} disableRipple><Close/></Button>
             </Box>
             <DialogTitle>
                 <Typography sx={{ fontSize: '1.25rem' }}>Provide details to continue</Typography>

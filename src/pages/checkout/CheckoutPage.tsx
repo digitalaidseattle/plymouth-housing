@@ -12,6 +12,7 @@ import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -32,6 +33,7 @@ const CheckoutPage = () => {
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
 
+  const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
 
   const theme = useTheme();
   const navigate = useNavigate(); 
@@ -214,6 +216,7 @@ const CheckoutPage = () => {
 
   return (
     <>
+    {showResidentDetailDialog && <ResidentDetailDialog/>}
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky', 

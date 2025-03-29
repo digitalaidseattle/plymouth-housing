@@ -161,7 +161,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
             }}>Return to Checkout Page</Button>
           <Button
             onClick={handleConfirm}
-            disabled={isProcessing}
+            disabled={isProcessing || allItems.reduce((acc, item) => acc + item.quantity, 0) > 10}
             sx={{
               color: 'black',
               backgroundColor: '#F2F2F2',

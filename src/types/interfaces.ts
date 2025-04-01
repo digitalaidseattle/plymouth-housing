@@ -99,3 +99,9 @@ export type ShoppingCart = {
   user_id: string;
   items: CheckoutItemProp[];
 }
+
+export type ResidentInfo = {
+  name: string;
+  unit: string;
+  buildingCode: string;
+}

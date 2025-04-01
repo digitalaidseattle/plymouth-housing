@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useCallback, SetStateAction } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
-import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { Building, CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -23,9 +23,9 @@ const CheckoutPage = () => {
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [openSummary, setOpenSummary] = useState<boolean>(false);
-  const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
-  const [residentName, setResidentName] = useState<string>('');
-  const [unitNumber, setUnitNumber] = useState<string>('');
+
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({name: '', unit: '', buildingCode: ''});
+  
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [snackbarState, setSnackbarState] = useState<{
@@ -221,12 +221,8 @@ const CheckoutPage = () => {
       showDialog={showResidentDetailDialog} 
       handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}
       buildings={buildings}
-      selectedBuildingCode={selectedBuildingCode} 
-      setSelectedBuildingCode={setSelectedBuildingCode}
-      residentName={residentName}
-      setResidentName={(newName)=>setResidentName(newName)}
-      unitNumber={unitNumber}
-      setUnitNumber={(newUnitNumber)=>setUnitNumber(newUnitNumber)}
+      residentInfo={residentInfo}
+      setResidentInfo={setResidentInfo}
       />
       }
     {/* Container for the sticky nav */}
@@ -238,7 +234,7 @@ const CheckoutPage = () => {
       background: theme.palette.common.white,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
-        <Button variant="outlined" onClick={()=>setShowResidentDetailDialog(true)}>{selectedBuildingCode} - {unitNumber} - {residentName}</Button>
+        <Button variant="outlined" onClick={()=>setShowResidentDetailDialog(true)}>{residentInfo.name} - {residentInfo.unit} - {residentInfo.buildingCode}</Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
@@ -323,7 +319,7 @@ const CheckoutPage = () => {
           })}
         </Box>}
 
-      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
+      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.buildingCode} />
 
       <CheckoutDialog
         open={openSummary}
@@ -336,10 +332,10 @@ const CheckoutPage = () => {
         addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}
         setCheckoutItems={setCheckoutItems}
         removeItemFromCart={removeItemFromCart}
-        selectedBuildingCode={selectedBuildingCode}
+        selectedBuildingCode={residentInfo.buildingCode}
         setActiveSection={setActiveSection}
         fetchData={fetchData}
-        setSelectedBuildingCode={setSelectedBuildingCode}
+        // setSelectedBuildingCode={setSelectedBuildingCode}
       />
       <SnackbarAlert
         open={snackbarState.open}

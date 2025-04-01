@@ -15,40 +15,35 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
-import { Building } from '../../types/interfaces';
+import { Building, ResidentInfo } from '../../types/interfaces';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
     handleShowDialog: MouseEventHandler<HTMLButtonElement>
     buildings: Building[],
-    selectedBuildingCode: string,
-    setSelectedBuildingCode: React.Dispatch<React.SetStateAction<string>>,
-    residentName: string, 
-    setResidentName: React.Dispatch<React.SetStateAction<string>>,
-    unitNumber: string,
-    setUnitNumber: React.Dispatch<React.SetStateAction<string>>
+    residentInfo: ResidentInfo,
+    setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>
 }
 
 const ResidentDetailDialog = ({
     showDialog, 
     handleShowDialog, 
     buildings, 
-    selectedBuildingCode, 
-    setSelectedBuildingCode, 
-    residentName, 
-    setResidentName, 
-    unitNumber, 
-    setUnitNumber}: ResidentDetailDialogProps) => {
+    residentInfo,
+    setResidentInfo
+    }: ResidentDetailDialogProps) => {
 
-    const [nameInput, setNameInput] = useState<string>(residentName)
-    const [buildingCodeInput, setBuildingCodeInput] = useState<string>(selectedBuildingCode)
-    const [unitNumberInput, setUnitNumberInput] = useState<string>(unitNumber);
+    const [nameInput, setNameInput] = useState<string>(residentInfo.name)
+    const [buildingCodeInput, setBuildingCodeInput] = useState<string>(residentInfo.buildingCode)
+    const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
 
     function handleSubmit(e) {
         e.preventDefault();
-        setResidentName(nameInput);
-        setSelectedBuildingCode(buildingCodeInput);
-        setUnitNumber(unitNumberInput);
+        setResidentInfo({
+            name: nameInput,
+            unit: unitNumberInput,
+            buildingCode: buildingCodeInput
+        })
         handleShowDialog(false);
     }
 

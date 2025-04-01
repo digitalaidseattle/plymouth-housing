@@ -13,6 +13,7 @@ The purpose of this test plan is to validate the UI functionality of the invento
 - Home page: Add and checkout inventory functionality.
 - Inventory page: Filtering and displaying inventory.
 - Checkout page: Adding items to checkout and cart management.
+- People page: Adding new volunteers, deactivating roles, view PIN
 
 **Excluded:**
 - Integration testing with backend services.

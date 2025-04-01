@@ -338,8 +338,8 @@ const CheckoutPage = () => {
         selectedBuildingCode={residentInfo.buildingCode}
         setActiveSection={setActiveSection}
         fetchData={fetchData}
+        residentInfo={residentInfo}
         setResidentInfo={setResidentInfo}
-        // setSelectedBuildingCode={setSelectedBuildingCode}
       />
       <SnackbarAlert
         open={snackbarState.open}

@@ -26,10 +26,11 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
+  residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, onSuccess, setResidentInfo }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, setActiveSection, fetchData, onSuccess, residentInfo, setResidentInfo }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -60,11 +61,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const welcomeBasketItemIds = welcomeBasketData.flatMap(basket => basket.items.map(item => item.id));
       const isWelcomeBasket = allItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
-      // TODO: submit resident info object, not just the selectedBuildingCode
       if (isWelcomeBasket) {
-        data = await processWelcomeBasket(user, loggedInUserId, allItems, selectedBuildingCode);
+        data = await processWelcomeBasket(user, loggedInUserId, allItems, residentInfo);
       } else {
-        data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
+        data = await processGeneralItems(user, loggedInUserId, allItems, residentInfo);
       }
 
       if (data.error){
@@ -129,7 +129,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Typography sx={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
-          <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
+          <Typography><strong>Building code: </strong>{residentInfo.buildingCode}</Typography>
           <Typography><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
         </Box>
         <DialogContent dividers sx={{

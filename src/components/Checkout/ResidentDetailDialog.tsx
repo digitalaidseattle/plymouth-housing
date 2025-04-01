@@ -14,13 +14,18 @@ import {
   FormGroup
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import BuildingCodeSelect from './BuildingCodeSelect';
+import { Building } from '../../types/interfaces';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
     handleShowDialog: MouseEventHandler<HTMLButtonElement>
+    buildings: Building[],
+    selectedBuildingCode: string,
+    setSelectedBuildingCode: React.Dispatch<React.SetStateAction<string>>
 }
 
-const ResidentDetailDialog = ({showDialog, handleShowDialog}: ResidentDetailDialogProps) => {
+const ResidentDetailDialog = ({showDialog, handleShowDialog, buildings, selectedBuildingCode, setSelectedBuildingCode}: ResidentDetailDialogProps) => {
 
     return (
         <Dialog 
@@ -48,14 +53,13 @@ const ResidentDetailDialog = ({showDialog, handleShowDialog}: ResidentDetailDial
                 <Typography sx={{ fontSize: '1.25rem' }}>Provide details to continue</Typography>
             </DialogTitle>
             <DialogContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                     <FormControl>
-                        <InputLabel htmlFor="building-code" variant="outlined">Building Code</InputLabel>
-                        <Select id="building-code"/>
+                        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
                     </FormControl>
                     <FormControl>
                         <InputLabel htmlFor="unit-number" variant="outlined">Unit Number</InputLabel>
-                        <Select id="unit-number"/>
+                        <Input id="unit-number"/>
                     </FormControl>
                     <FormControl>
                         <InputLabel htmlFor="resident-name" variant="outlined">Resident Name</InputLabel>

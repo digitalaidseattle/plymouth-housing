@@ -1,12 +1,11 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Box, Grid, Typography, useTheme } from '@mui/material';
+import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
 import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
-import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
@@ -218,7 +217,10 @@ const CheckoutPage = () => {
     <>
     {showResidentDetailDialog && <ResidentDetailDialog 
       showDialog={showResidentDetailDialog} 
-      handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}/>}
+      handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}
+      buildings={buildings}
+      selectedBuildingCode={selectedBuildingCode} 
+      setSelectedBuildingCode={setSelectedBuildingCode}/>}
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky', 
@@ -228,7 +230,7 @@ const CheckoutPage = () => {
       background: theme.palette.common.white,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
-        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
+        <Button variant="outlined" onClick={()=>setShowResidentDetailDialog(true)}>{selectedBuildingCode}</Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}

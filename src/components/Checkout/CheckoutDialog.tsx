@@ -9,7 +9,7 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -26,9 +26,10 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
+  setResidentInfo: (residentInfo: ResidentInfo) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, onSuccess }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, onSuccess, setResidentInfo }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -59,6 +60,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const welcomeBasketItemIds = welcomeBasketData.flatMap(basket => basket.items.map(item => item.id));
       const isWelcomeBasket = allItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
+      // TODO: submit resident info object, not just the selectedBuildingCode
       if (isWelcomeBasket) {
         data = await processWelcomeBasket(user, loggedInUserId, allItems, selectedBuildingCode);
       } else {
@@ -72,8 +74,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        // TODO: replace with setResidentInfo('')
-        // setSelectedBuildingCode('');
+        setResidentInfo({name: '', unit: '', buildingCode: ''})
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();

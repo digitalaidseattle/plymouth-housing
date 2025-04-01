@@ -35,6 +35,7 @@ const CheckoutPage = () => {
   }>({ open: false, message: '', severity: 'warning' });
 
   const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
+  const residentInfoIsMissing = Object.entries(residentInfo).filter(([, val]) => val === null || val === undefined || val === '').length > 0;
 
   const theme = useTheme();
   const navigate = useNavigate(); 
@@ -234,7 +235,9 @@ const CheckoutPage = () => {
       background: theme.palette.common.white,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
-        <Button variant="outlined" onClick={()=>setShowResidentDetailDialog(true)}>{residentInfo.name} - {residentInfo.unit} - {residentInfo.buildingCode}</Button>
+        <Button variant="outlined" color={residentInfoIsMissing ? "error" : "primary"} onClick={()=>setShowResidentDetailDialog(true)}>
+          {residentInfoIsMissing ? 'Missing Resident Info' : `${residentInfo.buildingCode} - ${residentInfo.unit} - ${residentInfo.name}`}
+          </Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
@@ -335,6 +338,7 @@ const CheckoutPage = () => {
         selectedBuildingCode={residentInfo.buildingCode}
         setActiveSection={setActiveSection}
         fetchData={fetchData}
+        setResidentInfo={setResidentInfo}
         // setSelectedBuildingCode={setSelectedBuildingCode}
       />
       <SnackbarAlert

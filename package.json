@@ -37,7 +37,7 @@
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^8.29.0",
-    "@typescript-eslint/parser": "^8.20.0",
+    "@typescript-eslint/parser": "^8.29.0",
     "@vitejs/plugin-react-swc": "^3.7.2",
     "@vitest/coverage-v8": "^3.0.5",
     "depcheck": "^1.4.7",
@@ -48,7 +48,7 @@
     "jsdom": "^26.0.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "source-map-explorer": "^2.5.3",
-    "typescript": "^5.7.3",
+    "typescript": "^5.8.2",
     "vite": "^6.2.4",
     "vitest": "^3.0.5"
   }

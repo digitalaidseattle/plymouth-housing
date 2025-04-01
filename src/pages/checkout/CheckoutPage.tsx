@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback, SetStateAction } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
 import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
@@ -24,6 +24,8 @@ const CheckoutPage = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [openSummary, setOpenSummary] = useState<boolean>(false);
   const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
+  const [residentName, setResidentName] = useState<string>('');
+  const [unitNumber, setUnitNumber] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [snackbarState, setSnackbarState] = useState<{
@@ -220,7 +222,13 @@ const CheckoutPage = () => {
       handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}
       buildings={buildings}
       selectedBuildingCode={selectedBuildingCode} 
-      setSelectedBuildingCode={setSelectedBuildingCode}/>}
+      setSelectedBuildingCode={setSelectedBuildingCode}
+      residentName={residentName}
+      setResidentName={(newName)=>setResidentName(newName)}
+      unitNumber={unitNumber}
+      setUnitNumber={(newUnitNumber)=>setUnitNumber(newUnitNumber)}
+      />
+      }
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky', 
@@ -230,7 +238,7 @@ const CheckoutPage = () => {
       background: theme.palette.common.white,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
-        <Button variant="outlined" onClick={()=>setShowResidentDetailDialog(true)}>{selectedBuildingCode}</Button>
+        <Button variant="outlined" onClick={()=>setShowResidentDetailDialog(true)}>{selectedBuildingCode} - {unitNumber} - {residentName}</Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}

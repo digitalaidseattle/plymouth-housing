@@ -9,7 +9,8 @@ import {
   Box,
   FormControl,
   InputLabel,
-  Input
+  Input,
+  TextField
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
@@ -35,13 +36,23 @@ const ResidentDetailDialog = ({
     const [buildingCodeInput, setBuildingCodeInput] = useState<string>(residentInfo.buildingCode)
     const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
 
+    const [showError, setShowError] = useState<boolean>(false);
+
     function handleSubmit(e) {
         e.preventDefault();
+        // validate inputs, show error
+        if (!nameInput || !buildingCodeInput || !unitNumberInput) {
+            setShowError(true);
+            return;
+        }
+
+        // if no error, update state
         setResidentInfo({
             name: nameInput,
             unit: unitNumberInput,
             buildingCode: buildingCodeInput
         })
+        setShowError(false);
         handleShowDialog(false);
     }
 
@@ -74,15 +85,16 @@ const ResidentDetailDialog = ({
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                     <FormControl>
-                        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingCodeInput} setSelectedBuildingCode={setBuildingCodeInput} />
+                        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingCodeInput} setSelectedBuildingCode={setBuildingCodeInput} 
+                        error={showError && !buildingCodeInput}/>
                     </FormControl>
                     <FormControl>
-                        <InputLabel htmlFor="unit-number" variant="outlined">Unit Number</InputLabel>
-                        <Input id="unit-number" value={unitNumberInput} onChange={(e)=>setUnitNumberInput(e.target.value)}/>
+                        <TextField label="Unit Number" id="unit-number" value={unitNumberInput} onChange={(e)=>setUnitNumberInput(e.target.value)}
+                        error={showError && !unitNumberInput} helperText={showError && !unitNumberInput ? "Please enter the unit number" : ""}/>
                     </FormControl>
                     <FormControl>
-                        <InputLabel htmlFor="resident-name" variant="outlined">Resident Name</InputLabel>
-                        <Input id="resident-name" value={nameInput} onChange={(e)=>setNameInput(e.target.value)}/>
+                        <TextField label="Resident name" id="resident-name" value={nameInput} onChange={(e)=>setNameInput(e.target.value)}
+                        error={showError && !nameInput} helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
                     </FormControl>                    
                 </Box>
             </DialogContent>

@@ -1,20 +1,22 @@
 import React from 'react';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
 import { Building } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
   selectedBuildingCode: string;
   setSelectedBuildingCode: (code: string) => void;
+  error: boolean;
 }
 
 const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   buildings,
   selectedBuildingCode,
   setSelectedBuildingCode,
+  error
 }) => {
   return (
-    <FormControl style={{ width: '150px' }}>
+    <FormControl error={error}>
       <InputLabel id="select-building-code-label">Building Code</InputLabel>
       <Select
         labelId="select-building-code-label"
@@ -30,6 +32,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           </MenuItem>
         ))}
       </Select>
+      {error && <FormHelperText>Please select a building code</FormHelperText>}
     </FormControl>
   );
 };

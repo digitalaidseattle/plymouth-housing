@@ -99,8 +99,8 @@ const CheckoutPage = () => {
   };
 
   const removeItemFromCart = (itemId: number, categoryName: string) => {
-    setCheckoutItems((prevCheckoutItems) =>
-      prevCheckoutItems.map((category) => {
+    setCheckoutItems((prevCheckoutItems) => {
+      const updatedCheckoutItems = prevCheckoutItems.map((category) => {
         if (category.category === categoryName) {
           const updatedItems = category.items.filter(
             (addedItem: CheckoutItemProp) => addedItem.id !== itemId
@@ -118,8 +118,16 @@ const CheckoutPage = () => {
           };
         }
         return category;
-      })
-    );
+      });
+
+      // Check if all categories are empty
+      const isCartEmpty = updatedCheckoutItems.every(category => category.items.length === 0);
+      if (isCartEmpty) {
+        setActiveSection('');
+      }
+
+      return updatedCheckoutItems;
+    });
   };
 
 

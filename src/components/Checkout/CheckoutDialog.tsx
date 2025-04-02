@@ -130,7 +130,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
           <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
-          <Typography><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
+          <Typography sx={{
+            color: allItems.reduce((acc, item) => acc + item.quantity, 0) > 10 ? 'red' : 'black'
+          }}><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
         </Box>
         <DialogContent dividers sx={{
           flex: 1,
@@ -161,7 +163,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
             }}>Return to Checkout Page</Button>
           <Button
             onClick={handleConfirm}
-            disabled={isProcessing}
+            disabled={isProcessing || allItems.reduce((acc, item) => acc + item.quantity, 0) > 10}
             sx={{
               color: 'black',
               backgroundColor: '#F2F2F2',

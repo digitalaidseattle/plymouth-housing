@@ -322,7 +322,7 @@ const CheckoutPage = () => {
           })}
         </Box>}
 
-      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.buildingCode} />
+      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.buildingCode} residentInfoIsMissing={residentInfoIsMissing} />
 
       <CheckoutDialog
         open={openSummary}

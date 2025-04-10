@@ -12,6 +12,7 @@ import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
+import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -36,6 +37,7 @@ const CheckoutPage = () => {
 
   const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
   const residentInfoIsMissing = Object.entries(residentInfo).filter(([, val]) => val === null || val === undefined || val === '').length > 0;
+  const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
 
   const theme = useTheme();
   const navigate = useNavigate(); 
@@ -225,7 +227,12 @@ const CheckoutPage = () => {
       residentInfo={residentInfo}
       setResidentInfo={setResidentInfo}
       />
-      }
+    }
+    {showAdditionalNotesDialog && <AdditionalNotesDialog
+          showDialog={showAdditionalNotesDialog} 
+          handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
+      />
+    }
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky', 
@@ -312,8 +319,14 @@ const CheckoutPage = () => {
                 key={category.id}
                 category={category}
                 categoryCheckout={matchingCategory}
-                addItemToCart={(item, quantity) =>
-                  addItemToCart(item, quantity, category.category, 'general')}
+                addItemToCart={(item, quantity) => {
+                  if (item.name == "Appliance Miscellaneous") {
+                    setShowAdditionalNotesDialog(true);
+                    // TODO: add item to cart when button in dialog is pressed
+                  } else {
+                    addItemToCart(item, quantity, category.category, 'general')}
+                  }
+                }
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}

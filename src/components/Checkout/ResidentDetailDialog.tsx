@@ -18,7 +18,7 @@ import { Building, ResidentInfo } from '../../types/interfaces';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
-    handleShowDialog: MouseEventHandler<HTMLButtonElement>
+    handleShowDialog: Function,
     buildings: Building[],
     residentInfo: ResidentInfo,
     setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>
@@ -53,7 +53,7 @@ const ResidentDetailDialog = ({
             buildingCode: buildingCodeInput
         })
         setShowError(false);
-        handleShowDialog(false);
+        handleShowDialog();
     }
 
     return (

@@ -15,7 +15,7 @@ import { Close } from '@mui/icons-material';
 
 type AdditionalNotesDialogProps = {
     showDialog: boolean,
-    handleShowDialog: MouseEventHandler<HTMLButtonElement>
+    handleShowDialog: Function
 }
 
 const AdditionalNotesDialog = ({
@@ -28,7 +28,7 @@ const AdditionalNotesDialog = ({
     function handleSubmit(e) {
         e.preventDefault();
         // update additional info
-        handleShowDialog(false);
+        handleShowDialog();
     }
 
     return (
@@ -67,7 +67,7 @@ const AdditionalNotesDialog = ({
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button type="submit">Check out</Button>
+                <Button type="submit">Add to cart</Button>
             </DialogActions>
             </form>
         </Dialog>

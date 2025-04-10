@@ -229,6 +229,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "GetBuildingId": {
+      "source": {
+        "object": "dbo.GetBuildingId",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/building-id"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
 
   }

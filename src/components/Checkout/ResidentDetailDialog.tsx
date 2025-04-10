@@ -15,6 +15,7 @@ import {
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo } from '../../types/interfaces';
+import { getUnitCodes } from './CheckoutAPICalls';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
@@ -37,6 +38,12 @@ const ResidentDetailDialog = ({
     const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
 
     const [showError, setShowError] = useState<boolean>(false);
+
+    // when building is selected, we want to get the units for that building to populate the dropdown below it.
+    async function handleBuildingCodeSelection() {
+        const buildingId = await getUnitCodes('ALM')
+        console.log('building id is', buildingId);
+    }
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -84,7 +91,7 @@ const ResidentDetailDialog = ({
             <form onSubmit={handleSubmit}>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
-                    <FormControl>
+                    <FormControl onChange={handleBuildingCodeSelection}>
                         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingCodeInput} setSelectedBuildingCode={setBuildingCodeInput} 
                         error={showError && !buildingCodeInput}/>
                     </FormControl>

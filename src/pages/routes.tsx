@@ -8,6 +8,9 @@ import Inventory from './inventory';
 import VolunteerHome from './VolunteerHome';
 import CheckoutPage from './checkout/CheckoutPage';
 import People from './people';
+import { RouteHandler, ProtectedRoute } from '../components/RouteHandler';
+import { Navigate } from 'react-router-dom';
+import { RootRedirect } from '../components/RootRedirect';
 
 const routes = [
   {
@@ -16,7 +19,7 @@ const routes = [
     children: [
       {
         path: '',
-        element: <VolunteerHome />,
+        element: <RootRedirect />,
       },
       {
         path: 'inventory',
@@ -37,9 +40,14 @@ const routes = [
       {
         path: 'volunteer-home',
         element: (
-          <MainContainer title="Volunteer Home">
-            <VolunteerHome />
-          </MainContainer>
+          <ProtectedRoute 
+            element={
+              <MainContainer title="Volunteer Home">
+                <VolunteerHome />
+              </MainContainer>
+            } 
+            allowedRoles={['VOLUNTEER_ONLY']} 
+          />
         ),
       },
       {

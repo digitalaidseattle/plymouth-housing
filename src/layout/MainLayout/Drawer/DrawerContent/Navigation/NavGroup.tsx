@@ -29,7 +29,13 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
           </Typography>
         );
       case 'item':
-        return <NavItem key={menuItem.id} item={menuItem} level={1} />;
+        return (
+          (menuItem.id !== 'volunteer-home' || 
+          (menuItem.id === 'volunteer-home' && user?.userRoles?.includes('volunteer'))
+          ) && (
+            <NavItem key={menuItem.id} item={menuItem} level={1} />
+          )
+        );
       case 'admin':
         return (
           user?.userRoles?.includes('admin') && (

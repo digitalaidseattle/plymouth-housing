@@ -4,10 +4,9 @@ GO
 CREATE PROCEDURE ProcessInventoryChange
     @user_id INT,
     @item NVARCHAR(MAX),
-    @building_code NVARCHAR(50),
-    @message NVARCHAR(MAX) = NULL OUTPUT,
-    @unit_number NVARCHAR(10),
-    @resident_name NVARCHAR(50)
+    @building_code NVARCHAR(50) = NULL,
+    @unit_number NVARCHAR(10) = NULL,
+    @resident_name NVARCHAR(50) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -34,7 +33,14 @@ BEGIN
     
     BEGIN TRANSACTION
     
-    BEGIN TRY        
+    BEGIN TRY 
+        -- Look up building_id if building_code is provided
+        DECLARE @building_id INT = NULL
+        IF @building_code IS NOT NULL
+        BEGIN
+            SELECT @building_id = id FROM Buildings WHERE code = @building_code
+        END    
+           
         -- After transaction ID is obtained, set up cursor
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
@@ -53,6 +59,9 @@ BEGIN
         EXEC LogTransaction
             @user_id = @user_id,
             @transaction_type = 1,
+            @building_id = @building_id,
+            @resident_name = @resident_name,
+            @unit_number = @unit_number, 
             @new_transaction_id = @new_transaction_id OUTPUT;
         
         -- Log to Transaction Item Table

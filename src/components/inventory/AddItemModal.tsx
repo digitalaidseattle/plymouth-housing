@@ -83,11 +83,10 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
           headers: API_HEADERS, 
           body: JSON.stringify({ 
             user_id: loggedInUserId,
-            item: [{ id: updateItem.id, quantity: updateItem.quantity }],
+            item: [{ id: updateItem.id, quantity: formData.quantity }],
             building_code: "",
             unit_number: "",
             resident_name: "",
-            message: "",
           }) 
         });
         if (!response.ok) {

@@ -52,14 +52,13 @@ export async function getRecentTransactions(buildingCode: string, unitNumber: st
 }
 
 export async function getUnitCodes(buildingCode: string) {
-  // find building id of building code.
-  const response = await fetch(ENDPOINTS.BUILDING_ID, {
-    method: 'GET',
+  // returns a list of unit codes for a given building code
+  const response = await fetch(ENDPOINTS.UNIT_CODES, {
+    method: 'POST',
     headers: API_HEADERS,
     body: JSON.stringify({
       building_code: buildingCode
     })
   });
   return await response.json();
-  // then use building id to select only the unit codes that match it
 }

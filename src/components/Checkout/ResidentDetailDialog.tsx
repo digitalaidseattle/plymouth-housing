@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -40,10 +40,15 @@ const ResidentDetailDialog = ({
     const [showError, setShowError] = useState<boolean>(false);
 
     // when building is selected, we want to get the units for that building to populate the dropdown below it.
-    async function handleBuildingCodeSelection() {
-        const buildingId = await getUnitCodes('ALM')
-        console.log('building id is', buildingId);
-    }
+    // run this effect when a piece of state changes (the building code input!)
+    useEffect(() => {
+        const fetchUnitCodes = async () => {
+            const unitCodes = await getUnitCodes(buildingCodeInput);
+            console.log('unit codes for this building id', unitCodes);
+        }
+        fetchUnitCodes();
+    }, [buildingCodeInput])
+
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -91,7 +96,7 @@ const ResidentDetailDialog = ({
             <form onSubmit={handleSubmit}>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
-                    <FormControl onChange={handleBuildingCodeSelection}>
+                    <FormControl>
                         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingCodeInput} setSelectedBuildingCode={setBuildingCodeInput} 
                         error={showError && !buildingCodeInput}/>
                     </FormControl>

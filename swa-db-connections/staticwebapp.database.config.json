@@ -230,14 +230,14 @@
         }
       ]
     },
-    "GetBuildingId": {
+    "GetUnitCodes": {
       "source": {
-        "object": "dbo.GetBuildingId",
+        "object": "dbo.GetUnitCodes",
         "type": "stored-procedure"
       },
       "rest": {
         "enabled": true,
-        "path": "/building-id"
+        "path": "/unit-codes"
       },
       "permissions": [
         {

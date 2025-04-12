@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS [dbo].[GetUnitCodes];
+DROP PROCEDURE IF EXISTS [dbo].[GetUnitNumbers];
 GO
 
-CREATE PROCEDURE GetUnitCodes
+CREATE PROCEDURE GetUnitNumbers
     @building_code NVARCHAR(50)
 AS 
 BEGIN
@@ -16,5 +16,7 @@ BEGIN
     END
 
     -- Return unit codes that match the building id
-    SELECT * FROM Units WHERE building_id = @building_id;
+    -- use of trim is to account for empty unit numbers for some buildings
+    SELECT * FROM Units WHERE building_id = @building_id AND NULLIF(LTRIM(RTRIM(unit_number)), '') IS NOT NULL
+
 END

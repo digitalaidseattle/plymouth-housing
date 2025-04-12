@@ -232,12 +232,12 @@
     },
     "GetUnitCodes": {
       "source": {
-        "object": "dbo.GetUnitCodes",
+        "object": "dbo.GetUnitNumbers",
         "type": "stored-procedure"
       },
       "rest": {
         "enabled": true,
-        "path": "/unit-codes"
+        "path": "/unit-numbers"
       },
       "permissions": [
         {

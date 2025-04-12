@@ -15,7 +15,7 @@ export const ENDPOINTS = {
   CHECKOUT_GENERAL_ITEMS: '/data-api/rest/checkout-general-items',
   CHECKOUT_WELCOME_BASKET: '/data-api/rest/checkout-welcome-basket',
   RECENT_TRANSACTIONS: '/data-api/rest/recent-transactions',
-  UNIT_CODES: '/data-api/rest/unit-codes',
+  UNIT_NUMBERS: '/data-api/rest/unit-numbers',
   //Views
   EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
   CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',

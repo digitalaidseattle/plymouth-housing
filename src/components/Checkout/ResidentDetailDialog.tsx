@@ -10,12 +10,15 @@ import {
   FormControl,
   InputLabel,
   Input,
-  TextField
+  TextField,
+  Select,
+  MenuItem,
+  FormHelperText
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo } from '../../types/interfaces';
-import { getUnitCodes } from './CheckoutAPICalls';
+import { getUnitNumbers } from './CheckoutAPICalls';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
@@ -36,17 +39,21 @@ const ResidentDetailDialog = ({
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
     const [buildingCodeInput, setBuildingCodeInput] = useState<string>(residentInfo.buildingCode)
     const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
+    const [unitNumberValues, setUnitNumberValues] = useState([]);
 
     const [showError, setShowError] = useState<boolean>(false);
 
     // when building is selected, we want to get the units for that building to populate the dropdown below it.
     // run this effect when a piece of state changes (the building code input!)
     useEffect(() => {
-        const fetchUnitCodes = async () => {
-            const unitCodes = await getUnitCodes(buildingCodeInput);
-            console.log('unit codes for this building id', unitCodes);
+        const fetchUnitNumbers = async () => {
+            const response = await getUnitNumbers(buildingCodeInput);
+            console.log('unit codes for this building id', response);
+            // populate unit code dropdown
+            const unitNumbers = response.value.map((item)=>item.unit_number);
+            setUnitNumberValues(unitNumbers);
         }
-        fetchUnitCodes();
+        fetchUnitNumbers();
     }, [buildingCodeInput])
 
 
@@ -100,10 +107,25 @@ const ResidentDetailDialog = ({
                         <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingCodeInput} setSelectedBuildingCode={setBuildingCodeInput} 
                         error={showError && !buildingCodeInput}/>
                     </FormControl>
-                    <FormControl>
-                        <TextField label="Unit Number" id="unit-number" value={unitNumberInput} onChange={(e)=>setUnitNumberInput(e.target.value)}
-                        error={showError && !unitNumberInput} helperText={showError && !unitNumberInput ? "Please enter the unit number" : ""}/>
-                    </FormControl>
+                    {unitNumberValues.length > 1 && 
+                    <FormControl error={showError && !unitNumberInput}>
+                        <InputLabel id="select-unit-number-label">Unit Number</InputLabel>
+                        <Select
+                            labelId="select-unit-number-label"
+                            id="select-unit-number"
+                            data-testid="test-id-select-unit-number"
+                            label="Unit Number"
+                            value={unitNumberInput}
+                            onChange={(event) => setUnitNumberInput(event.target.value)}
+                        >
+                        {unitNumberValues.map((unit) => (
+                            <MenuItem key={unit} value={unit}>
+                            {unit} 
+                            </MenuItem>
+                        ))}
+                        </Select>
+                        {showError && !unitNumberInput && <FormHelperText>Please select a unit number</FormHelperText>}
+                    </FormControl>}
                     <FormControl>
                         <TextField label="Resident name" id="resident-name" value={nameInput} onChange={(e)=>setNameInput(e.target.value)}
                         error={showError && !nameInput} helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>

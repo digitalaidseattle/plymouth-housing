@@ -51,9 +51,9 @@ export async function getRecentTransactions(buildingCode: string, unitNumber: st
   return await response.json();
 }
 
-export async function getUnitCodes(buildingCode: string) {
+export async function getUnitNumbers(buildingCode: string) {
   // returns a list of unit codes for a given building code
-  const response = await fetch(ENDPOINTS.UNIT_CODES, {
+  const response = await fetch(ENDPOINTS.UNIT_NUMBERS, {
     method: 'POST',
     headers: API_HEADERS,
     body: JSON.stringify({

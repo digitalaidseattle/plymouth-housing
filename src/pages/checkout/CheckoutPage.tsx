@@ -326,8 +326,10 @@ const CheckoutPage = () => {
                 addItemToCart={(item, quantity) => {
                   if (item.name === "Appliance Miscellaneous") {
                     setSelectedItem(item);
-                    setShowAdditionalNotesDialog(true);
-                    return;
+                    if (quantity > 0) {
+                      setShowAdditionalNotesDialog(true);
+                      return;
+                    }
                   }
                   addItemToCart(item, quantity, category.category, 'general')}
                 }

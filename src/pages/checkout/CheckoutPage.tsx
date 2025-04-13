@@ -39,7 +39,7 @@ const CheckoutPage = () => {
   const residentInfoIsMissing = Object.entries(residentInfo).filter(([, val]) => val === null || val === undefined || val === '').length > 0;
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
 
-  const [selectedItem, setSelectedItem] = useState<CheckoutItemProp | null>(null);
+  const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
 
   const theme = useTheme();
   const navigate = useNavigate(); 

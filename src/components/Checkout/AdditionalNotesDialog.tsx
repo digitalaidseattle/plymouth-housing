@@ -17,7 +17,7 @@ import { CheckoutItemProp } from '../../types/interfaces';
 type AdditionalNotesDialogProps = {
     showDialog: boolean,
     handleShowDialog: Function,
-    item: CheckoutItemProp | null,
+    item: CheckoutItemProp,
     addItemToCart: (item: CheckoutItemProp) => void;
 }
 
@@ -33,7 +33,8 @@ const AdditionalNotesDialog = ({
     function handleSubmit(e) {
         e.preventDefault();
         // update additional info
-        if (item) addItemToCart(item);
+        const updatedItem = {...item, additional_notes: additionalNotesInput}
+        addItemToCart(updatedItem);
         handleShowDialog(false);
     }
 

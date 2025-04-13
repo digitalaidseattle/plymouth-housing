@@ -12,15 +12,20 @@ import {
   Input
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import { CheckoutItemProp } from '../../types/interfaces';
 
 type AdditionalNotesDialogProps = {
     showDialog: boolean,
-    handleShowDialog: Function
+    handleShowDialog: Function,
+    item: CheckoutItemProp | null,
+    addItemToCart: (item: CheckoutItemProp) => void;
 }
 
 const AdditionalNotesDialog = ({
     showDialog, 
     handleShowDialog, 
+    item,
+    addItemToCart
     }: AdditionalNotesDialogProps) => {
 
     const [additionalNotesInput, setAdditionalNotesInput] = useState<string>('')
@@ -28,7 +33,8 @@ const AdditionalNotesDialog = ({
     function handleSubmit(e) {
         e.preventDefault();
         // update additional info
-        handleShowDialog();
+        if (item) addItemToCart(item);
+        handleShowDialog(false);
     }
 
     return (
@@ -54,7 +60,7 @@ const AdditionalNotesDialog = ({
                 <Button onClick={handleShowDialog} disableRipple><Close/></Button>
             </Box>
             <DialogTitle>
-                <Typography sx={{ fontSize: '1.25rem' }}>Enter appliance miscellaneous details</Typography>
+                <Typography sx={{ fontSize: '1.25rem' }}>Enter {item && item.name} Details</Typography>
                 <Typography>You can specify the kind of appliance here.</Typography>
             </DialogTitle>
             <form onSubmit={handleSubmit}>

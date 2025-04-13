@@ -3,6 +3,7 @@ export type CheckoutItemProp = {
   name: string;
   quantity: number;
   description: string;
+  additional_notes?: string;
 };
 
 export type CategoryProps = {

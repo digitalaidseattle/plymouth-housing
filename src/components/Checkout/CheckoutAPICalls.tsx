@@ -27,7 +27,7 @@ export async function processGeneralItems(user: ClientPrincipal | null, loggedIn
     headers: API_HEADERS,
     body: JSON.stringify({
       user_id: loggedInUserId,
-      items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity })),
+      items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity, additional_notes: item.additional_notes })),
       building_code: residentInfo.buildingCode,
       unit_number: residentInfo.unit,
       resident_name: residentInfo.name,

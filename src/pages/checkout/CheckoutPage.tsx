@@ -228,11 +228,12 @@ const CheckoutPage = () => {
       setResidentInfo={setResidentInfo}
       />
     }
-    {showAdditionalNotesDialog && <AdditionalNotesDialog
+     {showAdditionalNotesDialog && <AdditionalNotesDialog
           showDialog={showAdditionalNotesDialog} 
           handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
       />
     }
+
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky', 
@@ -319,21 +320,16 @@ const CheckoutPage = () => {
                 key={category.id}
                 category={category}
                 categoryCheckout={matchingCategory}
-                addItemToCart={(item, quantity) => {
-                  if (item.name == "Appliance Miscellaneous") {
-                    setShowAdditionalNotesDialog(true);
-                    // TODO: add item to cart when button in dialog is pressed
-                  } else {
-                    addItemToCart(item, quantity, category.category, 'general')}
-                  }
-                }
+                addItemToCart={(item, quantity) => {addItemToCart(item, quantity, category.category, 'general')}}
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
               />
             );
           })}
-        </Box>}
+        </Box>
+        
+        }
 
       <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.buildingCode} residentInfoIsMissing={residentInfoIsMissing} />
 

@@ -84,9 +84,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
           body: JSON.stringify({ 
             user_id: loggedInUserId,
             item: [{ id: updateItem.id, quantity: formData.quantity }],
-            building_code: "",
-            unit_number: "",
-            resident_name: "",
           }) 
         });
         if (!response.ok) {

@@ -113,7 +113,7 @@ The ```process_checkout``` stored procedure implementation will add these detail
 1. App looks up all transactions for BUR, checking if Toaster was previously checked out.
 1. Toaster found for BUR. 
 1. App shows message to volunteer showing "Toaster was checked out by BUR on 4/16/2025. Do you want to proceed?" 
-1. BUR on last message was different from BUR under 1. 
+1. The BUR indicated in the notification differs from the original BUR. 
 1. Volunteer will allow toaster checkout
 1. Transaction proceeds as normal with Toaster
 

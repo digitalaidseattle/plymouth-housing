@@ -5,9 +5,8 @@ import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
 import Page404 from './error/404';
 import Inventory from './inventory';
-import VolunteerHome from './VolunteerHome';
 import CheckoutPage from './checkout/CheckoutPage';
-import People from './people';
+import { RootRedirect } from '../components/RootRedirect';
 
 const routes = [
   {
@@ -16,7 +15,7 @@ const routes = [
     children: [
       {
         path: '',
-        element: <VolunteerHome />,
+        element: <RootRedirect source="root"/>,
       },
       {
         path: 'inventory',
@@ -28,19 +27,11 @@ const routes = [
       },
       {
         path: 'people',
-        element: (
-          <MainContainer title="People">
-            <People />
-          </MainContainer>
-        ),
+        element: <RootRedirect source="people"/>,
       },
       {
         path: 'volunteer-home',
-        element: (
-          <MainContainer title="Volunteer Home">
-            <VolunteerHome />
-          </MainContainer>
-        ),
+        element: <RootRedirect source="volunteer-home"/>,
       },
       {
         path: 'checkout',

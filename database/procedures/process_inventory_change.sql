@@ -45,7 +45,7 @@ BEGIN
         -- Log to Transaction Table 
         EXEC LogTransaction
             @user_id = @user_id,
-            @transaction_type = 1,
+            @transaction_type = 2,
             @building_id = NULL,
             @resident_name = NULL,
             @unit_number = NULL, 

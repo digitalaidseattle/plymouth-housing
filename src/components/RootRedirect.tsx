@@ -1,32 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { UserContext } from './contexts/UserContext';
 import { USER_ROLES } from '../types/constants';
 import VolunteerHome from '../pages/VolunteerHome';
+import People from '../pages/people';
+import MainContainer from './MainContainer';
 
-export const RootRedirect: React.FC = () => {
+export const RootRedirect = ({ source }: { source: string }) => {
   const { user } = React.useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    // Short timeout to ensure user context has fully loaded
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  // Show nothing while loading to prevent flash of volunteer home
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (source === 'root' || source === 'volunteer-home') {
+    // If user is admin, redirect to inventory
+    if (user?.userRoles?.includes(USER_ROLES.ADMIN)) {
+      return <Navigate to="/inventory" replace />;
+    } 
+    // Otherwise, show volunteer home
+    return (
+      <MainContainer title="Volunteer Home">
+        <VolunteerHome />
+      </MainContainer>
+    );
+
+  } else if (source === 'people') {
+    // If user is volunteer, redirect to volunteer-home
+    if (user?.userRoles?.includes(USER_ROLES.VOLUNTEER)) {
+      return <Navigate to="/volunteer-home" replace />;
+    } 
+    // Otherwise, show people 
+    return (
+      <MainContainer title="People">
+        <People />
+      </MainContainer>
+    );
   }
-  
-  // If user is admin, redirect immediately to inventory
-  if (user?.userRoles?.includes(USER_ROLES.ADMIN)) {
-    return <Navigate to="/inventory" replace />;
-  }
-  
-  // Otherwise, show volunteer home
-  return <VolunteerHome />;
 };

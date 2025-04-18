@@ -190,6 +190,26 @@
         }
       ]
     },
+    "ProcessInventoryChange": {
+      "source": {
+        "object": "dbo.ProcessInventoryChange",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/process-inventory-change"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
+    },
     "ProcessWelcomeBasket": {
       "source": {
         "object": "dbo.ProcessWelcomeBasketCheckout",

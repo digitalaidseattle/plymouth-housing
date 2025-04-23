@@ -65,22 +65,17 @@ END;
 ```
 
 ### UI Logic
+Before every checkout transaction, Building Code, Unit Number, and Resident name are entered by the volunteer. 
+
 When a resident adds an item that requires tracking to the shopping cart, 
-an additional dialog pops up that asks for the following details: 
-- building code
-- unit number
-- resident name
-- additional notes
-
-Before allowing confirmation on the transaction, 
-the transaction database is queried witht the previously mentioned ```GetRecentTransactions``` Stored Procedure. 
-If an identical item was already checked out previously, 
-a warning message will pop up. 
-This message will alert the volunteer of the recente transaction.
+the transaction database is queried with the previously mentioned ```GetRecentTransactions``` Stored Procedure. 
+If one or more identical items were checked out previously, a warning message will pop up. 
+This message will alert the volunteer of the previous transactions.
 It is left up to the discretion of the volunteer to allow or deny the transaction. 
-(In other words, the system should not block it.)
+In other words, the system should not block it.
 
-When the checkout is processed, the previously mentioned additional details are added to the [```process_checkout```](database\procedures\process_checkout.sql) stored procedure. 
+For Appliance Misc, the system needs to know the specific details (e.g., blender, waffle maker). 
+For this a dialog pops up and those details are added to the [```process_checkout```](database\procedures\process_checkout.sql) stored procedure.  
 The ```process_checkout``` stored procedure implementation will add these details to the transactions table only for the items that require tracking. 
 
 ### Scenarios
@@ -94,26 +89,26 @@ The ```process_checkout``` stored procedure implementation will add these detail
 #### Toaster (not Appliance Misc)
 1. Volunteer gathers Building Code, Unit Number, Resident Name (BUR)
 1. Volunteer adds Toaster to cart 
-1. App looks up all transactions for BUR, checking if Toaster was previously checked out.
-1. No Toaster found for BUR. 
+1. App looks up all transactions for Building and Unit Number (BU) only, checking if Toaster was previously checked out.
+1. No Toaster found for BU. 
 1. Transaction proceeds as normal
 
 #### Toaster after Toaster by Same Resident
 1. Volunteer gathers Building Code, Unit Number, Resident Name (BUR)
 1. Volunteer adds Toaster to cart 
-1. App looks up all transactions for BUR, checking if Toaster was previously checked out.
-1. Toaster found for BUR. 
-1. App shows message to volunteer showing "Toaster was checked out by BUR on 4/16/2025. Do you want to proceed?" 
+1. App looks up all transactions for BU, checking if Toaster was previously checked out.
+1. Toaster found for BU. 
+1. App shows message to volunteer showing "Toaster was checked out by Resident in Building B and Unit U on 4/16/2025. Do you want to proceed?" 
 1. Volunteer can remove toaster from basket and disallow checkout
 1. Transaction proceeds as normal, without Toaster
 
 #### Toaster after Toaster by Different Resident
 1. Volunteer gathers Building Code, Unit Number, Resident Name (BUR)
 1. Volunteer adds Toaster to cart 
-1. App looks up all transactions for BUR, checking if Toaster was previously checked out.
-1. Toaster found for BUR. 
-1. App shows message to volunteer showing "Toaster was checked out by BUR on 4/16/2025. Do you want to proceed?" 
-1. The BUR indicated in the notification differs from the original BUR. 
+1. App looks up all transactions for BU, checking if Toaster was previously checked out.
+1. Toaster found for BU. 
+1. App shows message to volunteer showing "Toaster was checked out by Resident in Building B and Unit U on 4/16/2025. Do you want to proceed?" 
+1. The Resident indicated in the notification differs from the current Resident. 
 1. Volunteer will allow toaster checkout
 1. Transaction proceeds as normal with Toaster
 
@@ -122,8 +117,8 @@ Note that Blender is in the Appliance Misc category.
 
 1. Volunteer gathers Building Code, Unit Number, Resident Name (BUR)
 1. Volunteer adds **Blender** to cart 
-1. App looks up all transactions for BUR, checking if another **Appliance Misc** item was previously checked out.
-1. **Appliance Misc** not found for BUR. 
+1. App looks up all transactions for BU, checking if another **Appliance Misc** item was previously checked out.
+1. **Appliance Misc** not found for BU. 
 1. App shows message to volunteer asking for additional input.
 1. Volunteer adds "Blender" in the dialog. 
 1. Transaction proceeds as normal with Blender
@@ -133,9 +128,9 @@ Note that Blender is in the Appliance Misc category.
 
 1. Volunteer gathers Building Code, Unit Number, Resident Name (BUR)
 1. Volunteer adds **Blender** to cart 
-1. App looks up all transactions for BUR, checking if another **Appliance Misc** item was previously checked out.
-1. **Appliance Misc** found for BUR. 
-1. App shows message to volunteer showing "Blender (Appliance Misc) was checked out by BUR on 4/16/2025. Do you want to proceed?" 
+1. App looks up all transactions for BU, checking if another **Appliance Misc** item was previously checked out.
+1. **Appliance Misc** found for BU. 
+1. App shows message to volunteer showing "Blender (Appliance Misc) was checked out by Resident in Building B and Unit U on 4/16/2025. Do you want to proceed?" 
 1. Volunteer can remove Blender from basket and disallow checkout 
 1. Transaction proceeds as normal, without Blender
 
@@ -144,9 +139,9 @@ Note that Blender and Waffle Maker are in the Appliance Misc category.
 
 1. Volunteer gathers Building Code, Unit Number, Resident Name (BUR)
 1. Volunteer adds **Waffle Maker** to cart 
-1. App looks up all transactions for BUR, checking if another **Appliance Misc** item was previously checked out.
-1. **Appliance Misc** found for BUR. 
-1. App shows message to volunteer showing "Waffle Maker (Appliance Misc) was checked out by BUR on 4/16/2025. Do you want to proceed?" 
+1. App looks up all transactions for BU, checking if another **Appliance Misc** item was previously checked out.
+1. **Appliance Misc** found for BU. 
+1. App shows message to volunteer showing "Blender (Appliance Misc) was checked out by Resident in Building B and Unit U on 4/16/2025. Do you want to proceed?" 
 1. Volunteer sees that Blender is not a Waffle Maker and allows checkout 
 1. App shows message to volunteer asking for additional input.
 1. Volunteer adds "Waffle Maker" in the dialog. 

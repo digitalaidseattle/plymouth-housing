@@ -1,9 +1,10 @@
-import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, FormControl, FormControlLabel, Radio, RadioGroup, } from '@mui/material';
+import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
+import { Add, Remove } from '@mui/icons-material';
 
 type FormData = {
   type: string;
@@ -153,21 +154,16 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
           </Box>
 
 
-            <Box id="add-item-quantity" sx={{ width: '30%' }}>
+            <Box id="add-item-quantity">
                 <Typography fontWeight='bold'>
                   Value
                 </Typography>
-                <TextField sx={{ width: '100%' }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
+                <Box sx={{ display: 'flex' }}>
+                  <Button  onClick={() => handleInputChange('quantity', Number(formData.quantity) - 1)}><Remove/></Button>
+                  <TextField inputProps={{style: { textAlign: 'center', width: '5rem' }}} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
+                  <Button onClick={() => handleInputChange('quantity', Number(formData.quantity) + 1)}><Add/></Button>
+                </Box>
             </Box>
-
-            <FormControl>
-              <RadioGroup
-                name="row-radio-buttons-group"
-              >
-                <FormControlLabel value="add" control={<Radio />} label="Add To Total Quantity" />
-                <FormControlLabel value="subtract" control={<Radio />} label="Subtract From Total Quantity" />
-              </RadioGroup>
-            </FormControl>
 
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>

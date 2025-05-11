@@ -10,6 +10,7 @@ DROP PROCEDURE IF EXISTS LogTransaction;
 DROP PROCEDURE IF EXISTS LogTransactionItem;
 DROP PROCEDURE IF EXISTS GetRecentTransactions;
 DROP PROCEDURE IF EXISTS VerifyVolunteerPin;
+DROP PROCEDURE IF EXISTS ProcessInventoryChange;
 
 DROP TYPE IF EXISTS CartItemsType;
 

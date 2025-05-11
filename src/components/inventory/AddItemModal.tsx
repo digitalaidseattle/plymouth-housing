@@ -19,7 +19,7 @@ type AddItemModalProps = {
 }
 
 const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: AddItemModalProps) => {
-  const { user } = useContext(UserContext);
+  const { user, loggedInUserId } = useContext(UserContext);
   const [updateItem, setUpdateItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState<FormData>({
     type: '',
@@ -68,16 +68,24 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
   }
 
   const updateItemHandler = async () => {
+    const newQuantity = Number(updateItem?.quantity) + Number(formData.quantity);
     if (formData.type === '' || formData.name === '' || formData.quantity === 0 || !updateItem) {
       setErrorMessage('Missing Information or Quantity cannot be 0')
       return;
-    } else if (Number(updateItem.quantity) + Number(formData.quantity) < 0) {
+    } else if (newQuantity < 0) {
       setErrorMessage('Item quantity cannot go below 0.')
       return;
     } else {
       try {
         API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateItem.id}`, { method: "PATCH", headers: API_HEADERS, body: JSON.stringify({ quantity: Number(updateItem.quantity) + Number(formData.quantity) }) });
+        const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, { 
+          method: "POST", 
+          headers: API_HEADERS, 
+          body: JSON.stringify({ 
+            user_id: loggedInUserId,
+            item: [{ id: updateItem.id, quantity: formData.quantity }],
+          }) 
+        });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {

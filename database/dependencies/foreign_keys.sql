@@ -27,12 +27,17 @@ ALTER TABLE dbo.Transactions
 ADD CONSTRAINT FK_Transactions_UserId
 FOREIGN KEY (user_id) REFERENCES dbo.Users(id);
 
--- Transactions -> Buildings
-ALTER TABLE dbo.Transactions
-ADD CONSTRAINT FK_Transactions_BuildingId
-FOREIGN KEY (building_id) REFERENCES dbo.Buildings(id);
-
 --Transactions -> TransactionTypes
 ALTER TABLE dbo.Transactions
 ADD CONSTRAINT FK_Transactions_TransactionType
 FOREIGN KEY (transaction_type) REFERENCES dbo.TransactionTypes(id);
+
+-- Transactions -> Residents
+ALTER TABLE dbo.Transactions    
+ADD CONSTRAINT FK_Transactions_ResidentId
+FOREIGN KEY (resident_id) REFERENCES dbo.Residents(id);
+
+-- Residents -> Buildings
+ALTER TABLE dbo.Residents
+ADD CONSTRAINT FK_Residents_BuildingId
+FOREIGN KEY (building_id) REFERENCES dbo.Buildings(id);

@@ -92,22 +92,6 @@ describe('useUsers hook', () => {
     expect(filteredUser?.active).toBe(false);
   });
 
-  it('throws error if updateUserStatus is called for a non-existent user', async () => {
-    const initialUsers = [
-      { id: 1, name: 'User One', active: true },
-    ];
-    global.fetch = vi.fn().mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => ({ value: initialUsers }),
-    });
-
-    const { result } = renderHook(() => useUsers(), { wrapper });
-    await waitFor(() => result.current.loading === false);
-
-    await expect(result.current.updateUserStatus(999)).rejects.toThrow('User not found');
-  });
-
   it('throws error when PATCH request fails in updateUserStatus', async () => {
     const initialUsers = [
       { id: 1, name: 'User One', active: true },
@@ -134,5 +118,21 @@ describe('useUsers hook', () => {
     await act(async () => {
       await expect(result.current.updateUserStatus(1)).rejects.toThrow(`Error updating user: ${errorMsg}`);
     });
+  });
+
+  it('throws error if updateUserStatus is called for a non-existent user', async () => {
+    const initialUsers = [
+      { id: 1, name: 'User One', active: true },
+    ];
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ value: initialUsers }),
+    });
+
+    const { result } = renderHook(() => useUsers(), { wrapper });
+    await waitFor(() => result.current.loading === false);
+
+    await expect(result.current.updateUserStatus(999)).rejects.toThrow('User not found');
   });
 });

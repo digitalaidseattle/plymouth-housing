@@ -61,8 +61,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode, r
               onClick={() => setOpenSummary(true)}
               disabled={
                 !selectedBuildingCode ||
-                selectedBuildingCode.length === 0 ||
-                totalCategoryCount > 10
+                selectedBuildingCode.length === 0
               }
             >
               Proceed to Checkout

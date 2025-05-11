@@ -42,7 +42,8 @@ const CheckoutPage = () => {
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
 
   const theme = useTheme();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
@@ -106,8 +107,8 @@ const CheckoutPage = () => {
   };
 
   const removeItemFromCart = (itemId: number, categoryName: string) => {
-    setCheckoutItems((prevCheckoutItems) =>
-      prevCheckoutItems.map((category) => {
+    setCheckoutItems((prevCheckoutItems) => {
+      const updatedCheckoutItems = prevCheckoutItems.map((category) => {
         if (category.category === categoryName) {
           const updatedItems = category.items.filter(
             (addedItem: CheckoutItemProp) => addedItem.id !== itemId
@@ -125,8 +126,16 @@ const CheckoutPage = () => {
           };
         }
         return category;
-      })
-    );
+      });
+
+      // Check if all categories are empty
+      const isCartEmpty = updatedCheckoutItems.every(category => category.items.length === 0);
+      if (isCartEmpty) {
+        setActiveSection('');
+      }
+
+      return updatedCheckoutItems;
+    });
   };
 
 
@@ -146,7 +155,7 @@ const CheckoutPage = () => {
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error('Database is likely starting up. Try again in 30 seconds.');
-        } else { 
+        } else {
           throw new Error(response.statusText);
         }
       }
@@ -240,8 +249,8 @@ const CheckoutPage = () => {
 
     {/* Container for the sticky nav */}
     <Box sx={{
-      position: 'sticky', 
-      top: '3.5rem', 
+      position: 'sticky',
+      top: '3.5rem',
       zIndex: 2,
       p: 1,
       background: theme.palette.common.white,
@@ -307,6 +316,7 @@ const CheckoutPage = () => {
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
+                activeSection={activeSection}
               />
             );
           })}
@@ -336,6 +346,7 @@ const CheckoutPage = () => {
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
+                activeSection={activeSection}
               />
             );
           })}
@@ -361,6 +372,7 @@ const CheckoutPage = () => {
         fetchData={fetchData}
         residentInfo={residentInfo}
         setResidentInfo={setResidentInfo}
+        activeSection={activeSection}
       />
       <SnackbarAlert
         open={snackbarState.open}

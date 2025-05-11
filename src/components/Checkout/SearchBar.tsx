@@ -49,10 +49,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setSearchData, setSearchAct
       variant="standard"
       placeholder={'Search...'}
       type="search" 
-      sx={{'input[type="search"]::-webkit-search-cancel-button ': {display: 'none'}}}
+      sx={{'input[type="search"]::-webkit-search-cancel-button ': {display: 'none'}, width: '30%'}}
       value={searchTerm}
       onChange={searchChangeHandler}
-      sx={{ width: '30%' }}
       inputProps={{ sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } }} // font size of input text
       InputLabelProps={{ sx: { xs: '24px', md: '20px', lg: '16px'}}} // font size of input label
       InputProps={{

@@ -154,6 +154,28 @@
         }
       ]
     },
+    "Residents": {
+      "source": {
+        "object": "dbo.Residents",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/residents",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["read", "create", "update"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read", "create", "update"],
+          "role": "volunteer"
+        }
+      ]
+    },
     "VerifyPin": {
       "source": {
         "object": "dbo.VerifyVolunteerPin",

@@ -62,3 +62,16 @@ export async function getUnitNumbers(buildingCode: string) {
   });
   return await response.json();
 }
+
+export async function getResidents() {
+  try {
+    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=(unit_number eq '101')`, {
+      method: 'GET',
+      headers: API_HEADERS,
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching residents:', error);
+    throw error;
+  }
+}

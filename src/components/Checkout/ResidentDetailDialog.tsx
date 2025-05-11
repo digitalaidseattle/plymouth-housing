@@ -18,7 +18,7 @@ import {
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo } from '../../types/interfaces';
-import { getUnitNumbers } from './CheckoutAPICalls';
+import { getResidents, getUnitNumbers } from './CheckoutAPICalls';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
@@ -55,6 +55,14 @@ const ResidentDetailDialog = ({
         }
         fetchUnitNumbers();
     }, [buildingCodeInput])
+
+    useEffect(() => {
+        const fetchResidents = async () => {
+            const response = await getResidents();
+            console.log('residents', response);
+        }
+        fetchResidents();
+    }, [])
 
 
     function handleSubmit(e) {

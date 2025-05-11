@@ -82,6 +82,10 @@ const UserPage = () => {
     setCurrentPage(value);
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+  };
+
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -146,7 +150,7 @@ const UserPage = () => {
       {/* Filters */}
       <UserFilters
         search={search}
-        onSearchChange={(e) => setSearch(e.target.value)}
+        onSearchChange={handleSearchChange}
         statusFilter={statusFilter}
         roleFilter={roleFilter}
         onStatusFilterChange={setStatusFilter}

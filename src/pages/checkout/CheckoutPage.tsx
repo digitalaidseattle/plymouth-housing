@@ -7,7 +7,7 @@ import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
-import SearchBar from '../../components/Checkout/SearchBar';
+import SearchBar from '../../components/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';

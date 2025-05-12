@@ -6,7 +6,9 @@ import { useContext } from 'react';
 import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpenContext';
 import NavItem from './NavItem';
 import { MenuItem } from '../../../../../components/contexts/ActiveMenuItemContext';
-import { UserContext } from '../../../../../components/contexts/UserContext';
+import { UserContext, getRole } from '../../../../../components/contexts/UserContext';
+import { ROLE_PAGES } from '../../../../../types/constants';
+
 // ==============================|| NAVIGATION - LIST GROUP ||============================== //
 
 interface NavGroupProps {
@@ -15,6 +17,9 @@ interface NavGroupProps {
 const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
   const { drawerOpen } = useContext(DrawerOpenContext);
   const { user } = useContext(UserContext);
+  const userRole = user ? getRole(user) : null;
+  const permittedPages = userRole ? ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] : [];
+  
   const navCollapse = item.children?.map((menuItem: MenuItem) => {
     switch (menuItem.type) {
       case 'collapse':
@@ -29,16 +34,15 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
           </Typography>
         );
       case 'item':
+        // Show menu item if its ID is in the permitted pages for this user's role
         return (
-          (menuItem.id !== 'volunteer-home' || 
-          (menuItem.id === 'volunteer-home' && user?.userRoles?.includes('volunteer'))
-          ) && (
+          permittedPages.includes(menuItem.id) && (
             <NavItem key={menuItem.id} item={menuItem} level={1} />
           )
         );
       case 'admin':
         return (
-          user?.userRoles?.includes('admin') && (
+          userRole === 'admin' && (
             <NavItem key={menuItem.id} item={menuItem} level={1} />
           )
         );

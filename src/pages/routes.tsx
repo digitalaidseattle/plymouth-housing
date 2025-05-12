@@ -5,8 +5,10 @@ import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
 import Page404 from './error/404';
 import Inventory from './inventory';
+import VolunteerHome from './VolunteerHome';
 import CheckoutPage from './checkout/CheckoutPage';
-import { RootRedirect } from '../components/RootRedirect';
+import People from './people';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const routes = [
   {
@@ -15,32 +17,52 @@ const routes = [
     children: [
       {
         path: '',
-        element: <RootRedirect source="root"/>,
+        element: (
+          <ProtectedRoute pageId="root">
+            <VolunteerHome />,
+          </ProtectedRoute>
+        )
       },
       {
         path: 'inventory',
         element: (
-          <MainContainer title="Inventory">
-            <Inventory />
-          </MainContainer>
+          <ProtectedRoute pageId="inventory">
+            <MainContainer title="Inventory">
+              <Inventory />
+            </MainContainer>
+          </ProtectedRoute>
         ),
       },
       {
         path: 'people',
-        element: <RootRedirect source="people"/>,
+        element: (
+          <ProtectedRoute pageId="people">
+            <MainContainer title="People">
+              <People />
+            </MainContainer>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'volunteer-home',
-        element: <RootRedirect source="volunteer-home"/>,
+        element: (
+          <ProtectedRoute pageId="volunteer-home">
+            <MainContainer title="Volunteer Home">
+              <VolunteerHome />
+            </MainContainer>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'checkout',
         element: (
           // checkout card content is given a fixed height and scrollbar
           // to work with the sticky nav inside it
+          <ProtectedRoute pageId="checkout">
           <MainContainer title="Check out">
             <CheckoutPage />
           </MainContainer>
+          </ProtectedRoute>
         ),
       },
     ],

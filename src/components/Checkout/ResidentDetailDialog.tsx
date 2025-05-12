@@ -60,11 +60,11 @@ const ResidentDetailDialog = ({
 
     useEffect(() => {
         const fetchResidents = async () => {
-            const response = await getResidents();
-            console.log('residents', response);
+            const response = await getResidents(buildingInput.id, unitNumberInput);
+            console.log('residents', response.value);
         }
         fetchResidents();
-    }, [])
+    }, [unitNumberInput, buildingInput])
 
 
     function handleSubmit(e) {

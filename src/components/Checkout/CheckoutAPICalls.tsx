@@ -65,9 +65,9 @@ export async function getUnitNumbers(building: Building) {
   }
 }
 
-export async function getResidents() {
+export async function getResidents(buildingId: number, unitNumber: string) {
   try {
-    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=(unit_number eq '101')`, {
+    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=building_id eq ${buildingId} and unit_number eq '${unitNumber}'`, {
       method: 'GET',
       headers: API_HEADERS,
     });

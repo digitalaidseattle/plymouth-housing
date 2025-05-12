@@ -53,14 +53,16 @@ export async function getRecentTransactions(buildingCode: string, unitNumber: st
 
 export async function getUnitNumbers(building: Building) {
   // returns a list of unit codes for a given building code
-  const response = await fetch(ENDPOINTS.UNIT_NUMBERS, {
-    method: 'POST',
-    headers: API_HEADERS,
-    body: JSON.stringify({
-      building_code: building.code,
-    })
-  });
-  return await response.json();
+  try {
+    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=(building_id eq ${building.id})`, {
+      method: 'GET',
+      headers: API_HEADERS,
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching residents:', error);
+    throw error;
+  }
 }
 
 export async function getResidents() {

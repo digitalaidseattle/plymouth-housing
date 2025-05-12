@@ -133,6 +133,28 @@
         }
       ]
     },   
+    "Units": {
+      "source": {
+        "object": "dbo.Units",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/units",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },   
     "Users": {
       "source": {
         "object": "dbo.Users",
@@ -271,27 +293,6 @@
           "role": "volunteer"
         }
       ]
-    },
-    "GetUnitCodes": {
-      "source": {
-        "object": "dbo.GetUnitNumbers",
-        "type": "stored-procedure"
-      },
-      "rest": {
-        "enabled": true,
-        "path": "/unit-numbers"
-      },
-      "permissions": [
-        {
-          "actions": ["execute"],
-          "role": "admin"
-        },
-        {
-          "actions": ["execute"],
-          "role": "volunteer"
-        }
-      ]
     }
-
   }
 }

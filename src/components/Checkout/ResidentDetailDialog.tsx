@@ -50,7 +50,9 @@ const ResidentDetailDialog = ({
             const response = await getUnitNumbers(buildingInput);
             console.log('unit codes for this building id', response);
             // populate unit code dropdown
-            const unitNumbers = response.value.map((item)=>item.unit_number);
+            const unitNumbers = response.value
+                .map((item)=>item.unit_number)
+                .filter((item) => item.trim() !== '');
             setUnitNumberValues(unitNumbers);
         }
         fetchUnitNumbers();

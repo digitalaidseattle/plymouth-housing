@@ -10,6 +10,7 @@ export const ENDPOINTS = {
   ITEMS: '/data-api/rest/items',
   CATEGORY: '/data-api/rest/categories',
   BUILDINGS: '/data-api/rest/building',
+  UNITS: '/data-api/rest/units',
   RESIDENTS: '/data-api/rest/residents',
   //Stored Procedures
   VERIFY_PIN: '/data-api/rest/verify-pin',
@@ -17,7 +18,6 @@ export const ENDPOINTS = {
   CHECKOUT_WELCOME_BASKET: '/data-api/rest/checkout-welcome-basket',
   PROCESS_INVENTORY_CHANGE: '/data-api/rest/process-inventory-change',
   RECENT_TRANSACTIONS: '/data-api/rest/recent-transactions',
-  UNIT_NUMBERS: '/data-api/rest/unit-numbers',
   //Views
   EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
   CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',

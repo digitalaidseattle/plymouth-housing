@@ -37,7 +37,7 @@ const ResidentDetailDialog = ({
     }: ResidentDetailDialogProps) => {
 
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
-    const [buildingCodeInput, setBuildingCodeInput] = useState<string>(residentInfo.buildingCode)
+    const [buildingInput, setBuildingInput] = useState<Building>(residentInfo.building)
     const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
     const [unitNumberValues, setUnitNumberValues] = useState([]);
 
@@ -47,14 +47,14 @@ const ResidentDetailDialog = ({
     // run this effect when a piece of state changes (the building code input!)
     useEffect(() => {
         const fetchUnitNumbers = async () => {
-            const response = await getUnitNumbers(buildingCodeInput);
+            const response = await getUnitNumbers(buildingInput);
             console.log('unit codes for this building id', response);
             // populate unit code dropdown
             const unitNumbers = response.value.map((item)=>item.unit_number);
             setUnitNumberValues(unitNumbers);
         }
         fetchUnitNumbers();
-    }, [buildingCodeInput])
+    }, [buildingInput])
 
     useEffect(() => {
         const fetchResidents = async () => {
@@ -68,7 +68,7 @@ const ResidentDetailDialog = ({
     function handleSubmit(e) {
         e.preventDefault();
         // validate inputs, show error
-        if (!nameInput || !buildingCodeInput || !unitNumberInput) {
+        if (!nameInput || !buildingInput || !unitNumberInput) {
             setShowError(true);
             return;
         }
@@ -77,7 +77,7 @@ const ResidentDetailDialog = ({
         setResidentInfo({
             name: nameInput,
             unit: unitNumberInput,
-            buildingCode: buildingCodeInput
+            building: buildingInput
         })
         setShowError(false);
         handleShowDialog();
@@ -112,8 +112,8 @@ const ResidentDetailDialog = ({
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                     <FormControl>
-                        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingCodeInput} setSelectedBuildingCode={setBuildingCodeInput} 
-                        error={showError && !buildingCodeInput}/>
+                        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingInput.code} setSelectedBuilding={setBuildingInput} 
+                        error={showError && !buildingInput}/>
                     </FormControl>
                     {unitNumberValues.length > 1 && 
                     <FormControl error={showError && !unitNumberInput}>

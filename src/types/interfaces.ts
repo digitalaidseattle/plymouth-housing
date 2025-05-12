@@ -104,5 +104,5 @@ export type ShoppingCart = {
 export type ResidentInfo = {
   name: string;
   unit: string;
-  buildingCode: string;
+  building: Building;
 }

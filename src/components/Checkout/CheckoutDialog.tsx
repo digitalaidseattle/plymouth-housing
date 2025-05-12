@@ -26,7 +26,6 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
-  setSelectedBuildingCode: (building: string) => void;
   activeSection: string;
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
@@ -78,7 +77,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        setResidentInfo({name: '', unit: '', buildingCode: ''})
+        setResidentInfo({name: '', unit: '', building: { id: 0, code: '', name: '' }});
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();

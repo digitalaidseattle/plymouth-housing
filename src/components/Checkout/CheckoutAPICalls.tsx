@@ -1,5 +1,5 @@
 import { getRole } from '../contexts/UserContext';
-import { CheckoutItemProp, ClientPrincipal, ResidentInfo } from '../../types/interfaces';
+import { Building, CheckoutItemProp, ClientPrincipal, ResidentInfo } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
 export async function processWelcomeBasket(user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
@@ -51,13 +51,13 @@ export async function getRecentTransactions(buildingCode: string, unitNumber: st
   return await response.json();
 }
 
-export async function getUnitNumbers(buildingCode: string) {
+export async function getUnitNumbers(building: Building) {
   // returns a list of unit codes for a given building code
   const response = await fetch(ENDPOINTS.UNIT_NUMBERS, {
     method: 'POST',
     headers: API_HEADERS,
     body: JSON.stringify({
-      building_code: buildingCode
+      building_code: building.code,
     })
   });
   return await response.json();

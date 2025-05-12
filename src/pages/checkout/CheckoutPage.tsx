@@ -25,7 +25,7 @@ const CheckoutPage = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [openSummary, setOpenSummary] = useState<boolean>(false);
 
-  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({name: '', unit: '', buildingCode: ''});
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({name: '', unit: '', building: {id: 0, code: '', name: ''}});
   
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -257,7 +257,7 @@ const CheckoutPage = () => {
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
         <Button variant="outlined" color={residentInfoIsMissing ? "error" : "primary"} onClick={()=>setShowResidentDetailDialog(true)}>
-          {residentInfoIsMissing ? 'Missing Resident Info' : `${residentInfo.buildingCode} - ${residentInfo.unit} - ${residentInfo.name}`}
+          {residentInfoIsMissing ? 'Missing Resident Info' : `${residentInfo.building.code} - ${residentInfo.unit} - ${residentInfo.name}`}
           </Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
@@ -354,7 +354,7 @@ const CheckoutPage = () => {
         
         }
 
-      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.buildingCode} residentInfoIsMissing={residentInfoIsMissing} />
+      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.building.code} residentInfoIsMissing={residentInfoIsMissing} />
 
       <CheckoutDialog
         open={openSummary}
@@ -367,7 +367,7 @@ const CheckoutPage = () => {
         addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}
         setCheckoutItems={setCheckoutItems}
         removeItemFromCart={removeItemFromCart}
-        selectedBuildingCode={residentInfo.buildingCode}
+        selectedBuildingCode={residentInfo.building.code}
         setActiveSection={setActiveSection}
         fetchData={fetchData}
         residentInfo={residentInfo}

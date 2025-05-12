@@ -5,14 +5,14 @@ import { Building } from '../../types/interfaces';
 interface BuildingCodeSelectProps {
   buildings: Building[];
   selectedBuildingCode: string;
-  setSelectedBuildingCode: (code: string) => void;
+  setSelectedBuilding: (building: Building) => void;
   error: boolean;
 }
 
 const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   buildings,
   selectedBuildingCode,
-  setSelectedBuildingCode,
+  setSelectedBuilding,
   error
 }) => {
   return (
@@ -24,7 +24,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         data-testid="test-id-select-building-code"
         label="Building Code"
         value={selectedBuildingCode || ''}
-        onChange={(event) => setSelectedBuildingCode(event.target.value)}
+        onChange={(event) => setSelectedBuilding(buildings.filter((b) => b.code == event.target.value)[0])}
       >
         {buildings.map((building) => (
           <MenuItem key={building.code} value={building.code}>

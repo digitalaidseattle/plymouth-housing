@@ -17,8 +17,11 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
-import { Building, ResidentInfo } from '../../types/interfaces';
+import { Building, Resident, ResidentInfo } from '../../types/interfaces';
 import { getResidents, getUnitNumbers } from './CheckoutAPICalls';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+
+// GOAL: Get autocomplete to only update the name state
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
@@ -26,6 +29,11 @@ type ResidentDetailDialogProps = {
     buildings: Building[],
     residentInfo: ResidentInfo,
     setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>
+}
+
+type ResidentNameOption = {
+    inputValue?: string;
+    name: string;
 }
 
 const ResidentDetailDialog = ({
@@ -41,7 +49,11 @@ const ResidentDetailDialog = ({
     const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
     const [unitNumberValues, setUnitNumberValues] = useState([]);
 
+    const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
+
     const [showError, setShowError] = useState<boolean>(false);
+
+    const filter = createFilterOptions<ResidentNameOption>();
 
     // when building is selected, we want to get the units for that building to populate the dropdown below it.
     // run this effect when a piece of state changes (the building code input!)
@@ -61,7 +73,8 @@ const ResidentDetailDialog = ({
     useEffect(() => {
         const fetchResidents = async () => {
             const response = await getResidents(buildingInput.id, unitNumberInput);
-            console.log('residents', response.value);
+            // console.log('residents', response.value);
+            setExistingResidents(response.value.map((resident: Resident) => ({ name: resident.name })));
         }
         fetchResidents();
     }, [unitNumberInput, buildingInput])
@@ -137,8 +150,65 @@ const ResidentDetailDialog = ({
                         {showError && !unitNumberInput && <FormHelperText>Please select a unit number</FormHelperText>}
                     </FormControl>}
                     <FormControl>
-                        <TextField label="Resident name" id="resident-name" value={nameInput} onChange={(e)=>setNameInput(e.target.value)}
-                        error={showError && !nameInput} helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
+                        <Autocomplete 
+                            value={nameInput}
+                            onChange={(event, newValue) => {
+                                if (newValue && newValue.inputValue) {
+                                // Create a new value from the user input
+                                    setNameInput(newValue.inputValue);
+                                } else if (newValue && newValue.name) {
+                                // Update the name input with the selected value
+                                    setNameInput(newValue.name);
+                                }
+                            }}
+                            filterOptions={(options, params) => {
+                                const filtered = filter(options, params);
+
+                                const { inputValue } = params;
+                                // Suggest the creation of a new value
+                                const isExisting = options.some((option) => inputValue === option.name);
+                                if (inputValue !== '' && !isExisting) {
+                                filtered.push({
+                                    inputValue,
+                                    name: `Add "${inputValue}"`
+                                });
+                                }
+                                return filtered;
+                            }}
+                            selectOnFocus
+                            clearOnBlur 
+                            handleHomeEndKeys
+                            id="resident-name-autocomplete"
+                            options={existingResidents}
+                            getOptionLabel={(option) => {
+                            // Value selected with enter, right from the input
+                            if (typeof option === 'string') {
+                                return option;
+                            }
+                            // Add "xxx" option created dynamically
+                            if (option.inputValue) {
+                                return option.inputValue;
+                            }
+                            // Regular option
+                            return option.name;
+                            }}
+                            renderOption={(props, option) => {
+                            const { key, ...optionProps } = props;
+                            return (
+                                <li key={key} {...optionProps}>
+                                {option.name}
+                                </li>
+                            );
+                            }}
+                            sx={{ width: 300 }}
+                            freeSolo
+                            renderInput={(params) => (
+                            <TextField {...params} label="Resident Name" 
+                                error={showError && !nameInput} 
+                                helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
+                            )}
+                        />
+                    
                     </FormControl>                    
                 </Box>
             </DialogContent>

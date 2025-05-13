@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -17,11 +17,9 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
-import { Building, Resident, ResidentInfo } from '../../types/interfaces';
-import { getResidents, getUnitNumbers } from './CheckoutAPICalls';
+import { Building, ResidentInfo } from '../../types/interfaces';
+import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-
-// GOAL: Get autocomplete to only update the name state
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
@@ -58,9 +56,9 @@ const ResidentDetailDialog = ({
     // when building is selected, we want to get the units for that building to populate the dropdown below it.
     // run this effect when a piece of state changes (the building code input!)
     useEffect(() => {
+        if (!buildingInput) return;
         const fetchUnitNumbers = async () => {
             const response = await getUnitNumbers(buildingInput);
-            console.log('unit codes for this building id', response);
             // populate unit code dropdown
             const unitNumbers = response.value
                 .map((item)=>item.unit_number)
@@ -71,16 +69,16 @@ const ResidentDetailDialog = ({
     }, [buildingInput])
 
     useEffect(() => {
+        if (!buildingInput || !unitNumberInput) return;
         const fetchResidents = async () => {
             const response = await getResidents(buildingInput.id, unitNumberInput);
-            // console.log('residents', response.value);
             setExistingResidents(response.value.map((resident: Resident) => ({ name: resident.name })));
         }
         fetchResidents();
     }, [unitNumberInput, buildingInput])
 
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
         // validate inputs, show error
         if (!nameInput || !buildingInput || !unitNumberInput) {
@@ -94,6 +92,21 @@ const ResidentDetailDialog = ({
             unit: unitNumberInput,
             building: buildingInput
         })
+
+        // try submitting to db
+        try {
+            // first check if the resident already exists
+            const existingResponse = await findResident(nameInput, buildingInput.id, unitNumberInput);
+            // if not, add them to the db
+            if (!existingResponse.value.length) { 
+                const response = await addResident(nameInput, buildingInput.id, unitNumberInput);
+                console.log('response from adding resident', response);
+             } 
+        } catch (error) {
+            console.error('Error submitting resident info', error);
+            return;
+        }
+
         setShowError(false);
         handleShowDialog();
     }
@@ -195,7 +208,7 @@ const ResidentDetailDialog = ({
                             renderOption={(props, option) => {
                             const { key, ...optionProps } = props;
                             return (
-                                <li key={key} {...optionProps}>
+                                <li key={option.name} {...optionProps}>
                                 {option.name}
                                 </li>
                             );

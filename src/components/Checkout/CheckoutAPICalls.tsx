@@ -77,3 +77,34 @@ export async function getResidents(buildingId: number, unitNumber: string) {
     throw error;
   }
 }
+
+export async function findResident(name: string, buildingId: number, unitNumber: string) {
+  try {
+    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=name eq '${name}' and building_id eq ${buildingId} and unit_number eq '${unitNumber}'`, {
+      method: 'GET',
+      headers: API_HEADERS,
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching residents:', error);
+    throw error;
+  }
+}
+
+export async function addResident(name: string, buildingId: number, unitNumber: string) {
+  try {
+    const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
+      method: 'POST',
+      headers: API_HEADERS,
+      body: JSON.stringify({
+        name: name,
+        building_id: buildingId,
+        unit_number: unitNumber,
+      }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding a resident:', error);
+    throw error;
+  }
+}

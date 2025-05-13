@@ -96,22 +96,23 @@ const ResidentDetailDialog = ({
                 const response = await addResident(nameInput, buildingInput.id, unitNumberInput);
                 console.log('response from adding resident', response);
                 residentId = response.value[0].id;
-             } 
+             } else {
+                residentId = existingResponse.value[0].id;
+             }
         } catch (error) {
             console.error('Error submitting resident info', error);
             return;
+        } finally {
+            // update state
+            setResidentInfo({
+                id: residentId,
+                name: nameInput,
+                unit: unitNumberInput,
+                building: buildingInput
+            })
+            setShowError(false);
+            handleShowDialog();
         }
-
-        // update state
-        setResidentInfo({
-            id: residentId,
-            name: nameInput,
-            unit: unitNumberInput,
-            building: buildingInput
-        })
-
-        setShowError(false);
-        handleShowDialog();
     }
 
     return (

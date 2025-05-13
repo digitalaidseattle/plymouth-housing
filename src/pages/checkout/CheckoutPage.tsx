@@ -25,7 +25,7 @@ const CheckoutPage = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [openSummary, setOpenSummary] = useState<boolean>(false);
 
-  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({name: '', unit: '', building: {id: 0, code: '', name: ''}});
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({id: 0, name: '', unit: '', building: {id: 0, code: '', name: ''}});
   
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);

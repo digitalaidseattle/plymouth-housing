@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,7 +9,6 @@ import {
   Box,
   FormControl,
   InputLabel,
-  Input,
   TextField,
   Select,
   MenuItem,
@@ -72,7 +71,7 @@ const ResidentDetailDialog = ({
         if (!buildingInput || !unitNumberInput) return;
         const fetchResidents = async () => {
             const response = await getResidents(buildingInput.id, unitNumberInput);
-            setExistingResidents(response.value.map((resident: Resident) => ({ name: resident.name })));
+            setExistingResidents(response.value.map((resident: ResidentNameOption) => ({ name: resident.name })));
         }
         fetchResidents();
     }, [unitNumberInput, buildingInput])
@@ -86,12 +85,7 @@ const ResidentDetailDialog = ({
             return;
         }
 
-        // if no error, update state
-        setResidentInfo({
-            name: nameInput,
-            unit: unitNumberInput,
-            building: buildingInput
-        })
+        let residentId;
 
         // try submitting to db
         try {
@@ -101,11 +95,20 @@ const ResidentDetailDialog = ({
             if (!existingResponse.value.length) { 
                 const response = await addResident(nameInput, buildingInput.id, unitNumberInput);
                 console.log('response from adding resident', response);
+                residentId = response.value[0].id;
              } 
         } catch (error) {
             console.error('Error submitting resident info', error);
             return;
         }
+
+        // update state
+        setResidentInfo({
+            id: residentId,
+            name: nameInput,
+            unit: unitNumberInput,
+            building: buildingInput
+        })
 
         setShowError(false);
         handleShowDialog();

@@ -293,6 +293,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "CheckPastCheckout": {
+      "source": {
+        "object": "dbo.CheckPastCheckout",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/check-past-checkout"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

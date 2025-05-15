@@ -56,6 +56,7 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
         borderRadius: '15px',
         paddingX: '10px',
       }}
+      onClick={() => { console.log('the item you clicked on has id', item.id) }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
         <Tooltip title={item.name} arrow>

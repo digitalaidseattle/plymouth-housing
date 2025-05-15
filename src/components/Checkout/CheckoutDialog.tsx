@@ -77,7 +77,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        setResidentInfo({name: '', unit: '', building: { id: 0, code: '', name: '' }});
+        setResidentInfo({id: 0, name: '', unit: '', building: { id: 0, code: '', name: '' }});
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();

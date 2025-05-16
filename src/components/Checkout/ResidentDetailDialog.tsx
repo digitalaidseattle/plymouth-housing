@@ -53,7 +53,6 @@ const ResidentDetailDialog = ({
     const filter = createFilterOptions<ResidentNameOption>();
 
     // when building is selected, we want to get the units for that building to populate the dropdown below it.
-    // run this effect when a piece of state changes (the building code input!)
     useEffect(() => {
         if (!buildingInput) return;
         const fetchUnitNumbers = async () => {
@@ -63,6 +62,8 @@ const ResidentDetailDialog = ({
                 .map((item)=>item.unit_number)
                 .filter((item) => item.trim() !== '');
             setUnitNumberValues(unitNumbers);
+            // clear the unit number input
+            setUnitNumberInput('');
         }
         fetchUnitNumbers();
     }, [buildingInput])

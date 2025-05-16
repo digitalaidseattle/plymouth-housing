@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback, SetStateAction } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
 import { Building, CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
+import { checkPastCheckout } from '../../components/Checkout/CheckoutAPICalls';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -40,9 +41,28 @@ const CheckoutPage = () => {
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
 
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
+  
+  const [itemsToBlockCheckout, setitemsToBlockCheckout] = useState<number[]>([]);
 
   const theme = useTheme();
   const navigate = useNavigate();
+
+    useEffect(() => {
+    async function checkItemsForPrevCheckouts() {
+      const checkedOutIdArr = [];
+      // array of IDs for rug + appliances. clunky but works for now. 
+      const trackedItemIdArr = [97, 159, 160, 161, 162, 163, 164, 165]
+      for (let i = 0; i < trackedItemIdArr.length; i++) {
+        const item = trackedItemIdArr[i];
+        const response = await checkPastCheckout(residentInfo.id, item);
+        if (response.value.length > 0) { 
+          checkedOutIdArr.push(item);
+        }
+      }
+      setitemsToBlockCheckout(checkedOutIdArr);
+    }
+    checkItemsForPrevCheckouts();
+  }, [residentInfo])
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -291,6 +311,7 @@ const CheckoutPage = () => {
                   removeButton={false}
                   categoryLimit={section.checkout_limit}
                   categoryName={section.category}
+                  pastCheckout={itemsToBlockCheckout.includes(item.id)}
                 />
               </Grid>
             ));
@@ -317,6 +338,7 @@ const CheckoutPage = () => {
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
                 activeSection={activeSection}
+                itemsToBlockCheckout={itemsToBlockCheckout}
               />
             );
           })}
@@ -347,6 +369,7 @@ const CheckoutPage = () => {
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
                 activeSection={activeSection}
+                itemsToBlockCheckout={itemsToBlockCheckout}
               />
             );
           })}

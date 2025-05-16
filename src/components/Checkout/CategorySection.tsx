@@ -10,9 +10,10 @@ type CategorySectionProps = {
   removeButton: boolean;
   disabled: boolean;
   activeSection: string;
+  itemsToBlockCheckout?: number[];
 };
 
-const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disabled, activeSection }: CategorySectionProps) => {
+const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disabled, activeSection, itemsToBlockCheckout }: CategorySectionProps) => {
 
   return (
     <Box sx={{ paddingX: removeButton ? '0%' : '5%', paddingBottom: '3%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
@@ -42,7 +43,16 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
             xl={removeButton ? 12 : 3}
             key={item.id}
           >
-            <CheckoutCard item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} categoryLimit={category.checkout_limit} categoryName={category.category} activeSection={activeSection} />
+            <CheckoutCard 
+              item={item} 
+              categoryCheckout={categoryCheckout} 
+              addItemToCart={addItemToCart} 
+              removeItemFromCart={removeItemFromCart} 
+              removeButton={removeButton} 
+              categoryLimit={category.checkout_limit} 
+              categoryName={category.category} 
+              activeSection={activeSection}
+              pastCheckout={itemsToBlockCheckout && itemsToBlockCheckout.includes(item.id)} />
           </Grid>
         ))}
       </Grid>

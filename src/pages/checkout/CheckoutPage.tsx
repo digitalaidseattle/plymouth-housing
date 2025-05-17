@@ -63,7 +63,7 @@ const CheckoutPage = () => {
       }
       setitemsToBlockCheckout(checkedOutIdArr);
     }
-    checkItemsForPrevCheckouts();
+    if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
   }, [residentInfo])
 
   const addItemToCart = (

@@ -51,7 +51,7 @@ const CheckoutPage = () => {
     async function checkItemsForPrevCheckouts() {
       const checkedOutIdArr = [];
       // array of IDs for rug + appliances. clunky but works for now. 
-      const trackedItemIdArr = [97, 159, 160, 161, 162, 163, 164, 165]
+      const trackedItemIdArr = [97, 159, 160, 161, 162, 163, 164, 165, 166]
       for (let i = 0; i < trackedItemIdArr.length; i++) {
         const item = trackedItemIdArr[i];
         const response = await checkPastCheckout(residentInfo.id, item);
@@ -264,6 +264,8 @@ const CheckoutPage = () => {
           handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
           item={selectedItem}
           addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
+          pastCheckout={(item) => itemsToBlockCheckout.includes(item.id)}
+          residentInfo={residentInfo}
       />
     }
 

@@ -74,11 +74,14 @@ const CheckoutCard = ({
           <Typography sx={{ fontSize: removeButton ? '14px' : '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
         </Tooltip>
         {item.description && <Typography>{item.description}</Typography>}
-        {pastCheckout && <Typography sx={{background: 'green', color: 'white'}}>CHECKED OUT</Typography>}
       </CardContent>
+      
+      {!pastCheckout || item.id === 166 ?
       <CardActions sx={{ overflow: 'hidden'}}>
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
-      </CardActions>
+      </CardActions> :
+      <Typography sx={{background: 'green', color: 'white'}}>CHECKED OUT</Typography>
+      }
     </Card>
   )
 }

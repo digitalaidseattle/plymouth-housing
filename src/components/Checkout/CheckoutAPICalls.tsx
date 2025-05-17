@@ -49,10 +49,10 @@ export async function getRecentTransactions(buildingCode: string, unitNumber: st
   return await response.json();
 }
 
-export async function getUnitNumbers(building: Building) {
+export async function getUnitNumbers(buildingId: number) {
   // returns a list of unit codes for a given building code
   try {
-    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=(building_id eq ${building.id})`, {
+    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=(building_id eq ${buildingId})`, {
       method: 'GET',
       headers: API_HEADERS,
     });

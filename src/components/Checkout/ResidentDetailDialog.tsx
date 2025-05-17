@@ -24,6 +24,8 @@ type ResidentDetailDialogProps = {
     showDialog: boolean,
     handleShowDialog: Function,
     buildings: Building[],
+    unitNumberValues: string[],
+    setUnitNumberValues:  React.Dispatch<React.SetStateAction<string[]>>,
     residentInfo: ResidentInfo,
     setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>
 }
@@ -37,6 +39,8 @@ const ResidentDetailDialog = ({
     showDialog, 
     handleShowDialog, 
     buildings, 
+    unitNumberValues,
+    setUnitNumberValues,
     residentInfo,
     setResidentInfo
     }: ResidentDetailDialogProps) => {
@@ -44,7 +48,6 @@ const ResidentDetailDialog = ({
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
     const [buildingInput, setBuildingInput] = useState<Building>(residentInfo.building)
     const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
-    const [unitNumberValues, setUnitNumberValues] = useState([]);
 
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
 
@@ -52,21 +55,14 @@ const ResidentDetailDialog = ({
 
     const filter = createFilterOptions<ResidentNameOption>();
 
-    // when building is selected, we want to get the units for that building to populate the dropdown below it.
-    useEffect(() => {
-        if (!buildingInput) return;
-        const fetchUnitNumbers = async () => {
-            const response = await getUnitNumbers(buildingInput);
-            // populate unit code dropdown
-            const unitNumbers = response.value
-                .map((item)=>item.unit_number)
-                .filter((item) => item.trim() !== '');
-            setUnitNumberValues(unitNumbers);
-            // clear the unit number input
-            setUnitNumberInput('');
-        }
-        fetchUnitNumbers();
-    }, [buildingInput])
+    const fetchUnitNumbers = async (buildingId: number) => {
+        const response = await getUnitNumbers(buildingId);
+        // populate unit code dropdown
+        const unitNumbers = response.value
+            .map((item)=>item.unit_number)
+            .filter((item) => item.trim() !== '');
+        setUnitNumberValues(unitNumbers);
+    }
 
     useEffect(() => {
         if (!buildingInput || !unitNumberInput) return;
@@ -147,8 +143,13 @@ const ResidentDetailDialog = ({
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                     <FormControl>
-                        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={buildingInput.code} setSelectedBuilding={setBuildingInput} 
-                        error={showError && !buildingInput}/>
+                        <BuildingCodeSelect 
+                            buildings={buildings} 
+                            selectedBuildingCode={buildingInput.code} 
+                            setSelectedBuilding={setBuildingInput} 
+                            setUnitNumberInput={setUnitNumberInput}
+                            fetchUnitNumbers={fetchUnitNumbers}
+                            error={showError && !buildingInput}/>
                     </FormControl>
                     {unitNumberValues.length > 1 && 
                     <FormControl error={showError && !unitNumberInput}>

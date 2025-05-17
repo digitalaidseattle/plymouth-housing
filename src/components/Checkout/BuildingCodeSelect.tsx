@@ -6,6 +6,8 @@ interface BuildingCodeSelectProps {
   buildings: Building[];
   selectedBuildingCode: string;
   setSelectedBuilding: (building: Building) => void;
+  setUnitNumberInput: (unit: string) => void;
+  fetchUnitNumbers: (buildingId: number) => void;
   error: boolean;
 }
 
@@ -13,6 +15,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   buildings,
   selectedBuildingCode,
   setSelectedBuilding,
+  setUnitNumberInput,
+  fetchUnitNumbers,
   error
 }) => {
   return (
@@ -24,7 +28,12 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         data-testid="test-id-select-building-code"
         label="Building Code"
         value={selectedBuildingCode || ''}
-        onChange={(event) => setSelectedBuilding(buildings.filter((b) => b.code == event.target.value)[0])}
+        onChange={(event) => {
+          const building = buildings.filter((b) => b.code == event.target.value)[0];
+          setSelectedBuilding(building);
+          setUnitNumberInput('');
+          fetchUnitNumbers(building.id);
+        }}
       >
         {buildings.map((building) => (
           <MenuItem key={building.code} value={building.code}>

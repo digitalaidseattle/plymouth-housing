@@ -24,6 +24,8 @@ const CheckoutPage = () => {
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [unitNumberValues, setUnitNumberValues] = useState<string[]>([]);
+  
   const [openSummary, setOpenSummary] = useState<boolean>(false);
 
   const [residentInfo, setResidentInfo] = useState<ResidentInfo>({id: 0, name: '', unit: '', building: {id: 0, code: '', name: ''}});
@@ -255,6 +257,8 @@ const CheckoutPage = () => {
       showDialog={showResidentDetailDialog} 
       handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}
       buildings={buildings}
+      unitNumberValues={unitNumberValues}
+      setUnitNumberValues={setUnitNumberValues}
       residentInfo={residentInfo}
       setResidentInfo={setResidentInfo}
       />

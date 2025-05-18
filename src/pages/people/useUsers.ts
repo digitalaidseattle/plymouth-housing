@@ -43,11 +43,6 @@ const useUsers = () => {
 
   const updateUserStatus = async (userId: number) => {
     try {
-      // If we're still loading or don't have data yet, wait for data first
-      if (loading || originalData.length === 0) {
-        await fetchData();
-      }
-      
       const userToUpdate = originalData.find((v) => v.id === userId);
       if (!userToUpdate) throw new Error('User not found');
 

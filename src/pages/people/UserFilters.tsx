@@ -13,11 +13,11 @@ interface UserFiltersProps {
 }
 
 const UserFilters: React.FC<UserFiltersProps> = ({
-  search,
+  search = '',
   onSearchChange,
-  statusFilter,
+  statusFilter = null,
   onStatusFilterChange,
-  roleFilter,
+  roleFilter = null,
   onRoleFilterChange,
 }) => {
   const [statusAnchorEl, setStatusAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -151,11 +151,5 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   );
 };
 
-// Provide default values for props to avoid runtime errors if no props are passed
-UserFilters.defaultProps = {
-  search: '',
-  statusFilter: null,
-  roleFilter: null,
-};
 
 export default UserFilters;

@@ -1,7 +1,8 @@
-import { Card, CardContent, CardActions, Typography, Tooltip } from '@mui/material';
+import { Card, CardContent, CardActions, Typography, Tooltip, Chip } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 import { useCallback, useEffect, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 
 
 const CheckoutCard = ({ 
@@ -17,6 +18,8 @@ const CheckoutCard = ({
   }: CheckoutCardProps) => {
 
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
+  const theme = useTheme();
+
 
   const checkConditions = useCallback(async () => {
     if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
@@ -80,7 +83,7 @@ const CheckoutCard = ({
       <CardActions sx={{ overflow: 'hidden'}}>
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
       </CardActions> :
-      <Typography sx={{background: 'green', color: 'white'}}>CHECKED OUT</Typography>
+      <Chip label='Checked out' sx={{ backgroundColor: theme.palette.success.light }} />
       }
     </Card>
   )

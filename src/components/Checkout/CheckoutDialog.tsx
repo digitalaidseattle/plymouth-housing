@@ -148,9 +148,16 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         }}>
           {checkoutItems.map((section: CategoryProps) => {
             if (section.categoryCount > 0) {
-              return <CategorySection key={section.id} category={section} categoryCheckout={section} addItemToCart={(item, quantity) => {
-                addItemToCart(item, quantity, section.category, section.category);
-              }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} activeSection={activeSection} />
+              return <CategorySection 
+                key={section.id} 
+                category={section} 
+                categoryCheckout={section} 
+                addItemToCart={(item, quantity) => {
+                  addItemToCart(item, quantity, section.category, section.category);
+                }} 
+                removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} activeSection={activeSection} 
+                
+                />
             }
           })}
         </DialogContent>

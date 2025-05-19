@@ -74,9 +74,11 @@ const CheckoutCard = ({
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
         <Tooltip title={item.name} arrow>
-          <Typography sx={{ fontSize: removeButton ? '14px' : '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
+          <Typography sx={{ fontSize: removeButton ? '14px' : '20px', fontWeight: removeButton ? '600' : 'inherit', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
         </Tooltip>
-        {item.description && <Typography>{item.description}</Typography>}
+        {item.id === 166 && item.additional_notes && removeButton ? <Typography>{item.additional_notes}</Typography>
+        : item.description ? <Typography>{item.description}</Typography>
+        : <></>}
       </CardContent>
       
       {!pastCheckout || item.id === 166 ?

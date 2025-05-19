@@ -24,7 +24,7 @@ export type CheckoutCardProps = {
   categoryLimit: number;
   categoryName: string;
   activeSection?: string;
-  pastCheckout: boolean;
+  pastCheckout?: boolean | undefined;
 };
 
 export interface ClientPrincipal{

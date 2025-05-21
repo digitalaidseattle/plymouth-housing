@@ -49,8 +49,12 @@ const CheckoutCard = ({
       } else {
         setDisableAdd(true);
       }
+
+      if (pastCheckout) {
+        setDisableAdd(true);
+      }
     }
-  }, [categoryCheckout, categoryLimit, categoryName, item.name, activeSection]);
+  }, [categoryCheckout, categoryLimit, categoryName, item.name, activeSection, pastCheckout]);
 
   useEffect(() => {
     checkConditions();
@@ -70,6 +74,8 @@ const CheckoutCard = ({
         borderWidth: removeButton ? '1px' : null,
         borderRadius: '15px',
         paddingX: '10px',
+        opacity: pastCheckout && item.id !== 166 ? '0.5' : '1'
+        
       }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
@@ -85,7 +91,7 @@ const CheckoutCard = ({
       <CardActions sx={{ overflow: 'hidden'}}>
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
       </CardActions> :
-      <Chip label='Checked out' sx={{ backgroundColor: theme.palette.success.light }} />
+      <Chip label='Checked out' sx={{ background: 'rgb(216, 241, 205)' }} />
       }
     </Card>
   )

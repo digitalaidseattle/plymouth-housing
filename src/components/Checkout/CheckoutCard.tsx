@@ -1,13 +1,27 @@
-import { Card, CardContent, CardActions, Typography, Tooltip } from '@mui/material';
+import { Card, CardContent, CardActions, Typography, Tooltip, Chip } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 import { useCallback, useEffect, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 
-const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, categoryLimit, categoryName, activeSection }: CheckoutCardProps) => {
+
+const CheckoutCard = ({ 
+  item, 
+  categoryCheckout, 
+  addItemToCart, 
+  removeItemFromCart, 
+  removeButton, 
+  categoryLimit, 
+  categoryName, 
+  activeSection,
+  pastCheckout
+  }: CheckoutCardProps) => {
 
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
+  const theme = useTheme();
 
-  const checkConditions = useCallback(() => {
+
+  const checkConditions = useCallback(async () => {
     if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
       setDisableAdd(true);
       return;
@@ -35,12 +49,17 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
       } else {
         setDisableAdd(true);
       }
+
+      if (pastCheckout) {
+        setDisableAdd(true);
+      }
     }
-  }, [categoryCheckout, categoryLimit, categoryName, item.name, activeSection]);
+  }, [categoryCheckout, categoryLimit, categoryName, item.name, activeSection, pastCheckout]);
 
   useEffect(() => {
     checkConditions();
   }, [categoryCheckout.categoryCount, checkConditions])
+
 
   return (
     <Card key={item.name} variant='outlined'
@@ -55,17 +74,25 @@ const CheckoutCard = ({ item, categoryCheckout, addItemToCart, removeItemFromCar
         borderWidth: removeButton ? '1px' : null,
         borderRadius: '15px',
         paddingX: '10px',
+        opacity: pastCheckout && item.id !== 166 ? '0.5' : '1'
+        
       }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
         <Tooltip title={item.name} arrow>
-          <Typography sx={{ fontSize: removeButton ? '14px' : '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
+          <Typography sx={{ fontSize: removeButton ? '14px' : '20px', fontWeight: removeButton ? '600' : 'inherit', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
         </Tooltip>
-        {item.description && <Typography>{item.description}</Typography>}
+        {item.id === 166 && item.additional_notes && removeButton ? <Typography>{item.additional_notes}</Typography>
+        : item.description ? <Typography>{item.description}</Typography>
+        : <></>}
       </CardContent>
+      
+      {!pastCheckout || item.id === 166 ?
       <CardActions sx={{ overflow: 'hidden'}}>
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
-      </CardActions>
+      </CardActions> :
+      <Chip label='Checked out' sx={{ background: 'rgb(216, 241, 205)' }} />
+      }
     </Card>
   )
 }

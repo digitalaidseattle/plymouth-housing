@@ -9,7 +9,7 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -26,11 +26,14 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
-  setSelectedBuildingCode: (building: string) => void;
   activeSection: string;
+  residentInfo: ResidentInfo;
+  setResidentInfo: (residentInfo: ResidentInfo) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, setSelectedBuildingCode, onSuccess, activeSection }) => {
+
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, onSuccess, activeSection, residentInfo, setResidentInfo }) => {
+
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -62,9 +65,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const isWelcomeBasket = allItems.some(item => welcomeBasketItemIds.includes(item.id));
       let data = null;
       if (isWelcomeBasket) {
-        data = await processWelcomeBasket(user, loggedInUserId, allItems, selectedBuildingCode);
+        data = await processWelcomeBasket(user, loggedInUserId, allItems, residentInfo);
       } else {
-        data = await processGeneralItems(user, loggedInUserId, allItems, selectedBuildingCode);
+        data = await processGeneralItems(user, loggedInUserId, allItems, residentInfo);
       }
 
       if (data.error){
@@ -74,7 +77,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        setSelectedBuildingCode('');
+        setResidentInfo({id: 0, name: '', unit: '', building: { id: 0, code: '', name: '' }});
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
@@ -129,10 +132,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
           <Typography sx={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
+
           <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
           <Typography sx={{
             color: allItems.reduce((acc, item) => acc + item.quantity, 0) > 10 ? 'red' : 'black'
           }}><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
+
         </Box>
         <DialogContent dividers sx={{
           flex: 1,
@@ -143,9 +148,16 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         }}>
           {checkoutItems.map((section: CategoryProps) => {
             if (section.categoryCount > 0) {
-              return <CategorySection key={section.id} category={section} categoryCheckout={section} addItemToCart={(item, quantity) => {
-                addItemToCart(item, quantity, section.category, section.category);
-              }} removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} activeSection={activeSection} />
+              return <CategorySection 
+                key={section.id} 
+                category={section} 
+                categoryCheckout={section} 
+                addItemToCart={(item, quantity) => {
+                  addItemToCart(item, quantity, section.category, section.category);
+                }} 
+                removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} activeSection={activeSection} 
+                
+                />
             }
           })}
         </DialogContent>

@@ -133,6 +133,28 @@
         }
       ]
     },   
+    "Units": {
+      "source": {
+        "object": "dbo.Units",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/units",
+        "methods": ["get", "post", "patch"]
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
+    },   
     "Users": {
       "source": {
         "object": "dbo.Users",
@@ -142,6 +164,28 @@
       "rest": {
         "enabled": true,
         "path": "/users"
+      },
+      "permissions": [
+        {
+          "actions": ["read", "create", "update"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read", "create", "update"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "Residents": {
+      "source": {
+        "object": "dbo.Residents",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/residents",
+        "methods": ["get", "post", "patch"]
       },
       "permissions": [
         {
@@ -249,7 +293,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "CheckPastCheckout": {
+      "source": {
+        "object": "dbo.CheckPastCheckout",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/check-past-checkout"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
-
   }
 }

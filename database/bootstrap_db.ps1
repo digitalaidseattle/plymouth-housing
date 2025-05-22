@@ -19,6 +19,7 @@ try {
     # These have to be executed in order, hence you can't loop through them. 
     Invoke-Scripts-In-Folder -Folder "./database/cleanup/"
     Invoke-Scripts-In-Folder -Folder "./database/tables/"
+    Invoke-Scripts-In-Folder -Folder "./database/alterations/"
     Invoke-Scripts-In-Folder -Folder "./database/dependencies/"
     Invoke-Scripts-In-Folder -Folder "./database/types/"
     Invoke-Scripts-In-Folder -Folder "./database/procedures/"

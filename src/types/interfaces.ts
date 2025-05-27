@@ -3,6 +3,7 @@ export type CheckoutItemProp = {
   name: string;
   quantity: number;
   description: string;
+  additional_notes?: string;
 };
 
 export type CategoryProps = {
@@ -21,8 +22,9 @@ export type CheckoutCardProps = {
   removeButton: boolean;
   disableAdd?: boolean;
   categoryLimit: number;
-  categoryName: string,
-  activeSection?: string,
+  categoryName: string;
+  activeSection?: string;
+  pastCheckout?: boolean | undefined;
 };
 
 export interface ClientPrincipal{
@@ -98,4 +100,17 @@ export type Building = {
 export type ShoppingCart = {
   user_id: string;
   items: CheckoutItemProp[];
+}
+
+export type ResidentInfo = {
+  id: number;
+  name: string;
+  unit: Unit;
+  building: Building;
+}
+
+export type Unit = {
+  id: number;
+  building_id: number;
+  unit_number: string;
 }

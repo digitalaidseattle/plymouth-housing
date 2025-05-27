@@ -1,17 +1,19 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Box, Grid, Typography, useTheme } from '@mui/material';
-import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
+import { Building, CategoryProps, CheckoutItemProp, ResidentInfo, Unit } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
-import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Checkout/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
+import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
+import { checkPastCheckout } from '../../components/Checkout/CheckoutAPICalls';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -22,8 +24,12 @@ const CheckoutPage = () => {
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
+  
   const [openSummary, setOpenSummary] = useState<boolean>(false);
-  const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
+
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({id: 0, name: '', unit: {id: 0, building_id: 0, unit_number: ''}, building: {id: 0, code: '', name: ''}});
+  
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [snackbarState, setSnackbarState] = useState<{
@@ -32,9 +38,33 @@ const CheckoutPage = () => {
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
 
+  const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
+  const residentInfoIsMissing = Object.entries(residentInfo).filter(([, val]) => val === null || val === undefined || val === '').length > 0;
+  const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
+
+  const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
+  
+  const [itemsToBlockCheckout, setitemsToBlockCheckout] = useState<number[]>([]);
 
   const theme = useTheme();
   const navigate = useNavigate();
+
+    useEffect(() => {
+    async function checkItemsForPrevCheckouts() {
+      const checkedOutIdArr = [];
+      // array of IDs for rug + appliances. clunky but works for now. 
+      const trackedItemIdArr = [97, 159, 160, 161, 162, 163, 164, 165, 166]
+      for (let i = 0; i < trackedItemIdArr.length; i++) {
+        const item = trackedItemIdArr[i];
+        const response = await checkPastCheckout(residentInfo.id, item);
+        if (response.value.length > 0) { 
+          checkedOutIdArr.push(item);
+        }
+      }
+      setitemsToBlockCheckout(checkedOutIdArr);
+    }
+    if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
+  }, [residentInfo])
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -223,6 +253,26 @@ const CheckoutPage = () => {
 
   return (
     <>
+    {showResidentDetailDialog && <ResidentDetailDialog 
+      showDialog={showResidentDetailDialog} 
+      handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}
+      buildings={buildings}
+      unitNumberValues={unitNumberValues}
+      setUnitNumberValues={setUnitNumberValues}
+      residentInfo={residentInfo}
+      setResidentInfo={setResidentInfo}
+      />
+    }
+     {showAdditionalNotesDialog && <AdditionalNotesDialog
+          showDialog={showAdditionalNotesDialog} 
+          handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
+          item={selectedItem}
+          addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
+          pastCheckout={(item) => itemsToBlockCheckout.includes(item.id)}
+          residentInfo={residentInfo}
+      />
+    }
+
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky',
@@ -232,7 +282,9 @@ const CheckoutPage = () => {
       background: theme.palette.common.white,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
-        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
+        <Button variant="outlined" color={residentInfoIsMissing ? "error" : "primary"} onClick={()=>setShowResidentDetailDialog(true)}>
+          {residentInfoIsMissing ? 'Missing Resident Info' : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name}`}
+          </Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
@@ -265,6 +317,7 @@ const CheckoutPage = () => {
                   removeButton={false}
                   categoryLimit={section.checkout_limit}
                   categoryName={section.category}
+                  pastCheckout={itemsToBlockCheckout.includes(item.id)}
                 />
               </Grid>
             ));
@@ -286,12 +339,12 @@ const CheckoutPage = () => {
                 key={category.id}
                 category={category}
                 categoryCheckout={matchingCategory}
-                addItemToCart={(item, quantity) =>
-                  addItemToCart(item, quantity, category.category, 'welcomeBasket')}
+                addItemToCart={(item, quantity) => addItemToCart(item, quantity, category.category, 'welcomeBasket')}
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
                 activeSection={activeSection}
+                itemsToBlockCheckout={itemsToBlockCheckout}
               />
             );
           })}
@@ -308,18 +361,29 @@ const CheckoutPage = () => {
                 key={category.id}
                 category={category}
                 categoryCheckout={matchingCategory}
-                addItemToCart={(item, quantity) =>
+                addItemToCart={(item, quantity) => {
+                  if (item.name === "Appliance Miscellaneous") {
+                    setSelectedItem(item);
+                    if (quantity > 0) {
+                      setShowAdditionalNotesDialog(true);
+                      return;
+                    }
+                  }
                   addItemToCart(item, quantity, category.category, 'general')}
+                }
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
                 activeSection={activeSection}
+                itemsToBlockCheckout={itemsToBlockCheckout}
               />
             );
           })}
-        </Box>}
+        </Box>
+        
+        }
 
-      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
+      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.building.code} residentInfoIsMissing={residentInfoIsMissing} />
 
       <CheckoutDialog
         open={openSummary}
@@ -332,10 +396,11 @@ const CheckoutPage = () => {
         addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}
         setCheckoutItems={setCheckoutItems}
         removeItemFromCart={removeItemFromCart}
-        selectedBuildingCode={selectedBuildingCode}
+        selectedBuildingCode={residentInfo.building.code}
         setActiveSection={setActiveSection}
         fetchData={fetchData}
-        setSelectedBuildingCode={setSelectedBuildingCode}
+        residentInfo={residentInfo}
+        setResidentInfo={setResidentInfo}
         activeSection={activeSection}
       />
       <SnackbarAlert

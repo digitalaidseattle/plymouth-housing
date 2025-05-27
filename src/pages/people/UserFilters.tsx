@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, Typography, Menu, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
-import SearchBar from '../../components/SearchBar/SearchBar';
+import SearchBar from '../../components/Searchbar/SearchBar';
 
 interface UserFiltersProps {
   search: string;

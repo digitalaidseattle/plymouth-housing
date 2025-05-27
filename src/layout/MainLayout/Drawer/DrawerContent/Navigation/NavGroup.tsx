@@ -18,7 +18,7 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
   const { drawerOpen } = useContext(DrawerOpenContext);
   const { user } = useContext(UserContext);
   const userRole = user ? getRole(user) : null;
-  const permittedPages = userRole ? ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] : [];
+  const permittedPages: readonly string[] = userRole ? ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] : [];
   
   const navCollapse = item.children?.map((menuItem: MenuItem) => {
     switch (menuItem.type) {

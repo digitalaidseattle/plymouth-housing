@@ -35,4 +35,4 @@ export const USER_ROLES = {
 export const ROLE_PAGES = {
   'admin': ['inventory', 'checkout', 'people'],
   'volunteer': ['volunteer-home', 'inventory', 'checkout']
-}
+} as const;

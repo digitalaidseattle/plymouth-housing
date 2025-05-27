@@ -1,17 +1,17 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { UserContext } from './contexts/UserContext';
-import { USER_ROLES } from '../types/constants';
+import { UserContext, getRole } from './contexts/UserContext'; 
 import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import MainContainer from './MainContainer';
 
 export const RootRedirect = ({ source }: { source: string }) => {
   const { user } = React.useContext(UserContext);
+  const userRole = user ? getRole(user) : null;
   
   if (source === 'root' || source === 'volunteer-home') {
     // If user is admin, redirect to inventory
-    if (user?.userRoles?.includes(USER_ROLES.ADMIN)) {
+    if (userRole === 'admin') {
       return <Navigate to="/inventory" replace />;
     } 
     // Otherwise, show volunteer home
@@ -23,7 +23,7 @@ export const RootRedirect = ({ source }: { source: string }) => {
 
   } else if (source === 'people') {
     // If user is volunteer, redirect to volunteer-home
-    if (user?.userRoles?.includes(USER_ROLES.VOLUNTEER)) {
+    if (userRole === 'volunteer') {
       return <Navigate to="/volunteer-home" replace />;
     } 
     // Otherwise, show people 

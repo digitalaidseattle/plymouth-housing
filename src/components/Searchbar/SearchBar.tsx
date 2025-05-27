@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
 import { Search, Close } from '@mui/icons-material';
-import { CategoryProps } from '../types/interfaces';
+import { CategoryProps } from '../../types/interfaces';
 
 interface SearchBarProps {
   data?: CategoryProps[];
@@ -96,25 +96,31 @@ const SearchBar: React.FC<SearchBarProps> = ({
       sx={{'input[type="search"]::-webkit-search-cancel-button ': {display: 'none'}, width: width}}
       value={searchTerm}
       onChange={searchChangeHandler}
-      inputProps={{ sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } }}
-      InputLabelProps={{ sx: { xs: '24px', md: '20px', lg: '16px'}}}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <Search />
-          </InputAdornment>
-        ),
-        endAdornment: (
-          <InputAdornment position="end">
-            <Close
-              style={{ 
-                cursor: 'pointer',
-                visibility: searchTerm ? 'visible' : 'hidden',
-              }}
-              onClick={clearSearch}
-            />
-          </InputAdornment>
-        ),
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search />
+            </InputAdornment>
+          ),
+          endAdornment: (
+            <InputAdornment position="end">
+              <Close
+                style={{ 
+                  cursor: 'pointer',
+                  visibility: searchTerm ? 'visible' : 'hidden',
+                }}
+                onClick={clearSearch}
+              />
+            </InputAdornment>
+          ),
+        },
+        inputLabel: { 
+          sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } 
+        },
+        htmlInput: { 
+          sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } 
+        }
       }}
     />
   );

@@ -3,7 +3,7 @@ import { Box, Button, Menu, MenuItem, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import { CategoryItem } from '../../types/interfaces.ts';
-import SearchBar from '../SearchBar';
+import SearchBar from '../Searchbar/SearchBar.tsx';
 
 interface InventoryFilterProps {
   filters: {

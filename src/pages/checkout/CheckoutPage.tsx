@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
-import { Building, CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
+import { Building, CategoryProps, CheckoutItemProp, ResidentInfo, Unit } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -24,11 +24,11 @@ const CheckoutPage = () => {
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
-  const [unitNumberValues, setUnitNumberValues] = useState<string[]>([]);
+  const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
   
   const [openSummary, setOpenSummary] = useState<boolean>(false);
 
-  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({id: 0, name: '', unit: '', building: {id: 0, code: '', name: ''}});
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({id: 0, name: '', unit: {id: 0, building_id: 0, unit_number: ''}, building: {id: 0, code: '', name: ''}});
   
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -283,7 +283,7 @@ const CheckoutPage = () => {
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
         <Button variant="outlined" color={residentInfoIsMissing ? "error" : "primary"} onClick={()=>setShowResidentDetailDialog(true)}>
-          {residentInfoIsMissing ? 'Missing Resident Info' : `${residentInfo.building.code} - ${residentInfo.unit} - ${residentInfo.name}`}
+          {residentInfoIsMissing ? 'Missing Resident Info' : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name}`}
           </Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>

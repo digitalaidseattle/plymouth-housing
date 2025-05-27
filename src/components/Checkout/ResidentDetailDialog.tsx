@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
-import { Building, ResidentInfo } from '../../types/interfaces';
+import { Building, ResidentInfo, Unit } from '../../types/interfaces';
 import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 
@@ -24,8 +24,8 @@ type ResidentDetailDialogProps = {
     showDialog: boolean,
     handleShowDialog: Function,
     buildings: Building[],
-    unitNumberValues: string[],
-    setUnitNumberValues:  React.Dispatch<React.SetStateAction<string[]>>,
+    unitNumberValues: Unit[],
+    setUnitNumberValues:  React.Dispatch<React.SetStateAction<Unit[]>>,
     residentInfo: ResidentInfo,
     setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>
 }
@@ -47,7 +47,7 @@ const ResidentDetailDialog = ({
 
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
     const [buildingInput, setBuildingInput] = useState<Building>(residentInfo.building)
-    const [unitNumberInput, setUnitNumberInput] = useState<string>(residentInfo.unit);
+    const [unitNumberInput, setUnitNumberInput] = useState<Unit>(residentInfo.unit);
 
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
 
@@ -59,21 +59,20 @@ const ResidentDetailDialog = ({
         const response = await getUnitNumbers(buildingId);
         // populate unit code dropdown
         const unitNumbers = response.value
-            .map((item)=>item.unit_number)
-            .filter((item) => item.trim() !== '');
+            .filter((item: Unit) => item.unit_number.trim() !== '');
         setUnitNumberValues(unitNumbers);
     }
 
     useEffect(() => {
-        if (!buildingInput || !unitNumberInput) return;
+        if (!unitNumberInput.id) return;
         const fetchResidents = async () => {
-            const response = await getResidents(buildingInput.id, unitNumberInput);
+            const response = await getResidents(unitNumberInput.id);
             if (existingResidents) {
                 setExistingResidents(response.value.map((resident: ResidentNameOption) => ({ name: resident.name })));
             }
         }
         fetchResidents();
-    }, [unitNumberInput, buildingInput])
+    }, [unitNumberInput])
 
 
     async function handleSubmit(e) {
@@ -89,11 +88,10 @@ const ResidentDetailDialog = ({
         // try submitting to db
         try {
             // first check if the resident already exists
-            const existingResponse = await findResident(nameInput, buildingInput.id, unitNumberInput);
+            const existingResponse = await findResident(nameInput, unitNumberInput.id);
             // if not, add them to the db
             if (!existingResponse.value.length) { 
-                const response = await addResident(nameInput, buildingInput.id, unitNumberInput);
-                console.log('response from adding resident', response);
+                const response = await addResident(nameInput, unitNumberInput.id);
                 residentId = response.value[0].id;
              } else {
                 residentId = existingResponse.value[0].id;
@@ -159,12 +157,14 @@ const ResidentDetailDialog = ({
                             id="select-unit-number"
                             data-testid="test-id-select-unit-number"
                             label="Unit Number"
-                            value={unitNumberInput}
-                            onChange={(event) => setUnitNumberInput(event.target.value)}
+                            value={unitNumberInput.unit_number}
+                            onChange={(event) => setUnitNumberInput(
+                                unitNumberValues.find(unit => unit.unit_number == event.target.value)
+                            )}
                         >
                         {unitNumberValues.map((unit) => (
-                            <MenuItem key={unit} value={unit}>
-                            {unit} 
+                            <MenuItem key={unit.id} value={unit.unit_number}>
+                            {unit.unit_number} 
                             </MenuItem>
                         ))}
                         </Select>

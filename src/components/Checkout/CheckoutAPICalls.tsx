@@ -63,9 +63,9 @@ export async function getUnitNumbers(buildingId: number) {
   }
 }
 
-export async function getResidents(buildingId: number, unitNumber: string) {
+export async function getResidents(unitId: number) {
   try {
-    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=building_id eq ${buildingId} and unit_number eq '${unitNumber}'`, {
+    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`, {
       method: 'GET',
       headers: API_HEADERS,
     });
@@ -76,9 +76,9 @@ export async function getResidents(buildingId: number, unitNumber: string) {
   }
 }
 
-export async function findResident(name: string, buildingId: number, unitNumber: string) {
+export async function findResident(name: string, unitId: number) {
   try {
-    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=name eq '${name}' and building_id eq ${buildingId} and unit_number eq '${unitNumber}'`, {
+    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=name eq '${name}' and unit_id eq ${unitId}`, {
       method: 'GET',
       headers: API_HEADERS,
     });
@@ -89,15 +89,14 @@ export async function findResident(name: string, buildingId: number, unitNumber:
   }
 }
 
-export async function addResident(name: string, buildingId: number, unitNumber: string) {
+export async function addResident(name: string, unitId: number) {
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
       method: 'POST',
       headers: API_HEADERS,
       body: JSON.stringify({
         name: name,
-        building_id: buildingId,
-        unit_number: unitNumber,
+        unit_id: unitId,
       }),
     });
     return await response.json();

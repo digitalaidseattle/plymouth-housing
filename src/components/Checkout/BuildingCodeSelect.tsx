@@ -1,12 +1,12 @@
 import React from 'react';
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
-import { Building } from '../../types/interfaces';
+import { Building, Unit } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
   selectedBuildingCode: string;
   setSelectedBuilding: (building: Building) => void;
-  setUnitNumberInput: (unit: string) => void;
+  setUnitNumberInput: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
   error: boolean;
 }
@@ -31,7 +31,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         onChange={(event) => {
           const building = buildings.filter((b) => b.code == event.target.value)[0];
           setSelectedBuilding(building);
-          setUnitNumberInput('');
+          setUnitNumberInput({id: 0, building_id: 0, unit_number: ''});
           fetchUnitNumbers(building.id);
         }}
       >

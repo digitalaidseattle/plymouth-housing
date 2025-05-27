@@ -105,6 +105,12 @@ export type ShoppingCart = {
 export type ResidentInfo = {
   id: number;
   name: string;
-  unit: string;
+  unit: Unit;
   building: Building;
+}
+
+export type Unit = {
+  id: number;
+  building_id: number;
+  unit_number: string;
 }

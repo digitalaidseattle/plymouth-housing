@@ -1,11 +1,12 @@
 import React from 'react';
-import { Box, Button, Typography, TextField, Menu, MenuItem } from '@mui/material';
+import { Box, Button, Typography, Menu, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
+import SearchBar from '../../components/Searchbar/SearchBar';
 
 interface UserFiltersProps {
   search: string;
-  onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchChange: (value: string) => void;
   statusFilter: string | null;
   onStatusFilterChange: (status: string | null) => void;
   roleFilter: string | null;
@@ -140,11 +141,11 @@ const UserFilters: React.FC<UserFiltersProps> = ({
         </Menu>
       </Box>
       <Box sx={{ ml: 'auto' }}>
-        <TextField
-          value={search}
-          onChange={onSearchChange}
-          variant="standard"
-          placeholder="Search..." 
+        <SearchBar
+          searchValue={search}
+          onSearchChange={onSearchChange}
+          placeholder="Search..."
+          width="100%"
         />
       </Box>
     </Box>

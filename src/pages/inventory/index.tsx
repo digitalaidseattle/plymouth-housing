@@ -95,10 +95,10 @@ const Inventory = () => {
     }));
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
-      search: event.target.value,
+      search: value,
     }));
   };
 

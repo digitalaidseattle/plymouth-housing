@@ -1,5 +1,5 @@
 import { getRole } from '../contexts/UserContext';
-import { Building, CheckoutItemProp, ClientPrincipal, ResidentInfo } from '../../types/interfaces';
+import { CheckoutItemProp, ClientPrincipal, ResidentInfo } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
 export async function processWelcomeBasket(user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
@@ -34,7 +34,6 @@ export async function processGeneralItems(user: ClientPrincipal | null, loggedIn
 }
 
 
-// TODO: update this to use the new API
 export async function getRecentTransactions(buildingCode: string, unitNumber: string, itemId: number, months: number) {
   const response = await fetch(ENDPOINTS.RECENT_TRANSACTIONS, {
     method: 'GET',
@@ -50,7 +49,6 @@ export async function getRecentTransactions(buildingCode: string, unitNumber: st
 }
 
 export async function getUnitNumbers(buildingId: number) {
-  // returns a list of unit codes for a given building code
   try {
     const response = await fetch(`${ENDPOINTS.UNITS}?$filter=(building_id eq ${buildingId})`, {
       method: 'GET',

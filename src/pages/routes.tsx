@@ -4,10 +4,11 @@ import MinimalLayout from '../layout/MinimalLayout';
 import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
 import Page404 from './error/404';
+import VolunteerHome from '../pages/VolunteerHome';
+import People from '../pages/people';
 import Inventory from './inventory';
-import VolunteerHome from './VolunteerHome';
 import CheckoutPage from './checkout/CheckoutPage';
-import People from './people';
+import { RootRedirect } from '../components/RootRedirect';
 
 const routes = [
   {
@@ -16,30 +17,42 @@ const routes = [
     children: [
       {
         path: '',
-        element: <VolunteerHome />,
+        element: (
+          <RootRedirect source="volunteer-home">
+            <MainContainer title="Volunteer Home">
+              <VolunteerHome />,
+            </MainContainer>
+          </RootRedirect>
+        ),
       },
       {
         path: 'inventory',
         element: (
-          <MainContainer title="Inventory">
-            <Inventory />
-          </MainContainer>
+          <RootRedirect source="inventory">
+            <MainContainer title="Inventory">
+              <Inventory />,
+            </MainContainer>
+          </RootRedirect>
         ),
       },
       {
         path: 'people',
         element: (
-          <MainContainer title="People">
-            <People />
-          </MainContainer>
+          <RootRedirect source="people">
+            <MainContainer title="People">
+              <People />,
+            </MainContainer>
+          </RootRedirect>
         ),
       },
       {
         path: 'volunteer-home',
         element: (
-          <MainContainer title="Volunteer Home">
-            <VolunteerHome />
-          </MainContainer>
+          <RootRedirect source="volunteer-home">
+            <MainContainer title="Volunteer Home">
+              <VolunteerHome />,
+            </MainContainer>
+          </RootRedirect>
         ),
       },
       {
@@ -47,9 +60,11 @@ const routes = [
         element: (
           // checkout card content is given a fixed height and scrollbar
           // to work with the sticky nav inside it
-          <MainContainer title="Check out">
-            <CheckoutPage />
-          </MainContainer>
+          <RootRedirect source="checkout">
+            <MainContainer title="Check out">
+              <CheckoutPage />,
+            </MainContainer>
+          </RootRedirect>
         ),
       },
     ],

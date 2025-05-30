@@ -22,7 +22,7 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
   // Pages that are only accessible by another role 
   const nonPermittedPages: readonly string[] = ROLE_PAGES[alternateRole as keyof typeof ROLE_PAGES]
     .filter(page => 
-      !ROLE_PAGES[userRole as keyof typeof ROLE_PAGES].includes(page as any)
+      !(ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] as readonly string[]).includes(page)
     );
 
   if (permittedPages.includes(source)) {

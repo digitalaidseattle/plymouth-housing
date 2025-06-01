@@ -13,7 +13,7 @@
     "test:unit": "vitest --root src/"
   },
   "dependencies": {
-    "@ant-design/colors": "^7.2.0",
+    "@ant-design/colors": "^7.2.1",
     "@ant-design/icons": "^5.5.2",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",

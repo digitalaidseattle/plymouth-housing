@@ -13,10 +13,8 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
   const { user } = React.useContext(UserContext);
   const userRole = user ? getRole(user) : null;
   if (!userRole) {
-    // Redirect to login page if no role
-      localStorage.clear();
-      window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
-    return null; 
+    // Redirect to inventory page if no role (yet)
+    return <Navigate to='/inventory' replace />;
   }
   const alternateRole = userRole === 'admin' ? 'volunteer' : 'admin';
   // Pages that are accessible by this role

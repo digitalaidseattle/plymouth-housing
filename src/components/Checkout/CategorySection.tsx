@@ -34,12 +34,7 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
         }}
       >
         {category.items.map((item) => (
-          <Grid
-            item
-            xs={removeButton ? 12 : 12}
-            sm={removeButton ? 12 : 6}
-            md={removeButton ? 12 : 4}
-            xl={removeButton ? 12 : 3}
+          <Grid size = {removeButton ? {xs:12, sm:12, md:12, xl:12} : {xs:12, sm:6, md:4, xl:3}}
             key={item.id}
           >
             <CheckoutCard item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} categoryLimit={category.checkout_limit} categoryName={category.category} activeSection={activeSection} />

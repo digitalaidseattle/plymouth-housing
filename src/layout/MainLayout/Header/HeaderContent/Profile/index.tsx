@@ -178,7 +178,7 @@ const Profile = () => {
                         justifyContent="space-between"
                         alignItems="center"
                       >
-                        <Grid item>
+                        <Grid>
                           <Stack
                             direction="row"
                             spacing={1.25}

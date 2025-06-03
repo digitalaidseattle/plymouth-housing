@@ -39,13 +39,13 @@ const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({
         {title}
       </Typography>
       <Grid container alignItems="center">
-        <Grid item>
+        <Grid>
           <Typography variant="h4" color="inherit">
             {count}
           </Typography>
         </Grid>
         {percentage && (
-          <Grid item>
+          <Grid>
             <Chip
               variant="outlined"
               color={color}

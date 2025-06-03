@@ -17,7 +17,7 @@ import MainCard from '../../components/MainCard';
 const ComponentTypography = () => (
   <ComponentSkeleton>
     <Grid container spacing={3}>
-      <Grid item xs={12} lg={6}>
+      <Grid size = {{xs:12, lg:6}}>
         <Stack spacing={3}>
           <MainCard title="Basic" codeHighlight>
             <Stack spacing={0.75} sx={{ mt: -1.5 }}>
@@ -149,7 +149,7 @@ const ComponentTypography = () => (
           </MainCard>
         </Stack>
       </Grid>
-      <Grid item xs={12} lg={6}>
+      <Grid size = {{xs:12, lg:6}}>
         <Stack spacing={3}>
           <MainCard title="Alignment" codeHighlight>
             <>

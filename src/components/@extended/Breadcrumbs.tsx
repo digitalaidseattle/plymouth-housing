@@ -96,7 +96,7 @@ const Breadcrumbs: React.FC<PROPS> = ({ navigation, title, others }) => {
             alignItems="flex-start"
             spacing={1}
           >
-            <Grid item>
+            <Grid>
               <MuiBreadcrumbs aria-label="breadcrumb">
                 <Typography
                   component={Link}
@@ -112,7 +112,7 @@ const Breadcrumbs: React.FC<PROPS> = ({ navigation, title, others }) => {
               </MuiBreadcrumbs>
             </Grid>
             {title && (
-              <Grid item sx={{ mt: 2 }}>
+              <Grid sx={{ mt: 2 }}>
                 <Typography variant="h5">{item.title}</Typography>
               </Grid>
             )}

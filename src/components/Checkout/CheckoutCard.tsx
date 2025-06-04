@@ -73,9 +73,7 @@ const CheckoutCard = ({
         borderColor: removeButton ? '#D9D9D9' : null,
         borderWidth: removeButton ? '1px' : null,
         borderRadius: '15px',
-        paddingX: '10px',
-        opacity: pastCheckout && item.id !== 166 ? '0.5' : '1'
-        
+        paddingX: '10px',        
       }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
@@ -87,12 +85,10 @@ const CheckoutCard = ({
         : <></>}
       </CardContent>
       
-      {!pastCheckout || item.id === 166 ?
       <CardActions sx={{ overflow: 'hidden'}}>
+        {pastCheckout && item.id !== 166 && <Chip label='Checked out' sx={{ background: 'rgb(216, 241, 205)' }} />}
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
-      </CardActions> :
-      <Chip label='Checked out' sx={{ background: 'rgb(216, 241, 205)' }} />
-      }
+      </CardActions> 
     </Card>
   )
 }

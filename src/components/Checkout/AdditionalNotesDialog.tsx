@@ -1,7 +1,6 @@
-import { MouseEventHandler, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Button,

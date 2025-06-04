@@ -14,6 +14,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
 import { checkPastCheckout } from '../../components/Checkout/CheckoutAPICalls';
+import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -41,6 +42,7 @@ const CheckoutPage = () => {
   const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
   const residentInfoIsMissing = Object.entries(residentInfo).filter(([, val]) => val === null || val === undefined || val === '').length > 0;
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
+  const [showPastCheckoutDialog, setShowPastCheckoutDialog] = useState<boolean>(false);
 
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
   
@@ -263,13 +265,21 @@ const CheckoutPage = () => {
       setResidentInfo={setResidentInfo}
       />
     }
-     {showAdditionalNotesDialog && <AdditionalNotesDialog
-          showDialog={showAdditionalNotesDialog} 
-          handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
-          item={selectedItem}
-          addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
-          pastCheckout={(item) => itemsToBlockCheckout.includes(item.id)}
-          residentInfo={residentInfo}
+    {showAdditionalNotesDialog && <AdditionalNotesDialog
+        showDialog={showAdditionalNotesDialog} 
+        handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
+        item={selectedItem}
+        addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
+        pastCheckout={(item) => itemsToBlockCheckout.includes(item.id)}
+        residentInfo={residentInfo}
+      />
+    }
+    {showPastCheckoutDialog && <PastCheckoutDialog
+        showDialog={showPastCheckoutDialog} 
+        handleShowDialog={()=>setShowPastCheckoutDialog(!showPastCheckoutDialog)}
+        item={selectedItem}
+        addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
+        residentInfo={residentInfo}
       />
     }
 
@@ -366,6 +376,13 @@ const CheckoutPage = () => {
                     setSelectedItem(item);
                     if (quantity > 0) {
                       setShowAdditionalNotesDialog(true);
+                      return;
+                    }
+                  }
+                  if (itemsToBlockCheckout.includes(item.id)) {
+                    setSelectedItem(item);
+                    if (quantity > 0) {
+                      setShowPastCheckoutDialog(true);
                       return;
                     }
                   }

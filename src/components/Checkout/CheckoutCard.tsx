@@ -2,8 +2,6 @@ import { Card, CardContent, CardActions, Typography, Tooltip, Chip } from '@mui/
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 import { useCallback, useEffect, useState } from 'react';
-import { useTheme } from '@mui/material/styles';
-
 
 const CheckoutCard = ({ 
   item, 
@@ -14,12 +12,21 @@ const CheckoutCard = ({
   categoryLimit, 
   categoryName, 
   activeSection,
-  pastCheckout
+  pastCheckout,
+  itemsToBlockCheckout
   }: CheckoutCardProps) => {
 
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
-  const theme = useTheme();
 
+  const timesCheckedOut = () => {
+    console.log(itemsToBlockCheckout);
+     if (!itemsToBlockCheckout || !pastCheckout) return 0;
+    const indexOfItem = itemsToBlockCheckout.map(i => i.item_id).indexOf(item.id);
+    if (indexOfItem !== -1) { 
+      return itemsToBlockCheckout[indexOfItem].timesCheckedOut 
+    } 
+    return 0;
+  }
 
   const checkConditions = useCallback(async () => {
     if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
@@ -86,7 +93,7 @@ const CheckoutCard = ({
       </CardContent>
       
       <CardActions sx={{ overflow: 'hidden'}}>
-        {pastCheckout && item.id !== 166 && <Chip label='Checked out' sx={{ background: 'rgb(216, 241, 205)' }} />}
+        {pastCheckout && item.id !== 166 && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)' }} />}
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
       </CardActions> 
     </Card>

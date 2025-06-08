@@ -52,7 +52,9 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
               categoryLimit={category.checkout_limit} 
               categoryName={category.category} 
               activeSection={activeSection}
-              pastCheckout={itemsToBlockCheckout && itemsToBlockCheckout.find((i) => i.item_id === item.id)} />
+              pastCheckout={itemsToBlockCheckout && itemsToBlockCheckout.map(i => i.item_id).includes(item.id)}
+              itemsToBlockCheckout={itemsToBlockCheckout}
+              />
           </Grid>
         ))}
       </Grid>

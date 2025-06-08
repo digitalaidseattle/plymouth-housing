@@ -25,6 +25,7 @@ export type CheckoutCardProps = {
   categoryName: string;
   activeSection?: string;
   pastCheckout?: boolean | undefined;
+  itemsToBlockCheckout: any;
 };
 
 export interface ClientPrincipal{

@@ -284,7 +284,7 @@ const CheckoutPage = () => {
         handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
         item={selectedItem}
         addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
-        pastCheckout={(item) => itemsToBlockCheckout.includes(item.id)}
+        pastCheckout={(item) => itemsToBlockCheckout.map(i => i.item_id).includes(item.id)}
         residentInfo={residentInfo}
       />
     }
@@ -341,7 +341,7 @@ const CheckoutPage = () => {
                   removeButton={false}
                   categoryLimit={section.checkout_limit}
                   categoryName={section.category}
-                  pastCheckout={itemsToBlockCheckout.includes(item.id)}
+                  pastCheckout={itemsToBlockCheckout.map(i => i.item_id).includes(item.id)}
                 />
               </Grid>
             ));

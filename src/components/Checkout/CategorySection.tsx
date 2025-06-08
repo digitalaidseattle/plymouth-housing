@@ -1,5 +1,5 @@
 import CheckoutCard from './CheckoutCard';
-import { CategoryProps, CheckoutItemProp } from "../../types/interfaces";
+import { CategoryProps, CheckoutHistoryItem, CheckoutItemProp } from "../../types/interfaces";
 import { Box, Grid, Typography } from '@mui/material';
 
 type CategorySectionProps = {
@@ -10,10 +10,19 @@ type CategorySectionProps = {
   removeButton: boolean;
   disabled: boolean;
   activeSection: string;
-  itemsToBlockCheckout?: number[];
+  checkoutHistory: CheckoutHistoryItem[];
 };
 
-const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disabled, activeSection, itemsToBlockCheckout }: CategorySectionProps) => {
+const CategorySection = ({ 
+  category, 
+  categoryCheckout, 
+  addItemToCart, 
+  removeItemFromCart, 
+  removeButton, 
+  disabled, 
+  activeSection, 
+  checkoutHistory 
+  }: CategorySectionProps) => {
 
   return (
     <Box sx={{ paddingX: removeButton ? '0%' : '5%', paddingBottom: '3%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
@@ -52,8 +61,7 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
               categoryLimit={category.checkout_limit} 
               categoryName={category.category} 
               activeSection={activeSection}
-              pastCheckout={itemsToBlockCheckout && itemsToBlockCheckout.map(i => i.item_id).includes(item.id)}
-              itemsToBlockCheckout={itemsToBlockCheckout}
+              checkoutHistory={checkoutHistory}
               />
           </Grid>
         ))}

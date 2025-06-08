@@ -6,6 +6,12 @@ export type CheckoutItemProp = {
   additional_notes?: string;
 };
 
+export type CheckoutHistoryItem = {
+  item_id: number, 
+  timesCheckedOut: number, 
+  additionalNotes: string
+}
+
 export type CategoryProps = {
   id: number;
   category: string;
@@ -24,8 +30,7 @@ export type CheckoutCardProps = {
   categoryLimit: number;
   categoryName: string;
   activeSection?: string;
-  pastCheckout?: boolean | undefined;
-  itemsToBlockCheckout: any;
+  checkoutHistory?: CheckoutHistoryItem[];
 };
 
 export interface ClientPrincipal{

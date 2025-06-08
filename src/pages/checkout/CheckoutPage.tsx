@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback, SetStateAction } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
-import { Building, CategoryProps, CheckoutItemProp, ResidentInfo, Unit } from '../../types/interfaces';
+import { Building, CategoryProps, CheckoutItemProp, ResidentInfo, Unit, CheckoutHistoryItem } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -46,14 +46,14 @@ const CheckoutPage = () => {
 
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
   
-  const [itemsToBlockCheckout, setitemsToBlockCheckout] = useState<{item_id: number, timesCheckedOut: number, additionalNotes: string}[]>([]);
+  const [checkoutHistory, setCheckoutHistory] = useState<CheckoutHistoryItem[]>([]);
 
   const theme = useTheme();
   const navigate = useNavigate();
 
     useEffect(() => {
     async function checkItemsForPrevCheckouts() {
-      const checkOutHistory = [];
+      const tempCheckOutHistory: SetStateAction<CheckoutHistoryItem[]> = [];
       // array of IDs for rug + appliances. clunky but works for now. 
       const trackedItemIdArr = [97, 159, 160, 161, 162, 163, 164, 165, 166]
       for (let i = 0; i < trackedItemIdArr.length; i++) {
@@ -62,22 +62,21 @@ const CheckoutPage = () => {
         if (response.value.length > 0) { 
           if (itemId == 166) {
             response.value.forEach(appMisc => {
-              if (checkOutHistory.find((entry) => entry.additionalNotes === appMisc.additional_notes)) {
+              if (tempCheckOutHistory.find((entry) => entry.additionalNotes === appMisc.additional_notes)) {
                 return;
               }
               const checkedOutQuantity = response.value
                 .filter(item => item.additional_notes === appMisc.additional_notes)
                 .reduce(function (acc, transaction) { return acc + transaction.quantity}, 0)
-              checkOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: appMisc.additional_notes});
+              tempCheckOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: appMisc.additional_notes});
             })
           } else {
             const checkedOutQuantity = response.value.reduce(function (acc, transaction) { return acc + transaction.quantity}, 0)
-            checkOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: ''});
+            tempCheckOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: ''});
           }
         }
       }
-      console.log(checkOutHistory);
-      setitemsToBlockCheckout(checkOutHistory);
+      setCheckoutHistory(tempCheckOutHistory);
     }
     if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
     }, [residentInfo])
@@ -284,8 +283,8 @@ const CheckoutPage = () => {
         handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
         item={selectedItem}
         addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
-        pastCheckout={(item) => itemsToBlockCheckout.map(i => i.item_id).includes(item.id)}
         residentInfo={residentInfo}
+        checkoutHistory={checkoutHistory}
       />
     }
     {showPastCheckoutDialog && <PastCheckoutDialog
@@ -341,7 +340,7 @@ const CheckoutPage = () => {
                   removeButton={false}
                   categoryLimit={section.checkout_limit}
                   categoryName={section.category}
-                  pastCheckout={itemsToBlockCheckout.map(i => i.item_id).includes(item.id)}
+                  checkoutHistory={checkoutHistory}
                 />
               </Grid>
             ));
@@ -368,7 +367,7 @@ const CheckoutPage = () => {
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
                 activeSection={activeSection}
-                itemsToBlockCheckout={itemsToBlockCheckout}
+                checkoutHistory={checkoutHistory}
               />
             );
           })}
@@ -393,7 +392,7 @@ const CheckoutPage = () => {
                       return;
                     }
                   }
-                  if (itemsToBlockCheckout.find((i) => i.item_id === item.id)) {
+                  if (checkoutHistory.map(i => i.item_id).includes(item.id)) {
                     setSelectedItem(item);
                     if (quantity > 0) {
                       setShowPastCheckoutDialog(true);
@@ -406,7 +405,7 @@ const CheckoutPage = () => {
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
                 activeSection={activeSection}
-                itemsToBlockCheckout={itemsToBlockCheckout}
+                checkoutHistory={checkoutHistory}
               />
             );
           })}

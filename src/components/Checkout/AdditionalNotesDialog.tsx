@@ -13,8 +13,7 @@ import {
   AlertTitle
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
-import { checkPastCheckout } from './CheckoutAPICalls';
+import { CheckoutHistoryItem, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 
 type AdditionalNotesDialogProps = {
     showDialog: boolean,
@@ -22,7 +21,7 @@ type AdditionalNotesDialogProps = {
     item: CheckoutItemProp,
     residentInfo: ResidentInfo,
     addItemToCart: (item: CheckoutItemProp) => void;
-    pastCheckout: (item: CheckoutItemProp) => boolean;
+    checkoutHistory: CheckoutHistoryItem[];
 }
 
 const AdditionalNotesDialog = ({
@@ -30,12 +29,11 @@ const AdditionalNotesDialog = ({
     handleShowDialog, 
     item,
     addItemToCart,
-    pastCheckout,
-    residentInfo
+    residentInfo,
+    checkoutHistory
     }: AdditionalNotesDialogProps) => {
 
     const [additionalNotesInput, setAdditionalNotesInput] = useState<string>('')
-    const [checkedOutItems, setCheckedOutItems] = useState<string[]>([])
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -45,19 +43,7 @@ const AdditionalNotesDialog = ({
         handleShowDialog(false);
     }
 
-    const previousCheckouts = pastCheckout(item);
-
-    useEffect(() => {
-        async function checkItemsOfPrevCheckouts() {
-            const response = await checkPastCheckout(residentInfo.id, item.id);
-            if (response.value.length > 0) { 
-                setCheckedOutItems(response.value.map((item: CheckoutItemProp)=>item.additional_notes));
-            }
-        }
-        if (pastCheckout(item)) {
-            checkItemsOfPrevCheckouts();
-        }
-      }, [item, residentInfo])
+    const previousCheckouts = checkoutHistory.map(i => i.item_id).includes(item.id);
 
     return (
         <Dialog 
@@ -81,12 +67,14 @@ const AdditionalNotesDialog = ({
             </Box>
 
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1rem'}}>
-                {previousCheckouts &&
+                {previousCheckouts && checkoutHistory &&
                 <Alert severity="warning">
                     <AlertTitle sx={{fontWeight: 'bold'}}>Previous check outs for {item.name}</AlertTitle>
                     {residentInfo.name} has checked out the following items before:
                     <ul>
-                        {checkedOutItems.map((item)=><li>{item}</li>)}
+                        {checkoutHistory.filter(i => i.item_id===166)
+                            .map(i => <li>{i.additionalNotes}, checked out {i.timesCheckedOut}x</li>)
+                        }
                     </ul>
                 </Alert>}
 

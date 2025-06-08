@@ -12,18 +12,18 @@ const CheckoutCard = ({
   categoryLimit, 
   categoryName, 
   activeSection,
-  pastCheckout,
-  itemsToBlockCheckout
+  checkoutHistory
   }: CheckoutCardProps) => {
 
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
 
+  const pastCheckout = checkoutHistory ? checkoutHistory.map(i => i.item_id).includes(item.id) : false;
+  
   const timesCheckedOut = () => {
-    console.log(itemsToBlockCheckout);
-     if (!itemsToBlockCheckout || !pastCheckout) return 0;
-    const indexOfItem = itemsToBlockCheckout.map(i => i.item_id).indexOf(item.id);
+     if (!checkoutHistory || !pastCheckout) return 0;
+    const indexOfItem = checkoutHistory.map(i => i.item_id).indexOf(item.id);
     if (indexOfItem !== -1) { 
-      return itemsToBlockCheckout[indexOfItem].timesCheckedOut 
+      return checkoutHistory[indexOfItem].timesCheckedOut 
     } 
     return 0;
   }

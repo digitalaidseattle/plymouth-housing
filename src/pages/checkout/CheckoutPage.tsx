@@ -46,27 +46,41 @@ const CheckoutPage = () => {
 
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
   
-  const [itemsToBlockCheckout, setitemsToBlockCheckout] = useState<number[]>([]);
+  const [itemsToBlockCheckout, setitemsToBlockCheckout] = useState<{item_id: number, timesCheckedOut: number, additionalNotes: string}[]>([]);
 
   const theme = useTheme();
   const navigate = useNavigate();
 
     useEffect(() => {
     async function checkItemsForPrevCheckouts() {
-      const checkedOutIdArr = [];
+      const checkOutHistory = [];
       // array of IDs for rug + appliances. clunky but works for now. 
       const trackedItemIdArr = [97, 159, 160, 161, 162, 163, 164, 165, 166]
       for (let i = 0; i < trackedItemIdArr.length; i++) {
-        const item = trackedItemIdArr[i];
-        const response = await checkPastCheckout(residentInfo.id, item);
+        const itemId = trackedItemIdArr[i];
+        const response = await checkPastCheckout(residentInfo.id, itemId);
         if (response.value.length > 0) { 
-          checkedOutIdArr.push(item);
+          if (itemId == 166) {
+            response.value.forEach(appMisc => {
+              if (checkOutHistory.find((entry) => entry.additionalNotes === appMisc.additional_notes)) {
+                return;
+              }
+              const checkedOutQuantity = response.value
+                .filter(item => item.additional_notes === appMisc.additional_notes)
+                .reduce(function (acc, transaction) { return acc + transaction.quantity}, 0)
+              checkOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: appMisc.additional_notes});
+            })
+          } else {
+            const checkedOutQuantity = response.value.reduce(function (acc, transaction) { return acc + transaction.quantity}, 0)
+            checkOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: ''});
+          }
         }
       }
-      setitemsToBlockCheckout(checkedOutIdArr);
+      console.log(checkOutHistory);
+      setitemsToBlockCheckout(checkOutHistory);
     }
     if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
-  }, [residentInfo])
+    }, [residentInfo])
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -379,7 +393,7 @@ const CheckoutPage = () => {
                       return;
                     }
                   }
-                  if (itemsToBlockCheckout.includes(item.id)) {
+                  if (itemsToBlockCheckout.find((i) => i.item_id === item.id)) {
                     setSelectedItem(item);
                     if (quantity > 0) {
                       setShowPastCheckoutDialog(true);

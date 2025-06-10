@@ -1,11 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
   Button,
-  Typography,
   Box,
   FormControl,
   InputLabel,
@@ -14,15 +10,15 @@ import {
   MenuItem,
   FormHelperText
 } from '@mui/material';
-import { Close } from '@mui/icons-material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
 import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import DialogTemplate from './DialogTemplate';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
-    handleShowDialog: Function,
+    handleShowDialog: () => void,
     buildings: Building[],
     unitNumberValues: Unit[],
     setUnitNumberValues:  React.Dispatch<React.SetStateAction<Unit[]>>,
@@ -75,7 +71,7 @@ const ResidentDetailDialog = ({
     }, [unitNumberInput])
 
 
-    async function handleSubmit(e) {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         // validate inputs, show error
         if (!nameInput || !buildingInput || !unitNumberInput) {
@@ -113,32 +109,8 @@ const ResidentDetailDialog = ({
     }
 
     return (
-        <Dialog 
-        sx={{
-            '& .MuiDialog-paper': {
-              width: { xs: '80vw', md: '50vw' },
-              maxHeight: '80vh',
-              display: 'flex',
-              flexDirection: 'column',
-              borderRadius: '15px',
-              paddingY: '1.5rem', 
-              paddingX: '6rem',
-              position: 'relative'
-            },
-          }}
-            open={showDialog}>
-            <Box sx={{ 
-                position: 'absolute',
-                top: '1.5rem',
-                right: '1.5rem'
-            }}>
-                <Button onClick={handleShowDialog} disableRipple><Close/></Button>
-            </Box>
-            <DialogTitle>
-                <Typography sx={{ fontSize: '1.25rem' }}>Provide details to continue</Typography>
-            </DialogTitle>
+        <DialogTemplate showDialog={showDialog} handleShowDialog={handleShowDialog} title="provide details to continue">
             <form onSubmit={handleSubmit}>
-            <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                     <FormControl>
                         <BuildingCodeSelect 
@@ -158,9 +130,10 @@ const ResidentDetailDialog = ({
                             data-testid="test-id-select-unit-number"
                             label="Unit Number"
                             value={unitNumberInput.unit_number}
-                            onChange={(event) => setUnitNumberInput(
-                                unitNumberValues.find(unit => unit.unit_number == event.target.value)
-                            )}
+                            onChange={(event) => {
+                                const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.value);
+                                matchingUnit && setUnitNumberInput(matchingUnit);
+                            }}
                         >
                         {unitNumberValues.map((unit) => (
                             <MenuItem key={unit.id} value={unit.unit_number}>
@@ -173,13 +146,15 @@ const ResidentDetailDialog = ({
                     <FormControl>
                         <Autocomplete 
                             value={nameInput}
-                            onChange={(event, newValue) => {
-                                if (newValue && newValue.inputValue) {
-                                // Create a new value from the user input
-                                    setNameInput(newValue.inputValue);
-                                } else if (newValue && newValue.name) {
-                                // Update the name input with the selected value
-                                    setNameInput(newValue.name);
+                            onChange={(_event, newValue) => {
+                                 if (typeof newValue === 'string') {
+                                    setNameInput(newValue);
+                                } else if (newValue && (newValue as ResidentNameOption).inputValue) {
+                                    setNameInput((newValue as ResidentNameOption).inputValue!);
+                                } else if (newValue && (newValue as ResidentNameOption).name) {
+                                    setNameInput((newValue as ResidentNameOption).name);
+                                } else {
+                                    setNameInput('');
                                 }
                             }}
                             filterOptions={(options, params) => {
@@ -229,15 +204,13 @@ const ResidentDetailDialog = ({
                                 helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
                             )}
                         />
-                    
                     </FormControl>                    
                 </Box>
-            </DialogContent>
             <DialogActions>
                 <Button type="submit">Continue</Button>
             </DialogActions>
             </form>
-        </Dialog>
+        </DialogTemplate>
     );
 }
 

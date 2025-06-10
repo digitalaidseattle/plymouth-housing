@@ -12,6 +12,14 @@ export type CheckoutHistoryItem = {
   additionalNotes: string
 }
 
+export type TransactionItem = {
+  id: number,
+  item_id: number,
+  quantity: number,
+  transaction_id: string,
+  additional_notes: string,
+}
+
 export type CategoryProps = {
   id: number;
   category: string;

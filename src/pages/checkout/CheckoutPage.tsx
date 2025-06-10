@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useCallback, SetStateAction } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
-import { Building, CategoryProps, CheckoutItemProp, ResidentInfo, Unit, CheckoutHistoryItem } from '../../types/interfaces';
+import { Building, CategoryProps, CheckoutItemProp, ResidentInfo, Unit, CheckoutHistoryItem, TransactionItem } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -59,19 +59,20 @@ const CheckoutPage = () => {
       for (let i = 0; i < trackedItemIdArr.length; i++) {
         const itemId = trackedItemIdArr[i];
         const response = await checkPastCheckout(residentInfo.id, itemId);
+        console.log('respone value', response.value);
         if (response.value.length > 0) { 
           if (itemId == 166) {
-            response.value.forEach(appMisc => {
+            response.value.forEach((appMisc: TransactionItem) => {
               if (tempCheckOutHistory.find((entry) => entry.additionalNotes === appMisc.additional_notes)) {
                 return;
               }
               const checkedOutQuantity = response.value
-                .filter(item => item.additional_notes === appMisc.additional_notes)
-                .reduce(function (acc, transaction) { return acc + transaction.quantity}, 0)
+                .filter((item: TransactionItem) => item.additional_notes === appMisc.additional_notes)
+                .reduce(function (acc: number, transaction: { quantity: number; }) { return acc + transaction.quantity}, 0)
               tempCheckOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: appMisc.additional_notes});
             })
           } else {
-            const checkedOutQuantity = response.value.reduce(function (acc, transaction) { return acc + transaction.quantity}, 0)
+            const checkedOutQuantity = response.value.reduce(function (acc: number, transaction: { quantity: number; }){ return acc + transaction.quantity}, 0)
             tempCheckOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: ''});
           }
         }

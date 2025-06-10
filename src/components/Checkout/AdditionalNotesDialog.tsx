@@ -10,10 +10,12 @@ import {
   InputLabel,
   Input,
   Alert,
-  AlertTitle
+  AlertTitle,
+  Stack
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { CheckoutHistoryItem, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
+import CheckedoutListItem from './CheckedoutListItem';
 
 type AdditionalNotesDialogProps = {
     showDialog: boolean,
@@ -68,32 +70,51 @@ const AdditionalNotesDialog = ({
 
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1rem'}}>
                 {previousCheckouts && checkoutHistory &&
-                <Alert severity="warning">
-                    <AlertTitle sx={{fontWeight: 'bold'}}>Previous check outs for {item.name}</AlertTitle>
-                    {residentInfo.name} has checked out the following items before:
-                    <ul>
-                        {checkoutHistory.filter(i => i.item_id===166)
-                            .map(i => <li>{i.additionalNotes}, checked out {i.timesCheckedOut}x</li>)
-                        }
-                    </ul>
-                </Alert>}
-
-                <Box>
-                    <Typography sx={{ fontSize: '1.25rem' }}>Enter {item && item.name} Details</Typography>
-                    <Typography>You can specify the appliance here.</Typography>
-                </Box>
-
-                <form onSubmit={handleSubmit}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', paddingBottom: '1rem' }}>
-                        <FormControl>
-                            <InputLabel htmlFor="additional-notes" variant="outlined">Name of appliance</InputLabel>
-                            <Input id="additional-notes" value={additionalNotesInput} onChange={(e)=>setAdditionalNotesInput(e.target.value)}/>
-                        </FormControl>                   
+                <Stack gap="1rem">
+                    <Box>
+                        <Typography sx={{ fontSize: '1.5rem', fontWeight: '600' }}>Check before adding item</Typography>
+                        <Typography>
+                            Please check with a staff member before adding any items that have already been checked out.
+                        </Typography>
                     </Box>
-                    <DialogActions>
-                        <Button type="submit">Add to cart</Button>
-                    </DialogActions>
-                </form>
+                    <Box>
+                        <Stack direction="row" gap="1rem">
+                            <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>Previously checked out</Typography>
+                            <Typography>{checkoutHistory.filter(i => i.item_id===166).length} items</Typography>
+                        </Stack>
+                        <Box sx={{ 
+                            border: '1px solid gray',
+                            borderRadius: '6px',
+                            height: '8rem',
+                            overflowY: 'auto'
+                        }}>
+                            {checkoutHistory.filter(i => i.item_id===166)
+                                .map(i => <CheckedoutListItem itemName={i.additionalNotes} timesCheckedOut={i.timesCheckedOut}/>)
+                            }
+                        </Box>
+                    </Box>
+                </Stack>
+                }
+
+                <Stack gap="1rem">
+                    <Box>
+                        <Typography sx={{ fontSize: '1.5rem', fontWeight: '600' }}>Enter {item && item.name} Details</Typography>
+                        <Typography>You can specify the appliance here.</Typography>
+                    </Box>
+                    
+                    <form onSubmit={handleSubmit}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', paddingBottom: '1rem' }}>
+                            <FormControl>
+                                <InputLabel htmlFor="additional-notes" variant="outlined">Name of appliance</InputLabel>
+                                <Input id="additional-notes" value={additionalNotesInput} onChange={(e)=>setAdditionalNotesInput(e.target.value)}/>
+                            </FormControl>                   
+                        </Box>
+                        <DialogActions>
+                            <Button type="submit">Add to cart</Button>
+                        </DialogActions>
+                    </form>
+                </Stack>
+
             </DialogContent>
         </Dialog>
     );

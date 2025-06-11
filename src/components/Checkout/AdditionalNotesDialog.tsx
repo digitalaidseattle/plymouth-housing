@@ -3,10 +3,10 @@ import {
   Typography,
   Box,
   FormControl,
-  InputLabel,
-  Input,
-  Stack
+  Stack,
+  TextField
 } from '@mui/material';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { CheckoutHistoryItem, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import CheckedoutListItem from './CheckedoutListItem';
 import DialogTemplate from './DialogTemplate';
@@ -20,6 +20,11 @@ type AdditionalNotesDialogProps = {
     checkoutHistory: CheckoutHistoryItem[];
 }
 
+type AutocompleteOption = {
+    inputValue?: string;
+    name: string;
+}
+
 const AdditionalNotesDialog = ({
     showDialog, 
     handleShowDialog, 
@@ -29,9 +34,21 @@ const AdditionalNotesDialog = ({
     }: AdditionalNotesDialogProps) => {
 
     const [additionalNotesInput, setAdditionalNotesInput] = useState<string>('')
+    const [showError, setShowError] = useState<boolean>(false);
+    
+    const applianceMiscCheckouts = checkoutHistory.filter(i => i.item_id===166);
+    const autocompleteOptions: AutocompleteOption[] = applianceMiscCheckouts.map((appliance: CheckoutHistoryItem) => ({ name: appliance.additionalNotes }))
+
+    const filter = createFilterOptions<AutocompleteOption>();
+    
 
     function handleSubmit(e: FormEvent) {
         e.preventDefault();
+        // validate input, show error
+        if (!additionalNotesInput) {
+            setShowError(true);
+            return;
+        }
         const updatedItem = {...item, additional_notes: additionalNotesInput}
         addItemToCart(updatedItem);
         handleShowDialog();
@@ -57,7 +74,7 @@ const AdditionalNotesDialog = ({
                 <Box>
                     <Stack direction="row" gap="1rem">
                         <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>Previously checked out</Typography>
-                        <Typography>{checkoutHistory.filter(i => i.item_id===166).length} items</Typography>
+                        <Typography>{applianceMiscCheckouts.length} items</Typography>
                     </Stack>
                     <Box sx={{ 
                         border: '1px solid gray',
@@ -65,7 +82,7 @@ const AdditionalNotesDialog = ({
                         maxHeight: '8rem',
                         overflowY: 'auto'
                     }}>
-                        {checkoutHistory.filter(i => i.item_id===166).map(i => 
+                        {applianceMiscCheckouts.map(i => 
                             <CheckedoutListItem itemName={i.additionalNotes} timesCheckedOut={i.timesCheckedOut}/>)
                         }
                     </Box>
@@ -79,13 +96,64 @@ const AdditionalNotesDialog = ({
                     <Typography>You can specify the appliance here.</Typography>
                 </Box>
                 
+                <FormControl>
+                    <Autocomplete 
+                        value={additionalNotesInput}
+                        onChange={(_event, newValue) => {
+                                if (typeof newValue === 'string') {
+                                setAdditionalNotesInput(newValue);
+                            } else if (newValue && (newValue as AutocompleteOption).inputValue) {
+                                setAdditionalNotesInput((newValue as AutocompleteOption).inputValue!);
+                            } else if (newValue && (newValue as AutocompleteOption).name) {
+                                setAdditionalNotesInput((newValue as AutocompleteOption).name);
+                            } else {
+                                setAdditionalNotesInput('');
+                            }
+                        }}
+                        filterOptions={(options, params) => {
+                            const filtered = filter(options, params);
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', paddingBottom: '1rem' }}>
-                    <FormControl>
-                        <InputLabel htmlFor="additional-notes" variant="outlined">Name of appliance</InputLabel>
-                        <Input id="additional-notes" value={additionalNotesInput} onChange={(e)=>setAdditionalNotesInput(e.target.value)}/>
-                    </FormControl>                   
-                </Box>
+                            const { inputValue } = params;
+                            const isExisting = options.some((option) => inputValue === option.name);
+                            if (inputValue !== '' && !isExisting) {
+                            filtered.push({
+                                inputValue,
+                                name: `Add "${inputValue}"`
+                            });
+                            }
+                            return filtered;
+                        }}
+                        selectOnFocus
+                        clearOnBlur 
+                        handleHomeEndKeys
+                        id="resident-name-autocomplete"
+                        options={autocompleteOptions}
+                        getOptionLabel={(option) => {
+                        if (typeof option === 'string') {
+                            return option;
+                        }
+                        if (option.inputValue) {
+                            return option.inputValue;
+                        }
+                        return option.name;
+                        }}
+                        renderOption={(props, option) => {
+                        const { key, ...optionProps } = props;
+                        return (
+                            <li key={option.name} {...optionProps}>
+                            {option.name}
+                            </li>
+                        );
+                        }}
+                        sx={{ width: 300 }}
+                        freeSolo
+                        renderInput={(params) => (
+                        <TextField {...params} label="Name of appliance" 
+                            error={showError && !additionalNotesInput} 
+                            helperText={showError && !additionalNotesInput ? "Please enter the name of the appliance" : ""}/>
+                        )}
+                    />
+                </FormControl>
             </Stack>
         </DialogTemplate>
     );

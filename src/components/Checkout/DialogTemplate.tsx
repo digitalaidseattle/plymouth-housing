@@ -5,6 +5,8 @@ import {
   Box,
   DialogTitle,
   Typography,
+  DialogActions,
+  useTheme,
 
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -13,16 +15,24 @@ import { ReactNode } from 'react';
 type DialogTemplateProps = {
     showDialog: boolean,
     handleShowDialog: () => void,
+    handleSubmit: (e: any) => void,
     title?: string,
+    submitButtonText?: string,
+    backButtonText?: string,
     children: ReactNode,
 }
 
 const DialogTemplate = ({
     showDialog, 
     handleShowDialog,
+    handleSubmit,
     title,
+    submitButtonText,
+    backButtonText,
     children
     }: DialogTemplateProps) => {
+
+    const theme = useTheme();
 
     return (
         <Dialog 
@@ -53,6 +63,11 @@ const DialogTemplate = ({
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem'}}>
             {children}
             </DialogContent>
+
+            <DialogActions sx={{ display: 'flex', gap: '1rem' }}>
+                {backButtonText && <Button onClick={handleShowDialog} sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
+                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit}>{submitButtonText}</Button>}
+            </DialogActions>
         </Dialog>
     );
 }

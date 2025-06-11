@@ -1,7 +1,5 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import {
-  DialogActions,
-  Button,
   Box,
   FormControl,
   InputLabel,
@@ -109,107 +107,107 @@ const ResidentDetailDialog = ({
     }
 
     return (
-        <DialogTemplate showDialog={showDialog} handleShowDialog={handleShowDialog} title="provide details to continue">
-            <form onSubmit={handleSubmit}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
-                    <FormControl>
-                        <BuildingCodeSelect 
-                            buildings={buildings} 
-                            selectedBuildingCode={buildingInput.code} 
-                            setSelectedBuilding={setBuildingInput} 
-                            setUnitNumberInput={setUnitNumberInput}
-                            fetchUnitNumbers={fetchUnitNumbers}
-                            error={showError && !buildingInput}/>
-                    </FormControl>
-                    {unitNumberValues.length > 1 && 
-                    <FormControl error={showError && !unitNumberInput}>
-                        <InputLabel id="select-unit-number-label">Unit Number</InputLabel>
-                        <Select
-                            labelId="select-unit-number-label"
-                            id="select-unit-number"
-                            data-testid="test-id-select-unit-number"
-                            label="Unit Number"
-                            value={unitNumberInput.unit_number}
-                            onChange={(event) => {
-                                const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.value);
-                                matchingUnit && setUnitNumberInput(matchingUnit);
-                            }}
-                        >
-                        {unitNumberValues.map((unit) => (
-                            <MenuItem key={unit.id} value={unit.unit_number}>
-                            {unit.unit_number} 
-                            </MenuItem>
-                        ))}
-                        </Select>
-                        {showError && !unitNumberInput && <FormHelperText>Please select a unit number</FormHelperText>}
-                    </FormControl>}
-                    <FormControl>
-                        <Autocomplete 
-                            value={nameInput}
-                            onChange={(_event, newValue) => {
-                                 if (typeof newValue === 'string') {
-                                    setNameInput(newValue);
-                                } else if (newValue && (newValue as ResidentNameOption).inputValue) {
-                                    setNameInput((newValue as ResidentNameOption).inputValue!);
-                                } else if (newValue && (newValue as ResidentNameOption).name) {
-                                    setNameInput((newValue as ResidentNameOption).name);
-                                } else {
-                                    setNameInput('');
-                                }
-                            }}
-                            filterOptions={(options, params) => {
-                                const filtered = filter(options, params);
+        <DialogTemplate 
+            showDialog={showDialog} 
+            handleShowDialog={handleShowDialog} 
+            handleSubmit={handleSubmit}
+            title="provide details to continue"
+            submitButtonText='continue'>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
+                <FormControl>
+                    <BuildingCodeSelect 
+                        buildings={buildings} 
+                        selectedBuildingCode={buildingInput.code} 
+                        setSelectedBuilding={setBuildingInput} 
+                        setUnitNumberInput={setUnitNumberInput}
+                        fetchUnitNumbers={fetchUnitNumbers}
+                        error={showError && !buildingInput}/>
+                </FormControl>
+                {unitNumberValues.length > 1 && 
+                <FormControl error={showError && !unitNumberInput}>
+                    <InputLabel id="select-unit-number-label">Unit Number</InputLabel>
+                    <Select
+                        labelId="select-unit-number-label"
+                        id="select-unit-number"
+                        data-testid="test-id-select-unit-number"
+                        label="Unit Number"
+                        value={unitNumberInput.unit_number}
+                        onChange={(event) => {
+                            const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.value);
+                            matchingUnit && setUnitNumberInput(matchingUnit);
+                        }}
+                    >
+                    {unitNumberValues.map((unit) => (
+                        <MenuItem key={unit.id} value={unit.unit_number}>
+                        {unit.unit_number} 
+                        </MenuItem>
+                    ))}
+                    </Select>
+                    {showError && !unitNumberInput && <FormHelperText>Please select a unit number</FormHelperText>}
+                </FormControl>}
+                <FormControl>
+                    <Autocomplete 
+                        value={nameInput}
+                        onChange={(_event, newValue) => {
+                                if (typeof newValue === 'string') {
+                                setNameInput(newValue);
+                            } else if (newValue && (newValue as ResidentNameOption).inputValue) {
+                                setNameInput((newValue as ResidentNameOption).inputValue!);
+                            } else if (newValue && (newValue as ResidentNameOption).name) {
+                                setNameInput((newValue as ResidentNameOption).name);
+                            } else {
+                                setNameInput('');
+                            }
+                        }}
+                        filterOptions={(options, params) => {
+                            const filtered = filter(options, params);
 
-                                const { inputValue } = params;
-                                // Suggest the creation of a new value
-                                const isExisting = options.some((option) => inputValue === option.name);
-                                if (inputValue !== '' && !isExisting) {
-                                filtered.push({
-                                    inputValue,
-                                    name: `Add "${inputValue}"`
-                                });
-                                }
-                                return filtered;
-                            }}
-                            selectOnFocus
-                            clearOnBlur 
-                            handleHomeEndKeys
-                            id="resident-name-autocomplete"
-                            options={existingResidents}
-                            getOptionLabel={(option) => {
-                            // Value selected with enter, right from the input
-                            if (typeof option === 'string') {
-                                return option;
+                            const { inputValue } = params;
+                            // Suggest the creation of a new value
+                            const isExisting = options.some((option) => inputValue === option.name);
+                            if (inputValue !== '' && !isExisting) {
+                            filtered.push({
+                                inputValue,
+                                name: `Add "${inputValue}"`
+                            });
                             }
-                            // Add "xxx" option created dynamically
-                            if (option.inputValue) {
-                                return option.inputValue;
-                            }
-                            // Regular option
-                            return option.name;
-                            }}
-                            renderOption={(props, option) => {
-                            const { key, ...optionProps } = props;
-                            return (
-                                <li key={option.name} {...optionProps}>
-                                {option.name}
-                                </li>
-                            );
-                            }}
-                            sx={{ width: 300 }}
-                            freeSolo
-                            renderInput={(params) => (
-                            <TextField {...params} label="Resident Name" 
-                                error={showError && !nameInput} 
-                                helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
-                            )}
-                        />
-                    </FormControl>                    
-                </Box>
-            <DialogActions>
-                <Button type="submit">Continue</Button>
-            </DialogActions>
-            </form>
+                            return filtered;
+                        }}
+                        selectOnFocus
+                        clearOnBlur 
+                        handleHomeEndKeys
+                        id="resident-name-autocomplete"
+                        options={existingResidents}
+                        getOptionLabel={(option) => {
+                        // Value selected with enter, right from the input
+                        if (typeof option === 'string') {
+                            return option;
+                        }
+                        // Add "xxx" option created dynamically
+                        if (option.inputValue) {
+                            return option.inputValue;
+                        }
+                        // Regular option
+                        return option.name;
+                        }}
+                        renderOption={(props, option) => {
+                        const { key, ...optionProps } = props;
+                        return (
+                            <li key={option.name} {...optionProps}>
+                            {option.name}
+                            </li>
+                        );
+                        }}
+                        sx={{ width: 300 }}
+                        freeSolo
+                        renderInput={(params) => (
+                        <TextField {...params} label="Resident Name" 
+                            error={showError && !nameInput} 
+                            helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
+                        )}
+                    />
+                </FormControl>                    
+            </Box>
         </DialogTemplate>
     );
 }

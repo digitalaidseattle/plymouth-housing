@@ -1,7 +1,5 @@
 import { FormEvent, useState } from 'react';
 import {
-  DialogActions,
-  Button,
   Typography,
   Box,
   FormControl,
@@ -42,7 +40,12 @@ const AdditionalNotesDialog = ({
     const previousCheckouts = checkoutHistory.map(i => i.item_id).includes(item.id);
 
     return (
-        <DialogTemplate showDialog={showDialog} handleShowDialog={handleShowDialog}>
+        <DialogTemplate 
+            showDialog={showDialog} 
+            handleShowDialog={handleShowDialog}
+            handleSubmit={handleSubmit}
+            submitButtonText='add to cart'
+            backButtonText='cancel'>
             {previousCheckouts && checkoutHistory &&
             <Stack gap="1rem">
                 <Box>
@@ -76,17 +79,13 @@ const AdditionalNotesDialog = ({
                     <Typography>You can specify the appliance here.</Typography>
                 </Box>
                 
-                <form onSubmit={handleSubmit}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', paddingBottom: '1rem' }}>
-                        <FormControl>
-                            <InputLabel htmlFor="additional-notes" variant="outlined">Name of appliance</InputLabel>
-                            <Input id="additional-notes" value={additionalNotesInput} onChange={(e)=>setAdditionalNotesInput(e.target.value)}/>
-                        </FormControl>                   
-                    </Box>
-                    <DialogActions>
-                        <Button type="submit">Add to cart</Button>
-                    </DialogActions>
-                </form>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', paddingBottom: '1rem' }}>
+                    <FormControl>
+                        <InputLabel htmlFor="additional-notes" variant="outlined">Name of appliance</InputLabel>
+                        <Input id="additional-notes" value={additionalNotesInput} onChange={(e)=>setAdditionalNotesInput(e.target.value)}/>
+                    </FormControl>                   
+                </Box>
             </Stack>
         </DialogTemplate>
     );

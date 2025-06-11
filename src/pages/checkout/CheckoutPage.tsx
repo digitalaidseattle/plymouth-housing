@@ -59,15 +59,14 @@ const CheckoutPage = () => {
       for (let i = 0; i < trackedItemIdArr.length; i++) {
         const itemId = trackedItemIdArr[i];
         const response = await checkPastCheckout(residentInfo.id, itemId);
-        console.log('respone value', response.value);
         if (response.value.length > 0) { 
           if (itemId == 166) {
             response.value.forEach((appMisc: TransactionItem) => {
-              if (tempCheckOutHistory.find((entry) => entry.additionalNotes === appMisc.additional_notes)) {
+              if (tempCheckOutHistory.find((entry) => entry.additionalNotes.toLowerCase() === appMisc.additional_notes.toLowerCase())) {
                 return;
               }
               const checkedOutQuantity = response.value
-                .filter((item: TransactionItem) => item.additional_notes === appMisc.additional_notes)
+                .filter((item: TransactionItem) => item.additional_notes.toLowerCase() === appMisc.additional_notes.toLowerCase())
                 .reduce(function (acc: number, transaction: { quantity: number; }) { return acc + transaction.quantity}, 0)
               tempCheckOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: appMisc.additional_notes});
             })

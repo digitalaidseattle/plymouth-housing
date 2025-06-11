@@ -1,6 +1,4 @@
 import {
-  DialogActions,
-  Button,
   Typography,
 } from '@mui/material';
 import { CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
@@ -32,15 +30,13 @@ const PastCheckoutDialog = ({
         <DialogTemplate 
             showDialog={showDialog} 
             handleShowDialog={handleShowDialog} 
-            title="looks like they already got this one">
+            handleSubmit={handleSubmit}
+            title="looks like they already got this one"
+            submitButtonText='staff said it is ok'
+            backButtonText='go back'>
             <Typography>
                 {residentInfo.name} has previously checked out a {item.name}. Please check with a staff member before continuing.
             </Typography>
-
-            <DialogActions>
-                <Button onClick={handleShowDialog} disableRipple>Go back</Button>
-                <Button onClick={handleSubmit}>Staff said it's ok</Button>
-            </DialogActions>
         </DialogTemplate>      
     );
 }

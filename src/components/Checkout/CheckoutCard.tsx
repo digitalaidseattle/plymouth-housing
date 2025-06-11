@@ -84,6 +84,7 @@ const CheckoutCard = ({
       }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
+        {pastCheckout && item.id !== 166 && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: '0.5rem' }} />}
         <Tooltip title={item.name} arrow>
           <Typography sx={{ fontSize: removeButton ? '14px' : '20px', fontWeight: removeButton ? '600' : 'inherit', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
         </Tooltip>
@@ -93,7 +94,6 @@ const CheckoutCard = ({
       </CardContent>
       
       <CardActions sx={{ overflow: 'hidden'}}>
-        {pastCheckout && item.id !== 166 && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)' }} />}
         <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
       </CardActions> 
     </Card>

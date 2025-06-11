@@ -83,7 +83,7 @@ const AdditionalNotesDialog = ({
                         overflowY: 'auto'
                     }}>
                         {applianceMiscCheckouts.map(i => 
-                            <CheckedoutListItem itemName={i.additionalNotes} timesCheckedOut={i.timesCheckedOut}/>)
+                            <CheckedoutListItem key={i.item_id} itemName={i.additionalNotes} timesCheckedOut={i.timesCheckedOut}/>)
                         }
                     </Box>
                 </Box>

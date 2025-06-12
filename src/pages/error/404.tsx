@@ -24,7 +24,7 @@ const Page404: React.FC = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Grid item xs={3}>
+        <Grid size = {{xs:3}}  > 
           <Stack direction="row" spacing={1} alignItems="center">
             <Logo />
             <Typography variant="h5">
@@ -34,7 +34,7 @@ const Page404: React.FC = () => {
         </Grid>
         <CenteredCard>
           <Grid container spacing={3}>
-            <Grid item xs={12}>
+            <Grid size = {{xs:12}}>
               <Stack
                 direction="row"
                 justifyContent="space-between"
@@ -43,7 +43,7 @@ const Page404: React.FC = () => {
                 <Typography variant="h3">Page Not Found</Typography>
               </Stack>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size = {{xs:12}}>
               <Stack
                 direction="row"
                 justifyContent="center"

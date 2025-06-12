@@ -252,7 +252,7 @@ const CheckoutPage = () => {
               };
 
             return section.items.map((item: CheckoutItemProp) => (
-              <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
+              <Grid size={{ xs: 12, sm:6, md:4, xl:3 }} key={item.id}>  
                 <CheckoutCard
                   item={item}
                   categoryCheckout={matchingCategory}

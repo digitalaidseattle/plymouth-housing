@@ -58,7 +58,7 @@ const VolunteerHome: React.FC = () => {
         justifyContent="flex-start"
         sx={{ paddingBottom: 10 }}
       >
-        <Grid item xs={12} md={6}>
+        <Grid size ={{xs:12, md:6}}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             {new Date().toLocaleDateString('en-US', {
               weekday: 'long',
@@ -80,7 +80,7 @@ const VolunteerHome: React.FC = () => {
         justifyContent="space-between"
         sx={{ height: '60%' }}
       >
-        <Grid item xs={12} sm={6} md={6}>
+        <Grid size ={{xs:12, md:6}}>
           <Button
             variant="outlined"
             onClick={handleCheckOutClick}
@@ -106,7 +106,7 @@ const VolunteerHome: React.FC = () => {
           </Button>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={6}>
+        <Grid size ={{xs:12, md:6}}>
           <Button
             variant="outlined"
             onClick={handleAddOpen}

@@ -37,7 +37,7 @@ const ColorBox: React.FC<ColorBoxProps> = ({
         >
           {title && (
             <Grid container justifyContent="space-around" alignItems="center">
-              <Grid item>
+              <Grid>
                 {data && (
                   <Stack spacing={0.75} alignItems="center">
                     <Typography variant="subtitle2">{data.label}</Typography>
@@ -45,7 +45,7 @@ const ColorBox: React.FC<ColorBoxProps> = ({
                   </Stack>
                 )}
               </Grid>
-              <Grid item>
+              <Grid>
                 <Typography variant="subtitle1" color="inherit">
                   {title}
                 </Typography>
@@ -63,7 +63,8 @@ const ColorBox: React.FC<ColorBoxProps> = ({
 const ComponentColor = () => (
   <ComponentSkeleton>
     <Grid container spacing={3}>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid size = {{xs:12, sm:6, md:4}}>
+        
         <MainCard title="Primary Color" codeHighlight>
           <Stack>
             <ColorBox
@@ -124,7 +125,7 @@ const ComponentColor = () => (
           </Stack>
         </MainCard>
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid size = {{xs:12, sm:6, md:4}}>
         <MainCard title="Secondary Color" codeHighlight>
           <Stack>
             <ColorBox
@@ -186,7 +187,7 @@ const ComponentColor = () => (
           </Stack>
         </MainCard>
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid size = {{xs:12, sm:6, md:4}}>
         <MainCard title="Other Color" codeHighlight>
           <Stack>
             <ColorBox
@@ -208,7 +209,7 @@ const ComponentColor = () => (
           </Stack>
         </MainCard>
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid size = {{xs:12, sm:6, md:4}}>
         <MainCard title="Success Color" codeHighlight>
           <Stack>
             <ColorBox
@@ -242,7 +243,7 @@ const ComponentColor = () => (
           </Stack>
         </MainCard>
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid size = {{xs:12, sm:6, md:4}}>
         <MainCard title="Error Color" codeHighlight>
           <Stack>
             <ColorBox
@@ -276,7 +277,7 @@ const ComponentColor = () => (
           </Stack>
         </MainCard>
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid size = {{xs:12, sm:6, md:4}}>
         <MainCard title="Warning Color" codeHighlight>
           <Stack>
             <ColorBox

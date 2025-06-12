@@ -142,6 +142,14 @@ const CheckoutPage = () => {
 
   const fetchBuildings = useCallback(async () => {
     try {
+      // Check if buildings are already cached in sessionStorage
+      const cachedBuildings = sessionStorage.getItem('buildings');
+      if (cachedBuildings) {
+        setBuildings(JSON.parse(cachedBuildings));
+        return;
+      }
+
+      // Fetch buildings from the API
       API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.BUILDINGS, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
@@ -154,8 +162,10 @@ const CheckoutPage = () => {
 
       const data = await response.json();
       setBuildings(data.value);
-    }
-    catch (error) {
+
+      // Cache the buildings in sessionStorage
+      sessionStorage.setItem('buildings', JSON.stringify(data.value));
+    } catch (error) {
       setError('Could not get data. \r\n' + error);
       console.error('Error fetching buildings:', error);
     }

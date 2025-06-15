@@ -14,7 +14,7 @@ const CenteredLayout: React.FC<CenteredLayoutProps> = ({ children }) => {
       justifyContent="flex-start"
       sx={{ minHeight: '90vh', paddingTop: '25vh' }}
     >
-      <Grid size={{ xs: 12, sm:8, md:6, lg:4 }}>
+      <Grid size={{ xs: 12, sm:11, md: 10, lg: 9}}>
         <Stack
           direction="column"
           spacing={3}

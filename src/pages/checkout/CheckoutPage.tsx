@@ -54,28 +54,30 @@ const CheckoutPage = () => {
     useEffect(() => {
     async function checkItemsForPrevCheckouts() {
       const tempCheckOutHistory: SetStateAction<CheckoutHistoryItem[]> = [];
-      // array of IDs for rug + appliances. clunky but works for now. 
-      const trackedItemIdArr = [97, 159, 160, 161, 162, 163, 164, 165, 166]
-      for (let i = 0; i < trackedItemIdArr.length; i++) {
-        const itemId = trackedItemIdArr[i];
-        const response = await checkPastCheckout(residentInfo.id, itemId);
-        if (response.value.length > 0) { 
-          if (itemId == 166) {
-            response.value.forEach((appMisc: TransactionItem) => {
-              if (tempCheckOutHistory.find((entry) => entry.additionalNotes.toLowerCase() === appMisc.additional_notes.toLowerCase())) {
-                return;
-              }
-              const checkedOutQuantity = response.value
-                .filter((item: TransactionItem) => item.additional_notes.toLowerCase() === appMisc.additional_notes.toLowerCase())
-                .reduce(function (acc: number, transaction: { quantity: number; }) { return acc + transaction.quantity}, 0)
-              tempCheckOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: appMisc.additional_notes});
-            })
-          } else {
-            const checkedOutQuantity = response.value.reduce(function (acc: number, transaction: { quantity: number; }){ return acc + transaction.quantity}, 0)
-            tempCheckOutHistory.push({item_id: itemId, timesCheckedOut: checkedOutQuantity, additionalNotes: ''});
+
+      const response = await checkPastCheckout(residentInfo.id);
+
+      response.value.forEach((transaction: TransactionItem) => {
+        // round up quantity for appliance miscellaneous checkouts
+        if (transaction.item_id === 166) {
+          if (tempCheckOutHistory.find((entry) => entry.additionalNotes.toLowerCase() === transaction.additional_notes.toLowerCase())) {
+              return;
+            }
+            const checkedOutQuantity = response.value
+              .filter((item: TransactionItem) => item.additional_notes && item.additional_notes.toLowerCase() === transaction.additional_notes.toLowerCase())
+              .reduce(function (acc: number, transaction: { quantity: number; }) { return acc + transaction.quantity}, 0)
+            tempCheckOutHistory.push({item_id: 166, timesCheckedOut: checkedOutQuantity, additionalNotes: transaction.additional_notes});
+        } else {
+          // round up quantity for all other appliance/rug checkouts
+          if (tempCheckOutHistory.find((entry) => entry.item_id === transaction.item_id)) {
+            return;
           }
+          const checkedOutQuantity = response.value
+            .filter((item: TransactionItem) => item.item_id === transaction.item_id)
+            .reduce(function (acc: number, transaction: { quantity: number; }){ return acc + transaction.quantity}, 0)
+          tempCheckOutHistory.push({item_id: transaction.item_id, timesCheckedOut: checkedOutQuantity, additionalNotes: ''});
         }
-      }
+      })
       setCheckoutHistory(tempCheckOutHistory);
     }
     if (!residentInfoIsMissing) checkItemsForPrevCheckouts();

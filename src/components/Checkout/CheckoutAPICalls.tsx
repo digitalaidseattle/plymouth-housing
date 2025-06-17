@@ -104,13 +104,12 @@ export async function addResident(name: string, unitId: number) {
   }
 }
 
-export async function checkPastCheckout(residentId: number, itemId: number) {
+export async function checkPastCheckout(residentId: number) {
   const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
     method: 'POST',
     headers: API_HEADERS,
     body: JSON.stringify({
       resident_id: residentId,
-      item_id: itemId
     }),
   });
   return await response.json();

@@ -37,7 +37,6 @@ const icons = {
 // ==============================|| MENU ITEMS ||============================== //
 const dashboard = {
   id: 'group-dashboard',
-  title: 'Navigation',
   type: 'group',
   children: [
 /*     {

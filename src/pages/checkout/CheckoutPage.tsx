@@ -6,7 +6,7 @@ import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
-import SearchBar from '../../components/Checkout/SearchBar';
+import SearchBar from '../../components/Searchbar/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
@@ -329,7 +329,7 @@ const CheckoutPage = () => {
               };
 
             return section.items.map((item: CheckoutItemProp) => (
-              <Grid item xs={12} sm={6} md={4} xl={3} key={item.id}>
+              <Grid size={{ xs: 12, sm:6, md:4, xl:3 }} key={item.id}>  
                 <CheckoutCard
                   item={item}
                   categoryCheckout={matchingCategory}

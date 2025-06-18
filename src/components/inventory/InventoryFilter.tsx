@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Button, Menu, MenuItem, Typography, TextField } from '@mui/material';
+import { Box, Button, Menu, MenuItem, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import { CategoryItem } from '../../types/interfaces.ts';
+import SearchBar from '../Searchbar/SearchBar.tsx';
 
 interface InventoryFilterProps {
   filters: {
@@ -20,10 +21,18 @@ interface InventoryFilterProps {
   handleFilterClick: (filter: 'type' | 'category' | 'status', event: React.MouseEvent<HTMLButtonElement>) => void;
   handleMenuClick: (filter: 'type' | 'category' | 'status', value: string) => void;
   clearFilter: (filter: 'type' | 'category' | 'status') => void;
-  handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSearch: (value: string) => void;
 }
 
-const InventoryFilter: React.FC<InventoryFilterProps> = ({ filters, anchors, categoryData, handleFilterClick, handleMenuClick, clearFilter, handleSearch }) => {
+const InventoryFilter: React.FC<InventoryFilterProps> = ({ 
+  filters, 
+  anchors, 
+  categoryData, 
+  handleFilterClick, 
+  handleMenuClick, 
+  clearFilter, 
+  handleSearch 
+}) => {
   return (
     <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
       <Typography variant="body2">Filters</Typography>
@@ -141,11 +150,11 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({ filters, anchors, cat
 
       {/* Search Filter */}
       <Box id="search-container" sx={{ ml: 'auto' }}>
-        <TextField
-          value={filters.search}
-          onChange={handleSearch}
-          variant="standard"
-          placeholder="Search"
+        <SearchBar
+          searchValue={filters.search}
+          onSearchChange={handleSearch}
+          placeholder="Search..."
+          width="100%"
         />
       </Box>
     </Box>

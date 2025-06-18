@@ -77,7 +77,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        setResidentInfo({id: 0, name: '', unit: '', building: { id: 0, code: '', name: '' }});
+        setResidentInfo({id: 0, name: '', unit: {id: 0, unit_number: ''}, building: { id: 0, code: '', name: '' }});
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
@@ -156,7 +156,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
                   addItemToCart(item, quantity, section.category, section.category);
                 }} 
                 removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} activeSection={activeSection} 
-                
                 />
             }
           })}

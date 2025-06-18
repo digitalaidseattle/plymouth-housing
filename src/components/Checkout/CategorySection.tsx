@@ -10,7 +10,7 @@ type CategorySectionProps = {
   removeButton: boolean;
   disabled: boolean;
   activeSection: string;
-  checkoutHistory: CheckoutHistoryItem[];
+  checkoutHistory?: CheckoutHistoryItem[];
 };
 
 const CategorySection = ({ 

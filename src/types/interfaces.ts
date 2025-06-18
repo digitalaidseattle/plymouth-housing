@@ -116,6 +116,11 @@ export type ShoppingCart = {
   items: CheckoutItemProp[];
 }
 
+export type Unit = {
+  id: number;
+  unit_number: string;
+}
+
 export type ResidentInfo = {
   id: number;
   name: string;
@@ -123,8 +128,3 @@ export type ResidentInfo = {
   building: Building;
 }
 
-export type Unit = {
-  id: number;
-  building_id: number;
-  unit_number: string;
-}

@@ -31,7 +31,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         onChange={(event) => {
           const building = buildings.filter((b) => b.code == event.target.value)[0];
           setSelectedBuilding(building);
-          setUnitNumberInput({id: 0, building_id: 0, unit_number: ''});
+          setUnitNumberInput({id: 0, unit_number: ''});
           fetchUnitNumbers(building.id);
         }}
       >

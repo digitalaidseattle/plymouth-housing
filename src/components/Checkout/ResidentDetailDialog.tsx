@@ -66,7 +66,7 @@ const ResidentDetailDialog = ({
             }
         }
         fetchResidents();
-    }, [unitNumberInput])
+    }, [unitNumberInput, existingResidents])
 
 
     async function handleSubmit(e: FormEvent) {
@@ -134,7 +134,7 @@ const ResidentDetailDialog = ({
                         value={unitNumberInput.unit_number}
                         onChange={(event) => {
                             const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.value);
-                            matchingUnit && setUnitNumberInput(matchingUnit);
+                            if (matchingUnit) setUnitNumberInput(matchingUnit);
                         }}
                     >
                     {unitNumberValues.map((unit) => (
@@ -193,7 +193,7 @@ const ResidentDetailDialog = ({
                         renderOption={(props, option) => {
                         const { key, ...optionProps } = props;
                         return (
-                            <li key={option.name} {...optionProps}>
+                            <li key={key} {...optionProps}>
                             {option.name}
                             </li>
                         );

@@ -10,12 +10,12 @@ import {
 
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { ReactNode } from 'react';
+import { ReactNode, FormEvent } from 'react';
 
 type DialogTemplateProps = {
     showDialog: boolean,
     handleShowDialog: () => void,
-    handleSubmit: (e: any) => void,
+    handleSubmit: (e: FormEvent) => void,
     title?: string,
     submitButtonText?: string,
     backButtonText?: string,

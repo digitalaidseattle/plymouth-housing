@@ -140,7 +140,7 @@ const AdditionalNotesDialog = ({
                         renderOption={(props, option) => {
                         const { key, ...optionProps } = props;
                         return (
-                            <li key={option.name} {...optionProps}>
+                            <li key={key} {...optionProps}>
                             {option.name}
                             </li>
                         );

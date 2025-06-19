@@ -1,9 +1,10 @@
-import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, } from '@mui/material';
+import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, IconButton } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
+import { Add, Remove } from '@mui/icons-material';
 
 type FormData = {
   type: string;
@@ -108,10 +109,10 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
       onClose={resetInputsHandler}
     >
       {/* Title Section */}
-      <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', minWidth: '500px', width: '30%', height: '400px', minHeight: '30%', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'space-evenly', width: '70%', margin: 'auto', height: '100%' }}>
+      <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', minWidth: '500px', width: '30%', minHeight: '30vh', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto', paddingY: '1.5rem' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '70%', margin: 'auto', height: '100%' }}>
           <Typography sx={{ fontSize: '20px', }}>
-            Add Item
+            Edit Item Quantity
           </Typography>
 
           {/* Item Type */}
@@ -129,49 +130,69 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
             </Select>
           </Box>
 
-          <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
             {/* Item Name */}
-            <Box id="add-item-name" sx={{ width: '65%' }}>
-              <Typography fontWeight='bold'>
-                Item Name
-              </Typography>
-              <Autocomplete
-                onChange={(_, value) => onChangeHandler(value)}
-                options={nameSearch} // Pass the full array of objects
-                getOptionLabel={(option) => option.name}
-                renderOption={(props, option) => (
-                  <li {...props} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <span>
-                      {option.name}
+          <Box id="add-item-name" sx={{ width: '100%' }}>
+            <Typography fontWeight='bold'>
+              Item Name
+            </Typography>
+            <Autocomplete
+              onChange={(_, value) => onChangeHandler(value)}
+              options={nameSearch} // Pass the full array of objects
+              getOptionLabel={(option) => option.name}
+              renderOption={(props, option) => (
+                <li {...props} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span>
+                    {option.name}
+                  </span>
+                  {option.category && (
+                    <span style={{ fontSize: '0.8rem', color: 'gray' }}>
+                      {option.category}
                     </span>
-                    {option.category && (
-                      <span style={{ fontSize: '0.8rem', color: 'gray' }}>
-                        {option.category}
-                      </span>
-                    )}
-                  </li>
-                )}
-                filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
-                  return options.filter((option) =>
-                    option.name?.toLowerCase().includes(inputValue.toLowerCase()) ||
-                    option.description?.toLowerCase().includes(inputValue.toLowerCase())
-                  );
-                }}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </Box>
+                  )}
+                </li>
+              )}
+              filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
+                return options.filter((option) =>
+                  option.name?.toLowerCase().includes(inputValue.toLowerCase()) ||
+                  option.description?.toLowerCase().includes(inputValue.toLowerCase())
+                );
+              }}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </Box>
 
-            <Box id="add-item-quantity" sx={{ width: '30%' }}>
+
+          <Box id="add-item-quantity">
               <Typography fontWeight='bold'>
                 Quantity
               </Typography>
-              <TextField sx={{ width: '100%' }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
-            </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+                <IconButton
+                  sx={{
+                    backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
+                    height: { xs: '40px', lg: '30px' }
+                  }}
+                    onClick={() => handleInputChange('quantity', Number(formData.quantity) - 1)}
+                >
+                  <Remove sx={{ fontSize: {xs: 'extra-large', lg: 'large' }}}/>
+                </IconButton>
+                <TextField inputProps={{style: { textAlign: 'center', width: '5rem' }}} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
+                <IconButton
+                  sx={{
+                    backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
+                    height: { xs: '40px', lg: '30px' }
+                  }}
+                    onClick={() => handleInputChange('quantity', Number(formData.quantity) + 1)}
+                >
+                  <Add sx={{ fontSize: {xs: 'extra-large', lg: 'large' }}}/>
+                </IconButton>
+              </Box>
           </Box>
+
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-            <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Add</Button>
+            <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Submit</Button>
           </Box>
         </Box>
       </Box>

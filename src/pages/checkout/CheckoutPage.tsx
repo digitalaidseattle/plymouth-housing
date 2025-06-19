@@ -142,6 +142,11 @@ const CheckoutPage = () => {
 
   const fetchBuildings = useCallback(async () => {
     try {
+      const cachedBuildings = sessionStorage.getItem('buildings');
+      if (cachedBuildings) {
+        setBuildings(JSON.parse(cachedBuildings));
+        return;
+      }
       API_HEADERS['X-MS-API-ROLE'] = getRole(user);
       const response = await fetch(ENDPOINTS.BUILDINGS, { headers: API_HEADERS, method: 'GET' });
       if (!response.ok) {
@@ -151,46 +156,54 @@ const CheckoutPage = () => {
           throw new Error(response.statusText);
         }
       }
-
       const data = await response.json();
       setBuildings(data.value);
-    }
-    catch (error) {
-      setError('Could not get data. \r\n' + error);
+      sessionStorage.setItem('buildings', JSON.stringify(data.value));
+    } catch (error) {
+      setError('Could not get buildings. \r\n' + error);
       console.error('Error fetching buildings:', error);
     }
   }, [user]);
 
   const fetchData = useCallback(async () => {
     try {
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: API_HEADERS, method: 'GET' });
-      if (!response.ok) {
-        throw new Error(response.statusText);
+      let categorizedItems;
+      const cachedCategorizedItems = sessionStorage.getItem('categorizedItems');
+      if (cachedCategorizedItems) {
+        categorizedItems = JSON.parse(cachedCategorizedItems);
       }
-      const responseData = await response.json();
-      setData(responseData.value);
+      else{
+        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, { headers: API_HEADERS, method: 'GET' });
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        }
 
-      const cleanCheckout = responseData.value.map((category: CategoryProps) => ({
+        const responseData = await response.json();
+        categorizedItems = responseData.value
+        sessionStorage.setItem('categorizedItems', JSON.stringify(categorizedItems));
+      }
+      setData(categorizedItems);
+
+      const cleanCheckout = categorizedItems.map((category: CategoryProps) => ({
         ...category,
         categoryCount: 0,
         items: [],
       }));
 
-      // Create clean checkout array
       setCheckoutItems(cleanCheckout);
 
-      //this part is a bit tricky. PH has 2 different welcome baskets: one for full-size and one for twin-size. See documentation
-      const welcomeBasket = responseData.value.filter((category: CategoryProps) => category.category === 'Welcome Basket') || [];
+      const welcomeBasket = categorizedItems.filter(
+        (category: CategoryProps) => category.category === 'Welcome Basket'
+      ) || [];
       welcomeBasket[0].items = welcomeBasket[0].items.filter((item: CheckoutItemProp) =>
         item.name.toLowerCase().includes('full-size sheet set') ||
         item.name.toLowerCase().includes('twin-size sheet set')
       );
       setWelcomeBasketData(welcomeBasket);
 
-    }
-    catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
+    } catch (error) {
+      console.error('Error fetching categorized items:', error);
     }
   }, [user]);
 

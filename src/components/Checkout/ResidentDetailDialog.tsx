@@ -61,12 +61,12 @@ const ResidentDetailDialog = ({
         if (!unitNumberInput.id) return;
         const fetchResidents = async () => {
             const response = await getResidents(unitNumberInput.id);
-            if (existingResidents) {
+            if (response.value.length > 0) {
                 setExistingResidents(response.value.map((resident: ResidentNameOption) => ({ name: resident.name })));
             }
         }
         fetchResidents();
-    }, [unitNumberInput, existingResidents])
+    }, [unitNumberInput])
 
 
     async function handleSubmit(e: FormEvent) {

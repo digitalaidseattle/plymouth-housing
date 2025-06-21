@@ -7,9 +7,10 @@ type CheckoutItemsProp = {
   checkoutItems: CategoryProps[];
   selectedBuildingCode: string;
   setOpenSummary: (open: boolean) => void;
+  residentInfoIsMissing: boolean;
 }
 
-const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }: CheckoutItemsProp) => {
+const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode, residentInfoIsMissing }: CheckoutItemsProp) => {
 
   const { drawerOpen } = useContext(DrawerOpenContext);
 
@@ -44,9 +45,9 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode }:
             {totalCategoryCount} / 10 items added
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {!selectedBuildingCode || selectedBuildingCode.length === 0 ? (
+            {residentInfoIsMissing ? (
               <Typography sx={{ color: 'red', marginRight: '15px' }}>
-                Building Code Not Selected
+                Fill out the missing resident info before continuing
               </Typography>
             ) : totalCategoryCount > 10 ? (
               <Typography sx={{ color: 'red', marginRight: '15px' }}>

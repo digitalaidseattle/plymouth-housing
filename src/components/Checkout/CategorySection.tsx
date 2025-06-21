@@ -1,5 +1,5 @@
 import CheckoutCard from './CheckoutCard';
-import { CategoryProps, CheckoutItemProp } from "../../types/interfaces";
+import { CategoryProps, CheckoutHistoryItem, CheckoutItemProp } from "../../types/interfaces";
 import { Box, Grid, Typography } from '@mui/material';
 
 type CategorySectionProps = {
@@ -10,9 +10,19 @@ type CategorySectionProps = {
   removeButton: boolean;
   disabled: boolean;
   activeSection: string;
+  checkoutHistory?: CheckoutHistoryItem[];
 };
 
-const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItemFromCart, removeButton, disabled, activeSection }: CategorySectionProps) => {
+const CategorySection = ({ 
+  category, 
+  categoryCheckout, 
+  addItemToCart, 
+  removeItemFromCart, 
+  removeButton, 
+  disabled, 
+  activeSection, 
+  checkoutHistory 
+  }: CategorySectionProps) => {
 
   return (
     <Box sx={{ paddingX: removeButton ? '0%' : '5%', paddingBottom: '3%', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
@@ -37,7 +47,17 @@ const CategorySection = ({ category, categoryCheckout, addItemToCart, removeItem
           <Grid size = {removeButton ? {xs:12, sm:12, md:12, xl:12} : {xs:12, sm:6, md:4, xl:3}}
             key={item.id}
           >
-            <CheckoutCard item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} categoryLimit={category.checkout_limit} categoryName={category.category} activeSection={activeSection} />
+            <CheckoutCard 
+              item={item} 
+              categoryCheckout={categoryCheckout} 
+              addItemToCart={addItemToCart} 
+              removeItemFromCart={removeItemFromCart} 
+              removeButton={removeButton} 
+              categoryLimit={category.checkout_limit} 
+              categoryName={category.category} 
+              activeSection={activeSection}
+              checkoutHistory={checkoutHistory}
+              />
           </Grid>
         ))}
       </Grid>

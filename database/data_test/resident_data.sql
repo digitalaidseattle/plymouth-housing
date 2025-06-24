@@ -1,4 +1,4 @@
--- Delete all rows from the Volunteers table
+-- Delete all rows from the Residents table
 DELETE FROM Residents;
 GO
 

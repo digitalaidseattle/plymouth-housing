@@ -4,7 +4,7 @@ GO
 CREATE TABLE Residents (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(255) NOT NULL,
-    unit_id INT NOT NULL,
+    unit_id INT NOT NULL
 );
 
 GO

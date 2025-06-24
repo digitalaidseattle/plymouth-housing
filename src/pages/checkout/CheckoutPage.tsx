@@ -347,6 +347,20 @@ const CheckoutPage = () => {
                   item={item}
                   categoryCheckout={matchingCategory}
                   addItemToCart={(item, quantity) => {
+                    if (item.name === "Appliance Miscellaneous") {
+                      setSelectedItem(item);
+                      if (quantity > 0) {
+                        setShowAdditionalNotesDialog(true);
+                        return;
+                      }
+                    }
+                    if (checkoutHistory.map(i => i.item_id).includes(item.id)) {
+                      setSelectedItem(item);
+                      if (quantity > 0) {
+                        setShowPastCheckoutDialog(true);
+                        return;
+                      }
+                    }
                     const sectionType = section.category === 'Welcome Basket' ? 'welcomeBasket' : 'general';
                     addItemToCart(item, quantity, section.category, sectionType);
                   }}

@@ -274,26 +274,6 @@
         }
       ]
     },
-    "GetRecentTransactions": {
-      "source": {
-        "object": "dbo.GetRecentTransactions",
-        "type": "stored-procedure"
-      },
-      "rest": {
-        "enabled": true,
-        "path": "/recent-transactions"
-      },
-      "permissions": [
-        {
-          "actions": ["execute"],
-          "role": "admin"
-        },
-        {
-          "actions": ["execute"],
-          "role": "volunteer"
-        }
-      ]
-    },
     "CheckPastCheckout": {
       "source": {
         "object": "dbo.CheckPastCheckout",

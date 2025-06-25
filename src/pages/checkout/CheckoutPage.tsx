@@ -231,7 +231,11 @@ const CheckoutPage = () => {
   }, [data])
 
   const handleCheckoutSuccess = () => {
-    navigate('/volunteer-home');
+    const numberOfItems = checkoutItems.reduce((accumulator, category) => accumulator + category.categoryCount, 0);
+    navigate('/volunteer-home', {state: {
+      checkoutSuccess: true, 
+      message: `${numberOfItems} ${numberOfItems === 1 ? 'item has been' : 'items have been'} checked out`
+    }});
   };
 
   return (

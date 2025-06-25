@@ -1,5 +1,6 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {useLocation} from 'react-router-dom';
 import { Box, Typography, Button, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
@@ -7,6 +8,7 @@ import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { InventoryItem } from '../../types/interfaces.ts';
+import SnackbarAlert from '../../components/SnackbarAlert.tsx';
 
 const VolunteerHome: React.FC = () => {
   const { user } = useContext(UserContext);
@@ -14,6 +16,18 @@ const VolunteerHome: React.FC = () => {
   const [addModal, setAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
+  
+  const location = useLocation();
+  const showSnackbar = location.state && location.state.message;
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(showSnackbar);
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -49,6 +63,7 @@ const VolunteerHome: React.FC = () => {
   if (isLoading) {
     return <p>Loading ...</p>;
   }
+
   return (
     <Box sx={{ paddingX: 20, paddingY: 5, height: '75vh' }}>
       {/* Header */}
@@ -139,6 +154,16 @@ const VolunteerHome: React.FC = () => {
           />
         </Grid>
       </Grid>
+
+    {showSnackbar &&
+        <SnackbarAlert
+          open={snackbarOpen}
+          onClose={handleSnackbarClose}
+          severity={'success'}
+        >
+          {location.state.message}
+        </SnackbarAlert>
+      }
     </Box>
   );
 };

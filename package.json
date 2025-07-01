@@ -16,7 +16,7 @@
     "@ant-design/colors": "^7.2.0",
     "@ant-design/icons": "^5.5.2",
     "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
+    "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "lodash": "^4.17.21",

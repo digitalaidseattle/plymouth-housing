@@ -14,11 +14,12 @@ type FormData = {
 type AddItemModalProps = {
   addModal: boolean;
   handleAddClose: () => void;
+  handleSnackbar: (message: string) => void;
   fetchData: () => void;
   originalData: InventoryItem[];
 }
 
-const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: AddItemModalProps) => {
+const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, originalData }: AddItemModalProps) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [updateItem, setUpdateItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -91,6 +92,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
         } else {
           setErrorMessage('');
           fetchData();
+          handleSnackbar(`${formData.quantity} ${updateItem.name} in ${updateItem.category} have been added.`);
           handleAddClose();
           resetInputsHandler();
         }

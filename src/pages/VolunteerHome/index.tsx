@@ -18,8 +18,9 @@ const VolunteerHome: React.FC = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   
   const location = useLocation();
-  const showSnackbar = location.state && location.state.message;
-  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(showSnackbar);
+
+  const [snackBarMessage, setSnackBarMessage] = useState<string>(location.state ? location.state.message : '');
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(location.state && location.state.message);
 
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
@@ -149,21 +150,25 @@ const VolunteerHome: React.FC = () => {
           <AddItemModal
             addModal={addModal}
             handleAddClose={handleAddClose}
+            handleSnackbar={(message: string) => {     
+              setSnackBarMessage(message);
+              setSnackbarOpen(true);
+            }}
             fetchData={fetchData}
             originalData={originalData}
           />
         </Grid>
       </Grid>
 
-    {showSnackbar &&
-        <SnackbarAlert
+    
+      <SnackbarAlert
           open={snackbarOpen}
           onClose={handleSnackbarClose}
           severity={'success'}
         >
-          {location.state.message}
-        </SnackbarAlert>
-      }
+          {snackBarMessage}
+      </SnackbarAlert>
+      
     </Box>
   );
 };

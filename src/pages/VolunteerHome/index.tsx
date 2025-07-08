@@ -19,15 +19,21 @@ const VolunteerHome: React.FC = () => {
   
   const location = useLocation();
 
-  const [snackBarMessage, setSnackBarMessage] = useState<string>(location.state ? location.state.message : '');
-  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(location.state && location.state.message);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning';
+  }>({ 
+    open: location.state && location.state.message, 
+    message: location.state ? location.state.message : '', 
+    severity: 'success' });
 
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
     reason?: string,
   ) => {
     if (reason === 'clickaway') return;
-    setSnackbarOpen(false);
+    setSnackbarState({...snackbarState, open: false });
   };
 
   const fetchData = useCallback(async () => {
@@ -151,22 +157,20 @@ const VolunteerHome: React.FC = () => {
             addModal={addModal}
             handleAddClose={handleAddClose}
             handleSnackbar={(message: string) => {     
-              setSnackBarMessage(message);
-              setSnackbarOpen(true);
+              setSnackbarState({ open: true, message: message, severity: 'success' });
             }}
             fetchData={fetchData}
             originalData={originalData}
           />
         </Grid>
       </Grid>
-
     
       <SnackbarAlert
-          open={snackbarOpen}
+          open={snackbarState.open}
           onClose={handleSnackbarClose}
-          severity={'success'}
+          severity={snackbarState.severity}
         >
-          {snackBarMessage}
+          {snackbarState.message}
       </SnackbarAlert>
       
     </Box>

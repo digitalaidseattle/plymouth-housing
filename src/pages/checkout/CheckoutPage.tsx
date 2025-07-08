@@ -26,6 +26,7 @@ const CheckoutPage = () => {
   const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
@@ -232,10 +233,18 @@ const CheckoutPage = () => {
 
   const handleCheckoutSuccess = () => {
     const numberOfItems = checkoutItems.reduce((accumulator, category) => accumulator + category.categoryCount, 0);
-    navigate('/volunteer-home', {state: {
+    
+    const userRole = user ? getRole(user) : null;
+    const navigateState = {state: {
       checkoutSuccess: true, 
       message: `${numberOfItems} ${numberOfItems === 1 ? 'item has been' : 'items have been'} checked out`
-    }});
+    }}
+
+    if (userRole === 'volunteer') {
+      navigate('/volunteer-home', navigateState);
+    } else {
+      navigate('/inventory', navigateState)
+    }
   };
 
   return (

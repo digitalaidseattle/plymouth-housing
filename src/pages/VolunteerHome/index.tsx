@@ -1,6 +1,6 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {useLocation} from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Box, Typography, Button, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';

@@ -5,10 +5,11 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import VolunteerHome from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 
-// Mock useNavigate and return a mock function
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate,
+// Mock useXxxx and return a mock function
+const mockHooks = vi.fn();
+  vi.mock('react-router-dom', () => ({
+  useNavigate: () => mockHooks,
+  useLocation: () => mockHooks,
 }));
 
 // Mock AddItemModal so we can control its display state using a test id
@@ -74,7 +75,7 @@ describe('VolunteerHome Component', () => {
     const checkOutButton = screen.getByRole('button', { name: /Check Out/i });
     fireEvent.click(checkOutButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/checkout');
+    expect(mockHooks).toHaveBeenCalledWith('/checkout');
   });
 
   test('opens and closes AddItemModal when Add Item button is clicked', async () => {

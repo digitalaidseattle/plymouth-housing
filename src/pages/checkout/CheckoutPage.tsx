@@ -233,7 +233,6 @@ const CheckoutPage = () => {
 
   const handleCheckoutSuccess = () => {
     const numberOfItems = checkoutItems.reduce((accumulator, category) => accumulator + category.categoryCount, 0);
-    
     const userRole = user ? getRole(user) : null;
     const navigateState = {state: {
       checkoutSuccess: true, 

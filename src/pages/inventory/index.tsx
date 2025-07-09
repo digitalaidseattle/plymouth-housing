@@ -13,7 +13,6 @@ import { useLocation } from 'react-router-dom';
 const Inventory = () => {
   const { user } = useContext(UserContext);
   const location = useLocation();
-
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);

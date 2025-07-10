@@ -128,7 +128,7 @@ const VolunteerHome: React.FC = () => {
             }}
           >
             <AddIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
-            <Typography variant="h6">Add Item</Typography>
+            <Typography variant="h6">Add Item to Inventory</Typography>
           </Button>
 
           <AddItemModal

@@ -5,10 +5,18 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import VolunteerHome from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 
-// Mock useNavigate and return a mock function
 const mockNavigate = vi.fn();
+const mockLocation = {
+  pathname: '/volunteer-home',
+  search: '',
+  hash: '',
+  state: { checkoutSuccess: true, message: "1 item has been checked out" },
+  key: 'default'
+};
+
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation,
 }));
 
 // Mock AddItemModal so we can control its display state using a test id
@@ -17,6 +25,15 @@ vi.mock('../../components/inventory/AddItemModal.tsx', () => ({
     <div data-testid="add-item-modal">
       {addModal ? "Modal Open" : "Modal Closed"} - {originalData.length} items
       <button onClick={handleAddClose}>Close Modal</button>
+    </div>
+  ),
+}));
+
+// Mock SnackbarAlert
+vi.mock('../../components/SnackbarAlert.tsx', () => ({
+  default: ({ children }: any) => (
+    <div data-testid="snackbar-alert">
+      {children}
     </div>
   ),
 }));
@@ -160,4 +177,17 @@ describe('VolunteerHome Component', () => {
     // Check if the state is updated with fetched data
     expect(screen.getByTestId('add-item-modal')).toHaveTextContent('2 items');
   });
+
+  test('render snackbar', async () => {
+    render(
+      <Wrapper>
+        <VolunteerHome />
+      </Wrapper>
+    );
+
+    expect(screen.queryByTestId('snackbar-alert')).toBeInTheDocument();  
+    // snackbar should take message from the location object
+    expect(screen.queryByTestId('snackbar-alert')).toHaveTextContent(mockLocation.state.message);  
+  })
+
 });

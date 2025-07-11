@@ -8,9 +8,11 @@ import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, API_HEADERS, SETTINGS } from "../../types/constants";
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { useLocation } from 'react-router-dom';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
+  const location = useLocation();
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
@@ -34,7 +36,10 @@ const Inventory = () => {
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
-  }>({ open: false, message: '', severity: 'warning' });
+  }>({ 
+    open: location.state && location.state.message, 
+    message: location.state ? location.state.message : '', 
+    severity: 'success' });
   const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
   const tableContainerRef = useRef<HTMLElement | null>(null);
 
@@ -249,6 +254,9 @@ const Inventory = () => {
         handleAddClose={handleAddClose}
         fetchData={fetchData}
         originalData={originalData}
+        handleSnackbar={(message: string) => {     
+          setSnackbarState({ open: true, message: message, severity: 'success' });
+        }}
       />
 
       {/* Inventory Filter */}

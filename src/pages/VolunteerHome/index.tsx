@@ -19,12 +19,14 @@ const VolunteerHome: React.FC = () => {
   
   const location = useLocation();
 
+    console.log('locationobj', location);
+
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
   }>({ 
-    open: location.state && location.state.message, 
+    open: location.state && location.state.message.length > 0, 
     message: location.state ? location.state.message : '', 
     severity: 'success' });
 

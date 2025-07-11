@@ -16,11 +16,7 @@ const VolunteerHome: React.FC = () => {
   const [addModal, setAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
-  
   const location = useLocation();
-
-    console.log('locationobj', location);
-
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;

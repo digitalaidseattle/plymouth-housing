@@ -63,7 +63,7 @@ const CheckoutCard = ({
         setDisableAdd(true);
       }
     }
-  }, [categoryCheckout, categoryLimit, categoryName, item.name, activeSection, pastCheckout]);
+  }, [categoryCheckout, categoryName, item.name, activeSection, pastCheckout]);
 
   useEffect(() => {
     checkConditions();

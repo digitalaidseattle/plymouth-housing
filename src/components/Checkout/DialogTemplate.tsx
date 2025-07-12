@@ -7,15 +7,14 @@ import {
   Typography,
   DialogActions,
   useTheme,
-
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { ReactNode, FormEvent } from 'react';
+import { ReactNode, SyntheticEvent } from 'react';
 
 type DialogTemplateProps = {
     showDialog: boolean,
     handleShowDialog: () => void,
-    handleSubmit: (e: FormEvent) => void,
+    handleSubmit: (e: SyntheticEvent) => void,
     title?: string,
     submitButtonText?: string,
     backButtonText?: string,

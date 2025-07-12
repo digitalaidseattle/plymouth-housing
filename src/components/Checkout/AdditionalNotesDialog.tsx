@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import {
   Typography,
   Box,
@@ -42,7 +42,7 @@ const AdditionalNotesDialog = ({
     const filter = createFilterOptions<AutocompleteOption>();
     
 
-    function handleSubmit(e: FormEvent) {
+    function handleSubmit(e: SyntheticEvent) {
         e.preventDefault();
         // validate input, show error
         if (!additionalNotesInput) {

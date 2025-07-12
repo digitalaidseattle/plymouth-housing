@@ -3,6 +3,7 @@ import {
 } from '@mui/material';
 import { CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import DialogTemplate from './DialogTemplate';
+import { SyntheticEvent } from 'react';
 
 type PastCheckoutDialogProps = {
     showDialog: boolean,
@@ -20,7 +21,7 @@ const PastCheckoutDialog = ({
     addItemToCart 
     }: PastCheckoutDialogProps) => {
 
-    function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+    function handleSubmit(e: SyntheticEvent) {
         e.preventDefault();
         addItemToCart(item);
         handleShowDialog();

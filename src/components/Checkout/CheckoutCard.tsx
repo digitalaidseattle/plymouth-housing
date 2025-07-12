@@ -1,4 +1,11 @@
-import { Card, CardContent, CardActions, Typography, Tooltip, Chip } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Tooltip,
+  Chip,
+} from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 import { useCallback, useEffect, useState } from 'react';
@@ -29,11 +36,6 @@ const CheckoutCard = ({
   }
 
   const checkConditions = useCallback(async () => {
-    if ((categoryCheckout?.categoryCount ?? 0) >= categoryLimit) {
-      setDisableAdd(true);
-      return;
-    }
-
     if (activeSection === '') {
       setDisableAdd(false);
       return;
@@ -65,11 +67,13 @@ const CheckoutCard = ({
 
   useEffect(() => {
     checkConditions();
-  }, [categoryCheckout.categoryCount, checkConditions])
+  }, [categoryCheckout.categoryCount, checkConditions]);
 
 
   return (
-    <Card key={item.name} variant='outlined'
+    <Card
+      key={item.name}
+      variant="outlined"
       sx={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -86,18 +90,35 @@ const CheckoutCard = ({
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
         {pastCheckout && item.id !== 166 && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: '0.5rem' }} />}
         <Tooltip title={item.name} arrow>
-          <Typography sx={{ fontSize: removeButton ? '14px' : '20px', fontWeight: removeButton ? '600' : 'inherit', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</Typography>
+          <Typography
+            sx={{
+              fontSize: removeButton ? '14px' : '20px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {item.name}
+          </Typography>
         </Tooltip>
         {item.id === 166 && item.additional_notes && removeButton ? <Typography>{item.additional_notes}</Typography>
         : item.description ? <Typography>{item.description}</Typography>
         : <></>}
       </CardContent>
-      
-      <CardActions sx={{ overflow: 'hidden'}}>
-        <ItemQuantityButton item={item} categoryCheckout={categoryCheckout} addItemToCart={addItemToCart} removeItemFromCart={removeItemFromCart} removeButton={removeButton} disableAdd={disableAdd} categoryLimit={categoryLimit} categoryName={categoryName} />
-      </CardActions> 
+      <CardActions sx={{ overflow: 'hidden' }}>
+        <ItemQuantityButton
+          item={item}
+          categoryCheckout={categoryCheckout}
+          addItemToCart={addItemToCart}
+          removeItemFromCart={removeItemFromCart}
+          removeButton={removeButton}
+          disableAdd={disableAdd}
+          categoryLimit={categoryLimit}
+          categoryName={categoryName}
+        />
+      </CardActions>
     </Card>
-  )
-}
+  );
+};
 
 export default CheckoutCard;

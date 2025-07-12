@@ -21,7 +21,12 @@ type CheckoutDialogProps = {
   checkoutItems: CategoryProps[];
   welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
-  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string, active: string) => void;
+  addItemToCart: (
+    item: CheckoutItemProp,
+    quantity: number,
+    category: string,
+    active: string,
+  ) => void;
   setCheckoutItems: (items: CategoryProps[]) => void;
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
@@ -32,25 +37,52 @@ type CheckoutDialogProps = {
 };
 
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, checkoutItems, welcomeBasketData, setCheckoutItems, removeItemFromCart, addItemToCart, selectedBuildingCode, setActiveSection, fetchData, onSuccess, activeSection, residentInfo, setResidentInfo }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ 
+  open, 
+  onClose, 
+  checkoutItems, 
+  welcomeBasketData, 
+  setCheckoutItems, 
+  removeItemFromCart, 
+  addItemToCart, 
+  selectedBuildingCode, 
+  setActiveSection, 
+  fetchData, 
+  onSuccess, 
+  activeSection, 
+  residentInfo, 
+  setResidentInfo }) => {
 
   const { user, loggedInUserId } = useContext(UserContext);
-  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<CategoryProps[]>([]);
+  const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
+    CategoryProps[]
+  >([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [categoryLimitErrors, setCategoryLimitErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
-      setStatusMessage('')
+      setStatusMessage('');
       setAllItems(checkoutItems.flatMap((item) => item.items));
+
+      const errors: string[] = [];
+      checkoutItems.forEach((category) => {
+        if (category.categoryCount > category.checkout_limit) {
+          errors.push(
+            `${category.category}: ${category.categoryCount} items (limit: ${category.checkout_limit})`,
+          );
+        }
+      });
+      setCategoryLimitErrors(errors);
     }
   }, [open, checkoutItems]);
 
   const handleCancel = () => {
     setCheckoutItems(originalCheckoutItems);
-    setStatusMessage('')
+    setStatusMessage('');
     onClose();
   };
 
@@ -58,11 +90,17 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
     setIsProcessing(true);
     try {
       if (!loggedInUserId) {
-        throw new Error('No valid user (volunteer or admin) found. Cannot checkout.');
+        throw new Error(
+          'No valid user (volunteer or admin) found. Cannot checkout.',
+        );
       }
 
-      const welcomeBasketItemIds = welcomeBasketData.flatMap(basket => basket.items.map(item => item.id));
-      const isWelcomeBasket = allItems.some(item => welcomeBasketItemIds.includes(item.id));
+      const welcomeBasketItemIds = welcomeBasketData.flatMap((basket) =>
+        basket.items.map((item) => item.id),
+      );
+      const isWelcomeBasket = allItems.some((item) =>
+        welcomeBasketItemIds.includes(item.id),
+      );
       let data = null;
       if (isWelcomeBasket) {
         data = await processWelcomeBasket(user, loggedInUserId, allItems, residentInfo);
@@ -70,8 +108,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
         data = await processGeneralItems(user, loggedInUserId, allItems, residentInfo);
       }
 
-      if (data.error){
-        throw new Error(`status: ${data.error.status}, message: ${data.error.message}`);
+      if (data.error) {
+        throw new Error(
+          `status: ${data.error.status}, message: ${data.error.message}`,
+        );
       }
 
       const result = data.value[0];
@@ -109,7 +149,14 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <Box sx={{ width: { xs: '90%', s: '80%', md: '70%' }, paddingTop: '20px', height: '100%', position: 'relative' }}>
+      <Box
+        sx={{
+          width: { xs: '90%', s: '80%', md: '70%' },
+          paddingTop: '20px',
+          height: '100%',
+          position: 'relative',
+        }}
+      >
         {isProcessing && (
           <Box
             sx={{
@@ -128,60 +175,144 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ open, onClose, c
             <CircularProgress />
           </Box>
         )}
-        <DialogTitle sx={{ padding: '20px 0px 0px 0px' }} id="customized-dialog-title">
+        <DialogTitle
+          sx={{ padding: '20px 0px 0px 0px' }}
+          id="customized-dialog-title"
+        >
           <Typography sx={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
         </DialogTitle>
-        <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '15px', marginBottom: '30px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            marginTop: '15px',
+            marginBottom: '30px',
+          }}
+        >
+          <Typography>
+            <strong>Building code: </strong>
+            {selectedBuildingCode}
+          </Typography>
+          <Typography
+            sx={{
+              color:
+                allItems.reduce((acc, item) => acc + item.quantity, 0) > 10
+                  ? 'red'
+                  : 'black',
+            }}
+          >
+            <strong>Total Items Checked Out: </strong>
+            {allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10
+            allowed
+          </Typography>
 
-          <Typography><strong>Building code: </strong>{selectedBuildingCode}</Typography>
-          <Typography sx={{
-            color: allItems.reduce((acc, item) => acc + item.quantity, 0) > 10 ? 'red' : 'black'
-          }}><strong>Total Items Checked Out: </strong>{allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10 allowed</Typography>
-
+          {/* Display category limit errors */}
+          {categoryLimitErrors.length > 0 && (
+            <Box
+              sx={{
+                marginTop: '10px',
+                padding: '10px',
+                backgroundColor: '#ffebee',
+                borderRadius: '4px',
+              }}
+            >
+              <Typography
+                sx={{
+                  color: '#c62828',
+                  fontWeight: 'bold',
+                  marginBottom: '5px',
+                }}
+              >
+                Category Limits Exceeded:
+              </Typography>
+              {categoryLimitErrors.map((error, index) => (
+                <Typography
+                  key={index}
+                  sx={{ color: '#c62828', fontSize: '14px' }}
+                >
+                  • {error}
+                </Typography>
+              ))}
+              <Typography
+                sx={{
+                  color: '#c62828',
+                  fontSize: '12px',
+                  marginTop: '5px',
+                  fontStyle: 'italic',
+                }}
+              >
+                Please remove items from the categories above to proceed with
+                checkout.
+              </Typography>
+            </Box>
+          )}
         </Box>
-        <DialogContent dividers sx={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '0 20px',
-          height: '40vh',
-          borderTop: 'none',
-        }}>
+        <DialogContent
+          dividers
+          sx={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '0 20px',
+            height: '40vh',
+            borderTop: 'none',
+          }}
+        >
           {checkoutItems.map((section: CategoryProps) => {
             if (section.categoryCount > 0) {
-              return <CategorySection 
-                key={section.id} 
-                category={section} 
-                categoryCheckout={section} 
-                addItemToCart={(item, quantity) => {
-                  addItemToCart(item, quantity, section.category, section.category);
-                }} 
-                removeItemFromCart={removeItemFromCart} removeButton={true} disabled={false} activeSection={activeSection} 
+              return (
+                <CategorySection
+                  key={section.id}
+                  category={section}
+                  categoryCheckout={section}
+                  addItemToCart={(item, quantity) => {
+                    addItemToCart(
+                      item,
+                      quantity,
+                      section.category,
+                      section.category,
+                    );
+                  }}
+                  removeItemFromCart={removeItemFromCart}
+                  removeButton={true}
+                  disabled={false}
+                  activeSection={activeSection}
                 />
+              );
             }
           })}
         </DialogContent>
-        <DialogContent sx={{
-          padding: '10px',
-          textAlign: 'center',
-        }}>
+        <DialogContent
+          sx={{
+            padding: '10px',
+            textAlign: 'center',
+          }}
+        >
           <Typography>{statusMessage}</Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
           <Button
             onClick={handleCancel}
             sx={{
-            color: 'black', textDecoration: 'underline'
-            }}>Return to Checkout Page</Button>
+              color: 'black',
+              textDecoration: 'underline',
+            }}
+          >
+            Return to Checkout Page
+          </Button>
           <Button
             onClick={handleConfirm}
-            disabled={isProcessing || allItems.reduce((acc, item) => acc + item.quantity, 0) > 10}
+            disabled={
+              isProcessing ||
+              allItems.reduce((acc, item) => acc + item.quantity, 0) > 10 ||
+              categoryLimitErrors.length > 0
+            }
             sx={{
               color: 'black',
               backgroundColor: '#F2F2F2',
               '&.Mui-disabled': {
                 backgroundColor: '#E0E0E0',
-                color: '#757575'
-              }
+                color: '#757575',
+              },
             }}
           >
             {isProcessing ? 'Working...' : 'Confirm'}

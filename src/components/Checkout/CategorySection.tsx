@@ -1,4 +1,5 @@
 import CheckoutCard from './CheckoutCard';
+
 import { CategoryProps, CheckoutHistoryItem, CheckoutItemProp } from "../../types/interfaces";
 import { Box, Grid, Typography } from '@mui/material';
 
@@ -27,7 +28,6 @@ const CategorySection = ({
   activeSection, 
   checkoutHistory 
   }: CategorySectionProps) => {
-
   return (
     <Box
       sx={{

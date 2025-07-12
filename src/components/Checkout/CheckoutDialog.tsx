@@ -36,7 +36,6 @@ type CheckoutDialogProps = {
   setResidentInfo: (residentInfo: ResidentInfo) => void;
 };
 
-
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ 
   open, 
   onClose, 
@@ -52,7 +51,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   activeSection, 
   residentInfo, 
   setResidentInfo }) => {
-
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
     CategoryProps[]

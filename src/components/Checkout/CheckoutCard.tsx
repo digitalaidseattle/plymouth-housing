@@ -69,7 +69,6 @@ const CheckoutCard = ({
     checkConditions();
   }, [categoryCheckout.categoryCount, checkConditions]);
 
-
   return (
     <Card
       key={item.name}

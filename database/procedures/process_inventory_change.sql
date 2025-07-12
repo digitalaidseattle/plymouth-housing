@@ -46,9 +46,7 @@ BEGIN
         EXEC LogTransaction
             @user_id = @user_id,
             @transaction_type = 2,
-            @building_id = NULL,
-            @resident_name = NULL,
-            @unit_number = NULL, 
+            @resident_id = NULL,
             @new_transaction_id = @new_transaction_id OUTPUT;
         
         -- Log to Transaction Item Table

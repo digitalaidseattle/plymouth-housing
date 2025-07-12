@@ -4,24 +4,38 @@ import {
   CardActions,
   Typography,
   Tooltip,
+  Chip,
 } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
 import { useCallback, useEffect, useState } from 'react';
 
-const CheckoutCard = ({
-  item,
-  categoryCheckout,
-  addItemToCart,
-  removeItemFromCart,
-  removeButton,
-  categoryLimit,
-  categoryName,
+const CheckoutCard = ({ 
+  item, 
+  categoryCheckout, 
+  addItemToCart, 
+  removeItemFromCart, 
+  removeButton, 
+  categoryLimit, 
+  categoryName, 
   activeSection,
-}: CheckoutCardProps) => {
+  checkoutHistory
+  }: CheckoutCardProps) => {
+
   const [disableAdd, setDisableAdd] = useState<boolean>(false);
 
-  const checkConditions = useCallback(() => {
+  const pastCheckout = checkoutHistory ? checkoutHistory.map(i => i.item_id).includes(item.id) : false;
+  
+  const timesCheckedOut = () => {
+     if (!checkoutHistory || !pastCheckout) return 0;
+    const indexOfItem = checkoutHistory.map(i => i.item_id).indexOf(item.id);
+    if (indexOfItem !== -1) { 
+      return checkoutHistory[indexOfItem].timesCheckedOut 
+    } 
+    return 0;
+  }
+
+  const checkConditions = useCallback(async () => {
     if (activeSection === '') {
       setDisableAdd(false);
       return;
@@ -44,8 +58,12 @@ const CheckoutCard = ({
       } else {
         setDisableAdd(true);
       }
+
+      if (pastCheckout) {
+        setDisableAdd(true);
+      }
     }
-  }, [categoryCheckout, categoryName, item.name, activeSection]);
+  }, [categoryCheckout, categoryName, item.name, activeSection, pastCheckout]);
 
   useEffect(() => {
     checkConditions();
@@ -65,10 +83,11 @@ const CheckoutCard = ({
         borderColor: removeButton ? '#D9D9D9' : null,
         borderWidth: removeButton ? '1px' : null,
         borderRadius: '15px',
-        paddingX: '10px',
+        paddingX: '10px',        
       }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
+        {pastCheckout && item.id !== 166 && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: '0.5rem' }} />}
         <Tooltip title={item.name} arrow>
           <Typography
             sx={{
@@ -81,7 +100,9 @@ const CheckoutCard = ({
             {item.name}
           </Typography>
         </Tooltip>
-        {item.description && <Typography>{item.description}</Typography>}
+        {item.id === 166 && item.additional_notes && removeButton ? <Typography>{item.additional_notes}</Typography>
+        : item.description ? <Typography>{item.description}</Typography>
+        : <></>}
       </CardContent>
       <CardActions sx={{ overflow: 'hidden' }}>
         <ItemQuantityButton

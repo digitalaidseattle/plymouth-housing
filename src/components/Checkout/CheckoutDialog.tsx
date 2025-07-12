@@ -9,7 +9,7 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -31,25 +31,26 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
-  setSelectedBuildingCode: (building: string) => void;
   activeSection: string;
+  residentInfo: ResidentInfo;
+  setResidentInfo: (residentInfo: ResidentInfo) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
-  open,
-  onClose,
-  checkoutItems,
-  welcomeBasketData,
-  setCheckoutItems,
-  removeItemFromCart,
-  addItemToCart,
-  selectedBuildingCode,
-  setActiveSection,
-  fetchData,
-  setSelectedBuildingCode,
-  onSuccess,
-  activeSection,
-}) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ 
+  open, 
+  onClose, 
+  checkoutItems, 
+  welcomeBasketData, 
+  setCheckoutItems, 
+  removeItemFromCart, 
+  addItemToCart, 
+  selectedBuildingCode, 
+  setActiveSection, 
+  fetchData, 
+  onSuccess, 
+  activeSection, 
+  residentInfo, 
+  setResidentInfo }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
     CategoryProps[]
@@ -100,19 +101,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       );
       let data = null;
       if (isWelcomeBasket) {
-        data = await processWelcomeBasket(
-          user,
-          loggedInUserId,
-          allItems,
-          selectedBuildingCode,
-        );
+        data = await processWelcomeBasket(user, loggedInUserId, allItems, residentInfo);
       } else {
-        data = await processGeneralItems(
-          user,
-          loggedInUserId,
-          allItems,
-          selectedBuildingCode,
-        );
+        data = await processGeneralItems(user, loggedInUserId, allItems, residentInfo);
       }
 
       if (data.error) {
@@ -124,7 +115,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        setSelectedBuildingCode('');
+        setResidentInfo({id: 0, name: '', unit: {id: 0, unit_number: ''}, building: { id: 0, code: '', name: '' }});
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();

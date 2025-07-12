@@ -1,17 +1,20 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
-import { Box, Grid, Typography, useTheme } from '@mui/material';
-import { Building, CategoryProps, CheckoutItemProp } from '../../types/interfaces';
+import { useState, useEffect, useContext, useCallback, SetStateAction } from 'react';
+import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
+import { Building, CategoryProps, CheckoutItemProp, ResidentInfo, Unit, CheckoutHistoryItem, TransactionItem } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
-import BuildingCodeSelect from '../../components/Checkout/BuildingCodeSelect';
 import SearchBar from '../../components/Searchbar/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
+import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
+import { checkPastCheckout } from '../../components/Checkout/CheckoutAPICalls';
+import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -22,8 +25,12 @@ const CheckoutPage = () => {
   const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
+  
   const [openSummary, setOpenSummary] = useState<boolean>(false);
-  const [selectedBuildingCode, setSelectedBuildingCode] = useState<string>('');
+
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({id: 0, name: '', unit: {id: 0, unit_number: ''}, building: {id: 0, code: '', name: ''}});
+  
   const [activeSection, setActiveSection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -33,9 +40,49 @@ const CheckoutPage = () => {
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
 
+  const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
+  const residentInfoIsMissing = Object.entries(residentInfo).filter(([, val]) => val === null || val === undefined || val === '').length > 0;
+  const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
+  const [showPastCheckoutDialog, setShowPastCheckoutDialog] = useState<boolean>(false);
+
+  const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({id: 0, name: '', quantity: 0, description: ''});
+  
+  const [checkoutHistory, setCheckoutHistory] = useState<CheckoutHistoryItem[]>([]);
 
   const theme = useTheme();
   const navigate = useNavigate();
+
+    useEffect(() => {
+    async function checkItemsForPrevCheckouts() {
+      const tempCheckOutHistory: SetStateAction<CheckoutHistoryItem[]> = [];
+
+      const response = await checkPastCheckout(residentInfo.id);
+
+      response.value.forEach((transaction: TransactionItem) => {
+        // round up quantity for appliance miscellaneous checkouts
+        if (transaction.item_id === 166) {
+          if (tempCheckOutHistory.find((entry) => entry.additionalNotes.toLowerCase() === transaction.additional_notes.toLowerCase())) {
+              return;
+            }
+            const checkedOutQuantity = response.value
+              .filter((item: TransactionItem) => item.additional_notes && item.additional_notes.toLowerCase() === transaction.additional_notes.toLowerCase())
+              .reduce(function (acc: number, transaction: { quantity: number; }) { return acc + transaction.quantity}, 0)
+            tempCheckOutHistory.push({item_id: 166, timesCheckedOut: checkedOutQuantity, additionalNotes: transaction.additional_notes});
+        } else {
+          // round up quantity for all other appliance/rug checkouts
+          if (tempCheckOutHistory.find((entry) => entry.item_id === transaction.item_id)) {
+            return;
+          }
+          const checkedOutQuantity = response.value
+            .filter((item: TransactionItem) => item.item_id === transaction.item_id)
+            .reduce(function (acc: number, transaction: { quantity: number; }){ return acc + transaction.quantity}, 0)
+          tempCheckOutHistory.push({item_id: transaction.item_id, timesCheckedOut: checkedOutQuantity, additionalNotes: ''});
+        }
+      })
+      setCheckoutHistory(tempCheckOutHistory);
+    }
+    if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
+    }, [residentInfo, residentInfoIsMissing])
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -248,6 +295,34 @@ const CheckoutPage = () => {
 
   return (
     <>
+    {showResidentDetailDialog && <ResidentDetailDialog 
+      showDialog={showResidentDetailDialog} 
+      handleShowDialog={()=>setShowResidentDetailDialog(!showResidentDetailDialog)}
+      buildings={buildings}
+      unitNumberValues={unitNumberValues}
+      setUnitNumberValues={setUnitNumberValues}
+      residentInfo={residentInfo}
+      setResidentInfo={setResidentInfo}
+      />
+    }
+    {showAdditionalNotesDialog && <AdditionalNotesDialog
+        showDialog={showAdditionalNotesDialog} 
+        handleShowDialog={()=>setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
+        item={selectedItem}
+        addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
+        residentInfo={residentInfo}
+        checkoutHistory={checkoutHistory}
+      />
+    }
+    {showPastCheckoutDialog && <PastCheckoutDialog
+        showDialog={showPastCheckoutDialog} 
+        handleShowDialog={()=>setShowPastCheckoutDialog(!showPastCheckoutDialog)}
+        item={selectedItem}
+        addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')}
+        residentInfo={residentInfo}
+      />
+    }
+
     {/* Container for the sticky nav */}
     <Box sx={{
       position: 'sticky',
@@ -257,7 +332,9 @@ const CheckoutPage = () => {
       background: theme.palette.common.white,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
-        <BuildingCodeSelect buildings={buildings} selectedBuildingCode={selectedBuildingCode} setSelectedBuildingCode={setSelectedBuildingCode} />
+        <Button variant="outlined" color={residentInfoIsMissing ? "error" : "primary"} onClick={()=>setShowResidentDetailDialog(true)}>
+          {residentInfoIsMissing ? 'Missing Resident Info' : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name}`}
+          </Button>
         <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
       </Box>
       {!searchActive && <Navbar filteredData={filteredData} scrollToCategory={scrollToCategory} />}
@@ -282,6 +359,20 @@ const CheckoutPage = () => {
                   item={item}
                   categoryCheckout={matchingCategory}
                   addItemToCart={(item, quantity) => {
+                    if (item.name === "Appliance Miscellaneous") {
+                      setSelectedItem(item);
+                      if (quantity > 0) {
+                        setShowAdditionalNotesDialog(true);
+                        return;
+                      }
+                    }
+                    if (checkoutHistory.map(i => i.item_id).includes(item.id)) {
+                      setSelectedItem(item);
+                      if (quantity > 0) {
+                        setShowPastCheckoutDialog(true);
+                        return;
+                      }
+                    }
                     const sectionType = section.category === 'Welcome Basket' ? 'welcomeBasket' : 'general';
                     addItemToCart(item, quantity, section.category, sectionType);
                   }}
@@ -290,6 +381,7 @@ const CheckoutPage = () => {
                   removeButton={false}
                   categoryLimit={section.checkout_limit}
                   categoryName={section.category}
+                  checkoutHistory={checkoutHistory}
                 />
               </Grid>
             ));
@@ -311,12 +403,12 @@ const CheckoutPage = () => {
                 key={category.id}
                 category={category}
                 categoryCheckout={matchingCategory}
-                addItemToCart={(item, quantity) =>
-                  addItemToCart(item, quantity, category.category, 'welcomeBasket')}
+                addItemToCart={(item, quantity) => addItemToCart(item, quantity, category.category, 'welcomeBasket')}
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'welcomeBasket')}
                 activeSection={activeSection}
+                checkoutHistory={checkoutHistory}
               />
             );
           })}
@@ -333,18 +425,36 @@ const CheckoutPage = () => {
                 key={category.id}
                 category={category}
                 categoryCheckout={matchingCategory}
-                addItemToCart={(item, quantity) =>
+                addItemToCart={(item, quantity) => {
+                  if (item.name === "Appliance Miscellaneous") {
+                    setSelectedItem(item);
+                    if (quantity > 0) {
+                      setShowAdditionalNotesDialog(true);
+                      return;
+                    }
+                  }
+                  if (checkoutHistory.map(i => i.item_id).includes(item.id)) {
+                    setSelectedItem(item);
+                    if (quantity > 0) {
+                      setShowPastCheckoutDialog(true);
+                      return;
+                    }
+                  }
                   addItemToCart(item, quantity, category.category, 'general')}
+                }
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 disabled={searchActive || (activeSection !== '' && activeSection !== 'general')}
                 activeSection={activeSection}
+                checkoutHistory={checkoutHistory}
               />
             );
           })}
-        </Box>}
+        </Box>
+        
+        }
 
-      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={selectedBuildingCode} />
+      <CheckoutFooter checkoutItems={checkoutItems} setOpenSummary={setOpenSummary} selectedBuildingCode={residentInfo.building.code} residentInfoIsMissing={residentInfoIsMissing} />
 
       <CheckoutDialog
         open={openSummary}
@@ -357,10 +467,11 @@ const CheckoutPage = () => {
         addItemToCart={(item, quantity, category) => addItemToCart(item, quantity, category, activeSection)}
         setCheckoutItems={setCheckoutItems}
         removeItemFromCart={removeItemFromCart}
-        selectedBuildingCode={selectedBuildingCode}
+        selectedBuildingCode={residentInfo.building.code}
         setActiveSection={setActiveSection}
         fetchData={fetchData}
-        setSelectedBuildingCode={setSelectedBuildingCode}
+        residentInfo={residentInfo}
+        setResidentInfo={setResidentInfo}
         activeSection={activeSection}
       />
       <SnackbarAlert

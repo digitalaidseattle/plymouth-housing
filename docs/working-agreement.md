@@ -5,7 +5,7 @@ expectations and principles are.
 
 ## General  
 
-- We work as one team towards a common goal and clear scope
+- We work as one team towards a common goal and clear scope. 
 - We make sure everyone's voice is heard, listened to
 - We show all team members equal respect
 - We work as a team to have common expectations for technical delivery

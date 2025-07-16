@@ -52,6 +52,17 @@ describe('CheckoutPage', async () => {
             ],
           }),
         });
+      } else if (url.includes(ENDPOINTS.UNITS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, building_id: 1, unit_number: "201" },
+              { id: 1, building_id: 1, unit_number: "202" },
+              { id: 1, building_id: 1, unit_number: "203" },
+            ],
+          }),
+        });
       }
       return Promise.reject(new Error('Unknown endpoint'));
     }) as Mock;

@@ -5,23 +5,11 @@ CREATE PROCEDURE ProcessWelcomeBasketCheckout
     @user_id INT,
     @mattress_size INT,
     @quantity INT,
-    @building_code NVARCHAR(50),
     @message NVARCHAR(MAX) = NULL OUTPUT,
-    @unit_number NVARCHAR(10),
-    @resident_name NVARCHAR(50)
+    @resident_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Get the building_id from the building_code
-    DECLARE @building_id INT;
-    SELECT @building_id = id FROM Buildings WHERE code = @building_code;
-
-    IF @building_id IS NULL
-    BEGIN
-        SELECT 'Error' AS Status, 'Invalid building code' AS message;
-        RETURN;
-    END
 
     -- Create a table variable to hold welcome basket items
     DECLARE @CartItems CartItemsType;
@@ -74,9 +62,7 @@ BEGIN
         EXEC LogTransaction
             @user_id = @user_id,
             @transaction_type = 1,
-            @building_id = @building_id,
-            @resident_name = @resident_name,
-            @unit_number = @unit_number,
+            @resident_id = @resident_id,
             @new_transaction_id = @new_transaction_id OUTPUT;
 
         -- Log each item in the transaction

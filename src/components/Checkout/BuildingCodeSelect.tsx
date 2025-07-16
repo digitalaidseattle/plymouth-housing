@@ -1,20 +1,26 @@
 import React from 'react';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { Building } from '../../types/interfaces';
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
+import { Building, Unit } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
   selectedBuildingCode: string;
-  setSelectedBuildingCode: (code: string) => void;
+  setSelectedBuilding: (building: Building) => void;
+  setUnitNumberInput: (unit: Unit) => void;
+  fetchUnitNumbers: (buildingId: number) => void;
+  error: boolean;
 }
 
 const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   buildings,
   selectedBuildingCode,
-  setSelectedBuildingCode,
+  setSelectedBuilding,
+  setUnitNumberInput,
+  fetchUnitNumbers,
+  error
 }) => {
   return (
-    <FormControl style={{ width: '150px' }}>
+    <FormControl error={error}>
       <InputLabel id="select-building-code-label">Building Code</InputLabel>
       <Select
         labelId="select-building-code-label"
@@ -22,7 +28,12 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         data-testid="test-id-select-building-code"
         label="Building Code"
         value={selectedBuildingCode || ''}
-        onChange={(event) => setSelectedBuildingCode(event.target.value)}
+        onChange={(event) => {
+          const building = buildings.filter((b) => b.code == event.target.value)[0];
+          setSelectedBuilding(building);
+          setUnitNumberInput({id: 0, unit_number: ''});
+          fetchUnitNumbers(building.id);
+        }}
       >
         {buildings.map((building) => (
           <MenuItem key={building.code} value={building.code}>
@@ -30,6 +41,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           </MenuItem>
         ))}
       </Select>
+      {error && <FormHelperText>Please select a building code</FormHelperText>}
     </FormControl>
   );
 };

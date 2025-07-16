@@ -5,9 +5,7 @@ GO
 CREATE PROCEDURE LogTransaction
     @user_id INT,
     @transaction_type NVARCHAR(50),
-    @building_id INT = NULL,
-    @unit_number NVARCHAR(10) = NULL,
-    @resident_name NVARCHAR(50) = NULL,
+    @resident_id INT,
     @new_transaction_id UNIQUEIDENTIFIER OUTPUT
 AS
 BEGIN
@@ -16,17 +14,13 @@ BEGIN
         id,
         user_id,
         transaction_type,
-        building_id,
-        unit_number,
-        resident_name
+        resident_id
     )
     VALUES (
         @id,
         @user_id,
         @transaction_type,
-        @building_id,
-        @unit_number,
-        @resident_name
+        @resident_id
     );
 
     SET @new_transaction_id = @id;

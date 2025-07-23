@@ -9,7 +9,11 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
+import {
+  CategoryProps,
+  CheckoutItemProp,
+  ResidentInfo,
+} from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -34,23 +38,26 @@ type CheckoutDialogProps = {
   activeSection: string;
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
+  onError: (message: string) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ 
-  open, 
-  onClose, 
-  checkoutItems, 
-  welcomeBasketData, 
-  setCheckoutItems, 
-  removeItemFromCart, 
-  addItemToCart, 
-  selectedBuildingCode, 
-  setActiveSection, 
-  fetchData, 
-  onSuccess, 
-  activeSection, 
-  residentInfo, 
-  setResidentInfo }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
+  open,
+  onClose,
+  checkoutItems,
+  welcomeBasketData,
+  setCheckoutItems,
+  removeItemFromCart,
+  addItemToCart,
+  selectedBuildingCode,
+  setActiveSection,
+  fetchData,
+  onSuccess,
+  activeSection,
+  residentInfo,
+  setResidentInfo,
+  onError,
+}) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
     CategoryProps[]
@@ -101,31 +108,82 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       );
       let data = null;
       if (isWelcomeBasket) {
-        data = await processWelcomeBasket(user, loggedInUserId, allItems, residentInfo);
+        data = await processWelcomeBasket(
+          user,
+          loggedInUserId,
+          allItems,
+          residentInfo,
+        );
       } else {
-        data = await processGeneralItems(user, loggedInUserId, allItems, residentInfo);
+        data = await processGeneralItems(
+          user,
+          loggedInUserId,
+          allItems,
+          residentInfo,
+        );
       }
 
       if (data.error) {
-        throw new Error(
-          `status: ${data.error.status}, message: ${data.error.message}`,
-        );
+        const errorMessage =
+          data.error.message || 'An unexpected error occurred during checkout';
+        throw new Error(errorMessage);
       }
 
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        setResidentInfo({id: 0, name: '', unit: {id: 0, unit_number: ''}, building: { id: 0, code: '', name: '' }});
+        setResidentInfo({
+          id: 0,
+          name: '',
+          unit: { id: 0, unit_number: '' },
+          building: { id: 0, code: '', name: '' },
+        });
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
       } else {
-        throw new Error(result.message);
+        const errorMessage =
+          result.message || 'Checkout failed - please try again';
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Transaction failed:', error);
-      setStatusMessage('Transaction failed: ' + error);
+
+      // Create a user-friendly error message
+      let userFriendlyMessage = 'Checkout failed - please try again';
+
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+
+        if (errorMessage.includes('cannot read properties of undefined')) {
+          userFriendlyMessage =
+            'There was a connection issue with the checkout system. Please try again in a moment.';
+        } else if (
+          errorMessage.includes('network') ||
+          errorMessage.includes('fetch')
+        ) {
+          userFriendlyMessage =
+            'Network connection issue. Please check your connection and try again.';
+        } else if (errorMessage.includes('timeout')) {
+          userFriendlyMessage = 'The request timed out. Please try again.';
+        } else if (
+          errorMessage.includes('500') ||
+          errorMessage.includes('internal server error')
+        ) {
+          userFriendlyMessage =
+            'Server error. Please try again in a moment or contact support.';
+        } else if (
+          error.message.includes('checkout limit') ||
+          error.message.includes('limit exceeded')
+        ) {
+          userFriendlyMessage = error.message; // Keep specific business logic errors as-is
+        } else if (error.message && error.message.trim() !== '') {
+          userFriendlyMessage = error.message;
+        }
+      }
+
+      onError(userFriendlyMessage);
     } finally {
       setIsProcessing(false);
     }

@@ -1,0 +1,4 @@
+pytest
+selenium
+python-dotenv
+asyncio

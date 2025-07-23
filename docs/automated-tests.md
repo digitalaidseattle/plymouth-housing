@@ -56,14 +56,16 @@ It's best practice to use a virtual environment to manage your project's depende
 1.  **Navigate to your project directory** in the terminal:
 
     ```bash
-    cd path/to/your_project
+    cd test
     ```
 
 2.  **Create the virtual environment:**
 
     ```bash
-    python -m venv venv
+    python3 -m venv venv
     ```
+
+    If instructed to install the ```python3.10-venv``` package, please do so. 
 
 3.  **Activate the virtual environment:**
 
@@ -91,27 +93,10 @@ It's best practice to use a virtual environment to manage your project's depende
 
 You'll need `pytest` and `selenium`. If you have other dependencies (like `python-dotenv` for environment variables), list them in a `requirements.txt` file.
 
-1.  **Create `requirements.txt`** (if you don't have one):
-
-    ```
-    pytest==X.Y.Z  # Use a specific version or omit for latest
-    selenium==A.B.C # Use a specific version or omit for latest
-    # Add any other libraries your project uses, e.g.:
-    # python-dotenv
-    ```
-
-    (Replace `X.Y.Z` and `A.B.C` with actual versions you prefer or leave them out to get the latest compatible versions.)
-
-2.  **Install the dependencies:**
+1.  **Install the dependencies:**
 
     ```bash
     pip install -r requirements.txt
-    ```
-
-    Alternatively, install them manually if you prefer:
-
-    ```bash
-    pip install pytest selenium
     ```
 
 ## 4. Configuring the WebDriver
@@ -144,13 +129,13 @@ pytest
 4. Run specific test file:
 
 ```Bash
-pytest tests/test_volunter_home.py
+pytest test/test_volunteer_home.py
 ```
 
 5. Run a specific test function within a file:
 
 ```Bash
-pytest tests/test_volunter_home.py::test_logout
+pytest test/test_volunteer_home.py::test_logout
 ```
 
 6. Verbose output (shows test names):

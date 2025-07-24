@@ -6,7 +6,7 @@ This document outlines the steps required to set up your environment and run the
 
 Before you begin, ensure you have the following installed:
 
-* **Python:** Version 3.8 or higher is recommended. You can download it from [python.org](https://www.python.org/downloads/).
+* **Python:** Version 3.11 or higher is recommended. You can download it from [python.org](https://www.python.org/downloads/).
 
 * **Web Browser:** Choose a browser for testing (e.g., Chrome, Firefox, Edge).
 

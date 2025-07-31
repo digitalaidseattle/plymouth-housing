@@ -15,7 +15,7 @@ type FormData = {
 type AddItemModalProps = {
   addModal: boolean;
   handleAddClose: () => void;
-  handleSnackbar: (message: string) => void;
+  handleSnackbar: (message: string, severity: 'warning' | 'success') => void;
   fetchData: () => void;
   originalData: InventoryItem[];
 }
@@ -74,9 +74,6 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
     if (formData.type === '' || formData.name === '' || formData.quantity === 0 || !updateItem) {
       setErrorMessage('Missing Information or Quantity cannot be 0')
       return;
-    } else if (newQuantity < 0) {
-      setErrorMessage('Item quantity cannot go below 0.')
-      return;
     } else {
       try {
         API_HEADERS['X-MS-API-ROLE'] = getRole(user);
@@ -93,7 +90,11 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
         } else {
           setErrorMessage('');
           fetchData();
-          handleSnackbar(`${formData.quantity} ${updateItem.name} in ${updateItem.category} have been added.`);
+          if (newQuantity <= 0) {
+            handleSnackbar(`The total quantity for ${updateItem.name} is now ${newQuantity}.`, 'warning')
+          } else {
+            handleSnackbar(`${formData.quantity} ${updateItem.name} in ${updateItem.category} have been added.`, 'success');
+          }
           handleAddClose();
           resetInputsHandler();
         }

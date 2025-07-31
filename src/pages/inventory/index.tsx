@@ -254,8 +254,8 @@ const Inventory = () => {
         handleAddClose={handleAddClose}
         fetchData={fetchData}
         originalData={originalData}
-        handleSnackbar={(message: string) => {     
-          setSnackbarState({ open: true, message: message, severity: 'success' });
+        handleSnackbar={(message: string, severity: 'warning' | 'success') => {     
+          setSnackbarState({ open: true, message: message, severity: severity });
         }}
       />
 

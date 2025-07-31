@@ -123,28 +123,23 @@ const ResidentDetailDialog = ({
                         fetchUnitNumbers={fetchUnitNumbers}
                         error={showError && !buildingInput}/>
                 </FormControl>
+
                 {unitNumberValues.length > 1 && 
                 <FormControl error={showError && !unitNumberInput}>
-                    <InputLabel id="select-unit-number-label">Unit Number</InputLabel>
-                    <Select
-                        labelId="select-unit-number-label"
+                    <Autocomplete
                         id="select-unit-number"
                         data-testid="test-id-select-unit-number"
-                        label="Unit Number"
+                        options={unitNumberValues.map(u => u.unit_number)}
                         value={unitNumberInput.unit_number}
-                        onChange={(event) => {
-                            const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.value);
+                        onChange={(event: any) => {
+                            const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.textContent);
                             if (matchingUnit) setUnitNumberInput(matchingUnit);
                         }}
-                    >
-                    {unitNumberValues.map((unit) => (
-                        <MenuItem key={unit.id} value={unit.unit_number}>
-                        {unit.unit_number} 
-                        </MenuItem>
-                    ))}
-                    </Select>
+                        renderInput={(params) => <TextField {...params} label="Unit Number" />}
+                    />
                     {showError && !unitNumberInput && <FormHelperText>Please select a unit number</FormHelperText>}
                 </FormControl>}
+
                 <FormControl>
                     <Autocomplete 
                         value={nameInput}
@@ -167,10 +162,6 @@ const ResidentDetailDialog = ({
                             const isExisting = options.some((option) => inputValue === option.name);
                             if (inputValue !== '' && !isExisting) {
                                 setNameInput(inputValue);
-                                // filtered.push({
-                                //     inputValue,
-                                //     name: `Add "${inputValue}"`
-                                // });
                             }
                             return filtered;
                         }}

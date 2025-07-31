@@ -166,10 +166,11 @@ const ResidentDetailDialog = ({
                             // Suggest the creation of a new value
                             const isExisting = options.some((option) => inputValue === option.name);
                             if (inputValue !== '' && !isExisting) {
-                            filtered.push({
-                                inputValue,
-                                name: `Add "${inputValue}"`
-                            });
+                                setNameInput(inputValue);
+                                // filtered.push({
+                                //     inputValue,
+                                //     name: `Add "${inputValue}"`
+                                // });
                             }
                             return filtered;
                         }}

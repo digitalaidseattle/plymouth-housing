@@ -29,7 +29,7 @@
     "@azure/static-web-apps-cli": "^2.0.6",
     "@eslint/compat": "^1.2.5",
     "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.18.0",
+    "@eslint/js": "^9.32.0",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.2.0",
     "@types/jest": "^29.5.14",

@@ -205,6 +205,7 @@ const CheckoutPage = () => {
         }
       }
       const data = await response.json();
+      data.value.sort((a: Building, b: Building) => a.code.localeCompare(b.code));
       setBuildings(data.value);
       sessionStorage.setItem('buildings', JSON.stringify(data.value));
     } catch (error) {

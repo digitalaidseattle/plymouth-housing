@@ -61,7 +61,7 @@ jobs:
     if: needs.sync-tag.outputs.tag_exists == 'false'
     runs-on: ubuntu-latest
     name: Build and Deploy Job
-    environment: production
+    environment: production # this is a reference to the github environment and determines the env: location below
     steps:
       - name: Check out source
         uses: actions/checkout@v3
@@ -86,6 +86,8 @@ jobs:
           api_location: '' # Api source code path - optional
           output_location: 'dist' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+        env:
+          VITE_CLARITY_PROJECT_ID: ${{ secrets.VITE_CLARITY_PROJECT_ID }}
 
       - name: Post URL
         run: |

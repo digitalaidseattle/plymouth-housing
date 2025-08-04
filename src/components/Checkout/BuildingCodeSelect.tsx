@@ -1,10 +1,10 @@
 import React from 'react';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
+import { Autocomplete, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { Building, Unit } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
-  selectedBuildingCode: string;
+  selectedBuilding: Building;
   setSelectedBuilding: (building: Building) => void;
   setUnitNumberInput: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
@@ -13,36 +13,34 @@ interface BuildingCodeSelectProps {
 
 const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   buildings,
-  selectedBuildingCode,
+  selectedBuilding,
   setSelectedBuilding,
   setUnitNumberInput,
   fetchUnitNumbers,
   error
 }) => {
   return (
-    <FormControl error={error}>
-      <InputLabel id="select-building-code-label">Building Code</InputLabel>
-      <Select
-        labelId="select-building-code-label"
-        id="select-building-code"
-        data-testid="test-id-select-building-code"
-        label="Building Code"
-        value={selectedBuildingCode || ''}
-        onChange={(event) => {
-          const building = buildings.filter((b) => b.code == event.target.value)[0];
-          setSelectedBuilding(building);
-          setUnitNumberInput({id: 0, unit_number: ''});
-          fetchUnitNumbers(building.id);
-        }}
-      >
-        {buildings.map((building) => (
-          <MenuItem key={building.code} value={building.code}>
-            {building.code} ({building.name})
-          </MenuItem>
-        ))}
-      </Select>
+    <FormControl error={error} >
+       <Autocomplete
+          id="select-unit-number"
+          data-testid="test-id-select-unit-number"
+          options={buildings}
+          value={selectedBuilding}
+          onChange={(event: any, newValue: Building | null) => {             
+              if (newValue) { 
+                setSelectedBuilding(newValue);
+                setUnitNumberInput({id: 0, unit_number: ''});
+                fetchUnitNumbers(newValue.id);
+              }
+          }}
+          getOptionLabel={(option: Building) => {
+            if (option.id === 0) return '';
+            return `${option.code} - ${option.name}`;
+          }}
+          renderInput={(params) => <TextField {...params} label="Building" />}
+      />
       {error && <FormHelperText>Please select a building code</FormHelperText>}
-    </FormControl>
+    </FormControl> 
   );
 };
 

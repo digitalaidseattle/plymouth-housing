@@ -117,7 +117,7 @@ const ResidentDetailDialog = ({
                 <FormControl>
                     <BuildingCodeSelect 
                         buildings={buildings} 
-                        selectedBuildingCode={buildingInput.code} 
+                        selectedBuilding={buildingInput} 
                         setSelectedBuilding={setBuildingInput} 
                         setUnitNumberInput={setUnitNumberInput}
                         fetchUnitNumbers={fetchUnitNumbers}

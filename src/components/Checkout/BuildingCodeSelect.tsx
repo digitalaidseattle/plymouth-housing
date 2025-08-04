@@ -27,11 +27,11 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           options={buildings}
           value={selectedBuilding}
           onChange={(event: any, newValue: Building | null) => {             
-              if (newValue) { 
-                setSelectedBuilding(newValue);
-                setUnitNumberInput({id: 0, unit_number: ''});
-                fetchUnitNumbers(newValue.id);
-              }
+            if (newValue) { 
+              setSelectedBuilding(newValue);
+              setUnitNumberInput({id: 0, unit_number: ''});
+              fetchUnitNumbers(newValue.id);
+            }
           }}
           getOptionLabel={(option: Building) => {
             if (option.id === 0) return '';

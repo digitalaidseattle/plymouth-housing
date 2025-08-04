@@ -129,11 +129,14 @@ const ResidentDetailDialog = ({
                     <Autocomplete
                         id="select-unit-number"
                         data-testid="test-id-select-unit-number"
-                        options={unitNumberValues.map(u => u.unit_number)}
-                        value={unitNumberInput.unit_number}
-                        onChange={(event: any) => {
-                            const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.textContent);
-                            if (matchingUnit) setUnitNumberInput(matchingUnit);
+                        options={unitNumberValues}
+                        value={unitNumberInput}
+                        onChange={(event: any, newValue: Unit | null) => {
+                            if (newValue) setUnitNumberInput(newValue);
+                        }}
+                        getOptionLabel={(option: Unit) => {
+                            if (option.id === 0) return '';
+                            return `${option.unit_number}`;
                         }}
                         renderInput={(params) => <TextField {...params} label="Unit Number" />}
                     />
@@ -144,7 +147,7 @@ const ResidentDetailDialog = ({
                     <Autocomplete 
                         value={nameInput}
                         onChange={(_event, newValue) => {
-                                if (typeof newValue === 'string') {
+                            if (typeof newValue === 'string') {
                                 setNameInput(newValue);
                             } else if (newValue && (newValue as ResidentNameOption).inputValue) {
                                 setNameInput((newValue as ResidentNameOption).inputValue!);
@@ -190,7 +193,6 @@ const ResidentDetailDialog = ({
                             </li>
                         );
                         }}
-                        sx={{ width: 300 }}
                         freeSolo
                         renderInput={(params) => (
                         <TextField {...params} label="Resident Name" 

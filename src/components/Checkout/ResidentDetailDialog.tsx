@@ -63,6 +63,8 @@ const ResidentDetailDialog = ({
             const response = await getResidents(unitNumberInput.id);
             if (response.value.length > 0) {
                 setExistingResidents(response.value.map((resident: ResidentNameOption) => ({ name: resident.name })));
+            } else {
+                setExistingResidents([]);
             }
         }
         fetchResidents();

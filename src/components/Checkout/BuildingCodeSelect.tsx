@@ -1,12 +1,12 @@
 import React from 'react';
-import { Autocomplete, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
 import { Building, Unit } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
   selectedBuilding: Building;
   setSelectedBuilding: (building: Building) => void;
-  setUnitNumberInput: (unit: Unit) => void;
+  setSelectedUnit: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
   error: boolean;
 }
@@ -15,12 +15,12 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   buildings,
   selectedBuilding,
   setSelectedBuilding,
-  setUnitNumberInput,
+  setSelectedUnit,
   fetchUnitNumbers,
   error
 }) => {
   return (
-    <FormControl error={error} >
+    <FormControl>
        <Autocomplete
           id="select-unit-number"
           data-testid="test-id-select-unit-number"
@@ -29,7 +29,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           onChange={(event: any, newValue: Building | null) => {             
             if (newValue) { 
               setSelectedBuilding(newValue);
-              setUnitNumberInput({id: 0, unit_number: ''});
+              setSelectedUnit({id: 0, unit_number: ''});
               fetchUnitNumbers(newValue.id);
             }
           }}
@@ -37,9 +37,14 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
             if (option.id === 0) return '';
             return `${option.code} - ${option.name}`;
           }}
-          renderInput={(params) => <TextField {...params} label="Building" />}
+          renderInput={(params) => 
+            <TextField {...params} 
+              label="Building" 
+              error={error} 
+              helperText={error ? "Please select a building" : ""}
+            />
+          }
       />
-      {error && <FormHelperText>Please select a building code</FormHelperText>}
     </FormControl> 
   );
 };

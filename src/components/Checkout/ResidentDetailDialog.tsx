@@ -54,7 +54,7 @@ const ResidentDetailDialog = ({
     }
 
     useEffect(() => {
-        if (!selectedUnit.id) return;
+        setNameInput('');
         const fetchResidents = async () => {
             const response = await getResidents(selectedUnit.id);
             if (response.value.length > 0) {
@@ -64,8 +64,7 @@ const ResidentDetailDialog = ({
             }
         }
         fetchResidents();
-    }, [selectedUnit])
-
+    }, [selectedUnit, selectedBuilding])
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();

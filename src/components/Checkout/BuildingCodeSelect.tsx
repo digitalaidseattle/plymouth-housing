@@ -24,8 +24,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   return (
     <FormControl>
        <Autocomplete
-          id="select-unit-number"
-          data-testid="test-id-select-unit-number"
+          id="select-building"
+          data-testid="test-id-select-building"
           options={buildings}
           value={selectedBuilding}
           onChange={(event:  React.SyntheticEvent, newValue: Building | null) => {             

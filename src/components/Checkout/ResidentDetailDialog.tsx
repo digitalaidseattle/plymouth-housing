@@ -126,7 +126,7 @@ const ResidentDetailDialog = ({
                         data-testid="test-id-select-unit-number"
                         options={unitNumberValues}
                         value={selectedUnit}
-                        onChange={(event: any, newValue: Unit | null) => {
+                        onChange={(event: React.SyntheticEvent, newValue: Unit | null) => {
                             if (newValue) setSelectedUnit(newValue);
                             setNameInput('');
                         }}

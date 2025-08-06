@@ -1,5 +1,5 @@
 import React from 'react';
-import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
+import { Autocomplete, FormControl, TextField } from '@mui/material';
 import { Building, Unit } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
@@ -28,7 +28,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           data-testid="test-id-select-unit-number"
           options={buildings}
           value={selectedBuilding}
-          onChange={(event: any, newValue: Building | null) => {             
+          onChange={(event:  React.SyntheticEvent, newValue: Building | null) => {             
             if (newValue) { 
               setSelectedBuilding(newValue);
               setSelectedUnit({id: 0, unit_number: ''});

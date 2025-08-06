@@ -54,7 +54,6 @@ const ResidentDetailDialog = ({
     }
 
     useEffect(() => {
-        setNameInput('');
         const fetchResidents = async () => {
             const response = await getResidents(selectedUnit.id);
             if (response.value.length > 0) {
@@ -73,9 +72,7 @@ const ResidentDetailDialog = ({
             setShowError(true);
             return;
         }
-
         let residentId;
-
         // try submitting to db
         try {
             // first check if the resident already exists
@@ -117,6 +114,7 @@ const ResidentDetailDialog = ({
                         selectedBuilding={selectedBuilding} 
                         setSelectedBuilding={setSelectedBuilding} 
                         setSelectedUnit={setSelectedUnit}
+                        setNameInput={setNameInput}
                         fetchUnitNumbers={fetchUnitNumbers}
                         error={showError && !selectedBuilding.id}/>
                 </FormControl>
@@ -130,6 +128,7 @@ const ResidentDetailDialog = ({
                         value={selectedUnit}
                         onChange={(event: any, newValue: Unit | null) => {
                             if (newValue) setSelectedUnit(newValue);
+                            setNameInput('');
                         }}
                         getOptionLabel={(option: Unit) => {
                             if (option.id === 0) return '';

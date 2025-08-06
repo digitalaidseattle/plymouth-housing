@@ -7,6 +7,7 @@ interface BuildingCodeSelectProps {
   selectedBuilding: Building;
   setSelectedBuilding: (building: Building) => void;
   setSelectedUnit: (unit: Unit) => void;
+  setNameInput: (name: string) => void;
   fetchUnitNumbers: (buildingId: number) => void;
   error: boolean;
 }
@@ -16,6 +17,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   selectedBuilding,
   setSelectedBuilding,
   setSelectedUnit,
+  setNameInput,
   fetchUnitNumbers,
   error
 }) => {
@@ -30,6 +32,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
             if (newValue) { 
               setSelectedBuilding(newValue);
               setSelectedUnit({id: 0, unit_number: ''});
+              setNameInput('');
               fetchUnitNumbers(newValue.id);
             }
           }}

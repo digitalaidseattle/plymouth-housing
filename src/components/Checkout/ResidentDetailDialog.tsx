@@ -144,6 +144,7 @@ const ResidentDetailDialog = ({
                     />
                 </FormControl>}
 
+                {selectedUnit.id !== 0 && 
                 <FormControl>
                     <Autocomplete 
                         value={nameInput}
@@ -192,7 +193,7 @@ const ResidentDetailDialog = ({
                             <li key={key} {...optionProps}>
                             {option.name}
                             </li>
-                        );
+                            );
                         }}
                         freeSolo
                         renderInput={(params) => (
@@ -202,7 +203,7 @@ const ResidentDetailDialog = ({
                             helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
                         )}
                     />
-                </FormControl>                    
+                </FormControl>}                  
             </Box>
         </DialogTemplate>
     );

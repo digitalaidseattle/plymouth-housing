@@ -144,14 +144,11 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         onSuccess();
       } else {
         const errorMessage =
-          result.message || 'Checkout failed - please try again';
+          result.message || 'Checkout failed. Please try again.';
         throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Transaction failed:', error);
-
-      // Create a user-friendly error message
-      let userFriendlyMessage = 'Checkout failed - please try again';
+      let userFriendlyMessage = 'Checkout failed. Please try again.';
 
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();

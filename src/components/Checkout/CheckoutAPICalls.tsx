@@ -88,9 +88,12 @@ export async function getUnitNumbers(buildingId: number) {
         headers: API_HEADERS,
       },
     );
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
     return await response.json();
   } catch (error) {
-    console.error('Error fetching residents:', error);
+    console.error('Error fetching units:', error);
     throw error;
   }
 }
@@ -104,6 +107,9 @@ export async function getResidents(unitId: number) {
         headers: API_HEADERS,
       },
     );
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
     return await response.json();
   } catch (error) {
     console.error('Error fetching residents:', error);
@@ -120,6 +126,9 @@ export async function findResident(name: string, unitId: number) {
         headers: API_HEADERS,
       },
     );
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
     return await response.json();
   } catch (error) {
     console.error('Error fetching residents:', error);
@@ -137,6 +146,9 @@ export async function addResident(name: string, unitId: number) {
         unit_id: unitId,
       }),
     });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
     return await response.json();
   } catch (error) {
     console.error('Error adding a resident:', error);
@@ -152,5 +164,8 @@ export async function checkPastCheckout(residentId: number) {
       resident_id: residentId,
     }),
   });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
   return await response.json();
 }

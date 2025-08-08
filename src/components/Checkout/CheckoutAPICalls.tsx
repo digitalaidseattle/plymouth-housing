@@ -12,38 +12,33 @@ export async function processWelcomeBasket(
   checkoutItems: CheckoutItemProp[],
   residentInfo: ResidentInfo,
 ) {
-  try {
-    API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-    const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
-      method: 'POST',
-      headers: API_HEADERS,
-      body: JSON.stringify({
-        user_id: loggedInUserId,
-        mattress_size: checkoutItems[0].id,
-        quantity: checkoutItems[0].quantity,
-        resident_id: residentInfo.id,
-        message: '',
-      }),
-    });
+  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
+    method: 'POST',
+    headers: API_HEADERS,
+    body: JSON.stringify({
+      user_id: loggedInUserId,
+      mattress_size: checkoutItems[0].id,
+      quantity: checkoutItems[0].quantity,
+      resident_id: residentInfo.id,
+      message: '',
+    }),
+  });
 
-    if (!response.ok) {
-      let errorMessage = 'Checkout failed';
-      try {
-        const errorData = await response.json();
-        errorMessage =
-          errorData.error?.message ||
-          `HTTP ${response.status}: ${response.statusText}`;
-      } catch {
-        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      }
-      throw new Error(errorMessage);
+  if (!response.ok) {
+    let errorMessage = 'Checkout failed';
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.error?.message ||
+        `HTTP ${response.status}: ${response.statusText}`;
+    } catch {
+      errorMessage = `HTTP ${response.status}: ${response.statusText}`;
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error processing welcome basket checkout:', error);
-    throw error;
+    throw new Error(errorMessage);
   }
+
+  return await response.json();
 }
 
 export async function processGeneralItems(
@@ -52,41 +47,36 @@ export async function processGeneralItems(
   checkoutItems: CheckoutItemProp[],
   residentInfo: ResidentInfo,
 ) {
-  try {
-    API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-    const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
-      method: 'POST',
-      headers: API_HEADERS,
-      body: JSON.stringify({
-        user_id: loggedInUserId,
-        items: checkoutItems.map((item) => ({
-          id: item.id,
-          quantity: item.quantity,
-          additional_notes: item.additional_notes,
-        })),
-        resident_id: residentInfo.id,
-        message: '',
-      }),
-    });
+  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
+    method: 'POST',
+    headers: API_HEADERS,
+    body: JSON.stringify({
+      user_id: loggedInUserId,
+      items: checkoutItems.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        additional_notes: item.additional_notes,
+      })),
+      resident_id: residentInfo.id,
+      message: '',
+    }),
+  });
 
-    if (!response.ok) {
-      let errorMessage = 'Checkout failed';
-      try {
-        const errorData = await response.json();
-        errorMessage =
-          errorData.error?.message ||
-          `HTTP ${response.status}: ${response.statusText}`;
-      } catch {
-        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      }
-      throw new Error(errorMessage);
+  if (!response.ok) {
+    let errorMessage = 'Checkout failed';
+    try {
+      const errorData = await response.json();
+      errorMessage =
+        errorData.error?.message ||
+        `HTTP ${response.status}: ${response.statusText}`;
+    } catch {
+      errorMessage = `HTTP ${response.status}: ${response.statusText}`;
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error processing general items checkout:', error);
-    throw error;
+    throw new Error(errorMessage);
   }
+
+  return await response.json();
 }
 
 export async function getUnitNumbers(buildingId: number) {

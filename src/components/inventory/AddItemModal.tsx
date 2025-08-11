@@ -30,6 +30,7 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
+  const currentItem = originalData.find(item => item.name === formData.name);
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData((prevFormData) => ({
@@ -192,11 +193,20 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
               </Box>
           </Box>
 
+          <Box id="quantity-info">
+            {currentItem && <>
+              <Typography>Current count of {currentItem.name}: {currentItem.quantity}</Typography>
+              <Typography>The new count will be: {currentItem.quantity + formData.quantity}</Typography>
+            </>}
+          </Box>
+
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
             <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Submit</Button>
           </Box>
+
+
         </Box>
       </Box>
     </Modal>

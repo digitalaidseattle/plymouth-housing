@@ -5,6 +5,7 @@ import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
 import { Add, Remove } from '@mui/icons-material';
+import ResultsContent from './ResultsContent.tsx';
 
 type FormData = {
   type: string;
@@ -30,7 +31,7 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
-  const currentItem = originalData.find(item => item.name === formData.name);
+  const [showResults, setShowResults] = useState(false);
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData((prevFormData) => ({
@@ -67,6 +68,7 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
     })
     setUpdateItem(null);
     setErrorMessage('');
+    setShowResults(false);
     handleAddClose();
   }
 
@@ -91,13 +93,8 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
         } else {
           setErrorMessage('');
           fetchData();
-          if (newQuantity <= 0) {
-            handleSnackbar(`The total quantity for ${updateItem.name} is now ${newQuantity}.`, 'warning')
-          } else {
-            handleSnackbar(`${formData.quantity} ${updateItem.name} in ${updateItem.category} have been added.`, 'success');
-          }
-          handleAddClose();
-          resetInputsHandler();
+          setShowResults(true);
+          // todo: handle closing and reset inputs upon cancelling form, and window is closed
         }
       }
       catch (error) {
@@ -115,6 +112,18 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
       {/* Title Section */}
       <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', minWidth: '500px', width: '30%', minHeight: '30vh', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto', paddingY: '1.5rem' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '70%', margin: 'auto', height: '100%' }}>
+        {showResults && <>
+          <Typography sx={{ fontSize: '20px', }}>
+              Inventory Updated: {updateItem?.name}
+          </Typography>
+          <Box>
+              <Typography>Previous Stock: {updateItem?.quantity}</Typography>
+              <Typography>Quantity Added: {formData.quantity}</Typography>
+              <Typography>New Stock Total: {Number(updateItem?.quantity) + Number(formData.quantity)}</Typography>
+          </Box>
+          </>
+        }
+        {!showResults && <>
           <Typography sx={{ fontSize: '20px', }}>
             Edit Item Quantity
           </Typography>
@@ -193,23 +202,23 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
               </Box>
           </Box>
 
-          <Box id="quantity-info">
+          {/* <Box id="quantity-info">
             {currentItem && <>
               <Typography>Current count of {currentItem.name}: {currentItem.quantity}</Typography>
               <Typography>The new count will be: {currentItem.quantity + formData.quantity}</Typography>
             </>}
-          </Box>
+          </Box> */}
 
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
             <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Submit</Button>
           </Box>
-
-
+        </>}
         </Box>
       </Box>
     </Modal>
+    
   )
 
 }

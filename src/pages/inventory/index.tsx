@@ -257,7 +257,7 @@ const Inventory = () => {
         fetchData={fetchData}
         originalData={originalData}
         showResults={showResults}
-        setShowResults={(bool: boolean) => setShowResults(bool)}
+        setShowResults={setShowResults}
       />
 
       {/* Inventory Filter */}

@@ -9,7 +9,7 @@ import {
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { CheckoutHistoryItem, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import CheckedoutListItem from './CheckedoutListItem';
-import DialogTemplate from './DialogTemplate';
+import DialogTemplate from '../DialogTemplate';
 
 type AdditionalNotesDialogProps = {
     showDialog: boolean,

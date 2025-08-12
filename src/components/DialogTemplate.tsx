@@ -14,7 +14,7 @@ import { ReactNode, SyntheticEvent } from 'react';
 type DialogTemplateProps = {
     showDialog: boolean,
     handleShowDialog: () => void,
-    handleSubmit: (e: SyntheticEvent) => void,
+    handleSubmit?: (e: SyntheticEvent) => void,
     title?: string,
     submitButtonText?: string,
     backButtonText?: string,

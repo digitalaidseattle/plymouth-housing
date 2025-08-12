@@ -6,6 +6,7 @@ import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
 import { Add, Remove } from '@mui/icons-material';
 import ResultsContent from './ResultsContent.tsx';
+import DialogTemplate from '../DialogTemplate.tsx';
 
 type FormData = {
   type: string;
@@ -105,10 +106,10 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
   }
 
   return (
-    <Modal
-      open={addModal}
-      onClose={resetInputsHandler}
-    >
+    <DialogTemplate
+      showDialog={addModal}
+      handleShowDialog={resetInputsHandler}
+      >
       {/* Title Section */}
       <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', minWidth: '500px', width: '30%', minHeight: '30vh', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto', paddingY: '1.5rem' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '70%', margin: 'auto', height: '100%' }}>
@@ -202,13 +203,6 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
               </Box>
           </Box>
 
-          {/* <Box id="quantity-info">
-            {currentItem && <>
-              <Typography>Current count of {currentItem.name}: {currentItem.quantity}</Typography>
-              <Typography>The new count will be: {currentItem.quantity + formData.quantity}</Typography>
-            </>}
-          </Box> */}
-
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
@@ -217,7 +211,8 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
         </>}
         </Box>
       </Box>
-    </Modal>
+    </DialogTemplate>
+
     
   )
 

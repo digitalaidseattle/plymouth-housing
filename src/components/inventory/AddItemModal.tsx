@@ -18,9 +18,11 @@ type AddItemModalProps = {
   handleAddClose: () => void;
   fetchData: () => void;
   originalData: InventoryItem[];
+  showResults: boolean;
+  setShowResults: (b: boolean) => void;
 }
 
-const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: AddItemModalProps) => {
+const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showResults, setShowResults }: AddItemModalProps) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [updateItem, setUpdateItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -30,7 +32,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
-  const [showResults, setShowResults] = useState(false);
 
   const newTotalQuantity = Number(updateItem?.quantity) + Number(formData.quantity);
 
@@ -75,6 +76,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
   };
 
   const resetInputsHandler = () => {
+    handleAddClose();
     setFormData({
       name: '',
       type: '',
@@ -82,8 +84,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData }: Add
     })
     setUpdateItem(null);
     setErrorMessage('');
-    setShowResults(false);
-    handleAddClose();
   }
 
   const updateItemHandler = async () => {

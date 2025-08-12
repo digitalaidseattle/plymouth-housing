@@ -1,4 +1,4 @@
-import { Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, IconButton, useTheme, styled } from '@mui/material';
+import { Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, IconButton, useTheme, styled, Alert } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
@@ -32,6 +32,8 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
   const [showResults, setShowResults] = useState(false);
+
+  const newTotalQuantity = Number(updateItem?.quantity) + Number(formData.quantity);
 
   const theme = useTheme();
 
@@ -129,8 +131,11 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <Box>Previous Stock: <ResultText>{updateItem?.quantity}</ResultText></Box>
               <Box>Quantity Added: <ResultText>{formData.quantity}</ResultText></Box>
-              <Box>New Stock Total: <ResultText>{Number(updateItem?.quantity) + Number(formData.quantity)}</ResultText></Box>
+              <Box>New Stock Total: <ResultText>{newTotalQuantity}</ResultText></Box>
           </Box>
+          {newTotalQuantity < 0 &&
+            <Alert severity="warning">Warning: Stock is negative. This item may have been over-issued. Please review and update it when possible.</Alert>
+          }
           </>
         }
         {!showResults && <>

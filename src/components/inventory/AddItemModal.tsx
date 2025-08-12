@@ -1,11 +1,10 @@
-import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, IconButton } from '@mui/material';
+import { Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, IconButton, useTheme, styled } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
 import { Add, Remove } from '@mui/icons-material';
-import ResultsContent from './ResultsContent.tsx';
 import DialogTemplate from '../DialogTemplate.tsx';
 
 type FormData = {
@@ -34,6 +33,20 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
   const [showResults, setShowResults] = useState(false);
 
+  const theme = useTheme();
+
+  const ResultText = styled('span')({
+    marginLeft: '0.25rem', 
+    color: theme.palette.success.dark 
+  });
+
+  const DialogTitle = styled('h1')({
+     fontSize: '1.25rem', 
+     fontWeight: '600', 
+     textTransform: 'capitalize',
+     margin: '0'
+  })
+
   const handleInputChange = (field: string, value: string | number) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -60,7 +73,6 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
     }
   };
 
-
   const resetInputsHandler = () => {
     setFormData({
       name: '',
@@ -74,7 +86,6 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
   }
 
   const updateItemHandler = async () => {
-    const newQuantity = Number(updateItem?.quantity) + Number(formData.quantity);
     if (formData.type === '' || formData.name === '' || formData.quantity === 0 || !updateItem) {
       setErrorMessage('Missing Information or Quantity cannot be 0')
       return;
@@ -95,7 +106,6 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
           setErrorMessage('');
           fetchData();
           setShowResults(true);
-          // todo: handle closing and reset inputs upon cancelling form, and window is closed
         }
       }
       catch (error) {
@@ -111,23 +121,22 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
       handleShowDialog={resetInputsHandler}
       >
       {/* Title Section */}
-      <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', minWidth: '500px', width: '30%', minHeight: '30vh', backgroundColor: 'white', borderRadius: '8px', overflow: 'auto', paddingY: '1.5rem' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '70%', margin: 'auto', height: '100%' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
         {showResults && <>
-          <Typography sx={{ fontSize: '20px', }}>
+          <DialogTitle>
               Inventory Updated: {updateItem?.name}
-          </Typography>
-          <Box>
-              <Typography>Previous Stock: {updateItem?.quantity}</Typography>
-              <Typography>Quantity Added: {formData.quantity}</Typography>
-              <Typography>New Stock Total: {Number(updateItem?.quantity) + Number(formData.quantity)}</Typography>
+          </DialogTitle>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <Box>Previous Stock: <ResultText>{updateItem?.quantity}</ResultText></Box>
+              <Box>Quantity Added: <ResultText>{formData.quantity}</ResultText></Box>
+              <Box>New Stock Total: <ResultText>{Number(updateItem?.quantity) + Number(formData.quantity)}</ResultText></Box>
           </Box>
           </>
         }
         {!showResults && <>
-          <Typography sx={{ fontSize: '20px', }}>
+          <DialogTitle>
             Edit Item Quantity
-          </Typography>
+          </DialogTitle>
 
           {/* Item Type */}
           <Box id="add-item-type" sx={{ width: '100%' }}>
@@ -208,9 +217,9 @@ const AddItemModal = ({ addModal, handleAddClose, handleSnackbar, fetchData, ori
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
             <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Submit</Button>
           </Box>
-        </>}
+        </>
+        }
         </Box>
-      </Box>
     </DialogTemplate>
 
     

@@ -42,7 +42,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           }}
           renderInput={(params) => 
             <TextField {...params} 
-              label="Building" 
+              label="Building Code" 
               error={error} 
               helperText={error ? "Please select a building" : ""}
             />

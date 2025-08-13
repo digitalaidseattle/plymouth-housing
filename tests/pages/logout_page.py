@@ -1,0 +1,17 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+from pages.base_page import BasePage
+from utilities.locators import LogoutPageLocators
+
+
+class LogoutPage(BasePage):
+    def __init__(self, driver):
+        super().__init__(driver)
+        self.driver = driver
+        self.locators = LogoutPageLocators
+
+    def get_logout_message(self):
+        self.wait_for_visibility(self.locators.AFTER_LOGOUT_MESSAGE)
+        return self.find(self.locators.AFTER_LOGOUT_MESSAGE).text

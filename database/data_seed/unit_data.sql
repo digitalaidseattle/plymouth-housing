@@ -1381,5 +1381,18 @@ INSERT INTO Units (building_id, unit_number) VALUES (15, '614');
 INSERT INTO Units (building_id, unit_number) VALUES (15, '615');
 INSERT INTO Units (building_id, unit_number) VALUES (15, '616');
 INSERT INTO Units (building_id, unit_number) VALUES (15, '617');
+
+DECLARE @building_id INT = 1;
+DECLARE @max_building_id INT = 15; 
+
+WHILE @building_id <= @max_building_id
+BEGIN
+    INSERT INTO Units (building_id, unit_number)
+    VALUES (@building_id, 'welcome');
+    SET @building_id = @building_id + 1;
+END
+
 GO
+
+
 

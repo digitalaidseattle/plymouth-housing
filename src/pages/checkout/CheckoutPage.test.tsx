@@ -63,6 +63,15 @@ describe('CheckoutPage', async () => {
             ],
           }),
         });
+      } else if (url.includes(ENDPOINTS.CHECK_PAST_CHECKOUT)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, item_id: 1, quantity: 1, transaction_id: 'teststring', additional_notes: 'teststring' }
+            ],
+          }),
+        });
       }
       return Promise.reject(new Error('Unknown endpoint'));
     }) as Mock;

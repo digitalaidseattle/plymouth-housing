@@ -127,6 +127,7 @@ const ResidentDetailDialog = ({
                         options={unitNumberValues}
                         value={selectedUnit}
                         onChange={(event: React.SyntheticEvent, newValue: Unit | null) => {
+                            event.preventDefault();
                             if (newValue) setSelectedUnit(newValue);
                             setNameInput('');
                         }}

@@ -39,7 +39,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           }}
           getOptionLabel={(option: Building) => {
             if (option.id === 0) return '';
-            return `${option.code} - ${option.name}`;
+            return `${option.code} (${option.name})`;
           }}
           renderInput={(params) => 
             <TextField {...params} 

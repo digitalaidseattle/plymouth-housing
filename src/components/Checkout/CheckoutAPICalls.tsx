@@ -41,7 +41,7 @@ export async function getUnitNumbers(buildingId: number) {
     });
     return await response.json();
   } catch (error) {
-    console.error('Error fetching residents:', error);
+    console.error('Error fetching unit numbers:', error);
     throw error;
   }
 }

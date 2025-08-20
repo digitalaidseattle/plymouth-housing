@@ -119,9 +119,9 @@ const ResidentDetailDialog = ({
                         error={showError && !selectedBuilding.id}/>
                 </FormControl>
 
-                {unitNumberValues.length > 1 && 
                 <FormControl>
                     <Autocomplete
+                        disabled={selectedBuilding.id === 0}
                         id="select-unit-number"
                         data-testid="test-id-select-unit-number"
                         options={unitNumberValues}
@@ -142,11 +142,11 @@ const ResidentDetailDialog = ({
                             />
                         }
                     />
-                </FormControl>}
+                </FormControl>
 
-                {selectedUnit.id !== 0 && 
                 <FormControl>
                     <Autocomplete 
+                        disabled={selectedUnit.id === 0}
                         value={nameInput}
                         onChange={(_event, newValue) => {
                             if (typeof newValue === 'string') {
@@ -203,7 +203,7 @@ const ResidentDetailDialog = ({
                             helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
                         )}
                     />
-                </FormControl>}                  
+                </FormControl>               
             </Box>
         </DialogTemplate>
     );

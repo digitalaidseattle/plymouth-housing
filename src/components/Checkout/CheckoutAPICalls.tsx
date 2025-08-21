@@ -35,13 +35,13 @@ export async function processGeneralItems(user: ClientPrincipal | null, loggedIn
 
 export async function getUnitNumbers(buildingId: number) {
   try {
-    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=(building_id eq ${buildingId})`, {
+    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=200`, {
       method: 'GET',
       headers: API_HEADERS,
     });
     return await response.json();
   } catch (error) {
-    console.error('Error fetching residents:', error);
+    console.error('Error fetching unit numbers:', error);
     throw error;
   }
 }

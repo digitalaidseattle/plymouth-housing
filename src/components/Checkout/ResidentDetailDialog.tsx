@@ -122,6 +122,10 @@ const ResidentDetailDialog = ({
                 <FormControl>
                     <Autocomplete
                         disabled={selectedBuilding.id === 0}
+                        sx={{
+                            "&.Mui-disabled": {
+                                opacity: '0.1'
+                            }}}
                         id="select-unit-number"
                         data-testid="test-id-select-unit-number"
                         options={unitNumberValues}

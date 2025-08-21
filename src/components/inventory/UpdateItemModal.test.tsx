@@ -2,8 +2,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, Mock } from 'vitest';
 import UpdateItemModal from './UpdateItemModal';
-import { InventoryItem, CategoryItem } from '../../types/interfaces';
-import { UserContext, UserContextType } from '../contexts/UserContext';
+import { InventoryItem, CategoryItem, UserContextType } from '../../types/interfaces';
+import { UserContext } from '../contexts/UserContext';
 
 const mockFetch = vi.fn();
 global.fetch = mockFetch as Mock;

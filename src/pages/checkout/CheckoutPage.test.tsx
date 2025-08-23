@@ -28,6 +28,19 @@ describe('CheckoutPage', async () => {
             ],
           }),
         });
+      } else if (url.includes(ENDPOINTS.CHECKOUT_WELCOME_BASKET)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [{
+              user_id: 'teststring',
+              mattress_size: 'teststring',
+              quantity: 1,
+              resident_id: 1,
+              message: "",}
+            ],
+          }),
+        });
       } else if (url.includes(ENDPOINTS.CATEGORIZED_ITEMS)) {
         return Promise.resolve({
           ok: true,
@@ -63,7 +76,26 @@ describe('CheckoutPage', async () => {
             ],
           }),
         });
-      }
+      } else if (url.includes(ENDPOINTS.CHECK_PAST_CHECKOUT)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, item_id: 1, quantity: 1, transaction_id: 'teststring', additional_notes: 'teststring' }
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.RESIDENTS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, name: 'teststring', unit_id: 'teststring' },
+              { id: 2, name: 'teststring', unit_id: 'teststring' },
+            ],
+          }),
+        });
+      } 
       return Promise.reject(new Error('Unknown endpoint'));
     }) as Mock;
     await act(async () => {

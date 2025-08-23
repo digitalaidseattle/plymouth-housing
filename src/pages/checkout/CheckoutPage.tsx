@@ -56,7 +56,7 @@ const CheckoutPage = () => {
     async function checkItemsForPrevCheckouts() {
       const tempCheckOutHistory: SetStateAction<CheckoutHistoryItem[]> = [];
 
-      const response = await checkPastCheckout(residentInfo.id);
+      const response = await checkPastCheckout(user, residentInfo.id);
 
       response.value.forEach((transaction: TransactionItem) => {
         // round up quantity for appliance miscellaneous checkouts

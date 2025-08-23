@@ -137,12 +137,13 @@ const ResidentDetailDialog = ({
                             const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.value);
                             if (matchingUnit) setUnitNumberInput(matchingUnit);
                         }}
+                        sx={{ textTransform: 'capitalize' }}
                     >
-                    {unitNumberValues.map((unit) => (
-                        <MenuItem key={unit.id} value={unit.unit_number}>
-                        {unit.unit_number} 
-                        </MenuItem>
-                    ))}
+                        {unitNumberValues.map((unit) => (
+                            <MenuItem key={unit.id} value={unit.unit_number} sx={{ textTransform: 'capitalize' }}>
+                            {unit.unit_number} 
+                            </MenuItem>
+                        ))}
                     </Select>
                     {showError && !unitNumberInput && <FormHelperText>Please select a unit number</FormHelperText>}
                 </FormControl>}

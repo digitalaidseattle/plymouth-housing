@@ -90,12 +90,18 @@ export async function addResident(name: string, unitId: number) {
 }
 
 export async function checkPastCheckout(residentId: number) {
-  const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
-    method: 'POST',
-    headers: API_HEADERS,
-    body: JSON.stringify({
-      resident_id: residentId,
-    }),
-  });
-  return await response.json();
+  try {
+    const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
+      method: 'POST',
+      headers: API_HEADERS,
+      body: JSON.stringify({
+        resident_id: residentId,
+      }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error checking for a past checkout:', error);
+    throw error;
+  }
+
 }

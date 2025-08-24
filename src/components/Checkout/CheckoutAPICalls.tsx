@@ -33,20 +33,22 @@ export async function processGeneralItems(user: ClientPrincipal | null, loggedIn
   return await response.json();
 }
 
-export async function getUnitNumbers(buildingId: number) {
+export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: number) {
+  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
   try {
-    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=(building_id eq ${buildingId})`, {
+    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=200`, {
       method: 'GET',
       headers: API_HEADERS,
     });
     return await response.json();
   } catch (error) {
-    console.error('Error fetching residents:', error);
+    console.error('Error fetching unit numbers:', error);
     throw error;
   }
 }
 
-export async function getResidents(unitId: number) {
+export async function getResidents(user: ClientPrincipal | null, unitId: number) {
+  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`, {
       method: 'GET',
@@ -59,7 +61,8 @@ export async function getResidents(unitId: number) {
   }
 }
 
-export async function findResident(name: string, unitId: number) {
+export async function findResident(user: ClientPrincipal | null, name: string, unitId: number) {
+  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=name eq '${name}' and unit_id eq ${unitId}`, {
       method: 'GET',
@@ -72,7 +75,8 @@ export async function findResident(name: string, unitId: number) {
   }
 }
 
-export async function addResident(name: string, unitId: number) {
+export async function addResident(user: ClientPrincipal | null, name: string, unitId: number) {
+  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
       method: 'POST',
@@ -89,13 +93,20 @@ export async function addResident(name: string, unitId: number) {
   }
 }
 
-export async function checkPastCheckout(residentId: number) {
-  const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
-    method: 'POST',
-    headers: API_HEADERS,
-    body: JSON.stringify({
-      resident_id: residentId,
-    }),
-  });
-  return await response.json();
+export async function checkPastCheckout(user: ClientPrincipal | null, residentId: number) {
+  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  try {
+    const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
+      method: 'POST',
+      headers: API_HEADERS,
+      body: JSON.stringify({
+        resident_id: residentId,
+      }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error checking for a past checkout:', error);
+    throw error;
+  }
+
 }

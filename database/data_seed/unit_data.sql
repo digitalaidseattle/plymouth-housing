@@ -1472,7 +1472,7 @@ INSERT INTO Units (building_id, unit_number) VALUES (16, '429');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '430');
 
 DECLARE @building_id INT = 1;
-DECLARE @max_building_id INT = 15; 
+DECLARE @max_building_id INT = 16; 
 
 WHILE @building_id <= @max_building_id
 BEGIN

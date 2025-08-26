@@ -2,6 +2,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box } from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InventoryItem } from '../../types/interfaces.ts';
 
 interface InventoryTableProps {
@@ -88,7 +89,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                     }}
                   />
                 </TableCell>
-                <TableCell sx={{ width: '12.5%' }}>{row.quantity}</TableCell>
+                <TableCell sx={{ width: '12.5%', textAlign: 'center' }}>{row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}</TableCell>
               </TableRow>
             ))}
           </TableBody>

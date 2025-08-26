@@ -13,7 +13,7 @@ import { Building, ResidentInfo, Unit } from '../../types/interfaces';
 import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from './DialogTemplate';
-import { getRole, UserContext } from '../contexts/UserContext.ts';
+import { UserContext } from '../contexts/UserContext.ts';
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
@@ -67,7 +67,7 @@ const ResidentDetailDialog = ({
             }
         }
         fetchResidents();
-    }, [unitNumberInput])
+    }, [user, unitNumberInput])
 
 
     async function handleSubmit(e: FormEvent) {

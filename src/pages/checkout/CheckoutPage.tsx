@@ -82,7 +82,7 @@ const CheckoutPage = () => {
       setCheckoutHistory(tempCheckOutHistory);
     }
     if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
-    }, [residentInfo, residentInfoIsMissing])
+    }, [user, residentInfo, residentInfoIsMissing])
 
   const addItemToCart = (
     item: CheckoutItemProp,

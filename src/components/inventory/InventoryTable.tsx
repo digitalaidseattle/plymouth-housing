@@ -75,8 +75,14 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   <Chip
                     label={row.status}
                     sx={{
-                      backgroundColor: row.status === 'Out of Stock' ? '#FDECEA' : row.status === 'Low Stock' ? '#FFF9C4' : '#E6F4EA',
-                      color: row.status === 'Out of Stock' ? '#D32F2F' : row.status === 'Low Stock' ? '#6A4E23' : '#357A38',
+                      backgroundColor: row.status === 'Out of Stock' ? '#FDECEA' 
+                        : row.status === 'Low Stock' ? '#FFF9C4' 
+                        : row.status === 'Needs Review' ? '#fff5e8ff'
+                        : '#E6F4EA',
+                      color: row.status === 'Out of Stock' ? '#D32F2F' 
+                        : row.status === 'Low Stock' ? '#6A4E23' 
+                        : row.status === 'Needs Review' ? '#663C00'
+                        : '#357A38',
                       borderRadius: '8px',
                       px: 1.5,
                     }}

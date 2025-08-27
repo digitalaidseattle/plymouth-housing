@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box, Button } from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -11,9 +11,11 @@ interface InventoryTableProps {
   currentItems: InventoryItem[];
   sortDirection: 'asc' | 'desc' | 'original';
   handleSort: () => void;
+  setAdjustModal: (b: boolean) => void;
+  setItemToEdit: (item: InventoryItem) => void;
 }
 
-const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, handleSort }) => {
+const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, handleSort, setAdjustModal, setItemToEdit }) => {
 
   if (!currentItems?.length) {
     return <Box>No items to display</Box>;
@@ -92,7 +94,16 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   />
                 </TableCell>
                 <TableCell sx={{ width: '12.5%', textAlign: 'center' }}>{row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}</TableCell>
-                <TableCell sx={{ textAlign: 'right' }}>{row.quantity < 0 && <BuildOutlinedIcon sx={{ padding: '0.125rem' }}/>}<MoreVertIcon color="secondary"/></TableCell>
+                <TableCell sx={{ textAlign: 'right' }}>
+                  {row.quantity < 0 && 
+                  <Button onClick={()=>{
+                    setItemToEdit(row)
+                    setAdjustModal(true)
+                  }}>
+                    <BuildOutlinedIcon sx={{ padding: '0.125rem' }} />
+                  </Button>}
+                  {/* <MoreVertIcon color="secondary"/> */}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

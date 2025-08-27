@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useCallback, useRef } from 'rea
 import { Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
+import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
 import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
@@ -18,6 +19,8 @@ const Inventory = () => {
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'original'>('original');
   const [addModal, setAddModal] = useState(false);
+  const [adjustModal, setAdjustModal] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     type: '',
@@ -259,6 +262,13 @@ const Inventory = () => {
         }}
       />
 
+      <AdjustQuantityModal
+        showDialog={adjustModal}
+        handleClose={()=>setAdjustModal(false)}
+        fetchData={fetchData}
+        itemToEdit={itemToEdit}
+      />
+
       {/* Inventory Filter */}
       <InventoryFilter
         filters={filters}
@@ -275,6 +285,8 @@ const Inventory = () => {
         currentItems={currentItems}
         sortDirection={sortDirection}
         handleSort={handleSort}
+        setAdjustModal={setAdjustModal}
+        setItemToEdit={setItemToEdit}
       />
 
       {/* Pagination */}

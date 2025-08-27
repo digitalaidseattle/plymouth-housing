@@ -1,10 +1,11 @@
-import { Box, Typography, TextField, Button, styled } from '@mui/material';
+import { Box, Typography, TextField, Button, styled, IconButton, Tooltip } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
 import DialogTemplate from '../Checkout/DialogTemplate.tsx';
+import InfoIcon from '@mui/icons-material/Info';
 
 type FormData = {
   newQuantity: number | null;
@@ -105,9 +106,16 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }:
           </Box>
 
           <Box id="add-item-quantity">
-              <Typography>
-                New Total Quantity
-              </Typography>
+              <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <Typography>
+                  New Total Quantity
+                </Typography>
+                <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
+                  <IconButton>
+                    <InfoIcon sx={{ fontSize: 16 }}  />
+                  </IconButton>
+                </Tooltip>
+              </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
                 <TextField 
                   sx={{ textAlign: 'center' }} 

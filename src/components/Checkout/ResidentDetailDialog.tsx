@@ -2,11 +2,7 @@ import React, { FormEvent, useEffect, useState } from 'react';
 import {
   Box,
   FormControl,
-  InputLabel,
   TextField,
-  Select,
-  MenuItem,
-  FormHelperText
 } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
@@ -40,8 +36,8 @@ const ResidentDetailDialog = ({
     }: ResidentDetailDialogProps) => {
 
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
-    const [buildingInput, setBuildingInput] = useState<Building>(residentInfo.building)
-    const [unitNumberInput, setUnitNumberInput] = useState<Unit>(residentInfo.unit);
+    const [selectedBuilding, setSelectedBuilding] = useState<Building>(residentInfo.building)
+    const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
 
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
 
@@ -58,34 +54,32 @@ const ResidentDetailDialog = ({
     }
 
     useEffect(() => {
-        if (!unitNumberInput.id) return;
         const fetchResidents = async () => {
-            const response = await getResidents(unitNumberInput.id);
+            const response = await getResidents(selectedUnit.id);
             if (response.value.length > 0) {
                 setExistingResidents(response.value.map((resident: ResidentNameOption) => ({ name: resident.name })));
+            } else {
+                setExistingResidents([]);
             }
         }
         fetchResidents();
-    }, [unitNumberInput])
-
+    }, [selectedUnit, selectedBuilding])
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         // validate inputs, show error
-        if (!nameInput || !buildingInput || !unitNumberInput) {
+        if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
             setShowError(true);
             return;
         }
-
         let residentId;
-
         // try submitting to db
         try {
             // first check if the resident already exists
-            const existingResponse = await findResident(nameInput, unitNumberInput.id);
+            const existingResponse = await findResident(nameInput, selectedUnit.id);
             // if not, add them to the db
             if (!existingResponse.value.length) { 
-                const response = await addResident(nameInput, unitNumberInput.id);
+                const response = await addResident(nameInput, selectedUnit.id);
                 residentId = response.value[0].id;
              } else {
                 residentId = existingResponse.value[0].id;
@@ -98,8 +92,8 @@ const ResidentDetailDialog = ({
             setResidentInfo({
                 id: residentId,
                 name: nameInput,
-                unit: unitNumberInput,
-                building: buildingInput
+                unit: selectedUnit,
+                building: selectedBuilding
             })
             setShowError(false);
             handleShowDialog();
@@ -117,39 +111,46 @@ const ResidentDetailDialog = ({
                 <FormControl>
                     <BuildingCodeSelect 
                         buildings={buildings} 
-                        selectedBuildingCode={buildingInput.code} 
-                        setSelectedBuilding={setBuildingInput} 
-                        setUnitNumberInput={setUnitNumberInput}
+                        selectedBuilding={selectedBuilding} 
+                        setSelectedBuilding={setSelectedBuilding} 
+                        setSelectedUnit={setSelectedUnit}
                         fetchUnitNumbers={fetchUnitNumbers}
-                        error={showError && !buildingInput}/>
+                        error={showError && !selectedBuilding.id}/>
                 </FormControl>
-                {unitNumberValues.length > 1 && 
-                <FormControl error={showError && !unitNumberInput}>
-                    <InputLabel id="select-unit-number-label">Unit Number</InputLabel>
-                    <Select
-                        labelId="select-unit-number-label"
+
+                <FormControl>
+                    <Autocomplete
+                        sx={{
+                            "&.Mui-disabled": {
+                                opacity: '0.1'
+                            }}}
                         id="select-unit-number"
                         data-testid="test-id-select-unit-number"
-                        label="Unit Number"
-                        value={unitNumberInput.unit_number}
-                        onChange={(event) => {
-                            const matchingUnit = unitNumberValues.find(unit => unit.unit_number == event.target.value);
-                            if (matchingUnit) setUnitNumberInput(matchingUnit);
+                        options={unitNumberValues}
+                        value={selectedUnit}
+                        onChange={(event: React.SyntheticEvent, newValue: Unit | null) => {
+                            event.preventDefault();
+                            if (newValue) setSelectedUnit(newValue);
                         }}
-                    >
-                    {unitNumberValues.map((unit) => (
-                        <MenuItem key={unit.id} value={unit.unit_number}>
-                        {unit.unit_number} 
-                        </MenuItem>
-                    ))}
-                    </Select>
-                    {showError && !unitNumberInput && <FormHelperText>Please select a unit number</FormHelperText>}
-                </FormControl>}
+                        getOptionLabel={(option: Unit) => {
+                            if (option.id === 0) return '';
+                            return `${option.unit_number}`;
+                        }}
+                        renderInput={(params) => 
+                            <TextField {...params} 
+                                label="Unit Number" 
+                                error={showError && !selectedUnit.id} 
+                                helperText={showError && !selectedUnit.id ? "Please select a unit" : ""}
+                            />
+                        }
+                    />
+                </FormControl>
+
                 <FormControl>
                     <Autocomplete 
                         value={nameInput}
                         onChange={(_event, newValue) => {
-                                if (typeof newValue === 'string') {
+                            if (typeof newValue === 'string') {
                                 setNameInput(newValue);
                             } else if (newValue && (newValue as ResidentNameOption).inputValue) {
                                 setNameInput((newValue as ResidentNameOption).inputValue!);
@@ -161,15 +162,11 @@ const ResidentDetailDialog = ({
                         }}
                         filterOptions={(options, params) => {
                             const filtered = filter(options, params);
-
                             const { inputValue } = params;
                             // Suggest the creation of a new value
                             const isExisting = options.some((option) => inputValue === option.name);
                             if (inputValue !== '' && !isExisting) {
-                            filtered.push({
-                                inputValue,
-                                name: `Add "${inputValue}"`
-                            });
+                                setNameInput(inputValue);
                             }
                             return filtered;
                         }}
@@ -196,17 +193,17 @@ const ResidentDetailDialog = ({
                             <li key={key} {...optionProps}>
                             {option.name}
                             </li>
-                        );
+                            );
                         }}
-                        sx={{ width: 300 }}
                         freeSolo
                         renderInput={(params) => (
-                        <TextField {...params} label="Resident Name" 
+                        <TextField {...params} 
+                            label="Resident Name" 
                             error={showError && !nameInput} 
                             helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
                         )}
                     />
-                </FormControl>                    
+                </FormControl>               
             </Box>
         </DialogTemplate>
     );

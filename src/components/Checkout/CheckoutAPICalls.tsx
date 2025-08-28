@@ -1,5 +1,9 @@
 import { getRole } from '../contexts/UserContext';
-import { CheckoutItemProp, ClientPrincipal, ResidentInfo } from '../../types/interfaces';
+import {
+  CheckoutItemProp,
+  ClientPrincipal,
+  ResidentInfo,
+} from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
 export async function processWelcomeBasket(user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {

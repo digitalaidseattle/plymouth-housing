@@ -78,7 +78,9 @@ export async function getResidents(user: ClientPrincipal | null, unitId: number)
 export async function findResident(user: ClientPrincipal | null, name: string, unitId: number) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
-    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=name eq '${name}' and unit_id eq ${unitId}`, {
+    const safeName = name.replace(/'/g, "''");
+    const filter = encodeURIComponent(`name eq '${safeName}' and unit_id eq ${unitId}`);
+    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=${filter}`, {
       method: 'GET',
       headers: headers,
     });

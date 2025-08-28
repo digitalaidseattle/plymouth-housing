@@ -1481,6 +1481,10 @@ BEGIN
     SET @building_id = @building_id + 1;
 END
 
+-- Cleanup any accidental blank unit_number rows
+DELETE FROM Units
+WHERE LTRIM(RTRIM(unit_number)) = '';
+
 GO
 
 

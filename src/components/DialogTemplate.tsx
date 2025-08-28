@@ -14,7 +14,7 @@ import { ReactNode, SyntheticEvent } from 'react';
 type DialogTemplateProps = {
     showDialog: boolean,
     handleShowDialog: () => void,
-    handleSubmit: (e: SyntheticEvent) => void,
+    handleSubmit?: (e: SyntheticEvent) => void,
     title?: string,
     submitButtonText?: string,
     backButtonText?: string,
@@ -40,7 +40,7 @@ const DialogTemplate = ({
               width: { xs: '80vw', md: '50vw' },
               maxHeight: '90vh',
               borderRadius: '15px',
-              paddingY: '1.5rem', 
+              paddingY: title ? '1.5rem' : '0rem',
               paddingX: '3rem',
               position: 'relative'
             },

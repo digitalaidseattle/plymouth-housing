@@ -3,43 +3,56 @@ import { CheckoutItemProp, ClientPrincipal, ResidentInfo } from '../../types/int
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
 export async function processWelcomeBasket(user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
-  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-  const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
-    method: 'POST',
-    headers: API_HEADERS,
-    body: JSON.stringify({
-      user_id: loggedInUserId,
-      mattress_size: checkoutItems[0].id,
-      quantity: checkoutItems[0].quantity,
-      resident_id: residentInfo.id,
-      message: "",
-    }),
-  });
-  return await response.json();
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+  try {
+    const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        user_id: loggedInUserId,
+        mattress_size: checkoutItems[0].id,
+        quantity: checkoutItems[0].quantity,
+        resident_id: residentInfo.id,
+        message: "",
+      }),
+    });
+    if (!response.ok) throw new Error(response.statusText);
+    return await response.json();
+  } catch (error) {
+      console.error('Error processing welcome basket:', error);
+      throw error;
+  }
 }
 
 export async function processGeneralItems(user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
-  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-  const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
-    method: 'POST',
-    headers: API_HEADERS,
-    body: JSON.stringify({
-      user_id: loggedInUserId,
-      items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity, additional_notes: item.additional_notes })),
-      resident_id: residentInfo.id,
-      message: "",
-    }),
-  });
-  return await response.json();
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+  try {
+    const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        user_id: loggedInUserId,
+        items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity, additional_notes: item.additional_notes })),
+        resident_id: residentInfo.id,
+        message: "",
+      }),
+    });
+    if (!response.ok) throw new Error(response.statusText);
+    return await response.json();
+  } catch (error) {
+      console.error('Error processing general items:', error);
+      throw error;
+  }
 }
 
 export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: number) {
-  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
-    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=200`, {
+    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=1000`, {
       method: 'GET',
-      headers: API_HEADERS,
+      headers: headers,
     });
+    if (!response.ok) throw new Error(response.statusText);
     return await response.json();
   } catch (error) {
     console.error('Error fetching unit numbers:', error);
@@ -48,12 +61,13 @@ export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: n
 }
 
 export async function getResidents(user: ClientPrincipal | null, unitId: number) {
-  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`, {
       method: 'GET',
-      headers: API_HEADERS,
+      headers: headers,
     });
+    if (!response.ok) throw new Error(response.statusText);
     return await response.json();
   } catch (error) {
     console.error('Error fetching residents:', error);
@@ -62,12 +76,13 @@ export async function getResidents(user: ClientPrincipal | null, unitId: number)
 }
 
 export async function findResident(user: ClientPrincipal | null, name: string, unitId: number) {
-  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=name eq '${name}' and unit_id eq ${unitId}`, {
       method: 'GET',
-      headers: API_HEADERS,
+      headers: headers,
     });
+    if (!response.ok) throw new Error(response.statusText);
     return await response.json();
   } catch (error) {
     console.error('Error fetching residents:', error);
@@ -76,16 +91,17 @@ export async function findResident(user: ClientPrincipal | null, name: string, u
 }
 
 export async function addResident(user: ClientPrincipal | null, name: string, unitId: number) {
-  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
       method: 'POST',
-      headers: API_HEADERS,
+      headers: headers,
       body: JSON.stringify({
         name: name,
         unit_id: unitId,
       }),
     });
+    if (!response.ok) throw new Error(response.statusText);
     return await response.json();
   } catch (error) {
     console.error('Error adding a resident:', error);
@@ -94,19 +110,19 @@ export async function addResident(user: ClientPrincipal | null, name: string, un
 }
 
 export async function checkPastCheckout(user: ClientPrincipal | null, residentId: number) {
-  API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
       method: 'POST',
-      headers: API_HEADERS,
+      headers: headers,
       body: JSON.stringify({
         resident_id: residentId,
       }),
     });
+    if (!response.ok) throw new Error(response.statusText);
     return await response.json();
   } catch (error) {
     console.error('Error checking for a past checkout:', error);
     throw error;
   }
-
 }

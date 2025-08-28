@@ -114,14 +114,12 @@ const ResidentDetailDialog = ({
                         selectedBuilding={selectedBuilding} 
                         setSelectedBuilding={setSelectedBuilding} 
                         setSelectedUnit={setSelectedUnit}
-                        setNameInput={setNameInput}
                         fetchUnitNumbers={fetchUnitNumbers}
                         error={showError && !selectedBuilding.id}/>
                 </FormControl>
 
                 <FormControl>
                     <Autocomplete
-                        disabled={selectedBuilding.id === 0}
                         sx={{
                             "&.Mui-disabled": {
                                 opacity: '0.1'
@@ -133,7 +131,6 @@ const ResidentDetailDialog = ({
                         onChange={(event: React.SyntheticEvent, newValue: Unit | null) => {
                             event.preventDefault();
                             if (newValue) setSelectedUnit(newValue);
-                            setNameInput('');
                         }}
                         getOptionLabel={(option: Unit) => {
                             if (option.id === 0) return '';
@@ -151,7 +148,6 @@ const ResidentDetailDialog = ({
 
                 <FormControl>
                     <Autocomplete 
-                        disabled={selectedUnit.id === 0}
                         value={nameInput}
                         onChange={(_event, newValue) => {
                             if (typeof newValue === 'string') {
@@ -166,7 +162,6 @@ const ResidentDetailDialog = ({
                         }}
                         filterOptions={(options, params) => {
                             const filtered = filter(options, params);
-
                             const { inputValue } = params;
                             // Suggest the creation of a new value
                             const isExisting = options.some((option) => inputValue === option.name);

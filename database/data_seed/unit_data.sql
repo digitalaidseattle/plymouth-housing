@@ -1470,5 +1470,22 @@ INSERT INTO Units (building_id, unit_number) VALUES (16, '427');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '428');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '429');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '430');
+
+DECLARE @building_id INT = 1;
+DECLARE @max_building_id INT = 16; 
+
+WHILE @building_id <= @max_building_id
+BEGIN
+    INSERT INTO Units (building_id, unit_number)
+    VALUES (@building_id, 'welcome');
+    SET @building_id = @building_id + 1;
+END
+
+-- Cleanup any accidental blank unit_number rows
+DELETE FROM Units
+WHERE LTRIM(RTRIM(unit_number)) = '';
+
 GO
+
+
 

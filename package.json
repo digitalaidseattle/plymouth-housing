@@ -1,7 +1,7 @@
 {
   "name": "plymouth-housing",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
@@ -17,6 +17,7 @@
     "@ant-design/icons": "^5.5.2",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@microsoft/clarity": "^1.0.0",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "lodash": "^4.17.21",

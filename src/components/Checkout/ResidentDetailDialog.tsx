@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState, useContext } from 'react';
 import {
   Box,
   FormControl,
@@ -8,7 +8,9 @@ import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
 import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import DialogTemplate from './DialogTemplate';
+import DialogTemplate from '../DialogTemplate';
+import { UserContext } from '../contexts/UserContext.ts';
+
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,
@@ -34,7 +36,7 @@ const ResidentDetailDialog = ({
     residentInfo,
     setResidentInfo
     }: ResidentDetailDialogProps) => {
-
+    const {user} = useContext(UserContext);
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
     const [selectedBuilding, setSelectedBuilding] = useState<Building>(residentInfo.building)
     const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
@@ -46,7 +48,7 @@ const ResidentDetailDialog = ({
     const filter = createFilterOptions<ResidentNameOption>();
 
     const fetchUnitNumbers = async (buildingId: number) => {
-        const response = await getUnitNumbers(buildingId);
+        const response = await getUnitNumbers(user, buildingId);
         // populate unit code dropdown
         const unitNumbers = response.value
             .filter((item: Unit) => item.unit_number.trim() !== '');
@@ -55,7 +57,7 @@ const ResidentDetailDialog = ({
 
     useEffect(() => {
         const fetchResidents = async () => {
-            const response = await getResidents(selectedUnit.id);
+            const response = await getResidents(user, unitNumberInput.id);
             if (response.value.length > 0) {
                 setExistingResidents(response.value.map((resident: ResidentNameOption) => ({ name: resident.name })));
             } else {
@@ -63,7 +65,8 @@ const ResidentDetailDialog = ({
             }
         }
         fetchResidents();
-    }, [selectedUnit, selectedBuilding])
+    }, [user, unitNumberInput])
+
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -76,10 +79,10 @@ const ResidentDetailDialog = ({
         // try submitting to db
         try {
             // first check if the resident already exists
-            const existingResponse = await findResident(nameInput, selectedUnit.id);
+            const existingResponse = await findResident(user, nameInput, unitNumberInput.id);
             // if not, add them to the db
             if (!existingResponse.value.length) { 
-                const response = await addResident(nameInput, selectedUnit.id);
+                const response = await addResident(user, nameInput, unitNumberInput.id);
                 residentId = response.value[0].id;
              } else {
                 residentId = existingResponse.value[0].id;

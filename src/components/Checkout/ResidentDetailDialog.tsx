@@ -57,7 +57,7 @@ const ResidentDetailDialog = ({
 
     useEffect(() => {
         const fetchResidents = async () => {
-            const response = await getResidents(user, unitNumberInput.id);
+            const response = await getResidents(user, selectedUnit.id);
             if (response.value.length > 0) {
                 setExistingResidents(response.value.map((resident: ResidentNameOption) => ({ name: resident.name })));
             } else {
@@ -65,7 +65,7 @@ const ResidentDetailDialog = ({
             }
         }
         fetchResidents();
-    }, [user, unitNumberInput])
+    }, [user, selectedUnit])
 
 
     async function handleSubmit(e: FormEvent) {
@@ -79,10 +79,10 @@ const ResidentDetailDialog = ({
         // try submitting to db
         try {
             // first check if the resident already exists
-            const existingResponse = await findResident(user, nameInput, unitNumberInput.id);
+            const existingResponse = await findResident(user, nameInput, selectedUnit.id);
             // if not, add them to the db
             if (!existingResponse.value.length) { 
-                const response = await addResident(user, nameInput, unitNumberInput.id);
+                const response = await addResident(user, nameInput, selectedUnit.id);
                 residentId = response.value[0].id;
              } else {
                 residentId = existingResponse.value[0].id;

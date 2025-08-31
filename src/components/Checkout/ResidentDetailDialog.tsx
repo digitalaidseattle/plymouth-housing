@@ -12,8 +12,9 @@ import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
 import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import DialogTemplate from './DialogTemplate';
+import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
+
 
 type ResidentDetailDialogProps = {
     showDialog: boolean,

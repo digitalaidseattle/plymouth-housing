@@ -121,6 +121,7 @@ const ResidentDetailDialog = ({
                         error={showError && !selectedBuilding.id}/>
                 </FormControl>
 
+                {unitNumberValues.length > 1 && 
                 <FormControl>
                     <Autocomplete
                         sx={{
@@ -147,7 +148,7 @@ const ResidentDetailDialog = ({
                             />
                         }
                     />
-                </FormControl>
+                </FormControl>}
 
                 <FormControl>
                     <Autocomplete 

@@ -103,6 +103,13 @@ const ResidentDetailDialog = ({
         }
     }
 
+    function getUnitHelperText(showError: boolean, selectedUnit: Unit) {
+        if (!showError) return "";
+        if (selectedUnit.id === 0 && selectedUnit.unit_number) return "Not a valid unit";
+        if (selectedUnit.id === 0) return "Please select a unit from the list";
+        return "";
+    }
+
     return (
         <DialogTemplate 
             showDialog={showDialog} 
@@ -138,18 +145,9 @@ const ResidentDetailDialog = ({
                             if (matchingUnit) { 
                                 setSelectedUnit(matchingUnit) 
                                 setShowError(false)
-                            } 
-                        }}
-                        onClose={(event) => {
-                            // only runs after a value is typed in, checks if it was invalid
-                            const target = event.target as HTMLInputElement;
-                            if (target.value) {
-                                const matchingUnit = unitNumberValues.find(u => u.unit_number === target.value);
-                                if (!matchingUnit) { 
-                                    // an id of 0 means it is invalid. saves unit_number so it persists in the input
-                                    setSelectedUnit({id: 0, unit_number: target.value}) 
-                                    setShowError(true)
-                                } 
+                            } else {
+                                setSelectedUnit({id: 0, unit_number: newValue}) 
+                                setShowError(true)
                             }
                         }}
                         getOptionLabel={(option: Unit | string) => {
@@ -161,8 +159,7 @@ const ResidentDetailDialog = ({
                                 id={selectedUnit.unit_number}
                                 label="Unit Number" 
                                 error={showError} 
-                                helperText={showError && selectedUnit.id === 0 && selectedUnit.unit_number ? "Not a valid unit" : 
-                                    showError && selectedUnit.id === 0 ? "Please select a unit from the list" : ""}
+                                helperText={getUnitHelperText(showError, selectedUnit)}
                             />
                         }
                         freeSolo

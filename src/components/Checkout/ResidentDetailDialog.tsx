@@ -124,29 +124,40 @@ const ResidentDetailDialog = ({
                 {unitNumberValues.length > 1 && 
                 <FormControl>
                     <Autocomplete
-                        sx={{
-                            "&.Mui-disabled": {
-                                opacity: '0.1'
-                            }}}
                         id="select-unit-number"
                         data-testid="test-id-select-unit-number"
                         options={unitNumberValues}
                         value={selectedUnit}
-                        onChange={(event: React.SyntheticEvent, newValue: Unit | null) => {
-                            event.preventDefault();
-                            if (newValue) setSelectedUnit(newValue);
+                        onInputChange={(_event: React.SyntheticEvent, newValue) => {
+                            const matchingUnit = unitNumberValues.find(u => u.unit_number === newValue);
+                            if (matchingUnit) { 
+                                setSelectedUnit(matchingUnit) 
+                                setShowError(false)
+                            } 
                         }}
-                        getOptionLabel={(option: Unit) => {
-                            if (option.id === 0) return '';
+                        onClose={(event) => {
+                            if (event.target.value) {
+                                const matchingUnit = unitNumberValues.find(u => u.unit_number === event.target.value);
+                                if (!matchingUnit) { 
+                                    setSelectedUnit({id: 0, unit_number: event.target.value}) 
+                                    setShowError(true)
+                                } 
+                            }
+                        }}
+                        getOptionLabel={(option: Unit | string) => {
+                            if (typeof option === 'string') return option;
                             return `${option.unit_number}`;
                         }}
                         renderInput={(params) => 
                             <TextField {...params} 
+                                id={selectedUnit.unit_number}
                                 label="Unit Number" 
-                                error={showError && !selectedUnit.id} 
-                                helperText={showError && !selectedUnit.id ? "Please select a unit" : ""}
+                                error={showError} 
+                                helperText={showError && selectedUnit.id === 0 && selectedUnit.unit_number ? "Not a valid unit" : 
+                                    showError && selectedUnit.id === 0 ? "Please select a unit from the list" : ""}
                             />
                         }
+                        freeSolo
                     />
                 </FormControl>}
 

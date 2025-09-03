@@ -129,6 +129,7 @@ const ResidentDetailDialog = ({
                         options={unitNumberValues}
                         value={selectedUnit}
                         onInputChange={(_event: React.SyntheticEvent, newValue) => {
+                            // runs whether value was selected or typed; matches value with corresponding unit object
                             const matchingUnit = unitNumberValues.find(u => u.unit_number === newValue);
                             if (matchingUnit) { 
                                 setSelectedUnit(matchingUnit) 
@@ -136,10 +137,11 @@ const ResidentDetailDialog = ({
                             } 
                         }}
                         onClose={(event) => {
-                            if (event.target.value) {
-                                const matchingUnit = unitNumberValues.find(u => u.unit_number === event.target.value);
+                            const target = event.target as HTMLInputElement;
+                            if (target.value) {
+                                const matchingUnit = unitNumberValues.find(u => u.unit_number === target.value);
                                 if (!matchingUnit) { 
-                                    setSelectedUnit({id: 0, unit_number: event.target.value}) 
+                                    setSelectedUnit({id: 0, unit_number: target.value}) 
                                     setShowError(true)
                                 } 
                             }

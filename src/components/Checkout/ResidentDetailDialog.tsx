@@ -137,10 +137,12 @@ const ResidentDetailDialog = ({
                             } 
                         }}
                         onClose={(event) => {
+                            // only runs after a value is typed in, checks if it was invalid
                             const target = event.target as HTMLInputElement;
                             if (target.value) {
                                 const matchingUnit = unitNumberValues.find(u => u.unit_number === target.value);
                                 if (!matchingUnit) { 
+                                    // an id of 0 means it is invalid. saves unit_number so it persists in the input
                                     setSelectedUnit({id: 0, unit_number: target.value}) 
                                     setShowError(true)
                                 } 

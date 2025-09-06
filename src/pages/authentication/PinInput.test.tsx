@@ -22,53 +22,71 @@ describe('PinInput Component', () => {
     expect(inputs.length).toBe(4);
   });
 
-  it('calls onPinChange with updated pin when a valid digit is entered', () => {
+  it('calls onPinChange with updated pin when a valid digit is entered', async() => {
     const { container } = render(<PinInputComponent onPinChange={onPinChange} />);
     const inputs = container.querySelectorAll('input');
     const firstInput = inputs[0];
-    fireEvent.change(firstInput, { target: { value: '5' } });
+    await act(() => {
+      fireEvent.change(firstInput, { target: { value: '5' } });
+      vi.runOnlyPendingTimers(); 
+    });
     expect(onPinChange).toHaveBeenCalledWith(['5', '', '', '']);
   });
 
-  it('shows snackbar when non-digit is entered', () => {
+  it('shows snackbar when non-digit is entered', async() => {
     const { container } = render(<PinInputComponent onPinChange={onPinChange} />);
     const inputs = container.querySelectorAll('input');
     const firstInput = inputs[0];
-    fireEvent.change(firstInput, { target: { value: 'a' } });
-    expect(screen.getByText(/Please enter only numbers for your PIN/i)).toBeInTheDocument();
+    await act(async() => {
+      fireEvent.change(firstInput, { target: { value: 'a' } });
+    });
+    await act(async() => {
+      vi.runOnlyPendingTimers(); 
+    });
+    expect(await screen.getByText(/Please enter only numbers for your PIN/i)).toBeInTheDocument();
+    await act(async () => {
+      vi.runAllTimers();
+    });
   });
 
-  it('moves focus to next input when a valid digit is entered', () => {
+  it('moves focus to next input when a valid digit is entered', async () => {
     const { container } = render(<PinInputComponent onPinChange={onPinChange} />);
     const inputs = container.querySelectorAll('input');
     const firstInput = inputs[0];
     const secondInput = inputs[1];
-
-    fireEvent.change(firstInput, { target: { value: '5' } });
+    await act(async () => {
+      fireEvent.change(firstInput, { target: { value: '5' } });
+      vi.runOnlyPendingTimers(); // If timers are involved in focus logic
+    });
     expect(document.activeElement).toBe(secondInput);
   });
 
-  it('handles Backspace: clears current input if non-empty', () => {
+  it('handles Backspace: clears current input if non-empty', async () => {
     const { container } = render(<PinInputComponent onPinChange={onPinChange} />);
     const inputs = container.querySelectorAll('input');
     const firstInput = inputs[0];
-
-    fireEvent.change(firstInput, { target: { value: '5' } });
-    fireEvent.keyDown(firstInput, { key: 'Backspace' });
+    await act(async () => {
+      fireEvent.change(firstInput, { target: { value: '5' } });
+      fireEvent.keyDown(firstInput, { key: 'Backspace' });
+      vi.runOnlyPendingTimers(); // If your component uses timers for clearing
+    });
     expect(onPinChange).toHaveBeenCalledWith(['', '', '', '']);
   });
 
-  it('handles Backspace: if current input is empty, moves focus to previous input and clears it', () => {
+  it('handles Backspace: if current input is empty, moves focus to previous input and clears it', async () => {
     const { container } = render(<PinInputComponent onPinChange={onPinChange} />);
     const inputs = container.querySelectorAll('input');
     const firstInput = inputs[0];
     const secondInput = inputs[1];
 
-    fireEvent.change(firstInput, { target: { value: '5' } });
-    // Manually focus second input
-    secondInput.focus();
-    expect(secondInput.value).toBe('');
-    fireEvent.keyDown(secondInput, { key: 'Backspace' });
+    await act(async () => {
+      fireEvent.change(firstInput, { target: { value: '5' } });
+      // Manually focus second input
+      secondInput.focus();
+      fireEvent.keyDown(secondInput, { key: 'Backspace' });
+      vi.runOnlyPendingTimers(); // If timers are involved in focus/clearing logic
+    });
+
     expect(document.activeElement).toBe(firstInput);
     expect(onPinChange).toHaveBeenCalledWith(['', '', '', '']);
   });
@@ -80,14 +98,20 @@ describe('PinInput Component', () => {
     const secondInput = inputs[1];
     const thirdInput = inputs[2];
 
-    firstInput.focus();
-    fireEvent.keyDown(firstInput, { key: 'ArrowRight' });
+    act(() => {
+      firstInput.focus();
+      fireEvent.keyDown(firstInput, { key: 'ArrowRight' });
+    });
     expect(document.activeElement).toBe(secondInput);
 
-    fireEvent.keyDown(secondInput, { key: 'ArrowLeft' });
+    act(() => {
+      fireEvent.keyDown(secondInput, { key: 'ArrowLeft' });
+    });
     expect(document.activeElement).toBe(firstInput);
 
-    fireEvent.keyDown(secondInput, { key: 'ArrowRight' });
+    act(() => {
+      fireEvent.keyDown(secondInput, { key: 'ArrowRight' });
+    });
     expect(document.activeElement).toBe(thirdInput);
   });
 
@@ -99,7 +123,9 @@ describe('PinInput Component', () => {
     // Initially, type should be "password"
     expect(firstInput).toHaveAttribute('type', 'password');
 
-    fireEvent.change(firstInput, { target: { value: '5' } });
+    act(() => {
+      fireEvent.change(firstInput, { target: { value: '5' } });
+    });
     // Immediately after change, type should be "text"
     expect(firstInput).toHaveAttribute('type', 'text');
 

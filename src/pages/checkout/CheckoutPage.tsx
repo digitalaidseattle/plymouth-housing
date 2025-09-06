@@ -259,9 +259,9 @@ const CheckoutPage = () => {
         setBuildings(JSON.parse(cachedBuildings));
         return;
       }
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(ENDPOINTS.BUILDINGS, {
-        headers: API_HEADERS,
+        headers: headers,
         method: 'GET',
       });
       if (!response.ok) {
@@ -290,9 +290,9 @@ const CheckoutPage = () => {
       if (cachedCategorizedItems) {
         categorizedItems = JSON.parse(cachedCategorizedItems);
       } else {
-        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
         const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, {
-          headers: API_HEADERS,
+          headers: headers,
           method: 'GET',
         });
         if (!response.ok) {

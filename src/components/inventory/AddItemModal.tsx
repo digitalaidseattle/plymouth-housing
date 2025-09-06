@@ -92,10 +92,10 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       return;
     } else {
       try {
-        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
         const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, { 
           method: "POST", 
-          headers: API_HEADERS, 
+          headers: headers, 
           body: JSON.stringify({ 
             user_id: loggedInUserId,
             item: [{ id: updateItem.id, quantity: formData.quantity }],

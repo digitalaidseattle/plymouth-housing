@@ -46,6 +46,8 @@ describe('useUsers hook', () => {
 
     const { result } = renderHook(() => useUsers(), { wrapper });
     await waitFor(() => result.current.loading === false);
+    console.log('result.current.originalData');
+    console.log(result.current.originalData);
     expect(result.current.originalData).toEqual(mockUsers);
     expect(result.current.filteredData).toEqual(mockUsers);
     expect(result.current.error).toBeNull();

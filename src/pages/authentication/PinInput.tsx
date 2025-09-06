@@ -111,7 +111,7 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
             onKeyDown={(e: React.KeyboardEvent<HTMLDivElement | HTMLInputElement>) => handleKeyDown(e, index)}
             inputProps={{ maxLength: 1 }}
             type={visibleIndex === index ? 'text' : 'password'}
-            inputRef={(el: HTMLInputElement | null) => (pinRefs.current[index] = el)}
+            inputRef={(el: HTMLInputElement | null) => { pinRefs.current[index] = el; }}
           />
         ))}
         <SnackbarAlert

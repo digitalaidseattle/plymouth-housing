@@ -2,7 +2,7 @@ import {
   Typography,
 } from '@mui/material';
 import { CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
-import DialogTemplate from './DialogTemplate';
+import DialogTemplate from '../DialogTemplate';
 import { SyntheticEvent } from 'react';
 
 type PastCheckoutDialogProps = {

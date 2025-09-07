@@ -45,6 +45,7 @@ const Inventory = () => {
     severity: 'success' });
   const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
   const tableContainerRef = useRef<HTMLElement | null>(null);
+  const [showResults, setShowResults] = useState(false);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -61,6 +62,7 @@ const Inventory = () => {
 
   const handleAddOpen = () => {
     setAddModal(true);
+    setShowResults(false);
   };
 
   const handleAddClose = () => {
@@ -257,9 +259,8 @@ const Inventory = () => {
         handleAddClose={handleAddClose}
         fetchData={fetchData}
         originalData={originalData}
-        handleSnackbar={(message: string, severity: 'warning' | 'success') => {     
-          setSnackbarState({ open: true, message: message, severity: severity });
-        }}
+        showResults={showResults}
+        setShowResults={setShowResults}
       />
 
       <AdjustQuantityModal

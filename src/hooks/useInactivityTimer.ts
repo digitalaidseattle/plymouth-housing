@@ -10,7 +10,7 @@ interface InactivityTimerProps {
 }
 
 export const useInactivityTimer = ({ onInactivity, timeout }: InactivityTimerProps) => {
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) {

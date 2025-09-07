@@ -261,7 +261,7 @@ const CheckoutPage = () => {
       }
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(ENDPOINTS.BUILDINGS, {
-        headers: headers,
+        headers,
         method: 'GET',
       });
       if (!response.ok) {
@@ -292,7 +292,7 @@ const CheckoutPage = () => {
       } else {
         const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
         const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, {
-          headers: headers,
+          headers,
           method: 'GET',
         });
         if (!response.ok) {

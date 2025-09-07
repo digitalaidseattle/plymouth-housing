@@ -16,7 +16,7 @@ const useUsers = () => {
       const response = await fetch(
         `${ENDPOINTS.USERS}`,
         {
-          headers: headers,
+          headers,
           method: 'GET',
         },
       );
@@ -53,7 +53,7 @@ const useUsers = () => {
 
       const response = await fetch(requestUrl, {
         method: 'PATCH',
-        headers: headers,
+        headers,
         body: JSON.stringify({ active: updatedStatus }),
       });
 

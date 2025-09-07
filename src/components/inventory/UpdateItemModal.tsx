@@ -112,7 +112,7 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
     } else {
       try {
         const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers: headers, body: JSON.stringify(formData) });
+        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {
@@ -135,7 +135,7 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
     } else {
       try {
         const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers: headers, body: JSON.stringify(formData) });
+        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {

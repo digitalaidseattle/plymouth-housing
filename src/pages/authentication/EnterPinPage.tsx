@@ -37,7 +37,7 @@ const EnterPinPage: React.FC = () => {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(ENDPOINTS.VERIFY_PIN, {
         method: 'POST',
-        headers: headers,
+        headers,
         body: JSON.stringify({
           VolunteerId: id,
           EnteredPin: enteredPin,
@@ -66,7 +66,7 @@ const EnterPinPage: React.FC = () => {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
         method: 'PATCH',
-        headers: headers,
+        headers,
         body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
       });
 

@@ -4,8 +4,8 @@ import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { getRole, UserContext } from '../contexts/UserContext.ts';
-import DialogTemplate from '../Checkout/DialogTemplate.tsx';
 import InfoIcon from '@mui/icons-material/Info';
+import DialogTemplate from '../DialogTemplate.tsx';
 
 type FormData = {
   newQuantity: number | null;

@@ -10,8 +10,12 @@ interface RootRedirectProps {
 }
 
 export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) => {
-  const { user } = React.useContext(UserContext);
+  const { user, isLoading } = React.useContext(UserContext);
   const userRole = user ? getRole(user) : null;
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   if (!userRole) {
     // Redirect to inventory page if no role (yet)
     return <Navigate to='/inventory' replace />;

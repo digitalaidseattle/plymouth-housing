@@ -22,7 +22,7 @@ import { Theme } from '@mui/material';
 // ==============================|| OVERRIDES - MAIN ||============================== //
 
 export default function ComponentsOverrides(theme: Theme) {
-  return merge([
+  return merge(
     Button(theme),
     Badge(theme),
     CardContent(),
@@ -38,5 +38,5 @@ export default function ComponentsOverrides(theme: Theme) {
     TableCell(theme),
     Tabs(),
     Typography(),
-  ]);
+  );
 }

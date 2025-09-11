@@ -119,7 +119,7 @@ const PickYourNamePage: React.FC = () => {
             </Typography>
 
             <Autocomplete
-              value={activeVolunteers.find(volunteer => volunteer.id === loggedInUserId)}
+              value={activeVolunteers.find(volunteer => volunteer.id === loggedInUserId) || null}
               onChange={handleNameChange}
               options={activeVolunteers}
               getOptionLabel={(option) => option.name}

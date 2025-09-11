@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { UserContext, getRole } from './contexts/UserContext'; 
+import { UserContext, getRole } from './contexts/UserContext';
 import { ROLE_PAGES } from '../types/constants';
 import Page404 from '../pages/error/404';
 
@@ -10,8 +10,11 @@ interface RootRedirectProps {
 }
 
 export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) => {
+  console.log(`RootRedirect: Entered with source=${source}`);
   const { user, isLoading } = React.useContext(UserContext);
   const userRole = user ? getRole(user) : null;
+
+  console.log(`RootRedirect: userRole=${userRole}, source=${source}, isLoading=${isLoading}`);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -25,7 +28,7 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
   const permittedPages: readonly string[] = userRole ? ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] : [];
   // Pages that are only accessible by another role 
   const nonPermittedPages: readonly string[] = ROLE_PAGES[alternateRole as keyof typeof ROLE_PAGES]
-    .filter(page => 
+    .filter(page =>
       !(ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] as readonly string[]).includes(page)
     );
 

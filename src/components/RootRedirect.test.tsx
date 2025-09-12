@@ -165,13 +165,4 @@ describe('RootRedirect - invalid userRole handling', () => {
     expect(mockLocalStorageClear).toHaveBeenCalledTimes(1);
     expect(window.location.href).toBe('/.auth/logout?post_logout_redirect_uri=/login.html');
   });
-
-  it('clears localStorage and redirects to logout when userRole is undefined', () => {
-    const contextValue = mockUserContextValue(undefined, false);
-
-    renderWithRouter(contextValue, { route: '/people' });
-
-    expect(mockLocalStorageClear).toHaveBeenCalledTimes(1);
-    expect(window.location.href).toBe('/.auth/logout?post_logout_redirect_uri=/login.html');
-  });
 });

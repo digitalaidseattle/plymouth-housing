@@ -48,8 +48,7 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
 
 function LogoutRedirect() {
   React.useEffect(() => {
-    // remove only our keys; avoid nuking unrelated storage (e.g., analytics)
-    ['user', 'loggedInUserId', 'activeVolunteers'].forEach((k) => localStorage.removeItem(k));
+    localStorage.clear();
     window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
   }, []);
   return null;

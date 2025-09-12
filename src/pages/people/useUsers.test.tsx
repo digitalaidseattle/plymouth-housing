@@ -46,7 +46,7 @@ describe('useUsers hook', () => {
 
     const { result } = renderHook(() => useUsers(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
- 
+
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(result.current.error).toBeNull();
     expect(result.current.originalData).toEqual(mockUsers);
@@ -60,7 +60,7 @@ describe('useUsers hook', () => {
     const { result } = renderHook(() => useUsers(), { wrapper });
     await waitFor(() => result.current.loading === false);
     expect(result.current.originalData).toEqual([]);
-      });
+  });
 
   it('updateUserStatus toggles active status successfully', async () => {
     const initialUsers = [

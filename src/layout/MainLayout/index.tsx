@@ -56,7 +56,6 @@ const MainLayout: React.FC = () => {
         }
 
         if (userClaims?.userRoles?.includes('admin')) {
-          API_HEADERS['X-MS-API-ROLE'] = 'admin';
           try {
             const createdOrUpdatedAdmin = await upsertAdminUser({
               name: userClaims.userDetails ?? '',
@@ -90,6 +89,7 @@ const MainLayout: React.FC = () => {
 
   const upsertAdminUser = async (adminInfo: { name: string; email: string }): Promise<User> => {
     const cacheKey = adminInfo.email; // Use email as the unique cache key
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' };
 
     // Prevent duplicate requests using a cache
     if (requestCache.has(cacheKey)) {
@@ -113,7 +113,7 @@ const MainLayout: React.FC = () => {
 
           const patchResp = await fetch(`${ENDPOINTS.USERS}/id/${userId}`, {
             method: 'PATCH',
-            headers: API_HEADERS,
+            headers: headers,
             body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
           });
 
@@ -124,7 +124,7 @@ const MainLayout: React.FC = () => {
           // Re-fetch updated record to ensure it reflects the latest state
           const updatedRecordResp = await fetch(`${ENDPOINTS.USERS}?$filter=id eq ${userId}`, {
             method: 'GET',
-            headers: API_HEADERS,
+            headers: headers,
           });
 
           if (!updatedRecordResp.ok) {
@@ -139,7 +139,7 @@ const MainLayout: React.FC = () => {
           // No record found, create a new admin entry
           const createResp = await fetch(ENDPOINTS.USERS, {
             method: 'POST',
-            headers: API_HEADERS,
+            headers: headers,
             body: JSON.stringify({
               name: adminInfo.name,
               email: adminInfo.email,

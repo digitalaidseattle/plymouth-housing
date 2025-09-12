@@ -32,7 +32,7 @@ const useUsers = () => {
       setFilteredData(data.value);
     } catch (error) {
       setError('Could not get users. \r\n' + error);
-    } finally {
+    } finally { 
       setLoading(false);
     }
   }, [user]);

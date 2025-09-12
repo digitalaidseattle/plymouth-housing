@@ -11,17 +11,16 @@ interface RootRedirectProps {
 
 export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) => {
   const { user, isLoading } = React.useContext(UserContext);
-  const userRole = user ? getRole(user) : null;
 
   // This handles the situation when the userContext does not have a user set yet. 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!userRole) {//This is an invalid state. User can't do anything in the app. Get out. 
-    localStorage.clear();
-    window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
-    return;
+  const userRole = user ? getRole(user) : null;
+
+  if (!userRole) { // invalid state; log out
+    return <LogoutRedirect />;
   }
 
   const alternateRole = userRole === 'admin' ? 'volunteer' : 'admin';
@@ -46,3 +45,12 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
     }
   }
 };
+
+function LogoutRedirect() {
+  React.useEffect(() => {
+    // remove only our keys; avoid nuking unrelated storage (e.g., analytics)
+    ['user', 'loggedInUserId', 'activeVolunteers'].forEach((k) => localStorage.removeItem(k));
+    window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
+  }, []);
+  return null;
+}

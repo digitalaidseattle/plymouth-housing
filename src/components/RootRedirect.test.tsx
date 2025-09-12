@@ -43,7 +43,7 @@ const GenericRedirectPage = ({ source }: { source: string }) => (
 );
 
 
-const mockUserContextValue = (role: 'admin' | 'volunteer' | null, isLoading: boolean): UserContextType => ({
+const mockUserContextValue = (role: 'admin' | 'volunteer' | null | undefined, isLoading: boolean): UserContextType => ({
   user: role ? {
     userRoles: [role],
     userID: 'test-user-id',
@@ -161,6 +161,15 @@ describe('RootRedirect - invalid userRole handling', () => {
     const contextValue = mockUserContextValue(null, false);
 
     renderWithRouter(contextValue, { route: '/volunteer-home' });
+
+    expect(mockLocalStorageClear).toHaveBeenCalledTimes(1);
+    expect(window.location.href).toBe('/.auth/logout?post_logout_redirect_uri=/login.html');
+  });
+
+  it('clears localStorage and redirects to logout when userRole is undefined', () => {
+    const contextValue = mockUserContextValue(undefined, false);
+
+    renderWithRouter(contextValue, { route: '/people' });
 
     expect(mockLocalStorageClear).toHaveBeenCalledTimes(1);
     expect(window.location.href).toBe('/.auth/logout?post_logout_redirect_uri=/login.html');

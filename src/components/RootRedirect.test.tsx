@@ -11,6 +11,38 @@ vi.mock('../pages/error/404', () => ({
   default: () => <div>404 Page</div>,
 }));
 
+const VolunteerHomePage = () => (
+  <RootRedirect source="volunteer-home">
+    <div>Volunteer Home Page</div>
+  </RootRedirect>
+);
+
+const PeoplePage = () => (
+  <RootRedirect source="people">
+    <div>People Page</div>
+  </RootRedirect>
+);
+
+const InventoryPage = () => (
+  <RootRedirect source="inventory">
+    <div>Inventory Page</div>
+  </RootRedirect>
+);
+
+const CheckoutPage = () => (
+  <RootRedirect source="checkout">
+    <div>Checkout Page</div>
+  </RootRedirect>
+);
+
+// For non-existent pages, you can use a generic wrapper
+const GenericRedirectPage = ({ source }: { source: string }) => (
+  <RootRedirect source={source}>
+    <div>Child Content</div>
+  </RootRedirect>
+);
+
+
 const mockUserContextValue = (role: 'admin' | 'volunteer' | null, isLoading: boolean): UserContextType => ({
   user: role ? {
     userRoles: [role],
@@ -25,21 +57,23 @@ const mockUserContextValue = (role: 'admin' | 'volunteer' | null, isLoading: boo
   setActiveVolunteers: vi.fn(),
 });
 
-const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
+const renderWithRouter = (contextValue: any, { route = '/' } = {}) => {
   window.history.pushState({}, 'Test page', route);
 
   return render(
-    <MemoryRouter initialEntries={[route]}>
-      <Routes>
-        <Route path="/:source" element={ui} />
-        <Route path="/" element={<div>Home Page</div>} />
-        <Route path="/inventory" element={<div>Inventory Page</div>} />
-        <Route path="/checkout" element={<div>Checkout Page</div>} />
-        <Route path="/people" element={<div>People Page</div>} />
-        <Route path="/volunteer-home" element={<div>Volunteer Home Page</div>} />
-        <Route path="/404" element={<div data-testid="page-404">404 Page</div>} />
-      </Routes>
-    </MemoryRouter>
+    <UserContext.Provider value={contextValue}>
+      <MemoryRouter initialEntries={[route]}>
+        <Routes>
+          <Route path="/" element={<div>Home Page</div>} />
+          <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/people" element={<PeoplePage />} />
+          <Route path="/volunteer-home" element={<VolunteerHomePage />} />
+          <Route path="/404" element={<div data-testid="page-404">404 Page</div>} />
+          <Route path="/:source" element={<GenericRedirectPage source={route.slice(1)} />} />
+        </Routes>
+      </MemoryRouter>
+    </UserContext.Provider>
   );
 };
 
@@ -56,81 +90,88 @@ describe('RootRedirect', () => {
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('redirects to /inventory if user has no role', () => {
-    const contextValue = mockUserContextValue(null, false);
-    renderWithRouter(
-      <UserContext.Provider value={contextValue}>
-        <RootRedirect source="some-page">
-          <div>Child Content</div>
-        </RootRedirect>
-      </UserContext.Provider>,
-      { route: '/some-page' }
-    );
-    expect(screen.getByText('Inventory Page')).toBeInTheDocument();
-  });
-
   it('renders children if user has permission for the source page', () => {
     const contextValue = mockUserContextValue('admin', false);
     render(
-        <UserContext.Provider value={contextValue}>
-            <RootRedirect source="people">
-                <div>People Page Content</div>
-            </RootRedirect>
-        </UserContext.Provider>
+      <UserContext.Provider value={contextValue}>
+        <RootRedirect source="people">
+          <div>People Page Content</div>
+        </RootRedirect>
+      </UserContext.Provider>
     );
     expect(screen.getByText('People Page Content')).toBeInTheDocument();
   });
 
-  it('redirects to the first permitted page if user does not have permission', () => {
+  it('volunteer redirects to the first permitted page if he has no permission', () => {
     const contextValue = mockUserContextValue('volunteer', false);
-    renderWithRouter(
-      <UserContext.Provider value={contextValue}>
-        <RootRedirect source="people">
-          <div>Child Content</div>
-        </RootRedirect>
-      </UserContext.Provider>,
-      { route: '/people' }
-    );
-    // volunteer's first page is 'volunteer-home'
+    renderWithRouter(contextValue, { route: '/people' });
     expect(screen.getByText('Volunteer Home Page')).toBeInTheDocument();
   });
 
   it('admin redirects to the first permitted page if they access volunteer page', () => {
     const contextValue = mockUserContextValue('admin', false);
-    renderWithRouter(
-      <UserContext.Provider value={contextValue}>
-        <RootRedirect source="volunteer-home">
-          <div>Child Content</div>
-        </RootRedirect>
-      </UserContext.Provider>,
-      { route: '/volunteer-home' }
-    );
-    // admin's first page is 'inventory'
+    renderWithRouter(contextValue, { route: '/volunteer-home' });
     expect(screen.getByText('Inventory Page')).toBeInTheDocument();
   });
 
   it('renders 404 for a non-existent page', () => {
     const contextValue = mockUserContextValue('admin', false);
-     renderWithRouter(
-      <UserContext.Provider value={contextValue}>
-        <RootRedirect source="non-existent-page">
-          <div>Child Content</div>
-        </RootRedirect>
-      </UserContext.Provider>,
-      { route: '/non-existent-page' }
-    );
+    renderWithRouter(contextValue, { route: '/non-existent-page' });
     expect(screen.getByText('404 Page')).toBeInTheDocument();
   });
-
   it('allows volunteer to access shared page', () => {
     const contextValue = mockUserContextValue('volunteer', false);
     render(
-        <UserContext.Provider value={contextValue}>
-            <RootRedirect source="inventory">
-                <div>Inventory Page Content</div>
-            </RootRedirect>
-        </UserContext.Provider>
+      <UserContext.Provider value={contextValue}>
+        <RootRedirect source="inventory">
+          <div>Inventory Page Content</div>
+        </RootRedirect>
+      </UserContext.Provider>
     );
     expect(screen.getByText('Inventory Page Content')).toBeInTheDocument();
+  });
+});
+
+describe('RootRedirect - invalid userRole handling', () => {
+  let mockLocalStorageClear: any;
+  let originalLocation: Location;
+
+  beforeEach(() => {
+    mockLocalStorageClear = vi.spyOn(Storage.prototype, 'clear').mockImplementation(() => { });
+
+    originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        href: ''
+      }
+    });
+  });
+
+  afterEach(() => {
+    mockLocalStorageClear.mockRestore();
+
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: originalLocation
+    });
+  });
+
+  it('clears localStorage and redirects to logout when userRole is null', () => {
+    const contextValue = mockUserContextValue(null, false);
+
+    renderWithRouter(contextValue, { route: '/volunteer-home' });
+
+    expect(mockLocalStorageClear).toHaveBeenCalledTimes(1);
+    expect(window.location.href).toBe('/.auth/logout?post_logout_redirect_uri=/login.html');
+  });
+
+  it('clears localStorage and redirects to logout when userRole is undefined', () => {
+    const contextValue = mockUserContextValue(undefined, false);
+
+    renderWithRouter(contextValue, { route: '/people' });
+
+    expect(mockLocalStorageClear).toHaveBeenCalledTimes(1);
+    expect(window.location.href).toBe('/.auth/logout?post_logout_redirect_uri=/login.html');
   });
 });

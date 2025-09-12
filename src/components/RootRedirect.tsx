@@ -10,19 +10,20 @@ interface RootRedirectProps {
 }
 
 export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) => {
-  console.log(`RootRedirect: Entered with source=${source}`);
   const { user, isLoading } = React.useContext(UserContext);
   const userRole = user ? getRole(user) : null;
 
-  console.log(`RootRedirect: userRole=${userRole}, source=${source}, isLoading=${isLoading}`);
-
+  // This handles the situation when the userContext does not have a user set yet. 
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  if (!userRole) {
-    // Redirect to inventory page if no role (yet)
-    return <Navigate to='/inventory' replace />;
+
+  if (!userRole) {//This is an invalid state. User can't do anything in the app. Get out. 
+    localStorage.clear();
+    window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
+    return;
   }
+
   const alternateRole = userRole === 'admin' ? 'volunteer' : 'admin';
   // Pages that are accessible by this role
   const permittedPages: readonly string[] = userRole ? ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] : [];

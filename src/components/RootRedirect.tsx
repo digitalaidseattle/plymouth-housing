@@ -24,7 +24,9 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
     } catch {  
       return <LogoutRedirect />;  
     }  
-  }  
+  }else{
+      return <LogoutRedirect />;  
+  }
 
   const alternateRole = userRole === 'admin' ? 'volunteer' : 'admin';
   // Pages that are accessible by this role

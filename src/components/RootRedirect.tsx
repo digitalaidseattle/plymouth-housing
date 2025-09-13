@@ -17,11 +17,14 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
     return <div>Loading...</div>;
   }
 
-  const userRole = user ? getRole(user) : null;
-
-  if (!userRole) { // invalid state; log out
-    return <LogoutRedirect />;
-  }
+  let userRole: string | null = null;  
+  if (user) {  
+    try {  
+      userRole = getRole(user);  
+    } catch {  
+      return <LogoutRedirect />;  
+    }  
+  }  
 
   const alternateRole = userRole === 'admin' ? 'volunteer' : 'admin';
   // Pages that are accessible by this role

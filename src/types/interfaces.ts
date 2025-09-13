@@ -54,6 +54,7 @@ export interface UserContextType {
   setLoggedInUserId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: User[];
   setActiveVolunteers: (activeVolunteers: User[]) => void;
+  isLoading: boolean;
 }
 
 export type InventoryItem = {

@@ -29,6 +29,7 @@ const createUserContextValue = (overrides = {}) => ({
   setLoggedInUserId: vi.fn(),
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
+  isLoading: false,
   ...overrides,
 });
 

@@ -26,7 +26,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           data-testid="test-id-select-building"
           options={buildings}
           value={selectedBuilding}
-          onChange={(event:  React.SyntheticEvent, newValue: Building | null) => {     
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event: React.SyntheticEvent, newValue: Building | null) => {     
             event.preventDefault();        
             if (newValue) { 
               setSelectedBuilding(newValue);

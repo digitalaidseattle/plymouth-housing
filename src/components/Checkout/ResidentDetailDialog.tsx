@@ -152,6 +152,7 @@ const ResidentDetailDialog = ({
                         data-testid="test-id-select-unit-number"
                         options={unitNumberValues}
                         value={selectedUnit}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
                         onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
                             if (reason === "clear") {
                                 setSelectedUnit({id: 0, unit_number: ''});

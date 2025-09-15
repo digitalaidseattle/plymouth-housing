@@ -56,20 +56,34 @@ const ResidentDetailDialog = ({
     }
 
     useEffect(() => {
+        let cancelled = false;
         const fetchResidents = async () => {
-            const response = await getResidents(user, selectedUnit.id);
-            if (response.value.length > 0) {
-                const residents = response.value.map((resident: { name: string }) => ({ name: resident.name }));
-                setExistingResidents(residents);
-                setNameInput(residents[0].name);
-            } else {
+            if (!selectedUnit?.id) {
+                setExistingResidents([]);
+                setNameInput('');
+                return;
+            }
+            try {
+                const response = await getResidents(user, selectedUnit.id);
+                if (cancelled) return;
+                if (response.value.length > 0) {
+                    const residents = response.value.map((r: { name: string }) => ({ name: r.name }));
+                    setExistingResidents(residents);
+                    setNameInput(residents[residents.length - 1].name);
+                } else {
+                    setExistingResidents([]);
+                    setNameInput('');
+                }
+            } catch (e) {
+                if (cancelled) return;
+                console.error('Error fetching residents:', e);
                 setExistingResidents([]);
                 setNameInput('');
             }
-        }
+        };
         fetchResidents();
-    }, [user, selectedUnit])
-
+        return () => { cancelled = true; };
+    }, [user, selectedUnit]);
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();

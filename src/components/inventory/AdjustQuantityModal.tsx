@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, Button, styled, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, TextField, styled, IconButton, Tooltip } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';

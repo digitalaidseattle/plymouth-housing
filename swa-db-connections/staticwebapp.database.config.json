@@ -293,6 +293,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "ProcessInventoryReplaceQuantity": {
+      "source": {
+        "object": "dbo.ProcessInventoryReplaceQuantity",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/process-inventory-replace-quantity"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

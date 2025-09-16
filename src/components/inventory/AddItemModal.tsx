@@ -183,7 +183,13 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
           >
             <Remove sx={{ fontSize: {xs: 'extra-large', lg: 'large' }}}/>
           </IconButton>
-          <TextField inputProps={{style: { textAlign: 'center', width: '5rem' }}} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
+          <TextField 
+            sx={{ textAlign: 'center', width: '5rem' }} 
+            value={formData.quantity} 
+            type="number" 
+            onChange={(e) => handleInputChange('quantity', e.target.value)}
+            name="quantity"
+          />
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
@@ -225,13 +231,10 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       >
       {/* Title Section */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
-          {showResults ? <ResultsContent/> : <QuantityForm/>}
+          {showResults ? ResultsContent() : QuantityForm()}
         </Box>
     </DialogTemplate>
-
-    
   )
-
 }
 
 export default AddItemModal;

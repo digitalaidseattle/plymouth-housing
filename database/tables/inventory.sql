@@ -24,8 +24,9 @@ AS
         i.description,
         i.quantity,
         CASE
-            WHEN i.quantity <= 0 THEN 'Out of Stock'
+            WHEN i.quantity = 0 THEN 'Out of Stock'
             WHEN i.quantity > 0 AND i.quantity <= i.threshold THEN 'Low Stock'
+            WHEN i.quantity < 0 THEN 'Needs Review'
             ELSE 'Normal Stock'
         END AS status
     FROM

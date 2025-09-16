@@ -1,16 +1,21 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box, Button } from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InventoryItem } from '../../types/interfaces.ts';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 
 interface InventoryTableProps {
   currentItems: InventoryItem[];
   sortDirection: 'asc' | 'desc' | 'original';
   handleSort: () => void;
+  setAdjustModal: (b: boolean) => void;
+  setItemToEdit: (item: InventoryItem) => void;
 }
 
-const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, handleSort }) => {
+const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, handleSort, setAdjustModal, setItemToEdit }) => {
 
   if (!currentItems?.length) {
     return <Box>No items to display</Box>;
@@ -75,14 +80,30 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   <Chip
                     label={row.status}
                     sx={{
-                      backgroundColor: row.status === 'Out of Stock' ? '#FDECEA' : row.status === 'Low Stock' ? '#FFF9C4' : '#E6F4EA',
-                      color: row.status === 'Out of Stock' ? '#D32F2F' : row.status === 'Low Stock' ? '#6A4E23' : '#357A38',
+                      backgroundColor: row.status === 'Out of Stock' ? '#FDECEA' 
+                        : row.status === 'Low Stock' ? '#FFF9C4' 
+                        : row.status === 'Needs Review' ? '#fff5e8ff'
+                        : '#E6F4EA',
+                      color: row.status === 'Out of Stock' ? '#D32F2F' 
+                        : row.status === 'Low Stock' ? '#6A4E23' 
+                        : row.status === 'Needs Review' ? '#663C00'
+                        : '#357A38',
                       borderRadius: '8px',
                       px: 1.5,
                     }}
                   />
                 </TableCell>
-                <TableCell sx={{ width: '12.5%' }}>{row.quantity}</TableCell>
+                <TableCell sx={{ width: '12.5%', textAlign: 'center' }}>{row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}</TableCell>
+                <TableCell sx={{ textAlign: 'right' }}>
+                  {row.quantity < 0 && 
+                  <Button onClick={()=>{
+                    setItemToEdit(row)
+                    setAdjustModal(true)
+                  }}>
+                    <BuildOutlinedIcon sx={{ padding: '0.125rem' }} />
+                  </Button>}
+                  {/* <MoreVertIcon color="secondary"/> */}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

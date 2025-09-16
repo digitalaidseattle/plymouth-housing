@@ -1,0 +1,153 @@
+import { Box, Typography, TextField, styled, IconButton, Tooltip } from '@mui/material';
+import { useContext, useState } from 'react';
+import { InventoryItem } from '../../types/interfaces.ts';
+import SnackbarAlert from '../SnackbarAlert.tsx';
+import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
+import { getRole, UserContext } from '../contexts/UserContext.ts';
+import InfoIcon from '@mui/icons-material/Info';
+import DialogTemplate from '../DialogTemplate.tsx';
+
+type FormData = {
+  newQuantity: number | null;
+  comments?: string;
+};
+
+type AdjustQuantityModalProps = {
+  showDialog: boolean;
+  handleClose: () => void;
+  fetchData: () => void;
+  itemToEdit: InventoryItem | null;
+}
+
+const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }: AdjustQuantityModalProps) => {
+  const { user, loggedInUserId } = useContext(UserContext);
+  const [formData, setFormData] = useState<FormData>({
+    newQuantity: null,
+    comments: ''
+  });
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const DialogTitle = styled('h1')({
+     fontSize: '1.25rem', 
+     fontWeight: '600', 
+     textTransform: 'capitalize',
+     margin: '0'
+  })
+
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [field]: value,
+    }))
+  }
+
+  const resetInputsHandler = () => {
+    handleClose();
+    setFormData({
+      newQuantity: null,
+      comments: ''
+    })
+    setErrorMessage('');
+  }
+
+  const updateItemHandler = async () => {
+    if (!itemToEdit) {
+      setErrorMessage('Invalid item')
+      return;
+    } else {
+      try {
+        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+        // TODO: new procedure that overwrites the quantity (rather than just adds it)
+        const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_REPLACE_QUANTITY, { 
+          method: "POST", 
+          headers: API_HEADERS, 
+          body: JSON.stringify({ 
+            user_id: loggedInUserId,
+            item: [{ id: itemToEdit.id, quantity: formData.newQuantity, additional_notes: formData.comments }],
+          }) 
+        });
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        } else {
+          setErrorMessage('');
+          fetchData();
+        }
+      }
+      catch (error) {
+        console.error('Error updating to database:', error);
+        setErrorMessage(`${error}`)
+      }
+    }
+  }
+
+  const handleSubmit = () => {
+    updateItemHandler();
+    resetInputsHandler();
+  }
+
+
+  return (
+    <DialogTemplate
+      showDialog={showDialog}
+      handleShowDialog={resetInputsHandler}
+      handleSubmit={handleSubmit}
+      submitButtonText='Update'
+      backButtonText='Cancel'
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
+          <DialogTitle>
+            Adjust {itemToEdit?.name} number
+          </DialogTitle>
+
+          <Box id="current-stock">
+            <Typography sx={{ fontSize: '1rem' }}>
+              Current stock: {itemToEdit?.quantity}
+            </Typography>
+          </Box>
+
+          <Box id="add-item-quantity">
+              <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <Typography>
+                  New Total Quantity
+                </Typography>
+                <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
+                  <IconButton>
+                    <InfoIcon sx={{ fontSize: 16 }}  />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+                <TextField 
+                  sx={{ textAlign: 'center' }} 
+                  value={formData.newQuantity} 
+                  type="number" 
+                  placeholder="Enter the updated quantity"
+                  onChange={(e) => handleInputChange('newQuantity', e.target.value)}></TextField>
+              </Box>
+          </Box>
+
+          
+          <Box id="comments-input">
+              <Typography>
+                Comments (optional)
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+                <TextField 
+                  sx={{ textAlign: 'center' }} 
+                  value={formData.comments} 
+                  type="text" 
+                  placeholder="Add a reason or comment"
+                  onChange={(e) => handleInputChange('comments', e.target.value)}></TextField>
+              </Box>
+          </Box>
+
+          {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
+        </Box>
+    </DialogTemplate>
+
+    
+  )
+
+}
+
+export default AdjustQuantityModal;

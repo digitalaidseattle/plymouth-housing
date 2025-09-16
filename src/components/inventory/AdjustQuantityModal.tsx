@@ -58,12 +58,12 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }:
       try {
         API_HEADERS['X-MS-API-ROLE'] = getRole(user);
         // TODO: new procedure that overwrites the quantity (rather than just adds it)
-        const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, { 
+        const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_REPLACE_QUANTITY, { 
           method: "POST", 
           headers: API_HEADERS, 
           body: JSON.stringify({ 
             user_id: loggedInUserId,
-            item: [{ id: itemToEdit.id, quantity: formData.newQuantity }],
+            item: [{ id: itemToEdit.id, quantity: formData.newQuantity, additional_notes: formData.comments }],
           }) 
         });
         if (!response.ok) {

@@ -1,5 +1,6 @@
 import { getRole } from '../contexts/UserContext';
 import {
+  Building,
   CheckoutItemProp,
   ClientPrincipal,
   ResidentInfo,
@@ -49,20 +50,74 @@ export async function processGeneralItems(user: ClientPrincipal | null, loggedIn
   }
 }
 
-export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: number) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+export async function getBuildings(user: ClientPrincipal | null) {
   try {
+    const cachedBuildings = sessionStorage.getItem('buildings');
+    if (cachedBuildings) {
+      return JSON.parse(cachedBuildings);
+    }
+
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    const response = await fetch(ENDPOINTS.BUILDINGS, {
+      headers: headers,
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 500) {
+        throw new Error(
+          'Database is likely starting up. Try again in 30 seconds.',
+        );
+      } else {
+        throw new Error(response.statusText);
+      }
+    }
+
+    const data = await response.json();
+    data.value.sort((a: Building, b: Building) => a.code.localeCompare(b.code));
+    
+    sessionStorage.setItem('buildings', JSON.stringify(data.value));
+    return data.value;
+  } catch (error) {
+    console.error('Error fetching buildings:', error);
+    throw error;
+  }
+}
+
+export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: number) {
+  try {
+    const cacheKey = `units_${buildingId}`;
+    const cachedUnits = sessionStorage.getItem(cacheKey);
+    if (cachedUnits) {
+      const units = JSON.parse(cachedUnits);
+      return units
+    }
+
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=1000`, {
       method: 'GET',
       headers: headers,
     });
-    if (!response.ok) throw new Error(response.statusText);
-    return await response.json();
+
+    if (!response.ok) {
+      if (response.status === 500) {
+        throw new Error(
+          'Database is likely starting up. Try again in 30 seconds.',
+        );
+      } else {
+        throw new Error(response.statusText);
+      }
+    }
+
+    const data = await response.json();
+    sessionStorage.setItem(cacheKey, JSON.stringify(data.value));
+    
+    return data.value;
   } catch (error) {
     console.error('Error fetching unit numbers:', error);
     throw error;
   }
-}
+};
 
 export async function getResidents(user: ClientPrincipal | null, unitId: number) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };

@@ -40,17 +40,13 @@ const ResidentDetailDialog = ({
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
     const [selectedBuilding, setSelectedBuilding] = useState<Building>(residentInfo.building)
     const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
-
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
-
     const [showError, setShowError] = useState<boolean>(false);
-
     const filter = createFilterOptions<ResidentNameOption>();
 
     const fetchUnitNumbers = async (buildingId: number) => {
         const response = await getUnitNumbers(user, buildingId);
-        // populate unit code dropdown
-        const unitNumbers = response.value
+        const unitNumbers = response
             .filter((item: Unit) => item.unit_number.trim() !== '');
         setUnitNumberValues(unitNumbers);
     }
@@ -145,7 +141,6 @@ const ResidentDetailDialog = ({
                         error={showError && !selectedBuilding.id}/>
                 </FormControl>
 
-                {unitNumberValues.length > 1 && 
                 <FormControl>
                     <Autocomplete
                         id="select-unit-number"
@@ -182,7 +177,7 @@ const ResidentDetailDialog = ({
                         }
                         freeSolo
                     />
-                </FormControl>}
+                </FormControl>
 
                 <FormControl>
                     <Autocomplete 

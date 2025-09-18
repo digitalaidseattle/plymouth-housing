@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
-import { checkPastCheckout } from '../../components/Checkout/CheckoutAPICalls';
+import { checkPastCheckout, getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 
 const CheckoutPage = () => {
@@ -109,7 +109,7 @@ const CheckoutPage = () => {
               (item: TransactionItem) =>
                 item.additional_notes &&
                 item.additional_notes.toLowerCase() ===
-                  transaction.additional_notes.toLowerCase(),
+                transaction.additional_notes.toLowerCase(),
             )
             .reduce(function (acc: number, transaction: { quantity: number }) {
               return acc + transaction.quantity;
@@ -145,7 +145,7 @@ const CheckoutPage = () => {
       setCheckoutHistory(tempCheckOutHistory);
     }
     if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
-    }, [user, residentInfo, residentInfoIsMissing])
+  }, [user, residentInfo, residentInfoIsMissing])
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -254,29 +254,8 @@ const CheckoutPage = () => {
 
   const fetchBuildings = useCallback(async () => {
     try {
-      const cachedBuildings = sessionStorage.getItem('buildings');
-      if (cachedBuildings) {
-        setBuildings(JSON.parse(cachedBuildings));
-        return;
-      }
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.BUILDINGS, {
-        headers: API_HEADERS,
-        method: 'GET',
-      });
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error(
-            'Database is likely starting up. Try again in 30 seconds.',
-          );
-        } else {
-          throw new Error(response.statusText);
-        }
-      }
-      const data = await response.json();
-      data.value.sort((a: Building, b: Building) => a.code.localeCompare(b.code));
-      setBuildings(data.value);
-      sessionStorage.setItem('buildings', JSON.stringify(data.value));
+      const buildings = await getBuildings(user);
+      setBuildings(buildings);
     } catch (error) {
       setError('Could not get buildings. \r\n' + error);
       console.error('Error fetching buildings:', error);
@@ -369,9 +348,8 @@ const CheckoutPage = () => {
     const navigateState = {
       state: {
         checkoutSuccess: true,
-        message: `${numberOfItems} ${
-          numberOfItems === 1 ? 'item has been' : 'items have been'
-        } checked out`,
+        message: `${numberOfItems} ${numberOfItems === 1 ? 'item has been' : 'items have been'
+          } checked out`,
       },
     };
 

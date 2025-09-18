@@ -55,7 +55,8 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     loggedInUserId: 1,
     setLoggedInUserId: vi.fn(),
     activeVolunteers: [],
-    setActiveVolunteers: vi.fn()
+    setActiveVolunteers: vi.fn(),
+    isLoading: false
   }}>
     {children}
   </UserContext.Provider>

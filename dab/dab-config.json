@@ -8,9 +8,6 @@
         "rest": {
             "enabled": true
         },
-        "graphql": {
-            "enabled": true
-        },
         "host": {
             "mode": "development"
         }

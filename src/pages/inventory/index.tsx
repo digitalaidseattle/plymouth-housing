@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Button, Pagination } from '@mui/material';
+import { Alert, Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
@@ -115,6 +115,14 @@ const Inventory = () => {
   const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
+
+  const negativeItemCount = originalData.reduce((accumulator, currentVal: InventoryItem) => {
+    if (currentVal.quantity < 0) { 
+      return accumulator + 1
+    } else {
+      return accumulator;
+    }
+  }, 0);
 
   const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(
@@ -246,6 +254,12 @@ const Inventory = () => {
 
   return (
     <Box ref={tableContainerRef} sx={{ height: '100%' }}>
+      {/* Negative item warning */}
+      <Box id="negative-warning-container" sx={{ display: 'flex', justifyContent: 'start', marginTop: '1rem' }}>
+        <Alert severity="warning">
+          {negativeItemCount} {negativeItemCount === 1 ? 'item needs' : 'items need'} review
+        </Alert>
+      </Box>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
         <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>

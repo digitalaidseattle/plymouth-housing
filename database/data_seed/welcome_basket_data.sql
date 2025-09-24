@@ -41,7 +41,7 @@ INSERT INTO Items (name, type, category_id, quantity, items_per_basket, descript
 ('Large trash bin', 'Welcome Basket', 15, 15, 1, NULL, 19),
 ('Pillow', 'Welcome Basket', 15, 10, 1, NULL, 18),
 ('Frying pan', 'Welcome Basket', 15, 10, 1, NULL, 11),
-('Toilet bowl brush', 'Welcome Basket', 15, 10, 1, NULL, 12),
+('Toilet brush', 'Welcome Basket', 15, 10, 1, NULL, 12),
 ('Shower curtain', 'Welcome Basket', 15, 9, 1, NULL, 15),
 ('Broom/dustpan set', 'Welcome Basket', 15, 20, 1, NULL, 17),
 ('Toilet Paper', 'Welcome Basket', 15, 66, 2, NULL, 11),

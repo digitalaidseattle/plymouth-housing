@@ -109,7 +109,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
         throw new Error(response.statusText);
       }
       fetchData();
-      resetInputsHandler();
+      setShowResults(true);
     }
     catch (error) {
       console.error('Error updating the database:', error);

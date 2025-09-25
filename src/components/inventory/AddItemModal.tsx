@@ -118,8 +118,8 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       } else {
         setErrorMessage(`${error}`);
       }
-      setIsSubmitting(false);
     } finally {
+      setIsSubmitting(false);
       document.body.style.cursor = 'default';
     }
   }

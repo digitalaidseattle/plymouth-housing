@@ -65,7 +65,8 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }:
           headers: API_HEADERS, 
           body: JSON.stringify({ 
             user_id: loggedInUserId,
-            item: [{ id: itemToEdit.id, quantity: formData.newQuantity, additional_notes: formData.comments }],
+            item: [{ id: itemToEdit.id, quantity: formData.newQuantity, 
+              additional_notes: JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }) }],
           }) 
         });
         if (!response.ok) {

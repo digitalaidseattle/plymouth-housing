@@ -118,11 +118,12 @@ const Inventory = () => {
 
   const negativeItemCount = originalData.reduce((accumulator, currentVal: InventoryItem) => {
     if (currentVal.quantity < 0) { 
-      return accumulator + 1
+      return accumulator + 1;
     } else {
       return accumulator;
     }
   }, 0);
+
 
   const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(
@@ -256,9 +257,10 @@ const Inventory = () => {
     <Box ref={tableContainerRef} sx={{ height: '100%' }}>
       {/* Negative item warning */}
       <Box id="negative-warning-container" sx={{ display: 'flex', justifyContent: 'start', marginTop: '1rem' }}>
-        <Alert severity="warning">
-          {negativeItemCount} {negativeItemCount === 1 ? 'item needs' : 'items need'} review
-        </Alert>
+        {negativeItemCount > 0 ? <Alert severity="warning">
+          {negativeItemCount} {negativeItemCount === 1 ? 'item needs' : 'items need'} review: 
+          &nbsp;{originalData.filter(i => i.quantity < 0).map(i => i.name).join(", ")}
+        </Alert> : <></>}
       </Box>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>

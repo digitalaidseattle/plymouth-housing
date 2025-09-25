@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, styled, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, TextField, styled, IconButton, Tooltip, FormControl, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
@@ -10,6 +10,7 @@ import DialogTemplate from '../DialogTemplate.tsx';
 type FormData = {
   newQuantity: number | null;
   comments?: string;
+  howYouKnow?: string;
 };
 
 type AdjustQuantityModalProps = {
@@ -23,7 +24,8 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }:
   const { user, loggedInUserId } = useContext(UserContext);
   const [formData, setFormData] = useState<FormData>({
     newQuantity: null,
-    comments: ''
+    comments: '',
+    howYouKnow: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -106,39 +108,54 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }:
           </Box>
 
           <Box id="add-item-quantity">
-              <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <Typography>
-                  New Total Quantity
-                </Typography>
-                <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
-                  <IconButton>
-                    <InfoIcon sx={{ fontSize: 16 }}  />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                <TextField 
-                  sx={{ textAlign: 'center' }} 
-                  value={formData.newQuantity} 
-                  type="number" 
-                  placeholder="Enter the updated quantity"
-                  onChange={(e) => handleInputChange('newQuantity', e.target.value)}></TextField>
-              </Box>
+            <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Typography>
+                New Total Quantity
+              </Typography>
+              <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
+                <IconButton>
+                  <InfoIcon sx={{ fontSize: 16 }}  />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+              <TextField 
+                sx={{ textAlign: 'center' }} 
+                value={formData.newQuantity} 
+                type="number" 
+                placeholder="Enter the updated quantity"
+                onChange={(e) => handleInputChange('newQuantity', e.target.value)}></TextField>
+            </Box>
           </Box>
 
+          <Box id="how-do-you-know-input">
+            <Typography>How do you know this? (optional)</Typography>
+            <FormControl>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('howYouKnow', (e.target as HTMLInputElement).value)}
+              >
+                <FormControlLabel value="counted" control={<Radio />} label="Counted" />
+                <FormControlLabel value="estimated" control={<Radio />} label="Estimated" />
+                <FormControlLabel value="told by someone" control={<Radio />} label="Told by someone" />
+                <FormControlLabel value="correction" control={<Radio />} label="Correction" />      
+              </RadioGroup>
+            </FormControl>
+          </Box>
           
           <Box id="comments-input">
-              <Typography>
-                Comments (optional)
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                <TextField 
-                  sx={{ textAlign: 'center' }} 
-                  value={formData.comments} 
-                  type="text" 
-                  placeholder="Add a reason or comment"
-                  onChange={(e) => handleInputChange('comments', e.target.value)}></TextField>
-              </Box>
+            <Typography>Comments (optional)</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+              <TextField 
+                sx={{ textAlign: 'center' }} 
+                value={formData.comments} 
+                type="text" 
+                placeholder="Add a reason or comment"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('comments', (e.target as HTMLInputElement).value)}>
+              </TextField>
+            </Box>
           </Box>
 
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}

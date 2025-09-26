@@ -48,7 +48,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Type</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Category</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Quantity</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', width: '12.5%', textAlign: 'center'  }}>Quantity</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -93,16 +93,20 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                     }}
                   />
                 </TableCell>
-                <TableCell sx={{ width: '12.5%', textAlign: 'center' }}>{row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}</TableCell>
-                <TableCell sx={{ textAlign: 'right' }}>
-                  {row.quantity < 0 && 
-                  <Button onClick={()=>{
-                    setItemToEdit(row)
-                    setAdjustModal(true)
-                  }}>
-                    <BuildOutlinedIcon sx={{ padding: '0.125rem' }} />
+                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'center' }}>
+                  {row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}
+                </TableCell>
+                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
+                  {row.quantity < 0 ? <Button 
+                    onClick={()=>{
+                      setItemToEdit(row)
+                      setAdjustModal(true)
+                  }}>                    
+                    <BuildOutlinedIcon sx={{ fontSize: '1.25rem' }} />
+                  </Button> :
+                  <Button>
+                    <MoreVertIcon color="secondary"/>
                   </Button>}
-                  {/* <MoreVertIcon color="secondary"/> */}
                 </TableCell>
               </TableRow>
             ))}

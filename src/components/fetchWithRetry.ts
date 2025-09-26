@@ -16,12 +16,12 @@ export const fetchWithRetry = async <T>(
   attempt: number = 1
 ): Promise<FetchResponse<T>> => {
   try {
-    API_HEADERS['X-MS-API-ROLE'] = role;
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': role };
     const response = await fetch(
       url,
       {
         method: 'GET',
-        headers: API_HEADERS,
+        headers: headers,
       }
     );
     

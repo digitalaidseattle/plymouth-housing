@@ -42,6 +42,10 @@ const App: React.FC = () => {
         setLoggedInUserId,
         activeVolunteers,
         setActiveVolunteers,
+        // There is a race condition where user is null at the start
+        // Consider loading until user state is determined. 
+        // It is used in RootRedirect to show a loading state.
+        isLoading: user === null, 
       }}
     >
       <ThemeCustomization>

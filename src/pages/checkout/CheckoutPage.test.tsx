@@ -28,6 +28,19 @@ describe('CheckoutPage', async () => {
             ],
           }),
         });
+      } else if (url.includes(ENDPOINTS.CHECKOUT_WELCOME_BASKET)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [{
+              user_id: 'teststring',
+              mattress_size: 'teststring',
+              quantity: 1,
+              resident_id: 1,
+              message: "",}
+            ],
+          }),
+        });
       } else if (url.includes(ENDPOINTS.CATEGORIZED_ITEMS)) {
         return Promise.resolve({
           ok: true,
@@ -58,12 +71,31 @@ describe('CheckoutPage', async () => {
           json: () => Promise.resolve({
             value: [
               { id: 1, building_id: 1, unit_number: "201" },
-              { id: 1, building_id: 1, unit_number: "202" },
-              { id: 1, building_id: 1, unit_number: "203" },
+              { id: 2, building_id: 1, unit_number: "202" },
+              { id: 3, building_id: 1, unit_number: "203" },
             ],
           }),
         });
-      }
+      } else if (url.includes(ENDPOINTS.CHECK_PAST_CHECKOUT)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, item_id: 1, quantity: 1, transaction_id: 'teststring', additional_notes: 'teststring' }
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.RESIDENTS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, name: 'teststring', unit_id: 'teststring' },
+              { id: 2, name: 'teststring', unit_id: 'teststring' },
+            ],
+          }),
+        });
+      } 
       return Promise.reject(new Error('Unknown endpoint'));
     }) as Mock;
     await act(async () => {
@@ -89,7 +121,7 @@ describe('CheckoutPage', async () => {
     expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
   });
 
-  it('updates selected value when an option is chosen', () => {
+  it('updates selected value when a building is chosen', async () => {
     const select = screen.getByLabelText('Building Code');
 
     // Open the dropdown
@@ -99,38 +131,39 @@ describe('CheckoutPage', async () => {
     const firstOption = screen.getByText('B1 (Building 1)');
     fireEvent.click(firstOption);
 
-    // Verify the selection
-    expect(select).toHaveTextContent('B1 (Building 1)');
+    const comboboxes = screen.getAllByRole('combobox');
+    console.log(comboboxes[0]);
+    expect(comboboxes[0]).toHaveValue('B1 (Building 1)');
   });
 
-  // it('adds an item to the cart and shows item quantity', () => {
-  //   // Check if the cart is initially empty (no summary button visible)
-  //   expect(screen.queryByText(/items selected/i)).not.toBeInTheDocument();
+  it('adds an item to the cart and shows item quantity', () => {
+    // Check if the cart is initially empty (no summary button visible)
+    expect(screen.queryByText(/items selected/i)).not.toBeInTheDocument();
 
-  //   // Add item to the cart
-  //   const addItemButton = screen.getAllByTestId('AddIcon')[0];
-  //   fireEvent.click(addItemButton);
+    // Add item to the cart
+    const addItemButton = screen.getAllByTestId('AddIcon')[0];
+    fireEvent.click(addItemButton);
 
-  //   // Check if the quantity is updated and item is added to the cart
-  //   expect(screen.getByText(`1 / 10 items added`)).toBeInTheDocument();
-  //   expect(screen.getByTestId('test-id-quantity')); // Check for quantity
-  // });
+    // Check if the quantity is updated and item is added to the cart
+    expect(screen.getByText(`1 / 10 items added`)).toBeInTheDocument();
+    expect(screen.getByTestId('test-id-quantity')); // Check for quantity
+  });
 
-  // it('removes an item from the cart', () => {
-  //   // Add item to the cart
-  //   const addItemButton = screen.getAllByTestId('AddIcon')[0];
-  //   fireEvent.click(addItemButton);
+  it('removes an item from the cart', () => {
+    // Add item to the cart
+    const addItemButton = screen.getAllByTestId('AddIcon')[0];
+    fireEvent.click(addItemButton);
 
-  //   // Check if the item is added
-  //   expect(screen.getByText(`1 / 10 items added`)).toBeInTheDocument();
+    // Check if the item is added
+    expect(screen.getByText(`1 / 10 items added`)).toBeInTheDocument();
 
-  //   // Remove the item
-  //   const removeItemButton = screen.getAllByTestId('RemoveIcon')[0];
-  //   fireEvent.click(removeItemButton);
+    // Remove the item
+    const removeItemButton = screen.getAllByTestId('RemoveIcon')[0];
+    fireEvent.click(removeItemButton);
 
-  //   // Check if the cart is empty again
-  //   expect(screen.queryByText(/items added/i)).not.toBeInTheDocument();
-  // });
+    // Check if the cart is empty again
+    expect(screen.queryByText(/items added/i)).not.toBeInTheDocument();
+  });
 
   // it('shows checkout dialog when "Continue" is clicked', () => {
 

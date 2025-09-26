@@ -38,15 +38,15 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
   const theme = useTheme();
 
   const ResultText = styled('span')({
-    marginLeft: '0.25rem', 
-    color: theme.palette.success.dark 
+    marginLeft: '0.25rem',
+    color: theme.palette.success.dark
   });
 
   const DialogTitle = styled('h1')({
-     fontSize: '1.25rem', 
-     fontWeight: '600', 
-     textTransform: 'capitalize',
-     margin: '0'
+    fontSize: '1.25rem',
+    fontWeight: '600',
+    textTransform: 'capitalize',
+    margin: '0'
   })
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -99,7 +99,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
           body: JSON.stringify({ 
             user_id: loggedInUserId,
             item: [{ id: updateItem.id, quantity: formData.quantity }],
-          }) 
+          })
         });
         if (!response.ok) {
           throw new Error(response.statusText);
@@ -116,60 +116,60 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
     }
   }
 
-  const QuantityForm = () => 
+  const QuantityForm = () =>
     <>
-    <DialogTitle>
-      Edit Item Quantity
-    </DialogTitle>
+      <DialogTitle>
+        Edit Item Quantity
+      </DialogTitle>
 
-    {/* Item Type */}
-    <Box id="add-item-type" sx={{ width: '100%' }}>
-      <Typography fontWeight='bold'>
-        Inventory Type
-      </Typography>
-      <Select
-        value={formData.type}
-        onChange={(e) => handleInputChange('type', e.target.value)}
-        sx={{ width: '100%' }}
-      >
-        <MenuItem value={'General'}>General</MenuItem>
-        <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
-      </Select>
-    </Box>
+      {/* Item Type */}
+      <Box id="add-item-type" sx={{ width: '100%' }}>
+        <Typography fontWeight='bold'>
+          Inventory Type
+        </Typography>
+        <Select
+          value={formData.type}
+          onChange={(e) => handleInputChange('type', e.target.value)}
+          sx={{ width: '100%' }}
+        >
+          <MenuItem value={'General'}>General</MenuItem>
+          <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
+        </Select>
+      </Box>
 
       {/* Item Name */}
-    <Box id="add-item-name" sx={{ width: '100%' }}>
-      <Typography fontWeight='bold'>
-        Item Name
-      </Typography>
-      <Autocomplete
-        onChange={(_, value) => onChangeHandler(value)}
-        value={updateItem}
-        options={nameSearch} // Pass the full array of objects
-        getOptionLabel={(option) => option.name}
-        renderOption={(props, option) => (
-          <li {...props} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <span>
-              {option.name}
-            </span>
-            {option.category && (
-              <span style={{ fontSize: '0.8rem', color: 'gray' }}>
-                {option.category}
+      <Box id="add-item-name" sx={{ width: '100%' }}>
+        <Typography fontWeight='bold'>
+          Item Name
+        </Typography>
+        <Autocomplete
+          onChange={(_, value) => onChangeHandler(value)}
+          value={updateItem}
+          options={nameSearch} // Pass the full array of objects
+          getOptionLabel={(option) => option.name}
+          renderOption={(props, option) => (
+            <li {...props} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <span>
+                {option.name}
               </span>
-            )}
-          </li>
-        )}
-        filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
-          return options.filter((option) =>
-            option.name?.toLowerCase().includes(inputValue.toLowerCase()) ||
-            option.description?.toLowerCase().includes(inputValue.toLowerCase())
-          );
-        }}
-        renderInput={(params) => <TextField {...params} />}
-      />
-    </Box>
+              {option.category && (
+                <span style={{ fontSize: '0.8rem', color: 'gray' }}>
+                  {option.category}
+                </span>
+              )}
+            </li>
+          )}
+          filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
+            return options.filter((option) =>
+              option.name?.toLowerCase().includes(inputValue.toLowerCase()) ||
+              option.description?.toLowerCase().includes(inputValue.toLowerCase())
+            );
+          }}
+          renderInput={(params) => <TextField {...params} />}
+        />
+      </Box>
 
-    <Box id="add-item-quantity">
+      <Box id="add-item-quantity">
         <Typography fontWeight='bold'>
           Quantity
         </Typography>
@@ -179,57 +179,57 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
               backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
               height: { xs: '40px', lg: '30px' }
             }}
-              onClick={() => handleInputChange('quantity', Number(formData.quantity) - 1)}
+            onClick={() => handleInputChange('quantity', Number(formData.quantity) - 1)}
           >
-            <Remove sx={{ fontSize: {xs: 'extra-large', lg: 'large' }}}/>
+            <Remove sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
-          <TextField inputProps={{style: { textAlign: 'center', width: '5rem' }}} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
+          <TextField inputProps={{ style: { textAlign: 'center', width: '5rem' } }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
               height: { xs: '40px', lg: '30px' }
             }}
-              onClick={() => handleInputChange('quantity', Number(formData.quantity) + 1)}
+            onClick={() => handleInputChange('quantity', Number(formData.quantity) + 1)}
           >
-            <Add sx={{ fontSize: {xs: 'extra-large', lg: 'large' }}}/>
+            <Add sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
         </Box>
-    </Box>
+      </Box>
 
-    <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
-      <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-      <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Submit</Button>
-    </Box>
+      <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
+        <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
+        <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Submit</Button>
+      </Box>
 
-    {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
+      {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')} severity={'error'}> {errorMessage} </SnackbarAlert> : null}
     </>
- 
-  const ResultsContent = () => 
+
+  const ResultsContent = () =>
     <>
-    <DialogTitle>
+      <DialogTitle>
         Inventory Updated: {updateItem?.name}
-    </DialogTitle>
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      </DialogTitle>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <Box>Previous Stock: <ResultText>{updateItem?.quantity}</ResultText></Box>
         <Box>Quantity Added: <ResultText>{formData.quantity}</ResultText></Box>
         <Box>New Stock Total: <ResultText>{newTotalQuantity}</ResultText></Box>
-    </Box>
-    {newTotalQuantity < 0 &&
-      <Alert severity="warning">Warning: Stock is negative. This item may have been over-issued. Please review and update it when possible.</Alert>}
+      </Box>
+      {newTotalQuantity < 0 &&
+        <Alert severity="warning">Warning: Stock is negative. This item may have been over-issued. Please review and update it when possible.</Alert>}
     </>
 
   return (
     <DialogTemplate
       showDialog={addModal}
       handleShowDialog={resetInputsHandler}
-      >
+    >
       {/* Title Section */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
-          {showResults ? <ResultsContent/> : <QuantityForm/>}
-        </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
+        {showResults ? ResultsContent() : QuantityForm()}
+      </Box>
     </DialogTemplate>
 
-    
+
   )
 
 }

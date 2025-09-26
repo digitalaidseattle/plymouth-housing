@@ -18,9 +18,14 @@ type AdjustQuantityModalProps = {
   handleClose: () => void;
   fetchData: () => void;
   itemToEdit: InventoryItem | null;
+  handleSnackbar: React.Dispatch<React.SetStateAction<{
+    open: boolean;
+    message: string;
+    severity: "success" | "warning";
+  }>>;
 }
 
-const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }: AdjustQuantityModalProps) => {
+const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, handleSnackbar }: AdjustQuantityModalProps) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [formData, setFormData] = useState<FormData>({
     newQuantity: null,
@@ -65,7 +70,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }:
           headers: API_HEADERS, 
           body: JSON.stringify({ 
             user_id: loggedInUserId,
-            item: [{ id: itemToEdit.id, quantity: formData.newQuantity, 
+            item: [{ id: itemToEdit?.id, quantity: formData.newQuantity, 
               additional_notes: JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }) }],
           }) 
         });
@@ -86,8 +91,8 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit }:
   const handleSubmit = () => {
     updateItemHandler();
     resetInputsHandler();
+    handleSnackbar({open: true, message: `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`, severity: 'success'});
   }
-
 
   return (
     <DialogTemplate

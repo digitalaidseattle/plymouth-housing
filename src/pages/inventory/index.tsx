@@ -284,6 +284,7 @@ const Inventory = () => {
         handleClose={()=>setAdjustModal(false)}
         fetchData={fetchData}
         itemToEdit={itemToEdit}
+        handleSnackbar={setSnackbarState}
       />
 
       {/* Inventory Filter */}

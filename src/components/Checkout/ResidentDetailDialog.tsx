@@ -46,8 +46,6 @@ const ResidentDetailDialog = ({
 
     const fetchUnitNumbers = async (buildingId: number) => {
         const response = await getUnitNumbers(user, buildingId);
-        console.log('Fetched units for buildingId:', buildingId, response);
-        // populate unit code dropdown
         const unitNumbers = response
             .filter((item: Unit) => item.unit_number.trim() !== '');
         setUnitNumberValues(unitNumbers);

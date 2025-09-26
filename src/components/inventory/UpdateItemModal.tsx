@@ -111,8 +111,8 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
       setErrorMessage('Missing Information')
     } else {
       try {
-        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers: API_HEADERS, body: JSON.stringify(formData) });
+        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers: headers, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {
@@ -134,8 +134,8 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
       setErrorMessage('Missing Information')
     } else {
       try {
-        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers: API_HEADERS, body: JSON.stringify(formData) });
+        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers: headers, body: JSON.stringify(formData) });
         if (!response.ok) {
           throw new Error(response.statusText);
         } else {

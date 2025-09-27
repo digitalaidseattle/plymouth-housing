@@ -3,6 +3,7 @@ import {
   Box,
   FormControl,
   TextField,
+  Typography,
 } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
@@ -42,6 +43,9 @@ const ResidentDetailDialog = ({
     const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [showError, setShowError] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+
     const filter = createFilterOptions<ResidentNameOption>();
 
     const fetchUnitNumbers = async (buildingId: number) => {
@@ -83,14 +87,18 @@ const ResidentDetailDialog = ({
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
+        setSubmitError('');
         // validate inputs, show error
         if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
             setShowError(true);
             return;
         }
-        let residentId;
-        // try submitting to db
+        
+        setIsSubmitting(true);
+        document.body.style.cursor = 'wait';
+
         try {
+            let residentId;
             // first check if the resident already exists
             const existingResponse = await findResident(user, nameInput, selectedUnit.id);
             // if not, add them to the db
@@ -100,19 +108,26 @@ const ResidentDetailDialog = ({
              } else {
                 residentId = existingResponse.value[0].id;
              }
-        } catch (error) {
-            console.error('Error submitting resident info', error);
-            return;
-        } finally {
-            // update state
+            
+            // update state on success
             setResidentInfo({
                 id: residentId,
                 name: nameInput,
                 unit: selectedUnit,
                 building: selectedBuilding
-            })
+            });
             setShowError(false);
             handleShowDialog();
+        } catch (error) {
+            console.error('Error submitting resident info', error);
+            if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                setSubmitError('Your system appears to be offline. Please check your connection and try again.');
+            } else {
+                setSubmitError('An error occurred while submitting. Please try again.');
+            }
+            setIsSubmitting(false);
+        } finally {
+            document.body.style.cursor = 'default';
         }
     }
 
@@ -129,7 +144,8 @@ const ResidentDetailDialog = ({
             handleShowDialog={handleShowDialog} 
             handleSubmit={handleSubmit}
             title="provide details to continue"
-            submitButtonText='continue'>
+            submitButtonText='continue'
+            isSubmitting={isSubmitting}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                 <FormControl>
                     <BuildingCodeSelect 
@@ -236,7 +252,8 @@ const ResidentDetailDialog = ({
                             helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
                         )}
                     />
-                </FormControl>               
+                </FormControl>
+                {submitError && <Typography color="error">{submitError}</Typography>}
             </Box>
         </DialogTemplate>
     );

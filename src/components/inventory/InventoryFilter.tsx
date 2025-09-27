@@ -145,6 +145,9 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
           <MenuItem onClick={() => handleMenuClick('status', 'Normal Stock')}>
             Normal Stock
           </MenuItem>
+          <MenuItem onClick={() => handleMenuClick('status', 'Negative Stock')}>
+            Negative Stock
+          </MenuItem>
         </Menu>
       </Box>
 

@@ -89,8 +89,7 @@ export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: n
     const cacheKey = `units_${buildingId}`;
     const cachedUnits = sessionStorage.getItem(cacheKey);
     if (cachedUnits) {
-      const units = JSON.parse(cachedUnits);
-      return units
+      return JSON.parse(cachedUnits);
     }
 
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };

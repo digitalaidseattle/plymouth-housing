@@ -113,7 +113,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
             </Typography>
           </Box>
 
-          <Box id="add-item-quantity">
+          <Box id="add-item-quantity" sx={{  width: '100%'}}>
             <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <Typography>
                 New Total Quantity
@@ -126,7 +126,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
               <TextField 
-                sx={{ textAlign: 'center' }} 
+                sx={{ textAlign: 'center', width: '100%' }} 
                 value={formData.newQuantity} 
                 type="number" 
                 placeholder="Enter the updated quantity"
@@ -151,11 +151,11 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
             </FormControl>
           </Box>
           
-          <Box id="comments-input">
+          <Box id="comments-input" sx={{ width: '100%' }}>
             <Typography>Comments (optional)</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
               <TextField 
-                sx={{ textAlign: 'center' }} 
+                sx={{ textAlign: 'center', width: '100%' }} 
                 value={formData.comments} 
                 type="text" 
                 placeholder="Add a reason or comment"

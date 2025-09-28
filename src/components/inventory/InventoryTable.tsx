@@ -4,8 +4,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InventoryItem } from '../../types/interfaces.ts';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 interface InventoryTableProps {
   currentItems: InventoryItem[];
@@ -97,16 +96,13 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   {row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}
                 </TableCell>
                 <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
-                  {row.quantity < 0 ? <Button 
+                  <Button 
                     onClick={()=>{
                       setItemToEdit(row)
                       setAdjustModal(true)
-                  }}>                    
-                    <BuildOutlinedIcon sx={{ fontSize: '1.25rem' }} />
-                  </Button> :
-                  <Button>
-                    <MoreVertIcon color="secondary"/>
-                  </Button>}
+                  }}>                  
+                    <SettingsIcon color="secondary"/>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

@@ -242,7 +242,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
         {showResults ? ResultsContent() : QuantityForm()}
       </Box>
     </DialogTemplate>
-    )
   )
 }
 

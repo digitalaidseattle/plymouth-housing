@@ -37,9 +37,9 @@ const VolunteerHome: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', {
-        headers: API_HEADERS,
+        headers: headers,
         method: 'GET',
       });
       if (!response.ok) {

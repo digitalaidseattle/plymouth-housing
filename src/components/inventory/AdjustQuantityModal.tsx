@@ -65,6 +65,10 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       setErrorMessage('Invalid item')
       return;
     } 
+    if (formData.newQuantity === null) {
+      setErrorMessage('You must enter a number for the new quantity.')
+      return;
+    }
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
@@ -81,8 +85,9 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       if (!response.ok) {
         throw new Error(response.statusText);
       } else {
-        setErrorMessage('');
         fetchData();
+        handleSnackbar({open: true, message: `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`, severity: 'success'});
+        resetInputsHandler();
       }
     }
     catch (error) {
@@ -93,12 +98,6 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       setIsSubmitting(false);
       document.body.style.cursor = 'default';
     }
-  }
-
-  const handleSubmit = () => {
-    updateItemHandler();
-    resetInputsHandler();
-    handleSnackbar({open: true, message: `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`, severity: 'success'});
   }
 
   return (
@@ -170,7 +169,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
 
           <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
             <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-            <Button sx={{ color: 'black' }} onClick={handleSubmit} disabled={isSubmitting}>Submit</Button>
+            <Button sx={{ color: 'black' }} onClick={updateItemHandler} disabled={isSubmitting}>Submit</Button>
           </Box>
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
         </Box>

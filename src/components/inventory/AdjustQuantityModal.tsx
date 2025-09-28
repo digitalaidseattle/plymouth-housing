@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, styled, IconButton, Tooltip, FormControl, RadioGroup, FormControlLabel, Radio } from '@mui/material';
+import { Box, Typography, TextField, styled, IconButton, Tooltip, FormControl, RadioGroup, FormControlLabel, Radio, Button } from '@mui/material';
 import { useContext, useState } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
@@ -33,6 +33,8 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
     howYouKnow: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   const DialogTitle = styled('h1')({
      fontSize: '1.25rem', 
@@ -55,36 +57,41 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       comments: ''
     })
     setErrorMessage('');
+    setIsSubmitting(false);
   }
 
   const updateItemHandler = async () => {
     if (!itemToEdit) {
       setErrorMessage('Invalid item')
       return;
-    } else {
-      try {
-        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-        // TODO: new procedure that overwrites the quantity (rather than just adds it)
-        const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_REPLACE_QUANTITY, { 
-          method: "POST", 
-          headers: API_HEADERS, 
-          body: JSON.stringify({ 
-            user_id: loggedInUserId,
-            item: [{ id: itemToEdit?.id, quantity: formData.newQuantity, 
-              additional_notes: JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }) }],
-          }) 
-        });
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        } else {
-          setErrorMessage('');
-          fetchData();
-        }
+    } 
+    setIsSubmitting(true);
+    document.body.style.cursor = 'wait';
+    try {
+      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_REPLACE_QUANTITY, { 
+        method: "POST", 
+        headers: API_HEADERS, 
+        body: JSON.stringify({ 
+          user_id: loggedInUserId,
+          item: [{ id: itemToEdit?.id, quantity: formData.newQuantity, 
+            additional_notes: JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }) }],
+        }) 
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      } else {
+        setErrorMessage('');
+        fetchData();
       }
-      catch (error) {
-        console.error('Error updating to database:', error);
-        setErrorMessage(`${error}`)
-      }
+    }
+    catch (error) {
+      console.error('Error updating to database:', error);
+      setErrorMessage(`${error}`)
+    }
+    finally {
+      setIsSubmitting(false);
+      document.body.style.cursor = 'default';
     }
   }
 
@@ -98,9 +105,6 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
     <DialogTemplate
       showDialog={showDialog}
       handleShowDialog={resetInputsHandler}
-      handleSubmit={handleSubmit}
-      submitButtonText='Update'
-      backButtonText='Cancel'
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
           <DialogTitle>
@@ -164,6 +168,10 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
             </Box>
           </Box>
 
+          <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
+            <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
+            <Button sx={{ color: 'black' }} onClick={handleSubmit} disabled={isSubmitting}>Submit</Button>
+          </Box>
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
         </Box>
     </DialogTemplate>

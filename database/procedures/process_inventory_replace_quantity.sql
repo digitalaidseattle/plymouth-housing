@@ -7,6 +7,7 @@ CREATE PROCEDURE ProcessInventoryReplaceQuantity
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
 
     -- Validate JSON
     IF ISJSON(@item) = 0
@@ -18,11 +19,14 @@ BEGIN
     DECLARE @Quantity INT;
     DECLARE @AdditionalNotes NVARCHAR(MAX);
 
-    SELECT 
-        @ItemId = JSON_VALUE([value], '$.id'),
-        @Quantity = JSON_VALUE([value], '$.quantity'),
-        @AdditionalNotes = JSON_VALUE([value], '$.additional_notes')
-    FROM OPENJSON(@item, '$')
+      -- Expect exactly one element in the array; extract typed values from index 0
+    SELECT
+        @ItemId = TRY_CONVERT(INT, JSON_VALUE(@item, '$[0].id')),
+        @Quantity = TRY_CONVERT(INT, JSON_VALUE(@item, '$[0].quantity')),
+        @AdditionalNotes = JSON_VALUE(@item, '$[0].additional_notes');
+
+    IF @ItemId IS NULL OR @Quantity IS NULL OR @Quantity < 0
+        THROW 51003, 'Invalid item id or quantity (must be a non-negative integer).', 1;
     
     BEGIN TRANSACTION
     
@@ -51,8 +55,11 @@ BEGIN
         -- Update inventory
         UPDATE i
         SET i.quantity = @Quantity
-        FROM Items i
-        WHERE i.id = @ItemId
+        FROM dbo.Items AS i
+        WHERE i.id = @ItemId;
+
+        IF @@ROWCOUNT <> 1
+            THROW 51004, 'No item updated. Invalid item id or concurrent change.', 1;
         
         COMMIT TRANSACTION
         

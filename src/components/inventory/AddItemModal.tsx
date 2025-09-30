@@ -93,6 +93,15 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       setErrorMessage('Missing Information or Quantity cannot be 0')
       return;
     }
+    // regex test to check for only whole numbers, including negatives
+    const rx = new RegExp(/^-?\d+$/);
+    if (!rx.test(formData.quantity.toString())) {
+      setErrorMessage('The quantity must be a non-decimal number.');
+      return false;
+    }
+    const qty = typeof formData.quantity === 'string'
+      ? Number(formData.quantity)
+      : formData.quantity;
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
@@ -102,7 +111,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
         headers,
         body: JSON.stringify({
           user_id: loggedInUserId,
-          item: [{ id: updateItem.id, quantity: formData.quantity }],
+          item: [{ id: updateItem.id, quantity: qty }],
         })
       });
       if (!response.ok) {

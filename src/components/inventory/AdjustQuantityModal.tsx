@@ -73,12 +73,21 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
     document.body.style.cursor = 'wait';
     try {
       API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      // regex test to check for only whole numbers
+      const rx = new RegExp(/^\d+$/);
+      if (!rx.test(formData.newQuantity.toString())) {
+        setErrorMessage('The new total quantity must be a positive non-decimal number.');
+        return false;
+      }
+      const qty = typeof formData.newQuantity === 'string'
+          ? Number(formData.newQuantity)
+          : formData.newQuantity;
       const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_REPLACE_QUANTITY, { 
         method: "POST", 
         headers: API_HEADERS, 
         body: JSON.stringify({ 
           user_id: loggedInUserId,
-          item: [{ id: itemToEdit?.id, quantity: formData.newQuantity, 
+          item: [{ id: itemToEdit?.id, quantity: qty, 
             additional_notes: JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }) }],
         }) 
       });

@@ -98,6 +98,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                 </TableCell>
                 <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
                   <Button 
+                    aria-label="Override quantity"
                     onClick={()=>{
                       setItemToEdit(row)
                       setAdjustModal(true)

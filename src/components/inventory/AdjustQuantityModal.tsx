@@ -116,7 +116,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
           <DialogTitle>
-            Override {itemToEdit?.name} number
+            Adjust {itemToEdit?.name} number
           </DialogTitle>
 
           <Box id="current-stock">

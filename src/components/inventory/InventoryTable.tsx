@@ -32,7 +32,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  width: '20%',
+                  width: '25%',
                 }}
                 onClick={handleSort}
               >
@@ -43,11 +43,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
                 ) : null}
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '30%' }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', width: '25%' }}>Description</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Type</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Category</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Status</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%', textAlign: 'center'  }}>Quantity</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', textAlign: 'right', paddingRight: '2rem' }}>Adjust</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

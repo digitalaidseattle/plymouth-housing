@@ -44,9 +44,12 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
   })
 
   const handleInputChange = (field: string, value: string | number) => {
+    const parsedValue = field === 'newQuantity' && typeof value === 'string'
+      ? (value === '' ? null : Number(value))
+      : value;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [field]: value,
+      [field]: parsedValue,
     }))
   }
 

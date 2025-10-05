@@ -79,7 +79,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       // regex test to check for only whole numbers
       const rx = new RegExp(/^\d+$/);
       if (!rx.test(formData.newQuantity.toString())) {
-        setErrorMessage('The new total quantity must be a positive non-decimal number.');
+        setErrorMessage('The new total quantity must be a non-negative integer.');
         return false;
       }
       const qty = typeof formData.newQuantity === 'string'

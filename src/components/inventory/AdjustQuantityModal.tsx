@@ -72,16 +72,16 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       setErrorMessage('You must enter a number for the new quantity.')
       return;
     }
+    // regex test to check for only whole numbers
+    const rx = new RegExp(/^\d+$/);
+    if (!rx.test(formData.newQuantity.toString())) {
+      setErrorMessage('The new total quantity must be a non-negative integer.');
+      return;
+    }
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
       API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-      // regex test to check for only whole numbers
-      const rx = new RegExp(/^\d+$/);
-      if (!rx.test(formData.newQuantity.toString())) {
-        setErrorMessage('The new total quantity must be a non-negative integer.');
-        return false;
-      }
       const qty = typeof formData.newQuantity === 'string'
           ? Number(formData.newQuantity)
           : formData.newQuantity;

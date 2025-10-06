@@ -245,8 +245,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           }}
         >
           <Typography>
-            <strong>Building code: </strong>
-            {selectedBuildingCode}
+            <strong>Building code: </strong>{selectedBuildingCode}
+          </Typography>
+          <Typography>
+            <strong>Unit number: </strong>{residentInfo.unit.unit_number}
+          </Typography>
+          <Typography>
+            <strong>Resident name: </strong>{residentInfo.name}
           </Typography>
           <Typography
             sx={{
@@ -256,9 +261,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   : 'black',
             }}
           >
-            <strong>Total Items Checked Out: </strong>
-            {allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10
-            allowed
+            <strong>Total Items: </strong>
+            {allItems.reduce((acc, item) => acc + item.quantity, 0)}
           </Typography>
 
           {/* Display category limit errors */}

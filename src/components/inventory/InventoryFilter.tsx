@@ -24,6 +24,8 @@ interface InventoryFilterProps {
   handleSearch: (value: string) => void;
 }
 
+const statusOptions = ['Needs Review', 'Out of Stock', 'Low Stock', 'Normal Stock'];
+
 const InventoryFilter: React.FC<InventoryFilterProps> = ({ 
   filters, 
   anchors, 
@@ -136,18 +138,11 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
           onClose={() => handleMenuClick('status', '')}
           anchorEl={anchors.status}
         >
-          <MenuItem onClick={() => handleMenuClick('status', 'Needs Review')}>
-            Needs Review
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuClick('status', 'Out of Stock')}>
-            Out of Stock
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuClick('status', 'Low Stock')}>
-            Low Stock
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuClick('status', 'Normal Stock')}>
-            Normal Stock
-          </MenuItem>
+          {statusOptions.map((status) => 
+            <MenuItem onClick={() => handleMenuClick('status', status)}>
+              {status}
+            </MenuItem>
+          )}
         </Menu>
       </Box>
 

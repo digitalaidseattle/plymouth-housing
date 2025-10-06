@@ -57,7 +57,8 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
     handleClose();
     setFormData({
       newQuantity: null,
-      comments: ''
+      comments: '',
+      howYouKnow: ''
     })
     setErrorMessage('');
     setIsSubmitting(false);

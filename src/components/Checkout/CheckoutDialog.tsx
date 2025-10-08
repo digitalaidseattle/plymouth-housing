@@ -67,6 +67,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [categoryLimitErrors, setCategoryLimitErrors] = useState<CategoryProps[]>([]);
+
   const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {

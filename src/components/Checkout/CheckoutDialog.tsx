@@ -330,11 +330,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={
-              isProcessing ||
-              allItems.reduce((acc, item) => acc + item.quantity, 0) > 10 ||
-              categoryLimitErrors.length > 0
-            }
+            disabled={isProcessing}
             sx={{
               color: 'black',
               backgroundColor: '#F2F2F2',

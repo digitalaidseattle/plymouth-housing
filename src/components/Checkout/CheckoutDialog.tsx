@@ -66,7 +66,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [categoryLimitErrors, setCategoryLimitErrors] = useState<string[]>([]);
+  const [categoryLimitErrors, setCategoryLimitErrors] = useState<CategoryProps[]>([]);
   const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
@@ -75,12 +75,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       setStatusMessage('');
       setAllItems(checkoutItems.flatMap((item) => item.items));
 
-      const errors: string[] = [];
+      const errors: CategoryProps[] = [];
       checkoutItems.forEach((category) => {
         if (category.categoryCount > category.checkout_limit) {
-          errors.push(
-            `${category.category}: ${category.categoryCount} items (limit: ${category.checkout_limit})`,
-          );
+          errors.push(category);
         }
       });
       setCategoryLimitErrors(errors);
@@ -276,46 +274,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               Usual limit for total and category items helps make sure everyone has enough. If a resident truly needs an extra, please chat with staff.
             </Alert>}
 
-          {/* Display category limit errors */}
-          {categoryLimitErrors.length > 0 && (
-            <Box
-              sx={{
-                marginTop: '10px',
-                padding: '10px',
-                backgroundColor: '#ffebee',
-                borderRadius: '4px',
-              }}
-            >
-              <Typography
-                sx={{
-                  color: '#c62828',
-                  fontWeight: 'bold',
-                  marginBottom: '5px',
-                }}
-              >
-                Category Limits Exceeded:
-              </Typography>
-              {categoryLimitErrors.map((error, index) => (
-                <Typography
-                  key={index}
-                  sx={{ color: '#c62828', fontSize: '14px' }}
-                >
-                  • {error}
-                </Typography>
-              ))}
-              <Typography
-                sx={{
-                  color: '#c62828',
-                  fontSize: '12px',
-                  marginTop: '5px',
-                  fontStyle: 'italic',
-                }}
-              >
-                Please remove items from the categories above to proceed with
-                checkout.
-              </Typography>
-            </Box>
-          )}
+          {categoryLimitErrors.length > 0 &&
+            <Alert severity="warning">
+              {categoryLimitErrors.map(c => c.category).join(', ')} over the limit
+            </Alert>
+          }
+
         </Box>
         <DialogContent
           dividers

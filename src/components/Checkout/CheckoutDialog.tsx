@@ -8,6 +8,7 @@ import {
   Typography,
   Box,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   CategoryProps,
@@ -66,6 +67,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [categoryLimitErrors, setCategoryLimitErrors] = useState<string[]>([]);
+  const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
     if (open) {
@@ -257,7 +259,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             }}
           >
             <strong>Total Items: </strong>
-            {allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10
+            {totalItemCount} / 10
           </Typography>
           <Typography>
             <strong>Categories: </strong>
@@ -266,8 +268,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                 return acc + 1
               } 
               return acc;
-            }, 0)}
+            }, 0)} total
           </Typography>
+
+          {categoryLimitErrors.length === 0 && totalItemCount <= 10 &&
+            <Alert severity="info">
+              Usual limit for total and category items helps make sure everyone has enough. If a resident truly needs an extra, please chat with staff.
+            </Alert>}
 
           {/* Display category limit errors */}
           {categoryLimitErrors.length > 0 && (

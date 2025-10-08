@@ -248,37 +248,33 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             <strong>Building code: </strong>
             {selectedBuildingCode}
           </Typography>
-          <Typography
-            sx={{
-              color:
-                allItems.reduce((acc, item) => acc + item.quantity, 0) > 10
-                  ? 'red'
-                  : 'black',
-            }}
-          >
-            <strong>Total Items: </strong>
-            {totalItemCount} / 10
-          </Typography>
-          <Typography>
-            <strong>Categories: </strong>
-            {checkoutItems.reduce((acc, category) => {
-              if (category.categoryCount > 0) { 
-                return acc + 1
-              } 
-              return acc;
-            }, 0)} total
-          </Typography>
+
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography>
+              <strong>Total Items: </strong>
+              {totalItemCount} / 10
+            </Typography>
+            {totalItemCount > 10 && <Alert severity="warning">Over the usual limit</Alert>}
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography>
+              <strong>Categories: </strong>
+              {checkoutItems.reduce((acc, category) => {
+                return category.categoryCount > 0 ? acc + 1 : acc;
+              }, 0)} total
+            </Typography>   
+            {categoryLimitErrors.length > 0 &&
+              <Alert severity="warning">
+                {categoryLimitErrors.map(c => c.category).join(', ')} over the limit
+              </Alert>
+            }
+          </Box>
 
           {categoryLimitErrors.length === 0 && totalItemCount <= 10 &&
-            <Alert severity="info">
-              Usual limit for total and category items helps make sure everyone has enough. If a resident truly needs an extra, please chat with staff.
-            </Alert>}
-
-          {categoryLimitErrors.length > 0 &&
-            <Alert severity="warning">
-              {categoryLimitErrors.map(c => c.category).join(', ')} over the limit
-            </Alert>
-          }
+          <Alert severity="info">
+            Usual limit for total and category items helps make sure everyone has enough. If a resident truly needs an extra, please chat with staff.
+          </Alert>}   
 
         </Box>
         <DialogContent

@@ -256,9 +256,17 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   : 'black',
             }}
           >
-            <strong>Total Items Checked Out: </strong>
+            <strong>Total Items: </strong>
             {allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10
-            allowed
+          </Typography>
+          <Typography>
+            <strong>Categories: </strong>
+            {checkoutItems.reduce((acc, category) => {
+              if (category.categoryCount > 0) { 
+                return acc + 1
+              } 
+              return acc;
+            }, 0)}
           </Typography>
 
           {/* Display category limit errors */}

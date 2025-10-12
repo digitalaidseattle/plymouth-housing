@@ -99,7 +99,6 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       setErrorMessage('The quantity must be a non-decimal number.');
       return false;
     }
-    const qty = formData.quantity;
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
@@ -109,7 +108,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
         headers,
         body: JSON.stringify({
           user_id: loggedInUserId,
-          item: [{ id: updateItem.id, quantity: qty }],
+          item: [{ id: updateItem.id, quantity: formData.quantity }],
         })
       });
       if (!response.ok) {

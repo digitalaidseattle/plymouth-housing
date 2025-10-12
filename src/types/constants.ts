@@ -19,7 +19,7 @@ export const ENDPOINTS = {
   PROCESS_INVENTORY_CHANGE: '/data-api/rest/process-inventory-change',
   RECENT_TRANSACTIONS: '/data-api/rest/recent-transactions',
   CHECK_PAST_CHECKOUT: '/data-api/rest/check-past-checkout',
-  PROCESS_INVENTORY_REPLACE_QUANTITY: '/data-api/rest/process-inventory-reset-quantity',
+  PROCESS_INVENTORY_RESET_QUANTITY: '/data-api/rest/process-inventory-reset-quantity',
   //Views
   EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
   CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',

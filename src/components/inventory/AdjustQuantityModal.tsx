@@ -96,6 +96,10 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       if (!response.ok) {
         throw new Error(response.statusText);
       } else {
+        const data = await response.json();
+        if (data[0].Status === 'Error') {
+          throw new Error(data[0].message);
+        }
         fetchData();
         handleSnackbar({open: true, message: `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`, severity: 'success'});
         resetInputsHandler();

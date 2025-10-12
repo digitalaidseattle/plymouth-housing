@@ -28,9 +28,8 @@ BEGIN
     IF @ItemId IS NULL OR @Quantity IS NULL OR @Quantity < 0
         THROW 51003, 'Invalid item id or quantity (must be a non-negative integer).', 1;
     
-    BEGIN TRANSACTION
-    
-    BEGIN TRY            
+    BEGIN TRY  
+        BEGIN TRANSACTION          
         DECLARE @new_transaction_id UNIQUEIDENTIFIER;
 
         EXEC LogTransaction
@@ -39,14 +38,11 @@ BEGIN
             @resident_id = NULL,
             @new_transaction_id = @new_transaction_id OUTPUT;
         
-        BEGIN
-            EXEC LogTransactionItem
-                @transaction_id = @new_transaction_id,
-                @item_id = @ItemId,
-                @quantity = @Quantity,
-                @additional_notes = @AdditionalNotes;
-    
-        END
+        EXEC LogTransactionItem
+            @transaction_id = @new_transaction_id,
+            @item_id = @ItemId,
+            @quantity = @Quantity,
+            @additional_notes = @AdditionalNotes;
 
         -- Update inventory
         UPDATE i
@@ -57,13 +53,12 @@ BEGIN
         IF @@ROWCOUNT <> 1
             THROW 51004, 'No item updated. Invalid item id or concurrent change.', 1;
         
-        COMMIT TRANSACTION
-        
         -- Return success status with transaction ID
         SELECT 
             'Success' as Status,
             @new_transaction_id AS message
-        
+
+        COMMIT TRANSACTION
     END TRY
     BEGIN CATCH
         -- Rollback transaction if any error occurs

@@ -96,7 +96,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
         throw new Error(response.statusText);
       } else {
         const data = await response.json();
-        if (data[0].Status === 'Error') {
+        if (data.value[0].Status === 'Error') {
           throw new Error(data[0].message);
         }
         fetchData();

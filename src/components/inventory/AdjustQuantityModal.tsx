@@ -34,7 +34,6 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
 
   const DialogTitle = styled('h1')({
      fontSize: '1.25rem', 
@@ -189,10 +188,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
           {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')}  severity={'error'}> {errorMessage} </SnackbarAlert> : null}
         </Box>
     </DialogTemplate>
-
-    
   )
-
 }
 
 export default AdjustQuantityModal;

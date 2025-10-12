@@ -82,11 +82,11 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const qty = formData.newQuantity;
       const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_REPLACE_QUANTITY, { 
         method: "POST", 
-        headers: API_HEADERS, 
+        headers, 
         body: JSON.stringify({ 
           user_id: loggedInUserId,
           item: [{ id: itemToEdit?.id, quantity: qty, 

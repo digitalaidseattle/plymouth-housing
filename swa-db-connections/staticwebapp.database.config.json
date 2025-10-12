@@ -294,14 +294,14 @@
         }
       ]
     },
-    "ProcessInventoryReplaceQuantity": {
+    "ProcessInventoryResetQuantity": {
       "source": {
-        "object": "dbo.ProcessInventoryReplaceQuantity",
+        "object": "dbo.ProcessInventoryResetQuantity",
         "type": "stored-procedure"
       },
       "rest": {
         "enabled": true,
-        "path": "/process-inventory-replace-quantity"
+        "path": "/process-inventory-reset-quantity"
       },
       "permissions": [
         {

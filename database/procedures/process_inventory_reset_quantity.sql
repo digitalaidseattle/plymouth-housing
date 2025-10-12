@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS [dbo].[ProcessInventoryReplaceQuantity];
+DROP PROCEDURE IF EXISTS [dbo].[ProcessInventoryResetQuantity];
 GO
 
-CREATE PROCEDURE ProcessInventoryReplaceQuantity
+CREATE PROCEDURE ProcessInventoryResetQuantity
     @user_id INT,
     @item NVARCHAR(MAX)
 AS

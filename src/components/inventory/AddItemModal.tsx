@@ -99,9 +99,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       setErrorMessage('The quantity must be a non-decimal number.');
       return false;
     }
-    const qty = typeof formData.quantity === 'string'
-      ? Number(formData.quantity)
-      : formData.quantity;
+    const qty = formData.quantity;
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {

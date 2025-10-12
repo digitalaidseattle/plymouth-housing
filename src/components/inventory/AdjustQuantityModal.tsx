@@ -106,8 +106,8 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       }
     }
     catch (error) {
-      console.error('Error updating to database:', error);
-      setErrorMessage(`${error}`)
+      console.error('Error updating the database:', error);
+      setErrorMessage(`Error updating the database: ${error}`)
     }
     finally {
       setIsSubmitting(false);

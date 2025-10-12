@@ -145,7 +145,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
               <TextField 
                 sx={{ textAlign: 'center', width: '100%' }} 
-                value={formData.newQuantity} 
+                value={formData.newQuantity ?? ''} 
                 type="number" 
                 placeholder="Enter the updated quantity"
                 onChange={(e) => handleInputChange('newQuantity', e.target.value)}></TextField>

@@ -139,7 +139,9 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
           anchorEl={anchors.status}
         >
           {statusOptions.map((status) => 
-            <MenuItem onClick={() => handleMenuClick('status', status)}>
+            <MenuItem 
+              key={status}
+              onClick={() => handleMenuClick('status', status)}>
               {status}
             </MenuItem>
           )}

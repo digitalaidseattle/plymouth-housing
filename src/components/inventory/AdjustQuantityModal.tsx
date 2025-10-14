@@ -100,8 +100,11 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
         throw new Error(response.statusText);
       } else {
         const data = await response.json();
-        if (data.value[0].Status === 'Error') {
+        if (data && data.length > 0 && data.value[0].Status === 'Error') {
           throw new Error(data[0].message);
+        }
+        if (!data || data.length === 0) {
+          throw new Error('Empty response from server.');
         }
         fetchData();
         handleSnackbar({open: true, message: `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`, severity: 'success'});

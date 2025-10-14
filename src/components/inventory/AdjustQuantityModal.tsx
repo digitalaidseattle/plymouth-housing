@@ -68,6 +68,10 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
       setErrorMessage('Invalid item')
       return;
     } 
+    if (loggedInUserId === null) {
+      setErrorMessage('You must be signed in to update inventory.');
+      return;
+    }
     if (formData.newQuantity === null) {
       setErrorMessage('You must enter a number for the new quantity.')
       return;

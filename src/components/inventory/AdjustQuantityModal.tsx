@@ -165,6 +165,7 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
                 row
                 aria-labelledby="demo-row-radio-buttons-group-label"
                 name="row-radio-buttons-group"
+                value={formData.howYouKnow}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('howYouKnow', (e.target as HTMLInputElement).value)}
               >
                 <FormControlLabel value="counted" control={<Radio />} label="Counted" />

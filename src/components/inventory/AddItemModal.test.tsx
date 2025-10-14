@@ -1,16 +1,14 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import AddItemModal from './AddItemModal';
 import { UserContext } from '../contexts/UserContext';
 import { InventoryItem, ClientPrincipal } from '../../types/interfaces';
 import '@testing-library/jest-dom';
 
-// Mock crypto.randomUUID
 const mockUUID = 'a-random-uuid';
 vi.stubGlobal('crypto', {
     randomUUID: () => mockUUID
 });
-
 
 const mockFetchData = vi.fn();
 const mockHandleAddClose = vi.fn();
@@ -60,7 +58,7 @@ describe('AddItemModal', () => {
 
     it('should handle a successful transaction', async () => {
         const mockSuccessResponse = [{ Status: 'Success', message: mockUUID }];
-        (global.fetch as vi.Mock).mockResolvedValue({
+        (fetch as Mock).mockResolvedValue({
             ok: true,
             json: () => Promise.resolve(mockSuccessResponse),
         });
@@ -82,16 +80,14 @@ describe('AddItemModal', () => {
             fireEvent.click(screen.getByRole('option', { name: /Item 1/ }));
         });
 
-        // The quantity input
         const quantityInput = screen.getByRole('spinbutton');
         fireEvent.change(quantityInput, { target: { value: '5' } });
 
-        // Submit form
         fireEvent.click(screen.getByRole('button', { name: /submit/i }));
 
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledTimes(1);
-            const fetchCall = (global.fetch as vi.Mock).mock.calls[0];
+            const fetchCall = (fetch as Mock).mock.calls[0];
             const body = JSON.parse(fetchCall[1].body);
             expect(body.item[0].quantity).toBe(5);
             expect(body.new_transaction_id_from_client).toBe(mockUUID);
@@ -102,7 +98,7 @@ describe('AddItemModal', () => {
 
     it('should handle a failing transaction (duplicate)', async () => {
         const mockErrorResponse = [{ Status: 'Error', message: 'Transaction with this ID already exists.' }];
-        (global.fetch as vi.Mock).mockResolvedValue({
+        (fetch as Mock).mockResolvedValue({
             ok: true, // The server returns 200 OK but with an error status in the body
             json: () => Promise.resolve(mockErrorResponse),
         });

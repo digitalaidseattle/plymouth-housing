@@ -1,5 +1,5 @@
 import { Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, IconButton, useTheme, styled, Alert } from '@mui/material';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
@@ -33,6 +33,13 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (addModal) {
+        setTransactionId(crypto.randomUUID());
+    }
+  }, [addModal]);
 
   const newTotalQuantity = Number(updateItem?.quantity) + Number(formData.quantity);
 
@@ -53,7 +60,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
   const handleInputChange = (field: string, value: string | number) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [field]: value,
+      [field]: field === 'quantity' ? Number(value) : value,
     }))
     if (field === 'type' && typeof value === 'string') {
       const filteredItems = originalData.filter(
@@ -103,13 +110,24 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
         body: JSON.stringify({
           user_id: loggedInUserId,
           item: [{ id: updateItem.id, quantity: formData.quantity }],
+          new_transaction_id_from_client: transactionId
         })
       });
-      if (!response.ok) {
-        throw new Error(response.statusText);
+      const result = await response.json();
+      if (!result) {
+        throw new Error("Response contained no data");
       }
-      fetchData();
-      setShowResults(true);
+      const resultData = result[0];
+
+      if (response.ok && resultData && resultData.Status === 'Success') {
+        fetchData();
+        setShowResults(true);
+      } else if (resultData && resultData.Status === 'Error' && resultData.message.includes('Transaction with this ID already exists')) {
+        setErrorMessage('This transaction has already been submitted.');
+      }
+      else {
+        throw new Error(resultData ? resultData.message : response.statusText);
+      }
     }
     catch (error) {
       console.error('Error updating the database:', error);

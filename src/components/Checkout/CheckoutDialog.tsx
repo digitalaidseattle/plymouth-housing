@@ -66,12 +66,14 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [categoryLimitErrors, setCategoryLimitErrors] = useState<string[]>([]);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
       setStatusMessage('');
       setAllItems(checkoutItems.flatMap((item) => item.items));
+      setTransactionId(crypto.randomUUID());
 
       const errors: string[] = [];
       checkoutItems.forEach((category) => {
@@ -101,7 +103,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         );
       }
 
-      const newTransactionID = crypto.randomUUID();
+      if (!transactionId) {
+        throw new Error('Transaction ID not created.');
+      }
 
       const welcomeBasketItemIds = welcomeBasketData.flatMap((basket) =>
         basket.items.map((item) => item.id),
@@ -112,7 +116,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       let data = null;
       if (isWelcomeBasket) {
         data = await processWelcomeBasket(
-          newTransactionID,
+          transactionId,
           user,
           loggedInUserId,
           allItems,
@@ -120,7 +124,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         );
       } else {
         data = await processGeneralItems(
-          newTransactionID,
+          transactionId,
           user,
           loggedInUserId,
           allItems,

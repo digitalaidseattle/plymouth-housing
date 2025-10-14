@@ -82,14 +82,14 @@ const AdjustQuantityModal = ({ showDialog, handleClose, fetchData, itemToEdit, h
     document.body.style.cursor = 'wait';
     try {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const qty = formData.newQuantity;
       const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_RESET_QUANTITY, { 
         method: "POST", 
         headers, 
         body: JSON.stringify({ 
           user_id: loggedInUserId,
-          item: [{ id: itemToEdit?.id, quantity: qty, 
-            additional_notes: JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }) }],
+          item_id: itemToEdit?.id, 
+          new_quantity: formData.newQuantity, 
+          additional_notes: JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }),
         }) 
       });
       if (!response.ok) {

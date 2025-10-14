@@ -3,27 +3,22 @@ GO
 
 CREATE PROCEDURE ProcessInventoryResetQuantity
     @user_id INT,
-    @item NVARCHAR(MAX)
+    @item_id INT,
+    @new_quantity INT,
+    @additional_notes NVARCHAR(MAX)
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
-    -- Validate JSON
-    IF ISJSON(@item) = 0
-    BEGIN
-        THROW 51002, 'Invalid JSON format', 1;
-    END
-
     DECLARE @ItemId INT;
     DECLARE @Quantity INT;
     DECLARE @AdditionalNotes NVARCHAR(MAX);
 
-      -- Expect exactly one element in the array; extract typed values from index 0
     SELECT
-        @ItemId = TRY_CONVERT(INT, JSON_VALUE(@item, '$[0].id')),
-        @Quantity = TRY_CONVERT(INT, JSON_VALUE(@item, '$[0].quantity')),
-        @AdditionalNotes = JSON_VALUE(@item, '$[0].additional_notes');
+        @ItemId = @item_id,
+        @Quantity = @new_quantity,
+        @AdditionalNotes = @additional_notes;
 
     IF @ItemId IS NULL OR @Quantity IS NULL OR @Quantity < 0
         THROW 51003, 'Invalid item id or quantity (must be a non-negative integer).', 1;

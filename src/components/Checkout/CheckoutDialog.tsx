@@ -201,7 +201,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     return (
       <>
         <DialogTitle
-          sx={{ padding: '20px 0px 0px 0px' }}
+          sx={{ padding: '20px 0px 0px 0px', marginBottom: '1rem' }}
           id="customized-dialog-title"
         >
           <Typography sx={{ fontSize: '1.5rem' }}>
@@ -211,7 +211,19 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Typography>Please chat with a staff member before continuing.</Typography>
+          {totalItemLimitExceeded && 
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Typography>Total Items:</Typography>
+            <Typography>{totalItemCount} / 10</Typography>
+          </Box>}
+          {categoryLimitExceeded &&
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Typography>Categories:</Typography>
+            <Box>
+              {categoryLimitErrors.map(c => <Typography>{`${c.category}: ${c.categoryCount} / ${c.checkout_limit}`}</Typography>)}
+            </Box>
+          </Box>}
+          <Typography sx={{ marginTop: '1rem' }}>Please chat with a staff member before continuing.</Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
           <Button
@@ -235,7 +247,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               },
             }}
           >
-            {isProcessing ? 'Working...' : 'Confirm'}
+            {isProcessing ? 'Working...' : 'Staff said it is ok'}
           </Button>
         </DialogActions>
       

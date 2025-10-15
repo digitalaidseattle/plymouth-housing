@@ -93,6 +93,12 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       setErrorMessage('Missing Information or Quantity cannot be 0')
       return;
     }
+    // regex test to check for only whole numbers, including negatives
+    const rx = new RegExp(/^-?\d+$/);
+    if (!rx.test(formData.quantity.toString())) {
+      setErrorMessage('The quantity must be a non-decimal number.');
+      return false;
+    }
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
@@ -191,7 +197,13 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
           >
             <Remove sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
-          <TextField inputProps={{ style: { textAlign: 'center', width: '5rem' } }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
+          <TextField 
+            sx={{ textAlign: 'center', width: '5rem' }} 
+            value={formData.quantity} 
+            type="number" 
+            onChange={(e) => handleInputChange('quantity', e.target.value)}
+            name="quantity"
+          />
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
@@ -236,10 +248,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
         {showResults ? ResultsContent() : QuantityForm()}
       </Box>
     </DialogTemplate>
-
-
   )
-
 }
 
 export default AddItemModal;

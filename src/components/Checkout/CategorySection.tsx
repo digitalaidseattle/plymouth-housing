@@ -82,7 +82,7 @@ const CategorySection = ({
         >
           {categoryCheckout?.categoryCount} of {category.checkout_limit}
           {categoryCheckout?.categoryCount > category.checkout_limit &&
-            ' (Exceeds limit)'}
+            ' (Over usual limit)'}
         </Typography>
       </Box>
       <Grid

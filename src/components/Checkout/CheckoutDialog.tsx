@@ -8,6 +8,7 @@ import {
   Typography,
   Box,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   CategoryProps,
@@ -65,7 +66,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [categoryLimitErrors, setCategoryLimitErrors] = useState<string[]>([]);
+  const [categoryLimitErrors, setCategoryLimitErrors] = useState<CategoryProps[]>([]);
+  const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
+
+  const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItemLimitExceeded = totalItemCount > 10;
+  const categoryLimitExceeded = categoryLimitErrors.length > 0;
 
   useEffect(() => {
     if (open) {
@@ -73,12 +79,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       setStatusMessage('');
       setAllItems(checkoutItems.flatMap((item) => item.items));
 
-      const errors: string[] = [];
+      const errors: CategoryProps[] = [];
       checkoutItems.forEach((category) => {
         if (category.categoryCount > category.checkout_limit) {
-          errors.push(
-            `${category.category}: ${category.categoryCount} items (limit: ${category.checkout_limit})`,
-          );
+          errors.push(category);
         }
       });
       setCategoryLimitErrors(errors);
@@ -91,7 +95,11 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     onClose();
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (bypassWarning?: boolean) => {
+    if (bypassWarning !== true && (totalItemLimitExceeded || categoryLimitExceeded)) {
+      setShowLimitConfirmation(true);
+      return;
+    }
     setIsProcessing(true);
     document.body.style.cursor = 'wait';
     try {
@@ -185,51 +193,60 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     } finally {
       setIsProcessing(false);
       document.body.style.cursor = 'default';
+      setShowLimitConfirmation(false);
     }
   };
 
-  return (
-    <Dialog
-      sx={{
-        '& .MuiDialog-paper': {
-          width: { xs: '80vw', md: '65vw' },
-          maxHeight: '80vh',
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          borderRadius: '15px',
-        },
-      }}
-      onClose={onClose}
-      aria-labelledby="customized-dialog-title"
-      open={open}
-    >
-      <Box
-        sx={{
-          width: { xs: '90%', s: '80%', md: '70%' },
-          paddingTop: '20px',
-          height: '100%',
-          position: 'relative',
-        }}
-      >
-        {isProcessing && (
-          <Box
+  const overLimitConfirmationContent = () => {
+    return (
+      <>
+        <DialogTitle
+          sx={{ padding: '20px 0px 0px 0px' }}
+          id="customized-dialog-title"
+        >
+          <Typography sx={{ fontSize: '1.5rem' }}>
+            {totalItemLimitExceeded && categoryLimitExceeded ? 'Over the usual limits' :
+            totalItemLimitExceeded ? 'Over the usual total limit' :
+            'Over the usual category limit'}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Typography>Please chat with a staff member before continuing.</Typography>
+        </DialogContent>
+        <DialogActions sx={{ marginTop: 'auto' }}>
+          <Button
+            onClick={() => setShowLimitConfirmation(false)}
             sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.7)',
-              zIndex: 1,
+              color: 'black',
+              textDecoration: 'underline',
             }}
           >
-            <CircularProgress />
-          </Box>
-        )}
+            Return to Checkout Summary
+          </Button>
+          <Button
+            onClick={() => handleConfirm(true)}
+            disabled={isProcessing}
+            sx={{
+              color: 'black',
+              backgroundColor: '#F2F2F2',
+              '&.Mui-disabled': {
+                backgroundColor: '#E0E0E0',
+                color: '#757575',
+              },
+            }}
+          >
+            {isProcessing ? 'Working...' : 'Confirm'}
+          </Button>
+        </DialogActions>
+      
+      
+      </>
+    )
+  }
+
+  const checkoutSummaryContent = () => {
+    return (
+      <>
         <DialogTitle
           sx={{ padding: '20px 0px 0px 0px' }}
           id="customized-dialog-title"
@@ -248,59 +265,33 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             <strong>Building code: </strong>
             {selectedBuildingCode}
           </Typography>
-          <Typography
-            sx={{
-              color:
-                allItems.reduce((acc, item) => acc + item.quantity, 0) > 10
-                  ? 'red'
-                  : 'black',
-            }}
-          >
-            <strong>Total Items Checked Out: </strong>
-            {allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10
-            allowed
-          </Typography>
 
-          {/* Display category limit errors */}
-          {categoryLimitErrors.length > 0 && (
-            <Box
-              sx={{
-                marginTop: '10px',
-                padding: '10px',
-                backgroundColor: '#ffebee',
-                borderRadius: '4px',
-              }}
-            >
-              <Typography
-                sx={{
-                  color: '#c62828',
-                  fontWeight: 'bold',
-                  marginBottom: '5px',
-                }}
-              >
-                Category Limits Exceeded:
-              </Typography>
-              {categoryLimitErrors.map((error, index) => (
-                <Typography
-                  key={index}
-                  sx={{ color: '#c62828', fontSize: '14px' }}
-                >
-                  • {error}
-                </Typography>
-              ))}
-              <Typography
-                sx={{
-                  color: '#c62828',
-                  fontSize: '12px',
-                  marginTop: '5px',
-                  fontStyle: 'italic',
-                }}
-              >
-                Please remove items from the categories above to proceed with
-                checkout.
-              </Typography>
-            </Box>
-          )}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography>
+              <strong>Total Items: </strong>
+              {totalItemCount} / 10
+            </Typography>
+            {totalItemLimitExceeded && <Alert severity="warning">Over the usual limit</Alert>}
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography>
+              <strong>Categories: </strong>
+              {checkoutItems.reduce((acc, category) => {
+                return category.categoryCount > 0 ? acc + 1 : acc;
+              }, 0)} total
+            </Typography>   
+            {categoryLimitExceeded &&
+              <Alert severity="warning">
+                {categoryLimitErrors.map(c => c.category).join(', ')} over the limit
+              </Alert>
+            }
+          </Box>
+
+          <Alert severity="info">
+            Usual limit for total and category items helps make sure everyone has enough. If a resident truly needs an extra, please chat with staff.
+          </Alert>
+
         </Box>
         <DialogContent
           dividers
@@ -355,12 +346,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             Return to Checkout Page
           </Button>
           <Button
-            onClick={handleConfirm}
-            disabled={
-              isProcessing ||
-              allItems.reduce((acc, item) => acc + item.quantity, 0) > 10 ||
-              categoryLimitErrors.length > 0
-            }
+            onClick={() => handleConfirm()}
+            disabled={isProcessing}
             sx={{
               color: 'black',
               backgroundColor: '#F2F2F2',
@@ -373,6 +360,55 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             {isProcessing ? 'Working...' : 'Confirm'}
           </Button>
         </DialogActions>
+      </>
+    )
+  }
+
+  return (
+    <Dialog
+      sx={{
+        '& .MuiDialog-paper': {
+          width: { xs: '80vw', md: '65vw' },
+          maxHeight: '80vh',
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+          borderRadius: '15px',
+        },
+      }}
+      onClose={onClose}
+      aria-labelledby="customized-dialog-title"
+      open={open}
+    >
+      <Box
+        sx={{
+          width: { xs: '90%', s: '80%', md: '70%' },
+          paddingTop: '20px',
+          height: '100%',
+          position: 'relative',
+        }}
+      >
+        {isProcessing && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              zIndex: 1,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+
+        {showLimitConfirmation ? overLimitConfirmationContent() : checkoutSummaryContent()}
+      
       </Box>
     </Dialog>
   );

@@ -6,22 +6,22 @@ export const API_HEADERS = {
 
 export const ENDPOINTS = {
   //tables
-  USERS: '/data-api/api/users',
-  ITEMS: '/data-api/api/items',
-  CATEGORY: '/data-api/api/categories',
-  BUILDINGS: '/data-api/api/building',
-  UNITS: '/data-api/api/units',
-  RESIDENTS: '/data-api/api/residents',
+  USERS: '/api/users',
+  ITEMS: '/api/items',
+  CATEGORY: '/api/categories',
+  BUILDINGS: '/api/building',
+  UNITS: '/api/units',
+  RESIDENTS: '/api/residents',
   //Stored Procedures
-  VERIFY_PIN: '/data-api/api/verify-pin',
-  CHECKOUT_GENERAL_ITEMS: '/data-api/api/checkout-general-items',
-  CHECKOUT_WELCOME_BASKET: '/data-api/api/checkout-welcome-basket',
-  PROCESS_INVENTORY_CHANGE: '/data-api/api/process-inventory-change',
-  RECENT_TRANSACTIONS: '/data-api/api/recent-transactions',
-  CHECK_PAST_CHECKOUT: '/data-api/api/check-past-checkout',
+  VERIFY_PIN: '/api/verify-pin',
+  CHECKOUT_GENERAL_ITEMS: '/api/checkout-general-items',
+  CHECKOUT_WELCOME_BASKET: '/api/checkout-welcome-basket',
+  PROCESS_INVENTORY_CHANGE: '/api/process-inventory-change',
+  RECENT_TRANSACTIONS: '/api/recent-transactions',
+  CHECK_PAST_CHECKOUT: '/api/check-past-checkout',
   //Views
-  EXPANDED_ITEMS: '/data-api/api/itemswithcategory',
-  CATEGORIZED_ITEMS: '/data-api/api/itemsbycategory',
+  EXPANDED_ITEMS: '/api/itemswithcategory',
+  CATEGORIZED_ITEMS: '/api/itemsbycategory',
 } as const;
 
 export const SETTINGS = {

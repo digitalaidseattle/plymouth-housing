@@ -1,26 +1,15 @@
 {
-  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.1.7/dab.draft.schema.json",
+  "$schema": "https://github.com/Azure/data-api-builder/releases/latest/download/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "@env('DATABASE_CONNECTION_STRING')",
-    "options": {
-      "set-session-context": true
-    }
+    "connection-string": "@env('DATABASE_CONNECTION_STRING')"
   },
   "runtime": {
     "rest": {
-      "enabled": true,
-      "path": "/rest",
-      "request-body-strict": true
+      "enabled": true
     },
     "host": {
-      "cors": {
-        "origins": ["http://localhost:4280", "http://localhost:3000"],
-        "allow-credentials": true
-      },
-      "authentication": {
-        "provider": "StaticWebApps"
-      }
+      "mode": "development"
     }
   },
   "entities": {
@@ -33,15 +22,27 @@
       "rest": {
         "enabled": true,
         "path": "/items",
-        "methods": ["get", "post", "patch"]
+        "methods": [
+          "get",
+          "post",
+          "patch"
+        ]
       },
       "permissions": [
         {
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "role": "volunteer"
         }
       ]
@@ -55,15 +56,23 @@
       "rest": {
         "enabled": true,
         "path": "/itemswithcategory",
-        "methods": ["get", "post", "patch"]
+        "methods": [
+          "get",
+          "post",
+          "patch"
+        ]
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "volunteer"
         }
       ]
@@ -77,15 +86,23 @@
       "rest": {
         "enabled": true,
         "path": "/itemsbycategory",
-        "methods": ["get", "post", "patch"]
+        "methods": [
+          "get",
+          "post",
+          "patch"
+        ]
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "volunteer"
         }
       ]
@@ -102,11 +119,15 @@
       },
       "permissions": [
         {
-          "actions": ["*"],
+          "actions": [
+            "*"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "volunteer"
         }
       ]
@@ -120,19 +141,27 @@
       "rest": {
         "enabled": true,
         "path": "/building",
-        "methods": ["get", "post", "patch"]
+        "methods": [
+          "get",
+          "post",
+          "patch"
+        ]
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "volunteer"
         }
       ]
-    },   
+    },
     "Units": {
       "source": {
         "object": "dbo.Units",
@@ -142,19 +171,27 @@
       "rest": {
         "enabled": true,
         "path": "/units",
-        "methods": ["get", "post", "patch"]
+        "methods": [
+          "get",
+          "post",
+          "patch"
+        ]
       },
       "permissions": [
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "role": "volunteer"
         }
       ]
-    },   
+    },
     "Users": {
       "source": {
         "object": "dbo.Users",
@@ -167,11 +204,19 @@
       },
       "permissions": [
         {
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "role": "volunteer"
         }
       ]
@@ -185,15 +230,27 @@
       "rest": {
         "enabled": true,
         "path": "/residents",
-        "methods": ["get", "post", "patch"]
+        "methods": [
+          "get",
+          "post",
+          "patch"
+        ]
       },
       "permissions": [
         {
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "role": "volunteer"
         }
       ]
@@ -209,7 +266,9 @@
       },
       "permissions": [
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "volunteer"
         }
       ]
@@ -225,11 +284,15 @@
       },
       "permissions": [
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "volunteer"
         }
       ]
@@ -245,11 +308,15 @@
       },
       "permissions": [
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "volunteer"
         }
       ]
@@ -265,11 +332,15 @@
       },
       "permissions": [
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "volunteer"
         }
       ]
@@ -285,11 +356,15 @@
       },
       "permissions": [
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "admin"
         },
         {
-          "actions": ["execute"],
+          "actions": [
+            "execute"
+          ],
           "role": "volunteer"
         }
       ]

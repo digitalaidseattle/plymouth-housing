@@ -7,13 +7,14 @@ import {
 } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
-export async function processWelcomeBasket(user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
+export async function processWelcomeBasket(newTransactionID: string, user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
+        new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
         mattress_size: checkoutItems[0].id,
         quantity: checkoutItems[0].quantity,
@@ -29,13 +30,14 @@ export async function processWelcomeBasket(user: ClientPrincipal | null, loggedI
   }
 }
 
-export async function processGeneralItems(user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
+export async function processGeneralItems(newTransactionID: string, user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
+        new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
         items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity, additional_notes: item.additional_notes })),
         resident_id: residentInfo.id,

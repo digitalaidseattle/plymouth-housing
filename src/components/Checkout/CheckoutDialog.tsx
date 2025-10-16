@@ -21,7 +21,7 @@ import CategorySection from './CategorySection';
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (errorMessage?: string) => void;
   checkoutItems: CategoryProps[];
   welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
@@ -163,7 +163,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         const errorMessage = error.message.toLowerCase();
 
         if (errorMessage.includes('transaction already exists')) {
-          userFriendlyMessage = error.message;
+          setCheckoutItems([]);
+          onSuccess(error.message);
+          return;
         } else if (errorMessage.includes('cannot read properties of undefined')) {
           userFriendlyMessage =
             'There was a connection issue with the checkout system. Please try again in a moment.';

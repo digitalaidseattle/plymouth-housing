@@ -34,11 +34,12 @@ BEGIN
         WHERE t.id = @new_transaction_id;
 
         SET @error_message = CONCAT(
-            'Transaction already exists. GUID: ', CAST(@new_transaction_id AS NVARCHAR(36)),
+            'Transaction already exists. ', 
             ', Resident: ', ISNULL(@resident_name, 'Unknown'),
             ', Building: ', ISNULL(@building_code, 'Unknown'),
             ', Unit: ', ISNULL(@unit_number, 'Unknown'),
-            ', Date: ', ISNULL(CONVERT(NVARCHAR, @transaction_date, 120), 'Unknown')
+            ', Date: ', ISNULL(CONVERT(NVARCHAR, @transaction_date, 120), 'Unknown'),
+            ', ID: ', CAST(@new_transaction_id AS NVARCHAR(36))
         );
 
         SELECT

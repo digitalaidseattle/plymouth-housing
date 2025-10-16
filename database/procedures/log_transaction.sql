@@ -6,10 +6,9 @@ CREATE PROCEDURE LogTransaction
     @user_id INT,
     @transaction_type NVARCHAR(50),
     @resident_id INT,
-    @new_transaction_id UNIQUEIDENTIFIER OUTPUT
+    @new_transaction_id UNIQUEIDENTIFIER
 AS
 BEGIN
-    DECLARE @id UNIQUEIDENTIFIER = NEWID();
     INSERT INTO Transactions (
         id,
         user_id,
@@ -17,11 +16,9 @@ BEGIN
         resident_id
     )
     VALUES (
-        @id,
+        @new_transaction_id,
         @user_id,
         @transaction_type,
         @resident_id
     );
-
-    SET @new_transaction_id = @id;
 END;

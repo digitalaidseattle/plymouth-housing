@@ -83,7 +83,10 @@ describe('useUsers hook', () => {
       });
 
     const { result } = renderHook(() => useUsers(), { wrapper });
-    await waitFor(() => result.current.loading === false);
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.originalData).toHaveLength(2);
+    });
 
     await act(async () => {
       await result.current.updateUserStatus(1);

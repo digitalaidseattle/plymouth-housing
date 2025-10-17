@@ -2,7 +2,11 @@
 
 ## Intro
 
-In Azure we use Static Web Apps (SWA) as our hosting platform. All the documentation for SWA is [here](https://learn.microsoft.com/en-us/azure/static-web-apps/). In addition we are using Azure SQL and the [SWA database connection feature](https://learn.microsoft.com/en-us/azure/static-web-apps/database-overview) based on [Data API builder](https://learn.microsoft.com/en-us/azure/data-api-builder/).
+In Azure we use Static Web Apps (SWA) as our hosting platform. All the documentation for SWA is [here](https://learn.microsoft.com/en-us/azure/static-web-apps/).
+
+For the API layer, we use [Data API builder (DAB)](https://learn.microsoft.com/en-us/azure/data-api-builder/) running in **Azure Container Apps**. This replaces the deprecated SWA database connection feature and provides a containerized REST API layer between the frontend and Azure SQL Database.
+
+For detailed DAB setup instructions, see [DAB-setup.md](DAB-setup.md).
 
 ## Requirements
 
@@ -43,47 +47,50 @@ There are tutorials that will help you get started:
 
 ### Securing the API and the Routes
 
-To allow the appropriate level of permissions on the API and the routes, you need to follow 
-- [these steps from the SWA documentation](https://learn.microsoft.com/en-us/azure/static-web-apps/authentication-custom?tabs=aad%2Cinvitations#manage-roles) and 
-- [these from the DAP documentation](https://learn.microsoft.com/en-us/azure/data-api-builder/authorization). 
+To allow the appropriate level of permissions on the API and the routes, you need to follow:
+- [These steps from the SWA documentation](https://learn.microsoft.com/en-us/azure/static-web-apps/authentication-custom?tabs=aad%2Cinvitations#manage-roles) for route authentication
+- [These from the DAB documentation](https://learn.microsoft.com/en-us/azure/data-api-builder/authorization) for API permissions
 
-This will allow you to set the ```permissions``` on the ```entities``` in [```staticwebapp.database.config.json```](..//swa-db-connections/staticwebapp.database.config.json). 
+This will allow you to set the `permissions` on the `entities` in [`dab/dab-config.json`](../dab/dab-config.json).
 
-Permission on the routes only work for server side routing. This React app is purely client side, so routing permissions with roles don't work. 
+Permission on the routes only work for server side routing. This React app is purely client side, so routing permissions with roles don't work.
 
-There are two requirements that need to be fullfilled:
-- the X-MS-API-ROLE HEADER needs to be present on all REST API calls. It should be one of the roles (or the built-in roles authenticated or anonymous)
-- the ```staticwebapp.config.json``` should not be blank but contain at least the default as in the documents. 
+There are two requirements that need to be fulfilled:
+- The X-MS-API-ROLE header needs to be present on all REST API calls. It should be one of the roles (or the built-in roles authenticated or anonymous)
+- The `staticwebapp.config.json` should not be blank but contain at least the default as in the documents
 
-When you start the application with ```swa start```, it will now create a proxy page that allows you to enter the role it will propagate to the REST API. 
+When you start the application with `swa start`, it will now create a proxy page that allows you to enter the role it will propagate to the REST API. 
 
-## Database 
+## Database and API Layer
 
-### Production/Staging
+### Production/Staging Database Setup
 
-The template uses a SQL database. We will use an Azure SQL Serverless database with Managed Identity. 
+The application uses Azure SQL Serverless database with Managed Identity. For detailed database setup instructions, see [database-setup.md](database-setup.md).
 
-There are tutorials here:
-- https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql
-- https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-msi-azure-database
+**Quick overview:**
 
-1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)
+1. Create an Azure SQL database in the Azure portal (General Purpose, Serverless)
+2. Set up Managed Identity for your Container App (see [DAB-setup.md](DAB-setup.md))
+3. Grant the Container App's managed identity access to SQL Server:
+   ```sql
+   create user [container-app-name] from external provider;
+   alter role db_datareader add member [container-app-name];
+   alter role db_datawriter add member [container-app-name];
+   ```
+4. Bootstrap the database using the scripts in [database-setup.md](database-setup.md)
 
-1. You can (and likely should) use **Managed Identity** to access your SQL server. There is not a step-by-step tutorial, but [this is a good introduction](https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-app-access-storage-javascript?tabs=azure-portal) to enable Managed Identity for the SWA. You can stop at **Create a storage account**. 
+### API Layer (Data API Builder)
 
-1. Then you need to tell SQL to allow your SWA. You can run the SQL query [from this article](https://www.pluralsight.com/resources/blog/guides/how-to-use-managed-identity-with-azure-sql-database#:~:text=In%20order%20to%20allow%20managed%20identities%20to%20connect%20to%20Azure) to add the user. 
+The API layer uses **Data API Builder (DAB)** running in **Azure Container Apps**. This provides a REST API for the frontend to access the database.
 
-    ```
-    create user [my-swa] from external provider;
-    alter role db_datareader add member [my-swa];
-    alter role db_datawriter add member [my-swa];
-    ```
+**For complete DAB setup and deployment instructions, see [DAB-setup.md](DAB-setup.md).**
 
-    Replace the [my-swa] the name of your SWA.
-
-1. The rest of the steps to connect the database are in [the tutorial mentioned earlier](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest).  
-
-1. Finally, create and bootstrap the database as in the [database-setup.md](database-setup.md)
+Key steps:
+1. Create an Azure Container App Environment
+2. Deploy DAB using the official Microsoft Container Registry (MCR) image
+3. Configure your `dab-config.json` file
+4. Link the Container App to your Static Web App
+5. Configure environment variables and managed identity
 
 ---  
 

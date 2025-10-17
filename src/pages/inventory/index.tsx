@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Button, Pagination } from '@mui/material';
+import { Alert, Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
+import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
 import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
@@ -18,6 +19,8 @@ const Inventory = () => {
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'original'>('original');
   const [addModal, setAddModal] = useState(false);
+  const [adjustModal, setAdjustModal] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     type: '',
@@ -113,6 +116,15 @@ const Inventory = () => {
     setCurrentPage(value);
   };
 
+  const negativeItemCount = originalData.reduce((accumulator, currentVal: InventoryItem) => {
+    if (currentVal.quantity < 0) { 
+      return accumulator + 1;
+    } else {
+      return accumulator;
+    }
+  }, 0);
+
+
   const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(
       (row: {
@@ -162,8 +174,8 @@ const Inventory = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: API_HEADERS, method: 'GET' });
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: headers, method: 'GET' });
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error('Database is likely starting up. Try again in 30 seconds.');
@@ -185,8 +197,8 @@ const Inventory = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-      const response = await fetch(ENDPOINTS.CATEGORY, { headers: API_HEADERS, method: 'GET' });
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+      const response = await fetch(ENDPOINTS.CATEGORY, { headers: headers, method: 'GET' });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -243,6 +255,13 @@ const Inventory = () => {
 
   return (
     <Box ref={tableContainerRef} sx={{ height: '100%' }}>
+      {/* Negative item warning */}
+      <Box id="negative-warning-container" sx={{ display: 'flex', justifyContent: 'start', marginTop: '1rem' }}>
+        {negativeItemCount > 0 ? <Alert severity="warning">
+          {negativeItemCount} {negativeItemCount === 1 ? 'item needs' : 'items need'} review: 
+          &nbsp;{originalData.filter(i => i.quantity < 0).map(i => i.name).join(", ")}
+        </Alert> : <></>}
+      </Box>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
         <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
@@ -258,6 +277,14 @@ const Inventory = () => {
         originalData={originalData}
         showResults={showResults}
         setShowResults={setShowResults}
+      />
+
+      <AdjustQuantityModal
+        showDialog={adjustModal}
+        handleClose={()=>setAdjustModal(false)}
+        fetchData={fetchData}
+        itemToEdit={itemToEdit}
+        handleSnackbar={setSnackbarState}
       />
 
       {/* Inventory Filter */}
@@ -276,6 +303,8 @@ const Inventory = () => {
         currentItems={currentItems}
         sortDirection={sortDirection}
         handleSort={handleSort}
+        setAdjustModal={setAdjustModal}
+        setItemToEdit={setItemToEdit}
       />
 
       {/* Pagination */}

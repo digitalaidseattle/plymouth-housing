@@ -12,11 +12,11 @@ const useUsers = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(
         `${ENDPOINTS.USERS}`,
         {
-          headers: API_HEADERS,
+          headers: headers,
           method: 'GET',
         },
       );
@@ -49,11 +49,11 @@ const useUsers = () => {
       const updatedStatus = !userToUpdate.active;
 
       const requestUrl = `${ENDPOINTS.USERS}/id/${userId}`;
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
 
       const response = await fetch(requestUrl, {
         method: 'PATCH',
-        headers: API_HEADERS,
+        headers: headers,
         body: JSON.stringify({ active: updatedStatus }),
       });
 

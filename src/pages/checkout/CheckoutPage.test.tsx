@@ -13,6 +13,7 @@ const mockUserContext = {
   setLoggedInUserId: vi.fn(),
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
+  isLoading: false
 };
 
 describe('CheckoutPage', async () => {
@@ -132,7 +133,6 @@ describe('CheckoutPage', async () => {
     fireEvent.click(firstOption);
 
     const comboboxes = screen.getAllByRole('combobox');
-    console.log(comboboxes[0]);
     expect(comboboxes[0]).toHaveValue('B1 (Building 1)');
   });
 

@@ -19,6 +19,7 @@ type DialogTemplateProps = {
     submitButtonText?: string,
     backButtonText?: string,
     children: ReactNode,
+    isSubmitting?: boolean,
 }
 
 const DialogTemplate = ({
@@ -28,7 +29,8 @@ const DialogTemplate = ({
     title,
     submitButtonText,
     backButtonText,
-    children
+    children,
+    isSubmitting,
     }: DialogTemplateProps) => {
 
     const theme = useTheme();
@@ -65,7 +67,7 @@ const DialogTemplate = ({
 
             <DialogActions sx={{ display: 'flex', gap: '1rem' }}>
                 {backButtonText && <Button onClick={handleShowDialog} sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
-                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit}>{submitButtonText}</Button>}
+                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
             </DialogActions>
         </Dialog>
     );

@@ -32,6 +32,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const newTotalQuantity = Number(updateItem?.quantity) + Number(formData.quantity);
 
@@ -84,35 +85,48 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
     })
     setUpdateItem(null);
     setErrorMessage('');
+    setIsSubmitting(false);
   }
 
   const updateItemHandler = async () => {
     if (formData.type === '' || formData.name === '' || formData.quantity === 0 || !updateItem) {
       setErrorMessage('Missing Information or Quantity cannot be 0')
       return;
-    } else {
-      try {
-        API_HEADERS['X-MS-API-ROLE'] = getRole(user);
-        const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, {
-          method: "POST",
-          headers: API_HEADERS,
-          body: JSON.stringify({
-            user_id: loggedInUserId,
-            item: [{ id: updateItem.id, quantity: formData.quantity }],
-          })
-        });
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        } else {
-          setErrorMessage('');
-          fetchData();
-          setShowResults(true);
-        }
+    }
+    // regex test to check for only whole numbers, including negatives
+    const rx = new RegExp(/^-?\d+$/);
+    if (!rx.test(formData.quantity.toString())) {
+      setErrorMessage('The quantity must be a non-decimal number.');
+      return false;
+    }
+    setIsSubmitting(true);
+    document.body.style.cursor = 'wait';
+    try {
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+      const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          user_id: loggedInUserId,
+          item: [{ id: updateItem.id, quantity: formData.quantity }],
+        })
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
       }
-      catch (error) {
-        console.error('Error updating to database:', error);
-        setErrorMessage(`${error}`)
+      fetchData();
+      setShowResults(true);
+    }
+    catch (error) {
+      console.error('Error updating the database:', error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        setErrorMessage('Your system appears to be offline. Please check your connection and try again.');
+      } else {
+        setErrorMessage(`${error}`);
       }
+    } finally {
+      setIsSubmitting(false);
+      document.body.style.cursor = 'default';
     }
   }
 
@@ -183,7 +197,13 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
           >
             <Remove sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
-          <TextField inputProps={{ style: { textAlign: 'center', width: '5rem' } }} value={formData.quantity} type="number" onChange={(e) => handleInputChange('quantity', e.target.value)}></TextField>
+          <TextField 
+            sx={{ textAlign: 'center', width: '5rem' }} 
+            value={formData.quantity} 
+            type="number" 
+            onChange={(e) => handleInputChange('quantity', e.target.value)}
+            name="quantity"
+          />
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
@@ -198,7 +218,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
 
       <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
         <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-        <Button sx={{ color: 'black' }} onClick={updateItemHandler}>Submit</Button>
+        <Button sx={{ color: 'black' }} onClick={updateItemHandler} disabled={isSubmitting}>Submit</Button>
       </Box>
 
       {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')} severity={'error'}> {errorMessage} </SnackbarAlert> : null}
@@ -228,10 +248,7 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
         {showResults ? ResultsContent() : QuantityForm()}
       </Box>
     </DialogTemplate>
-
-
   )
-
 }
 
 export default AddItemModal;

@@ -93,6 +93,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
   const handleConfirm = async () => {
     setIsProcessing(true);
+    document.body.style.cursor = 'wait';
     try {
       if (!loggedInUserId) {
         throw new Error(
@@ -183,6 +184,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       onError(userFriendlyMessage);
     } finally {
       setIsProcessing(false);
+      document.body.style.cursor = 'default';
     }
   };
 

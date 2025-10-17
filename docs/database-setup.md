@@ -12,19 +12,19 @@ There are tutorials here:
 
 1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)
 
-1. You can (and likely should) use **Managed Identity** to access your SQL server. There is not a step-by-step tutorial, but [this is a good introduction](https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-app-access-storage-javascript?tabs=azure-portal) to enable Managed Identity for the SWA. You can stop at **Create a storage account**. 
+1. You can (and likely should) use **Managed Identity** to access your SQL server. Enable Managed Identity on your Azure Container App (the one running Data API Builder). [This is a good introduction](https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-app-access-storage-javascript?tabs=azure-portal) to the concept. For DAB-specific setup, see [DAB-setup.md](DAB-setup.md).
 
-1. Then you need to tell SQL to allow your SWA. You can run the SQL query [from this article](https://www.pluralsight.com/resources/blog/guides/how-to-use-managed-identity-with-azure-sql-database#:~:text=In%20order%20to%20allow%20managed%20identities%20to%20connect%20to%20Azure) to add the user. 
+1. Grant SQL access to your Container App's managed identity. Run this SQL query [from this article](https://www.pluralsight.com/resources/blog/guides/how-to-use-managed-identity-with-azure-sql-database#:~:text=In%20order%20to%20allow%20managed%20identities%20to%20connect%20to%20Azure):
 
+    ```sql
+    create user [container-app-name] from external provider;
+    alter role db_datareader add member [container-app-name];
+    alter role db_datawriter add member [container-app-name];
     ```
-    create user [my-swa] from external provider;
-    alter role db_datareader add member [my-swa];
-    alter role db_datawriter add member [my-swa];
-    ```
 
-    Replace the [my-swa] the name of your SWA.
+    Replace `[container-app-name]` with the name of your Azure Container App running DAB.
 
-1. The rest of the steps to connect the database are in [the tutorial mentioned earlier](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest).  
+1. The database connection is configured in the Container App environment variables. See [DAB-setup.md](DAB-setup.md) for complete deployment instructions.  
 
 ## Database for Development
 

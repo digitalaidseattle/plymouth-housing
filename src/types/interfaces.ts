@@ -129,3 +129,20 @@ export type ResidentInfo = {
   building: Building;
 }
 
+export type TransactionHistory = {
+  transaction_id: string;
+  transaction_date: string;
+  transaction_type: number;
+  transaction_type_name: string;
+  user_id: number;
+  user_name: string;
+  resident_id: number | null;
+  resident_name: string | null;
+  building_id: number | null;
+  building_code: string | null;
+  unit_id: number | null;
+  unit_number: string | null;
+  item_count: number;
+  total_quantity: number;
+}
+

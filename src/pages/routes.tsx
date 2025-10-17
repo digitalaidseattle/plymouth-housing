@@ -8,6 +8,7 @@ import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
 import CheckoutPage from './checkout/CheckoutPage';
+import TransactionsPage from './transactions';
 import { RootRedirect } from '../components/RootRedirect';
 
 const routes = [
@@ -63,6 +64,16 @@ const routes = [
           <RootRedirect source="checkout">
             <MainContainer title="Check out">
               <CheckoutPage />,
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'transactions',
+        element: (
+          <RootRedirect source="transactions">
+            <MainContainer title="Transactions">
+              <TransactionsPage />,
             </MainContainer>
           </RootRedirect>
         ),

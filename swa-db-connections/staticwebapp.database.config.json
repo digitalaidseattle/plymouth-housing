@@ -313,6 +313,28 @@
           "role": "volunteer"
         }
       ]
+    },
+    "TransactionHistory": {
+      "source": {
+        "object": "dbo.TransactionHistoryView",
+        "type": "view",
+        "key-fields": ["transaction_id"]
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/transaction-history",
+        "methods": ["get"]
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        },
+        {
+          "actions": ["read"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

@@ -23,6 +23,7 @@ export const ENDPOINTS = {
   //Views
   EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
   CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',
+  TRANSACTION_HISTORY: '/data-api/rest/transaction-history',
 } as const;
 
 export const SETTINGS = {
@@ -38,6 +39,6 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  'admin': ['inventory', 'checkout', 'people'],
-  'volunteer': ['volunteer-home', 'inventory', 'checkout']
+  'admin': ['inventory', 'checkout', 'people', 'transactions'],
+  'volunteer': ['volunteer-home', 'inventory', 'checkout', 'transactions']
 } as const;

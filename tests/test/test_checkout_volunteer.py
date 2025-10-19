@@ -1,7 +1,7 @@
 import pytest
-from pages.checkout_page import CheckOutPage
-from utilities.fixtures import login_with_volunteer
-from utilities.fixtures import driver
+from tests.pages.checkout_page import CheckOutPage
+from tests.utilities.fixtures import login_with_volunteer
+from tests.utilities.fixtures import driver
 
 
 @pytest.fixture(scope="function")

@@ -1,8 +1,8 @@
 import pytest
-from pages.login_page import LoginPage
-from utilities.fixtures import driver
-from utilities.data import VOLUNTEER_PASSWORD
-from utilities.data import VOLUNTEER_USERNAME
+from tests.pages.login_page import LoginPage
+from tests.utilities.fixtures import driver
+from tests.utilities.data import VOLUNTEER_PASSWORD
+from tests.utilities.data import VOLUNTEER_USERNAME
 
 @pytest.fixture(scope="function")  # Changed scope for better isolation
 def login_page(driver):

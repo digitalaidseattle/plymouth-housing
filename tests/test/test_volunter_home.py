@@ -1,8 +1,8 @@
 import pytest
-from pages.home_page import HomePage
-from pages.logout_page import LogoutPage
-from utilities.fixtures import login_with_volunteer
-from utilities.fixtures import driver
+from tests.pages.home_page import HomePage
+from tests.pages.logout_page import LogoutPage
+from tests.utilities.fixtures import login_with_volunteer
+from tests.utilities.fixtures import driver
 
 @pytest.fixture(scope="function")  # Changed scope for better isolation
 def home_page(driver):

@@ -1,10 +1,10 @@
 import pytest
-from pages.inventory_page import InventoryPage
-from pages.checkout_page import CheckOutPage
-from pages.add_item_page import AddItemPage
-from utilities.fixtures import login_with_volunteer
-from utilities.fixtures import driver
-from utilities.data import URL, ADMIN_PASSWORD, VOLUNTEER_PASSWORD
+from tests.pages.inventory_page import InventoryPage
+from tests.pages.checkout_page import CheckOutPage
+from tests.pages.add_item_page import AddItemPage
+from tests.utilities.fixtures import login_with_volunteer
+from tests.utilities.fixtures import driver
+from tests.utilities.data import URL, ADMIN_PASSWORD, VOLUNTEER_PASSWORD
 
 
 @pytest.fixture(scope="function")  # Changed scope for better isolation

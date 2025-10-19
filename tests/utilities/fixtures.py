@@ -2,13 +2,13 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 
-from pages.home_page import HomePage
-from pages.login_page import LoginPage
-from utilities.data import URL
-from utilities.data import ADMIN_PASSWORD
-from utilities.data import ADMIN_USERNAME
-from utilities.data import VOLUNTEER_USERNAME
-from utilities.data import VOLUNTEER_PASSWORD
+from tests.pages.home_page import HomePage
+from tests.pages.login_page import LoginPage
+from tests.utilities.data import URL
+from tests.utilities.data import ADMIN_PASSWORD
+from tests.utilities.data import ADMIN_USERNAME
+from tests.utilities.data import VOLUNTEER_USERNAME
+from tests.utilities.data import VOLUNTEER_PASSWORD
 
 @pytest.fixture(scope="module")
 def driver():

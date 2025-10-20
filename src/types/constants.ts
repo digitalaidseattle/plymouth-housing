@@ -1,3 +1,5 @@
+export const VITE_APPLICATION_NAME='Plymouth Housing';
+
 export const API_HEADERS = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=utf-8',

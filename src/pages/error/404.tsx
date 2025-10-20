@@ -1,13 +1,9 @@
-// material-ui
 import { Button, Grid, Stack, Typography } from '@mui/material';
-
-// project import
 import { useNavigate } from 'react-router';
 import Logo from '../../components/Logo/Logo';
 import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
-
-// ================================|| 404 ||================================ //
+import { VITE_APPLICATION_NAME } from '../../types/constants';
 
 const Page404: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +24,7 @@ const Page404: React.FC = () => {
           <Stack direction="row" spacing={1} alignItems="center">
             <Logo />
             <Typography variant="h5">
-              {import.meta.env.VITE_APPLICATION_NAME}
+              {VITE_APPLICATION_NAME}
             </Typography>
           </Stack>
         </Grid>

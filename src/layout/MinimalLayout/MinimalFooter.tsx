@@ -1,11 +1,9 @@
 /**
- *  MinimalFooter.tsx
  *
  *  @copyright 2024 Digital Aid Seattle
  *
  */
 
-// material-ui
 import {
   useMediaQuery,
   Container,
@@ -14,8 +12,7 @@ import {
   Stack,
   useTheme,
 } from '@mui/material';
-
-// ==============================|| FOOTER - AUTHENTICATION ||============================== //
+import { VITE_APPLICATION_NAME } from '../../types/constants';
 
 const MinimalFooter = () => {
   const theme = useTheme();
@@ -30,7 +27,7 @@ const MinimalFooter = () => {
         textAlign={matchDownSM ? 'center' : 'inherit'}
       >
         <Typography variant="subtitle2" color="secondary" component="span">
-          &copy; {import.meta.env.VITE_APPLICATION_NAME}&nbsp;
+          &copy; {VITE_APPLICATION_NAME}&nbsp;
           <Typography
             component={Link}
             variant="subtitle2"

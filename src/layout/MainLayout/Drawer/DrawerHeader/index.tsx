@@ -22,9 +22,7 @@ const DrawerHeader = (props: { open: boolean }) => {
     >
       <Stack direction="row" spacing={1} alignItems="center">
         <Logo />
-        <Typography variant="h5">
-          {VITE_APPLICATION_NAME}
-        </Typography>
+        <Typography variant="h5">{VITE_APPLICATION_NAME}</Typography>
       </Stack>
     </Box>
   );

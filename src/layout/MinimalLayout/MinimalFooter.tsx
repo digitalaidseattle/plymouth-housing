@@ -43,8 +43,7 @@ const MinimalFooter = () => {
           direction={matchDownSM ? 'column' : 'row'}
           spacing={matchDownSM ? 1 : 3}
           textAlign={matchDownSM ? 'center' : 'inherit'}
-        >
-        </Stack>
+        ></Stack>
       </Stack>
     </Container>
   );

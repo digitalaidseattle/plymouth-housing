@@ -220,7 +220,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Typography>Categories:</Typography>
             <Box>
-              {categoryLimitErrors.map(c => <Typography>{`${c.category}: ${c.categoryCount} / ${c.checkout_limit}`}</Typography>)}
+              {categoryLimitErrors.map(c => 
+                <Typography key={c.id}>{`${c.category}: ${c.categoryCount} / ${c.checkout_limit}`}</Typography>)}
             </Box>
           </Box>}
           <Typography sx={{ marginTop: '1rem' }}>Please chat with a staff member before continuing.</Typography>

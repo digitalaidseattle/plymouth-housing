@@ -4,20 +4,28 @@ _Give a brief context and description of the code change. Highlight anything you
 
 _The PR should have enough information so someone coming in fresh gets a sense of what's going on, but the details of the overall project can be documented on project.digitalaidseattle.org_
 
-## What type of PR is this? (check all applicable)
+## Jira Ticket
+- Closes: [PIT-???](https://das-ph-inventory-tracker.atlassian.net/browse/PIT-???)
 
-- [ ] Refactor
-- [ ] Feature
-- [ ] Bug Fix
-- [ ] Optimization
-- [ ] Documentation Update
+## Type of Change
+<!-- Select the relevant option(s) by putting an 'x' in the brackets -->
+**Type:** (Bug fix / New feature / Breaking change / Refactoring / Documentation / Configuration / Performance)
 
-## Related Tickets & Documents
+## Changes Made
+<!-- List the key changes made in this PR -->
+- 
+- 
 
-_Link user story from projects.digitalaidseattle.org_
-
-- Related Issue #
-- Closes #
+## Checklist
+<!-- Ensure all items are completed before requesting review -->
+- [ ] My code follows the project's style guidelines
+- [ ] I have ran [prettier](https://github.com/digitalaidseattle/plymouth-housing#code-formatting) on the code
+- [ ] I have performed a self-review of my code
+- [ ] I have commented my code only in hard-to-understand areas
+- [ ] I have updated the documentation accordingly
+- [ ] My changes generate no new warnings in Chrome Dev Tools
+- [ ] I have added unit tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
 
 ## QA Instructions, Screenshots, Recordings
 

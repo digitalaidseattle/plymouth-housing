@@ -300,7 +300,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             }
           </Box>
 
-          <Alert severity="info">
+          <Alert severity="info" sx={{ marginY: '1rem' }}>
             Usual limit for total and category items helps make sure everyone has enough. If a resident truly needs an extra, please chat with staff.
           </Alert>
 

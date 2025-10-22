@@ -19,7 +19,7 @@ _The PR should have enough information so someone coming in fresh gets a sense o
 ## Checklist
 <!-- Ensure all items are completed before requesting review -->
 - [ ] My code follows the project's style guidelines
-- [ ] I have ran [prettier](https://github.com/digitalaidseattle/plymouth-housing#code-formatting) on the code
+- [ ] I have run [prettier](https://github.com/digitalaidseattle/plymouth-housing#code-formatting) on the code
 - [ ] I have performed a self-review of my code
 - [ ] I have commented my code only in hard-to-understand areas
 - [ ] I have updated the documentation accordingly

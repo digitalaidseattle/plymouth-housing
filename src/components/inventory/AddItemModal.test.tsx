@@ -57,7 +57,7 @@ describe('AddItemModal', () => {
     });
 
     it('should handle a successful transaction', async () => {
-        const mockSuccessResponse = [{ Status: 'Success', message: mockUUID }];
+        const mockSuccessResponse = { value: [{ Status: 'Success', message: mockUUID }] };
         (fetch as Mock).mockResolvedValue({
             ok: true,
             json: () => Promise.resolve(mockSuccessResponse),
@@ -90,14 +90,14 @@ describe('AddItemModal', () => {
             const fetchCall = (fetch as Mock).mock.calls[0];
             const body = JSON.parse(fetchCall[1].body);
             expect(body.item[0].quantity).toBe(5);
-            expect(body.new_transaction_id_from_client).toBe(mockUUID);
+            expect(body.new_transaction_id).toBe(mockUUID);
             expect(mockFetchData).toHaveBeenCalledTimes(1);
             expect(mockSetShowResults).toHaveBeenCalledWith(true);
         });
     });
 
     it('should handle a failing transaction (duplicate)', async () => {
-        const mockErrorResponse = [{ Status: 'Error', message: 'Transaction with this ID already exists.' }];
+        const mockErrorResponse = { value: [{ Status: 'Error', message: 'Transaction with this ID already exists.' }] };
         (fetch as Mock).mockResolvedValue({
             ok: true, // The server returns 200 OK but with an error status in the body
             json: () => Promise.resolve(mockErrorResponse),

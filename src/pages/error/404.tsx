@@ -1,13 +1,9 @@
-// material-ui
 import { Button, Grid, Stack, Typography } from '@mui/material';
-
-// project import
 import { useNavigate } from 'react-router';
 import Logo from '../../components/Logo/Logo';
 import CenteredCard from '../../layout/MinimalLayout/CenteredCard';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
-
-// ================================|| 404 ||================================ //
+import { VITE_APPLICATION_NAME } from '../../types/constants';
 
 const Page404: React.FC = () => {
   const navigate = useNavigate();
@@ -24,17 +20,15 @@ const Page404: React.FC = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Grid size = {{xs:3}}  > 
+        <Grid size={{ xs: 3 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <Logo />
-            <Typography variant="h5">
-              {import.meta.env.VITE_APPLICATION_NAME}
-            </Typography>
+            <Typography variant="h5">{VITE_APPLICATION_NAME}</Typography>
           </Stack>
         </Grid>
         <CenteredCard>
           <Grid container spacing={3}>
-            <Grid size = {{xs:12}}>
+            <Grid size={{ xs: 12 }}>
               <Stack
                 direction="row"
                 justifyContent="space-between"
@@ -43,7 +37,7 @@ const Page404: React.FC = () => {
                 <Typography variant="h3">Page Not Found</Typography>
               </Stack>
             </Grid>
-            <Grid size = {{xs:12}}>
+            <Grid size={{ xs: 12 }}>
               <Stack
                 direction="row"
                 justifyContent="center"

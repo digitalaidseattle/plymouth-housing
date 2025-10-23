@@ -179,8 +179,10 @@ const AddItemModal = ({
         setErrorMessage(
           'Your system appears to be offline. Please check your connection and try again.',
         );
+      } else if (error instanceof Error) {
+        setErrorMessage(error.message);
       } else {
-        setErrorMessage(`${error.message}`);
+        setErrorMessage('An unexpected error occurred');
       }
     } finally {
       setIsSubmitting(false);

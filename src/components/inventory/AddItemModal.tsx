@@ -166,6 +166,10 @@ const AddItemModal = ({
         resultData.ErrorCode === 'DUPLICATE_TRANSACTION'
       ) {
         setErrorMessage('This transaction has already been submitted.');
+        // Close the dialog to generate a new transaction ID
+        setTimeout(() => {
+          resetInputsHandler();
+        }, 2000); // Give user time to see the error message
       } else {
         throw new Error(resultData ? resultData.message : response.statusText);
       }

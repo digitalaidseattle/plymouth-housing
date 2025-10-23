@@ -5,7 +5,7 @@ CREATE PROCEDURE LogTransactionItem
     @transaction_id UNIQUEIDENTIFIER,
     @item_id INT,
     @quantity INT,
-    @additional_notes NVARCHAR(100) = NULL
+    @additional_notes NVARCHAR(MAX) = NULL
 AS
 BEGIN
     INSERT INTO TransactionItems (

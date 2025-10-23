@@ -339,7 +339,8 @@ const CheckoutPage = () => {
     );
   }, [data]);
 
-  const handleCheckoutSuccess = () => {
+  const handleCheckoutSuccess = (errorMessage?: string) => {
+    const isError = !!errorMessage;
     const numberOfItems = checkoutItems.reduce(
       (accumulator, category) => accumulator + category.categoryCount,
       0,
@@ -347,9 +348,12 @@ const CheckoutPage = () => {
     const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {
-        checkoutSuccess: true,
-        message: `${numberOfItems} ${numberOfItems === 1 ? 'item has been' : 'items have been'
-          } checked out`,
+        checkoutSuccess: !isError,
+        message: isError
+          ? errorMessage
+          : `${numberOfItems} ${
+              numberOfItems === 1 ? 'item has been' : 'items have been'
+            } checked out`,
       },
     };
 

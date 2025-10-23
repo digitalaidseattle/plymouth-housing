@@ -14,6 +14,7 @@ BEGIN
     BEGIN
         SELECT 
             'Error' AS Status,
+            'DUPLICATE_TRANSACTION' AS ErrorCode,
             'Transaction with this ID already exists.' AS message;
         RETURN;
     END

@@ -163,7 +163,7 @@ const AddItemModal = ({
       } else if (
         resultData &&
         resultData.Status === 'Error' &&
-        resultData.message.includes('Transaction with this ID already exists')
+        resultData.ErrorCode === 'DUPLICATE_TRANSACTION'
       ) {
         setErrorMessage('This transaction has already been submitted.');
       } else {

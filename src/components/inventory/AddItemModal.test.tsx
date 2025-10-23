@@ -97,7 +97,7 @@ describe('AddItemModal', () => {
     });
 
     it('should handle a failing transaction (duplicate)', async () => {
-        const mockErrorResponse = { value: [{ Status: 'Error', message: 'Transaction with this ID already exists.' }] };
+        const mockErrorResponse = { value: [{ Status: 'Error', ErrorCode: 'DUPLICATE_TRANSACTION', message: 'Transaction with this ID already exists.' }] };
         (fetch as Mock).mockResolvedValue({
             ok: true, // The server returns 200 OK but with an error status in the body
             json: () => Promise.resolve(mockErrorResponse),
@@ -130,5 +130,13 @@ describe('AddItemModal', () => {
             expect(mockFetchData).not.toHaveBeenCalled();
             expect(mockSetShowResults).not.toHaveBeenCalled();
         });
+
+        // Verify that the dialog close is scheduled but hasn't happened yet
+        expect(mockHandleAddClose).not.toHaveBeenCalled();
+
+        // Wait for the 2 second timeout and verify the dialog close was called
+        await waitFor(() => {
+            expect(mockHandleAddClose).toHaveBeenCalledTimes(1);
+        }, { timeout: 3000 });
     });
 });

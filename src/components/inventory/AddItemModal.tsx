@@ -155,7 +155,7 @@ const AddItemModal = ({
         }
       }
 
-      const resultData = result.value[0];
+      const resultData = result?.value?.[0];
 
       if (response.ok && resultData && resultData.Status === 'Success') {
         fetchData();

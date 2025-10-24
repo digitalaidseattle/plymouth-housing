@@ -29,3 +29,8 @@ bundle-visualization.html
 bootstrap_db_results.rpt
 PSC_Inventory.xlsx
 database/tests/test.sql
+
+# Python compiled files
+__pycache__/
+*.pyc
+

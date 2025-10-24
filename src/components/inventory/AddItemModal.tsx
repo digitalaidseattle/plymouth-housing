@@ -119,9 +119,12 @@ const AddItemModal = ({
       formData.type === '' ||
       formData.name === '' ||
       formData.quantity === 0 ||
-      !updateItem
+      !updateItem ||
+      !transactionId
     ) {
-      setErrorMessage('Missing Information or Quantity cannot be 0');
+      setErrorMessage(
+        'Missing Information, Quantity cannot be 0, or Transaction ID not initialized',
+      );
       return;
     }
     // regex test to check for only whole numbers, including negatives
@@ -129,6 +132,10 @@ const AddItemModal = ({
     if (!rx.test(formData.quantity.toString())) {
       setErrorMessage('The quantity must be a non-decimal number.');
       return false;
+    }
+    if (!transactionId) {
+      setErrorMessage('Transaction ID is missing. Please try again.');
+      return;
     }
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';

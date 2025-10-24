@@ -9,16 +9,6 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check if the transaction ID already exists
-    IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
-    BEGIN
-        SELECT 
-            'Error' AS Status,
-            'DUPLICATE_TRANSACTION' AS ErrorCode,
-            'Transaction with this ID already exists.' AS message;
-        RETURN;
-    END
-
     -- Validate JSON
     IF ISJSON(@item) = 0
     BEGIN
@@ -39,7 +29,16 @@ BEGIN
     BEGIN TRANSACTION
     
     BEGIN TRY            
-        -- After transaction ID is obtained, set up cursor
+        -- Check if the transaction ID already exists
+        IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+        BEGIN
+            SELECT 
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
+
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
         DECLARE @CurrentAdditionalNotes NVARCHAR(255)

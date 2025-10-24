@@ -22,7 +22,28 @@ export async function processWelcomeBasket(newTransactionID: string, user: Clien
         message: "",
       }),
     });
-    if (!response.ok) throw new Error(response.statusText);
+
+    if (!response.ok) {
+      // Try to extract error message from response body
+      let errorMessage = `HTTP ${response.status}`;
+      try {
+        const errorData = await response.json();
+        if (errorData?.error?.message) {
+          errorMessage = errorData.error.message;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        } else if (response.statusText) {
+          errorMessage = `${response.status} ${response.statusText}`;
+        }
+      } catch {
+        // If JSON parsing fails, use status text
+        if (response.statusText) {
+          errorMessage = `${response.status} ${response.statusText}`;
+        }
+      }
+      throw new Error(errorMessage);
+    }
+
     return await response.json();
   } catch (error) {
       console.error('Error processing welcome basket:', error);
@@ -44,7 +65,28 @@ export async function processGeneralItems(newTransactionID: string, user: Client
         message: "",
       }),
     });
-    if (!response.ok) throw new Error(response.statusText);
+
+    if (!response.ok) {
+      // Try to extract error message from response body
+      let errorMessage = `HTTP ${response.status}`;
+      try {
+        const errorData = await response.json();
+        if (errorData?.error?.message) {
+          errorMessage = errorData.error.message;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        } else if (response.statusText) {
+          errorMessage = `${response.status} ${response.statusText}`;
+        }
+      } catch {
+        // If JSON parsing fails, use status text
+        if (response.statusText) {
+          errorMessage = `${response.status} ${response.statusText}`;
+        }
+      }
+      throw new Error(errorMessage);
+    }
+
     return await response.json();
   } catch (error) {
       console.error('Error processing general items:', error);

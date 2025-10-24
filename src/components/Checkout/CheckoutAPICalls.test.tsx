@@ -13,7 +13,6 @@ import {
 import { API_HEADERS, ENDPOINTS } from '../../types/constants';
 import { getRole } from '../contexts/UserContext';
 
-// Mock the getRole function
 vi.mock('../contexts/UserContext', () => ({
   getRole: vi.fn(),
 }));

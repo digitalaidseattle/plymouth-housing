@@ -66,17 +66,17 @@ END;
 
 ### UI Logic
 When a resident adds an item that requires tracking to the shopping cart, 
-an additional dialog pops up that asks for the following details: 
+an additional dialogue pops up that asks for the following details: 
 - building code
 - unit number
 - resident name
 - additional notes
 
 Before allowing confirmation on the transaction, 
-the transaction database is queried witht the previously mentioned ```GetRecentTransactions``` Stored Procedure. 
+the transaction database is queried with the previously mentioned ```GetRecentTransactions``` Stored Procedure. 
 If an identical item was already checked out previously, 
 a warning message will pop up. 
-This message will alert the volunteer of the recente transaction.
+This message will alert the volunteer of the recent transaction.
 It is left up to the discretion of the volunteer to allow or deny the transaction. 
 (In other words, the system should not block it.)
 

@@ -158,6 +158,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       }
     } catch (error) {
       let userFriendlyMessage = 'Checkout failed. Please try again.';
+      let errorCode = 'UNKNOWN';
 
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
@@ -167,33 +168,61 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           onSuccess(error.message);
           return;
         } else if (errorMessage.includes('cannot read properties of undefined')) {
+          errorCode = 'UNDEFINED_PROPERTY';
           userFriendlyMessage =
             'There was a connection issue with the checkout system. Please try again in a moment.';
         } else if (
           errorMessage.includes('network') ||
           errorMessage.includes('fetch')
         ) {
+          errorCode = 'NETWORK_ERROR';
           userFriendlyMessage =
             'Network connection issue. Please check your connection and try again.';
         } else if (errorMessage.includes('timeout')) {
+          errorCode = 'TIMEOUT';
           userFriendlyMessage = 'The request timed out. Please try again.';
         } else if (
           errorMessage.includes('500') ||
           errorMessage.includes('internal server error')
         ) {
+          errorCode = 'SERVER_ERROR';
           userFriendlyMessage =
             'Server error. Please try again in a moment or contact support.';
         } else if (
           error.message.includes('checkout limit') ||
           error.message.includes('limit exceeded')
         ) {
+          errorCode = 'LIMIT_EXCEEDED';
           userFriendlyMessage = error.message;
         } else if (error.message && error.message.trim() !== '') {
+          errorCode = 'SPECIFIC_ERROR';
           userFriendlyMessage = error.message;
+        } else {
+          // This is the fallback case - log details for debugging
+          errorCode = 'GENERIC_FALLBACK';
+          console.error('Unhandled checkout error:', {
+            errorType: error.constructor.name,
+            message: error.message,
+            stack: error.stack,
+            transactionId: transactionId,
+            itemCount: allItems.length,
+            timestamp: new Date().toISOString(),
+          });
         }
+      } else {
+        // Non-Error object was thrown
+        errorCode = 'NON_ERROR_THROWN';
+        console.error('Non-Error thrown during checkout:', {
+          error: error,
+          errorType: typeof error,
+          transactionId: transactionId,
+          timestamp: new Date().toISOString(),
+        });
       }
 
-      onError(userFriendlyMessage);
+      // Add error code to message for user reporting (can be removed later)
+      const messageWithCode = `${userFriendlyMessage} (Error: ${errorCode})`;
+      onError(messageWithCode);
     } finally {
       setIsProcessing(false);
       document.body.style.cursor = 'default';

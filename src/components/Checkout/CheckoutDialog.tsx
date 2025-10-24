@@ -138,7 +138,18 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         throw new Error(errorMessage);
       }
 
+      // Validate response structure
+      if (!data.value || !Array.isArray(data.value) || data.value.length === 0) {
+        throw new Error('Invalid response format from server (missing result data)');
+      }
+
       const result = data.value[0];
+
+      // Validate result has required fields
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response format from server (malformed result)');
+      }
+
       if (result.Status === 'Success') {
         setActiveSection('');
         setResidentInfo({
@@ -151,10 +162,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
-      } else {
+      } else if (result.Status === 'Error') {
         const errorMessage =
-          result.message || 'Checkout failed. Please try again.';
+          result.message || 'Checkout failed (server returned error with no message)';
         throw new Error(errorMessage);
+      } else {
+        // Unexpected status value
+        throw new Error(`Unexpected response status: ${result.Status || 'undefined'}`);
       }
     } catch (error) {
       let userFriendlyMessage = 'Checkout failed. Please try again.';

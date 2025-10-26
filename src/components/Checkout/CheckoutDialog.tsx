@@ -66,7 +66,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [categoryLimitErrors, setCategoryLimitErrors] = useState<CategoryProps[]>([]);
+  const [categoryLimitErrors, setCategoryLimitErrors] = useState<
+    CategoryProps[]
+  >([]);
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
   const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -96,7 +98,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   };
 
   const handleConfirm = async (bypassWarning?: boolean) => {
-    if (bypassWarning !== true && (totalItemLimitExceeded || categoryLimitExceeded)) {
+    if (
+      bypassWarning !== true &&
+      (totalItemLimitExceeded || categoryLimitExceeded)
+    ) {
       setShowLimitConfirmation(true);
       return;
     }
@@ -205,26 +210,35 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           id="customized-dialog-title"
         >
           <Typography sx={{ fontSize: '1.5rem' }}>
-            {totalItemLimitExceeded && categoryLimitExceeded ? 'Over the usual limits' :
-            totalItemLimitExceeded ? 'Over the usual total limit' :
-            'Over the usual category limit'}
+            {totalItemLimitExceeded && categoryLimitExceeded
+              ? 'Over the usual limits'
+              : totalItemLimitExceeded
+              ? 'Over the usual total limit'
+              : 'Over the usual category limit'}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          {totalItemLimitExceeded && 
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Typography>Total Items:</Typography>
-            <Typography>{totalItemCount} / 10</Typography>
-          </Box>}
-          {categoryLimitExceeded &&
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Typography>Categories:</Typography>
-            <Box>
-              {categoryLimitErrors.map(c => 
-                <Typography key={c.id}>{`${c.category}: ${c.categoryCount} / ${c.checkout_limit}`}</Typography>)}
+          {totalItemLimitExceeded && (
+            <Box sx={{ display: 'flex', gap: '1rem' }}>
+              <Typography>Total Items:</Typography>
+              <Typography>{totalItemCount} / 10</Typography>
             </Box>
-          </Box>}
-          <Typography sx={{ marginTop: '1rem' }}>Please chat with a staff member before continuing.</Typography>
+          )}
+          {categoryLimitExceeded && (
+            <Box sx={{ display: 'flex', gap: '1rem' }}>
+              <Typography>Categories:</Typography>
+              <Box>
+                {categoryLimitErrors.map((c) => (
+                  <Typography
+                    key={c.id}
+                  >{`${c.category}: ${c.categoryCount} / ${c.checkout_limit}`}</Typography>
+                ))}
+              </Box>
+            </Box>
+          )}
+          <Typography sx={{ marginTop: '1rem' }}>
+            Please chat with a staff member before continuing.
+          </Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
           <Button
@@ -251,11 +265,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             {isProcessing ? 'Working...' : 'Staff said it is ok'}
           </Button>
         </DialogActions>
-      
-      
       </>
-    )
-  }
+    );
+  };
 
   const checkoutSummaryContent = () => {
     return (
@@ -284,7 +296,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               <strong>Total Items: </strong>
               {totalItemCount} / 10
             </Typography>
-            {totalItemLimitExceeded && <Alert severity="warning">Over the usual limit</Alert>}
+            {totalItemLimitExceeded && (
+              <Alert severity="warning">Over the usual limit</Alert>
+            )}
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -292,19 +306,22 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               <strong>Categories: </strong>
               {checkoutItems.reduce((acc, category) => {
                 return category.categoryCount > 0 ? acc + 1 : acc;
-              }, 0)} total
-            </Typography>   
-            {categoryLimitExceeded &&
+              }, 0)}{' '}
+              total
+            </Typography>
+            {categoryLimitExceeded && (
               <Alert severity="warning">
-                {categoryLimitErrors.map(c => c.category).join(', ')} over the limit
+                {categoryLimitErrors.map((c) => c.category).join(', ')} over the
+                limit
               </Alert>
-            }
+            )}
           </Box>
 
           <Alert severity="info" sx={{ marginY: '1rem' }}>
-            Usual limit for total and category items helps make sure everyone has enough. If a resident truly needs an extra, please chat with staff.
+            Usual limit for total and category items helps make sure everyone
+            has enough. If a resident truly needs an extra, please chat with
+            staff.
           </Alert>
-
         </Box>
         <DialogContent
           dividers
@@ -374,8 +391,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           </Button>
         </DialogActions>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <Dialog
@@ -420,8 +437,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           </Box>
         )}
 
-        {showLimitConfirmation ? overLimitConfirmationContent() : checkoutSummaryContent()}
-      
+        {showLimitConfirmation
+          ? overLimitConfirmationContent()
+          : checkoutSummaryContent()}
       </Box>
     </Dialog>
   );

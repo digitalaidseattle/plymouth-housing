@@ -1,6 +1,10 @@
 import CheckoutCard from './CheckoutCard';
 
-import { CategoryProps, CheckoutHistoryItem, CheckoutItemProp } from "../../types/interfaces";
+import {
+  CategoryProps,
+  CheckoutHistoryItem,
+  CheckoutItemProp,
+} from '../../types/interfaces';
 import { Box, Grid, Typography } from '@mui/material';
 
 type CategorySectionProps = {
@@ -18,16 +22,16 @@ type CategorySectionProps = {
   checkoutHistory?: CheckoutHistoryItem[];
 };
 
-const CategorySection = ({ 
-  category, 
-  categoryCheckout, 
-  addItemToCart, 
-  removeItemFromCart, 
-  removeButton, 
-  disabled, 
-  activeSection, 
-  checkoutHistory 
-  }: CategorySectionProps) => {
+const CategorySection = ({
+  category,
+  categoryCheckout,
+  addItemToCart,
+  removeItemFromCart,
+  removeButton,
+  disabled,
+  activeSection,
+  checkoutHistory,
+}: CategorySectionProps) => {
   return (
     <Box
       sx={{
@@ -103,17 +107,17 @@ const CategorySection = ({
             }
             key={item.id}
           >
-            <CheckoutCard 
-              item={item} 
-              categoryCheckout={categoryCheckout} 
-              addItemToCart={addItemToCart} 
-              removeItemFromCart={removeItemFromCart} 
-              removeButton={removeButton} 
-              categoryLimit={category.checkout_limit} 
-              categoryName={category.category} 
+            <CheckoutCard
+              item={item}
+              categoryCheckout={categoryCheckout}
+              addItemToCart={addItemToCart}
+              removeItemFromCart={removeItemFromCart}
+              removeButton={removeButton}
+              categoryLimit={category.checkout_limit}
+              categoryName={category.category}
               activeSection={activeSection}
               checkoutHistory={checkoutHistory}
-              />
+            />
           </Grid>
         ))}
       </Grid>

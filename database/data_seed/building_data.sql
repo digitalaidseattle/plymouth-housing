@@ -17,5 +17,6 @@ INSERT INTO Buildings (name, code) VALUES
 ('Simons Senior', 'SIM'),
 ('Sylvia Odom''s Place', 'SYL'),
 ('Toft Terrace', 'TFT'),
-('Pat Williams', 'WIL');
+('Pat Williams', 'WIL'),
+('Pacific Apartments', 'PAC');
 GO

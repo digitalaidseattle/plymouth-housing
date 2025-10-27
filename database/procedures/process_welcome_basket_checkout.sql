@@ -6,10 +6,47 @@ CREATE PROCEDURE ProcessWelcomeBasketCheckout
     @mattress_size INT,
     @quantity INT,
     @message NVARCHAR(MAX) = NULL OUTPUT,
-    @resident_id INT
+    @resident_id INT,
+    @new_transaction_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    -- Check if the transaction ID already exists
+    IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+    BEGIN
+        DECLARE @error_message NVARCHAR(MAX);
+        DECLARE @resident_name NVARCHAR(255);
+        DECLARE @unit_number NVARCHAR(50);
+        DECLARE @building_code NVARCHAR(50);
+        DECLARE @transaction_date DATETIME;
+
+        -- Get transaction details for error message
+        SELECT
+            @resident_name = r.name,
+            @unit_number = u.unit_number,
+            @building_code = b.code,
+            @transaction_date = t.transaction_date
+        FROM Transactions t
+        LEFT JOIN Residents r ON t.resident_id = r.id
+        LEFT JOIN Units u ON r.unit_id = u.id
+        LEFT JOIN Buildings b ON u.building_id = b.id
+        WHERE t.id = @new_transaction_id;
+
+        SET @error_message = CONCAT(
+            'Transaction already exists. ',
+            'Resident: ', ISNULL(@resident_name, 'Unknown'),
+            ', Building: ', ISNULL(@building_code, 'Unknown'),
+            ', Unit: ', ISNULL(@unit_number, 'Unknown'),
+            ', Date: ', ISNULL(CONVERT(NVARCHAR, @transaction_date, 120), 'Unknown'),
+            ', ID: ', CAST(@new_transaction_id AS NVARCHAR(36))
+        );
+
+        SELECT
+            'Error' AS Status,
+            @error_message AS message;
+        RETURN;
+    END
 
     -- Create a table variable to hold welcome basket items
     DECLARE @CartItems CartItemsType;
@@ -47,9 +84,6 @@ BEGIN
     --     RETURN;
     -- END CATCH
 
-    -- Generate a single transaction ID for the entire basket
-    DECLARE @new_transaction_id UNIQUEIDENTIFIER;
-
     BEGIN TRANSACTION
 
     BEGIN TRY
@@ -63,7 +97,7 @@ BEGIN
             @user_id = @user_id,
             @transaction_type = 1,
             @resident_id = @resident_id,
-            @new_transaction_id = @new_transaction_id OUTPUT;
+            @new_transaction_id = @new_transaction_id;
 
         -- Log each item in the transaction
         DECLARE @CurrentItemId INT;

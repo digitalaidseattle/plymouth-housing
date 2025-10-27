@@ -15,6 +15,7 @@ export const UserContext = createContext<UserContextType>({
   setLoggedInUserId: () => {},
   activeVolunteers: [],
   setActiveVolunteers: () => {},
+  isLoading: true,
 });
 
 export function getRole(user: ClientPrincipal | null): string {

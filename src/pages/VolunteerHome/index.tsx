@@ -16,6 +16,7 @@ const VolunteerHome: React.FC = () => {
   const [addModal, setAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
+  const [showResults, setShowResults] = useState(false);
   const location = useLocation();
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -36,9 +37,9 @@ const VolunteerHome: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      API_HEADERS['X-MS-API-ROLE'] = getRole(user);
+      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', {
-        headers: API_HEADERS,
+        headers: headers,
         method: 'GET',
       });
       if (!response.ok) {
@@ -55,6 +56,7 @@ const VolunteerHome: React.FC = () => {
   const handleAddOpen = async () => {
     await fetchData();
     setAddModal(true);
+    setShowResults(false);
   };
 
   const handleAddClose = () => {
@@ -154,11 +156,10 @@ const VolunteerHome: React.FC = () => {
           <AddItemModal
             addModal={addModal}
             handleAddClose={handleAddClose}
-            handleSnackbar={(message: string) => {     
-              setSnackbarState({ open: true, message: message, severity: 'success' });
-            }}
             fetchData={fetchData}
             originalData={originalData}
+            showResults={showResults}
+            setShowResults={setShowResults}
           />
         </Grid>
       </Grid>

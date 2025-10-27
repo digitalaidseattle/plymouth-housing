@@ -21,6 +21,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       setLoggedInUserId: vi.fn(),
       activeVolunteers: [],
       setActiveVolunteers: vi.fn(),
+      isLoading: false
     }}
   >
     {children}
@@ -45,10 +46,12 @@ describe('useUsers hook', () => {
     global.fetch = vi.fn().mockResolvedValueOnce(mockResponse);
 
     const { result } = renderHook(() => useUsers(), { wrapper });
-    await waitFor(() => result.current.loading === false);
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(result.current.error).toBeNull();
     expect(result.current.originalData).toEqual(mockUsers);
     expect(result.current.filteredData).toEqual(mockUsers);
-    expect(result.current.error).toBeNull();
   });
 
   it('sets error when fetch fails', async () => {
@@ -58,7 +61,7 @@ describe('useUsers hook', () => {
     const { result } = renderHook(() => useUsers(), { wrapper });
     await waitFor(() => result.current.loading === false);
     expect(result.current.originalData).toEqual([]);
-      });
+  });
 
   it('updateUserStatus toggles active status successfully', async () => {
     const initialUsers = [
@@ -80,7 +83,10 @@ describe('useUsers hook', () => {
       });
 
     const { result } = renderHook(() => useUsers(), { wrapper });
-    await waitFor(() => result.current.loading === false);
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.originalData).toHaveLength(2);
+    });
 
     await act(async () => {
       await result.current.updateUserStatus(1);
@@ -113,8 +119,11 @@ describe('useUsers hook', () => {
       });
 
     const { result } = renderHook(() => useUsers(), { wrapper });
-    await waitFor(() => result.current.loading === false);
 
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.originalData).toHaveLength(1);
+    });
     await act(async () => {
       await expect(result.current.updateUserStatus(1)).rejects.toThrow(`Error updating user: ${errorMsg}`);
     });
@@ -131,7 +140,10 @@ describe('useUsers hook', () => {
     });
 
     const { result } = renderHook(() => useUsers(), { wrapper });
-    await waitFor(() => result.current.loading === false);
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.originalData).toHaveLength(1);
+    });
 
     await expect(result.current.updateUserStatus(999)).rejects.toThrow('User not found');
   });

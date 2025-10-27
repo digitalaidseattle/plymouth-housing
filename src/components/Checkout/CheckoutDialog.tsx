@@ -9,7 +9,11 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
+import {
+  CategoryProps,
+  CheckoutItemProp,
+  ResidentInfo,
+} from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -17,7 +21,7 @@ import CategorySection from './CategorySection';
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (errorMessage?: string) => void;
   checkoutItems: CategoryProps[];
   welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
@@ -34,23 +38,26 @@ type CheckoutDialogProps = {
   activeSection: string;
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
+  onError: (message: string) => void;
 };
 
-export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({ 
-  open, 
-  onClose, 
-  checkoutItems, 
-  welcomeBasketData, 
-  setCheckoutItems, 
-  removeItemFromCart, 
-  addItemToCart, 
-  selectedBuildingCode, 
-  setActiveSection, 
-  fetchData, 
-  onSuccess, 
-  activeSection, 
-  residentInfo, 
-  setResidentInfo }) => {
+export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
+  open,
+  onClose,
+  checkoutItems,
+  welcomeBasketData,
+  setCheckoutItems,
+  removeItemFromCart,
+  addItemToCart,
+  selectedBuildingCode,
+  setActiveSection,
+  fetchData,
+  onSuccess,
+  activeSection,
+  residentInfo,
+  setResidentInfo,
+  onError,
+}) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
     CategoryProps[]
@@ -59,12 +66,14 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [categoryLimitErrors, setCategoryLimitErrors] = useState<string[]>([]);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
       setStatusMessage('');
       setAllItems(checkoutItems.flatMap((item) => item.items));
+      setTransactionId(crypto.randomUUID());
 
       const errors: string[] = [];
       checkoutItems.forEach((category) => {
@@ -86,11 +95,16 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
   const handleConfirm = async () => {
     setIsProcessing(true);
+    document.body.style.cursor = 'wait';
     try {
       if (!loggedInUserId) {
         throw new Error(
           'No valid user (volunteer or admin) found. Cannot checkout.',
         );
+      }
+
+      if (!transactionId) {
+        throw new Error('Transaction ID not created.');
       }
 
       const welcomeBasketItemIds = welcomeBasketData.flatMap((basket) =>
@@ -101,33 +115,88 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       );
       let data = null;
       if (isWelcomeBasket) {
-        data = await processWelcomeBasket(user, loggedInUserId, allItems, residentInfo);
+        data = await processWelcomeBasket(
+          transactionId,
+          user,
+          loggedInUserId,
+          allItems,
+          residentInfo,
+        );
       } else {
-        data = await processGeneralItems(user, loggedInUserId, allItems, residentInfo);
+        data = await processGeneralItems(
+          transactionId,
+          user,
+          loggedInUserId,
+          allItems,
+          residentInfo,
+        );
       }
 
       if (data.error) {
-        throw new Error(
-          `status: ${data.error.status}, message: ${data.error.message}`,
-        );
+        const errorMessage =
+          data.error.message || 'An unexpected error occurred during checkout';
+        throw new Error(errorMessage);
       }
 
       const result = data.value[0];
       if (result.Status === 'Success') {
         setActiveSection('');
-        setResidentInfo({id: 0, name: '', unit: {id: 0, unit_number: ''}, building: { id: 0, code: '', name: '' }});
+        setResidentInfo({
+          id: 0,
+          name: '',
+          unit: { id: 0, unit_number: '' },
+          building: { id: 0, code: '', name: '' },
+        });
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
       } else {
-        throw new Error(result.message);
+        const errorMessage =
+          result.message || 'Checkout failed. Please try again.';
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Transaction failed:', error);
-      setStatusMessage('Transaction failed: ' + error);
+      let userFriendlyMessage = 'Checkout failed. Please try again.';
+
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+
+        if (errorMessage.includes('transaction already exists')) {
+          setCheckoutItems([]);
+          onSuccess(error.message);
+          return;
+        } else if (errorMessage.includes('cannot read properties of undefined')) {
+          userFriendlyMessage =
+            'There was a connection issue with the checkout system. Please try again in a moment.';
+        } else if (
+          errorMessage.includes('network') ||
+          errorMessage.includes('fetch')
+        ) {
+          userFriendlyMessage =
+            'Network connection issue. Please check your connection and try again.';
+        } else if (errorMessage.includes('timeout')) {
+          userFriendlyMessage = 'The request timed out. Please try again.';
+        } else if (
+          errorMessage.includes('500') ||
+          errorMessage.includes('internal server error')
+        ) {
+          userFriendlyMessage =
+            'Server error. Please try again in a moment or contact support.';
+        } else if (
+          error.message.includes('checkout limit') ||
+          error.message.includes('limit exceeded')
+        ) {
+          userFriendlyMessage = error.message;
+        } else if (error.message && error.message.trim() !== '') {
+          userFriendlyMessage = error.message;
+        }
+      }
+
+      onError(userFriendlyMessage);
     } finally {
       setIsProcessing(false);
+      document.body.style.cursor = 'default';
     }
   };
 
@@ -188,8 +257,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           }}
         >
           <Typography>
-            <strong>Building code: </strong>
-            {selectedBuildingCode}
+            <strong>Building code: </strong>{selectedBuildingCode}
+          </Typography>
+          <Typography>
+            <strong>Unit number: </strong>{residentInfo.unit.unit_number}
+          </Typography>
+          <Typography>
+            <strong>Resident name: </strong>{residentInfo.name}
           </Typography>
           <Typography
             sx={{
@@ -199,9 +273,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   : 'black',
             }}
           >
-            <strong>Total Items Checked Out: </strong>
-            {allItems.reduce((acc, item) => acc + item.quantity, 0)} / 10
-            allowed
+            <strong>Total Items: </strong>
+            {allItems.reduce((acc, item) => acc + item.quantity, 0)}
           </Typography>
 
           {/* Display category limit errors */}

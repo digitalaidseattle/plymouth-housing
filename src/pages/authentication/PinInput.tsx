@@ -4,6 +4,7 @@ import React, {
   KeyboardEvent,
   useRef,
   useCallback,
+  useEffect,
 } from 'react';
 import { Box, TextField } from '@mui/material';
 import { styled } from '@mui/system';
@@ -29,14 +30,17 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  useEffect(() => {
+    onPinChange(pin);
+  }, [pin, onPinChange]);
+
   const updatePin = useCallback((index: number, value: string) => {
     setPin((prevPin) => {
       const newPin = [...prevPin];
       newPin[index] = value;
-      onPinChange(newPin);
       return newPin;
     });
-  }, [onPinChange]);
+  }, []);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
@@ -111,7 +115,7 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
             onKeyDown={(e: React.KeyboardEvent<HTMLDivElement | HTMLInputElement>) => handleKeyDown(e, index)}
             inputProps={{ maxLength: 1 }}
             type={visibleIndex === index ? 'text' : 'password'}
-            inputRef={(el: HTMLInputElement | null) => (pinRefs.current[index] = el)}
+            inputRef={(el: HTMLInputElement | null) => { pinRefs.current[index] = el; }}
           />
         ))}
         <SnackbarAlert

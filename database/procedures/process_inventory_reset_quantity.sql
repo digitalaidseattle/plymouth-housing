@@ -23,15 +23,15 @@ BEGIN
     IF @ItemId IS NULL OR @Quantity IS NULL OR @Quantity < 0
         THROW 51003, 'Invalid item id or quantity (must be a non-negative integer).', 1;
     
-    BEGIN TRY  
-        BEGIN TRANSACTION          
-        DECLARE @new_transaction_id UNIQUEIDENTIFIER;
+    BEGIN TRY
+        BEGIN TRANSACTION
+        DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 
         EXEC LogTransaction
             @user_id = @user_id,
             @transaction_type = 3, -- 3: TransactionTypes.CORRECTION
             @resident_id = NULL,
-            @new_transaction_id = @new_transaction_id OUTPUT;
+            @new_transaction_id = @new_transaction_id;
         
         EXEC LogTransactionItem
             @transaction_id = @new_transaction_id,

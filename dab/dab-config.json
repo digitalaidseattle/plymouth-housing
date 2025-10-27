@@ -282,6 +282,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "ProcessInventoryResetQuantity": {
+      "source": {
+        "object": "dbo.ProcessInventoryResetQuantity",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/process-inventory-reset-quantity"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

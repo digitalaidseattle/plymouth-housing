@@ -1,26 +1,15 @@
 {
-  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.1.7/dab.draft.schema.json",
+  "$schema": "https://github.com/Azure/data-api-builder/releases/latest/download/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "@env('DATABASE_CONNECTION_STRING')",
-    "options": {
-      "set-session-context": true
-    }
+    "connection-string": "@env('DATABASE_CONNECTION_STRING')"
   },
   "runtime": {
     "rest": {
-      "enabled": true,
-      "path": "/rest",
-      "request-body-strict": true
+      "enabled": true
     },
     "host": {
-      "cors": {
-        "origins": ["http://localhost:4280", "http://localhost:3000"],
-        "allow-credentials": true
-      },
-      "authentication": {
-        "provider": "StaticWebApps"
-      }
+      "mode": "@env('DAB_HOST_MODE')"
     }
   },
   "entities": {
@@ -132,7 +121,7 @@
           "role": "volunteer"
         }
       ]
-    },   
+    },
     "Units": {
       "source": {
         "object": "dbo.Units",
@@ -154,7 +143,7 @@
           "role": "volunteer"
         }
       ]
-    },   
+    },
     "Users": {
       "source": {
         "object": "dbo.Users",

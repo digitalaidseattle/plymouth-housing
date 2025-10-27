@@ -6,26 +6,31 @@ export const API_HEADERS = {
   'X-MS-API-ROLE': '',
 };
 
+// Microsoft Static Web Apps behave differently when running locally versus when deployed.
+// Locally, SWA intercepts calls to /data-api and forwards them to the backend API on localhost:5000
+// When deployed, the call should go to /api, which SWA will route to the backend API.
+const isLocal = import.meta.env.DEV;
+const API_PREFIX = isLocal ? '/data-api/api' : '/api';
+
 export const ENDPOINTS = {
   //tables
-  USERS: '/data-api/rest/users',
-  ITEMS: '/data-api/rest/items',
-  CATEGORY: '/data-api/rest/categories',
-  BUILDINGS: '/data-api/rest/building',
-  UNITS: '/data-api/rest/units',
-  RESIDENTS: '/data-api/rest/residents',
+  USERS: API_PREFIX + '/users',
+  ITEMS: API_PREFIX + '/items',
+  CATEGORY: API_PREFIX + '/categories',
+  BUILDINGS: API_PREFIX + '/building',
+  UNITS: API_PREFIX + '/units',
+  RESIDENTS: API_PREFIX + '/residents',
   //Stored Procedures
-  VERIFY_PIN: '/data-api/rest/verify-pin',
-  CHECKOUT_GENERAL_ITEMS: '/data-api/rest/checkout-general-items',
-  CHECKOUT_WELCOME_BASKET: '/data-api/rest/checkout-welcome-basket',
-  PROCESS_INVENTORY_CHANGE: '/data-api/rest/process-inventory-change',
-  RECENT_TRANSACTIONS: '/data-api/rest/recent-transactions',
-  CHECK_PAST_CHECKOUT: '/data-api/rest/check-past-checkout',
+  VERIFY_PIN: API_PREFIX + '/verify-pin',
+  CHECKOUT_GENERAL_ITEMS: API_PREFIX + '/checkout-general-items',
+  CHECKOUT_WELCOME_BASKET: API_PREFIX + '/checkout-welcome-basket',
+  PROCESS_INVENTORY_CHANGE: API_PREFIX + '/process-inventory-change',
+  CHECK_PAST_CHECKOUT: API_PREFIX + '/check-past-checkout',
   PROCESS_INVENTORY_RESET_QUANTITY:
-    '/data-api/rest/process-inventory-reset-quantity',
+    API_PREFIX + '/process-inventory-reset-quantity',
   //Views
-  EXPANDED_ITEMS: '/data-api/rest/itemswithcategory',
-  CATEGORIZED_ITEMS: '/data-api/rest/itemsbycategory',
+  EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
+  CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
 } as const;
 
 export const SETTINGS = {

@@ -68,6 +68,7 @@ BEGIN
     FROM OPENJSON(@items, '$')
 
     -- Check if the cart exceeds the item limit
+    -- Plymouth no longer wants to enforce limits. Commenting out for now. 
     -- BEGIN TRY
     --     EXEC CheckCartItemLimit @CartItems;
     -- END TRY

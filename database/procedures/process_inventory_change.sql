@@ -28,11 +28,12 @@ BEGIN
     
     BEGIN TRANSACTION
     
-    BEGIN TRY            
+    BEGIN TRY
         -- Check if the transaction ID already exists
         IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
         BEGIN
-            SELECT 
+            ROLLBACK TRANSACTION;
+            SELECT
                 'Error' AS Status,
                 'DUPLICATE_TRANSACTION' AS ErrorCode,
                 'Transaction with this ID already exists.' AS message;

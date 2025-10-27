@@ -72,17 +72,26 @@ The configuration uses the environment variable `DATABASE_CONNECTION_STRING` for
    $env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=Inventory;...'
    ```
 
-2. **Start DAB** from the project root:
+2. **Configure DAB for extensive logging** :
+   ```bash
+   # Linux/macOS
+   export DAB_HOST_MODE='development'
+
+   # Windows PowerShell
+   $env:DAB_HOST_MODE='development'
+   ```
+
+3. **Start DAB** from the project root:
    ```bash
    dab start -c ./dab/dab-config.json
    ```
 
-3. **Verify DAB is running** by visiting the Swagger UI:
+4. **Verify DAB is running** by visiting the Swagger UI:
    ```
    http://127.0.0.1:5000/swagger/index.html
    ```
 
-4. **Keep DAB running** in this terminal while you develop. Open a new terminal for other commands.
+5. **Keep DAB running** in this terminal while you develop. Open a new terminal for other commands.
 
 ### Testing the API
 

@@ -25,7 +25,6 @@ export const ENDPOINTS = {
   CHECKOUT_GENERAL_ITEMS: API_PREFIX + '/checkout-general-items',
   CHECKOUT_WELCOME_BASKET: API_PREFIX + '/checkout-welcome-basket',
   PROCESS_INVENTORY_CHANGE: API_PREFIX + '/process-inventory-change',
-  RECENT_TRANSACTIONS: API_PREFIX + '/recent-transactions',
   CHECK_PAST_CHECKOUT: API_PREFIX + '/check-past-checkout',
   PROCESS_INVENTORY_RESET_QUANTITY:
     API_PREFIX + '/process-inventory-reset-quantity',

@@ -31,7 +31,7 @@
         },
         {
           "actions": ["read", "create", "update"],
-          "role": "anonymous"
+          "role": "volunteer"
         }
       ]
     },

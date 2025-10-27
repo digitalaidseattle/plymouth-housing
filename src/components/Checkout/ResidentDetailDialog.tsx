@@ -92,11 +92,9 @@ const ResidentDetailDialog = ({
         if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
             setShowError(true);
             return;
-        }
-        
+        } 
         setIsSubmitting(true);
         document.body.style.cursor = 'wait';
-
         try {
             let residentId;
             // first check if the resident already exists

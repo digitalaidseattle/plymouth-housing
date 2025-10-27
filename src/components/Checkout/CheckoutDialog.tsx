@@ -22,7 +22,7 @@ import CategorySection from './CategorySection';
 type CheckoutDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (errorMessage?: string) => void;
   checkoutItems: CategoryProps[];
   welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
@@ -74,12 +74,14 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalItemLimitExceeded = totalItemCount > 10;
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
       setStatusMessage('');
       setAllItems(checkoutItems.flatMap((item) => item.items));
+      setTransactionId(crypto.randomUUID());
 
       const errors: CategoryProps[] = [];
       checkoutItems.forEach((category) => {
@@ -114,6 +116,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         );
       }
 
+      if (!transactionId) {
+        throw new Error('Transaction ID not created.');
+      }
+
       const welcomeBasketItemIds = welcomeBasketData.flatMap((basket) =>
         basket.items.map((item) => item.id),
       );
@@ -123,6 +129,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       let data = null;
       if (isWelcomeBasket) {
         data = await processWelcomeBasket(
+          transactionId,
           user,
           loggedInUserId,
           allItems,
@@ -130,6 +137,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         );
       } else {
         data = await processGeneralItems(
+          transactionId,
           user,
           loggedInUserId,
           allItems,
@@ -167,7 +175,11 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
 
-        if (errorMessage.includes('cannot read properties of undefined')) {
+        if (errorMessage.includes('transaction already exists')) {
+          setCheckoutItems([]);
+          onSuccess(error.message);
+          return;
+        } else if (errorMessage.includes('cannot read properties of undefined')) {
           userFriendlyMessage =
             'There was a connection issue with the checkout system. Please try again in a moment.';
         } else if (
@@ -188,7 +200,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           error.message.includes('checkout limit') ||
           error.message.includes('limit exceeded')
         ) {
-          userFriendlyMessage = error.message; // Keep specific business logic errors as-is
+          userFriendlyMessage = error.message;
         } else if (error.message && error.message.trim() !== '') {
           userFriendlyMessage = error.message;
         }
@@ -287,8 +299,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           }}
         >
           <Typography>
-            <strong>Building code: </strong>
-            {selectedBuildingCode}
+            <strong>Building code: </strong>{selectedBuildingCode}
+          </Typography>
+          <Typography>
+            <strong>Unit number: </strong>{residentInfo.unit.unit_number}
+          </Typography>
+          <Typography>
+            <strong>Resident name: </strong>{residentInfo.name}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

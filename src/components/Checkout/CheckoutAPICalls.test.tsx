@@ -13,7 +13,6 @@ import {
 import { API_HEADERS, ENDPOINTS } from '../../types/constants';
 import { getRole } from '../contexts/UserContext';
 
-// Mock the getRole function
 vi.mock('../contexts/UserContext', () => ({
   getRole: vi.fn(),
 }));
@@ -33,6 +32,7 @@ describe('CheckoutAPICalls', () => {
 
   describe('processWelcomeBasket', () => {
     const checkoutItems = [{ id: 1, quantity: 1, name: 'Mattress', description: 'test', additional_notes: '' }];
+    const transactionID = '123e4567-e89b-12d3-a456-426614174000';
 
     it('should process welcome basket successfully', async () => {
       const mockResponse = { success: true };
@@ -41,12 +41,13 @@ describe('CheckoutAPICalls', () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await processWelcomeBasket(user, loggedInUserId, checkoutItems, residentInfo);
+      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
 
       expect(fetch).toHaveBeenCalledWith(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
         method: 'POST',
         headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
         body: JSON.stringify({
+          new_transaction_id: transactionID,
           user_id: loggedInUserId,
           mattress_size: checkoutItems[0].id,
           quantity: checkoutItems[0].quantity,
@@ -63,12 +64,30 @@ describe('CheckoutAPICalls', () => {
         statusText: 'Error',
       });
 
-      await expect(processWelcomeBasket(user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
+      await expect(processWelcomeBasket(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
+    });
+
+    it('should throw an error when transaction ID already exists', async () => {
+      const duplicateErrorResponse = {
+        value: [{
+          Status: 'Error',
+          message: 'Transaction already exists. GUID: 123e4567-e89b-12d3-a456-426614174000, Resident: John Doe, Building: B1, Unit: 101, Date: 2025-01-15 10:30:00'
+        }]
+      };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(duplicateErrorResponse),
+      });
+
+      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
+
+      expect(result).toEqual(duplicateErrorResponse);
     });
   });
 
   describe('processGeneralItems', () => {
     const checkoutItems = [{ id: 1, quantity: 1, name: 'Item 1', description: 'test', additional_notes: 'note' }];
+    const transactionID = '123e4567-e89b-12d3-a456-426614174000';
 
     it('should process general items successfully', async () => {
       const mockResponse = { success: true };
@@ -77,12 +96,13 @@ describe('CheckoutAPICalls', () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await processGeneralItems(user, loggedInUserId, checkoutItems, residentInfo);
+      const result = await processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
 
       expect(fetch).toHaveBeenCalledWith(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
         method: 'POST',
         headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
         body: JSON.stringify({
+          new_transaction_id: transactionID,
           user_id: loggedInUserId,
           items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity, additional_notes: item.additional_notes })),
           resident_id: residentInfo.id,
@@ -98,7 +118,24 @@ describe('CheckoutAPICalls', () => {
         statusText: 'Error',
       });
 
-      await expect(processGeneralItems(user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
+      await expect(processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
+    });
+
+    it('should throw an error when transaction ID already exists', async () => {
+      const duplicateErrorResponse = {
+        value: [{
+          Status: 'Error',
+          message: 'Transaction already exists. GUID: 123e4567-e89b-12d3-a456-426614174000, Resident: Jane Smith, Building: A2, Unit: 205, Date: 2025-01-15 14:45:00'
+        }]
+      };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(duplicateErrorResponse),
+      });
+
+      const result = await processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
+
+      expect(result).toEqual(duplicateErrorResponse);
     });
   });
 

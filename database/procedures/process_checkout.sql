@@ -99,6 +99,7 @@ BEGIN
     -- END CATCH
 
     -- Check if there is no violation of the max per category
+    -- Plymouth no longer wants to check Limits. Commenting out for now. 
     -- BEGIN TRY
     --     EXEC CheckCategoryCheckoutLimit @CartItems;
     -- END TRY

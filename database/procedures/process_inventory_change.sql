@@ -3,7 +3,8 @@ GO
 
 CREATE PROCEDURE ProcessInventoryChange
     @user_id INT,
-    @item NVARCHAR(MAX)
+    @item NVARCHAR(MAX),
+    @new_transaction_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -27,8 +28,18 @@ BEGIN
     
     BEGIN TRANSACTION
     
-    BEGIN TRY            
-        -- After transaction ID is obtained, set up cursor
+    BEGIN TRY
+        -- Check if the transaction ID already exists
+        IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
+
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
         DECLARE @CurrentAdditionalNotes NVARCHAR(255)
@@ -38,16 +49,13 @@ BEGIN
         
         OPEN item_cursor
         FETCH NEXT FROM item_cursor INTO @CurrentItemId, @CurrentQuantity, @CurrentAdditionalNotes
-
-        -- First, create the transaction ID
-        DECLARE @new_transaction_id UNIQUEIDENTIFIER;
-
+        
         -- Log to Transaction Table 
         EXEC LogTransaction
             @user_id = @user_id,
             @transaction_type = 2,
             @resident_id = NULL,
-            @new_transaction_id = @new_transaction_id OUTPUT;
+            @new_transaction_id = @new_transaction_id;
         
         -- Log to Transaction Item Table
         WHILE @@FETCH_STATUS = 0

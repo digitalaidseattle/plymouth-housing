@@ -1,5 +1,17 @@
-import { Box, Typography, Select, MenuItem, TextField, Button, Autocomplete, IconButton, useTheme, styled, Alert } from '@mui/material';
-import { useContext, useState } from 'react';
+import {
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Autocomplete,
+  IconButton,
+  useTheme,
+  styled,
+  Alert,
+} from '@mui/material';
+import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
@@ -20,9 +32,16 @@ type AddItemModalProps = {
   originalData: InventoryItem[];
   showResults: boolean;
   setShowResults: (b: boolean) => void;
-}
+};
 
-const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showResults, setShowResults }: AddItemModalProps) => {
+const AddItemModal = ({
+  addModal,
+  handleAddClose,
+  fetchData,
+  originalData,
+  showResults,
+  setShowResults,
+}: AddItemModalProps) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [updateItem, setUpdateItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -33,36 +52,43 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
   const [errorMessage, setErrorMessage] = useState('');
   const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
-  const newTotalQuantity = Number(updateItem?.quantity) + Number(formData.quantity);
+  useEffect(() => {
+    if (addModal) {
+      setTransactionId(crypto.randomUUID());
+    }
+  }, [addModal]);
+
+  const newTotalQuantity =
+    Number(updateItem?.quantity) + Number(formData.quantity);
 
   const theme = useTheme();
 
   const ResultText = styled('span')({
     marginLeft: '0.25rem',
-    color: theme.palette.success.dark
+    color: theme.palette.success.dark,
   });
 
   const DialogTitle = styled('h1')({
     fontSize: '1.25rem',
     fontWeight: '600',
     textTransform: 'capitalize',
-    margin: '0'
-  })
+    margin: '0',
+  });
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [field]: value,
-    }))
+      [field]: field === 'quantity' ? Number(value) : value,
+    }));
     if (field === 'type' && typeof value === 'string') {
-      const filteredItems = originalData.filter(
-        (item) =>
-          item.type.toLowerCase().includes(value.toLowerCase())
+      const filteredItems = originalData.filter((item) =>
+        item.type.toLowerCase().includes(value.toLowerCase()),
       );
       setNameSearch(filteredItems);
     }
-  }
+  };
 
   const onChangeHandler = (selected: InventoryItem | null) => {
     if (selected) {
@@ -81,16 +107,24 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
     setFormData({
       name: '',
       type: '',
-      quantity: 0
-    })
+      quantity: 0,
+    });
     setUpdateItem(null);
     setErrorMessage('');
     setIsSubmitting(false);
-  }
+  };
 
   const updateItemHandler = async () => {
-    if (formData.type === '' || formData.name === '' || formData.quantity === 0 || !updateItem) {
-      setErrorMessage('Missing Information or Quantity cannot be 0')
+    if (
+      formData.type === '' ||
+      formData.name === '' ||
+      formData.quantity === 0 ||
+      !updateItem ||
+      !transactionId
+    ) {
+      setErrorMessage(
+        'Missing Information, Quantity cannot be 0, or Transaction ID not initialized',
+      );
       return;
     }
     // regex test to check for only whole numbers, including negatives
@@ -99,48 +133,77 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       setErrorMessage('The quantity must be a non-decimal number.');
       return false;
     }
+    if (!transactionId) {
+      setErrorMessage('Transaction ID is missing. Please try again.');
+      return;
+    }
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
       const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, {
-        method: "POST",
+        method: 'POST',
         headers,
         body: JSON.stringify({
           user_id: loggedInUserId,
           item: [{ id: updateItem.id, quantity: formData.quantity }],
-        })
+          new_transaction_id: transactionId,
+        }),
       });
-      if (!response.ok) {
-        throw new Error(response.statusText);
+      const result = await response.json();
+      if (!result) {
+        throw new Error('Response contained no data');
       }
-      fetchData();
-      setShowResults(true);
-    }
-    catch (error) {
+      if (result.error) {
+        if (result.error.message) {
+          throw new Error(result.error.message);
+        } else {
+          throw new Error('An unknown error occurred');
+        }
+      }
+
+      const resultData = result?.value?.[0];
+
+      if (response.ok && resultData && resultData.Status === 'Success') {
+        fetchData();
+        setShowResults(true);
+      } else if (
+        resultData &&
+        resultData.Status === 'Error' &&
+        resultData.ErrorCode === 'DUPLICATE_TRANSACTION'
+      ) {
+        setErrorMessage('This transaction has already been submitted.');
+        // Close the dialog to generate a new transaction ID
+        setTimeout(() => {
+          resetInputsHandler();
+        }, 2000); // Give user time to see the error message
+      } else {
+        throw new Error(resultData ? resultData.message : response.statusText);
+      }
+    } catch (error) {
       console.error('Error updating the database:', error);
       if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        setErrorMessage('Your system appears to be offline. Please check your connection and try again.');
+        setErrorMessage(
+          'Your system appears to be offline. Please check your connection and try again.',
+        );
+      } else if (error instanceof Error) {
+        setErrorMessage(error.message);
       } else {
-        setErrorMessage(`${error}`);
+        setErrorMessage('An unexpected error occurred');
       }
     } finally {
       setIsSubmitting(false);
       document.body.style.cursor = 'default';
     }
-  }
+  };
 
-  const QuantityForm = () =>
+  const QuantityForm = () => (
     <>
-      <DialogTitle>
-        Edit Item Quantity
-      </DialogTitle>
+      <DialogTitle>Edit Item Quantity</DialogTitle>
 
       {/* Item Type */}
       <Box id="add-item-type" sx={{ width: '100%' }}>
-        <Typography fontWeight='bold'>
-          Inventory Type
-        </Typography>
+        <Typography fontWeight="bold">Inventory Type</Typography>
         <Select
           value={formData.type}
           onChange={(e) => handleInputChange('type', e.target.value)}
@@ -153,19 +216,22 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
 
       {/* Item Name */}
       <Box id="add-item-name" sx={{ width: '100%' }}>
-        <Typography fontWeight='bold'>
-          Item Name
-        </Typography>
+        <Typography fontWeight="bold">Item Name</Typography>
         <Autocomplete
           onChange={(_, value) => onChangeHandler(value)}
           value={updateItem}
           options={nameSearch} // Pass the full array of objects
           getOptionLabel={(option) => option.name}
           renderOption={(props, option) => (
-            <li {...props} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <span>
-                {option.name}
-              </span>
+            <li
+              {...props}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+              }}
+            >
+              <span>{option.name}</span>
               {option.category && (
                 <span style={{ fontSize: '0.8rem', color: 'gray' }}>
                   {option.category}
@@ -173,10 +239,14 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
               )}
             </li>
           )}
-          filterOptions={(options, { inputValue }) => { //This filter function details the rules for how the autocomplete should filter the dropdown options
-            return options.filter((option) =>
-              option.name?.toLowerCase().includes(inputValue.toLowerCase()) ||
-              option.description?.toLowerCase().includes(inputValue.toLowerCase())
+          filterOptions={(options, { inputValue }) => {
+            //This filter function details the rules for how the autocomplete should filter the dropdown options
+            return options.filter(
+              (option) =>
+                option.name?.toLowerCase().includes(inputValue.toLowerCase()) ||
+                option.description
+                  ?.toLowerCase()
+                  .includes(inputValue.toLowerCase()),
             );
           }}
           renderInput={(params) => <TextField {...params} />}
@@ -184,71 +254,122 @@ const AddItemModal = ({ addModal, handleAddClose, fetchData, originalData, showR
       </Box>
 
       <Box id="add-item-quantity">
-        <Typography fontWeight='bold'>
-          Quantity
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+        <Typography fontWeight="bold">Quantity</Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            marginTop: '0.5rem',
+          }}
+        >
           <IconButton
             sx={{
-              backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
-              height: { xs: '40px', lg: '30px' }
+              backgroundColor: '#E8E8E8',
+              width: { xs: '40px', lg: '30px' },
+              height: { xs: '40px', lg: '30px' },
             }}
-            onClick={() => handleInputChange('quantity', Number(formData.quantity) - 1)}
+            onClick={() =>
+              handleInputChange('quantity', Number(formData.quantity) - 1)
+            }
           >
             <Remove sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
-          <TextField 
-            sx={{ textAlign: 'center', width: '5rem' }} 
-            value={formData.quantity} 
-            type="number" 
+          <TextField
+            sx={{ textAlign: 'center', width: '5rem' }}
+            value={formData.quantity}
+            type="number"
             onChange={(e) => handleInputChange('quantity', e.target.value)}
             name="quantity"
           />
           <IconButton
             sx={{
-              backgroundColor: '#E8E8E8', width: { xs: '40px', lg: '30px' },
-              height: { xs: '40px', lg: '30px' }
+              backgroundColor: '#E8E8E8',
+              width: { xs: '40px', lg: '30px' },
+              height: { xs: '40px', lg: '30px' },
             }}
-            onClick={() => handleInputChange('quantity', Number(formData.quantity) + 1)}
+            onClick={() =>
+              handleInputChange('quantity', Number(formData.quantity) + 1)
+            }
           >
             <Add sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
         </Box>
       </Box>
 
-      <Box id="modal-buttons" sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}>
-        <Button sx={{ mr: '20px', color: 'black' }} onClick={resetInputsHandler}>Cancel</Button>
-        <Button sx={{ color: 'black' }} onClick={updateItemHandler} disabled={isSubmitting}>Submit</Button>
+      <Box
+        id="modal-buttons"
+        sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
+      >
+        <Button
+          sx={{ mr: '20px', color: 'black' }}
+          onClick={resetInputsHandler}
+        >
+          Cancel
+        </Button>
+        <Button
+          sx={{ color: 'black' }}
+          onClick={updateItemHandler}
+          disabled={isSubmitting}
+        >
+          Submit
+        </Button>
       </Box>
 
-      {errorMessage.length > 0 ? <SnackbarAlert open={true} onClose={() => setErrorMessage('')} severity={'error'}> {errorMessage} </SnackbarAlert> : null}
+      {errorMessage.length > 0 ? (
+        <SnackbarAlert
+          open={true}
+          onClose={() => setErrorMessage('')}
+          severity={'error'}
+        >
+          {' '}
+          {errorMessage}{' '}
+        </SnackbarAlert>
+      ) : null}
     </>
+  );
 
-  const ResultsContent = () =>
+  const ResultsContent = () => (
     <>
-      <DialogTitle>
-        Inventory Updated: {updateItem?.name}
-      </DialogTitle>
+      <DialogTitle>Inventory Updated: {updateItem?.name}</DialogTitle>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <Box>Previous Stock: <ResultText>{updateItem?.quantity}</ResultText></Box>
-        <Box>Quantity Added: <ResultText>{formData.quantity}</ResultText></Box>
-        <Box>New Stock Total: <ResultText>{newTotalQuantity}</ResultText></Box>
+        <Box>
+          Previous Stock: <ResultText>{updateItem?.quantity}</ResultText>
+        </Box>
+        <Box>
+          Quantity Added: <ResultText>{formData.quantity}</ResultText>
+        </Box>
+        <Box>
+          New Stock Total: <ResultText>{newTotalQuantity}</ResultText>
+        </Box>
       </Box>
-      {newTotalQuantity < 0 &&
-        <Alert severity="warning">Warning: Stock is negative. This item may have been over-issued. Please review and update it when possible.</Alert>}
+      {newTotalQuantity < 0 && (
+        <Alert severity="warning">
+          Warning: Stock is negative. This item may have been over-issued.
+          Please review and update it when possible.
+        </Alert>
+      )}
     </>
+  );
 
   return (
-    <DialogTemplate
-      showDialog={addModal}
-      handleShowDialog={resetInputsHandler}
-    >
+    <DialogTemplate showDialog={addModal} handleShowDialog={resetInputsHandler}>
       {/* Title Section */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: '1rem', width: '100%', margin: 'auto', height: '100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'start',
+          gap: '1rem',
+          width: '100%',
+          margin: 'auto',
+          height: '100%',
+        }}
+      >
         {showResults ? ResultsContent() : QuantityForm()}
       </Box>
     </DialogTemplate>
-  )
-}
+  );
+};
 
 export default AddItemModal;

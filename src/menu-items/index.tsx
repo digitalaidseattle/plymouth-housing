@@ -1,8 +1,8 @@
 // project import
 import {
   ChromeOutlined,
-// TODO Commenting out for now until PIT-52 (Admin dashboard)
-//   DashboardOutlined,
+  // TODO Commenting out for now until PIT-52 (Admin dashboard)
+  //   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   QuestionOutlined,
@@ -14,11 +14,11 @@ import {
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
 } from '@ant-design/icons';
 
 const icons = {
-//   DashboardOutlined,
+  //   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   ChromeOutlined,
@@ -31,7 +31,7 @@ const icons = {
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
 };
 
 // ==============================|| MENU ITEMS ||============================== //
@@ -39,7 +39,7 @@ const dashboard = {
   id: 'group-dashboard',
   type: 'group',
   children: [
-/*     {
+    /*     {
       id: 'dashboard',
       title: 'Dashboard',
       type: 'item',
@@ -77,6 +77,14 @@ const dashboard = {
       type: 'admin',
       url: '/people',
       icon: icons.UserOutlined,
+      breadcrumbs: false,
+    },
+    {
+      id: 'history',
+      title: 'History',
+      type: 'admin',
+      url: '/history',
+      icon: icons.FileOutlined,
       breadcrumbs: false,
     },
   ],

@@ -5,7 +5,8 @@ CREATE PROCEDURE ProcessInventoryResetQuantity
     @user_id INT,
     @item_id INT,
     @new_quantity INT,
-    @additional_notes NVARCHAR(MAX)
+    @additional_notes NVARCHAR(MAX),
+    @new_transaction_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -25,7 +26,17 @@ BEGIN
     
     BEGIN TRY
         BEGIN TRANSACTION
-        DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
+
+        -- Check if the transaction ID already exists
+        IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
 
         EXEC LogTransaction
             @user_id = @user_id,

@@ -44,9 +44,9 @@ const ResidentDetailDialog = ({
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [showError, setShowError] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState('');
     const [isLoadingResidents, setIsLoadingResidents] = useState(false);
     const [isLoadingUnits, setIsLoadingUnits] = useState(false);
+    const [apiError, setApiError] = useState('');
 
     const filter = createFilterOptions<ResidentNameOption>();
 
@@ -54,6 +54,7 @@ const ResidentDetailDialog = ({
 
     const fetchUnitNumbers = async (buildingId: number) => {
         setIsLoadingUnits(true);
+        setApiError('');
         document.body.style.cursor = 'wait';
         try {
             const response = await getUnitNumbers(user, buildingId);
@@ -63,6 +64,11 @@ const ResidentDetailDialog = ({
         } catch (error) {
             console.error('Error fetching unit numbers:', error);
             setUnitNumberValues([]);
+            if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                setApiError('Unable to load unit numbers. Please check your connection and try again.');
+            } else {
+                setApiError('An error occurred while loading unit numbers. Please try again.');
+            }
         } finally {
             setIsLoadingUnits(false);
             document.body.style.cursor = 'default';
@@ -76,9 +82,11 @@ const ResidentDetailDialog = ({
                 setExistingResidents([]);
                 setNameInput('');
                 setIsLoadingResidents(false);
+                setApiError('');
                 return;
             }
             setIsLoadingResidents(true);
+            setApiError('');
             document.body.style.cursor = 'wait';
             try {
                 const response = await getResidents(user, selectedUnit.id);
@@ -96,6 +104,11 @@ const ResidentDetailDialog = ({
                 console.error('Error fetching residents:', e);
                 setExistingResidents([]);
                 setNameInput('');
+                if (e instanceof TypeError && e.message === 'Failed to fetch') {
+                    setApiError('Unable to load resident data. Please check your connection and try again.');
+                } else {
+                    setApiError('An error occurred while loading resident data. Please try again.');
+                }
             } finally {
                 if (!cancelled) {
                     setIsLoadingResidents(false);
@@ -109,12 +122,12 @@ const ResidentDetailDialog = ({
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        setSubmitError('');
+        setApiError('');
         // validate inputs, show error
         if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
             setShowError(true);
             return;
-        } 
+        }
         setIsSubmitting(true);
         document.body.style.cursor = 'wait';
         try {
@@ -122,13 +135,13 @@ const ResidentDetailDialog = ({
             // first check if the resident already exists
             const existingResponse = await findResident(user, nameInput, selectedUnit.id);
             // if not, add them to the db
-            if (!existingResponse.value.length) { 
+            if (!existingResponse.value.length) {
                 const response = await addResident(user, nameInput, selectedUnit.id);
                 residentId = response.value[0].id;
              } else {
                 residentId = existingResponse.value[0].id;
              }
-            
+
             // update state on success
             setResidentInfo({
                 id: residentId,
@@ -141,9 +154,9 @@ const ResidentDetailDialog = ({
         } catch (error) {
             console.error('Error submitting resident info', error);
             if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                setSubmitError('Your system appears to be offline. Please check your connection and try again.');
+                setApiError('Your system appears to be offline. Please check your connection and try again.');
             } else {
-                setSubmitError('An error occurred while submitting. Please try again.');
+                setApiError('An error occurred while submitting. Please try again.');
             }
             setIsSubmitting(false);
         } finally {
@@ -276,7 +289,7 @@ const ResidentDetailDialog = ({
                         )}
                     />
                 </FormControl>
-                {submitError && <Typography color="error">{submitError}</Typography>}
+                {apiError && <Typography color="error">{apiError}</Typography>}
             </Box>
         </DialogTemplate>
     );

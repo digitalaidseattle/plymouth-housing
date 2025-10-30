@@ -18,31 +18,35 @@ BEGIN
         -- Validate inputs
         IF @item_id IS NULL OR @new_quantity IS NULL OR @new_quantity < 0
         BEGIN
-        SELECT 'Error' AS Status, 'Invalid item id or quantity (must be non-negative)' AS message;
-        RETURN;
-    END
+            SELECT 'Error' AS Status, 'Invalid item id or quantity (must be non-negative)' AS message;
+            RETURN;
+        END
 
         -- Check item exists
-        IF NOT EXISTS (SELECT 1
-    FROM Items
-    WHERE id = @item_id)
+        IF NOT EXISTS (
+            SELECT 1
+            FROM Items
+            WHERE id = @item_id
+        )
         BEGIN
-        SELECT 'Error' AS Status, 'Item not found' AS message;
-        RETURN;
-    END
+            SELECT 'Error' AS Status, 'Item not found' AS message;
+            RETURN;
+        END
 
-        -- Check for duplicate transaction BEFORE starting transaction. 
+        -- Check for duplicate transaction BEFORE starting transaction.
         -- There is theoretically a race condition, but we generate the GUID on the client side so it's extremely unlikely.
-        IF EXISTS (SELECT 1
-    FROM Transactions
-    WHERE id = @new_transaction_id)
+        IF EXISTS (
+            SELECT 1
+            FROM Transactions
+            WHERE id = @new_transaction_id
+        )
         BEGIN
-        SELECT
-            'Error' AS Status,
-            'DUPLICATE_TRANSACTION' AS ErrorCode,
-            'Transaction with this ID already exists.' AS message;
-        RETURN;
-    END
+            SELECT
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
 
         -- NOW start the transaction (only after all validations pass)
         BEGIN TRANSACTION;
@@ -55,9 +59,9 @@ BEGIN
         -- Verify update succeeded
         IF @@ROWCOUNT <> 1
         BEGIN
-        -- Force an error - XACT_ABORT will auto-rollback
-        RAISERROR('Item update failed', 16, 1);
-    END
+            -- Force an error - XACT_ABORT will auto-rollback with error 11 or above
+            RAISERROR('Item update failed', 16, 1);
+        END
 
         -- Log the successful change
         EXEC LogTransaction
@@ -65,7 +69,7 @@ BEGIN
             @transaction_type = 3,
             @resident_id = NULL,
             @new_transaction_id = @new_transaction_id;
-        
+
         EXEC LogTransactionItem
             @transaction_id = @new_transaction_id,
             @item_id = @item_id,
@@ -73,7 +77,7 @@ BEGIN
             @additional_notes = @additional_notes;
 
         COMMIT TRANSACTION;
-        
+
         -- Return success
         SELECT
         'Success' AS Status,
@@ -82,11 +86,6 @@ BEGIN
     END TRY
     BEGIN CATCH
         -- DON'T explicitly rollback - XACT_ABORT already did it
-        -- Just check if transaction is still open (it shouldn't be)
-        -- IF @@TRANCOUNT > 0
-        --     ROLLBACK TRANSACTION;  -- NEVER do this with DAB if you want to return error information!
-        
-        -- Return error as result set
         SELECT
         'Error' AS Status,
         CONCAT(

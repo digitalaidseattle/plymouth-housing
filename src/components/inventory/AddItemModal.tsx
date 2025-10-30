@@ -61,7 +61,7 @@ const AddItemModal = ({
   }, [addModal]);
 
   const newTotalQuantity =
-    Number(updateItem?.quantity) + Number(formData.quantity);
+    Number(updateItem?.quantity || 0) + Number(formData.quantity || 0);
 
   const theme = useTheme();
 
@@ -222,23 +222,27 @@ const AddItemModal = ({
           value={updateItem}
           options={nameSearch} // Pass the full array of objects
           getOptionLabel={(option) => option.name}
-          renderOption={(props, option) => (
-            <li
-              {...props}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-              }}
-            >
-              <span>{option.name}</span>
-              {option.category && (
-                <span style={{ fontSize: '0.8rem', color: 'gray' }}>
-                  {option.category}
-                </span>
-              )}
-            </li>
-          )}
+          renderOption={(props, option) => {
+            const { key, ...otherProps } = props;
+            return (
+              <li
+                key={key}
+                {...otherProps}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span>{option.name}</span>
+                {option.category && (
+                  <span style={{ fontSize: '0.8rem', color: 'gray' }}>
+                    {option.category}
+                  </span>
+                )}
+              </li>
+            );
+          }}
           filterOptions={(options, { inputValue }) => {
             //This filter function details the rules for how the autocomplete should filter the dropdown options
             return options.filter(
@@ -334,10 +338,10 @@ const AddItemModal = ({
       <DialogTitle>Inventory Updated: {updateItem?.name}</DialogTitle>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <Box>
-          Previous Stock: <ResultText>{updateItem?.quantity}</ResultText>
+          Previous Stock: <ResultText>{updateItem?.quantity ?? 0}</ResultText>
         </Box>
         <Box>
-          Quantity Added: <ResultText>{formData.quantity}</ResultText>
+          Quantity Added: <ResultText>{formData.quantity ?? 0}</ResultText>
         </Box>
         <Box>
           New Stock Total: <ResultText>{newTotalQuantity}</ResultText>

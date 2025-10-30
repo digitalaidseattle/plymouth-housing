@@ -147,7 +147,7 @@ const AdjustQuantityModal = ({
       let data;
       try {
         data = await response.json();
-      } catch (jsonError) {
+      } catch {
         throw new Error('Invalid JSON response from server');
       }
 

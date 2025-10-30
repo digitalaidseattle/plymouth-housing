@@ -45,14 +45,28 @@ const ResidentDetailDialog = ({
     const [showError, setShowError] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
+    const [isLoadingResidents, setIsLoadingResidents] = useState(false);
+    const [isLoadingUnits, setIsLoadingUnits] = useState(false);
 
     const filter = createFilterOptions<ResidentNameOption>();
 
+    const isWaiting = isSubmitting || isLoadingUnits || isLoadingResidents;
+
     const fetchUnitNumbers = async (buildingId: number) => {
-        const response = await getUnitNumbers(user, buildingId);
-        const unitNumbers = response
-            .filter((item: Unit) => item.unit_number.trim() !== '');
-        setUnitNumberValues(unitNumbers);
+        setIsLoadingUnits(true);
+        document.body.style.cursor = 'wait';
+        try {
+            const response = await getUnitNumbers(user, buildingId);
+            const unitNumbers = response
+                .filter((item: Unit) => item.unit_number.trim() !== '');
+            setUnitNumberValues(unitNumbers);
+        } catch (error) {
+            console.error('Error fetching unit numbers:', error);
+            setUnitNumberValues([]);
+        } finally {
+            setIsLoadingUnits(false);
+            document.body.style.cursor = 'default';
+        }
     }
 
     useEffect(() => {
@@ -61,8 +75,11 @@ const ResidentDetailDialog = ({
             if (!selectedUnit?.id) {
                 setExistingResidents([]);
                 setNameInput('');
+                setIsLoadingResidents(false);
                 return;
             }
+            setIsLoadingResidents(true);
+            document.body.style.cursor = 'wait';
             try {
                 const response = await getResidents(user, selectedUnit.id);
                 if (cancelled) return;
@@ -79,6 +96,11 @@ const ResidentDetailDialog = ({
                 console.error('Error fetching residents:', e);
                 setExistingResidents([]);
                 setNameInput('');
+            } finally {
+                if (!cancelled) {
+                    setIsLoadingResidents(false);
+                    document.body.style.cursor = 'default';
+                }
             }
         };
         fetchResidents();
@@ -137,22 +159,23 @@ const ResidentDetailDialog = ({
     }
 
     return (
-        <DialogTemplate 
-            showDialog={showDialog} 
-            handleShowDialog={handleShowDialog} 
+        <DialogTemplate
+            showDialog={showDialog}
+            handleShowDialog={handleShowDialog}
             handleSubmit={handleSubmit}
             title="provide details to continue"
             submitButtonText='continue'
-            isSubmitting={isSubmitting}>
+            isSubmitting={isWaiting}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                 <FormControl>
-                    <BuildingCodeSelect 
-                        buildings={buildings} 
-                        selectedBuilding={selectedBuilding} 
-                        setSelectedBuilding={setSelectedBuilding} 
+                    <BuildingCodeSelect
+                        buildings={buildings}
+                        selectedBuilding={selectedBuilding}
+                        setSelectedBuilding={setSelectedBuilding}
                         setSelectedUnit={setSelectedUnit}
                         fetchUnitNumbers={fetchUnitNumbers}
-                        error={showError && !selectedBuilding.id}/>
+                        error={showError && !selectedBuilding.id}
+                        disabled={isWaiting}/>
                 </FormControl>
 
                 <FormControl>
@@ -161,6 +184,7 @@ const ResidentDetailDialog = ({
                         data-testid="test-id-select-unit-number"
                         options={unitNumberValues}
                         value={selectedUnit}
+                        disabled={isWaiting}
                         isOptionEqualToValue={(option, value) => option.id === value.id}
                         onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
                             if (reason === "clear") {
@@ -194,8 +218,9 @@ const ResidentDetailDialog = ({
                 </FormControl>
 
                 <FormControl>
-                    <Autocomplete 
+                    <Autocomplete
                         value={nameInput}
+                        disabled={isWaiting}
                         onChange={(_event, newValue) => {
                             if (typeof newValue === 'string') {
                                 setNameInput(newValue);

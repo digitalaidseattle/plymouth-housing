@@ -111,7 +111,7 @@ const AdjustQuantityModal = ({
     const rx = new RegExp(/^\d+$/);
     if (!rx.test(formData.newQuantity.toString())) {
       setErrorMessage(
-        'The new total quantity must be a positive whole number.',
+        'The new total quantity must be a non-negative whole number.',
       );
       return;
     }

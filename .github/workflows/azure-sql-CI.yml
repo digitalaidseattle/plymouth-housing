@@ -1,4 +1,4 @@
-name: SQL Unit Tests
+name: SQL Unit Tests CI
 
 on:
   push:

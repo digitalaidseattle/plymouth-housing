@@ -5,68 +5,92 @@ CREATE PROCEDURE ProcessInventoryResetQuantity
     @user_id INT,
     @item_id INT,
     @new_quantity INT,
-    @additional_notes NVARCHAR(MAX)
+    @additional_notes NVARCHAR(MAX),
+    @new_transaction_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
+    -- Auto-rollback, never explicit ROLLBACK
 
-    DECLARE @ItemId INT;
-    DECLARE @Quantity INT;
-    DECLARE @AdditionalNotes NVARCHAR(MAX);
-
-    SELECT
-        @ItemId = @item_id,
-        @Quantity = @new_quantity,
-        @AdditionalNotes = @additional_notes;
-
-    IF @ItemId IS NULL OR @Quantity IS NULL OR @Quantity < 0
-        THROW 51003, 'Invalid item id or quantity (must be a non-negative integer).', 1;
-    
+    -- Do ALL validations BEFORE starting transaction
     BEGIN TRY
-        BEGIN TRANSACTION
-        DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
+        -- Validate inputs
+        IF @item_id IS NULL OR @new_quantity IS NULL OR @new_quantity < 0
+        BEGIN
+            SELECT 'Error' AS Status, 'Invalid item id or quantity (must be non-negative)' AS message;
+            RETURN;
+        END
 
-        EXEC LogTransaction
-            @user_id = @user_id,
-            @transaction_type = 3, -- 3: TransactionTypes.CORRECTION
-            @resident_id = NULL,
-            @new_transaction_id = @new_transaction_id;
-        
-        EXEC LogTransactionItem
-            @transaction_id = @new_transaction_id,
-            @item_id = @ItemId,
-            @quantity = @Quantity,
-            @additional_notes = @AdditionalNotes;
+        -- Check item exists
+        IF NOT EXISTS (
+            SELECT 1
+            FROM Items
+            WHERE id = @item_id
+        )
+        BEGIN
+            SELECT 'Error' AS Status, 'Item not found' AS message;
+            RETURN;
+        END
+
+        -- Check for duplicate transaction BEFORE starting transaction.
+        -- There is theoretically a race condition, but we generate the GUID on the client side so it's extremely unlikely.
+        IF EXISTS (
+            SELECT 1
+            FROM Transactions
+            WHERE id = @new_transaction_id
+        )
+        BEGIN
+            SELECT
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
+
+        -- NOW start the transaction (only after all validations pass)
+        BEGIN TRANSACTION;
 
         -- Update inventory
-        UPDATE i
-        SET i.quantity = @Quantity
-        FROM dbo.Items AS i
-        WHERE i.id = @ItemId;
+        UPDATE Items
+        SET quantity = @new_quantity
+        WHERE id = @item_id;
 
+        -- Verify update succeeded
         IF @@ROWCOUNT <> 1
-            THROW 51004, 'No item updated. Invalid item id or concurrent change.', 1;
-        
-        -- Return success status with transaction ID
-        SELECT 
-            'Success' as Status,
-            @new_transaction_id AS message
+        BEGIN
+            -- Force an error - XACT_ABORT will auto-rollback with error 11 or above
+            RAISERROR('Item update failed', 16, 1);
+        END
 
-        COMMIT TRANSACTION
+        -- Log the successful change
+        EXEC LogTransaction
+            @user_id = @user_id,
+            @transaction_type = 3,
+            @resident_id = NULL,
+            @new_transaction_id = @new_transaction_id;
+
+        EXEC LogTransactionItem
+            @transaction_id = @new_transaction_id,
+            @item_id = @item_id,
+            @quantity = @new_quantity,
+            @additional_notes = @additional_notes;
+
+        COMMIT TRANSACTION;
+
+        -- Return success
+        SELECT
+        'Success' AS Status,
+        CAST(@new_transaction_id AS NVARCHAR(36)) AS message;
+
     END TRY
     BEGIN CATCH
-        -- Rollback transaction if any error occurs
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION
-        
-        SELECT 
-            'Error' AS Status,
-            CONCAT(
+        -- DON'T explicitly rollback - XACT_ABORT already did it
+        SELECT
+        'Error' AS Status,
+        CONCAT(
                 'Error: ', ERROR_MESSAGE(),
-                ', Error Number: ', ERROR_NUMBER(),
-                ', State: ', ERROR_STATE()
+                ', Number: ', ERROR_NUMBER()
             ) AS message;
-
     END CATCH
 END

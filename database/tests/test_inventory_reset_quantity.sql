@@ -2,6 +2,7 @@
 
 -- Test 1: Basic successful quantity reset
 PRINT 'Test 1: Basic successful quantity reset'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @initial_quantity INT;
 DECLARE @final_quantity INT;
 DECLARE @item_id INT = 2;
@@ -15,7 +16,8 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @new_quantity,
-    @additional_notes = NULL;
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
 -- Get final quantity
 SELECT @final_quantity = quantity FROM Items WHERE id = @item_id;
@@ -38,10 +40,10 @@ GO
 
 -- Test 2: Reset with additional notes
 PRINT 'Test 2: Reset with additional notes'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 3;
 DECLARE @new_quantity INT = 50;
 DECLARE @additional_notes NVARCHAR(MAX) = N'[{"comments":"Counted inventory","howYouKnow":"counted"}]';
-DECLARE @transaction_id UNIQUEIDENTIFIER;
 DECLARE @stored_notes NVARCHAR(MAX);
 
 -- Execute the procedure
@@ -49,14 +51,13 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @new_quantity,
-    @additional_notes = @additional_notes;
+    @additional_notes = @additional_notes,
+    @new_transaction_id = @new_transaction_id;
 
--- Get the most recent transaction for this item
-SELECT TOP 1 @transaction_id = ti.transaction_id, @stored_notes = ti.additional_notes
-FROM TransactionItems ti
-JOIN Transactions t ON ti.transaction_id = t.id
-WHERE ti.item_id = @item_id
-ORDER BY t.transaction_date DESC;
+-- Get the stored notes from the transaction we just created
+SELECT @stored_notes = additional_notes
+FROM TransactionItems
+WHERE transaction_id = @new_transaction_id AND item_id = @item_id;
 
 -- Assert: Additional notes should be stored
 IF @stored_notes <> @additional_notes
@@ -67,6 +68,7 @@ GO
 
 -- Test 3: Reset quantity to zero
 PRINT 'Test 3: Reset quantity to zero'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 4;
 DECLARE @final_quantity INT;
 
@@ -75,7 +77,8 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = 0,
-    @additional_notes = N'Out of stock';
+    @additional_notes = N'Out of stock',
+    @new_transaction_id = @new_transaction_id;
 
 -- Get final quantity
 SELECT @final_quantity = quantity FROM Items WHERE id = @item_id;
@@ -89,6 +92,7 @@ GO
 
 -- Test 4: Large quantity reset
 PRINT 'Test 4: Large quantity reset'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 5;
 DECLARE @final_quantity INT;
 DECLARE @large_quantity INT = 9999;
@@ -98,7 +102,8 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @large_quantity,
-    @additional_notes = N'Bulk delivery';
+    @additional_notes = N'Bulk delivery',
+    @new_transaction_id = @new_transaction_id;
 
 -- Get final quantity
 SELECT @final_quantity = quantity FROM Items WHERE id = @item_id;
@@ -112,6 +117,7 @@ GO
 
 -- Test 5: Invalid item_id should fail
 PRINT 'Test 5: Invalid item_id should fail'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @error_occurred BIT = 0;
 
 BEGIN TRY
@@ -119,7 +125,8 @@ BEGIN TRY
         @user_id = 1,
         @item_id = 999999,
         @new_quantity = 10,
-        @additional_notes = NULL;
+        @additional_notes = NULL,
+        @new_transaction_id = @new_transaction_id;
 
     -- If we get here, the test failed because no error was thrown
     THROW 50005, 'Test 5 FAILED: Invalid item_id should have thrown an error', 1;
@@ -141,6 +148,7 @@ GO
 
 -- Test 6: Negative quantity should fail
 PRINT 'Test 6: Negative quantity should fail'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @error_occurred BIT = 0;
 
 BEGIN TRY
@@ -148,7 +156,8 @@ BEGIN TRY
         @user_id = 1,
         @item_id = 2,
         @new_quantity = -10,
-        @additional_notes = NULL;
+        @additional_notes = NULL,
+        @new_transaction_id = @new_transaction_id;
 
     -- If we get here, the test failed because no error was thrown
     THROW 50006, 'Test 6 FAILED: Negative quantity should have thrown an error', 1;
@@ -168,6 +177,7 @@ GO
 
 -- Test 7: NULL item_id should fail
 PRINT 'Test 7: NULL item_id should fail'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @error_occurred BIT = 0;
 
 BEGIN TRY
@@ -175,7 +185,8 @@ BEGIN TRY
         @user_id = 1,
         @item_id = NULL,
         @new_quantity = 10,
-        @additional_notes = NULL;
+        @additional_notes = NULL,
+        @new_transaction_id = @new_transaction_id;
 
     -- If we get here, the test failed because no error was thrown
     THROW 50007, 'Test 7 FAILED: NULL item_id should have thrown an error', 1;
@@ -195,6 +206,7 @@ GO
 
 -- Test 8: NULL quantity should fail
 PRINT 'Test 8: NULL quantity should fail'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @error_occurred BIT = 0;
 
 BEGIN TRY
@@ -202,7 +214,8 @@ BEGIN TRY
         @user_id = 1,
         @item_id = 2,
         @new_quantity = NULL,
-        @additional_notes = NULL;
+        @additional_notes = NULL,
+        @new_transaction_id = @new_transaction_id;
 
     -- If we get here, the test failed because no error was thrown
     THROW 50008, 'Test 8 FAILED: NULL quantity should have thrown an error', 1;
@@ -222,6 +235,7 @@ GO
 
 -- Test 9: Verify transaction type is 3 (CORRECTION)
 PRINT 'Test 9: Verify transaction type is 3 (CORRECTION)'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 6;
 DECLARE @transaction_type INT;
 
@@ -230,14 +244,13 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = 75,
-    @additional_notes = NULL;
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
--- Get the most recent transaction for this item
-SELECT TOP 1 @transaction_type = t.transaction_type
-FROM Transactions t
-JOIN TransactionItems ti ON t.id = ti.transaction_id
-WHERE ti.item_id = @item_id
-ORDER BY t.transaction_date DESC;
+-- Get the transaction type
+SELECT @transaction_type = transaction_type
+FROM Transactions
+WHERE id = @new_transaction_id;
 
 -- Assert: Transaction type should be 3 (CORRECTION)
 IF @transaction_type <> 3
@@ -248,6 +261,7 @@ GO
 
 -- Test 10: Verify user_id is stored correctly
 PRINT 'Test 10: Verify user_id is stored correctly'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 7;
 DECLARE @stored_user_id INT;
 
@@ -256,14 +270,13 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = 25,
-    @additional_notes = NULL;
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
--- Get the most recent transaction for this item
-SELECT TOP 1 @stored_user_id = t.user_id
-FROM Transactions t
-JOIN TransactionItems ti ON t.id = ti.transaction_id
-WHERE ti.item_id = @item_id
-ORDER BY t.transaction_date DESC;
+-- Get the user_id from the transaction
+SELECT @stored_user_id = user_id
+FROM Transactions
+WHERE id = @new_transaction_id;
 
 -- Assert: User ID should be stored correctly
 IF @stored_user_id <> 1
@@ -274,6 +287,9 @@ GO
 
 -- Test 11: Multiple resets on same item
 PRINT 'Test 11: Multiple resets on same item'
+DECLARE @transaction_id_1 UNIQUEIDENTIFIER = NEWID();
+DECLARE @transaction_id_2 UNIQUEIDENTIFIER = NEWID();
+DECLARE @transaction_id_3 UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 8;
 DECLARE @quantity1 INT = 100;
 DECLARE @quantity2 INT = 50;
@@ -285,21 +301,24 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @quantity1,
-    @additional_notes = N'First reset';
+    @additional_notes = N'First reset',
+    @new_transaction_id = @transaction_id_1;
 
 -- Second reset
 EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @quantity2,
-    @additional_notes = N'Second reset';
+    @additional_notes = N'Second reset',
+    @new_transaction_id = @transaction_id_2;
 
 -- Third reset
 EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @quantity3,
-    @additional_notes = N'Third reset';
+    @additional_notes = N'Third reset',
+    @new_transaction_id = @transaction_id_3;
 
 -- Get final quantity
 SELECT @final_quantity = quantity FROM Items WHERE id = @item_id;
@@ -308,21 +327,18 @@ SELECT @final_quantity = quantity FROM Items WHERE id = @item_id;
 IF @final_quantity <> @quantity3
     THROW 50011, 'Test 11 FAILED: Final quantity should match last reset', 1;
 
--- Assert: Three separate transactions should exist for this item
-DECLARE @transaction_count INT;
-SELECT @transaction_count = COUNT(DISTINCT ti.transaction_id)
-FROM TransactionItems ti
-JOIN Transactions t ON ti.transaction_id = t.id
-WHERE ti.item_id = @item_id AND t.transaction_type = 3;
-
-IF @transaction_count < 3
-    THROW 50011, 'Test 11 FAILED: Should have at least 3 correction transactions', 1;
+-- Assert: All three transactions should exist
+IF NOT EXISTS (SELECT 1 FROM Transactions WHERE id = @transaction_id_1)
+    OR NOT EXISTS (SELECT 1 FROM Transactions WHERE id = @transaction_id_2)
+    OR NOT EXISTS (SELECT 1 FROM Transactions WHERE id = @transaction_id_3)
+    THROW 50011, 'Test 11 FAILED: All three transactions should exist', 1;
 
 PRINT 'Test 11 PASSED: Multiple resets handled correctly';
 GO
 
 -- Test 12: Verify quantity is SET, not added
 PRINT 'Test 12: Verify quantity is SET (not added/subtracted)'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 9;
 DECLARE @initial_quantity INT;
 DECLARE @reset_value INT = 25;
@@ -336,7 +352,8 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @reset_value,
-    @additional_notes = N'Testing SET operation';
+    @additional_notes = N'Testing SET operation',
+    @new_transaction_id = @new_transaction_id;
 
 -- Get final quantity
 SELECT @final_quantity = quantity FROM Items WHERE id = @item_id;
@@ -354,6 +371,7 @@ GO
 
 -- Test 13: Verify resident_id is NULL for correction transactions
 PRINT 'Test 13: Verify resident_id is NULL for correction transactions'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 10;
 DECLARE @resident_id INT;
 
@@ -362,14 +380,13 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = 30,
-    @additional_notes = NULL;
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
--- Get the most recent transaction for this item
-SELECT TOP 1 @resident_id = t.resident_id
-FROM Transactions t
-JOIN TransactionItems ti ON t.id = ti.transaction_id
-WHERE ti.item_id = @item_id
-ORDER BY t.transaction_date DESC;
+-- Get the resident_id from the transaction
+SELECT @resident_id = resident_id
+FROM Transactions
+WHERE id = @new_transaction_id;
 
 -- Assert: Resident ID should be NULL (corrections not tied to residents)
 IF @resident_id IS NOT NULL
@@ -380,6 +397,7 @@ GO
 
 -- Test 14: Verify TransactionItem quantity matches new_quantity parameter
 PRINT 'Test 14: Verify TransactionItem quantity matches new_quantity parameter'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 DECLARE @item_id INT = 11;
 DECLARE @new_quantity INT = 123;
 DECLARE @transaction_item_quantity INT;
@@ -389,20 +407,70 @@ EXEC ProcessInventoryResetQuantity
     @user_id = 1,
     @item_id = @item_id,
     @new_quantity = @new_quantity,
-    @additional_notes = N'Testing transaction item quantity';
+    @additional_notes = N'Testing transaction item quantity',
+    @new_transaction_id = @new_transaction_id;
 
 -- Get the quantity logged in TransactionItems
-SELECT TOP 1 @transaction_item_quantity = ti.quantity
-FROM TransactionItems ti
-JOIN Transactions t ON ti.transaction_id = t.id
-WHERE ti.item_id = @item_id
-ORDER BY t.transaction_date DESC;
+SELECT @transaction_item_quantity = quantity
+FROM TransactionItems
+WHERE transaction_id = @new_transaction_id AND item_id = @item_id;
 
 -- Assert: TransactionItem quantity should match the new quantity
 IF @transaction_item_quantity <> @new_quantity
     THROW 50014, 'Test 14 FAILED: TransactionItem quantity should match new_quantity parameter', 1;
 
 PRINT 'Test 14 PASSED: TransactionItem quantity logged correctly';
+GO
+
+-- Test 15: Duplicate transaction ID should fail
+PRINT 'Test 15: Duplicate transaction ID should fail'
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
+DECLARE @transaction_count INT;
+DECLARE @initial_item_qty INT;
+DECLARE @after_first_qty INT;
+DECLARE @final_qty INT;
+
+-- Get initial quantity
+SELECT @initial_item_qty = quantity FROM Items WHERE id = 2;
+
+-- First transaction should succeed
+EXEC ProcessInventoryResetQuantity
+    @user_id = 1,
+    @item_id = 2,
+    @new_quantity = 50,
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
+
+-- Verify first transaction was created
+IF NOT EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+    THROW 50015, 'Test 15 FAILED: First transaction should have been created', 1;
+
+-- Get quantity after first transaction
+SELECT @after_first_qty = quantity FROM Items WHERE id = 2;
+
+-- Second transaction with same ID should be rejected
+EXEC ProcessInventoryResetQuantity
+    @user_id = 1,
+    @item_id = 2,
+    @new_quantity = 100,
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
+
+-- Assert: Should only have ONE transaction with this ID (not two)
+SELECT @transaction_count = COUNT(*)
+FROM Transactions
+WHERE id = @new_transaction_id;
+
+IF @transaction_count <> 1
+    THROW 50015, 'Test 15 FAILED: Should only have one transaction with duplicate ID', 1;
+
+-- Assert: Item quantity should only have been set once (to 50, not 100)
+SELECT @final_qty = quantity FROM Items WHERE id = 2;
+
+IF @final_qty <> 50
+    THROW 50015, 'Test 15 FAILED: Quantity should still be 50 from first transaction', 1;
+
+PRINT 'Test 15 PASSED: Duplicate transaction ID rejected correctly';
 GO
 
 PRINT '';

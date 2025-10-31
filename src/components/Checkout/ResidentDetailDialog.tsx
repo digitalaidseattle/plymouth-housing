@@ -44,15 +44,35 @@ const ResidentDetailDialog = ({
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [showError, setShowError] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState('');
+    const [isLoadingResidents, setIsLoadingResidents] = useState(false);
+    const [isLoadingUnits, setIsLoadingUnits] = useState(false);
+    const [apiError, setApiError] = useState('');
 
     const filter = createFilterOptions<ResidentNameOption>();
 
+    const isWaiting = isSubmitting || isLoadingUnits || isLoadingResidents;
+
     const fetchUnitNumbers = async (buildingId: number) => {
-        const response = await getUnitNumbers(user, buildingId);
-        const unitNumbers = response
-            .filter((item: Unit) => item.unit_number.trim() !== '');
-        setUnitNumberValues(unitNumbers);
+        setIsLoadingUnits(true);
+        setApiError('');
+        document.body.style.cursor = 'wait';
+        try {
+            const response = await getUnitNumbers(user, buildingId);
+            const unitNumbers = response
+                .filter((item: Unit) => item.unit_number.trim() !== '');
+            setUnitNumberValues(unitNumbers);
+        } catch (error) {
+            console.error('Error fetching unit numbers:', error);
+            setUnitNumberValues([]);
+            if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                setApiError('Unable to load unit numbers. Please check your connection and try again.');
+            } else {
+                setApiError('An error occurred while loading unit numbers. Please try again.');
+            }
+        } finally {
+            setIsLoadingUnits(false);
+            document.body.style.cursor = 'default';
+        }
     }
 
     useEffect(() => {
@@ -61,8 +81,13 @@ const ResidentDetailDialog = ({
             if (!selectedUnit?.id) {
                 setExistingResidents([]);
                 setNameInput('');
+                setIsLoadingResidents(false);
+                setApiError('');
                 return;
             }
+            setIsLoadingResidents(true);
+            setApiError('');
+            document.body.style.cursor = 'wait';
             try {
                 const response = await getResidents(user, selectedUnit.id);
                 if (cancelled) return;
@@ -79,6 +104,16 @@ const ResidentDetailDialog = ({
                 console.error('Error fetching residents:', e);
                 setExistingResidents([]);
                 setNameInput('');
+                if (e instanceof TypeError && e.message === 'Failed to fetch') {
+                    setApiError('Unable to load resident data. Please check your connection and try again.');
+                } else {
+                    setApiError('An error occurred while loading resident data. Please try again.');
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoadingResidents(false);
+                    document.body.style.cursor = 'default';
+                }
             }
         };
         fetchResidents();
@@ -87,12 +122,12 @@ const ResidentDetailDialog = ({
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        setSubmitError('');
+        setApiError('');
         // validate inputs, show error
         if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
             setShowError(true);
             return;
-        } 
+        }
         setIsSubmitting(true);
         document.body.style.cursor = 'wait';
         try {
@@ -100,13 +135,13 @@ const ResidentDetailDialog = ({
             // first check if the resident already exists
             const existingResponse = await findResident(user, nameInput, selectedUnit.id);
             // if not, add them to the db
-            if (!existingResponse.value.length) { 
+            if (!existingResponse.value.length) {
                 const response = await addResident(user, nameInput, selectedUnit.id);
                 residentId = response.value[0].id;
              } else {
                 residentId = existingResponse.value[0].id;
              }
-            
+
             // update state on success
             setResidentInfo({
                 id: residentId,
@@ -119,9 +154,9 @@ const ResidentDetailDialog = ({
         } catch (error) {
             console.error('Error submitting resident info', error);
             if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                setSubmitError('Your system appears to be offline. Please check your connection and try again.');
+                setApiError('Your system appears to be offline. Please check your connection and try again.');
             } else {
-                setSubmitError('An error occurred while submitting. Please try again.');
+                setApiError('An error occurred while submitting. Please try again.');
             }
             setIsSubmitting(false);
         } finally {
@@ -137,22 +172,23 @@ const ResidentDetailDialog = ({
     }
 
     return (
-        <DialogTemplate 
-            showDialog={showDialog} 
-            handleShowDialog={handleShowDialog} 
+        <DialogTemplate
+            showDialog={showDialog}
+            handleShowDialog={handleShowDialog}
             handleSubmit={handleSubmit}
             title="provide details to continue"
             submitButtonText='continue'
-            isSubmitting={isSubmitting}>
+            isSubmitting={isWaiting}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
                 <FormControl>
-                    <BuildingCodeSelect 
-                        buildings={buildings} 
-                        selectedBuilding={selectedBuilding} 
-                        setSelectedBuilding={setSelectedBuilding} 
+                    <BuildingCodeSelect
+                        buildings={buildings}
+                        selectedBuilding={selectedBuilding}
+                        setSelectedBuilding={setSelectedBuilding}
                         setSelectedUnit={setSelectedUnit}
                         fetchUnitNumbers={fetchUnitNumbers}
-                        error={showError && !selectedBuilding.id}/>
+                        error={showError && !selectedBuilding.id}
+                        disabled={isWaiting}/>
                 </FormControl>
 
                 <FormControl>
@@ -161,6 +197,7 @@ const ResidentDetailDialog = ({
                         data-testid="test-id-select-unit-number"
                         options={unitNumberValues}
                         value={selectedUnit}
+                        disabled={isWaiting}
                         isOptionEqualToValue={(option, value) => option.id === value.id}
                         onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
                             if (reason === "clear") {
@@ -194,8 +231,9 @@ const ResidentDetailDialog = ({
                 </FormControl>
 
                 <FormControl>
-                    <Autocomplete 
+                    <Autocomplete
                         value={nameInput}
+                        disabled={isWaiting}
                         onChange={(_event, newValue) => {
                             if (typeof newValue === 'string') {
                                 setNameInput(newValue);
@@ -251,7 +289,7 @@ const ResidentDetailDialog = ({
                         )}
                     />
                 </FormControl>
-                {submitError && <Typography color="error">{submitError}</Typography>}
+                {apiError && <Typography color="error">{apiError}</Typography>}
             </Box>
         </DialogTemplate>
     );

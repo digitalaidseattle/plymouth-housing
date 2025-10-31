@@ -1,4 +1,5 @@
--- Clean up test data
+-- Clean up test data (delete child records first, then parent records)
+DELETE FROM [TransactionItems];
 DELETE FROM [Transactions];
 GO
 

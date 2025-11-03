@@ -50,7 +50,11 @@
     "rollup-plugin-visualizer": "^6.0.3",
     "source-map-explorer": "^2.5.3",
     "typescript": "^5.8.2",
+<<<<<<< HEAD
     "vite": "^7.1.5",
+=======
+    "vite": "^7.1.12",
+>>>>>>> a90c53eafc7ba863e009ff2ac1da1271848514d7
     "vitest": "^4.0.6"
   }
 }

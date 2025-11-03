@@ -68,16 +68,17 @@ BEGIN
     FROM OPENJSON(@items, '$')
 
     -- Check if the cart exceeds the item limit
-    BEGIN TRY
-        EXEC CheckCartItemLimit @CartItems;
-    END TRY
-    BEGIN CATCH
-        print 'Error in cart item limit'
-        SELECT 
-            'Error' AS Status,
-            ERROR_MESSAGE() AS message;
-        RETURN;
-    END CATCH
+    -- Plymouth no longer wants to enforce limits. Commenting out for now. 
+    -- BEGIN TRY
+    --     EXEC CheckCartItemLimit @CartItems;
+    -- END TRY
+    -- BEGIN CATCH
+    --     print 'Error in cart item limit'
+    --     SELECT 
+    --         'Error' AS Status,
+    --         ERROR_MESSAGE() AS message;
+    --     RETURN;
+    -- END CATCH
 
     -- ****************************************
     -- Commented out because we are not using this procedure.
@@ -98,15 +99,16 @@ BEGIN
     -- END CATCH
 
     -- Check if there is no violation of the max per category
-    BEGIN TRY
-        EXEC CheckCategoryCheckoutLimit @CartItems;
-    END TRY
-    BEGIN CATCH
-        SELECT 
-            'Error' AS Status,
-            ERROR_MESSAGE() AS message;
-        RETURN;
-    END CATCH
+    -- Plymouth no longer wants to check Limits. Commenting out for now. 
+    -- BEGIN TRY
+    --     EXEC CheckCategoryCheckoutLimit @CartItems;
+    -- END TRY
+    -- BEGIN CATCH
+    --     SELECT 
+    --         'Error' AS Status,
+    --         ERROR_MESSAGE() AS message;
+    --     RETURN;
+    -- END CATCH
     
     BEGIN TRANSACTION
     

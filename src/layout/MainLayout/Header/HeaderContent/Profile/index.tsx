@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-
 import {
   Avatar,
   Box,
@@ -14,10 +13,8 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-
 import Transitions from '../../../../../components/@extended/Transitions';
 import MainCard from '../../../../../components/MainCard';
-
 import { LogoutOutlined } from '@ant-design/icons';
 import { UserContext } from '../../../../../components/contexts/UserContext';
 

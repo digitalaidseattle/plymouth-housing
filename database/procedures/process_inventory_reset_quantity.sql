@@ -5,11 +5,22 @@ CREATE PROCEDURE ProcessInventoryResetQuantity
     @user_id INT,
     @item_id INT,
     @new_quantity INT,
-    @additional_notes NVARCHAR(MAX)
+    @additional_notes NVARCHAR(MAX),
+    @new_transaction_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
+
+    -- Check if the transaction ID already exists
+    IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+    BEGIN
+        SELECT
+            'Error' AS Status,
+            'DUPLICATE_TRANSACTION' AS ErrorCode,
+            'Transaction with this ID already exists.' AS message;
+        RETURN;
+    END
 
     DECLARE @ItemId INT;
     DECLARE @Quantity INT;
@@ -22,10 +33,9 @@ BEGIN
 
     IF @ItemId IS NULL OR @Quantity IS NULL OR @Quantity < 0
         THROW 51003, 'Invalid item id or quantity (must be a non-negative integer).', 1;
-    
+
     BEGIN TRY
         BEGIN TRANSACTION
-        DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 
         EXEC LogTransaction
             @user_id = @user_id,

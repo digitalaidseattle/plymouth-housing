@@ -1,6 +1,5 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useState } from 'react';
 
-// material-ui
 import {
   Avatar,
   Box,
@@ -12,105 +11,54 @@ import {
   Paper,
   Popper,
   Stack,
-//   Tabs,
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-// project import
 import Transitions from '../../../../../components/@extended/Transitions';
 import MainCard from '../../../../../components/MainCard';
-// import ProfileTab from './ProfileTab';
-// import SettingTab from './SettingTab';
 
-// assets
-import {
-  LogoutOutlined,
-//   SettingOutlined,
-//   UserOutlined,
-} from '@ant-design/icons';
+import { LogoutOutlined } from '@ant-design/icons';
 import { UserContext } from '../../../../../components/contexts/UserContext';
-
-// interface TabPanelProps {
-//   children: ReactNode;
-//   index: number;
-//   value: number;
-//   dir: Direction;
-// }
-// tab panel wrapper
-// const TabPanel: React.FC<TabPanelProps> = ({
-//   children,
-//   value,
-//   index,
-//   dir,
-//   ...other
-// }) => {
-//   return (
-//     <div
-//       role="tabpanel"
-//       hidden={value !== index}
-//       id={`profile-tabpanel-${index}`}
-//       aria-labelledby={`profile-tab-${index}`}
-//       dir={dir}
-//       {...other}
-//     >
-//       {value === index && children}
-//     </div>
-//   );
-// };
-//
-// function a11yProps(index: number) {
-//   return {
-//     id: `profile-tab-${index}`,
-//     'aria-controls': `profile-tabpanel-${index}`,
-//   };
-// }
-
-// ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
 const Profile = () => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
-  const [username, setUsername] = useState<string>('');
-  const [role, setRole] = useState<string>(''); // New state for role
-  // const [avatar, setAvatar] = useState<string>(''); //TODO add avatar
 
-  useEffect(() => {
-    if (user) {
-      // setAvatar(user.user_metadata.avatar_url) //TODO add avatar
-      setUsername(user.userDetails ?? 'Null');
-      setRole(user.userRoles?.includes('admin') ? 'admin' : user.userRoles?.includes('volunteer') ? 'volunteer' : '');
-    }
-  }, [user]);
+  // Derive values directly from user context - no need for state or effects
+  const username = user?.userDetails ?? 'Null';
+  const role = user?.userRoles?.includes('admin')
+    ? 'admin'
+    : user?.userRoles?.includes('volunteer')
+    ? 'volunteer'
+    : '';
+  // const avatar = user?.user_metadata?.avatar_url; //TODO add avatar
 
   const handleLogout = async () => {
     localStorage.clear();
-    window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
+    window.location.href = '/.auth/logout?post_logout_redirect_uri=/login.html';
   };
 
-  const anchorRef = useRef(null);
-  const [open, setOpen] = useState(false);
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+
+  const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
   };
 
   const handleClose = (event: MouseEvent | TouchEvent) => {
-    // FIXME
-    // eslint-disable-next-line
-    const ref = anchorRef as any;
-    if (ref.current && ref.current.contains(event.target)) {
+    if (anchorEl && anchorEl.contains(event.target as Node)) {
       return;
     }
-    setOpen(false);
+    setAnchorEl(null);
   };
 
-    // hide two tabs for MVP
-//   const [value, setValue] = useState(0);
+  // hide two tabs for MVP
+  //   const [value, setValue] = useState(0);
 
-
-//   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-//     setValue(newValue);
-//   };
+  //   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+  //     setValue(newValue);
+  //   };
 
   const iconBackColorOpen = 'grey.300';
 
@@ -124,7 +72,6 @@ const Profile = () => {
           '&:hover': { bgcolor: 'secondary.lighter' },
         }}
         aria-label="open profile"
-        ref={anchorRef}
         aria-controls={open ? 'profile-grow' : undefined}
         aria-haspopup="true"
         onClick={handleToggle}
@@ -141,7 +88,7 @@ const Profile = () => {
       <Popper
         placement="bottom-end"
         open={open}
-        anchorEl={anchorRef.current}
+        anchorEl={anchorEl}
         role={undefined}
         transition
         disablePortal
@@ -197,14 +144,14 @@ const Profile = () => {
                             </Stack>
                           </Stack>
                           <IconButton
-                             size="large"
-                             color="secondary"
-                             onClick={handleLogout}
-                             >
-                              <LogoutOutlined />
-                              <Typography variant="subtitle1" sx={{ ml: 1 }}>
-                                 Log out
-                              </Typography>
+                            size="large"
+                            color="secondary"
+                            onClick={handleLogout}
+                          >
+                            <LogoutOutlined />
+                            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+                              Log out
+                            </Typography>
                           </IconButton>
                         </Grid>
                       </Grid>

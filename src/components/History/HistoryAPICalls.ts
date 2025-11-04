@@ -1,4 +1,4 @@
-import { getRole } from '../../components/contexts/UserContext';
+import { getRole } from '../contexts/UserContext';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { ClientPrincipal } from '../../types/interfaces';
 

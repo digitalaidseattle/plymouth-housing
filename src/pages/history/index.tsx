@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
-import { findCheckoutHistory } from './HistoryAPICalls';
+import { findCheckoutHistory } from '../../components/History/HistoryAPICalls';
 
 const HistoryPage: React.FC = () => {
   const { user } = useContext(UserContext);

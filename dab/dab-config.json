@@ -302,6 +302,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "FindCheckoutHistory": {
+      "source": {
+        "object": "dbo.FindCheckoutHistory",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/find-checkout-history"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

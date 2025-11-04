@@ -82,7 +82,7 @@ const dashboard = {
     {
       id: 'history',
       title: 'History',
-      type: 'admin',
+      type: 'item',
       url: '/history',
       icon: icons.FileOutlined,
       breadcrumbs: false,

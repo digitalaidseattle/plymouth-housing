@@ -27,7 +27,7 @@ export async function findCheckoutHistory(
     const data = await response.json();
     return data.value;
   } catch (error) {
-    console.error('Error fetching buildings:', error);
+    console.error('Error fetching history:', error);
     throw error;
   }
 }

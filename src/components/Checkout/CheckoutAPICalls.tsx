@@ -34,7 +34,10 @@ export async function processWelcomeBasket(
       try {
         const errorData = await response.clone().json();
         errorMessage = errorData?.error?.message || errorData?.message;
-      } catch {}
+      } catch {
+        // If JSON parsing fails, we'll handle it below
+        console.error('Failed to parse error response as JSON.');
+      }
       if (!errorMessage) {
         if (response.statusText) {
           errorMessage = response.statusText;

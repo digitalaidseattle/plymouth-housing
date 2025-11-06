@@ -7,6 +7,30 @@ import {
 } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
+async function getErrorMessage(response: Response): Promise<string> {
+  let errorMessage: string | undefined;
+
+  try {
+    const errorData = await response.clone().json();
+    errorMessage = errorData?.error?.message || errorData?.message;
+  } catch {
+    // If JSON parsing fails, we'll handle it below
+    console.error('Failed to parse error response as JSON.');
+  }
+
+  if (!errorMessage) {
+    if (response.statusText) {
+      errorMessage = response.statusText;
+    } else if (typeof response.status === 'number' && response.status > 0) {
+      errorMessage = `HTTP ${response.status}`;
+    } else {
+      errorMessage = 'Request failed';
+    }
+  }
+
+  return errorMessage;
+}
+
 export async function processWelcomeBasket(
   newTransactionID: string,
   user: ClientPrincipal | null,
@@ -30,23 +54,7 @@ export async function processWelcomeBasket(
     });
 
     if (!response.ok) {
-      let errorMessage: string | undefined;
-      try {
-        const errorData = await response.clone().json();
-        errorMessage = errorData?.error?.message || errorData?.message;
-      } catch {
-        // If JSON parsing fails, we'll handle it below
-        console.error('Failed to parse error response as JSON.');
-      }
-      if (!errorMessage) {
-        if (response.statusText) {
-          errorMessage = response.statusText;
-        } else if (typeof response.status === 'number' && response.status > 0) {
-          errorMessage = `HTTP ${response.status}`;
-        } else {
-          errorMessage = 'Request failed';
-        }
-      }
+      const errorMessage = await getErrorMessage(response);
       throw new Error(errorMessage);
     }
 
@@ -83,23 +91,7 @@ export async function processGeneralItems(
     });
 
     if (!response.ok) {
-      // Try to extract error message from response body
-      let errorMessage = `HTTP ${response.status}`;
-      try {
-        const errorData = await response.json();
-        if (errorData?.error?.message) {
-          errorMessage = errorData.error.message;
-        } else if (errorData?.message) {
-          errorMessage = errorData.message;
-        } else if (response.statusText) {
-          errorMessage = `${response.status} ${response.statusText}`;
-        }
-      } catch {
-        // If JSON parsing fails, use status text
-        if (response.statusText) {
-          errorMessage = `${response.status} ${response.statusText}`;
-        }
-      }
+      const errorMessage = await getErrorMessage(response);
       throw new Error(errorMessage);
     }
 
@@ -128,9 +120,9 @@ export async function getBuildings(user: ClientPrincipal | null) {
         throw new Error(
           'Database is likely starting up. Try again in 30 seconds.',
         );
-      } else {
-        throw new Error(response.statusText);
       }
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -169,9 +161,9 @@ export async function getUnitNumbers(
         throw new Error(
           'Database is likely starting up. Try again in 30 seconds.',
         );
-      } else {
-        throw new Error(response.statusText);
       }
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -197,7 +189,10 @@ export async function getResidents(
         headers: headers,
       },
     );
-    if (!response.ok) throw new Error(response.statusText);
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
     return await response.json();
   } catch (error) {
     console.error('Error fetching residents:', error);
@@ -220,7 +215,10 @@ export async function findResident(
       method: 'GET',
       headers: headers,
     });
-    if (!response.ok) throw new Error(response.statusText);
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
     return await response.json();
   } catch (error) {
     console.error('Error fetching residents:', error);
@@ -243,7 +241,10 @@ export async function addResident(
         unit_id: unitId,
       }),
     });
-    if (!response.ok) throw new Error(response.statusText);
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
     return await response.json();
   } catch (error) {
     console.error('Error adding a resident:', error);
@@ -264,7 +265,10 @@ export async function checkPastCheckout(
         resident_id: residentId,
       }),
     });
-    if (!response.ok) throw new Error(response.statusText);
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
     return await response.json();
   } catch (error) {
     console.error('Error checking for a past checkout:', error);

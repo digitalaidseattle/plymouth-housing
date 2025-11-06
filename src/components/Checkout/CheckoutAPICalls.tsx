@@ -7,7 +7,13 @@ import {
 } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
-export async function processWelcomeBasket(newTransactionID: string, user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
+export async function processWelcomeBasket(
+  newTransactionID: string,
+  user: ClientPrincipal | null,
+  loggedInUserId: number,
+  checkoutItems: CheckoutItemProp[],
+  residentInfo: ResidentInfo,
+) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
@@ -19,26 +25,23 @@ export async function processWelcomeBasket(newTransactionID: string, user: Clien
         mattress_size: checkoutItems[0].id,
         quantity: checkoutItems[0].quantity,
         resident_id: residentInfo.id,
-        message: "",
+        message: '',
       }),
     });
 
     if (!response.ok) {
-      // Try to extract error message from response body
-      let errorMessage = `HTTP ${response.status}`;
+      let errorMessage: string | undefined;
       try {
-        const errorData = await response.json();
-        if (errorData?.error?.message) {
-          errorMessage = errorData.error.message;
-        } else if (errorData?.message) {
-          errorMessage = errorData.message;
-        } else if (response.statusText) {
-          errorMessage = `${response.status} ${response.statusText}`;
-        }
-      } catch {
-        // If JSON parsing fails, use status text
+        const errorData = await response.clone().json();
+        errorMessage = errorData?.error?.message || errorData?.message;
+      } catch {}
+      if (!errorMessage) {
         if (response.statusText) {
-          errorMessage = `${response.status} ${response.statusText}`;
+          errorMessage = response.statusText;
+        } else if (typeof response.status === 'number' && response.status > 0) {
+          errorMessage = `HTTP ${response.status}`;
+        } else {
+          errorMessage = 'Request failed';
         }
       }
       throw new Error(errorMessage);
@@ -46,12 +49,18 @@ export async function processWelcomeBasket(newTransactionID: string, user: Clien
 
     return await response.json();
   } catch (error) {
-      console.error('Error processing welcome basket:', error);
-      throw error;
+    console.error('Error processing welcome basket:', error);
+    throw error;
   }
 }
 
-export async function processGeneralItems(newTransactionID: string, user: ClientPrincipal | null, loggedInUserId: number, checkoutItems: CheckoutItemProp[], residentInfo: ResidentInfo) {
+export async function processGeneralItems(
+  newTransactionID: string,
+  user: ClientPrincipal | null,
+  loggedInUserId: number,
+  checkoutItems: CheckoutItemProp[],
+  residentInfo: ResidentInfo,
+) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
@@ -60,9 +69,13 @@ export async function processGeneralItems(newTransactionID: string, user: Client
       body: JSON.stringify({
         new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
-        items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity, additional_notes: item.additional_notes })),
+        items: checkoutItems.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          additional_notes: item.additional_notes,
+        })),
         resident_id: residentInfo.id,
-        message: "",
+        message: '',
       }),
     });
 
@@ -89,8 +102,8 @@ export async function processGeneralItems(newTransactionID: string, user: Client
 
     return await response.json();
   } catch (error) {
-      console.error('Error processing general items:', error);
-      throw error;
+    console.error('Error processing general items:', error);
+    throw error;
   }
 }
 
@@ -119,7 +132,7 @@ export async function getBuildings(user: ClientPrincipal | null) {
 
     const data = await response.json();
     data.value.sort((a: Building, b: Building) => a.code.localeCompare(b.code));
-    
+
     sessionStorage.setItem('buildings', JSON.stringify(data.value));
     return data.value;
   } catch (error) {
@@ -128,7 +141,10 @@ export async function getBuildings(user: ClientPrincipal | null) {
   }
 }
 
-export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: number) {
+export async function getUnitNumbers(
+  user: ClientPrincipal | null,
+  buildingId: number,
+) {
   try {
     const cacheKey = `units_${buildingId}`;
     const cachedUnits = sessionStorage.getItem(cacheKey);
@@ -137,10 +153,13 @@ export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: n
     }
 
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=1000`, {
-      method: 'GET',
-      headers: headers,
-    });
+    const response = await fetch(
+      `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=1000`,
+      {
+        method: 'GET',
+        headers: headers,
+      },
+    );
 
     if (!response.ok) {
       if (response.status === 500) {
@@ -154,21 +173,27 @@ export async function getUnitNumbers(user: ClientPrincipal | null, buildingId: n
 
     const data = await response.json();
     sessionStorage.setItem(cacheKey, JSON.stringify(data.value));
-    
+
     return data.value;
   } catch (error) {
     console.error('Error fetching unit numbers:', error);
     throw error;
   }
-};
+}
 
-export async function getResidents(user: ClientPrincipal | null, unitId: number) {
+export async function getResidents(
+  user: ClientPrincipal | null,
+  unitId: number,
+) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
-    const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`, {
-      method: 'GET',
-      headers: headers,
-    });
+    const response = await fetch(
+      `${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`,
+      {
+        method: 'GET',
+        headers: headers,
+      },
+    );
     if (!response.ok) throw new Error(response.statusText);
     return await response.json();
   } catch (error) {
@@ -177,11 +202,17 @@ export async function getResidents(user: ClientPrincipal | null, unitId: number)
   }
 }
 
-export async function findResident(user: ClientPrincipal | null, name: string, unitId: number) {
+export async function findResident(
+  user: ClientPrincipal | null,
+  name: string,
+  unitId: number,
+) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const safeName = name.replace(/'/g, "''");
-    const filter = encodeURIComponent(`name eq '${safeName}' and unit_id eq ${unitId}`);
+    const filter = encodeURIComponent(
+      `name eq '${safeName}' and unit_id eq ${unitId}`,
+    );
     const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=${filter}`, {
       method: 'GET',
       headers: headers,
@@ -194,7 +225,11 @@ export async function findResident(user: ClientPrincipal | null, name: string, u
   }
 }
 
-export async function addResident(user: ClientPrincipal | null, name: string, unitId: number) {
+export async function addResident(
+  user: ClientPrincipal | null,
+  name: string,
+  unitId: number,
+) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
@@ -213,7 +248,10 @@ export async function addResident(user: ClientPrincipal | null, name: string, un
   }
 }
 
-export async function checkPastCheckout(user: ClientPrincipal | null, residentId: number) {
+export async function checkPastCheckout(
+  user: ClientPrincipal | null,
+  residentId: number,
+) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {

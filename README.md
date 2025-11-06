@@ -16,25 +16,28 @@ Digital Aid Seattle is stepping in to revolutionize Plymouth Housing’s operati
 
 The deployment of this inventory management system is set to significantly enhance operational efficiency at Plymouth Housing. By ensuring a smoother flow of donations from intake to distribution, we will facilitate faster and more reliable access to necessary resources for residents.
 
-### **Built With**  
-- [React](https://example.com)  
-- [Vite](https://example.com)  
-- [Azure Static Web Apps](https://example.com)
-- [Azure SQL server](https://example.com)
+### **Built With**
+- [React](https://reactjs.org/) - Frontend framework
+- [Vite](https://vitejs.dev/) - Build tool
+- [Azure Static Web Apps](https://azure.microsoft.com/en-us/services/app-service/static/) - Frontend hosting
+- [Data API Builder (DAB)](https://learn.microsoft.com/en-us/azure/data-api-builder/) - API layer running in Azure Container Apps
+- [Azure SQL Server](https://azure.microsoft.com/en-us/products/azure-sql/database/) - Database
 
 ## **Getting Started**  
 
-### **Prerequisites**  
+### **Prerequisites**
 
-- [**Visual Studio Code**](https://code.visualstudio.com/download). 
+- [**Visual Studio Code**](https://code.visualstudio.com/download)
 
-- [**Node**](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [**Node.js and npm**](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
-- **PowerShell** is required for bootstrapping the database. PowerShell is already installed on Windows. See database setup in next step for instruction to set it up on Mac.
+- [**.NET 8 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) - Required for Data API Builder
 
-- **SQL Server**. Either a locally running edition (highly recommended) or your own running in Azure. Developing against Staging will lead to conflicts. 
+- **PowerShell** - Required for bootstrapping the database. PowerShell is already installed on Windows. See [database-setup.md](/docs/database-setup.md) for Mac/Linux installation.
 
-    See the [database section in the setup guide](/docs/setup-guide.md#local-database-for-development) for instructions how to set it up. 
+- **SQL Server** - Either a locally running edition (highly recommended) or your own running in Azure. Developing against Staging will lead to conflicts.
+
+    See [database-setup.md](/docs/database-setup.md) for setup instructions. 
 
 ### **Installation**  
 Steps to set up the project locally:  
@@ -50,24 +53,11 @@ Steps to set up the project locally:
    ```bash
    npm install
    ```  
-1. Follow the steps in the [database-setup](/docs/database-setup.md) to install and bootstrap the database. 
+1. Set up the database by following [database-setup.md](/docs/database-setup.md).
 
-1. The next step will throw errors if it can't find a connection-string as specified in [the config file](./swa-db-connections/staticwebapp.database.config.json). Make sure you have the environment variable for the connection string. 
+1. Set up Data API Builder (the API layer) by following [DAB-setup.md](/docs/DAB-setup.md).
 
-1. Start the app locally with 
-    ```
-    swa start 
-    ```
-    For debugging you can add ```--verbose=silly``` to the ```swa``` command.
-   
-1. Go to http://localhost:4280.
-
-   NOTE
-   - The default Vite port 3000 is also available, but the app won't be able to access the REST API from there. This back end API is bootstrapped with configuration out of [```staticwebapp.database.config.json```](../swa-db-connections/staticwebapp.database.config.json). See documentation for all the settings. 
-
-    - You can start the app with ```npm run dev``` but again, that doesn't set up the Data API layer. That is why you need to use the [SWA CLI](https://azure.github.io/static-web-apps-cli/docs/intro).  
-
-1. Here you get the default SWA emulation screen as descibed in the documentation. It requires you to fill out the user name. You also need to add either 'admin' or 'volunteer' in the roles section. This app uses it for the backend API.
+1. Start the development environment as described in [DAB-setup.md](/docs/DAB-setup.md#local-development-workflow).
 
 
 ---

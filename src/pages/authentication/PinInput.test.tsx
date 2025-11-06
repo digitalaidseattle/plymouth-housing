@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import PinInputComponent from './PinInput';
 
 describe('PinInput Component', () => {
-  let onPinChange: ReturnType<typeof vi.fn>;
+  let onPinChange: (pin: string[]) => void;
 
   beforeEach(() => {
     onPinChange = vi.fn();

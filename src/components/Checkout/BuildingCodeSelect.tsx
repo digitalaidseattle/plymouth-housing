@@ -9,6 +9,7 @@ interface BuildingCodeSelectProps {
   setSelectedUnit: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
   error: boolean;
+  disabled?: boolean;
 }
 
 const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
@@ -17,7 +18,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   setSelectedBuilding,
   setSelectedUnit,
   fetchUnitNumbers,
-  error
+  error,
+  disabled = false
 }) => {
   return (
     <FormControl>
@@ -26,6 +28,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           data-testid="test-id-select-building"
           options={buildings}
           value={selectedBuilding}
+          disabled={disabled}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           onChange={(event: React.SyntheticEvent, newValue: Building | null) => {     
             event.preventDefault();        

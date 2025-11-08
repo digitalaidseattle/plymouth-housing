@@ -6,7 +6,7 @@ import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 import { pink } from '@mui/material/colors';
 
 const HistoryPage: React.FC = () => {
-  const { user } = useContext(UserContext);
+  const { user, activeVolunteers } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState(null);
 
@@ -27,35 +27,42 @@ const HistoryPage: React.FC = () => {
     async function findTodaysHistory() {
       const response = await findCheckoutHistory(user, formattedDate);
       console.log('the response!', response);
-
       setHistory(response);
     }
     findTodaysHistory();
   }, []);
 
-  const processHistoryData = () => {
+  const getTransactionsByUser = () => {
     const result = [];
-    history.forEach((entry) => {
-      const index = result.findIndex((r) => r.id === entry.id);
-      if (index !== -1) {
-        result[index].items.push({
-          item_id: entry.item_id,
-          quantity: entry.quantity,
+    if (!history) return;
+    const uniqueUsers = [...new Set(history.map((t) => t.user_id))];
+    uniqueUsers.forEach((userId, userIndex) => {
+      result.push({ user_id: userId, transactions: [] });
+      history
+        .filter((entry) => entry.user_id === userId)
+        .forEach((entry) => {
+          const transactionIndex = result[userIndex].transactions.findIndex(
+            (r) => r.id === entry.id,
+          );
+          if (transactionIndex !== -1) {
+            result[userIndex].transactions[transactionIndex].items.push({
+              item_id: entry.item_id,
+              quantity: entry.quantity,
+            });
+          } else {
+            result[userIndex].transactions.push({
+              id: entry.id,
+              resident_name: entry.resident_name,
+              items: [{ item_id: entry.item_id, quantity: entry.quantity }],
+            });
+          }
         });
-      } else {
-        result.push({
-          id: entry.id,
-          user_name: entry.user_name,
-          resident_name: entry.resident_name,
-          items: [{ item_id: entry.item_id, quantity: entry.quantity }],
-        });
-      }
     });
     return result;
   };
 
-  const transactionData = processHistoryData();
-  console.log(transactionData);
+  const transactionsByUser = getTransactionsByUser();
+  console.log(transactionsByUser);
 
   return (
     <Box sx={{ paddingY: 5 }}>
@@ -66,9 +73,26 @@ const HistoryPage: React.FC = () => {
         </Typography>
       </Stack>
       <Stack>
-        {transactionData.map((trans) => (
-          <Box key={trans.id}>
-            <h2>{trans.resident_name}</h2>
+        {transactionsByUser?.map((user) => (
+          <Box>
+            <h2>
+              {activeVolunteers &&
+                activeVolunteers.find((v) => v.id === user.user_id).name}
+            </h2>
+            <Stack gap="1rem">
+              {user.transactions.map((t) => (
+                <Box
+                  sx={{
+                    border: '1px lightgray solid',
+                    borderRadius: '10px',
+                    paddingX: '1rem',
+                  }}
+                >
+                  <h3>{t.resident_name}</h3>
+                  <p>{t.items.length} / 10</p>
+                </Box>
+              ))}
+            </Stack>
           </Box>
         ))}
       </Stack>

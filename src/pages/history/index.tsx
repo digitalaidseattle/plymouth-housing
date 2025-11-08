@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, Chip } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import { findCheckoutHistory } from '../../components/History/HistoryAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
@@ -68,13 +68,18 @@ const HistoryPage: React.FC = () => {
 
   return (
     <Box sx={{ paddingY: 5 }}>
-      <Stack direction="row" alignItems="center" gap="1.5rem">
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap="1.5rem"
+        marginBottom="1rem"
+      >
         <Typography variant="h2">Today</Typography>
         <Typography variant="body1">
           {todaysDate.toLocaleString('en-us', dateOptions)}
         </Typography>
       </Stack>
-      <Stack>
+      <Stack gap="2rem">
         {transactionsByUser?.map((user) => (
           <Box key={user.user_id}>
             <Stack direction="row" alignItems="center" gap="1rem">
@@ -88,34 +93,44 @@ const HistoryPage: React.FC = () => {
               </span>
             </Stack>
             <Stack gap="1rem">
-              {user.transactions.map((t) => (
-                <Box
-                  key={t.id}
-                  sx={{
-                    border: '1px lightgray solid',
-                    borderRadius: '10px',
-                    paddingX: '1rem',
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
+              {user.transactions.map((t) => {
+                const quantity = t.items.reduce((acc, item) => {
+                  return acc + item.quantity;
+                }, 0);
+
+                return (
+                  <Box
+                    key={t.id}
+                    sx={{
+                      border: '1px lightgray solid',
+                      borderRadius: '10px',
+                      paddingX: '1rem',
+                    }}
                   >
-                    <div>
-                      <h3>{t.resident_name}</h3>
-                      <p>
-                        {buildings.find((b) => b.id === t.building_id).code}
-                        &nbsp;-&nbsp;
-                        {buildings.find((b) => b.id === t.building_id).name}
-                        &nbsp;-&nbsp;
-                        {t.unit_number}
-                      </p>
-                    </div>
-                    <p>{t.items.length} / 10</p>
-                  </Stack>
-                </Box>
-              ))}
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <div>
+                        <h3>{t.resident_name}</h3>
+                        <p>
+                          {buildings.find((b) => b.id === t.building_id).code}
+                          {' - '}
+                          {buildings.find((b) => b.id === t.building_id).name}
+                          {' - '}
+                          {t.unit_number}
+                        </p>
+                      </div>
+                      <Chip
+                        color={quantity > 10 ? 'warning' : 'success'}
+                        label={`${quantity}
+                      / 10`}
+                      ></Chip>
+                    </Stack>
+                  </Box>
+                );
+              })}
             </Stack>
           </Box>
         ))}

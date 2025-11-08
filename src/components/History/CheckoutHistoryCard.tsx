@@ -6,8 +6,8 @@ type CheckoutHistoryCardProps = {
   transactionId: string;
   residentName: string;
   unitNumber: string;
-  building: string;
-  totalItems: number;
+  // building: string;
+  // totalItems: number;
   timestamp: Date;
 };
 
@@ -15,8 +15,8 @@ const CheckoutHistoryCard = ({
   transactionId,
   residentName,
   unitNumber,
-  building,
-  totalItems,
+  // building,
+  // totalItems,
   timestamp,
 }: CheckoutHistoryCardProps) => {
   return (

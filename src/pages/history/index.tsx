@@ -18,6 +18,7 @@ const HistoryPage: React.FC = () => {
     month: 'long',
     day: 'numeric',
   };
+  const buildings = JSON.parse(sessionStorage.getItem('buildings'));
 
   if (isLoading) {
     return <p>Loading ...</p>;
@@ -53,6 +54,8 @@ const HistoryPage: React.FC = () => {
             result[userIndex].transactions.push({
               id: entry.id,
               resident_name: entry.resident_name,
+              building_id: entry.building_id,
+              unit_number: entry.unit_number,
               items: [{ item_id: entry.item_id, quantity: entry.quantity }],
             });
           }
@@ -74,7 +77,7 @@ const HistoryPage: React.FC = () => {
       </Stack>
       <Stack>
         {transactionsByUser?.map((user) => (
-          <Box>
+          <Box key={user.user_id}>
             <h2>
               {activeVolunteers &&
                 activeVolunteers.find((v) => v.id === user.user_id).name}
@@ -82,14 +85,30 @@ const HistoryPage: React.FC = () => {
             <Stack gap="1rem">
               {user.transactions.map((t) => (
                 <Box
+                  key={t.id}
                   sx={{
                     border: '1px lightgray solid',
                     borderRadius: '10px',
                     paddingX: '1rem',
                   }}
                 >
-                  <h3>{t.resident_name}</h3>
-                  <p>{t.items.length} / 10</p>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <div>
+                      <h3>{t.resident_name}</h3>
+                      <p>
+                        {buildings.find((b) => b.id === t.building_id).code}
+                        &nbsp;-&nbsp;
+                        {buildings.find((b) => b.id === t.building_id).name}
+                        &nbsp;-&nbsp;
+                        {t.unit_number}
+                      </p>
+                    </div>
+                    <p>{t.items.length} / 10</p>
+                  </Stack>
                 </Box>
               ))}
             </Stack>

@@ -8,12 +8,12 @@ BEGIN
     SELECT 
         Transactions.id, 
         user_id,  
-        Users.name,
+        Users.name AS user_name,
         TransactionItems.item_id, 
         TransactionItems.quantity,
-        Residents.name, 
+        Residents.name AS resident_name, 
         Units.unit_number,
-        Buildings.code
+        Buildings.id AS building_id
     FROM Transactions
     INNER JOIN TransactionItems ON Transactions.id = TransactionItems.transaction_id
     INNER JOIN Residents ON Transactions.resident_id = Residents.id

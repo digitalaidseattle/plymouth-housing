@@ -3,7 +3,6 @@ import { Box, Stack, Typography } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import { findCheckoutHistory } from '../../components/History/HistoryAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
-import { pink } from '@mui/material/colors';
 
 const HistoryPage: React.FC = () => {
   const { user, activeVolunteers } = useContext(UserContext);
@@ -78,10 +77,16 @@ const HistoryPage: React.FC = () => {
       <Stack>
         {transactionsByUser?.map((user) => (
           <Box key={user.user_id}>
-            <h2>
-              {activeVolunteers &&
-                activeVolunteers.find((v) => v.id === user.user_id).name}
-            </h2>
+            <Stack direction="row" alignItems="center" gap="1rem">
+              <h2>
+                {activeVolunteers &&
+                  activeVolunteers.find((v) => v.id === user.user_id).name}
+              </h2>
+              <span>
+                {user.transactions.length}{' '}
+                {user.transactions.length > 1 ? 'records' : 'record'}
+              </span>
+            </Stack>
             <Stack gap="1rem">
               {user.transactions.map((t) => (
                 <Box

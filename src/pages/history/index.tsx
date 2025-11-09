@@ -6,11 +6,12 @@ import {
   getUsers,
 } from '../../components/History/HistoryAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
+import CircularLoader from '../../components/CircularLoader';
 
 const HistoryPage: React.FC = () => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [userList, setUserList] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [history, setHistory] = useState(null);
 
   const todaysDate = new Date();
@@ -23,10 +24,6 @@ const HistoryPage: React.FC = () => {
   };
   const buildings = JSON.parse(sessionStorage.getItem('buildings'));
 
-  if (isLoading) {
-    return <p>Loading ...</p>;
-  }
-
   useEffect(() => {
     async function getUserList() {
       const response = await getUsers(user);
@@ -38,6 +35,7 @@ const HistoryPage: React.FC = () => {
     }
     getUserList();
     findTodaysHistory();
+    setIsLoading(false);
   }, []);
 
   // restructures database response to organize transacations by User
@@ -87,64 +85,71 @@ const HistoryPage: React.FC = () => {
           {todaysDate.toLocaleString('en-us', dateOptions)}
         </Typography>
       </Stack>
-      <Stack gap="2rem">
-        {transactionsByUser?.map((user) => (
-          <Box key={user.user_id}>
-            <Stack direction="row" alignItems="center" gap="1rem">
-              <h2>
-                {loggedInUserId === user.user_id
-                  ? 'You'
-                  : userList &&
-                    userList.find((v) => v.id === user.user_id).name}
-              </h2>
-              <span>
-                {user.transactions.length}{' '}
-                {user.transactions.length > 1 ? 'records' : 'record'}
-              </span>
-            </Stack>
-            <Stack gap="1rem">
-              {user.transactions.map((t) => {
-                const quantity = t.items.reduce((acc, item) => {
-                  return acc + item.quantity;
-                }, 0);
+      {isLoading ? (
+        <CircularLoader />
+      ) : (
+        <Stack gap="2rem">
+          {history && history.length === 0 && (
+            <p>There are no transactions for this date.</p>
+          )}
+          {transactionsByUser?.map((user) => (
+            <Box key={user.user_id}>
+              <Stack direction="row" alignItems="center" gap="1rem">
+                <h2>
+                  {loggedInUserId === user.user_id
+                    ? 'You'
+                    : userList &&
+                      userList.find((v) => v.id === user.user_id).name}
+                </h2>
+                <span>
+                  {user.transactions.length}{' '}
+                  {user.transactions.length > 1 ? 'records' : 'record'}
+                </span>
+              </Stack>
+              <Stack gap="1rem">
+                {user.transactions.map((t) => {
+                  const quantity = t.items.reduce((acc, item) => {
+                    return acc + item.quantity;
+                  }, 0);
 
-                return (
-                  <Box
-                    key={t.id}
-                    sx={{
-                      border: '1px lightgray solid',
-                      borderRadius: '10px',
-                      paddingX: '1rem',
-                    }}
-                  >
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
+                  return (
+                    <Box
+                      key={t.id}
+                      sx={{
+                        border: '1px lightgray solid',
+                        borderRadius: '10px',
+                        paddingX: '1rem',
+                      }}
                     >
-                      <div>
-                        <h3>{t.resident_name}</h3>
-                        <p>
-                          {buildings.find((b) => b.id === t.building_id).code}
-                          {' - '}
-                          {buildings.find((b) => b.id === t.building_id).name}
-                          {' - '}
-                          {t.unit_number}
-                        </p>
-                      </div>
-                      <Chip
-                        color={quantity > 10 ? 'warning' : 'success'}
-                        label={`${quantity}
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <div>
+                          <h3>{t.resident_name}</h3>
+                          <p>
+                            {buildings.find((b) => b.id === t.building_id).code}
+                            {' - '}
+                            {buildings.find((b) => b.id === t.building_id).name}
+                            {' - '}
+                            {t.unit_number}
+                          </p>
+                        </div>
+                        <Chip
+                          color={quantity > 10 ? 'warning' : 'success'}
+                          label={`${quantity}
                       / 10`}
-                      ></Chip>
-                    </Stack>
-                  </Box>
-                );
-              })}
-            </Stack>
-          </Box>
-        ))}
-      </Stack>
+                        ></Chip>
+                      </Stack>
+                    </Box>
+                  );
+                })}
+              </Stack>
+            </Box>
+          ))}
+        </Stack>
+      )}
     </Box>
   );
 };

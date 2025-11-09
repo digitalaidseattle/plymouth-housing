@@ -1,11 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Box, Stack, Typography, Chip } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
-import { findCheckoutHistory } from '../../components/History/HistoryAPICalls';
+import {
+  findCheckoutHistory,
+  getUsers,
+} from '../../components/History/HistoryAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 
 const HistoryPage: React.FC = () => {
-  const { user, activeVolunteers } = useContext(UserContext);
+  const { user, loggedInUserId } = useContext(UserContext);
+  const [userList, setUserList] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState(null);
 
@@ -24,11 +28,16 @@ const HistoryPage: React.FC = () => {
   }
 
   useEffect(() => {
+    async function getUserList() {
+      const response = await getUsers(user);
+      setUserList(response);
+    }
     async function findTodaysHistory() {
       const response = await findCheckoutHistory(user, formattedDate);
       console.log('the response!', response);
       setHistory(response);
     }
+    getUserList();
     findTodaysHistory();
   }, []);
 
@@ -84,8 +93,10 @@ const HistoryPage: React.FC = () => {
           <Box key={user.user_id}>
             <Stack direction="row" alignItems="center" gap="1rem">
               <h2>
-                {activeVolunteers &&
-                  activeVolunteers.find((v) => v.id === user.user_id).name}
+                {loggedInUserId === user.user_id
+                  ? 'You'
+                  : userList &&
+                    userList.find((v) => v.id === user.user_id).name}
               </h2>
               <span>
                 {user.transactions.length}{' '}

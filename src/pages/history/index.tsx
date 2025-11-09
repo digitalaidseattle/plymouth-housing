@@ -34,14 +34,14 @@ const HistoryPage: React.FC = () => {
     }
     async function findTodaysHistory() {
       const response = await findCheckoutHistory(user, formattedDate);
-      console.log('the response!', response);
       setHistory(response);
     }
     getUserList();
     findTodaysHistory();
   }, []);
 
-  const getTransactionsByUser = () => {
+  // restructures database response to organize transacations by User
+  const processTransactionsByUser = () => {
     const result = [];
     if (!history) return;
     const uniqueUsers = [...new Set(history.map((t) => t.user_id))];
@@ -72,8 +72,7 @@ const HistoryPage: React.FC = () => {
     return result;
   };
 
-  const transactionsByUser = getTransactionsByUser();
-  console.log(transactionsByUser);
+  const transactionsByUser = processTransactionsByUser();
 
   return (
     <Box sx={{ paddingY: 5 }}>

@@ -7,12 +7,28 @@ import {
 } from '../../components/History/HistoryAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 import CircularLoader from '../../components/CircularLoader';
+import { Building } from '../../types/interfaces';
+import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
+
+type CheckoutTransactionData = {
+  building_id: number;
+  id: string;
+  item_id: number;
+  quantity: number;
+  resident_name: string;
+  unit_number: string;
+  user_id: number;
+  user_name: string;
+};
 
 const HistoryPage: React.FC = () => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [userList, setUserList] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [history, setHistory] = useState(null);
+  const [history, setHistory] = useState<CheckoutTransactionData[] | null>(
+    null,
+  );
+  const [buildings, setBuildings] = useState<Building[] | null>(null);
 
   const todaysDate = new Date();
   const formattedDate = todaysDate.toLocaleDateString('en-CA');
@@ -22,19 +38,35 @@ const HistoryPage: React.FC = () => {
     month: 'long',
     day: 'numeric',
   };
-  const buildings = JSON.parse(sessionStorage.getItem('buildings'));
 
   useEffect(() => {
     async function getUserList() {
-      const response = await getUsers(user);
-      setUserList(response);
+      try {
+        const response = await getUsers(user);
+        setUserList(response);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
     }
     async function findTodaysHistory() {
-      const response = await findCheckoutHistory(user, formattedDate);
-      setHistory(response);
+      try {
+        const response = await findCheckoutHistory(user, formattedDate);
+        setHistory(response);
+      } catch (error) {
+        console.error('Error fetching history:', error);
+      }
+    }
+    async function fetchBuildings() {
+      try {
+        const response = await getBuildings(user);
+        setBuildings(response);
+      } catch (error) {
+        console.error('Error fetching buildings:', error);
+      }
     }
     getUserList();
     findTodaysHistory();
+    fetchBuildings();
     setIsLoading(false);
   }, []);
 

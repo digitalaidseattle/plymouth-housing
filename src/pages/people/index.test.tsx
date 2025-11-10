@@ -21,10 +21,11 @@ describe('UserPage Component', () => {
 
   test('displays error in Snackbar', async () => {
     vi.resetModules();
-    vi.doMock('../useUsers', () => {
+    vi.doMock('./useUsers', () => {
       return {
         default: () => ({
           error: 'Failed to fetch data',
+          clearError: vi.fn(),
           originalData: [],
           filteredData: [],
           setFilteredData: vi.fn(),
@@ -37,7 +38,7 @@ describe('UserPage Component', () => {
     render(<UserPageWithError />);
     await waitFor(() => {
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveTextContent(/Error fetching users:/i);
+      expect(alert).toHaveTextContent('Failed to fetch data');
     });
   });
 });
@@ -68,12 +69,13 @@ describe('UserPage Component Functions', () => {
   });
 
   test('handleSnackbarClose dismisses the Snackbar alert', async () => {
-    render(<UserPage />);
-    
-    // simulate error
-    vi.mock('./useUsers', () => ({
+    // Mock useUsers with an error BEFORE rendering
+    const mockClearError = vi.fn();
+    vi.resetModules();
+    vi.doMock('./useUsers', () => ({
       default: () => ({
         error: 'Error fetching users:',
+        clearError: mockClearError,
         originalData: [],
         filteredData: [],
         setFilteredData: vi.fn(),
@@ -82,13 +84,19 @@ describe('UserPage Component Functions', () => {
       }),
     }));
 
+    const { default: UserPageWithError } = await import('./index');
+    render(<UserPageWithError />);
+
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(/Error fetching users:/i);
     });
 
-    fireEvent.click(screen.getByLabelText('Close'));
+    // MUI Alert close button
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    fireEvent.click(closeButton);
+
     await waitFor(() => {
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(mockClearError).toHaveBeenCalled();
     });
   });
 });
@@ -133,6 +141,7 @@ describe('UserPage Additional Functional Tests', () => {
         filteredData: customUsers,
         setFilteredData: mockSetFilteredData,
         error: null,
+        clearError: vi.fn(),
         refetch: vi.fn(),
         updateUserStatus: vi.fn(),
       }),
@@ -166,6 +175,7 @@ describe('UserPage Additional Functional Tests', () => {
         filteredData: customUsers,
         setFilteredData: mockSetFilteredData,
         error: null,
+        clearError: vi.fn(),
         refetch: vi.fn(),
         updateUserStatus: vi.fn(),
       }),
@@ -219,6 +229,7 @@ describe('UserPage Additional Functional Tests', () => {
         filteredData: elevenUsers,
         setFilteredData: vi.fn(),
         error: null,
+        clearError: vi.fn(),
         refetch: vi.fn(),
         updateUserStatus: vi.fn(),
       }),
@@ -245,6 +256,7 @@ describe('UserPage Additional Functional Tests', () => {
         filteredData: customUsers,
         setFilteredData: vi.fn(),
         error: null,
+        clearError: vi.fn(),
         refetch: vi.fn(),
         updateUserStatus: vi.fn().mockResolvedValue(undefined),
       }),
@@ -271,6 +283,7 @@ describe('UserPage Additional Functional Tests', () => {
         filteredData: customUsers,
         setFilteredData: vi.fn(),
         error: null,
+        clearError: vi.fn(),
         refetch: vi.fn(),
         updateUserStatus: vi.fn().mockRejectedValue(new Error('Test error')),
       }),

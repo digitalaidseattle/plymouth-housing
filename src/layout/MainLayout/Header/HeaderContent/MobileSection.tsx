@@ -24,35 +24,27 @@ import { MoreOutlined } from '@ant-design/icons';
 const MobileSection = () => {
   const theme = useTheme();
 
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
 
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+  const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
   };
 
   const handleClose = (event: MouseEvent | TouchEvent) => {
-    // FIXME
-    // eslint-disable-next-line
-    const ref = anchorRef as any;
-    if (ref.current && ref.current.contains(event.target)) {
+    if (anchorEl && anchorEl.contains(event.target as Node)) {
       return;
     }
-
-    setOpen(false);
+    setAnchorEl(null);
   };
 
   const prevOpen = useRef(open);
   useEffect(() => {
     if (prevOpen.current === true && open === false) {
-      // FIXME
-      // eslint-disable-next-line
-      const ref = anchorRef as any;
-      ref.current.focus();
+      anchorEl?.focus();
     }
-
     prevOpen.current = open;
-  }, [open]);
+  }, [open, anchorEl]);
 
   return (
     <>
@@ -63,7 +55,6 @@ const MobileSection = () => {
           sx={{
             bgcolor: open ? 'grey.300' : 'grey.100',
           }}
-          ref={anchorRef}
           aria-controls={open ? 'menu-list-grow' : undefined}
           aria-haspopup="true"
           onClick={handleToggle}
@@ -75,7 +66,7 @@ const MobileSection = () => {
       <Popper
         placement="bottom-end"
         open={open}
-        anchorEl={anchorRef.current}
+        anchorEl={anchorEl}
         role={undefined}
         transition
         disablePortal

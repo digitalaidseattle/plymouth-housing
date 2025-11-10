@@ -79,12 +79,15 @@ const useUsers = () => {
     }
   };
 
+  const clearError = () => setError(null);
+
   return {
     originalData,
     filteredData,
     setFilteredData,
     loading,
     error,
+    clearError,
     refetch: fetchData,
     updateUserStatus,
   };

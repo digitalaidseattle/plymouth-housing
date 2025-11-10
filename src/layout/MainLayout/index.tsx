@@ -14,7 +14,6 @@ import Header from './Header';
 import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 import ScrollTop from '../../components/ScrollTop';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
-import { RefreshContextProvider } from '../../components/contexts/RefreshContextProvider';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User} from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
@@ -179,33 +178,31 @@ const MainLayout: React.FC = () => {
 
   return (
     <DrawerOpenContext.Provider value={{ drawerOpen, setDrawerOpen }}>
-      <RefreshContextProvider>
-        <ScrollTop>
-          <Box 
-            sx={{ display: 'flex', width: '100%' }}
-            onMouseMove={resetTimer}
-            onClick={resetTimer}
-            onKeyPress={resetTimer}
+      <ScrollTop>
+        <Box
+          sx={{ display: 'flex', width: '100%' }}
+          onMouseMove={resetTimer}
+          onClick={resetTimer}
+          onKeyPress={resetTimer}
+        >
+          <Header
+            open={drawerOpen}
+            handleDrawerToggle={handleDrawerToggle}
+          />
+          <Drawer
+            open={drawerOpen}
+            handleDrawerToggle={handleDrawerToggle}
+          />
+          <Box
+            component="main"
+            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}
           >
-            <Header
-              open={drawerOpen}
-              handleDrawerToggle={handleDrawerToggle}
-            />
-            <Drawer
-              open={drawerOpen}
-              handleDrawerToggle={handleDrawerToggle}
-            />
-            <Box
-              component="main"
-              sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}
-            >
-              <Toolbar />
-              <Breadcrumbs navigation={navigation} title />
-              <Outlet context={{ drawerOpen }} />
-            </Box>
+            <Toolbar />
+            <Breadcrumbs navigation={navigation} title />
+            <Outlet context={{ drawerOpen }} />
           </Box>
-        </ScrollTop>
-      </RefreshContextProvider>
+        </Box>
+      </ScrollTop>
       <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
     </DrawerOpenContext.Provider>
 )}

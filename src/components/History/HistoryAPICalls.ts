@@ -4,7 +4,8 @@ import { ClientPrincipal } from '../../types/interfaces';
 
 export async function findCheckoutHistory(
   user: ClientPrincipal | null,
-  checkoutDate: string,
+  startDate: string,
+  endDate: string,
 ) {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
@@ -12,7 +13,8 @@ export async function findCheckoutHistory(
       headers: headers,
       method: 'POST',
       body: JSON.stringify({
-        checkout_date: checkoutDate,
+        start_date: startDate,
+        end_date: endDate,
       }),
     });
     if (!response.ok) throw new Error(response.statusText);

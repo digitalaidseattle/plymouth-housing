@@ -30,7 +30,7 @@ const HistoryPage: React.FC = () => {
   const [buildings, setBuildings] = useState<Building[] | null>(null);
 
   const todaysDate = new Date();
-  const formattedDate = todaysDate.toLocaleDateString('en-CA');
+  const formattedTodaysDate = todaysDate.toLocaleDateString('en-CA');
   const dateOptions = {
     weekday: 'long',
     year: 'numeric',
@@ -49,7 +49,11 @@ const HistoryPage: React.FC = () => {
     }
     async function findTodaysHistory() {
       try {
-        const response = await findCheckoutHistory(user, formattedDate);
+        const response = await findCheckoutHistory(
+          user,
+          formattedTodaysDate,
+          formattedTodaysDate,
+        );
         setHistory(response);
       } catch (error) {
         console.error('Error fetching history:', error);

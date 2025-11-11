@@ -5,7 +5,6 @@ import {
   findCheckoutHistory,
   getUsers,
 } from '../../components/History/HistoryAPICalls';
-import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 import CircularLoader from '../../components/CircularLoader';
 import { Building } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
@@ -138,12 +137,21 @@ const HistoryPage: React.FC = () => {
                   {user.transactions.length > 1 ? 'records' : 'record'}
                 </span>
               </Stack>
-              <Stack gap="1rem">
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    lg: 'repeat(2, 1fr)',
+                    xl: 'repeat(3, 1fr)',
+                  },
+                  gap: '1rem',
+                }}
+              >
                 {user.transactions.map((t) => {
                   const quantity = t.items.reduce((acc, item) => {
                     return acc + item.quantity;
                   }, 0);
-
                   return (
                     <Box
                       key={t.id}
@@ -177,7 +185,7 @@ const HistoryPage: React.FC = () => {
                     </Box>
                   );
                 })}
-              </Stack>
+              </Box>
             </Box>
           ))}
         </Stack>

@@ -1,5 +1,18 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Stack, Typography, Chip } from '@mui/material';
+import {
+  Box,
+  Stack,
+  Typography,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  InputAdornment,
+  TextField,
+} from '@mui/material';
+import { Search } from '@mui/icons-material';
 import { UserContext } from '../../components/contexts/UserContext';
 import {
   findCheckoutHistory,
@@ -108,13 +121,47 @@ const HistoryPage: React.FC = () => {
   const transactionsByUser = processTransactionsByUser();
 
   return (
-    <Box sx={{ paddingY: 5 }}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        gap="1.5rem"
-        marginBottom="1rem"
-      >
+    <Stack gap="2rem" sx={{ paddingY: 5 }}>
+      <FormControl>
+        <TextField
+          id="search-input"
+          placeholder="Search name, building code..."
+          variant="standard"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+      </FormControl>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack direction="row" gap="1rem">
+          <Button>Check outs</Button>
+          <Button>Inventory edits</Button>
+        </Stack>
+        <FormControl>
+          <InputLabel id="select-date-label">Date</InputLabel>
+          <Select
+            labelId="select-date-label"
+            id="select-date"
+            value={null}
+            label="Date"
+            onChange={() => {}}
+            sx={{ width: '10rem' }}
+          >
+            <MenuItem value="today">Today</MenuItem>
+            <MenuItem value="yesterday">Yesterday</MenuItem>
+            <MenuItem value="thisweek">This Week</MenuItem>
+            <MenuItem value="custom">Custom</MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
+
+      <Stack direction="row" alignItems="center" gap="1.5rem">
         <Typography variant="h2">Today</Typography>
         <Typography variant="body1">
           {todaysDate.toLocaleString('en-us', dateOptions)}
@@ -194,7 +241,7 @@ const HistoryPage: React.FC = () => {
           ))}
         </Stack>
       )}
-    </Box>
+    </Stack>
   );
 };
 

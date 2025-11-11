@@ -36,7 +36,7 @@ class TestInventory:
         checkout_page.click_continue_button()
         checkout_page.search_item(item)
         checkout_page.add_item(item)
-        3#checkout_page.items_added(item)
+        #checkout_page.items_added(item)
         checkout_page.click_proceed_to_checkout()
         checkout_page.click_confirm()        # Step 4: Reopen inventory and verify quantity change
         checkout_page.click_on_inventory()

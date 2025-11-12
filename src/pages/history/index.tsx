@@ -34,6 +34,7 @@ type CheckoutTransactionData = {
 };
 
 const HistoryPage: React.FC = () => {
+  const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
   const [userList, setUserList] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,15 +42,38 @@ const HistoryPage: React.FC = () => {
     null,
   );
   const [buildings, setBuildings] = useState<Building[] | null>(null);
-
-  const todaysDate = new Date();
-  const formattedTodaysDate = todaysDate.toLocaleDateString('en-CA');
+  const [dateRange, setDateRange] = useState<{
+    startDate: Date;
+    endDate: Date;
+  }>({ startDate: todaysDate, endDate: todaysDate });
+  const [dateInput, setDateInput] = useState('today');
+  const formattedDateRange = {
+    startDate: dateRange.startDate.toLocaleDateString('en-CA'),
+    endDate: dateRange.endDate.toLocaleDateString('en-CA'),
+  };
   const dateOptions = {
-    weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   };
+
+  useEffect(() => {
+    async function findHistoryForSelectedDate() {
+      try {
+        setIsLoading(true);
+        const response = await findCheckoutHistory(
+          user,
+          formattedDateRange.startDate,
+          formattedDateRange.endDate,
+        );
+        setHistory(response);
+      } catch (error) {
+        console.error('Error fetching history:', error);
+      }
+    }
+    findHistoryForSelectedDate();
+    setIsLoading(false);
+  }, [dateRange]);
 
   useEffect(() => {
     async function getUserList() {
@@ -58,18 +82,6 @@ const HistoryPage: React.FC = () => {
         setUserList(response);
       } catch (error) {
         console.error('Error fetching users:', error);
-      }
-    }
-    async function findTodaysHistory() {
-      try {
-        const response = await findCheckoutHistory(
-          user,
-          formattedTodaysDate,
-          formattedTodaysDate,
-        );
-        setHistory(response);
-      } catch (error) {
-        console.error('Error fetching history:', error);
       }
     }
     async function fetchBuildings() {
@@ -81,10 +93,33 @@ const HistoryPage: React.FC = () => {
       }
     }
     getUserList();
-    findTodaysHistory();
     fetchBuildings();
     setIsLoading(false);
   }, []);
+
+  function handleDateSelection(dateInput: string) {
+    setDateInput(dateInput);
+    if (dateInput === 'today') {
+      setDateRange({
+        startDate: todaysDate,
+        endDate: todaysDate,
+      });
+    } else if (dateInput === 'yesterday') {
+      const yesterday = new Date();
+      yesterday.setDate(todaysDate.getDate() - 1);
+      setDateRange({
+        startDate: yesterday,
+        endDate: yesterday,
+      });
+    } else if (dateInput === 'this week') {
+      const lastWeekDate = new Date();
+      lastWeekDate.setDate(todaysDate.getDate() - 7);
+      setDateRange({
+        startDate: lastWeekDate,
+        endDate: todaysDate,
+      });
+    }
+  }
 
   // restructures database response to organize transacations by User
   const processTransactionsByUser = () => {
@@ -120,6 +155,8 @@ const HistoryPage: React.FC = () => {
 
   const transactionsByUser = processTransactionsByUser();
 
+  console.log(dateRange);
+
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
       <FormControl>
@@ -148,23 +185,27 @@ const HistoryPage: React.FC = () => {
           <Select
             labelId="select-date-label"
             id="select-date"
-            value={null}
+            value={dateInput}
             label="Date"
-            onChange={() => {}}
+            onChange={(e) => handleDateSelection(e.target.value)}
             sx={{ width: '10rem' }}
           >
             <MenuItem value="today">Today</MenuItem>
             <MenuItem value="yesterday">Yesterday</MenuItem>
-            <MenuItem value="thisweek">This Week</MenuItem>
+            <MenuItem value="this week">This Week</MenuItem>
             <MenuItem value="custom">Custom</MenuItem>
           </Select>
         </FormControl>
       </Stack>
 
       <Stack direction="row" alignItems="center" gap="1.5rem">
-        <Typography variant="h2">Today</Typography>
+        <Typography variant="h2" textTransform="capitalize">
+          {dateInput}
+        </Typography>
         <Typography variant="body1">
-          {todaysDate.toLocaleString('en-us', dateOptions)}
+          {dateRange.startDate.toLocaleString('en-us', dateOptions)}
+          {dateRange.startDate !== dateRange.endDate &&
+            ' - ' + dateRange.endDate.toLocaleDateString('en-us', dateOptions)}
         </Typography>
       </Stack>
       {isLoading ? (

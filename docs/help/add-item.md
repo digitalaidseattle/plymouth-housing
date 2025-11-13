@@ -40,7 +40,7 @@ Let's say you want to add "Wash bin" under the "Cleaning" category.
         *   `description`: Alternate names or details to help with searching (optional)
         *   `threshold`: The minimum quantity before item shows as "Low Stock" (required)
 
-4.  **Verify the Item:**
+3.  **Verify the Item:**
 
     *   To confirm the item was added successfully, run:
 
@@ -50,7 +50,7 @@ Let's say you want to add "Wash bin" under the "Cleaning" category.
     WHERE name = 'Wash bin';
     ```
 
-5.  **View the Item in its Category:**
+4.  **View the Item in its Category:**
 
     *   To see how the item appears in the Cleaning category with other items:
 

@@ -52,6 +52,7 @@ const HistoryPage: React.FC = () => {
     endDate: dateRange.endDate.toLocaleDateString('en-CA'),
   };
   const dateOptions = {
+    weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -118,6 +119,9 @@ const HistoryPage: React.FC = () => {
         startDate: lastWeekDate,
         endDate: todaysDate,
       });
+    } else {
+      // 'custom' was selected
+      setHistory(null);
     }
   }
 
@@ -151,6 +155,35 @@ const HistoryPage: React.FC = () => {
         });
     });
     return result;
+  };
+
+  const CustomDateInputs = () => {
+    return (
+      <Stack direction="row" gap="2rem">
+        <Box>
+          <label htmlFor="start">Start date:</label>
+          <input
+            type="date"
+            id="start"
+            name="start-date"
+            value="2018-07-22"
+            min="2018-01-01"
+            max="2018-12-31"
+          />
+        </Box>
+        <Box>
+          <label htmlFor="end">End date:</label>
+          <input
+            type="date"
+            id="end"
+            name="end-date"
+            value="2018-07-22"
+            min="2018-01-01"
+            max="2018-12-31"
+          />
+        </Box>
+      </Stack>
+    );
   };
 
   const transactionsByUser = processTransactionsByUser();
@@ -203,9 +236,11 @@ const HistoryPage: React.FC = () => {
           {dateInput}
         </Typography>
         <Typography variant="body1">
-          {dateRange.startDate.toLocaleString('en-us', dateOptions)}
-          {dateRange.startDate !== dateRange.endDate &&
-            ' - ' + dateRange.endDate.toLocaleDateString('en-us', dateOptions)}
+          {dateInput !== 'custom' ? (
+            dateRange.startDate.toLocaleString('en-us', dateOptions)
+          ) : (
+            <CustomDateInputs />
+          )}
         </Typography>
       </Stack>
       {isLoading ? (
@@ -221,8 +256,7 @@ const HistoryPage: React.FC = () => {
                 <h2>
                   {loggedInUserId === user.user_id
                     ? 'You'
-                    : userList &&
-                      userList.find((v) => v.id === user.user_id).name}
+                    : userList?.find((v) => v.id === user.user_id)?.name ?? ''}
                 </h2>
                 <span>
                   {user.transactions.length}{' '}
@@ -261,18 +295,19 @@ const HistoryPage: React.FC = () => {
                         <div>
                           <h3>{t.resident_name}</h3>
                           <p>
-                            {buildings.find((b) => b.id === t.building_id).code}
+                            {buildings?.find((b) => b.id === t.building_id)
+                              ?.code ?? ''}
                             {' - '}
-                            {buildings.find((b) => b.id === t.building_id).name}
+                            {buildings?.find((b) => b.id === t.building_id)
+                              ?.name ?? ''}
                             {' - '}
                             {t.unit_number}
                           </p>
                         </div>
                         <Chip
                           color={quantity > 10 ? 'warning' : 'success'}
-                          label={`${quantity}
-                      / 10`}
-                        ></Chip>
+                          label={`${quantity} / 10`}
+                        />
                       </Stack>
                     </Box>
                   );

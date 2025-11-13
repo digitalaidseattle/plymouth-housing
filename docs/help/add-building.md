@@ -9,22 +9,11 @@ Let's say you want to add "Pacific Apartments" with the building code "PAC" and 
 
 ## Steps
 
-1.  **Open the Azure Portal:**
+1.  **Connect to SQL:**
 
-    *   Navigate to the [Azure Portal](https://portal.azure.com/) and log in with your Azure account.
+    *   As described [here](./connect-sql.md).
 
-2.  **Navigate to your SQL Database:**
-
-    *   In the Azure Portal, search for "SQL databases" and select it.
-    *   Find and select the specific SQL database you want to modify.
-
-3.  **Open the Query Editor:**
-
-    *   In the SQL database overview, find and click on "Query editor (preview)" in the left-hand menu.
-    *   You may be prompted to add your client IP address to the server's firewall rules. Follow the instructions to do so.
-    *   Authenticate using your SQL Server credentials (username and password) or Azure Active Directory.
-
-4.  **Add the Building:**
+2.  **Add the Building:**
 
     *   In the query editor, run the following SQL statement to add the building:
 
@@ -33,7 +22,7 @@ Let's say you want to add "Pacific Apartments" with the building code "PAC" and 
     ('Pacific Apartments', 'PAC');
     ```
 
-5.  **Verify the Building Code and Get the Building ID:**
+3.  **Verify the Building Code and Get the Building ID:**
 
     *   To confirm the building was added and to find its `id`, run:
 
@@ -45,7 +34,7 @@ Let's say you want to add "Pacific Apartments" with the building code "PAC" and 
 
     *   Note the `id` value for the new building (for example, `id = 16`).
 
-6.  **Add Units for the Building:**
+4.  **Add Units for the Building:**
 
     *   Use the `id` from the previous step (replace `16` with your actual building id if different):
 
@@ -68,10 +57,4 @@ Let's say you want to add "Pacific Apartments" with the building code "PAC" and 
 
 ## Important Considerations
 
-*   **Backup:** Azure automatically backs up SQL server. Make sure to make changes to production database on days when the Supply Center is not in use. 
-*   **Permissions:** Ensure that the user account you are using to connect to the database has the necessary permissions to insert data into the `Buildings` and `Units` tables.
 *   **Data Integrity:** Double-check the building `id` before adding units to ensure they are linked to the correct building.
-
-## Alternative: Using SQL Server Management Studio (SSMS)
-
-While this guide focuses on the Azure portal, you can also use SQL Server Management Studio (SSMS) to connect to your Azure SQL database and execute the same `INSERT` and `SELECT` scripts. SSMS provides a more feature-rich environment for database management.

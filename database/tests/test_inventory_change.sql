@@ -41,10 +41,14 @@ where id = 112
 
 
 print 'Test adjust inventory'
-SET @new_transaction_id = NEWID();
+DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
 exec ProcessInventoryResetQuantity @user_id = 1, @item_id = 111, @new_quantity = 12, @additional_notes = N'[
     {\"comments\":\"\",\"howYouKnow\":\"estimated\"}    
-  ]'
+  ]', @new_transaction_id = @new_transaction_id
+
+exec ProcessInventoryResetQuantity @user_id = 1, @item_id = 111, @new_quantity = 12, @additional_notes = N'[
+    {\"comments\":\"\",\"howYouKnow\":\"estimated\"}    
+  ]', @new_transaction_id = @new_transaction_id
 
 select name, quantity
 from Items

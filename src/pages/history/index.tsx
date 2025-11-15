@@ -51,7 +51,8 @@ const HistoryPage: React.FC = () => {
     startDate: dateRange.startDate.toLocaleDateString('en-CA'),
     endDate: dateRange.endDate.toLocaleDateString('en-CA'),
   };
-  const dateOptions = {
+
+  const dateOptionsLong = {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -236,11 +237,18 @@ const HistoryPage: React.FC = () => {
           {dateInput}
         </Typography>
         <Typography variant="body1">
-          {dateInput !== 'custom' ? (
-            dateRange.startDate.toLocaleString('en-us', dateOptions)
-          ) : (
-            <CustomDateInputs />
-          )}
+          {dateInput !== 'this week'
+            ? dateRange.startDate.toLocaleString('en-us', dateOptionsLong)
+            : dateRange.startDate.toLocaleString('en-us', {
+                month: 'short',
+                day: 'numeric',
+              }) +
+              ' - ' +
+              dateRange.endDate.toLocaleString('en-us', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
         </Typography>
       </Stack>
       {isLoading ? (

@@ -21,6 +21,7 @@ import {
 import CircularLoader from '../../components/CircularLoader';
 import { Building } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
+import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 
 type CheckoutTransactionData = {
   building_id: number;
@@ -158,35 +159,6 @@ const HistoryPage: React.FC = () => {
     return result;
   };
 
-  const CustomDateInputs = () => {
-    return (
-      <Stack direction="row" gap="2rem">
-        <Box>
-          <label htmlFor="start">Start date:</label>
-          <input
-            type="date"
-            id="start"
-            name="start-date"
-            value="2018-07-22"
-            min="2018-01-01"
-            max="2018-12-31"
-          />
-        </Box>
-        <Box>
-          <label htmlFor="end">End date:</label>
-          <input
-            type="date"
-            id="end"
-            name="end-date"
-            value="2018-07-22"
-            min="2018-01-01"
-            max="2018-12-31"
-          />
-        </Box>
-      </Stack>
-    );
-  };
-
   const transactionsByUser = processTransactionsByUser();
 
   console.log(dateRange);
@@ -287,37 +259,24 @@ const HistoryPage: React.FC = () => {
                     return acc + item.quantity;
                   }, 0);
                   return (
-                    <Box
-                      key={t.id}
-                      sx={{
-                        border: '1px lightgray solid',
-                        borderRadius: '10px',
-                        paddingX: '1rem',
-                      }}
-                    >
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <div>
-                          <h3>{t.resident_name}</h3>
-                          <p>
-                            {buildings?.find((b) => b.id === t.building_id)
-                              ?.code ?? ''}
-                            {' - '}
-                            {buildings?.find((b) => b.id === t.building_id)
-                              ?.name ?? ''}
-                            {' - '}
-                            {t.unit_number}
-                          </p>
-                        </div>
-                        <Chip
-                          color={quantity > 10 ? 'warning' : 'success'}
-                          label={`${quantity} / 10`}
-                        />
-                      </Stack>
-                    </Box>
+                    <CheckoutHistoryCard transactionId={t.id}>
+                      <div>
+                        <h3>{t.resident_name}</h3>
+                        <p>
+                          {buildings?.find((b) => b.id === t.building_id)
+                            ?.code ?? ''}
+                          {' - '}
+                          {buildings?.find((b) => b.id === t.building_id)
+                            ?.name ?? ''}
+                          {' - '}
+                          {t.unit_number}
+                        </p>
+                      </div>
+                      <Chip
+                        color={quantity > 10 ? 'warning' : 'success'}
+                        label={`${quantity} / 10`}
+                      />
+                    </CheckoutHistoryCard>
                   );
                 })}
               </Box>

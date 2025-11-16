@@ -9,6 +9,7 @@ BEGIN
     SELECT 
         Transactions.id, 
         user_id,  
+        transaction_date AS timestamp,
         Users.name AS user_name,
         TransactionItems.item_id, 
         TransactionItems.quantity,

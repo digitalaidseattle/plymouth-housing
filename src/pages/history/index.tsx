@@ -29,6 +29,7 @@ type CheckoutTransactionData = {
   item_id: number;
   quantity: number;
   resident_name: string;
+  timestamp: string;
   unit_number: string;
   user_id: number;
   user_name: string;
@@ -59,6 +60,12 @@ const HistoryPage: React.FC = () => {
     month: 'long',
     day: 'numeric',
   };
+
+  const timeFormatter = new Intl.DateTimeFormat('default', {
+    hour12: true,
+    hour: 'numeric',
+    minute: 'numeric',
+  });
 
   useEffect(() => {
     async function findHistoryForSelectedDate() {
@@ -152,6 +159,7 @@ const HistoryPage: React.FC = () => {
               building_id: entry.building_id,
               unit_number: entry.unit_number,
               items: [{ item_id: entry.item_id, quantity: entry.quantity }],
+              timestamp: entry.timestamp,
             });
           }
         });
@@ -160,8 +168,6 @@ const HistoryPage: React.FC = () => {
   };
 
   const transactionsByUser = processTransactionsByUser();
-
-  console.log(dateRange);
 
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
@@ -255,6 +261,12 @@ const HistoryPage: React.FC = () => {
                 }}
               >
                 {user.transactions.map((t) => {
+                  const dateCreated = new Date(t.timestamp);
+                  const seconds =
+                    (todaysDate.getTime() - dateCreated.getTime()) / 1000;
+                  const minutes = Math.floor(seconds / 60);
+                  const hours = Math.floor(minutes / 60);
+                  const days = Math.floor(hours / 24);
                   const quantity = t.items.reduce((acc, item) => {
                     return acc + item.quantity;
                   }, 0);
@@ -270,6 +282,21 @@ const HistoryPage: React.FC = () => {
                             ?.name ?? ''}
                           {' - '}
                           {t.unit_number}
+                        </p>
+                        <p>
+                          Created{' '}
+                          {days === 1
+                            ? '1 day'
+                            : days > 1
+                            ? days + ' days'
+                            : ''}
+                          {days === 0 && hours === 1
+                            ? '1 hour'
+                            : days === 0 && hours > 1
+                            ? hours + ' hours'
+                            : ''}
+                          {hours < 1 && minutes + ' min'}
+                          {' ago'}
                         </p>
                       </div>
                       <Chip

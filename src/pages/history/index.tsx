@@ -22,6 +22,7 @@ import CircularLoader from '../../components/CircularLoader';
 import { Building } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
+import CustomDateDialog from '../../components/History/CustomDateDialog';
 
 type CheckoutTransactionData = {
   building_id: number;
@@ -49,6 +50,7 @@ const HistoryPage: React.FC = () => {
     endDate: Date;
   }>({ startDate: todaysDate, endDate: todaysDate });
   const [dateInput, setDateInput] = useState('today');
+  const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
   const formattedDateRange = {
     startDate: dateRange.startDate.toLocaleDateString('en-CA'),
     endDate: dateRange.endDate.toLocaleDateString('en-CA'),
@@ -130,6 +132,7 @@ const HistoryPage: React.FC = () => {
       });
     } else {
       // 'custom' was selected
+      setShowCustomDateDialog(true);
       setHistory(null);
     }
   }
@@ -171,6 +174,10 @@ const HistoryPage: React.FC = () => {
 
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
+      <CustomDateDialog
+        showDialog={showCustomDateDialog}
+        handleShowDialog={() => setShowCustomDateDialog(!showCustomDateDialog)}
+      />
       <FormControl>
         <TextField
           id="search-input"

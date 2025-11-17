@@ -57,12 +57,24 @@ const HistoryPage: React.FC = () => {
     endDate: dateRange.endDate.toLocaleDateString('en-CA'),
   };
 
-  const dateOptionsLong = {
+  const dateString = dateRange.startDate.toLocaleString('en-us', {
     weekday: 'long',
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
-  };
+  });
+
+  const dateRangeString =
+    dateRange.startDate.toLocaleString('en-us', {
+      month: 'short',
+      day: 'numeric',
+    }) +
+    ' - ' +
+    dateRange.endDate.toLocaleString('en-us', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
 
   useEffect(() => {
     async function findHistoryForSelectedDate() {
@@ -207,6 +219,8 @@ const HistoryPage: React.FC = () => {
             onChange={(e) => {
               if (e.target.value === 'custom') {
                 setShowCustomDateDialog(true);
+                setDateInput('custom');
+                setHistory(null);
               } else {
                 handleDateSelection(e.target.value);
               }
@@ -216,7 +230,9 @@ const HistoryPage: React.FC = () => {
             <MenuItem value="today">Today</MenuItem>
             <MenuItem value="yesterday">Yesterday</MenuItem>
             <MenuItem value="this week">This Week</MenuItem>
-            <MenuItem value="custom">Custom</MenuItem>
+            <MenuItem value="custom">
+              {dateRange.isCustom ? dateRangeString : 'Custom'}
+            </MenuItem>
           </Select>
         </FormControl>
       </Stack>
@@ -225,39 +241,24 @@ const HistoryPage: React.FC = () => {
         {dateRange.isCustom ? (
           <>
             <Typography variant="h2" textTransform="capitalize">
-              {dateRange.startDate.toLocaleString('en-us', {
-                month: 'short',
-                day: 'numeric',
-              }) +
-                ' - ' +
-                dateRange.endDate.toLocaleString('en-us', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })}
+              {dateRangeString}
             </Typography>
-            <Button onClick={() => setShowCustomDateDialog(true)}>Edit</Button>
           </>
         ) : (
           <>
             <Typography variant="h2" textTransform="capitalize">
               {dateInput}
             </Typography>
-            <Typography variant="body1">
-              {dateInput !== 'this week'
-                ? dateRange.startDate.toLocaleString('en-us', dateOptionsLong)
-                : dateRange.startDate.toLocaleString('en-us', {
-                    month: 'short',
-                    day: 'numeric',
-                  }) +
-                  ' - ' +
-                  dateRange.endDate.toLocaleString('en-us', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-            </Typography>
           </>
+        )}
+        {dateInput === 'custom' ? (
+          <Button onClick={() => setShowCustomDateDialog(true)}>
+            Change date range
+          </Button>
+        ) : (
+          <Typography variant="body1">
+            {dateInput !== 'this week' ? dateString : dateRangeString}
+          </Typography>
         )}
       </Stack>
       {isLoading ? (

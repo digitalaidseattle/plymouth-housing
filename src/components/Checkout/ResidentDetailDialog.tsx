@@ -49,10 +49,10 @@ const ResidentDetailDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  const filterOptions = createFilterOptions({
+  const unitFilterOptions = createFilterOptions<Unit>({
     matchFrom: 'start',
   });
-  const residentNameFilter = createFilterOptions<ResidentNameOption>({
+  const residentFilterOptions = createFilterOptions<ResidentNameOption>({
     matchFrom: 'start',
   });
 
@@ -189,7 +189,7 @@ const ResidentDetailDialog = ({
             id="select-unit-number"
             data-testid="test-id-select-unit-number"
             options={unitNumberValues}
-            filterOptions={filterOptions}
+            filterOptions={unitFilterOptions}
             value={selectedUnit}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
@@ -244,7 +244,7 @@ const ResidentDetailDialog = ({
               }
             }}
             filterOptions={(options, params) => {
-              const filtered = residentNameFilter(options, params);
+              const filtered = residentFilterOptions(options, params);
               const { inputValue } = params;
               // Suggest the creation of a new value
               const isExisting = options.some(

@@ -50,8 +50,6 @@ const actionSX = {
   transform: 'none',
 };
 
-// ==============================|| HEADER CONTENT - NOTIFICATION ||============================== //
-
 const Notification = () => {
   const theme = useTheme();
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
@@ -64,7 +62,7 @@ const Notification = () => {
   };
 
   const handleClose = (event: MouseEvent | TouchEvent) => {
-    if (anchorEl && anchorEl === event.target) {
+    if (anchorEl && anchorEl.contains(event.target as Node)) {
       return;
     }
     setAnchorEl(null);

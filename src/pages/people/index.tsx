@@ -28,6 +28,7 @@ const UserPage = () => {
     filteredData,
     setFilteredData,
     error,
+    clearError,
     refetch,
     updateUserStatus,
   } = useUsers();
@@ -103,12 +104,6 @@ const UserPage = () => {
     setSnackbarState({ ...snackbarState, open: false });
   };
 
-  useEffect(() => {
-    if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'warning' });
-    }
-  }, [error]);
-
   // Handle status toggle
   const handleStatusToggle = async (userId: number) => {
     try {
@@ -174,7 +169,18 @@ const UserPage = () => {
         />
       </Box>
 
-      {/* Snackbar */}
+      {/* Error Snackbar from useUsers */}
+      {error && (
+        <SnackbarAlert
+          open={true}
+          onClose={clearError}
+          severity="warning"
+        >
+          {error}
+        </SnackbarAlert>
+      )}
+
+      {/* Action Snackbar */}
       <SnackbarAlert
         open={snackbarState.open}
         onClose={handleSnackbarClose}

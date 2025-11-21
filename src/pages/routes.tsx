@@ -7,6 +7,7 @@ import Page404 from './error/404';
 import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
+import InventoryAdmin from './inventory-admin';
 import CheckoutPage from './checkout/CheckoutPage';
 import { RootRedirect } from '../components/RootRedirect';
 
@@ -63,6 +64,16 @@ const routes = [
           <RootRedirect source="checkout">
             <MainContainer title="Check out">
               <CheckoutPage />,
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'inventory-admin',
+        element: (
+          <RootRedirect source="inventory-admin">
+            <MainContainer title="Inventory Admin">
+              <InventoryAdmin />,
             </MainContainer>
           </RootRedirect>
         ),

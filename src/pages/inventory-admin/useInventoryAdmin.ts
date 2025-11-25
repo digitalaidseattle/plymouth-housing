@@ -11,48 +11,40 @@ export const useInventoryAdmin = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchItems = useCallback(async () => {
-    try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.ITEMS + '?$first=10000', {
-        headers,
-        method: 'GET',
-      });
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('Database is likely starting up. Try again in 30 seconds.');
-        }
-        throw new Error(response.statusText);
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    const response = await fetch(ENDPOINTS.ITEMS + '?$first=10000', {
+      headers,
+      method: 'GET',
+    });
+    if (!response.ok) {
+      if (response.status === 500) {
+        throw new Error('Database is likely starting up. Try again in 30 seconds.');
       }
-      const data = await response.json();
-      return data.value || [];
-    } catch (err) {
-      throw err;
+      throw new Error(response.statusText);
     }
+    const data = await response.json();
+    return data.value || [];
   }, [user]);
 
   const fetchCategories = useCallback(async () => {
-    try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.CATEGORY + '?$first=10000', {
-        headers,
-        method: 'GET',
-      });
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('Database is likely starting up. Try again in 30 seconds.');
-        }
-        throw new Error(response.statusText);
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    const response = await fetch(ENDPOINTS.CATEGORY + '?$first=10000', {
+      headers,
+      method: 'GET',
+    });
+    if (!response.ok) {
+      if (response.status === 500) {
+        throw new Error('Database is likely starting up. Try again in 30 seconds.');
       }
-      const data = await response.json();
-      // Map database field checkout_limit to interface field item_limit
-      return (data.value || []).map((cat: { id: number; name: string; checkout_limit: number }) => ({
-        id: cat.id,
-        name: cat.name,
-        item_limit: cat.checkout_limit,
-      }));
-    } catch (err) {
-      throw err;
+      throw new Error(response.statusText);
     }
+    const data = await response.json();
+    // Map database field checkout_limit to interface field item_limit
+    return (data.value || []).map((cat: { id: number; name: string; checkout_limit: number }) => ({
+      id: cat.id,
+      name: cat.name,
+      item_limit: cat.checkout_limit,
+    }));
   }, [user]);
 
   const fetchData = useCallback(async () => {
@@ -85,124 +77,109 @@ export const useInventoryAdmin = () => {
   }, [fetchItems, fetchCategories]);
 
   const createItem = useCallback(async (item: Omit<AdminItem, 'id' | 'category_name'>) => {
-    try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.ITEMS, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(item),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || response.statusText);
-      }
-      await fetchData();
-      return true;
-    } catch (err) {
-      throw err;
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    const response = await fetch(ENDPOINTS.ITEMS, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(item),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || response.statusText);
     }
+    await fetchData();
+    return true;
   }, [user, fetchData]);
 
   const updateItem = useCallback(async (id: number, updates: Partial<AdminItem>) => {
-    try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      // Remove fields that shouldn't be sent in the update
-      const { category_name, ...updateData } = updates;
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    // Remove fields that shouldn't be sent in the update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { category_name, ...updateData } = updates;
 
-      const response = await fetch(`${ENDPOINTS.ITEMS}/id/${id}`, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify(updateData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || response.statusText);
-      }
-
-      // Update local state
-      setItems(prev => prev.map(item => {
-        if (item.id === id) {
-          const updatedItem = { ...item, ...updateData };
-          // Update category_name if category_id changed
-          if (updateData.category_id) {
-            const category = categories.find(c => c.id === updateData.category_id);
-            updatedItem.category_name = category?.name || 'Unknown';
-          }
-          return updatedItem;
-        }
-        return item;
-      }));
-
-      return true;
-    } catch (err) {
-      throw err;
+    const response = await fetch(`${ENDPOINTS.ITEMS}/id/${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(updateData),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || response.statusText);
     }
+
+    // Update local state
+    setItems(prev => prev.map(item => {
+      if (item.id === id) {
+        const updatedItem = { ...item, ...updateData };
+        // Update category_name if category_id changed
+        if (updateData.category_id) {
+          const category = categories.find(c => c.id === updateData.category_id);
+          updatedItem.category_name = category?.name || 'Unknown';
+        }
+        return updatedItem;
+      }
+      return item;
+    }));
+
+    return true;
   }, [user, categories]);
 
   const createCategory = useCallback(async (category: Omit<CategoryItem, 'id'>) => {
-    try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      // Map interface field item_limit to database field checkout_limit
-      const dbCategory = {
-        name: category.name,
-        checkout_limit: category.item_limit,
-      };
-      const response = await fetch(ENDPOINTS.CATEGORY, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(dbCategory),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || response.statusText);
-      }
-      await fetchData();
-      return true;
-    } catch (err) {
-      throw err;
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    // Map interface field item_limit to database field checkout_limit
+    const dbCategory = {
+      name: category.name,
+      checkout_limit: category.item_limit,
+    };
+    const response = await fetch(ENDPOINTS.CATEGORY, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(dbCategory),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || response.statusText);
     }
+    await fetchData();
+    return true;
   }, [user, fetchData]);
 
   const updateCategory = useCallback(async (id: number, updates: Partial<CategoryItem>) => {
-    try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      // Map interface field item_limit to database field checkout_limit
-      const dbUpdates: Record<string, string | number> = {};
-      if (updates.name !== undefined) {
-        dbUpdates.name = updates.name;
-      }
-      if (updates.item_limit !== undefined) {
-        dbUpdates.checkout_limit = updates.item_limit;
-      }
-
-      const response = await fetch(`${ENDPOINTS.CATEGORY}/id/${id}`, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify(dbUpdates),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || response.statusText);
-      }
-
-      // Update local state
-      setCategories(prev => prev.map(cat =>
-        cat.id === id ? { ...cat, ...updates } : cat
-      ));
-
-      // Also update category names in items if the name changed
-      if (updates.name) {
-        setItems(prev => prev.map(item =>
-          item.category_id === id
-            ? { ...item, category_name: updates.name }
-            : item
-        ));
-      }
-
-      return true;
-    } catch (err) {
-      throw err;
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    // Map interface field item_limit to database field checkout_limit
+    const dbUpdates: Record<string, string | number> = {};
+    if (updates.name !== undefined) {
+      dbUpdates.name = updates.name;
     }
+    if (updates.item_limit !== undefined) {
+      dbUpdates.checkout_limit = updates.item_limit;
+    }
+
+    const response = await fetch(`${ENDPOINTS.CATEGORY}/id/${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(dbUpdates),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || response.statusText);
+    }
+
+    // Update local state
+    setCategories(prev => prev.map(cat =>
+      cat.id === id ? { ...cat, ...updates } : cat
+    ));
+
+    // Also update category names in items if the name changed
+    if (updates.name) {
+      setItems(prev => prev.map(item =>
+        item.category_id === id
+          ? { ...item, category_name: updates.name }
+          : item
+      ));
+    }
+
+    return true;
   }, [user]);
 
   const clearError = () => setError(null);

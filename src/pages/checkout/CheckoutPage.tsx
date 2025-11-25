@@ -27,7 +27,10 @@ import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
-import { checkPastCheckout, getBuildings } from '../../components/Checkout/CheckoutAPICalls';
+import {
+  checkPastCheckout,
+  getBuildings,
+} from '../../components/Checkout/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 
 const CheckoutPage = () => {
@@ -109,7 +112,7 @@ const CheckoutPage = () => {
               (item: TransactionItem) =>
                 item.additional_notes &&
                 item.additional_notes.toLowerCase() ===
-                transaction.additional_notes.toLowerCase(),
+                  transaction.additional_notes.toLowerCase(),
             )
             .reduce(function (acc: number, transaction: { quantity: number }) {
               return acc + transaction.quantity;
@@ -145,7 +148,7 @@ const CheckoutPage = () => {
       setCheckoutHistory(tempCheckOutHistory);
     }
     if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
-  }, [user, residentInfo, residentInfoIsMissing])
+  }, [user, residentInfo, residentInfoIsMissing]);
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -400,9 +403,13 @@ const CheckoutPage = () => {
             setShowPastCheckoutDialog(!showPastCheckoutDialog)
           }
           item={selectedItem}
-          addItemToCart={(item) =>
-            addItemToCart(item, 1, 'Appliance', 'general')
-          }
+          addItemToCart={(item) => {
+            if (item.name === 'Rug') {
+              addItemToCart(item, 1, 'Home Goods', 'general');
+            } else {
+              addItemToCart(item, 1, 'Appliance', 'general');
+            }
+          }}
           residentInfo={residentInfo}
         />
       )}

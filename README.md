@@ -117,3 +117,84 @@ If you're using Visual Studio Code, you can also set up Prettier to automaticall
 - Search for "Default Formatter" and select "Prettier - Code formatter".
 - Now, every time you save a file, Prettier will automatically format it for you.
 
+# E2E Automation Tests (Python / Selenium)
+
+This document explains how to set up and run the end-to-end (E2E) automation test suite. The framework uses Python, Selenium, and Pytest for local smoke-level UI testing.
+
+### Prerequisites
+
+Python 3.x — Download from python.org
+
+Google Chrome is required for browser-based tests
+
+### Setup
+1. Create requirements.txt
+
+Inside the tests/ directory, create a file named requirements.txt with the following:
+
+- pytest==8.3.4
+- selenium==4.27.1
+- python-dotenv==1.1.1
+- allure-pytest==2.14.3
+- requests==2.32.5
+- pytest-html==4.1.1
+- webdriver-manager==4.3.0
+
+2. Install Dependencies
+
+Navigate to the tests/ directory and run:
+
+pip install -r requirements.txt
+
+### Configuration
+
+The test suite uses a .env file to manage environment-specific variables such as URLs and credentials.
+
+1. Create .env file
+
+Create a .env file in the root of the project (same level as package.json).
+
+2. Add Environment Variables
+
+Copy the following template into your .env file and replace placeholder values with your test environment details.
+
+⚠ Do NOT commit real or production credentials.
+Ensure .env is listed in .gitignore.
+
+URL=https://your-test-environment-url.com
+
+ADMIN_USERNAME=admin_test@example.com
+ADMIN_PASSWORD=admin_test_password
+VOLUNTEER_USERNAME=volunteer_test@example.com
+VOLUNTEER_PASSWORD=volunteer_test_password
+
+### Running the Tests
+
+Run all tests from the project root:
+
+   ```bash
+   pytest tests/test
+   ```  
+Run Specific test Module:
+
+   ```bash
+   pytest path/to/test_file.py
+   ```  
+
+
+Optional: Run with HTML report:
+
+   ```bash
+   pytest --html=report.html --self-contained-html
+   ``` 
+
+
+### Notes
+
+These tests are for local smoke testing only (no CI/CD integration)
+
+Ensure ChromeDriver & Chrome versions match
+
+Use a virtual environment for dependency isolation
+
+New tests must follow naming: test_*.py inside tests/test/

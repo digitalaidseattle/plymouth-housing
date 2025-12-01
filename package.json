@@ -44,7 +44,7 @@
     "depcheck": "^1.4.7",
     "eslint": "^9.25.1",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.18",
+    "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.0.0",
     "jsdom": "^26.0.0",
     "rollup-plugin-visualizer": "^6.0.3",

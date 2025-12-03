@@ -15,7 +15,7 @@ import {
 import { Search } from '@mui/icons-material';
 import { UserContext } from '../../components/contexts/UserContext';
 import {
-  findCheckoutHistory,
+  findTransactionHistory,
   getUsers,
 } from '../../components/History/HistoryAPICalls';
 import CircularLoader from '../../components/CircularLoader';
@@ -80,10 +80,11 @@ const HistoryPage: React.FC = () => {
     async function findHistoryForSelectedDate() {
       try {
         setIsLoading(true);
-        const response = await findCheckoutHistory(
+        const response = await findTransactionHistory(
           user,
           formattedDateRange.startDate,
           formattedDateRange.endDate,
+          'checkout',
         );
         setHistory(response);
       } catch (error) {

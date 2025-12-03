@@ -2,19 +2,21 @@ import { getRole } from '../contexts/UserContext';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { ClientPrincipal } from '../../types/interfaces';
 
-export async function findCheckoutHistory(
+export async function findTransactionHistory(
   user: ClientPrincipal | null,
   startDate: string,
   endDate: string,
+  historyType: string,
 ) {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.FIND_CHECKOUT_HISTORY, {
+    const response = await fetch(ENDPOINTS.FIND_TRANSACTION_HISTORY, {
       headers: headers,
       method: 'POST',
       body: JSON.stringify({
         start_date: startDate,
         end_date: endDate,
+        history_type: historyType,
       }),
     });
     if (!response.ok) throw new Error(response.statusText);

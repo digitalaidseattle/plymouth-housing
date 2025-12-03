@@ -303,14 +303,14 @@
         }
       ]
     },
-    "FindCheckoutHistory": {
+    "FindTransactionHistory": {
       "source": {
-        "object": "dbo.FindCheckoutHistory",
+        "object": "dbo.FindTransactionHistory",
         "type": "stored-procedure"
       },
       "rest": {
         "enabled": true,
-        "path": "/find-checkout-history"
+        "path": "/find-transaction-history"
       },
       "permissions": [
         {

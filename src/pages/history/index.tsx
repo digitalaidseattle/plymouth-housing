@@ -157,6 +157,7 @@ const HistoryPage: React.FC = () => {
           .forEach((entry) => {
             result[userIndex].transactions.push({
               id: entry.id,
+              transaction_type: entry.transaction_type,
               unit_number: entry.unit_number,
               item_id: entry.item_id,
               item_name: entry.item_name,
@@ -387,7 +388,14 @@ const HistoryPage: React.FC = () => {
                             {' ago'}
                           </p>
                         </div>
-                        <p>{t.quantity} items</p>
+                        {t.transaction_type === 2 ? (
+                          <p>
+                            {t.quantity > 0 ? 'Added' : 'Removed'}{' '}
+                            {Math.abs(t.quantity)} items
+                          </p>
+                        ) : (
+                          <p>{'Replaced quantity:' + t.quantity}</p>
+                        )}
                       </CheckoutHistoryCard>
                     );
                   }

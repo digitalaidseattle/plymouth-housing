@@ -33,6 +33,7 @@ BEGIN
     BEGIN
         SELECT 
             Transactions.id, 
+            Transactions.transaction_type,
             user_id,  
             transaction_date AS timestamp,
             Users.name AS user_name,

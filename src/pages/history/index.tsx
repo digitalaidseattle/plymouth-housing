@@ -52,6 +52,9 @@ const HistoryPage: React.FC = () => {
   }>({ startDate: todaysDate, endDate: todaysDate });
   const [dateInput, setDateInput] = useState('today');
   const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
+  const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
+    'checkout',
+  );
   const formattedDateRange = {
     startDate: dateRange.startDate.toLocaleDateString('en-CA'),
     endDate: dateRange.endDate.toLocaleDateString('en-CA'),
@@ -84,7 +87,7 @@ const HistoryPage: React.FC = () => {
           user,
           formattedDateRange.startDate,
           formattedDateRange.endDate,
-          'checkout',
+          historyType,
         );
         setHistory(response);
       } catch (error) {
@@ -93,7 +96,7 @@ const HistoryPage: React.FC = () => {
     }
     findHistoryForSelectedDate();
     setIsLoading(false);
-  }, [dateRange]);
+  }, [dateRange, historyType]);
 
   useEffect(() => {
     async function getUserList() {
@@ -146,31 +149,50 @@ const HistoryPage: React.FC = () => {
     const result = [];
     if (!history) return;
     const uniqueUsers = [...new Set(history.map((t) => t.user_id))];
-    uniqueUsers.forEach((userId, userIndex) => {
-      result.push({ user_id: userId, transactions: [] });
-      history
-        .filter((entry) => entry.user_id === userId)
-        .forEach((entry) => {
-          const transactionIndex = result[userIndex].transactions.findIndex(
-            (r) => r.id === entry.id,
-          );
-          if (transactionIndex !== -1) {
-            result[userIndex].transactions[transactionIndex].items.push({
-              item_id: entry.item_id,
-              quantity: entry.quantity,
-            });
-          } else {
+    if (historyType === 'inventory') {
+      uniqueUsers.forEach((userId, userIndex) => {
+        result.push({ user_id: userId, transactions: [] });
+        history
+          .filter((entry) => entry.user_id === userId)
+          .forEach((entry) => {
             result[userIndex].transactions.push({
               id: entry.id,
-              resident_name: entry.resident_name,
-              building_id: entry.building_id,
               unit_number: entry.unit_number,
-              items: [{ item_id: entry.item_id, quantity: entry.quantity }],
+              item_id: entry.item_id,
+              item_name: entry.item_name,
+              category_name: entry.category_name,
+              quantity: entry.quantity,
               timestamp: entry.timestamp,
             });
-          }
-        });
-    });
+          });
+      });
+    } else {
+      uniqueUsers.forEach((userId, userIndex) => {
+        result.push({ user_id: userId, transactions: [] });
+        history
+          .filter((entry) => entry.user_id === userId)
+          .forEach((entry) => {
+            const transactionIndex = result[userIndex].transactions.findIndex(
+              (r) => r.id === entry.id,
+            );
+            if (transactionIndex !== -1) {
+              result[userIndex].transactions[transactionIndex].items.push({
+                item_id: entry.item_id,
+                quantity: entry.quantity,
+              });
+            } else {
+              result[userIndex].transactions.push({
+                id: entry.id,
+                resident_name: entry.resident_name,
+                building_id: entry.building_id,
+                unit_number: entry.unit_number,
+                items: [{ item_id: entry.item_id, quantity: entry.quantity }],
+                timestamp: entry.timestamp,
+              });
+            }
+          });
+      });
+    }
     return result;
   };
 
@@ -207,8 +229,10 @@ const HistoryPage: React.FC = () => {
       </FormControl>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Stack direction="row" gap="1rem">
-          <Button>Check outs</Button>
-          <Button>Inventory edits</Button>
+          <Button onClick={() => setHistoryType('checkout')}>Check outs</Button>
+          <Button onClick={() => setHistoryType('inventory')}>
+            Inventory edits
+          </Button>
         </Stack>
         <FormControl>
           <InputLabel id="select-date-label">Date</InputLabel>
@@ -300,44 +324,73 @@ const HistoryPage: React.FC = () => {
                   const minutes = Math.floor(seconds / 60);
                   const hours = Math.floor(minutes / 60);
                   const days = Math.floor(hours / 24);
-                  const quantity = t.items.reduce((acc, item) => {
-                    return acc + item.quantity;
-                  }, 0);
-                  return (
-                    <CheckoutHistoryCard transactionId={t.id}>
-                      <div>
-                        <h3>{t.resident_name}</h3>
-                        <p>
-                          {buildings?.find((b) => b.id === t.building_id)
-                            ?.code ?? ''}
-                          {' - '}
-                          {buildings?.find((b) => b.id === t.building_id)
-                            ?.name ?? ''}
-                          {' - '}
-                          {t.unit_number}
-                        </p>
-                        <p>
-                          Created{' '}
-                          {days === 1
-                            ? '1 day'
-                            : days > 1
-                            ? days + ' days'
-                            : ''}
-                          {days === 0 && hours === 1
-                            ? '1 hour'
-                            : days === 0 && hours > 1
-                            ? hours + ' hours'
-                            : ''}
-                          {hours < 1 && minutes + ' min'}
-                          {' ago'}
-                        </p>
-                      </div>
-                      <Chip
-                        color={quantity > 10 ? 'warning' : 'success'}
-                        label={`${quantity} / 10`}
-                      />
-                    </CheckoutHistoryCard>
-                  );
+                  if (historyType === 'checkout') {
+                    const quantity = t.items.reduce((acc, item) => {
+                      return acc + item.quantity;
+                    }, 0);
+                    return (
+                      <CheckoutHistoryCard transactionId={t.id}>
+                        <div>
+                          <h3>{t.resident_name}</h3>
+                          <p>
+                            {buildings?.find((b) => b.id === t.building_id)
+                              ?.code ?? ''}
+                            {' - '}
+                            {buildings?.find((b) => b.id === t.building_id)
+                              ?.name ?? ''}
+                            {' - '}
+                            {t.unit_number}
+                          </p>
+                          <p>
+                            Created{' '}
+                            {days === 1
+                              ? '1 day'
+                              : days > 1
+                              ? days + ' days'
+                              : ''}
+                            {days === 0 && hours === 1
+                              ? '1 hour'
+                              : days === 0 && hours > 1
+                              ? hours + ' hours'
+                              : ''}
+                            {hours < 1 && minutes + ' min'}
+                            {' ago'}
+                          </p>
+                        </div>
+                        <Chip
+                          color={quantity > 10 ? 'warning' : 'success'}
+                          label={`${quantity} / 10`}
+                        />
+                      </CheckoutHistoryCard>
+                    );
+                  } else {
+                    // historyType === 'inventory'
+                    console.log(t);
+                    return (
+                      <CheckoutHistoryCard transactionId={t.id}>
+                        <div>
+                          <h3>{t.item_name}</h3>
+                          <p>{t.category_name}</p>
+                          <p>
+                            Created{' '}
+                            {days === 1
+                              ? '1 day'
+                              : days > 1
+                              ? days + ' days'
+                              : ''}
+                            {days === 0 && hours === 1
+                              ? '1 hour'
+                              : days === 0 && hours > 1
+                              ? hours + ' hours'
+                              : ''}
+                            {hours < 1 && minutes + ' min'}
+                            {' ago'}
+                          </p>
+                        </div>
+                        <p>{t.quantity} items</p>
+                      </CheckoutHistoryCard>
+                    );
+                  }
                 })}
               </Box>
             </Box>

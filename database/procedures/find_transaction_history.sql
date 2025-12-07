@@ -37,10 +37,14 @@ BEGIN
             transaction_date AS timestamp,
             Users.name AS user_name,
             TransactionItems.item_id, 
-            TransactionItems.quantity
+            TransactionItems.quantity,
+            Items.name AS item_name,
+            Categories.name AS category_name
         FROM Transactions
         INNER JOIN TransactionItems ON Transactions.id = TransactionItems.transaction_id
         INNER JOIN Users ON Transactions.user_id = Users.id
+        INNER JOIN Items ON TransactionItems.item_id = Items.id
+        INNER JOIN Categories ON Items.category_id = Categories.id
         WHERE CONVERT(date, [transaction_date]) >= @start_date AND CONVERT(date, [transaction_date]) <= @end_date
         AND [transaction_type] = 2 OR [transaction_type] = 3;
     END;

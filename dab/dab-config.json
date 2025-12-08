@@ -187,6 +187,24 @@
         }
       ]
     },
+    "ResidentsWithUnits": {
+      "source": {
+        "object": "ResidentsWithUnits",
+        "type": "table",
+        "key-fields": []
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/residentswithunits",
+        "methods": ["get"]
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        }
+      ]
+    },
     "VerifyPin": {
       "source": {
         "object": "dbo.VerifyVolunteerPin",

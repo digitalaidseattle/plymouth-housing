@@ -6,6 +6,7 @@ import PickYourNamePage from './authentication/PickNamePage';
 import Page404 from './error/404';
 import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
+import Residents from '../pages/residents';
 import Inventory from './inventory';
 import CheckoutPage from './checkout/CheckoutPage';
 import { RootRedirect } from '../components/RootRedirect';
@@ -41,6 +42,16 @@ const routes = [
           <RootRedirect source="people">
             <MainContainer title="People">
               <People />,
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'residents',
+        element: (
+          <RootRedirect source="residents">
+            <MainContainer title="Residents">
+              <Residents />,
             </MainContainer>
           </RootRedirect>
         ),

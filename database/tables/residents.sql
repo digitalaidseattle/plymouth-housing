@@ -8,3 +8,21 @@ CREATE TABLE Residents (
 );
 
 GO
+
+CREATE VIEW ResidentsWithUnits
+AS
+    SELECT
+        r.id,
+        r.name,
+        r.unit_id,
+        u.unit_number,
+        u.building_id,
+        b.code AS building_code,
+        b.name AS building_name
+    FROM
+        Residents r
+    LEFT JOIN
+        Units u ON r.unit_id = u.id
+    LEFT JOIN
+        Buildings b ON u.building_id = b.id;
+GO

@@ -120,6 +120,7 @@ export type ShoppingCart = {
 export type Unit = {
   id: number;
   unit_number: string;
+  building_id?: number;
 }
 
 export type ResidentInfo = {
@@ -127,5 +128,15 @@ export type ResidentInfo = {
   name: string;
   unit: Unit;
   building: Building;
+}
+
+export type ResidentWithUnit = {
+  id: number;
+  name: string;
+  unit_id: number;
+  unit_number: string;
+  building_id: number;
+  building_code: string;
+  building_name: string;
 }
 

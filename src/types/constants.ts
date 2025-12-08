@@ -31,6 +31,7 @@ export const ENDPOINTS = {
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
   CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
+  RESIDENTS_WITH_UNITS: API_PREFIX + '/residentswithunits',
 } as const;
 
 export const SETTINGS = {
@@ -46,6 +47,6 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  admin: ['inventory', 'checkout', 'people'],
+  admin: ['inventory', 'checkout', 'people', 'residents'],
   volunteer: ['volunteer-home', 'inventory', 'checkout'],
 } as const;

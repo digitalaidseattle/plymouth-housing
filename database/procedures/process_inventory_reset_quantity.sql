@@ -23,9 +23,16 @@ BEGIN
 
     BEGIN TRY
         -- Validate inputs
-        IF @item_id IS NULL OR @new_quantity IS NULL OR @new_quantity < 0
+        IF @item_id IS NULL
         BEGIN
-        SELECT 'Error' AS Status, 'Invalid item id or quantity (must be non-negative)' AS message;
+        SELECT 'Error' AS Status, 'Invalid item id' AS message;
+        RETURN;
+    END
+
+        IF @new_quantity IS NULL
+            OR @new_quantity < 0
+        BEGIN
+        SELECT 'Error' AS Status, 'Invalid quantity (must be non-negative)' AS message;
         RETURN;
     END
 

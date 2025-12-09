@@ -10,6 +10,15 @@ AS
 BEGIN
     DECLARE @StoredPin CHAR(4);
 
+    -- Validate entered PIN is not NULL, empty, or contains invalid characters
+    IF @EnteredPin IS NULL OR LTRIM(RTRIM(@EnteredPin)) = '' OR LEN(LTRIM(RTRIM(@EnteredPin))) <> 4
+    BEGIN
+        SET @IsValid = 0;
+        SET @ErrorMessage = 'Entered PIN is invalid';
+        SELECT @IsValid AS IsValid, @ErrorMessage AS ErrorMessage;
+        RETURN;
+    END;
+
     -- Fetch the stored PIN for the given Volunteer ID
     SELECT @StoredPin = PIN
     FROM [dbo].[Users]
@@ -20,6 +29,7 @@ BEGIN
     BEGIN
         SET @IsValid = 0;
         SET @ErrorMessage = 'Volunteer ID not found';
+        SELECT @IsValid AS IsValid, @ErrorMessage AS ErrorMessage;
         RETURN;
     END;
 

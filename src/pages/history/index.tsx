@@ -139,69 +139,74 @@ const HistoryPage: React.FC = () => {
     }
   }
 
-  // restructures database response to organize transacations by User
-  const processTransactionsByUser = () => {
-    const result: TransactionsByUser<
-      CheckoutTransaction | InventoryTransaction
-    >[] = [];
-    if (!history) return;
-    const uniqueUsers = [...new Set(history.map((t) => t.user_id))];
-    if (historyType === 'inventory') {
-      uniqueUsers.forEach((userId, userIndex) => {
-        result.push({ user_id: userId, transactions: [] });
-        history
-          .filter((entry) => entry.user_id === userId)
-          .forEach((entry) => {
-            const inventoryEntry = entry as InventoryItemResponse;
-            result[userIndex].transactions.push({
-              id: inventoryEntry.id,
-              transaction_type: inventoryEntry.transaction_type,
-              item_id: inventoryEntry.item_id,
-              item_name: inventoryEntry.item_name,
-              category_name: inventoryEntry.category_name,
-              quantity: inventoryEntry.quantity,
-              timestamp: inventoryEntry.timestamp,
-            });
-          });
+  const createInventoryTransaction = (
+    entry: HistoryResponse,
+  ): InventoryTransaction => {
+    const inventoryEntry = entry as InventoryItemResponse;
+    return {
+      id: inventoryEntry.id,
+      transaction_type: inventoryEntry.transaction_type,
+      item_id: inventoryEntry.item_id,
+      item_name: inventoryEntry.item_name,
+      category_name: inventoryEntry.category_name,
+      quantity: inventoryEntry.quantity,
+      timestamp: inventoryEntry.timestamp,
+    };
+  };
+
+  const mergeCheckoutTransaction = (
+    transactions: (CheckoutTransaction | InventoryTransaction)[],
+    entry: HistoryResponse,
+  ): (CheckoutTransaction | InventoryTransaction)[] => {
+    const checkoutEntry = entry as CheckoutItemResponse;
+    const existingIndex = transactions.findIndex(
+      (t) => t.id === checkoutEntry.id,
+    );
+
+    if (existingIndex !== -1) {
+      const existing = transactions[existingIndex] as CheckoutTransaction;
+      existing.items.push({
+        item_id: checkoutEntry.item_id,
+        quantity: checkoutEntry.quantity,
       });
-    } else {
-      uniqueUsers.forEach((userId, userIndex) => {
-        result.push({ user_id: userId, transactions: [] });
-        history
-          .filter((entry) => entry.user_id === userId)
-          .forEach((entry) => {
-            const checkoutEntry = entry as CheckoutItemResponse;
-            const transactionIndex = result[userIndex].transactions.findIndex(
-              (r) => r.id === checkoutEntry.id,
-            );
-            if (transactionIndex !== -1) {
-              (
-                result[userIndex].transactions[
-                  transactionIndex
-                ] as CheckoutTransaction
-              ).items.push({
-                item_id: checkoutEntry.item_id,
-                quantity: checkoutEntry.quantity,
-              });
-            } else {
-              result[userIndex].transactions.push({
-                id: checkoutEntry.id,
-                resident_name: checkoutEntry.resident_name,
-                building_id: checkoutEntry.building_id,
-                unit_number: checkoutEntry.unit_number,
-                items: [
-                  {
-                    item_id: checkoutEntry.item_id,
-                    quantity: checkoutEntry.quantity,
-                  },
-                ],
-                timestamp: checkoutEntry.timestamp,
-              });
-            }
-          });
-      });
+      return transactions;
     }
-    return result;
+
+    return [
+      ...transactions,
+      {
+        id: checkoutEntry.id,
+        resident_name: checkoutEntry.resident_name,
+        building_id: checkoutEntry.building_id,
+        unit_number: checkoutEntry.unit_number,
+        items: [
+          {
+            item_id: checkoutEntry.item_id,
+            quantity: checkoutEntry.quantity,
+          },
+        ],
+        timestamp: checkoutEntry.timestamp,
+      },
+    ];
+  };
+
+  // restructures database response to organize transactions by User
+  const processTransactionsByUser = () => {
+    if (!history) return [];
+
+    const uniqueUsers = [...new Set(history.map((t) => t.user_id))];
+
+    return uniqueUsers.map((userId) => ({
+      user_id: userId,
+      transactions: history
+        .filter((entry) => entry.user_id === userId)
+        .reduce((transactions, entry) => {
+          if (historyType === 'inventory') {
+            return [...transactions, createInventoryTransaction(entry)];
+          }
+          return mergeCheckoutTransaction(transactions, entry);
+        }, [] as (CheckoutTransaction | InventoryTransaction)[]),
+    }));
   };
 
   const transactionsByUser = processTransactionsByUser();

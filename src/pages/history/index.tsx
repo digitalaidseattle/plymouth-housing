@@ -242,9 +242,21 @@ const HistoryPage: React.FC = () => {
       </FormControl>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Stack direction="row" gap="1rem">
-          <Button onClick={() => setHistoryType('checkout')}>Check outs</Button>
-          <Button onClick={() => setHistoryType('inventory')}>
-            Inventory edits
+          <Button
+            variant={
+              historyType === 'checkout' ? 'active-toggle' : 'inactive-toggle'
+            }
+            onClick={() => setHistoryType('checkout')}
+          >
+            Check out
+          </Button>
+          <Button
+            variant={
+              historyType === 'inventory' ? 'active-toggle' : 'inactive-toggle'
+            }
+            onClick={() => setHistoryType('inventory')}
+          >
+            Inventory
           </Button>
         </Stack>
         <FormControl>

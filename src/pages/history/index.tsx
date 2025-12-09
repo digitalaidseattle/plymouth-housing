@@ -23,64 +23,15 @@ import { Building, User } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
-
-// Base types
-type TransactionItem = {
-  item_id: number;
-  quantity: number;
-};
-
-type BaseTransaction = {
-  id: string;
-  user_id: number;
-  user_name: string;
-  timestamp: string;
-  transaction_type: number;
-};
-
-// Response types using discriminated union
-type CheckoutItemResponse = BaseTransaction & {
-  building_id: number;
-  unit_number: string;
-  resident_name: string;
-  item_id: number;
-  quantity: number;
-};
-
-type InventoryItemResponse = BaseTransaction & {
-  item_id: number;
-  quantity: number;
-  item_name: string;
-  category_name: string;
-};
-
-type HistoryResponse = CheckoutItemResponse | InventoryItemResponse;
-
-// Processed transaction types
-type CheckoutTransaction = {
-  id: string;
-  resident_name: string;
-  building_id: number;
-  unit_number: string;
-  items: TransactionItem[];
-  timestamp: string;
-};
-
-type InventoryTransaction = {
-  id: string;
-  transaction_type: number;
-  item_id: number;
-  item_name: string;
-  category_name: string;
-  quantity: number;
-  timestamp: string;
-};
-
-// Generic user transactions container
-type TransactionsByUser<T> = {
-  user_id: number;
-  transactions: T[];
-};
+import {
+  TransactionType,
+  CheckoutItemResponse,
+  InventoryItemResponse,
+  HistoryResponse,
+  CheckoutTransaction,
+  InventoryTransaction,
+  TransactionsByUser,
+} from '../../types/history';
 
 const HistoryPage: React.FC = () => {
   const todaysDate = new Date();
@@ -452,7 +403,8 @@ const HistoryPage: React.FC = () => {
                             {' ago'}
                           </p>
                         </div>
-                        {inventoryTransaction.transaction_type === 2 ? (
+                        {inventoryTransaction.transaction_type ===
+                        TransactionType.InventoryAdd ? (
                           <p>
                             {inventoryTransaction.quantity > 0
                               ? 'Added'

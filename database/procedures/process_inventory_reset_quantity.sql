@@ -12,15 +12,6 @@ BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
-    DECLARE @ItemId INT;
-    DECLARE @Quantity INT;
-    DECLARE @AdditionalNotes NVARCHAR(MAX);
-
-    SELECT
-        @ItemId = @item_id,
-        @Quantity = @new_quantity,
-        @AdditionalNotes = @additional_notes;
-
     BEGIN TRY
         -- Validate inputs
         IF @item_id IS NULL
@@ -30,7 +21,7 @@ BEGIN
     END
 
         IF @new_quantity IS NULL
-            OR @new_quantity < 0
+        OR @new_quantity < 0
         BEGIN
         SELECT 'Error' AS Status, 'Invalid quantity (must be non-negative)' AS message;
         RETURN;

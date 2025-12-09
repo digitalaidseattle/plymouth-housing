@@ -19,31 +19,75 @@ import {
   getUsers,
 } from '../../components/History/HistoryAPICalls';
 import CircularLoader from '../../components/CircularLoader';
-import { Building } from '../../types/interfaces';
+import { Building, User } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
 
-type CheckoutTransactionData = {
-  building_id: number;
-  id: string;
+// Base types
+type TransactionItem = {
   item_id: number;
   quantity: number;
-  resident_name: string;
-  timestamp: string;
-  unit_number: string;
+};
+
+type BaseTransaction = {
+  id: string;
   user_id: number;
   user_name: string;
+  timestamp: string;
+  transaction_type: number;
+};
+
+// Response types using discriminated union
+type CheckoutItemResponse = BaseTransaction & {
+  building_id: number;
+  unit_number: string;
+  resident_name: string;
+  item_id: number;
+  quantity: number;
+};
+
+type InventoryItemResponse = BaseTransaction & {
+  item_id: number;
+  quantity: number;
+  item_name: string;
+  category_name: string;
+};
+
+type HistoryResponse = CheckoutItemResponse | InventoryItemResponse;
+
+// Processed transaction types
+type CheckoutTransaction = {
+  id: string;
+  resident_name: string;
+  building_id: number;
+  unit_number: string;
+  items: TransactionItem[];
+  timestamp: string;
+};
+
+type InventoryTransaction = {
+  id: string;
+  transaction_type: number;
+  item_id: number;
+  item_name: string;
+  category_name: string;
+  quantity: number;
+  timestamp: string;
+};
+
+// Generic user transactions container
+type TransactionsByUser<T> = {
+  user_id: number;
+  transactions: T[];
 };
 
 const HistoryPage: React.FC = () => {
   const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
-  const [userList, setUserList] = useState(null);
+  const [userList, setUserList] = useState<User[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [history, setHistory] = useState<CheckoutTransactionData[] | null>(
-    null,
-  );
+  const [history, setHistory] = useState<HistoryResponse[] | null>(null);
   const [buildings, setBuildings] = useState<Building[] | null>(null);
   const [dateRange, setDateRange] = useState<{
     startDate: Date;
@@ -146,7 +190,9 @@ const HistoryPage: React.FC = () => {
 
   // restructures database response to organize transacations by User
   const processTransactionsByUser = () => {
-    const result = [];
+    const result: TransactionsByUser<
+      CheckoutTransaction | InventoryTransaction
+    >[] = [];
     if (!history) return;
     const uniqueUsers = [...new Set(history.map((t) => t.user_id))];
     if (historyType === 'inventory') {
@@ -155,15 +201,15 @@ const HistoryPage: React.FC = () => {
         history
           .filter((entry) => entry.user_id === userId)
           .forEach((entry) => {
+            const inventoryEntry = entry as InventoryItemResponse;
             result[userIndex].transactions.push({
-              id: entry.id,
-              transaction_type: entry.transaction_type,
-              unit_number: entry.unit_number,
-              item_id: entry.item_id,
-              item_name: entry.item_name,
-              category_name: entry.category_name,
-              quantity: entry.quantity,
-              timestamp: entry.timestamp,
+              id: inventoryEntry.id,
+              transaction_type: inventoryEntry.transaction_type,
+              item_id: inventoryEntry.item_id,
+              item_name: inventoryEntry.item_name,
+              category_name: inventoryEntry.category_name,
+              quantity: inventoryEntry.quantity,
+              timestamp: inventoryEntry.timestamp,
             });
           });
       });
@@ -173,22 +219,32 @@ const HistoryPage: React.FC = () => {
         history
           .filter((entry) => entry.user_id === userId)
           .forEach((entry) => {
+            const checkoutEntry = entry as CheckoutItemResponse;
             const transactionIndex = result[userIndex].transactions.findIndex(
-              (r) => r.id === entry.id,
+              (r) => r.id === checkoutEntry.id,
             );
             if (transactionIndex !== -1) {
-              result[userIndex].transactions[transactionIndex].items.push({
-                item_id: entry.item_id,
-                quantity: entry.quantity,
+              (
+                result[userIndex].transactions[
+                  transactionIndex
+                ] as CheckoutTransaction
+              ).items.push({
+                item_id: checkoutEntry.item_id,
+                quantity: checkoutEntry.quantity,
               });
             } else {
               result[userIndex].transactions.push({
-                id: entry.id,
-                resident_name: entry.resident_name,
-                building_id: entry.building_id,
-                unit_number: entry.unit_number,
-                items: [{ item_id: entry.item_id, quantity: entry.quantity }],
-                timestamp: entry.timestamp,
+                id: checkoutEntry.id,
+                resident_name: checkoutEntry.resident_name,
+                building_id: checkoutEntry.building_id,
+                unit_number: checkoutEntry.unit_number,
+                items: [
+                  {
+                    item_id: checkoutEntry.item_id,
+                    quantity: checkoutEntry.quantity,
+                  },
+                ],
+                timestamp: checkoutEntry.timestamp,
               });
             }
           });
@@ -326,21 +382,29 @@ const HistoryPage: React.FC = () => {
                   const hours = Math.floor(minutes / 60);
                   const days = Math.floor(hours / 24);
                   if (historyType === 'checkout') {
-                    const quantity = t.items.reduce((acc, item) => {
-                      return acc + item.quantity;
-                    }, 0);
+                    const checkoutTransaction = t as CheckoutTransaction;
+                    const quantity = checkoutTransaction.items.reduce(
+                      (acc, item) => {
+                        return acc + item.quantity;
+                      },
+                      0,
+                    );
                     return (
-                      <CheckoutHistoryCard transactionId={t.id}>
+                      <CheckoutHistoryCard
+                        transactionId={checkoutTransaction.id}
+                      >
                         <div>
-                          <h3>{t.resident_name}</h3>
+                          <h3>{checkoutTransaction.resident_name}</h3>
                           <p>
-                            {buildings?.find((b) => b.id === t.building_id)
-                              ?.code ?? ''}
+                            {buildings?.find(
+                              (b) => b.id === checkoutTransaction.building_id,
+                            )?.code ?? ''}
                             {' - '}
-                            {buildings?.find((b) => b.id === t.building_id)
-                              ?.name ?? ''}
+                            {buildings?.find(
+                              (b) => b.id === checkoutTransaction.building_id,
+                            )?.name ?? ''}
                             {' - '}
-                            {t.unit_number}
+                            {checkoutTransaction.unit_number}
                           </p>
                           <p>
                             Created{' '}
@@ -366,12 +430,12 @@ const HistoryPage: React.FC = () => {
                     );
                   } else {
                     // historyType === 'inventory'
-                    console.log(t);
+                    const inventoryTransaction = t as InventoryTransaction;
                     return (
                       <CheckoutHistoryCard transactionId={t.id}>
                         <div>
-                          <h3>{t.item_name}</h3>
-                          <p>{t.category_name}</p>
+                          <h3>{inventoryTransaction.item_name}</h3>
+                          <p>{inventoryTransaction.category_name}</p>
                           <p>
                             Created{' '}
                             {days === 1
@@ -388,13 +452,18 @@ const HistoryPage: React.FC = () => {
                             {' ago'}
                           </p>
                         </div>
-                        {t.transaction_type === 2 ? (
+                        {inventoryTransaction.transaction_type === 2 ? (
                           <p>
-                            {t.quantity > 0 ? 'Added' : 'Removed'}{' '}
-                            {Math.abs(t.quantity)} items
+                            {inventoryTransaction.quantity > 0
+                              ? 'Added'
+                              : 'Removed'}{' '}
+                            {Math.abs(inventoryTransaction.quantity)} items
                           </p>
                         ) : (
-                          <p>{'Replaced quantity:' + t.quantity}</p>
+                          <p>
+                            {'Replaced quantity:' +
+                              inventoryTransaction.quantity}
+                          </p>
                         )}
                       </CheckoutHistoryCard>
                     );

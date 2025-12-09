@@ -8,66 +8,55 @@ import {
 } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
 import ItemQuantityButton from './ItemQuantityButton';
-import { useCallback, useEffect, useState } from 'react';
 
-const CheckoutCard = ({ 
-  item, 
-  categoryCheckout, 
-  addItemToCart, 
-  removeItemFromCart, 
-  removeButton, 
-  categoryLimit, 
-  categoryName, 
+const CheckoutCard = ({
+  item,
+  categoryCheckout,
+  addItemToCart,
+  removeItemFromCart,
+  removeButton,
+  categoryLimit,
+  categoryName,
   activeSection,
   checkoutHistory
   }: CheckoutCardProps) => {
 
-  const [disableAdd, setDisableAdd] = useState<boolean>(false);
-
   const pastCheckout = checkoutHistory ? checkoutHistory.map(i => i.item_id).includes(item.id) : false;
-  
+
   const timesCheckedOut = () => {
      if (!checkoutHistory || !pastCheckout) return 0;
     const indexOfItem = checkoutHistory.map(i => i.item_id).indexOf(item.id);
-    if (indexOfItem !== -1) { 
-      return checkoutHistory[indexOfItem].timesCheckedOut 
-    } 
+    if (indexOfItem !== -1) {
+      return checkoutHistory[indexOfItem].timesCheckedOut
+    }
     return 0;
   }
 
-  const checkConditions = useCallback(async () => {
+  // Derive disableAdd directly from props - no need for state or effects
+  const disableAdd = (() => {
     if (activeSection === '') {
-      setDisableAdd(false);
-      return;
+      return false;
     }
 
     if (activeSection === 'general') {
-      setDisableAdd(categoryName === 'Welcome Basket');
-      return;
+      return categoryName === 'Welcome Basket';
     }
 
     if (activeSection === 'welcomeBasket') {
       if (categoryName !== 'Welcome Basket') {
-        setDisableAdd(true);
-        return;
+        return true;
       }
 
-      const itemName = categoryCheckout.items[0].name.toLowerCase();
+      const itemName = categoryCheckout.items[0]?.name.toLowerCase() ?? '';
       if (itemName === item.name.toLowerCase()) {
-        setDisableAdd(false);
+        return pastCheckout;
       } else {
-        setDisableAdd(true);
-      }
-
-      if (pastCheckout) {
-        setDisableAdd(true);
+        return true;
       }
     }
-  }, [categoryCheckout, categoryName, item.name, activeSection, pastCheckout]);
 
-  useEffect(() => {
-    checkConditions();
-  }, [categoryCheckout.categoryCount, checkConditions]);
+    return false;
+  })();
 
   return (
     <Card

@@ -2,29 +2,11 @@
 
 ## Intro
 
-The app uses a SQL database. We will use an Azure SQL Serverless database with Managed Identity. 
+The app uses a SQL database. For production we use an Azure SQL Serverless database. 
 
 There are tutorials here:
 - https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql
 - https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-msi-azure-database
-
-## Production/Staging
-
-1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)
-
-1. You can (and likely should) use **Managed Identity** to access your SQL server. Enable Managed Identity on your Azure Container App (the one running Data API Builder). [This is a good introduction](https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-app-access-storage-javascript?tabs=azure-portal) to the concept. For DAB-specific setup, see [DAB-setup.md](DAB-setup.md).
-
-1. Grant SQL access to your Container App's managed identity. Run this SQL query [from this article](https://www.pluralsight.com/resources/blog/guides/how-to-use-managed-identity-with-azure-sql-database#:~:text=In%20order%20to%20allow%20managed%20identities%20to%20connect%20to%20Azure):
-
-    ```sql
-    create user [container-app-name] from external provider;
-    alter role db_datareader add member [container-app-name];
-    alter role db_datawriter add member [container-app-name];
-    ```
-
-    Replace `[container-app-name]` with the name of your Azure Container App running DAB.
-
-1. The database connection is configured in the Container App environment variables. See [DAB-setup.md](DAB-setup.md) for complete deployment instructions.  
 
 ## Database for Development
 
@@ -182,4 +164,22 @@ You can use an Azure SQL database for development as well. It is not recommended
 1. Use SQL Authentication for easier connection.  
 1. Add your local IP to the **Security/Networking** section of the Azure SQL Server (not the database).  
 1. Test the connection by adding it to the VS Code SQL Server extension.
+
+## Production/Staging
+
+1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)
+
+1. You can (and likely should) use **Managed Identity** to access your SQL server. Enable Managed Identity on your Azure Container App (the one running Data API Builder). [This is a good introduction](https://learn.microsoft.com/en-us/azure/app-service/tutorial-connect-app-access-storage-javascript?tabs=azure-portal) to the concept. For DAB-specific setup, see [DAB-setup.md](DAB-setup.md).
+
+1. Grant SQL access to your Container App's managed identity. Run this SQL query [from this article](https://www.pluralsight.com/resources/blog/guides/how-to-use-managed-identity-with-azure-sql-database#:~:text=In%20order%20to%20allow%20managed%20identities%20to%20connect%20to%20Azure):
+
+    ```sql
+    create user [container-app-name] from external provider;
+    alter role db_datareader add member [container-app-name];
+    alter role db_datawriter add member [container-app-name];
+    ```
+
+    Replace `[container-app-name]` with the name of your Azure Container App running DAB.
+
+1. The database connection is configured in the Container App environment variables. See [DAB-setup.md](DAB-setup.md) for complete deployment instructions.  
 

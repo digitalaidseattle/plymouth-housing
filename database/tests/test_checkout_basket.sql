@@ -171,80 +171,84 @@ IF @final_qty <> @after_first_qty
 PRINT 'Test 5 PASSED: Duplicate transaction ID rejected correctly';
 GO
 
--- Test 6: Cart item limit exceeded (more than 10 items total)
-PRINT 'Test 6: Cart item limit exceeded'
+-- Test 6: Cart with more than 10 items (limit no longer enforced)
+PRINT 'Test 6: Cart with more than 10 items (limit no longer enforced)'
 DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
-DECLARE @error_occurred BIT = 0;
 DECLARE @initial_quantity INT;
 DECLARE @final_quantity INT;
 
 -- Get initial quantity
 SELECT @initial_quantity = quantity FROM Items WHERE id = 2;
 
-BEGIN TRY
-    -- Try to checkout 11 items (exceeds limit of 10)
-    EXEC ProcessCheckout
-        @user_id = 1,
-        @resident_id = 1,
-        @new_transaction_id = @new_transaction_id,
-        @items = N'[{"id": 2, "quantity": 11}]';
+-- Create temp table to capture result
+CREATE TABLE #CartLimitResult (
+    Status NVARCHAR(50),
+    message NVARCHAR(MAX)
+);
 
-    -- If we get here, test failed because no error was thrown
-    THROW 50006, 'Test 6 FAILED: Cart limit exceeded should throw an error', 1;
-END TRY
-BEGIN CATCH
-    -- Expected behavior - an error was thrown
-    SET @error_occurred = 1;
-END CATCH
+INSERT INTO #CartLimitResult
+EXEC ProcessCheckout
+    @user_id = 1,
+    @resident_id = 1,
+    @new_transaction_id = @new_transaction_id,
+    @items = N'[{"id": 2, "quantity": 11}]';
 
--- Assert: Error should have occurred
-IF @error_occurred <> 1
-    THROW 50006, 'Test 6 FAILED: Expected error for cart limit exceeded', 1;
+-- Assert: Should succeed (cart limit is no longer enforced)
+IF NOT EXISTS (SELECT 1 FROM #CartLimitResult WHERE Status = 'Success')
+    THROW 50006, 'Test 6 FAILED: Checkout should succeed (cart limit no longer enforced)', 1;
 
--- Assert: Quantity should not have changed (transaction rolled back)
+-- Assert: Quantity should have decreased by 11
 SELECT @final_quantity = quantity FROM Items WHERE id = 2;
-IF @final_quantity <> @initial_quantity
-    THROW 50006, 'Test 6 FAILED: Quantity should not change when cart limit exceeded', 1;
+IF @final_quantity <> (@initial_quantity - 11)
+    THROW 50006, 'Test 6 FAILED: Quantity should decrease by 11', 1;
 
-PRINT 'Test 6 PASSED: Cart item limit enforced correctly';
+DROP TABLE #CartLimitResult;
+PRINT 'Test 6 PASSED: Cart with 11 items checked out successfully (limit not enforced)';
 GO
 
--- Test 7: Category checkout limit exceeded
-PRINT 'Test 7: Category checkout limit exceeded'
+-- Test 7: Category checkout limit (limit no longer enforced)
+PRINT 'Test 7: Category checkout limit (limit no longer enforced)'
 DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
-DECLARE @error_occurred BIT = 0;
 DECLARE @appliance_item_id INT;
 DECLARE @items_json NVARCHAR(MAX);
+DECLARE @initial_quantity INT;
+DECLARE @final_quantity INT;
 
 -- Find an item in Appliance category (checkout_limit = 1)
 SELECT TOP 1 @appliance_item_id = id
 FROM Items
 WHERE category_id = 2; -- Appliance category
 
+-- Get initial quantity
+SELECT @initial_quantity = quantity FROM Items WHERE id = @appliance_item_id;
+
 -- Build JSON string
 SET @items_json = N'[{"id": ' + CAST(@appliance_item_id AS NVARCHAR) + ', "quantity": 2}]';
 
-BEGIN TRY
-    -- Try to checkout 2 items from Appliance category (exceeds limit of 1)
-    EXEC ProcessCheckout
-        @user_id = 1,
-        @resident_id = 1,
-        @new_transaction_id = @new_transaction_id,
-        @items = @items_json;
+-- Create temp table to capture result
+CREATE TABLE #CategoryLimitResult (
+    Status NVARCHAR(50),
+    message NVARCHAR(MAX)
+);
 
-    -- If we get here, test failed
-    THROW 50007, 'Test 7 FAILED: Category limit exceeded should throw an error', 1;
-END TRY
-BEGIN CATCH
-    -- Expected behavior - an error was thrown
-    SET @error_occurred = 1;
-END CATCH
+INSERT INTO #CategoryLimitResult
+EXEC ProcessCheckout
+    @user_id = 1,
+    @resident_id = 1,
+    @new_transaction_id = @new_transaction_id,
+    @items = @items_json;
 
--- Assert: Error should have occurred
-IF @error_occurred <> 1
-    THROW 50007, 'Test 7 FAILED: Expected error for category limit exceeded', 1;
+-- Assert: Should succeed (category limit is no longer enforced)
+IF NOT EXISTS (SELECT 1 FROM #CategoryLimitResult WHERE Status = 'Success')
+    THROW 50007, 'Test 7 FAILED: Checkout should succeed (category limit no longer enforced)', 1;
 
-PRINT 'Test 7 PASSED: Category checkout limit enforced correctly';
+-- Assert: Quantity should have decreased by 2
+SELECT @final_quantity = quantity FROM Items WHERE id = @appliance_item_id;
+IF @final_quantity <> (@initial_quantity - 2)
+    THROW 50007, 'Test 7 FAILED: Quantity should decrease by 2', 1;
+
+DROP TABLE #CategoryLimitResult;
+PRINT 'Test 7 PASSED: Category limit not enforced, checkout succeeded';
 GO
 
 -- Test 8: Transaction type should be 1 (checkout)

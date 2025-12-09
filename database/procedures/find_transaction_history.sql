@@ -47,6 +47,6 @@ BEGIN
         INNER JOIN Items ON TransactionItems.item_id = Items.id
         INNER JOIN Categories ON Items.category_id = Categories.id
         WHERE CONVERT(date, [transaction_date]) >= @start_date AND CONVERT(date, [transaction_date]) <= @end_date
-        AND [transaction_type] = 2 OR [transaction_type] = 3;
+        AND [transaction_type] IN (2, 3);
     END;
 END;

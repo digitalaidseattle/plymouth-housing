@@ -118,118 +118,104 @@ GO
 -- Test 5: Invalid item_id should fail
 PRINT 'Test 5: Invalid item_id should fail'
 DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
-DECLARE @error_occurred BIT = 0;
 
-BEGIN TRY
-    EXEC ProcessInventoryResetQuantity
-        @user_id = 1,
-        @item_id = 999999,
-        @new_quantity = 10,
-        @additional_notes = NULL,
-        @new_transaction_id = @new_transaction_id;
+-- Create temp table to capture result
+CREATE TABLE #InvalidItemResult (
+    Status NVARCHAR(50),
+    message NVARCHAR(MAX)
+);
 
-    -- If we get here, the test failed because no error was thrown
-    THROW 50005, 'Test 5 FAILED: Invalid item_id should have thrown an error', 1;
-END TRY
-BEGIN CATCH
-    -- Expected behavior - an error was thrown
-    IF ERROR_NUMBER() = 51004
-        SET @error_occurred = 1;
-    ELSE
-        SET @error_occurred = 1; -- Any error is acceptable for invalid item
-END CATCH
+INSERT INTO #InvalidItemResult
+EXEC ProcessInventoryResetQuantity
+    @user_id = 1,
+    @item_id = 999999,
+    @new_quantity = 10,
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
--- Assert: Error should have occurred
-IF @error_occurred <> 1
+-- Assert: Should return error status
+IF NOT EXISTS (SELECT 1 FROM #InvalidItemResult WHERE Status = 'Error' AND message = 'Item not found')
     THROW 50005, 'Test 5 FAILED: Expected error for invalid item_id', 1;
 
+DROP TABLE #InvalidItemResult;
 PRINT 'Test 5 PASSED: Invalid item_id rejected correctly';
 GO
 
 -- Test 6: Negative quantity should fail
 PRINT 'Test 6: Negative quantity should fail'
 DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
-DECLARE @error_occurred BIT = 0;
 
-BEGIN TRY
-    EXEC ProcessInventoryResetQuantity
-        @user_id = 1,
-        @item_id = 2,
-        @new_quantity = -10,
-        @additional_notes = NULL,
-        @new_transaction_id = @new_transaction_id;
+-- Create temp table to capture result
+CREATE TABLE #NegativeQtyResult (
+    Status NVARCHAR(50),
+    message NVARCHAR(MAX)
+);
 
-    -- If we get here, the test failed because no error was thrown
-    THROW 50006, 'Test 6 FAILED: Negative quantity should have thrown an error', 1;
-END TRY
-BEGIN CATCH
-    -- Expected behavior - should throw error 51003
-    IF ERROR_NUMBER() = 51003
-        SET @error_occurred = 1;
-END CATCH
+INSERT INTO #NegativeQtyResult
+EXEC ProcessInventoryResetQuantity
+    @user_id = 1,
+    @item_id = 2,
+    @new_quantity = -10,
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
--- Assert: Error should have occurred
-IF @error_occurred <> 1
-    THROW 50006, 'Test 6 FAILED: Expected error 51003 for negative quantity', 1;
+-- Assert: Should return error status
+IF NOT EXISTS (SELECT 1 FROM #NegativeQtyResult WHERE Status = 'Error' AND message = 'Invalid quantity (must be non-negative)')
+    THROW 50006, 'Test 6 FAILED: Expected error for negative quantity', 1;
 
+DROP TABLE #NegativeQtyResult;
 PRINT 'Test 6 PASSED: Negative quantity rejected correctly';
 GO
 
 -- Test 7: NULL item_id should fail
 PRINT 'Test 7: NULL item_id should fail'
 DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
-DECLARE @error_occurred BIT = 0;
 
-BEGIN TRY
-    EXEC ProcessInventoryResetQuantity
-        @user_id = 1,
-        @item_id = NULL,
-        @new_quantity = 10,
-        @additional_notes = NULL,
-        @new_transaction_id = @new_transaction_id;
+-- Create temp table to capture result
+CREATE TABLE #NullItemResult (
+    Status NVARCHAR(50),
+    message NVARCHAR(MAX)
+);
 
-    -- If we get here, the test failed because no error was thrown
-    THROW 50007, 'Test 7 FAILED: NULL item_id should have thrown an error', 1;
-END TRY
-BEGIN CATCH
-    -- Expected behavior - should throw error 51003
-    IF ERROR_NUMBER() = 51003
-        SET @error_occurred = 1;
-END CATCH
+INSERT INTO #NullItemResult
+EXEC ProcessInventoryResetQuantity
+    @user_id = 1,
+    @item_id = NULL,
+    @new_quantity = 10,
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
--- Assert: Error should have occurred
-IF @error_occurred <> 1
-    THROW 50007, 'Test 7 FAILED: Expected error 51003 for NULL item_id', 1;
+-- Assert: Should return error status
+IF NOT EXISTS (SELECT 1 FROM #NullItemResult WHERE Status = 'Error' AND message = 'Invalid item id')
+    THROW 50007, 'Test 7 FAILED: Expected error for NULL item_id', 1;
 
+DROP TABLE #NullItemResult;
 PRINT 'Test 7 PASSED: NULL item_id rejected correctly';
 GO
 
 -- Test 8: NULL quantity should fail
 PRINT 'Test 8: NULL quantity should fail'
 DECLARE @new_transaction_id UNIQUEIDENTIFIER = NEWID();
-DECLARE @error_occurred BIT = 0;
 
-BEGIN TRY
-    EXEC ProcessInventoryResetQuantity
-        @user_id = 1,
-        @item_id = 2,
-        @new_quantity = NULL,
-        @additional_notes = NULL,
-        @new_transaction_id = @new_transaction_id;
+-- Create temp table to capture result
+CREATE TABLE #NullQtyResult (
+    Status NVARCHAR(50),
+    message NVARCHAR(MAX)
+);
 
-    -- If we get here, the test failed because no error was thrown
-    THROW 50008, 'Test 8 FAILED: NULL quantity should have thrown an error', 1;
-END TRY
-BEGIN CATCH
-    -- Expected behavior - should throw error 51003
-    IF ERROR_NUMBER() = 51003
-        SET @error_occurred = 1;
-END CATCH
+INSERT INTO #NullQtyResult
+EXEC ProcessInventoryResetQuantity
+    @user_id = 1,
+    @item_id = 2,
+    @new_quantity = NULL,
+    @additional_notes = NULL,
+    @new_transaction_id = @new_transaction_id;
 
--- Assert: Error should have occurred
-IF @error_occurred <> 1
-    THROW 50008, 'Test 8 FAILED: Expected error 51003 for NULL quantity', 1;
+-- Assert: Should return error status
+IF NOT EXISTS (SELECT 1 FROM #NullQtyResult WHERE Status = 'Error' AND message = 'Invalid quantity (must be non-negative)')
+    THROW 50008, 'Test 8 FAILED: Expected error for NULL quantity', 1;
 
+DROP TABLE #NullQtyResult;
 PRINT 'Test 8 PASSED: NULL quantity rejected correctly';
 GO
 

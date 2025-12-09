@@ -7,8 +7,6 @@ import AddResidentModal from './AddResidentModal';
 import EditResidentModal from './EditResidentModal';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import useResidents from './useResidents';
-import useBuildings from './useBuildings';
-import useUnits from './useUnits';
 import { ResidentWithUnit } from '../../types/interfaces';
 
 const ResidentsPage = () => {
@@ -35,9 +33,6 @@ const ResidentsPage = () => {
     clearError,
     refetch,
   } = useResidents();
-
-  const { buildings } = useBuildings();
-  const { units } = useUnits();
 
   // Handle filtering and sorting
   useEffect(() => {
@@ -155,8 +150,6 @@ const ResidentsPage = () => {
         open={addModalOpen}
         onClose={closeAddModal}
         onSuccess={handleAddSuccess}
-        buildings={buildings}
-        units={units}
       />
 
       {/* Edit Resident Modal */}
@@ -165,8 +158,6 @@ const ResidentsPage = () => {
         onClose={closeEditModal}
         onSuccess={handleEditSuccess}
         resident={selectedResident}
-        buildings={buildings}
-        units={units}
       />
 
       {/* Filters */}
@@ -177,8 +168,6 @@ const ResidentsPage = () => {
         onBuildingFilterChange={setBuildingFilter}
         unitFilter={unitFilter}
         onUnitFilterChange={setUnitFilter}
-        buildings={buildings}
-        units={units}
       />
 
       {/* Residents Table */}

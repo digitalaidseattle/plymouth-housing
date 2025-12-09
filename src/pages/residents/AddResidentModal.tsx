@@ -1,23 +1,20 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Modal, Box, Typography, TextField, Button, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { Building, Unit } from '../../types/interfaces';
+import { getBuildings, getUnitNumbers } from '../../components/Checkout/CheckoutAPICalls';
 
 interface AddResidentModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  buildings: Building[];
-  units: Unit[];
 }
 
 const AddResidentModal = ({
   open,
   onClose,
   onSuccess,
-  buildings,
-  units,
 }: AddResidentModalProps) => {
   const { user } = useContext(UserContext);
   const [formData, setFormData] = useState({
@@ -25,8 +22,46 @@ const AddResidentModal = ({
     unit_id: 0,
   });
   const [selectedBuildingId, setSelectedBuildingId] = useState<number>(0);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Fetch buildings on mount
+  useEffect(() => {
+    const fetchBuildingsData = async () => {
+      try {
+        const buildingsData = await getBuildings(user);
+        setBuildings(buildingsData);
+      } catch (error) {
+        console.error('Error fetching buildings:', error);
+        setErrorMessage('Failed to load buildings.');
+      }
+    };
+
+    if (open) {
+      fetchBuildingsData();
+    }
+  }, [open, user]);
+
+  // Fetch units when building changes
+  useEffect(() => {
+    const fetchUnitsData = async () => {
+      if (selectedBuildingId && selectedBuildingId !== 0) {
+        try {
+          const unitsData = await getUnitNumbers(user, selectedBuildingId);
+          setUnits(unitsData);
+        } catch (error) {
+          console.error('Error fetching units:', error);
+          setErrorMessage('Failed to load units for selected building.');
+        }
+      } else {
+        setUnits([]);
+      }
+    };
+
+    fetchUnitsData();
+  }, [selectedBuildingId, user]);
 
   const handleInputChange = (field: string, value: string | number | null) => {
     setFormData((prevFormData) => ({
@@ -86,11 +121,6 @@ const AddResidentModal = ({
       setErrorMessage(`Failed to add resident: ${(error as Error).message}`);
     }
   };
-
-  // Filter units based on selected building
-  const filteredUnits = selectedBuildingId && selectedBuildingId !== 0
-    ? units.filter(unit => unit.building_id === selectedBuildingId)
-    : [];
 
   const handleBuildingChange = (buildingId: number) => {
     setSelectedBuildingId(buildingId);
@@ -163,7 +193,7 @@ const AddResidentModal = ({
               <MenuItem value={0} disabled>
                 <em>Select a unit</em>
               </MenuItem>
-              {filteredUnits.map((unit) => (
+              {units.map((unit) => (
                 <MenuItem key={unit.id} value={unit.id}>
                   Unit {unit.unit_number}
                 </MenuItem>

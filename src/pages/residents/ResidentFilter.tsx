@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Button, IconButton, Typography, Menu, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchBar from '../../components/Searchbar/SearchBar';
 import { Building, Unit } from '../../types/interfaces';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getBuildings, getUnitNumbers } from '../../components/Checkout/CheckoutAPICalls';
 
 interface ResidentFilterProps {
   search: string;
@@ -12,8 +14,6 @@ interface ResidentFilterProps {
   onBuildingFilterChange: (buildingId: number | null) => void;
   unitFilter: number | null;
   onUnitFilterChange: (unitId: number | null) => void;
-  buildings: Building[];
-  units: Unit[];
 }
 
 const ResidentFilter: React.FC<ResidentFilterProps> = ({
@@ -23,11 +23,44 @@ const ResidentFilter: React.FC<ResidentFilterProps> = ({
   onBuildingFilterChange,
   unitFilter = null,
   onUnitFilterChange,
-  buildings,
-  units,
 }) => {
+  const { user } = useContext(UserContext);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
   const [buildingAnchorEl, setBuildingAnchorEl] = React.useState<null | HTMLElement>(null);
   const [unitAnchorEl, setUnitAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  // Fetch buildings on mount
+  useEffect(() => {
+    const fetchBuildingsData = async () => {
+      try {
+        const buildingsData = await getBuildings(user);
+        setBuildings(buildingsData);
+      } catch (error) {
+        console.error('Error fetching buildings:', error);
+      }
+    };
+
+    fetchBuildingsData();
+  }, [user]);
+
+  // Fetch units when building filter changes
+  useEffect(() => {
+    const fetchUnitsData = async () => {
+      if (buildingFilter) {
+        try {
+          const unitsData = await getUnitNumbers(user, buildingFilter);
+          setUnits(unitsData);
+        } catch (error) {
+          console.error('Error fetching units:', error);
+        }
+      } else {
+        setUnits([]);
+      }
+    };
+
+    fetchUnitsData();
+  }, [buildingFilter, user]);
 
   // Handle the opening of the building filter menu
   const handleBuildingClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -61,11 +94,6 @@ const ResidentFilter: React.FC<ResidentFilterProps> = ({
     e.stopPropagation();
     onUnitFilterChange(null);
   };
-
-  // Filter units based on selected building
-  const filteredUnits = buildingFilter
-    ? units.filter(unit => unit.building_id === buildingFilter)
-    : units;
 
   // Get the selected building code for display
   const selectedBuilding = buildings.find(b => b.id === buildingFilter);
@@ -127,7 +155,7 @@ const ResidentFilter: React.FC<ResidentFilterProps> = ({
           aria-haspopup="true"
           sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
           onClick={handleUnitClick}
-          disabled={filteredUnits.length === 0}
+          disabled={units.length === 0}
         >
           {unitFilter && selectedUnit ? (
             <>
@@ -153,7 +181,7 @@ const ResidentFilter: React.FC<ResidentFilterProps> = ({
           onClose={handleUnitClose}
           anchorEl={unitAnchorEl}
         >
-          {filteredUnits.map((unit) => (
+          {units.map((unit) => (
             <MenuItem
               key={unit.id}
               onClick={() => {

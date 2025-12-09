@@ -21,9 +21,6 @@ BEGIN
         @Quantity = @new_quantity,
         @AdditionalNotes = @additional_notes;
 
-    IF @ItemId IS NULL OR @Quantity IS NULL OR @Quantity < 0
-        THROW 51003, 'Invalid item id or quantity (must be a non-negative integer).', 1;
-
     BEGIN TRY
         -- Validate inputs
         IF @item_id IS NULL OR @new_quantity IS NULL OR @new_quantity < 0
@@ -49,8 +46,8 @@ BEGIN
             SELECT 1
     FROM Transactions
     WHERE id = @new_transaction_id
-        )
-        BEGIN
+                )
+            BEGIN
         SELECT
             'Error' AS Status,
             'DUPLICATE_TRANSACTION' AS ErrorCode,
@@ -61,30 +58,30 @@ BEGIN
         -- NOW start the transaction (only after all validations pass)
         BEGIN TRANSACTION;
 
-        -- Update inventory
-        UPDATE Items
-        SET quantity = @new_quantity
-        WHERE id = @item_id;
+            -- Update inventory
+            UPDATE Items
+            SET quantity = @new_quantity
+            WHERE id = @item_id;
 
-        -- Verify update succeeded
-        IF @@ROWCOUNT <> 1
-        BEGIN
+            -- Verify update succeeded
+            IF @@ROWCOUNT <> 1
+                BEGIN
         -- Force an error - XACT_ABORT will auto-rollback with error 11 or above
         RAISERROR('Item update failed', 16, 1);
     END
 
-        -- Log the successful change
-        EXEC LogTransaction
-            @user_id = @user_id,
-            @transaction_type = 3,
-            @resident_id = NULL,
-            @new_transaction_id = @new_transaction_id;
+            -- Log the successful change
+            EXEC LogTransaction
+                @user_id = @user_id,
+                @transaction_type = 3,
+                @resident_id = NULL,
+                @new_transaction_id = @new_transaction_id;
 
-        EXEC LogTransactionItem
-            @transaction_id = @new_transaction_id,
-            @item_id = @item_id,
-            @quantity = @new_quantity,
-            @additional_notes = @additional_notes;
+            EXEC LogTransactionItem
+                @transaction_id = @new_transaction_id,
+                @item_id = @item_id,
+                @quantity = @new_quantity,
+                @additional_notes = @additional_notes;
 
         COMMIT TRANSACTION;
 

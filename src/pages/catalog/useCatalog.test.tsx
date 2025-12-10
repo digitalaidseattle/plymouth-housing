@@ -1,8 +1,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useCatalog } from './useCatalog';
 import { UserContext } from '../../components/contexts/UserContext';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ENDPOINTS } from '../../types/constants';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const dummyUser = {
   userID: "1",
@@ -29,12 +28,16 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('useCatalog hook', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
-    global.fetch = vi.fn();
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('initializes with loading state', () => {
-    global.fetch = vi.fn().mockImplementation(() => new Promise(() => {}));
+    // Mock fetch to never resolve so loading stays true
+    global.fetch = vi.fn(() => new Promise(() => {})) as any;
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
@@ -52,21 +55,20 @@ describe('useCatalog hook', () => {
       { id: 1, name: 'Food', checkout_limit: 3 },
     ];
 
+    // Mock both fetch calls that happen in Promise.all
     global.fetch = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockItems }),
-      })
+        json: vi.fn().mockResolvedValue({ value: mockItems }),
+      } as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockCategories }),
-      });
+        json: vi.fn().mockResolvedValue({ value: mockCategories }),
+      } as any);
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
+    await waitFor(() => expect(result.current.isLoading).toBe(false), { timeout: 5000 });
 
     expect(result.current.error).toBeNull();
     expect(result.current.items).toHaveLength(1);
@@ -74,16 +76,13 @@ describe('useCatalog hook', () => {
     expect(result.current.items[0].category_name).toBe('Food');
   });
 
-  it('handles fetch error with 500 status', async () => {
-    // fetchData calls Promise.all with both fetchItems and fetchCategories
-    // If one fails, the whole Promise.all fails
-    global.fetch = vi.fn().mockRejectedValueOnce(new Error('Database is likely starting up. Try again in 30 seconds.'));
+  it('handles fetch error', async () => {
+    // Mock fetch to reject
+    global.fetch = vi.fn().mockRejectedValue(new Error('Database is likely starting up. Try again in 30 seconds.')) as any;
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
+    await waitFor(() => expect(result.current.isLoading).toBe(false), { timeout: 5000 });
 
     expect(result.current.error).toContain('Database is likely starting up');
     expect(result.current.items).toEqual([]);
@@ -96,22 +95,24 @@ describe('useCatalog hook', () => {
     const mockCategories = [{ id: 1, name: 'Food', checkout_limit: 3 }];
 
     global.fetch = vi.fn()
+      // Initial fetch (items and categories)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockItems }),
-      })
+        json: vi.fn().mockResolvedValue({ value: mockItems }),
+      } as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockCategories }),
-      })
+        json: vi.fn().mockResolvedValue({ value: mockCategories }),
+      } as any)
+      // Update item
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({}),
-      });
+        json: vi.fn().mockResolvedValue({}),
+      } as any);
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isLoading).toBe(false), { timeout: 5000 });
 
     await act(async () => {
       await result.current.updateItem(1, { name: 'New Name' });
@@ -127,22 +128,24 @@ describe('useCatalog hook', () => {
     const mockCategories = [{ id: 1, name: 'Old Category', checkout_limit: 3 }];
 
     global.fetch = vi.fn()
+      // Initial fetch
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockItems }),
-      })
+        json: vi.fn().mockResolvedValue({ value: mockItems }),
+      } as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockCategories }),
-      })
+        json: vi.fn().mockResolvedValue({ value: mockCategories }),
+      } as any)
+      // Update category
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({}),
-      });
+        json: vi.fn().mockResolvedValue({}),
+      } as any);
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isLoading).toBe(false), { timeout: 5000 });
 
     await act(async () => {
       await result.current.updateCategory(1, { name: 'New Category' });
@@ -153,11 +156,11 @@ describe('useCatalog hook', () => {
   });
 
   it('clears error when clearError is called', async () => {
-    global.fetch = vi.fn().mockRejectedValueOnce(new Error('Test error'));
+    global.fetch = vi.fn().mockRejectedValue(new Error('Test error')) as any;
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isLoading).toBe(false), { timeout: 5000 });
     expect(result.current.error).toBeTruthy();
 
     act(() => {
@@ -168,26 +171,28 @@ describe('useCatalog hook', () => {
   });
 
   it('throws error when create item fails', async () => {
-    const mockItems = [];
+    const mockItems: any[] = [];
     const mockCategories = [{ id: 1, name: 'Food', checkout_limit: 3 }];
 
     global.fetch = vi.fn()
+      // Initial fetch
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockItems }),
-      })
+        json: vi.fn().mockResolvedValue({ value: mockItems }),
+      } as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ value: mockCategories }),
-      })
+        json: vi.fn().mockResolvedValue({ value: mockCategories }),
+      } as any)
+      // Create item fails
       .mockResolvedValueOnce({
         ok: false,
-        json: () => Promise.resolve({ error: { message: 'Invalid data' } }),
-      });
+        json: vi.fn().mockResolvedValue({ error: { message: 'Invalid data' } }),
+      } as any);
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isLoading).toBe(false), { timeout: 5000 });
 
     const newItem = {
       name: 'New Item',

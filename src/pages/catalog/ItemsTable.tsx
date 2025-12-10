@@ -354,7 +354,6 @@ const ItemsTable = ({
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Category</TableCell>
@@ -367,7 +366,6 @@ const ItemsTable = ({
           <TableBody>
             {isAdding && (
               <TableRow sx={{ backgroundColor: 'action.hover' }}>
-                <TableCell>New</TableCell>
                 <TableCell>
                   <TextField
                     size="small"
@@ -460,7 +458,6 @@ const ItemsTable = ({
             )}
             {paginatedItems.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{item.id}</TableCell>
                 <TableCell>{renderEditableCell(item, 'name', item.name)}</TableCell>
                 <TableCell>{renderEditableCell(item, 'type', item.type)}</TableCell>
                 <TableCell>{renderEditableCell(item, 'category_id', item.category_id)}</TableCell>
@@ -472,7 +469,7 @@ const ItemsTable = ({
             ))}
             {paginatedItems.length === 0 && !isAdding && (
               <TableRow>
-                <TableCell colSpan={8} align="center">
+                <TableCell colSpan={7} align="center">
                   {searchValue ? 'No items match your search' : 'No items found'}
                 </TableCell>
               </TableRow>

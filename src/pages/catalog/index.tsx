@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Alert, Tabs, Tab } from '@mui/material';
 import MainCard from '../../components/MainCard';
 import SnackbarAlert from '../../components/SnackbarAlert';
-import { useInventoryAdmin } from './useInventoryAdmin';
+import { useCatalog } from './useCatalog';
 import ItemsTable from './ItemsTable';
 import CategoriesTable from './CategoriesTable';
 
@@ -26,7 +26,7 @@ const TabPanel = ({ children, value, index }: TabPanelProps) => {
   );
 };
 
-const InventoryAdmin = () => {
+const Catalog = () => {
   const {
     items,
     categories,
@@ -38,7 +38,7 @@ const InventoryAdmin = () => {
     createCategory,
     updateCategory,
     clearError,
-  } = useInventoryAdmin();
+  } = useCatalog();
 
   const [snackbar, setSnackbar] = useState<SnackbarState>({
     open: false,
@@ -158,4 +158,4 @@ const InventoryAdmin = () => {
   );
 };
 
-export default InventoryAdmin;
+export default Catalog;

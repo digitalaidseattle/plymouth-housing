@@ -216,7 +216,6 @@ const CategoriesTable = ({
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Item Limit</TableCell>
             </TableRow>
@@ -224,7 +223,6 @@ const CategoriesTable = ({
           <TableBody>
             {isAdding && (
               <TableRow sx={{ backgroundColor: 'action.hover' }}>
-                <TableCell>New</TableCell>
                 <TableCell>
                   <TextField
                     size="small"
@@ -259,14 +257,13 @@ const CategoriesTable = ({
             )}
             {categories.map((category) => (
               <TableRow key={category.id}>
-                <TableCell>{category.id}</TableCell>
                 <TableCell>{renderEditableCell(category, 'name', category.name)}</TableCell>
                 <TableCell>{renderEditableCell(category, 'item_limit', category.item_limit)}</TableCell>
               </TableRow>
             ))}
             {categories.length === 0 && !isAdding && (
               <TableRow>
-                <TableCell colSpan={3} align="center">
+                <TableCell colSpan={2} align="center">
                   No categories found
                 </TableCell>
               </TableRow>

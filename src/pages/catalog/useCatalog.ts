@@ -3,7 +3,7 @@ import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { AdminItem, CategoryItem } from '../../types/interfaces';
 
-export const useInventoryAdmin = () => {
+export const useCatalog = () => {
   const { user } = useContext(UserContext);
   const [items, setItems] = useState<AdminItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);

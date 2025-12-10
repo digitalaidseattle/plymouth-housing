@@ -82,10 +82,10 @@ const dashboard = {
       breadcrumbs: false,
     },
     {
-      id: 'inventory-admin',
-      title: 'Inventory Admin',
+      id: 'catalog',
+      title: 'Catalog',
       type: 'admin',
-      url: '/inventory-admin',
+      url: '/catalog',
       icon: icons.SettingOutlined,
       breadcrumbs: false,
     },

@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { useCatalog } from './useCatalog';
 import { UserContext } from '../../components/contexts/UserContext';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

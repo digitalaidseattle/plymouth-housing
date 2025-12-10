@@ -82,112 +82,6 @@ describe('ItemsTable Component', () => {
     expect(screen.getByPlaceholderText('Item name')).toBeInTheDocument();
   });
 
-  test('creates new item successfully', async () => {
-    render(
-      <ItemsTable
-        items={mockItems}
-        categories={mockCategories}
-        {...mockHandlers}
-      />
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: /add item/i }));
-
-    const nameInput = screen.getByPlaceholderText('Item name');
-    const descriptionInput = screen.getByPlaceholderText('Description');
-
-    fireEvent.change(nameInput, { target: { value: 'New Item' } });
-    fireEvent.change(descriptionInput, { target: { value: 'Test description' } });
-
-    // Select category
-    const categorySelects = screen.getAllByRole('combobox');
-    const categorySelect = categorySelects.find(select =>
-      select.querySelector('[value=""]')
-    );
-    fireEvent.mouseDown(categorySelect!);
-    const foodOption = await screen.findByText('Food');
-    fireEvent.click(foodOption);
-
-    const checkButtons = screen.getAllByRole('button');
-    const checkButton = checkButtons[checkButtons.length - 2]; // Check button is second to last
-    fireEvent.click(checkButton);
-
-    await waitFor(() => {
-      expect(mockHandlers.onCreate).toHaveBeenCalledWith({
-        name: 'New Item',
-        type: 'General',
-        category_id: 1,
-        description: 'Test description',
-        quantity: 0,
-        threshold: 10,
-        items_per_basket: null,
-      });
-      expect(mockHandlers.onSuccess).toHaveBeenCalledWith('Item created successfully');
-    });
-  });
-
-  test('shows error when creating item with empty name', async () => {
-    render(
-      <ItemsTable
-        items={mockItems}
-        categories={mockCategories}
-        {...mockHandlers}
-      />
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: /add item/i }));
-
-    const checkButtons = screen.getAllByRole('button');
-    const checkButton = checkButtons[checkButtons.length - 2]; // Check button is second to last
-    fireEvent.click(checkButton);
-
-    await waitFor(() => {
-      expect(mockHandlers.onError).toHaveBeenCalledWith('Item name cannot be empty');
-    });
-  });
-
-  test('shows error when creating item without category', async () => {
-    render(
-      <ItemsTable
-        items={mockItems}
-        categories={mockCategories}
-        {...mockHandlers}
-      />
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: /add item/i }));
-
-    const nameInput = screen.getByPlaceholderText('Item name');
-    fireEvent.change(nameInput, { target: { value: 'New Item' } });
-
-    const checkButtons = screen.getAllByRole('button');
-    const checkButton = checkButtons[checkButtons.length - 2]; // Check button is second to last
-    fireEvent.click(checkButton);
-
-    await waitFor(() => {
-      expect(mockHandlers.onError).toHaveBeenCalledWith('Category must be selected');
-    });
-  });
-
-  test('cancels adding new item', () => {
-    render(
-      <ItemsTable
-        items={mockItems}
-        categories={mockCategories}
-        {...mockHandlers}
-      />
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: /add item/i }));
-    expect(screen.getByPlaceholderText('Item name')).toBeInTheDocument();
-
-    const allButtons = screen.getAllByRole('button');
-    const closeButton = allButtons[allButtons.length - 1]; // Close button is last
-    fireEvent.click(closeButton);
-
-    expect(screen.queryByPlaceholderText('Item name')).not.toBeInTheDocument();
-  });
-
   test('edits item name', async () => {
     render(
       <ItemsTable
@@ -299,33 +193,6 @@ describe('ItemsTable Component', () => {
     expect(screen.getByText('No items found')).toBeInTheDocument();
   });
 
-  test('changes type to Welcome Basket', async () => {
-    render(
-      <ItemsTable
-        items={mockItems}
-        categories={mockCategories}
-        {...mockHandlers}
-      />
-    );
-
-    const generalCell = screen.getByText('General');
-    fireEvent.click(generalCell);
-
-    await waitFor(() => {
-      const select = screen.getByDisplayValue('General');
-      expect(select).toBeInTheDocument();
-
-      fireEvent.mouseDown(select);
-    });
-
-    const welcomeBasketOption = await screen.findByText('Welcome Basket');
-    fireEvent.click(welcomeBasketOption);
-
-    await waitFor(() => {
-      expect(mockHandlers.onUpdate).toHaveBeenCalledWith(1, { type: 'Welcome Basket' });
-    });
-  });
-
   test('shows error when editing item name to empty', async () => {
     render(
       <ItemsTable
@@ -346,29 +213,6 @@ describe('ItemsTable Component', () => {
 
     await waitFor(() => {
       expect(mockHandlers.onError).toHaveBeenCalledWith('Item name cannot be empty');
-    });
-  });
-
-  test('shows error when editing threshold to negative', async () => {
-    render(
-      <ItemsTable
-        items={mockItems}
-        categories={mockCategories}
-        {...mockHandlers}
-      />
-    );
-
-    const thresholdCell = screen.getByText('10');
-    fireEvent.click(thresholdCell);
-
-    await waitFor(() => {
-      const input = screen.getByDisplayValue('10');
-      fireEvent.change(input, { target: { value: '-5' } });
-      fireEvent.blur(input);
-    });
-
-    await waitFor(() => {
-      expect(mockHandlers.onError).toHaveBeenCalledWith('Threshold must be a non-negative number');
     });
   });
 

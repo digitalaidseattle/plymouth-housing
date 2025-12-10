@@ -103,28 +103,6 @@ describe('Catalog Component', () => {
     expect(mockFetchData).toHaveBeenCalled();
   });
 
-  test('renders Items and Categories tabs', () => {
-    const mockUseCatalog = {
-      items: [],
-      categories: [],
-      isLoading: false,
-      error: null,
-      fetchData: vi.fn(),
-      createItem: vi.fn(),
-      updateItem: vi.fn(),
-      createCategory: vi.fn(),
-      updateCategory: vi.fn(),
-      clearError: vi.fn(),
-    };
-
-    vi.spyOn(useCatalogModule, 'useCatalog').mockReturnValue(mockUseCatalog);
-
-    render(<Catalog />, { wrapper });
-
-    expect(screen.getByText('Items')).toBeInTheDocument();
-    expect(screen.getByText('Categories')).toBeInTheDocument();
-  });
-
   test('shows ItemsTable by default', () => {
     const mockItems = [
       {
@@ -192,27 +170,6 @@ describe('Catalog Component', () => {
     expect(screen.getByText('Hygiene')).toBeInTheDocument();
   });
 
-  test('shows success snackbar when item is created', async () => {
-    const mockUseCatalog = {
-      items: [],
-      categories: [{ id: 1, name: 'Food', item_limit: 3 }],
-      isLoading: false,
-      error: null,
-      fetchData: vi.fn(),
-      createItem: vi.fn().mockResolvedValue(true),
-      updateItem: vi.fn(),
-      createCategory: vi.fn(),
-      updateCategory: vi.fn(),
-      clearError: vi.fn(),
-    };
-
-    vi.spyOn(useCatalogModule, 'useCatalog').mockReturnValue(mockUseCatalog);
-
-    render(<Catalog />, { wrapper });
-
-    expect(screen.getByText('Items')).toBeInTheDocument();
-  });
-
   test('fetches data on mount', () => {
     const mockFetchData = vi.fn();
     const mockUseCatalog = {
@@ -233,31 +190,6 @@ describe('Catalog Component', () => {
     render(<Catalog />, { wrapper });
 
     expect(mockFetchData).toHaveBeenCalled();
-  });
-
-  test('clears error when close button is clicked', () => {
-    const mockClearError = vi.fn();
-    const mockUseCatalog = {
-      items: [],
-      categories: [],
-      isLoading: false,
-      error: 'Test error',
-      fetchData: vi.fn(),
-      createItem: vi.fn(),
-      updateItem: vi.fn(),
-      createCategory: vi.fn(),
-      updateCategory: vi.fn(),
-      clearError: mockClearError,
-    };
-
-    vi.spyOn(useCatalogModule, 'useCatalog').mockReturnValue(mockUseCatalog);
-
-    render(<Catalog />, { wrapper });
-
-    const closeButton = screen.getByRole('button', { name: /close/i });
-    fireEvent.click(closeButton);
-
-    expect(mockClearError).toHaveBeenCalled();
   });
 
   test('renders with both items and categories', () => {

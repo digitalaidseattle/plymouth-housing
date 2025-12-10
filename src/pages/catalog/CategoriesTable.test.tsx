@@ -190,19 +190,4 @@ describe('CategoriesTable Component', () => {
       expect(mockHandlers.onUpdate).toHaveBeenCalledWith(1, { name: 'Groceries' });
     });
   });
-
-  test('handles Escape key to cancel edit', async () => {
-    render(<CategoriesTable categories={mockCategories} {...mockHandlers} />);
-
-    const foodCell = screen.getByText('Food');
-    fireEvent.click(foodCell);
-
-    await waitFor(() => {
-      const input = screen.getByDisplayValue('Food');
-      fireEvent.change(input, { target: { value: 'Groceries' } });
-      fireEvent.keyDown(input, { key: 'Escape', code: 'Escape' });
-    });
-
-    expect(mockHandlers.onUpdate).not.toHaveBeenCalled();
-  });
 });

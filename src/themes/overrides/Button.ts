@@ -13,6 +13,7 @@ export default function Button(theme: Theme) {
     MuiButton: {
       defaultProps: {
         disableElevation: true,
+        disableRipple: true,
       },
       styleOverrides: {
         root: {
@@ -25,6 +26,28 @@ export default function Button(theme: Theme) {
           ...disabledStyle,
         },
       },
+      variants: [
+        {
+          props: { variant: 'active-toggle' },
+          style: {
+            backgroundColor: (theme.palette.primary as any)['900'],
+            color: theme.palette.common.white,
+            padding: '1rem 0.rem',
+            borderRadius: '18px',
+            size: '1.25rem',
+          },
+        },
+        {
+          props: { variant: 'inactive-toggle' },
+          style: {
+            color: theme.palette.text,
+            backgroundColor: theme.palette.grey[100],
+            padding: '1rem 0.rem',
+            borderRadius: '18px',
+            size: '1.25rem',
+          },
+        },
+      ],
     },
   };
 }

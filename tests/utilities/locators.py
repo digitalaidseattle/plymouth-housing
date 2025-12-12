@@ -16,16 +16,16 @@ class HomePageLocators:
 
 class LoginPageLocators:
     USERNAME_INPUT  = (By.NAME,  'loginfmt')
--   NEXT_BUTTON     = (By.ID,    'idSIButton9')
-+   NEXT_BUTTON     = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Next"]')
+    NEXT_BUTTON     = (By.ID,    'idSIButton9')
+    #NEXT_BUTTON     = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Next"]')
     PASSWORD_INPUT  = (By.NAME,  'passwd')
--   SIGN_IN_BUTTON  = (By.ID,    'idSIButton9')
-+   SIGN_IN_BUTTON  = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Sign in"]')
--   YES_BUTTON      = (By.ID,    'idSIButton9')
-+   YES_BUTTON      = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Yes"]')
+    SIGN_IN_BUTTON  = (By.ID,    'idSIButton9')
+    #SIGN_IN_BUTTON  = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Sign in"]')
+    #YES_BUTTON      = (By.ID,    'idSIButton9')
+    YES_BUTTON      = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Yes"]')
     NO_BUTTON       = (By.ID,    'idBtn_Back')
     DATABASE_POPUP_TEXT = (By.XPATH, '//*[text()="Database is starting up"]')
-    USER_PERSON = (By.ID, ':r8:')
+    USER_PERSON = (By.ID, ':r7:')
     # FIRST_OPTION = (By.XPATH, "//input[contains(@class, 'MuiInputBase-input')]")
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"Continue")]')
     HOMEPAGE_TEXT = (By.XPATH, '//*[text()="Volunteer Home"]')
@@ -61,7 +61,7 @@ class InventoryPageLocators:
 
 
 class CheckoutPageLocators:
-    BUILDING_CODE = (By.ID, "select-building-code")
+    BUILDING_CODE = (By.ID, "select-building")
     FIRST_LIST_ITEM = (By.CSS_SELECTOR, 'ul[role="listbox"] li[role="option"]')
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")

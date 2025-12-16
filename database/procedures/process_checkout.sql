@@ -14,42 +14,6 @@ BEGIN
     print @user_id
     print @items
 
-    -- Check if the transaction ID already exists
-    IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
-    BEGIN
-        DECLARE @error_message NVARCHAR(MAX);
-        DECLARE @resident_name NVARCHAR(255);
-        DECLARE @unit_number NVARCHAR(50);
-        DECLARE @building_code NVARCHAR(50);
-        DECLARE @transaction_date DATETIME;
-
-        -- Get transaction details for error message
-        SELECT
-            @resident_name = r.name,
-            @unit_number = u.unit_number,
-            @building_code = b.code,
-            @transaction_date = t.transaction_date
-        FROM Transactions t
-        LEFT JOIN Residents r ON t.resident_id = r.id
-        LEFT JOIN Units u ON r.unit_id = u.id
-        LEFT JOIN Buildings b ON u.building_id = b.id
-        WHERE t.id = @new_transaction_id;
-
-        SET @error_message = CONCAT(
-            'Transaction already exists. ',
-            'Resident: ', ISNULL(@resident_name, 'Unknown'),
-            ', Building: ', ISNULL(@building_code, 'Unknown'),
-            ', Unit: ', ISNULL(@unit_number, 'Unknown'),
-            ', Date: ', ISNULL(CONVERT(NVARCHAR, @transaction_date, 120), 'Unknown'),
-            ', ID: ', CAST(@new_transaction_id AS NVARCHAR(36))
-        );
-
-        SELECT
-            'Error' AS Status,
-            @error_message AS message;
-        RETURN;
-    END
-
     -- Validate JSON
     IF ISJSON(@items) = 0
     BEGIN
@@ -111,8 +75,19 @@ BEGIN
     -- END CATCH
     
     BEGIN TRANSACTION
-    
+
     BEGIN TRY
+        -- Check if the transaction ID already exists
+        IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
+
         -- Update inventory
         UPDATE i
         SET i.quantity = i.quantity - ci.Quantity

@@ -175,6 +175,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
+      } else if (result.Status === 'Error' && result.ErrorCode === 'DUPLICATE_TRANSACTION') {
+        // Handle duplicate transaction - clear the cart and show success
+        setCheckoutItems([]);
+        onClose();
+        onSuccess('This transaction has already been submitted.');
+        return;
       } else if (result.Status === 'Error') {
         const errorMessage =
           result.message || 'Checkout failed (server returned error with no message)';
@@ -190,11 +196,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
 
-        if (errorMessage.includes('transaction already exists')) {
-          setCheckoutItems([]);
-          onSuccess(error.message);
-          return;
-        } else if (errorMessage.includes('cannot read properties of undefined')) {
+        if (errorMessage.includes('cannot read properties of undefined')) {
           errorCode = 'UNDEFINED_PROPERTY';
           userFriendlyMessage =
             'There was a connection issue with the checkout system. Please try again in a moment.';

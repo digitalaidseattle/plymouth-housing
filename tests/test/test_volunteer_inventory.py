@@ -4,7 +4,6 @@ from tests.pages.checkout_page import CheckOutPage
 from tests.pages.add_item_page import AddItemPage
 from tests.utilities.fixtures import login_with_volunteer
 from tests.utilities.fixtures import driver
-from tests.utilities.data import URL, ADMIN_PASSWORD, VOLUNTEER_PASSWORD
 
 
 @pytest.fixture(scope="function")  # Changed scope for better isolation
@@ -19,6 +18,31 @@ def return_to_home_page(driver, inventory_page):
 class TestInventory:
     @pytest.mark.parametrize('item', ['Clothing Rack'])
     def test_inventory(self, driver, inventory_page, item):
+        """
+        Verify that the inventory quantity decreases by one after a successful checkout.
+
+        Given:
+            - The user is logged into the application
+            - The user is on the main page
+
+        When:
+            - The user navigates to the Inventory page
+            - The user searches for a specific item
+            - The current quantity of the item is recorded
+            - The user initiates the checkout process
+            - The user selects:
+                - A building code
+                - A unit number
+                - A name
+            - The user adds the item to the checkout
+            - The user completes and confirms the checkout
+            - The user returns to the Inventory page
+            - The user searches for the same item again
+
+        Then:
+            - The inventory quantity of the item should be reduced by one
+
+        """
         # Step 1: Access inventory and search for item
         inventory_page.click_on_inventory()
         inventory_page.search_item(item)

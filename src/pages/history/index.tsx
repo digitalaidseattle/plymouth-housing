@@ -11,6 +11,7 @@ import {
   Button,
   InputAdornment,
   TextField,
+  useTheme,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { UserContext } from '../../components/contexts/UserContext';
@@ -34,6 +35,7 @@ import {
 } from '../../types/history';
 
 const HistoryPage: React.FC = () => {
+  const theme = useTheme();
   const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
   const [userList, setUserList] = useState<User[] | null>(null);
@@ -392,7 +394,16 @@ const HistoryPage: React.FC = () => {
                           </p>
                         </div>
                         <Chip
-                          color={quantity > 10 ? 'warning' : 'success'}
+                          sx={{
+                            color:
+                              quantity > 10
+                                ? theme.palette.warning.dark
+                                : theme.palette.success.dark,
+                            backgroundColor:
+                              quantity > 10
+                                ? theme.palette.warning.lighter
+                                : theme.palette.success.lighter,
+                          }}
                           label={`${quantity} / 10`}
                         />
                       </CheckoutHistoryCard>

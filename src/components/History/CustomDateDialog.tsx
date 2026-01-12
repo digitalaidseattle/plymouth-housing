@@ -9,12 +9,14 @@ type CustomDateDialogProps = {
   showDialog: boolean;
   handleShowDialog: () => void;
   handleSetDateRange: (startDate: Date, endDate: Date) => void;
+  handleSetDateInput: () => void;
 };
 
 const CustomDateDialog = ({
   showDialog,
   handleShowDialog,
   handleSetDateRange,
+  handleSetDateInput,
 }: CustomDateDialogProps) => {
   const today = new Date();
   const [startDate, setStartDate] = useState<Dayjs>(dayjs(today));
@@ -24,6 +26,7 @@ const CustomDateDialog = ({
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
     if (!error) {
+      handleSetDateInput();
       handleSetDateRange(startDate.toDate(), endDate.toDate());
       handleShowDialog();
     }

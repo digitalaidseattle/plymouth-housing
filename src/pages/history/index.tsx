@@ -223,6 +223,7 @@ const HistoryPage: React.FC = () => {
             isCustom: true,
           })
         }
+        handleSetDateInput={() => setDateInput('custom')}
       />
       <FormControl>
         <TextField
@@ -269,7 +270,7 @@ const HistoryPage: React.FC = () => {
             onChange={(e) => {
               if (e.target.value === 'custom') {
                 setShowCustomDateDialog(true);
-                setDateInput('custom');
+                // setDateInput('custom');
                 setHistory(null);
               } else {
                 handleDateSelection(e.target.value);

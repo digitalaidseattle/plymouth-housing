@@ -233,8 +233,6 @@ const HistoryPage: React.FC = () => {
   };
 
   const transactionsByUser = processTransactionsByUser();
-  console.log('transactionsByUser', transactionsByUser);
-  console.log('categorizedItems', categorizedItems);
 
   function checkIfWelcomeBasket(itemId: number) {
     if (categorizedItems) {
@@ -384,8 +382,11 @@ const HistoryPage: React.FC = () => {
                   const minutes = Math.floor(seconds / 60);
                   const hours = Math.floor(minutes / 60);
                   const days = Math.floor(hours / 24);
-                  if (historyType === 'checkout') {
-                    const checkoutTransaction = t as CheckoutTransaction;
+                  const checkoutTransaction = t as CheckoutTransaction;
+                  if (
+                    historyType === 'checkout' &&
+                    checkoutTransaction.item_type === 'general'
+                  ) {
                     const quantity = checkoutTransaction.items.reduce(
                       (acc, item) => {
                         return acc + item.quantity;
@@ -440,8 +441,56 @@ const HistoryPage: React.FC = () => {
                         />
                       </CheckoutHistoryCard>
                     );
-                  } else {
-                    // historyType === 'inventory'
+                  } else if (
+                    historyType === 'checkout' &&
+                    checkoutTransaction.item_type === 'welcome-basket'
+                  ) {
+                    const itemIds = checkoutTransaction.items.map(
+                      (i) => i.item_id,
+                    );
+                    let welcomeBasketType;
+                    // TODO: is there a way to identify the welcome-basket-type w/o hardcoded values?
+                    if (itemIds.includes(175)) {
+                      welcomeBasketType = 'Twin-size Sheet Set';
+                    } else if (itemIds.includes(176)) {
+                      welcomeBasketType = 'Full-size Sheet Set';
+                    } else {
+                      welcomeBasketType = 'Other';
+                    }
+                    return (
+                      <CheckoutHistoryCard
+                        transactionId={checkoutTransaction.id}
+                      >
+                        <div>
+                          <h3>Welcome Basket: {welcomeBasketType}</h3>
+                          <p>
+                            {buildings?.find(
+                              (b) => b.id === checkoutTransaction.building_id,
+                            )?.code ?? ''}
+                            {' - '}
+                            {buildings?.find(
+                              (b) => b.id === checkoutTransaction.building_id,
+                            )?.name ?? ''}
+                          </p>
+                          <p>
+                            Created{' '}
+                            {days === 1
+                              ? '1 day'
+                              : days > 1
+                              ? days + ' days'
+                              : ''}
+                            {days === 0 && hours === 1
+                              ? '1 hour'
+                              : days === 0 && hours > 1
+                              ? hours + ' hours'
+                              : ''}
+                            {hours < 1 && minutes + ' min'}
+                            {' ago'}
+                          </p>
+                        </div>
+                      </CheckoutHistoryCard>
+                    );
+                  } else if (historyType === 'inventory') {
                     const inventoryTransaction = t as InventoryTransaction;
                     return (
                       <CheckoutHistoryCard transactionId={t.id}>

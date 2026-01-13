@@ -14,13 +14,13 @@ import {
   useTheme,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import { UserContext } from '../../components/contexts/UserContext';
+import { getRole, UserContext } from '../../components/contexts/UserContext';
 import {
   findTransactionHistory,
   getUsers,
 } from '../../components/History/HistoryAPICalls';
 import CircularLoader from '../../components/CircularLoader';
-import { Building, User } from '../../types/interfaces';
+import { Building, CategoryProps, User } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
@@ -33,6 +33,7 @@ import {
   InventoryTransaction,
   TransactionsByUser,
 } from '../../types/history';
+import fetchCategorizedItems from '../../components/helpers/fetchCategorizedItems';
 
 const HistoryPage: React.FC = () => {
   const theme = useTheme();
@@ -42,6 +43,7 @@ const HistoryPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [history, setHistory] = useState<HistoryResponse[] | null>(null);
   const [buildings, setBuildings] = useState<Building[] | null>(null);
+  const [categorizedItems, setCategorizedItems] = useState<CategoryProps[]>([]);
   const [dateRange, setDateRange] = useState<{
     startDate: Date;
     endDate: Date;
@@ -115,6 +117,19 @@ const HistoryPage: React.FC = () => {
     getUserList();
     fetchBuildings();
     setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    async function getCategorizedItems() {
+      try {
+        const userRole = getRole(user);
+        const categorizedItems = await fetchCategorizedItems(userRole);
+        setCategorizedItems(categorizedItems);
+      } catch (error) {
+        console.error('Error fetching item and category data:', error);
+      }
+    }
+    getCategorizedItems();
   }, []);
 
   function handleDateSelection(dateInput: string) {
@@ -213,6 +228,16 @@ const HistoryPage: React.FC = () => {
 
   const transactionsByUser = processTransactionsByUser();
 
+  function checkIfWelcomeBasket(itemId: number) {
+    if (categorizedItems) {
+      const welcomeBasket = categorizedItems.find(
+        (c) => c.category === 'Welcome Basket',
+      );
+      const welcomeBasketIds = welcomeBasket?.items.map((i) => i.id);
+      return welcomeBasketIds?.includes(itemId);
+    }
+  }
+
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
       <CustomDateDialog
@@ -272,7 +297,6 @@ const HistoryPage: React.FC = () => {
             onChange={(e) => {
               if (e.target.value === 'custom') {
                 setShowCustomDateDialog(true);
-                // setDateInput('custom');
                 setHistory(null);
               } else {
                 handleDateSelection(e.target.value);

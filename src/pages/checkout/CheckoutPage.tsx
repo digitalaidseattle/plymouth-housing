@@ -27,8 +27,12 @@ import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
-import { checkPastCheckout, getBuildings } from '../../components/Checkout/CheckoutAPICalls';
+import {
+  checkPastCheckout,
+  getBuildings,
+} from '../../components/Checkout/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
+import fetchCategorizedItems from '../../components/helpers/fetchCategorizedItems';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);
@@ -109,7 +113,7 @@ const CheckoutPage = () => {
               (item: TransactionItem) =>
                 item.additional_notes &&
                 item.additional_notes.toLowerCase() ===
-                transaction.additional_notes.toLowerCase(),
+                  transaction.additional_notes.toLowerCase(),
             )
             .reduce(function (acc: number, transaction: { quantity: number }) {
               return acc + transaction.quantity;
@@ -145,7 +149,7 @@ const CheckoutPage = () => {
       setCheckoutHistory(tempCheckOutHistory);
     }
     if (!residentInfoIsMissing) checkItemsForPrevCheckouts();
-  }, [user, residentInfo, residentInfoIsMissing])
+  }, [user, residentInfo, residentInfoIsMissing]);
 
   const addItemToCart = (
     item: CheckoutItemProp,
@@ -264,27 +268,8 @@ const CheckoutPage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      let categorizedItems;
-      const cachedCategorizedItems = sessionStorage.getItem('categorizedItems');
-      if (cachedCategorizedItems) {
-        categorizedItems = JSON.parse(cachedCategorizedItems);
-      } else {
-        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-        const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, {
-          headers: headers,
-          method: 'GET',
-        });
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
-
-        const responseData = await response.json();
-        categorizedItems = responseData.value;
-        sessionStorage.setItem(
-          'categorizedItems',
-          JSON.stringify(categorizedItems),
-        );
-      }
+      const userRole = getRole(user);
+      const categorizedItems = await fetchCategorizedItems(userRole);
       setData(categorizedItems);
 
       const cleanCheckout = categorizedItems.map((category: CategoryProps) => ({

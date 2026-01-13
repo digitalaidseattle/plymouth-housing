@@ -45,6 +45,7 @@ export type CheckoutTransaction = {
   unit_number: string;
   items: TransactionItem[];
   timestamp: string;
+  item_type: 'general' | 'welcome-basket';
 };
 
 export type InventoryTransaction = {
@@ -55,6 +56,7 @@ export type InventoryTransaction = {
   category_name: string;
   quantity: number;
   timestamp: string;
+  item_type: 'general' | 'welcome-basket';
 };
 
 export type TransactionsByUser<T> = {

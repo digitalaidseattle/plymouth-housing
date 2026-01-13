@@ -168,6 +168,9 @@ const HistoryPage: React.FC = () => {
       category_name: inventoryEntry.category_name,
       quantity: inventoryEntry.quantity,
       timestamp: inventoryEntry.timestamp,
+      item_type: checkIfWelcomeBasket(inventoryEntry.item_id)
+        ? 'welcome-basket'
+        : 'general',
     };
   };
 
@@ -203,6 +206,9 @@ const HistoryPage: React.FC = () => {
           },
         ],
         timestamp: checkoutEntry.timestamp,
+        item_type: checkIfWelcomeBasket(checkoutEntry.item_id)
+          ? 'welcome-basket'
+          : 'general',
       },
     ];
   };
@@ -227,6 +233,8 @@ const HistoryPage: React.FC = () => {
   };
 
   const transactionsByUser = processTransactionsByUser();
+  console.log('transactionsByUser', transactionsByUser);
+  console.log('categorizedItems', categorizedItems);
 
   function checkIfWelcomeBasket(itemId: number) {
     if (categorizedItems) {

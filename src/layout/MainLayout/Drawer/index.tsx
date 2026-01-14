@@ -51,7 +51,11 @@ const MainDrawer: React.FC<MainDrawerProps> = ({
           variant="temporary"
           open={open}
           onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
+          ModalProps={{
+            keepMounted: true,
+            sx: { pointerEvents: open ? 'auto' : 'none' },
+            BackdropProps: { sx: { pointerEvents: open ? 'auto' : 'none' } }
+          }}
           sx={{
             display: { xs: 'block', lg: 'none' },
             '& .MuiDrawer-paper': {

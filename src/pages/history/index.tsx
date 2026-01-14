@@ -216,10 +216,19 @@ const HistoryPage: React.FC = () => {
   // restructures database response to organize transactions by User
   const processTransactionsByUser = () => {
     if (!history) return [];
+    let uniqueUsers = [...new Set(history.map((t) => t.user_id))];
+    // check if logged in user is in the set; if so, put this user at the front of the list
+    if (
+      loggedInUserId &&
+      uniqueUsers.find((userId) => userId === loggedInUserId)
+    ) {
+      const filteredUsers = uniqueUsers.filter(
+        (userId) => userId !== loggedInUserId,
+      );
+      uniqueUsers = [loggedInUserId, ...filteredUsers];
+    }
 
-    const uniqueUsers = [...new Set(history.map((t) => t.user_id))];
-
-    return uniqueUsers.map((userId) => ({
+    const sortedTransactionsByUser = uniqueUsers.map((userId) => ({
       user_id: userId,
       transactions: history
         .filter((entry) => entry.user_id === userId)
@@ -230,6 +239,7 @@ const HistoryPage: React.FC = () => {
           return mergeCheckoutTransaction(transactions, entry);
         }, [] as (CheckoutTransaction | InventoryTransaction)[]),
     }));
+    return sortedTransactionsByUser;
   };
 
   const transactionsByUser = processTransactionsByUser();
@@ -395,6 +405,7 @@ const HistoryPage: React.FC = () => {
                     );
                     return (
                       <CheckoutHistoryCard
+                        key={checkoutTransaction.id}
                         transactionId={checkoutTransaction.id}
                       >
                         <div>

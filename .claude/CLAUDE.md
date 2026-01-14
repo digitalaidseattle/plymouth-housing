@@ -128,6 +128,17 @@ Examples:
 - Treat documentation as code (same standards for Markdown)
 - PRs reviewed at end of standups to ensure all have reviewers
 
+**ALWAYS use the PR template** (`.github/pull_request_template.md`) when creating pull requests:
+
+1. **Description**: Provide context and highlight what reviewers should focus on
+2. **Jira Ticket**: Link the relevant ticket (format: `Closes: [PIT-XXX](https://das-ph-inventory-tracker.atlassian.net/browse/PIT-XXX)`)
+3. **Type of Change**: Specify type (Bug fix / New feature / Breaking change / Refactoring / Documentation / Configuration / Performance)
+4. **Changes Made**: List key changes in bullet points
+5. **Checklist**: Complete all items (style guidelines, prettier, self-review, comments, docs, warnings, tests)
+6. **QA Instructions**: Provide testing instructions and screenshots for UI changes
+
+When creating PRs, review ALL commits from branch divergence using `git diff [base-branch]...HEAD` to write a comprehensive summary covering the full scope of changes.
+
 ### Commit Messages
 - Clear, descriptive commit messages
 - Reference ticket numbers when applicable

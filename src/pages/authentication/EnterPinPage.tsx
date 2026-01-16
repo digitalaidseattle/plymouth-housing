@@ -80,7 +80,29 @@ const EnterPinPage: React.FC = () => {
       }
 
       const data = await response.json();
+
+      // Validate response structure
+      if (!data || !data.value || !Array.isArray(data.value) || data.value.length === 0) {
+        console.error('Invalid response format from PIN verification API:', {
+          hasData: !!data,
+          hasValue: !!(data && data.value),
+          isArray: !!(data && data.value && Array.isArray(data.value)),
+          arrayLength: data?.value?.length ?? 0,
+          timestamp: new Date().toISOString(),
+        });
+        throw new Error('Invalid response format from PIN verification API');
+      }
+
       const result = data.value[0];
+
+      // Validate result has required properties
+      if (typeof result.IsValid !== 'boolean') {
+        console.error('PIN verification response missing IsValid field:', {
+          result,
+          timestamp: new Date().toISOString(),
+        });
+        throw new Error('PIN verification response missing IsValid field');
+      }
 
       return result;
     } catch (error) {

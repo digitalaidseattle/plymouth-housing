@@ -47,7 +47,30 @@ const EnterPinPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to verify PIN.');
+        // Log comprehensive diagnostics when PIN verification fails
+        const errorContext = {
+          status: response.status,
+          statusText: response.statusText,
+          volunteerId: id,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          endpoint: ENDPOINTS.VERIFY_PIN,
+        };
+
+        console.error('PIN verification failed - Diagnostics:', errorContext);
+
+        // Check if this is an authentication/authorization error
+        if (response.status === 401 || response.status === 403) {
+          console.error('Authentication error detected - Azure AD token may have expired');
+          handleTheSnackies(
+            'Your session has expired. Please log out and log back in.',
+            'warning'
+          );
+          return null;
+        }
+
+        // For other HTTP errors, throw to be caught below
+        throw new Error(`Failed to verify PIN (HTTP ${response.status}: ${response.statusText})`);
       }
 
       const data = await response.json();
@@ -55,7 +78,14 @@ const EnterPinPage: React.FC = () => {
 
       return result;
     } catch (error) {
+      // Log the error with context
       console.error('Error verifying PIN:', error);
+      console.error('Error details:', {
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        volunteerId: id,
+        timestamp: new Date().toISOString(),
+      });
+
       handleTheSnackies('Failed to verify PIN. Please try again.', 'warning');
       return null;
     }

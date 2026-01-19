@@ -1,15 +1,12 @@
 import { Box } from '@mui/material';
 import { ReactNode } from 'react';
 
-type CheckoutHistoryCardProps = {
+type HistoryCardProps = {
   transactionId: string;
   children: ReactNode;
 };
 
-const CheckoutHistoryCard = ({
-  transactionId,
-  children,
-}: CheckoutHistoryCardProps) => {
+const HistoryCard = ({ transactionId, children }: HistoryCardProps) => {
   return (
     <Box
       key={transactionId}
@@ -27,4 +24,4 @@ const CheckoutHistoryCard = ({
   );
 };
 
-export default CheckoutHistoryCard;
+export default HistoryCard;

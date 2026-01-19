@@ -3,7 +3,6 @@ import {
   Box,
   Stack,
   Typography,
-  Chip,
   FormControl,
   InputLabel,
   Select,
@@ -11,7 +10,6 @@ import {
   Button,
   InputAdornment,
   TextField,
-  useTheme,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
@@ -22,21 +20,20 @@ import {
 import CircularLoader from '../../components/CircularLoader';
 import { Building, CategoryProps, User } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
-import CheckoutHistoryCard from '../../components/History/CheckoutHistoryCard';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
 import {
-  TransactionType,
   CheckoutItemResponse,
   InventoryItemResponse,
   HistoryResponse,
   CheckoutTransaction,
   InventoryTransaction,
-  TransactionsByUser,
 } from '../../types/history';
 import fetchCategorizedItems from '../../components/helpers/fetchCategorizedItems';
+import GeneralCheckoutCard from '../../components/History/GeneralCheckoutCard';
+import WelcomeBasketCard from '../../components/History/WelcomeBasketCard';
+import InventoryCard from '../../components/History/InventoryCard';
 
 const HistoryPage: React.FC = () => {
-  const theme = useTheme();
   const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
   const [userList, setUserList] = useState<User[] | null>(null);
@@ -301,6 +298,7 @@ const HistoryPage: React.FC = () => {
           }}
         />
       </FormControl>
+
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Stack direction="row" gap="1rem">
           <Button
@@ -416,99 +414,31 @@ const HistoryPage: React.FC = () => {
                       0,
                     );
                     return (
-                      <CheckoutHistoryCard
-                        key={checkoutTransaction.id}
-                        transactionId={checkoutTransaction.id}
-                      >
-                        <div>
-                          <h3>{checkoutTransaction.resident_name}</h3>
-                          <p>
-                            {buildings?.find(
-                              (b) => b.id === checkoutTransaction.building_id,
-                            )?.code ?? ''}
-                            {' - '}
-                            {buildings?.find(
-                              (b) => b.id === checkoutTransaction.building_id,
-                            )?.name ?? ''}
-                            {' - '}
-                            {checkoutTransaction.unit_number}
-                          </p>
-                          <p>{howLongAgoString}</p>
-                        </div>
-                        <Chip
-                          sx={{
-                            color:
-                              quantity > 10
-                                ? theme.palette.warning.dark
-                                : theme.palette.success.dark,
-                            backgroundColor:
-                              quantity > 10
-                                ? theme.palette.warning.lighter
-                                : theme.palette.success.lighter,
-                          }}
-                          label={`${quantity} / 10`}
-                        />
-                      </CheckoutHistoryCard>
+                      <GeneralCheckoutCard
+                        checkoutTransaction={checkoutTransaction}
+                        buildings={buildings}
+                        quantity={quantity}
+                        howLongAgoString={howLongAgoString}
+                      />
                     );
                   } else if (
                     historyType === 'checkout' &&
                     checkoutTransaction.item_type === 'welcome-basket'
                   ) {
-                    const itemIds = checkoutTransaction.items.map(
-                      (i) => i.item_id,
-                    );
-                    let welcomeBasketType;
-                    // TODO: is there a way to identify the welcome-basket-type w/o hardcoded values?
-                    if (itemIds.includes(175)) {
-                      welcomeBasketType = 'Twin-size Sheet Set';
-                    } else if (itemIds.includes(176)) {
-                      welcomeBasketType = 'Full-size Sheet Set';
-                    } else {
-                      welcomeBasketType = 'Other';
-                    }
                     return (
-                      <CheckoutHistoryCard
-                        transactionId={checkoutTransaction.id}
-                      >
-                        <div>
-                          <h3>Welcome Basket: {welcomeBasketType}</h3>
-                          <p>
-                            {buildings?.find(
-                              (b) => b.id === checkoutTransaction.building_id,
-                            )?.code ?? ''}
-                            {' - '}
-                            {buildings?.find(
-                              (b) => b.id === checkoutTransaction.building_id,
-                            )?.name ?? ''}
-                          </p>
-                          <p>{howLongAgoString}</p>
-                        </div>
-                      </CheckoutHistoryCard>
+                      <WelcomeBasketCard
+                        checkoutTransaction={checkoutTransaction}
+                        buildings={buildings}
+                        howLongAgoString={howLongAgoString}
+                      />
                     );
                   } else if (historyType === 'inventory') {
                     const inventoryTransaction = t as InventoryTransaction;
                     return (
-                      <CheckoutHistoryCard transactionId={t.id}>
-                        <div>
-                          <h3>{inventoryTransaction.item_name}</h3>
-                          <p>{inventoryTransaction.category_name}</p>
-                          <p>{howLongAgoString}</p>
-                        </div>
-                        {inventoryTransaction.transaction_type ===
-                        TransactionType.InventoryAdd ? (
-                          <p>
-                            {inventoryTransaction.quantity > 0
-                              ? 'Added'
-                              : 'Removed'}{' '}
-                            {Math.abs(inventoryTransaction.quantity)} items
-                          </p>
-                        ) : (
-                          <p>
-                            {'Replaced quantity:' +
-                              inventoryTransaction.quantity}
-                          </p>
-                        )}
-                      </CheckoutHistoryCard>
+                      <InventoryCard
+                        inventoryTransaction={inventoryTransaction}
+                        howLongAgoString={howLongAgoString}
+                      />
                     );
                   }
                 })}

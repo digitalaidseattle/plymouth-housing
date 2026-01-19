@@ -114,22 +114,19 @@ const HistoryPage: React.FC = () => {
         console.error('Error fetching buildings:', error);
       }
     }
-    getUserList();
-    fetchBuildings();
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
     async function getCategorizedItems() {
       try {
         const userRole = getRole(user);
-        const categorizedItems = await fetchCategorizedItems(userRole);
-        setCategorizedItems(categorizedItems);
+        const response = await fetchCategorizedItems(userRole);
+        setCategorizedItems(response);
       } catch (error) {
         console.error('Error fetching item and category data:', error);
       }
     }
+    getUserList();
+    fetchBuildings();
     getCategorizedItems();
+    setIsLoading(false);
   }, []);
 
   function handleDateSelection(dateInput: string) {
@@ -217,7 +214,7 @@ const HistoryPage: React.FC = () => {
   const processTransactionsByUser = () => {
     if (!history) return [];
     let uniqueUsers = [...new Set(history.map((t) => t.user_id))];
-    // check if logged in user is in the set; if so, put this user at the front of the list
+    // check if logged in user is in the array; if so, put this user at the front of the list
     if (
       loggedInUserId &&
       uniqueUsers.find((userId) => userId === loggedInUserId)
@@ -232,12 +229,15 @@ const HistoryPage: React.FC = () => {
       user_id: userId,
       transactions: history
         .filter((entry) => entry.user_id === userId)
-        .reduce((transactions, entry) => {
-          if (historyType === 'inventory') {
-            return [...transactions, createInventoryTransaction(entry)];
-          }
-          return mergeCheckoutTransaction(transactions, entry);
-        }, [] as (CheckoutTransaction | InventoryTransaction)[]),
+        .reduce(
+          (transactions, entry) => {
+            if (historyType === 'inventory') {
+              return [...transactions, createInventoryTransaction(entry)];
+            }
+            return mergeCheckoutTransaction(transactions, entry);
+          },
+          [] as (CheckoutTransaction | InventoryTransaction)[],
+        ),
     }));
     return sortedTransactionsByUser;
   };
@@ -252,6 +252,23 @@ const HistoryPage: React.FC = () => {
       const welcomeBasketIds = welcomeBasket?.items.map((i) => i.id);
       return welcomeBasketIds?.includes(itemId);
     }
+  }
+
+  function createHowLongAgoString(
+    minutes: number,
+    hours: number,
+    days: number,
+  ): string {
+    const getTimeUnit = (): string => {
+      if (days > 0) {
+        return days === 1 ? '1 day' : `${days} days`;
+      }
+      if (hours > 0) {
+        return hours === 1 ? '1 hour' : `${hours} hours`;
+      }
+      return `${minutes} min`;
+    };
+    return `Created ${getTimeUnit()} ago`;
   }
 
   return (
@@ -313,7 +330,6 @@ const HistoryPage: React.FC = () => {
             onChange={(e) => {
               if (e.target.value === 'custom') {
                 setShowCustomDateDialog(true);
-                setHistory(null);
               } else {
                 handleDateSelection(e.target.value);
               }
@@ -331,19 +347,9 @@ const HistoryPage: React.FC = () => {
       </Stack>
 
       <Stack direction="row" alignItems="center" gap="1.5rem">
-        {dateRange.isCustom ? (
-          <>
-            <Typography variant="h2" textTransform="capitalize">
-              {dateRangeString}
-            </Typography>
-          </>
-        ) : (
-          <>
-            <Typography variant="h2" textTransform="capitalize">
-              {dateInput}
-            </Typography>
-          </>
-        )}
+        <Typography variant="h2" textTransform="capitalize">
+          {dateRange.isCustom ? dateRangeString : dateInput}
+        </Typography>
         {dateInput === 'custom' ? (
           <Button onClick={() => setShowCustomDateDialog(true)}>
             Change date range
@@ -367,7 +373,8 @@ const HistoryPage: React.FC = () => {
                 <h2>
                   {loggedInUserId === user.user_id
                     ? 'You'
-                    : userList?.find((v) => v.id === user.user_id)?.name ?? ''}
+                    : (userList?.find((v) => v.id === user.user_id)?.name ??
+                      '')}
                 </h2>
                 <span>
                   {user.transactions.length}{' '}
@@ -392,6 +399,11 @@ const HistoryPage: React.FC = () => {
                   const minutes = Math.floor(seconds / 60);
                   const hours = Math.floor(minutes / 60);
                   const days = Math.floor(hours / 24);
+                  const howLongAgoString = createHowLongAgoString(
+                    minutes,
+                    hours,
+                    days,
+                  );
                   const checkoutTransaction = t as CheckoutTransaction;
                   if (
                     historyType === 'checkout' &&
@@ -421,21 +433,7 @@ const HistoryPage: React.FC = () => {
                             {' - '}
                             {checkoutTransaction.unit_number}
                           </p>
-                          <p>
-                            Created{' '}
-                            {days === 1
-                              ? '1 day'
-                              : days > 1
-                              ? days + ' days'
-                              : ''}
-                            {days === 0 && hours === 1
-                              ? '1 hour'
-                              : days === 0 && hours > 1
-                              ? hours + ' hours'
-                              : ''}
-                            {hours < 1 && minutes + ' min'}
-                            {' ago'}
-                          </p>
+                          <p>{howLongAgoString}</p>
                         </div>
                         <Chip
                           sx={{
@@ -483,21 +481,7 @@ const HistoryPage: React.FC = () => {
                               (b) => b.id === checkoutTransaction.building_id,
                             )?.name ?? ''}
                           </p>
-                          <p>
-                            Created{' '}
-                            {days === 1
-                              ? '1 day'
-                              : days > 1
-                              ? days + ' days'
-                              : ''}
-                            {days === 0 && hours === 1
-                              ? '1 hour'
-                              : days === 0 && hours > 1
-                              ? hours + ' hours'
-                              : ''}
-                            {hours < 1 && minutes + ' min'}
-                            {' ago'}
-                          </p>
+                          <p>{howLongAgoString}</p>
                         </div>
                       </CheckoutHistoryCard>
                     );
@@ -508,21 +492,7 @@ const HistoryPage: React.FC = () => {
                         <div>
                           <h3>{inventoryTransaction.item_name}</h3>
                           <p>{inventoryTransaction.category_name}</p>
-                          <p>
-                            Created{' '}
-                            {days === 1
-                              ? '1 day'
-                              : days > 1
-                              ? days + ' days'
-                              : ''}
-                            {days === 0 && hours === 1
-                              ? '1 hour'
-                              : days === 0 && hours > 1
-                              ? hours + ' hours'
-                              : ''}
-                            {hours < 1 && minutes + ' min'}
-                            {' ago'}
-                          </p>
+                          <p>{howLongAgoString}</p>
                         </div>
                         {inventoryTransaction.transaction_type ===
                         TransactionType.InventoryAdd ? (

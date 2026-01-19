@@ -22,16 +22,21 @@ import { Building, CategoryProps, User } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
 import {
-  CheckoutItemResponse,
-  InventoryItemResponse,
-  HistoryResponse,
   CheckoutTransaction,
   InventoryTransaction,
+  HistoryResponse,
 } from '../../types/history';
 import fetchCategorizedItems from '../../components/helpers/fetchCategorizedItems';
 import GeneralCheckoutCard from '../../components/History/GeneralCheckoutCard';
 import WelcomeBasketCard from '../../components/History/WelcomeBasketCard';
 import InventoryCard from '../../components/History/InventoryCard';
+import {
+  createHowLongAgoString,
+  calculateTimeDifference,
+  formatDateRange,
+  formatFullDate,
+} from '../../components/History/historyUtils';
+import { processTransactionsByUser } from '../../components/History/transactionProcessors';
 
 const HistoryPage: React.FC = () => {
   const todaysDate = new Date();
@@ -56,24 +61,11 @@ const HistoryPage: React.FC = () => {
     endDate: dateRange.endDate.toLocaleDateString('en-CA'),
   };
 
-  const dateString = dateRange.startDate.toLocaleString('en-us', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-
-  const dateRangeString =
-    dateRange.startDate.toLocaleString('en-us', {
-      month: 'short',
-      day: 'numeric',
-    }) +
-    ' - ' +
-    dateRange.endDate.toLocaleString('en-us', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+  const dateString = formatFullDate(dateRange.startDate);
+  const dateRangeString = formatDateRange(
+    dateRange.startDate,
+    dateRange.endDate,
+  );
 
   useEffect(() => {
     async function findHistoryForSelectedDate() {
@@ -150,123 +142,12 @@ const HistoryPage: React.FC = () => {
     }
   }
 
-  const createInventoryTransaction = (
-    entry: HistoryResponse,
-  ): InventoryTransaction => {
-    const inventoryEntry = entry as InventoryItemResponse;
-    return {
-      id: inventoryEntry.id,
-      transaction_type: inventoryEntry.transaction_type,
-      item_id: inventoryEntry.item_id,
-      item_name: inventoryEntry.item_name,
-      category_name: inventoryEntry.category_name,
-      quantity: inventoryEntry.quantity,
-      timestamp: inventoryEntry.timestamp,
-      item_type: checkIfWelcomeBasket(inventoryEntry.item_id)
-        ? 'welcome-basket'
-        : 'general',
-    };
-  };
-
-  const mergeCheckoutTransaction = (
-    transactions: (CheckoutTransaction | InventoryTransaction)[],
-    entry: HistoryResponse,
-  ): (CheckoutTransaction | InventoryTransaction)[] => {
-    const checkoutEntry = entry as CheckoutItemResponse;
-    const existingIndex = transactions.findIndex(
-      (t) => t.id === checkoutEntry.id,
-    );
-
-    if (existingIndex !== -1) {
-      const existing = transactions[existingIndex] as CheckoutTransaction;
-      existing.items.push({
-        item_id: checkoutEntry.item_id,
-        quantity: checkoutEntry.quantity,
-      });
-      return transactions;
-    }
-
-    return [
-      ...transactions,
-      {
-        id: checkoutEntry.id,
-        resident_name: checkoutEntry.resident_name,
-        building_id: checkoutEntry.building_id,
-        unit_number: checkoutEntry.unit_number,
-        items: [
-          {
-            item_id: checkoutEntry.item_id,
-            quantity: checkoutEntry.quantity,
-          },
-        ],
-        timestamp: checkoutEntry.timestamp,
-        item_type: checkIfWelcomeBasket(checkoutEntry.item_id)
-          ? 'welcome-basket'
-          : 'general',
-      },
-    ];
-  };
-
-  // restructures database response to organize transactions by User
-  const processTransactionsByUser = () => {
-    if (!history) return [];
-    let uniqueUsers = [...new Set(history.map((t) => t.user_id))];
-    // check if logged in user is in the array; if so, put this user at the front of the list
-    if (
-      loggedInUserId &&
-      uniqueUsers.find((userId) => userId === loggedInUserId)
-    ) {
-      const filteredUsers = uniqueUsers.filter(
-        (userId) => userId !== loggedInUserId,
-      );
-      uniqueUsers = [loggedInUserId, ...filteredUsers];
-    }
-
-    const sortedTransactionsByUser = uniqueUsers.map((userId) => ({
-      user_id: userId,
-      transactions: history
-        .filter((entry) => entry.user_id === userId)
-        .reduce(
-          (transactions, entry) => {
-            if (historyType === 'inventory') {
-              return [...transactions, createInventoryTransaction(entry)];
-            }
-            return mergeCheckoutTransaction(transactions, entry);
-          },
-          [] as (CheckoutTransaction | InventoryTransaction)[],
-        ),
-    }));
-    return sortedTransactionsByUser;
-  };
-
-  const transactionsByUser = processTransactionsByUser();
-
-  function checkIfWelcomeBasket(itemId: number) {
-    if (categorizedItems) {
-      const welcomeBasket = categorizedItems.find(
-        (c) => c.category === 'Welcome Basket',
-      );
-      const welcomeBasketIds = welcomeBasket?.items.map((i) => i.id);
-      return welcomeBasketIds?.includes(itemId);
-    }
-  }
-
-  function createHowLongAgoString(
-    minutes: number,
-    hours: number,
-    days: number,
-  ): string {
-    const getTimeUnit = (): string => {
-      if (days > 0) {
-        return days === 1 ? '1 day' : `${days} days`;
-      }
-      if (hours > 0) {
-        return hours === 1 ? '1 hour' : `${hours} hours`;
-      }
-      return `${minutes} min`;
-    };
-    return `Created ${getTimeUnit()} ago`;
-  }
+  const transactionsByUser = processTransactionsByUser(
+    history,
+    historyType,
+    loggedInUserId,
+    categorizedItems,
+  );
 
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
@@ -391,12 +272,9 @@ const HistoryPage: React.FC = () => {
                 }}
               >
                 {user.transactions.map((t) => {
-                  const dateCreated = new Date(t.timestamp);
-                  const seconds =
-                    (todaysDate.getTime() - dateCreated.getTime()) / 1000;
-                  const minutes = Math.floor(seconds / 60);
-                  const hours = Math.floor(minutes / 60);
-                  const days = Math.floor(hours / 24);
+                  const { minutes, hours, days } = calculateTimeDifference(
+                    t.timestamp,
+                  );
                   const howLongAgoString = createHowLongAgoString(
                     minutes,
                     hours,

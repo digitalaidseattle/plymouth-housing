@@ -163,7 +163,8 @@ const HistoryPage: React.FC = () => {
         }
         handleSetDateInput={() => setDateInput('custom')}
       />
-      <FormControl>
+      {/* Search bar to be implemented in future PR */}
+      {/* <FormControl>
         <TextField
           id="search-input"
           placeholder="Search name, building code..."
@@ -178,7 +179,7 @@ const HistoryPage: React.FC = () => {
             },
           }}
         />
-      </FormControl>
+      </FormControl> */}
 
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Stack direction="row" gap="1rem">

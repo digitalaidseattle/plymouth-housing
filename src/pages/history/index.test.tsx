@@ -135,13 +135,28 @@ describe('HistoryPage Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock API calls with default return values
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue(
-      mockCheckoutTransactions,
+    // Mock API calls with a slight delay to simulate real API behavior
+    // This allows the component to show the loading state
+    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve(mockCheckoutTransactions), 50),
+        ),
     );
-    vi.spyOn(HistoryAPICalls, 'getUsers').mockResolvedValue(mockUserList);
-    vi.spyOn(CheckoutAPICalls, 'getBuildings').mockResolvedValue(mockBuildings);
-    vi.spyOn(helpers, 'default').mockResolvedValue(mockCategorizedItems);
+    vi.spyOn(HistoryAPICalls, 'getUsers').mockImplementation(
+      () =>
+        new Promise((resolve) => setTimeout(() => resolve(mockUserList), 50)),
+    );
+    vi.spyOn(CheckoutAPICalls, 'getBuildings').mockImplementation(
+      () =>
+        new Promise((resolve) => setTimeout(() => resolve(mockBuildings), 50)),
+    );
+    vi.spyOn(helpers, 'default').mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve(mockCategorizedItems), 50),
+        ),
+    );
   });
 
   afterEach(() => {
@@ -249,7 +264,9 @@ describe('HistoryPage Component', () => {
     );
 
     // Loader should be present during initial load
-    expect(screen.getByTestId('circular-loader')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('circular-loader')).toBeInTheDocument();
+    });
   });
 
   test('handles empty transaction history', async () => {

@@ -80,10 +80,11 @@ const HistoryPage: React.FC = () => {
         setHistory(response);
       } catch (error) {
         console.error('Error fetching history:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
     findHistoryForSelectedDate();
-    setIsLoading(false);
   }, [dateRange, historyType]);
 
   useEffect(() => {
@@ -112,10 +113,19 @@ const HistoryPage: React.FC = () => {
         console.error('Error fetching item and category data:', error);
       }
     }
-    getUserList();
-    fetchBuildings();
-    getCategorizedItems();
-    setIsLoading(false);
+    async function loadInitialData() {
+      try {
+        setIsLoading(true);
+        await Promise.all([
+          getUserList(),
+          fetchBuildings(),
+          getCategorizedItems(),
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadInitialData();
   }, []);
 
   function handleDateSelection(dateInput: string) {

@@ -1,9 +1,3 @@
-from asyncio import timeout
-
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import HomePageLocators
 
@@ -27,7 +21,7 @@ class HomePage(BasePage):
         return self.get_text(self.locators.PLYMOUTH_HOUSING_TEXT)
 
     def get_header(self):
-        return self.get_text(self.locators.ADMIN_HOME_HEADER)
+        return self.get_text(self.locators.VOLUNTEER_HOME_HEADER, timeout=20).strip()
 
     def get_date(self):
         return self.get_text(self.locators.DATE, timeout=90)

@@ -4,6 +4,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Button, Stack } from '@mui/material';
 
 type CustomDateDialogProps = {
   showDialog: boolean;
@@ -76,6 +77,41 @@ const CustomDateDialog = ({
           }}
         />
       </LocalizationProvider>
+      <Stack flexDirection="row">
+        <Button
+          onClick={() => {
+            const month = dayjs().month();
+            const year = dayjs().year();
+            const startOfMonth = new Date(year, month, 1);
+            const endOfMonth = new Date(year, month + 1, 0);
+            setStartDate(dayjs(startOfMonth));
+            setEndDate(dayjs(endOfMonth));
+          }}
+        >
+          This month
+        </Button>
+        <Button
+          onClick={() => {
+            const month = dayjs().month() - 1;
+            const year = dayjs().year();
+            const startOfMonth = new Date(year, month, 1);
+            const endOfMonth = new Date(year, month + 1, 0);
+            setStartDate(dayjs(startOfMonth));
+            setEndDate(dayjs(endOfMonth));
+          }}
+        >
+          Last month
+        </Button>
+        <Button
+          onClick={() => {
+            const thirtyDaysAgo = dayjs().subtract(30, 'day');
+            setStartDate(dayjs(thirtyDaysAgo));
+            setEndDate(dayjs());
+          }}
+        >
+          Last 30 days
+        </Button>
+      </Stack>
     </DialogTemplate>
   );
 };

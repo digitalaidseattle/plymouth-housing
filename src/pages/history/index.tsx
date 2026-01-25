@@ -195,7 +195,7 @@ const HistoryPage: React.FC = () => {
         <Stack direction="row" gap="1rem">
           <Button
             variant={
-              historyType === 'checkout' ? 'active-toggle' : 'inactive-toggle'
+              historyType === 'checkout' ? 'active-primary' : 'inactive-primary'
             }
             onClick={() => setHistoryType('checkout')}
           >
@@ -203,7 +203,9 @@ const HistoryPage: React.FC = () => {
           </Button>
           <Button
             variant={
-              historyType === 'inventory' ? 'active-toggle' : 'inactive-toggle'
+              historyType === 'inventory'
+                ? 'active-primary'
+                : 'inactive-primary'
             }
             onClick={() => setHistoryType('inventory')}
           >

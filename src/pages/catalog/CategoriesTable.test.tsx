@@ -17,6 +17,10 @@ describe('CategoriesTable Component', () => {
     onError: vi.fn(),
   };
 
+  beforeEach(() => {
+   vi.clearAllMocks();  
+  });
+
   test('renders category list', () => {
     render(<CategoriesTable categories={mockCategories} {...mockHandlers} />);
 

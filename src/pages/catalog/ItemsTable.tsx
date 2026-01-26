@@ -71,24 +71,33 @@ const ItemsTable = ({
   const [isAdding, setIsAdding] = useState(false);
   const [newItem, setNewItem] = useState<NewItem>(defaultNewItem);
   const [isSaving, setIsSaving] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValueInternal] = useState('');
+  const setSearchValue = (value: string) => {
+    setSearchValueInternal(value);
+    setPage(0); // Reset to first page on search
+  };
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   // Filter items by search
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-    item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
-    item.category_name?.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredItems = items.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      item.category_name?.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   // Paginate
   const paginatedItems = filteredItems.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
-  const handleCellClick = (id: number, field: string, currentValue: string | number | null) => {
+  const handleCellClick = (
+    id: number,
+    field: string,
+    currentValue: string | number | null,
+  ) => {
     if (editState.id === id && editState.field === field) return;
     setEditState({
       id,
@@ -108,7 +117,7 @@ const ItemsTable = ({
   const handleSave = async () => {
     if (editState.id === null || editState.field === null) return;
 
-    const item = items.find(i => i.id === editState.id);
+    const item = items.find((i) => i.id === editState.id);
     if (!item) return;
 
     // Validate
@@ -127,8 +136,8 @@ const ItemsTable = ({
 
     if (editState.field === 'quantity') {
       const quantity = parseInt(String(editState.value));
-      if (isNaN(quantity)) {
-        onError('Quantity must be a number');
+      if (isNaN(quantity) || quantity < 0) {
+        onError('Quantity must be a non-negative number');
         return;
       }
     }
@@ -140,7 +149,11 @@ const ItemsTable = ({
 
       if (field === 'name' || field === 'type' || field === 'description') {
         updates[field] = String(editState.value).trim();
-      } else if (field === 'category_id' || field === 'quantity' || field === 'threshold') {
+      } else if (
+        field === 'category_id' ||
+        field === 'quantity' ||
+        field === 'threshold'
+      ) {
         updates[field] = parseInt(String(editState.value));
       } else if (field === 'items_per_basket') {
         const value = String(editState.value).trim();
@@ -151,7 +164,8 @@ const ItemsTable = ({
       onSuccess(`Item updated successfully`);
       setEditState({ id: null, field: null, value: '' });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update item';
+      const message =
+        err instanceof Error ? err.message : 'Failed to update item';
       onError(message);
     } finally {
       setIsSaving(false);
@@ -180,8 +194,8 @@ const ItemsTable = ({
     }
 
     const quantity = parseInt(newItem.quantity);
-    if (isNaN(quantity)) {
-      onError('Quantity must be a number');
+    if (isNaN(quantity) || quantity < 0) {
+      onError('Quantity must be a non-negative number');
       return;
     }
 
@@ -194,13 +208,16 @@ const ItemsTable = ({
         description: newItem.description.trim() || null,
         quantity,
         threshold,
-        items_per_basket: newItem.items_per_basket ? parseInt(newItem.items_per_basket) : null,
+        items_per_basket: newItem.items_per_basket
+          ? parseInt(newItem.items_per_basket)
+          : null,
       });
       onSuccess('Item created successfully');
       setNewItem(defaultNewItem);
       setIsAdding(false);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create item';
+      const message =
+        err instanceof Error ? err.message : 'Failed to create item';
       onError(message);
     } finally {
       setIsSaving(false);
@@ -215,7 +232,7 @@ const ItemsTable = ({
   const renderEditableCell = (
     item: AdminItem,
     field: keyof AdminItem,
-    value: string | number | null
+    value: string | number | null,
   ) => {
     const isEditing = editState.id === item.id && editState.field === field;
 
@@ -228,7 +245,7 @@ const ItemsTable = ({
               size="small"
               value={editState.value}
               onChange={(e) => {
-                setEditState(prev => ({ ...prev, value: e.target.value }));
+                setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
               onBlur={handleSave}
               autoFocus
@@ -255,15 +272,17 @@ const ItemsTable = ({
               size="small"
               value={editState.value}
               onChange={(e) => {
-                setEditState(prev => ({ ...prev, value: e.target.value }));
+                setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
               onBlur={handleSave}
               autoFocus
               disabled={isSaving}
               sx={{ width: '150px' }}
             >
-              {categories.map(cat => (
-                <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+              {categories.map((cat) => (
+                <MenuItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </MenuItem>
               ))}
             </Select>
             <IconButton size="small" onClick={handleSave} disabled={isSaving}>
@@ -276,19 +295,29 @@ const ItemsTable = ({
         );
       }
 
-      const isNumber = ['quantity', 'threshold', 'items_per_basket'].includes(field);
+      const isNumber = ['quantity', 'threshold', 'items_per_basket'].includes(
+        field,
+      );
       return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TextField
             size="small"
             value={editState.value}
-            onChange={(e) => setEditState(prev => ({ ...prev, value: e.target.value }))}
+            onChange={(e) =>
+              setEditState((prev) => ({ ...prev, value: e.target.value }))
+            }
             onKeyDown={handleKeyDown}
             onBlur={handleSave}
             autoFocus
             type={isNumber ? 'number' : 'text'}
             disabled={isSaving}
-            sx={{ width: isNumber ? '80px' : field === 'description' ? '200px' : '150px' }}
+            sx={{
+              width: isNumber
+                ? '80px'
+                : field === 'description'
+                  ? '200px'
+                  : '150px',
+            }}
           />
           <IconButton size="small" onClick={handleSave} disabled={isSaving}>
             <Check fontSize="small" />
@@ -321,7 +350,11 @@ const ItemsTable = ({
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
         }}
-        title={field === 'description' && displayValue ? String(displayValue) : undefined}
+        title={
+          field === 'description' && displayValue
+            ? String(displayValue)
+            : undefined
+        }
       >
         {displayValue ?? '-'}
       </Box>
@@ -330,7 +363,14 @@ const ItemsTable = ({
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
         <Typography variant="h4">Items</Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <SearchBar
@@ -370,7 +410,9 @@ const ItemsTable = ({
                   <TextField
                     size="small"
                     value={newItem.name}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({ ...prev, name: e.target.value }))
+                    }
                     placeholder="Item name"
                     disabled={isSaving}
                     autoFocus
@@ -381,7 +423,9 @@ const ItemsTable = ({
                   <Select
                     size="small"
                     value={newItem.type}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, type: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({ ...prev, type: e.target.value }))
+                    }
                     disabled={isSaving}
                     sx={{ width: '140px' }}
                   >
@@ -393,14 +437,23 @@ const ItemsTable = ({
                   <Select
                     size="small"
                     value={newItem.category_id}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, category_id: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        category_id: e.target.value,
+                      }))
+                    }
                     disabled={isSaving}
                     displayEmpty
                     sx={{ width: '150px' }}
                   >
-                    <MenuItem value="" disabled>Select category</MenuItem>
-                    {categories.map(cat => (
-                      <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                    <MenuItem value="" disabled>
+                      Select category
+                    </MenuItem>
+                    {categories.map((cat) => (
+                      <MenuItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </MenuItem>
                     ))}
                   </Select>
                 </TableCell>
@@ -408,7 +461,12 @@ const ItemsTable = ({
                   <TextField
                     size="small"
                     value={newItem.description}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                     placeholder="Description"
                     disabled={isSaving}
                     sx={{ width: '150px' }}
@@ -419,7 +477,12 @@ const ItemsTable = ({
                     size="small"
                     type="number"
                     value={newItem.quantity}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, quantity: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        quantity: e.target.value,
+                      }))
+                    }
                     disabled={isSaving}
                     sx={{ width: '70px' }}
                   />
@@ -429,7 +492,12 @@ const ItemsTable = ({
                     size="small"
                     type="number"
                     value={newItem.threshold}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, threshold: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        threshold: e.target.value,
+                      }))
+                    }
                     disabled={isSaving}
                     inputProps={{ min: 0 }}
                     sx={{ width: '70px' }}
@@ -441,15 +509,28 @@ const ItemsTable = ({
                       size="small"
                       type="number"
                       value={newItem.items_per_basket}
-                      onChange={(e) => setNewItem(prev => ({ ...prev, items_per_basket: e.target.value }))}
+                      onChange={(e) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          items_per_basket: e.target.value,
+                        }))
+                      }
                       disabled={isSaving}
                       placeholder="-"
                       sx={{ width: '70px' }}
                     />
-                    <IconButton size="small" onClick={handleAddNew} disabled={isSaving}>
+                    <IconButton
+                      size="small"
+                      onClick={handleAddNew}
+                      disabled={isSaving}
+                    >
                       <Check fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={handleCancelAdd} disabled={isSaving}>
+                    <IconButton
+                      size="small"
+                      onClick={handleCancelAdd}
+                      disabled={isSaving}
+                    >
                       <Close fontSize="small" />
                     </IconButton>
                   </Box>
@@ -458,19 +539,39 @@ const ItemsTable = ({
             )}
             {paginatedItems.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{renderEditableCell(item, 'name', item.name)}</TableCell>
-                <TableCell>{renderEditableCell(item, 'type', item.type)}</TableCell>
-                <TableCell>{renderEditableCell(item, 'category_id', item.category_id)}</TableCell>
-                <TableCell>{renderEditableCell(item, 'description', item.description)}</TableCell>
-                <TableCell>{renderEditableCell(item, 'quantity', item.quantity)}</TableCell>
-                <TableCell>{renderEditableCell(item, 'threshold', item.threshold)}</TableCell>
-                <TableCell>{renderEditableCell(item, 'items_per_basket', item.items_per_basket)}</TableCell>
+                <TableCell>
+                  {renderEditableCell(item, 'name', item.name)}
+                </TableCell>
+                <TableCell>
+                  {renderEditableCell(item, 'type', item.type)}
+                </TableCell>
+                <TableCell>
+                  {renderEditableCell(item, 'category_id', item.category_id)}
+                </TableCell>
+                <TableCell>
+                  {renderEditableCell(item, 'description', item.description)}
+                </TableCell>
+                <TableCell>
+                  {renderEditableCell(item, 'quantity', item.quantity)}
+                </TableCell>
+                <TableCell>
+                  {renderEditableCell(item, 'threshold', item.threshold)}
+                </TableCell>
+                <TableCell>
+                  {renderEditableCell(
+                    item,
+                    'items_per_basket',
+                    item.items_per_basket,
+                  )}
+                </TableCell>
               </TableRow>
             ))}
             {paginatedItems.length === 0 && !isAdding && (
               <TableRow>
                 <TableCell colSpan={7} align="center">
-                  {searchValue ? 'No items match your search' : 'No items found'}
+                  {searchValue
+                    ? 'No items match your search'
+                    : 'No items found'}
                 </TableCell>
               </TableRow>
             )}

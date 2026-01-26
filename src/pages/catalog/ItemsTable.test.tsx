@@ -42,13 +42,17 @@ describe('ItemsTable Component', () => {
     onError: vi.fn(),
   };
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test('renders item list', () => {
     render(
       <ItemsTable
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     expect(screen.getByText('Apples')).toBeInTheDocument();
@@ -62,10 +66,12 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
-    expect(screen.getByRole('button', { name: /add item/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /add item/i }),
+    ).toBeInTheDocument();
   });
 
   test('shows add item form when button clicked', () => {
@@ -74,7 +80,7 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: /add item/i }));
@@ -88,7 +94,7 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     const applesCell = screen.getByText('Apples');
@@ -103,8 +109,12 @@ describe('ItemsTable Component', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandlers.onUpdate).toHaveBeenCalledWith(1, { name: 'Green Apples' });
-      expect(mockHandlers.onSuccess).toHaveBeenCalledWith('Item updated successfully');
+      expect(mockHandlers.onUpdate).toHaveBeenCalledWith(1, {
+        name: 'Green Apples',
+      });
+      expect(mockHandlers.onSuccess).toHaveBeenCalledWith(
+        'Item updated successfully',
+      );
     });
   });
 
@@ -114,7 +124,7 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     const quantityCell = screen.getByText('50');
@@ -130,7 +140,9 @@ describe('ItemsTable Component', () => {
 
     await waitFor(() => {
       expect(mockHandlers.onUpdate).toHaveBeenCalledWith(1, { quantity: 100 });
-      expect(mockHandlers.onSuccess).toHaveBeenCalledWith('Item updated successfully');
+      expect(mockHandlers.onSuccess).toHaveBeenCalledWith(
+        'Item updated successfully',
+      );
     });
   });
 
@@ -140,7 +152,7 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     const searchInput = screen.getByPlaceholderText('Search items...');
@@ -156,7 +168,7 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     const searchInput = screen.getByPlaceholderText('Search items...');
@@ -172,7 +184,7 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     const searchInput = screen.getByPlaceholderText('Search items...');
@@ -183,11 +195,7 @@ describe('ItemsTable Component', () => {
 
   test('displays empty state when no items', () => {
     render(
-      <ItemsTable
-        items={[]}
-        categories={mockCategories}
-        {...mockHandlers}
-      />
+      <ItemsTable items={[]} categories={mockCategories} {...mockHandlers} />,
     );
 
     expect(screen.getByText('No items found')).toBeInTheDocument();
@@ -199,7 +207,7 @@ describe('ItemsTable Component', () => {
         items={mockItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     const applesCell = screen.getByText('Apples');
@@ -212,7 +220,9 @@ describe('ItemsTable Component', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandlers.onError).toHaveBeenCalledWith('Item name cannot be empty');
+      expect(mockHandlers.onError).toHaveBeenCalledWith(
+        'Item name cannot be empty',
+      );
     });
   });
 
@@ -234,7 +244,7 @@ describe('ItemsTable Component', () => {
         items={manyItems}
         categories={mockCategories}
         {...mockHandlers}
-      />
+      />,
     );
 
     expect(screen.getByText('Item 1')).toBeInTheDocument();

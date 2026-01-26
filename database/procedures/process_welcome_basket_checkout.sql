@@ -12,64 +12,28 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check if the transaction ID already exists
-    IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
-    BEGIN
-        DECLARE @error_message NVARCHAR(MAX);
-        DECLARE @resident_name NVARCHAR(255);
-        DECLARE @unit_number NVARCHAR(50);
-        DECLARE @building_code NVARCHAR(50);
-        DECLARE @transaction_date DATETIME;
-
-        -- Get transaction details for error message
-        SELECT
-            @resident_name = r.name,
-            @unit_number = u.unit_number,
-            @building_code = b.code,
-            @transaction_date = t.transaction_date
-        FROM Transactions t
-        LEFT JOIN Residents r ON t.resident_id = r.id
-        LEFT JOIN Units u ON r.unit_id = u.id
-        LEFT JOIN Buildings b ON u.building_id = b.id
-        WHERE t.id = @new_transaction_id;
-
-        SET @error_message = CONCAT(
-            'Transaction already exists. ',
-            'Resident: ', ISNULL(@resident_name, 'Unknown'),
-            ', Building: ', ISNULL(@building_code, 'Unknown'),
-            ', Unit: ', ISNULL(@unit_number, 'Unknown'),
-            ', Date: ', ISNULL(CONVERT(NVARCHAR, @transaction_date, 120), 'Unknown'),
-            ', ID: ', CAST(@new_transaction_id AS NVARCHAR(36))
-        );
-
-        SELECT
-            'Error' AS Status,
-            @error_message AS message;
-        RETURN;
-    END
-
     -- Create a table variable to hold welcome basket items
     DECLARE @CartItems CartItemsType;
-    
+
     -- Insert welcome basket items into the table variable
     INSERT INTO @CartItems (ItemId, Quantity)
-    SELECT 
+    SELECT
         id AS ItemId,
         @quantity * items_per_basket AS Quantity
     FROM Items
-    WHERE type = 'Welcome Basket' 
-    AND items_per_basket > 0; --This will omit the sheet sets. 
+    WHERE type = 'Welcome Basket'
+    AND items_per_basket > 0; --This will omit the sheet sets.
 
     -- Insert the right mattress size sheet set into the table variable
     INSERT INTO @CartItems (ItemId, Quantity)
-    SELECT 
+    SELECT
         @mattress_size as ItemId,
         @quantity AS Quantity
 
     -- ****************************************
     -- Commented out because we are not using this procedure.
-    -- It happens frequently that the inventory is off. 
-    -- Rejecting the checkout does not make much sence, 
+    -- It happens frequently that the inventory is off.
+    -- Rejecting the checkout does not make much sence,
     -- when a customer arrives with an article that, according to inventory, is not available.
     -- ****************************************
     --
@@ -78,15 +42,25 @@ BEGIN
     --     EXEC CheckInsufficientInventory @CartItems;
     -- END TRY
     -- BEGIN CATCH
-    --     SELECT 
+    --     SELECT
     --         'Error' AS Status,
-    --         ERROR_MESSAGE() AS message;
+    --         ERROR MESSAGE() AS message;
     --     RETURN;
     -- END CATCH
 
     BEGIN TRANSACTION
 
     BEGIN TRY
+        -- Check if the transaction ID already exists
+        IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
         -- Update inventory
         UPDATE i
         SET i.quantity = i.quantity - ci.Quantity

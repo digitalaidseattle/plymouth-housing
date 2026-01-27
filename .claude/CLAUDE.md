@@ -83,14 +83,8 @@ Only add comments if reading the code is insufficient.
 - Prefer type inference, explicit types when needed
 - Use interfaces from `src/types/interfaces.ts` for shared types
 
-### Formatting (Prettier)
-- **2 spaces** for indentation (no tabs)
-- **Single quotes** for strings
-- **Semicolons** required
-- **Trailing commas** on all multi-line structures
-- **80 character** line width
-- Arrow function parens always included
-- Bracket spacing enabled
+### Formatting
+- Enforced by Prettier (see `.prettierrc`)
 
 ### React/JSX
 - Use functional components with hooks
@@ -99,10 +93,8 @@ Only add comments if reading the code is insufficient.
 - Default exports for page components, named exports acceptable for utilities
 - Component files use PascalCase naming
 
-### ESLint Rules
-- Follow recommended TypeScript and React Hooks rules
-- React Refresh: only export components (warnings allowed for constants)
-- Test files (`*.test.ts`, `*.test.tsx`) are excluded from linting
+### Linting
+- Follow ESLint configuration (TypeScript and React Hooks rules)
 
 ## Naming Conventions
 
@@ -116,31 +108,14 @@ Only add comments if reading the code is insufficient.
 ## Git Workflow
 
 ### Branch Naming
-Follow git flow convention with task numbers:
-```
-{name}/{ticket-number}-brief-description
-```
-Examples:
-- `john/123-add-checkout-feature`
-- `jane/456-fix-drawer-mobile`
+Follow git flow convention: `{name}/{ticket-number}-brief-description`
 
 ### Pull Requests
-- All code merges to `main` through PRs
-- PRs require **one approval** from a DAS team member
+- All code merges to `main` through PRs (require one approval)
 - Review existing PRs before starting new work
 - Treat documentation as code (same standards for Markdown)
-- PRs reviewed at end of standups to ensure all have reviewers
-
-**ALWAYS use the PR template** (`.github/pull_request_template.md`) when creating pull requests:
-
-1. **Description**: Provide context and highlight what reviewers should focus on
-2. **Jira Ticket**: Link the relevant ticket (format: `Closes: [PIT-XXX](https://das-ph-inventory-tracker.atlassian.net/browse/PIT-XXX)`)
-3. **Type of Change**: Specify type (Bug fix / New feature / Breaking change / Refactoring / Documentation / Configuration / Performance)
-4. **Changes Made**: List key changes in bullet points
-5. **Checklist**: Complete all items (style guidelines, prettier, self-review, comments, docs, warnings, tests)
-6. **QA Instructions**: Provide testing instructions and screenshots for UI changes
-
-When creating PRs, review ALL commits from branch divergence using `git diff [base-branch]...HEAD` to write a comprehensive summary covering the full scope of changes.
+- **ALWAYS use the PR template** (`.github/pull_request_template.md`)
+- Review ALL commits from branch divergence using `git diff [base-branch]...HEAD` to write comprehensive summaries
 
 ### Commit Messages
 - Clear, descriptive commit messages
@@ -148,41 +123,21 @@ When creating PRs, review ALL commits from branch divergence using `git diff [ba
 
 ## Testing
 
-### Unit Tests
-- Located alongside source files (`*.test.ts`, `*.test.tsx`)
 - Use **Vitest** with React Testing Library
-- Mock external dependencies
-- Use `jsdom` environment for component tests
-- Coverage reports available via `npm run test:coverage`
-
-### Test Structure
-- Organize tests with `describe` blocks
-- Clear test names describing expected behavior
-- Use Testing Library queries (`getByRole`, `getByText`, etc.)
+- Tests located alongside source files (`*.test.ts`, `*.test.tsx`)
 - Test user interactions, not implementation details
+- Coverage reports: `npm run test:coverage`
 
 ## Component Patterns
 
-### Material-UI Usage
-- Import from `@mui/material` for components
-- Use `useTheme()` hook for theme access
+### Material-UI
 - Apply custom styles via `sx` prop (preferred) or styled components
 - Component overrides in `src/themes/overrides/`
 - Support both light and dark modes
 
 ### Context Pattern
 - Contexts in `src/components/contexts/`
-- Examples: `DrawerOpenContext`, `ActiveMenuItemContext`, `UserContext`
 - Use Context for shared state across component tree
-
-### Extended Components
-- Enhanced base components in `src/components/@extended/`
-- Examples: `AnimateButton`, `Breadcrumbs`, `Transitions`, `Dot`
-
-### Cards
-- Use `MainCard` component for consistent card styling
-- Props: `border`, `boxShadow`, `title`, `content`, `sx`
-- CardContent has id="scrollContainer" for scroll reset
 
 ## Authentication & Authorization
 
@@ -202,13 +157,6 @@ When creating PRs, review ALL commits from branch divergence using `git diff [ba
 - Custom `fetchWithRetry` utility for resilient network requests
 - Environment variables for configuration (`.env.local`)
 
-## Build Optimization
-
-- Manual chunks: `react-vendor` for React/ReactDOM
-- Tree-shaking enabled
-- Bundle visualization available (see `bundle-visualization.html`)
-- Chunk size warning limit: 1000KB
-
 ## Accessibility
 
 - Use semantic HTML
@@ -218,39 +166,16 @@ When creating PRs, review ALL commits from branch divergence using `git diff [ba
 
 ## Common Pitfalls
 
-- **MUI ref types**: Use `ref as any` workaround for ref forwarding with MUI components (see `MainCard.tsx:59`)
-- **Drawer mobile blocking**: Fixed in recent commit - ensure drawer doesn't block clicks in tablet mode
-- **ScrollContainer**: Card content uses id="scrollContainer" for scroll reset in checkout page
-- **Test file exclusions**: Remember test files are ESLint-ignored
+- **MUI ref forwarding**: May require `ref as any` workaround (see `MainCard.tsx` for example)
 
 ## Development Workflow
 
-1. Check out the [database setup guide](docs/database-setup.md)
-2. Set up [DAB locally](docs/DAB-setup.md)
-3. Create feature branch following naming convention
-4. Run dev server with `npm run dev`
-5. Write tests alongside features
-6. Run linter before committing
-7. Create PR and request review
-8. Review open PRs at standup
-
-## Documentation
-
-- Working agreement: `docs/working-agreement.md`
-- Database setup: `docs/database-setup.md`
-- DAB setup: `docs/DAB-setup.md`
-- Deployment: `docs/deployment-guide.md`
-- Solution architecture: `docs/overall-solution-arch.md`
-
-## Team Practices
-
-- **Kanban workflow** without sprints
-- Async standup Monday 5:30pm PST (Slack)
-- Project standup Thursday 5:30pm PST
-- Dev sync Friday 5:45pm PST
-- Minimum 4 hours/week commitment
-- Board: [Jira](https://das-ph-inventory-tracker.atlassian.net/jira/core/projects/PIT/board)
-- Design files: Figma
+1. Set up database (see `docs/database-setup.md`) and DAB (see `docs/DAB-setup.md`)
+2. Create feature branch following naming convention
+3. Run dev servers (`npx swa start` and `dab start`)
+4. Write tests alongside features
+5. Run linter before committing
+6. Create PR and request review
 
 ## Key Principles
 

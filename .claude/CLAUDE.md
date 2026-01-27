@@ -29,7 +29,8 @@ Plymouth Housing's centralized inventory management system for tracking in-kind 
 ## Commands
 
 ```bash
-npm run dev          # Start dev server on port 3000
+npx swa start        # Start dev server on port 3000
+dab start -c ./dab/dab-config.json  # Start Data API Builder (backend API)
 npm run build        # TypeScript compile + Vite build
 npm run lint         # Run ESLint
 npm test             # Run Vitest in watch mode

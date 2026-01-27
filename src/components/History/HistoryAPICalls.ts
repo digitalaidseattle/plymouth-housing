@@ -1,16 +1,18 @@
 import { getRole } from '../contexts/UserContext';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { ClientPrincipal } from '../../types/interfaces';
+import { ClientPrincipal, CategoryProps } from '../../types/interfaces';
+import { expandTransactionItems } from './transactionProcessors';
 
-export async function findTransactionHistory(
+export async function findUserTransactionHistory(
   user: ClientPrincipal | null,
   startDate: string,
   endDate: string,
   historyType: string,
+  categorizedItems: CategoryProps[] = [],
 ) {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.FIND_TRANSACTION_HISTORY, {
+    const response = await fetch(ENDPOINTS.FIND_USER_TRANSACTION_HISTORY, {
       headers: headers,
       method: 'POST',
       body: JSON.stringify({
@@ -21,7 +23,7 @@ export async function findTransactionHistory(
     });
     if (!response.ok) throw new Error(response.statusText);
     const data = await response.json();
-    return data.value;
+    return expandTransactionItems(data.value, categorizedItems);
   } catch (error) {
     console.error('Error fetching transaction history:', error);
     throw error;

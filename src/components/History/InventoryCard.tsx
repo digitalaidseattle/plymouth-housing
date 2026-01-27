@@ -10,21 +10,22 @@ const InventoryCard = ({
   inventoryTransaction,
   howLongAgoString,
 }: InventoryCardProps) => {
+  const item = inventoryTransaction.items[0];
   return (
     <HistoryCard transactionId={inventoryTransaction.id}>
       <div>
-        <h3>{inventoryTransaction.item_name}</h3>
-        <p>{inventoryTransaction.category_name}</p>
+        <h3>{item.item_name}</h3>
+        <p>{item.category_name}</p>
         <p>{howLongAgoString}</p>
       </div>
       {inventoryTransaction.transaction_type ===
       TransactionType.InventoryAdd ? (
         <p>
-          {inventoryTransaction.quantity > 0 ? 'Added' : 'Removed'}{' '}
-          {Math.abs(inventoryTransaction.quantity)} items
+          {item.quantity > 0 ? 'Added' : 'Removed'} {Math.abs(item.quantity)}{' '}
+          items
         </p>
       ) : (
-        <p>{'Replaced quantity:' + inventoryTransaction.quantity}</p>
+        <p>{'Replaced quantity: ' + item.quantity}</p>
       )}
     </HistoryCard>
   );

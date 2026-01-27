@@ -5,61 +5,32 @@ export enum TransactionType {
 }
 
 export type TransactionItem = {
-  item_id: number;
-  quantity: number;
-};
-
-export type BaseTransaction = {
-  id: string;
-  user_id: number;
-  user_name: string;
-  timestamp: string;
-  transaction_type: TransactionType;
-};
-
-export type CheckoutItemResponse = BaseTransaction & {
-  transaction_type: TransactionType.Checkout;
-  building_id: number;
-  unit_number: string;
-  resident_name: string;
-  item_id: number;
-  quantity: number;
-};
-
-export type InventoryItemResponse = BaseTransaction & {
-  transaction_type:
-    | TransactionType.InventoryAdd
-    | TransactionType.InventoryReplaceValue;
-  item_id: number;
-  quantity: number;
-  item_name: string;
   category_name: string;
+  item_id: number;
+  item_name: string;
+  quantity: number;
+  1;
 };
-
-export type HistoryResponse = CheckoutItemResponse | InventoryItemResponse;
 
 export type CheckoutTransaction = {
-  id: string;
-  resident_name: string;
   building_id: number;
-  unit_number: string;
+  item_type: 'general' | 'welcome';
   items: TransactionItem[];
-  timestamp: string;
-  item_type: 'general' | 'welcome-basket';
+  resident_id: number;
+  resident_name: string;
+  transaction_date: string;
+  transaction_id: string;
+  unit_number: string;
+  user_id: number;
 };
 
 export type InventoryTransaction = {
-  id: string;
-  transaction_type: TransactionType;
-  item_id: number;
-  item_name: string;
-  category_name: string;
-  quantity: number;
-  timestamp: string;
-  item_type: 'general' | 'welcome-basket';
-};
-
-export type TransactionsByUser<T> = {
+  item_type: 'general' | 'welcome';
+  items: TransactionItem[];
+  transaction_date: string;
+  transaction_id: string;
+  transaction_type:
+    | TransactionType.InventoryAdd
+    | TransactionType.InventoryReplaceValue;
   user_id: number;
-  transactions: T[];
 };

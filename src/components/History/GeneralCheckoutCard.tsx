@@ -21,8 +21,8 @@ const GeneralCheckoutCard = ({
 
   return (
     <HistoryCard
-      key={checkoutTransaction.id}
-      transactionId={checkoutTransaction.id}
+      key={checkoutTransaction.transaction_id}
+      transactionId={checkoutTransaction.transaction_id}
     >
       <div>
         <h3>{checkoutTransaction.resident_name}</h3>

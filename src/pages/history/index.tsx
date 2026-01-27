@@ -233,7 +233,7 @@ const HistoryPage: React.FC = () => {
         <CircularLoader />
       ) : (
         <Stack gap="2rem">
-          {history && history.length === 0 && (
+          {userHistory && userHistory.length === 0 && (
             <p>There are no transactions for this date.</p>
           )}
           {transactionsByUser?.map((user) => (

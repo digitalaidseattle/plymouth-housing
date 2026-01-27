@@ -1,7 +1,11 @@
+import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
 import { CategoryProps } from '../../types/interfaces';
 import { checkIfWelcomeBasket } from './historyUtils';
 
-export function processTransactionsByUser(history, loggedInUserId) {
+export function processTransactionsByUser(
+  history: CheckoutTransaction[] | InventoryTransaction[],
+  loggedInUserId: number,
+) {
   if (!history) return [];
   let uniqueUsers = [...new Set(history.map((t) => t.user_id))];
   // Check if logged in user is in the array; if so, put this user at the front

@@ -25,7 +25,7 @@ const WelcomeBasketCard = ({
   }
 
   return (
-    <HistoryCard transactionId={checkoutTransaction.id}>
+    <HistoryCard transactionId={checkoutTransaction.transaction_id}>
       <div>
         <h3>Welcome Basket: {welcomeBasketType}</h3>
         <p>

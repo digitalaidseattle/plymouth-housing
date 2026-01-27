@@ -12,7 +12,7 @@ const InventoryCard = ({
 }: InventoryCardProps) => {
   const item = inventoryTransaction.items[0];
   return (
-    <HistoryCard transactionId={inventoryTransaction.id}>
+    <HistoryCard transactionId={inventoryTransaction.transaction_id}>
       <div>
         <h3>{item.item_name}</h3>
         <p>{item.category_name}</p>

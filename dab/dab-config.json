@@ -303,26 +303,6 @@
         }
       ]
     },
-    "FindTransactionHistory": {
-      "source": {
-        "object": "dbo.FindTransactionHistory",
-        "type": "stored-procedure"
-      },
-      "rest": {
-        "enabled": true,
-        "path": "/find-transaction-history"
-      },
-      "permissions": [
-        {
-          "actions": ["execute"],
-          "role": "admin"
-        },
-        {
-          "actions": ["execute"],
-          "role": "volunteer"
-        }
-      ]
-    },
     "FindUserTransactionHistory": {
       "source": {
         "object": "dbo.FindUserTransactionHistory",

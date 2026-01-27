@@ -25,13 +25,6 @@ export const WELCOME_BASKET_ITEMS = {
 
 export const CHECKOUT_QUANTITY_LIMIT = 10;
 
-/**
- * Formats a time difference into a human-readable "ago" string
- * @param minutes - Number of minutes elapsed
- * @param hours - Number of hours elapsed
- * @param days - Number of days elapsed
- * @returns Formatted string like "Created 2 days ago"
- */
 export function createHowLongAgoString(
   minutes: number,
   hours: number,
@@ -49,11 +42,6 @@ export function createHowLongAgoString(
   return `Created ${getTimeUnit()} ago`;
 }
 
-/**
- * Calculates time difference from a timestamp to now
- * @param timestamp - ISO timestamp string
- * @returns Object with minutes, hours, and days
- */
 export function calculateTimeDifference(timestamp: string): {
   minutes: number;
   hours: number;
@@ -69,33 +57,16 @@ export function calculateTimeDifference(timestamp: string): {
   return { minutes, hours, days };
 }
 
-/**
- * Formats date range as a single string
- * @param startDate - Start date
- * @param endDate - End date
- * @returns Formatted date range string
- */
 export function formatDateRange(startDate: Date, endDate: Date): string {
   const startStr = startDate.toLocaleString('en-us', DATE_FORMATS.DATE_ONLY);
   const endStr = endDate.toLocaleString('en-us', DATE_FORMATS.RANGE_END);
   return `${startStr} - ${endStr}`;
 }
 
-/**
- * Formats a single date with full details
- * @param date - Date to format
- * @returns Formatted date string
- */
 export function formatFullDate(date: Date): string {
   return date.toLocaleString('en-us', DATE_FORMATS.FULL_DATE);
 }
 
-/**
- * Finds a building by ID from a list of buildings
- * @param buildingId - Building ID to find
- * @param buildings - List of buildings
- * @returns Building object or undefined
- */
 export function findBuildingById(
   buildingId: number,
   buildings: Building[] | null,
@@ -103,12 +74,6 @@ export function findBuildingById(
   return buildings?.find((b) => b.id === buildingId);
 }
 
-/**
- * Formats building information as a string
- * @param buildingId - Building ID
- * @param buildings - List of buildings
- * @returns Formatted string like "CODE - Name"
- */
 export function formatBuildingInfo(
   buildingId: number,
   buildings: Building[] | null,
@@ -117,12 +82,6 @@ export function formatBuildingInfo(
   return building ? `${building.code} - ${building.name}` : '';
 }
 
-/**
- * Checks if an item ID belongs to the welcome basket category
- * @param itemId - Item ID to check
- * @param categorizedItems - List of categorized items
- * @returns True if item is in welcome basket
- */
 export function checkIfWelcomeBasket(
   itemId: number,
   categorizedItems: CategoryProps[],
@@ -135,11 +94,6 @@ export function checkIfWelcomeBasket(
   return welcomeBasketIds?.includes(itemId) ?? false;
 }
 
-/**
- * Determines welcome basket type from item IDs
- * @param itemIds - Array of item IDs in the transaction
- * @returns Welcome basket type description
- */
 export function determineWelcomeBasketType(itemIds: number[]): string {
   if (itemIds.includes(WELCOME_BASKET_ITEMS.TWIN)) {
     return 'Twin-size Sheet Set';

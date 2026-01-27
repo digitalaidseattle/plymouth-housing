@@ -28,7 +28,6 @@ export const ENDPOINTS = {
   CHECK_PAST_CHECKOUT: API_PREFIX + '/check-past-checkout',
   PROCESS_INVENTORY_RESET_QUANTITY:
     API_PREFIX + '/process-inventory-reset-quantity',
-  FIND_TRANSACTION_HISTORY: API_PREFIX + '/find-transaction-history',
   FIND_USER_TRANSACTION_HISTORY: API_PREFIX + '/find-user-transaction-history',
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',

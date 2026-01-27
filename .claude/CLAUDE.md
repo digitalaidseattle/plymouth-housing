@@ -74,6 +74,8 @@ tests/               # End-to-end tests
 
 ## Code Style
 
+Only add comments if reading the code is insufficient.
+
 ### TypeScript
 - Use **strict mode** (all strict checks enabled)
 - No unused locals or parameters

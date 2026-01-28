@@ -1,7 +1,7 @@
 /**
  * @copyright 2026 Digital Aid Seattle
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 
 const mockLoadAppInsights = vi.fn();
 const mockTrackException = vi.fn();
@@ -18,8 +18,8 @@ vi.mock('@microsoft/applicationinsights-web', () => ({
 }));
 
 describe('appInsights', () => {
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  let consoleLogSpy: Mock<typeof console.log>;
+  let consoleErrorSpy: Mock<typeof console.error>;
 
   beforeEach(() => {
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});

@@ -24,8 +24,8 @@ export const initializeAppInsights = (): void => {
         enableAutoRouteTracking: false,
         disableFetchTracking: false,
         enableCorsCorrelation: true,
-        enableRequestHeaderTracking: true,
-        enableResponseHeaderTracking: true,
+        enableRequestHeaderTracking: false,
+        enableResponseHeaderTracking: false,
       },
     });
 

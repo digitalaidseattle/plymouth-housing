@@ -9,6 +9,8 @@ from tests.pages.home_page import HomePage
 def login_page(driver):
     return LoginPage(driver)
 
+@pytest.mark.serial
+@pytest.mark.smoke
 def test_login_admin(driver, login_page):
     login_page.enter_username(ADMIN_USERNAME)
     login_page.click_next_button()

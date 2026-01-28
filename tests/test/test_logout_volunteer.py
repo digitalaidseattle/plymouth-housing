@@ -1,21 +1,21 @@
 import pytest
-from tests.pages.login_page import LoginPage
 from tests.utilities.fixtures import driver
-from tests.utilities.data import VOLUNTEER_USERNAME, VOLUNTEER_PASSWORD
+from tests.utilities.fixtures import login_with_volunteer
+from tests.pages.logout_page import LogoutPage
+from tests.pages.home_page import HomePage
 
-@pytest.fixture
-def login_page(driver):
-    return LoginPage(driver)
+@pytest.fixture(scope="function")
+def home_page(driver):
+    return HomePage(driver)
 
-def test_logout_volunteer(driver,login_page):
-    login_page.enter_username(VOLUNTEER_USERNAME)
-    login_page.click_next_button()
-    login_page.enter_password(VOLUNTEER_PASSWORD)
-    login_page.click_sign_in_button()
-    login_page.click_yes_button()
-    login_page.click_person()
-    login_page.select_first_option()
-    login_page.click_continue_button()
-    login_page.enter_pin()
-    login_page.click_continue_button()
-    # TODO  ADD VERIFICATION
+@pytest.mark.usefixtures("login_with_volunteer")
+@pytest.mark.regression
+def test_logout(driver, home_page):
+    home_page.click_email_id()
+    home_page.click_logout()
+
+    logout_page = LogoutPage(driver)
+    logout_message = logout_page.get_logout_message()
+
+    expected_logout_message = "You are logged out. Please click the button to log in."
+    assert logout_message == expected_logout_message

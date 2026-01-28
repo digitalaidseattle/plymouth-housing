@@ -13,6 +13,8 @@ def return_to_home_page(driver, inventory_page):
     inventory_page.click_on_volunteer_home(driver)
 
 @pytest.mark.usefixtures('login_with_volunteer')
+@pytest.mark.regression
+@pytest.mark.serial
 class TestInventory:
     @pytest.mark.parametrize('item', ['Clothing Rack'])
     def test_inventory(self, driver, inventory_page, item):
@@ -45,7 +47,7 @@ class TestInventory:
         inventory_page.click_on_inventory()
         inventory_page.search_item(item)
         inventory_page.wait_for_search_results(item)        # Step 2: Get original inventory quantity
-        initial_quantity = inventory_page.get_quantity(item)
+        initial_quantity = inventory_page.get_inventory_quantity(item)
         print(f"Before checkout - '{item}' quantity: {initial_quantity}")# Step 3: Perform checkout flow
         checkout_page = CheckOutPage(driver)
         checkout_page.click_checkout()
@@ -65,7 +67,7 @@ class TestInventory:
         inventory_page.wait_for_inventory_loaded()
         inventory_page.second_search_item(item)
         inventory_page.wait_for_search_results(item)        # Reinstate the page object
-        updated_quantity = inventory_page.get_quantity(item)
+        updated_quantity = inventory_page.get_inventory_quantity(item)
         print(f"After checkout - '{item}' quantity: {updated_quantity}")
         assert initial_quantity - 1 == updated_quantity, (
             f"Unexpected quantity change for '{item}'. "

@@ -8,6 +8,8 @@ from tests.utilities.data import VOLUNTEER_USERNAME
 def login_page(driver):
     return LoginPage(driver)
 
+@pytest.mark.serial
+@pytest.mark.smoke
 def test_login_volunteer(driver, login_page):
     login_page.enter_username(VOLUNTEER_USERNAME)
     login_page.click_next_button()

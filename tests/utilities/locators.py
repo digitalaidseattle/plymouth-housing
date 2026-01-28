@@ -7,7 +7,7 @@ class CommonLocators:
 
 class HomePageLocators:
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, '(//a[contains(@class,"MuiButtonBase")])[1]') # TODO COMMON LOCATORS PUT IN CommonLocators
-    EMAIL_ID = (By.XPATH, "//button[@aria-label='open profile']")
+    EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")
     LOGOUT_BUTTON = (By.XPATH, "//h6[normalize-space()='Log out']")
     PLYMOUTH_HOUSING_TEXT = (By.XPATH, '//h5[normalize-space()="Plymouth Housing"]')
     VOLUNTEER_HOME_HEADER = (By.XPATH, '//p[normalize-space()="Volunteer Home"]')

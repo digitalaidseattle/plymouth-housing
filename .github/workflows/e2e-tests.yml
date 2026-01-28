@@ -1,0 +1,38 @@
+name: E2E UI Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    env:
+      CI: "true"
+      URL: ${{ secrets.URL }}
+      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      VOLUNTEER_USERNAME: ${{ secrets.VOLUNTEER_USERNAME }}
+      VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tests/requirements.txt
+
+      - name: Run smoke tests (headless)
+        run: |
+          pytest -m smoke -n auto --maxfail=1

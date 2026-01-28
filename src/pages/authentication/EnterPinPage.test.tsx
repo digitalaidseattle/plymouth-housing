@@ -4,10 +4,15 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import EnterPinPage from './EnterPinPage';
 import { UserContext } from '../../components/contexts/UserContext';
 
-// Mock useNavigate and return a mock function
 const mockNavigate = vi.fn();
+const mockTrackException = vi.hoisted(() => vi.fn());
+
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+}));
+
+vi.mock('../../utils/appInsights', () => ({
+  trackException: mockTrackException,
 }));
 
 // Mock PinInput to simulate PIN entry.
@@ -37,6 +42,7 @@ describe('EnterPinPage Component', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockNavigate.mockReset();
+    mockTrackException.mockReset();
   });
 
   test('redirects to /pick-your-name if loggedInUserId is null', () => {
@@ -150,5 +156,75 @@ describe('EnterPinPage Component', () => {
     const backLink = screen.getByText(/Back to the name selection./i);
     fireEvent.click(backLink);
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
+  });
+
+  test('tracks exception when verifyPin fails', async () => {
+    const networkError = new Error('Network error');
+    (global.fetch as any) = vi.fn().mockRejectedValueOnce(networkError);
+
+    render(
+      <UserContext.Provider value={createUserContextValue()}>
+        <EnterPinPage />
+      </UserContext.Provider>
+    );
+
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '1234' } });
+
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    fireEvent.click(continueButton);
+
+    await waitFor(() => {
+      expect(mockTrackException).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          component: 'EnterPinPage',
+          action: 'verifyPin',
+          volunteerId: '123',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Incorrect PIN. Please try again./i)
+      ).toBeInTheDocument();
+    });
+  });
+
+  test('tracks exception when updateLastSignedIn fails', async () => {
+    (global.fetch as any) = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ value: [{ IsValid: true }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+    render(
+      <UserContext.Provider value={createUserContextValue()}>
+        <EnterPinPage />
+      </UserContext.Provider>
+    );
+
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '1234' } });
+
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    fireEvent.click(continueButton);
+
+    await waitFor(() => {
+      expect(mockTrackException).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          component: 'EnterPinPage',
+          action: 'updateLastSignedIn',
+          volunteerId: '123',
+        })
+      );
+    });
   });
 });

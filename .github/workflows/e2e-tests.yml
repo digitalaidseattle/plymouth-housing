@@ -7,10 +7,13 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# Least-privilege access for GITHUB_TOKEN
+permissions:
+  contents: read
+
 jobs:
   e2e-tests:
-
-    # Prevent secrets from running on forked PRs
+    #  Prevent secrets from running on forked PRs
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request' }}
 
     runs-on: ubuntu-latest
@@ -32,7 +35,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      # ✅ Ensure Chrome is available on the runner
+      # Ensure Chrome is available on runner
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 

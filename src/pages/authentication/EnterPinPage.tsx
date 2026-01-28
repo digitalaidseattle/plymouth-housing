@@ -13,6 +13,7 @@ import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { trackException } from '../../utils/appInsights';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -55,7 +56,14 @@ const EnterPinPage: React.FC = () => {
 
       return result;
     } catch (error) {
+      const err =
+        error instanceof Error ? error : new Error('Unknown error verifying PIN');
       console.error('Error verifying PIN:', error);
+      trackException(err, {
+        component: 'EnterPinPage',
+        action: 'verifyPin',
+        volunteerId: id.toString(),
+      });
       handleTheSnackies('Failed to verify PIN. Please try again.', 'warning');
       return null;
     }
@@ -74,7 +82,16 @@ const EnterPinPage: React.FC = () => {
         throw new Error('Failed to update last signed in.');
       }
     } catch (error) {
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error updating last signed in');
       console.error('Error updating last signed in:', error);
+      trackException(err, {
+        component: 'EnterPinPage',
+        action: 'updateLastSignedIn',
+        volunteerId: id.toString(),
+      });
     }
   };
 

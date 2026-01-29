@@ -187,7 +187,7 @@ describe('EnterPinPage Component', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Incorrect PIN. Please try again./i)
+        screen.getByText(/Failed to verify PIN. Please try again./i)
       ).toBeInTheDocument();
     });
   });

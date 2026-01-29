@@ -19,7 +19,9 @@ const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'warning' >('warning');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<
+    'success' | 'warning'
+  >('warning');
   const { loggedInUserId, user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -27,11 +29,14 @@ const EnterPinPage: React.FC = () => {
     navigate('/pick-your-name');
   }
 
-  const handleTheSnackies = (message: string, severity: 'success' | 'warning') => {
+  const handleTheSnackies = (
+    message: string,
+    severity: 'success' | 'warning',
+  ) => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setOpenSnackbar(true);
-  }
+  };
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
@@ -48,16 +53,69 @@ const EnterPinPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to verify PIN.');
+        const errorContext = {
+          status: response.status,
+          statusText: response.statusText,
+          volunteerId: id,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          endpoint: ENDPOINTS.VERIFY_PIN,
+        };
+
+        console.error('PIN verification failed - Diagnostics:', errorContext);
+
+        // Check if this is an authentication/authorization error
+        if (response.status === 401 || response.status === 403) {
+          console.error(
+            'Authentication error detected - Azure AD token may have expired',
+          );
+          handleTheSnackies(
+            'Your session has expired. Please log out and log back in.',
+            'warning',
+          );
+          return null;
+        }
+        throw new Error(
+          `Failed to verify PIN (HTTP ${response.status}: ${response.statusText})`,
+        );
       }
 
       const data = await response.json();
-      const result = data.value[0]; // Get the result from the response
+
+      // Validate response structure
+      if (
+        !data ||
+        !data.value ||
+        !Array.isArray(data.value) ||
+        data.value.length === 0
+      ) {
+        console.error('Invalid response format from PIN verification API:', {
+          hasData: !!data,
+          hasValue: !!(data && data.value),
+          isArray: !!(data && data.value && Array.isArray(data.value)),
+          arrayLength: data?.value?.length ?? 0,
+          timestamp: new Date().toISOString(),
+        });
+        throw new Error('Invalid response format from PIN verification API');
+      }
+
+      const result = data.value[0];
+
+      // Validate result has required properties
+      if (typeof result.IsValid !== 'boolean') {
+        console.error('PIN verification response missing IsValid field:', {
+          result,
+          timestamp: new Date().toISOString(),
+        });
+        throw new Error('PIN verification response missing IsValid field');
+      }
 
       return result;
     } catch (error) {
       const err =
-        error instanceof Error ? error : new Error('Unknown error verifying PIN');
+        error instanceof Error
+          ? error
+          : new Error('Unknown error verifying PIN');
       console.error('Error verifying PIN:', error);
       trackException(err, {
         component: 'EnterPinPage',
@@ -102,7 +160,10 @@ const EnterPinPage: React.FC = () => {
       if (loggedInUserId !== null) {
         result = await verifyPin(loggedInUserId, enteredPin);
       } else {
-        handleTheSnackies('Volunteer ID is missing. Please try again.', 'warning');
+        handleTheSnackies(
+          'Volunteer ID is missing. Please try again.',
+          'warning',
+        );
       }
 
       if (result?.IsValid) {
@@ -111,15 +172,14 @@ const EnterPinPage: React.FC = () => {
           result = await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
         navigate('/volunteer-home');
-      } else {
-        setSnackbarMessage(
-          result?.ErrorMessage || 'Incorrect PIN. Please try again.',
+      } else if (result) {
+        // API succeeded but PIN was incorrect
+        handleTheSnackies(
+          result.ErrorMessage || 'Incorrect PIN. Please try again.',
+          'warning',
         );
-        setSnackbarSeverity('warning');
-        setOpenSnackbar(true);
-
-        handleTheSnackies(result?.ErrorMessage || 'Incorrect PIN. Please try again.', 'warning');
       }
+      // If result is null, verifyPin() already displayed an error message, so don't show another
     } else {
       handleTheSnackies('Please enter your PIN before continuing.', 'warning');
     }

@@ -159,9 +159,6 @@ const ResidentDetailDialog = ({
       errorObject.buildingError = 'Please select the building code';
     }
     if (!selectedUnit.id) {
-      if (selectedUnit.id === 0 && selectedUnit.unit_number) {
-        errorObject.unitError = 'Not a valid unit number';
-      }
       errorObject.unitError = 'Please select a unit from the list';
     }
     if (Object.keys(errorObject).length > 0) {

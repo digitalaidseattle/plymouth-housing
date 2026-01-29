@@ -302,6 +302,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "GetLastResidentVisit": {
+      "source": {
+        "object": "dbo.GetLastResidentVisit",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/get-last-resident-visit"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

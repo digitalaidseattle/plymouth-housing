@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
-import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
+import { addResident, findResident, getResidents, getUnitNumbers, getLastResidentVisit } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -26,6 +26,8 @@ type ResidentDetailDialogProps = {
 type ResidentNameOption = {
     inputValue?: string;
     name: string;
+    id?: number;
+    lastVisitDate?: string | null;
 }
 
 const ResidentDetailDialog = ({
@@ -75,6 +77,30 @@ const ResidentDetailDialog = ({
         }
     }
 
+    const fetchAllLastVisits = async (residents: { name: string, id: number }[]) => {
+        const residentsWithDates = await Promise.all(
+            residents.map(async (resident) => {
+                try {
+                    const response = await getLastResidentVisit(user, resident.id);
+                    const lastVisitDate = response.value?.[0]?.transaction_date || null;
+                    return {
+                        name: resident.name,
+                        id: resident.id,
+                        lastVisitDate: lastVisitDate
+                    };
+                } catch (error) {
+                    console.error(`Error fetching last visit for resident ${resident.id}:`, error);
+                    return {
+                        name: resident.name,
+                        id: resident.id,
+                        lastVisitDate: null
+                    };
+                }
+            })
+        );
+        return residentsWithDates;
+    };
+
     useEffect(() => {
         let cancelled = false;
         const fetchResidents = async () => {
@@ -91,10 +117,13 @@ const ResidentDetailDialog = ({
             try {
                 const response = await getResidents(user, selectedUnit.id);
                 if (cancelled) return;
+
                 if (response.value.length > 0) {
-                    const residents = response.value.map((r: { name: string }) => ({ name: r.name }));
-                    setExistingResidents(residents);
-                    setNameInput(residents[residents.length - 1].name);
+                    const residentsWithDates = await fetchAllLastVisits(response.value);
+                    if (cancelled) return;
+
+                    setExistingResidents(residentsWithDates);
+                    setNameInput(residentsWithDates[residentsWithDates.length - 1].name);
                 } else {
                     setExistingResidents([]);
                     setNameInput('');
@@ -142,12 +171,16 @@ const ResidentDetailDialog = ({
                 residentId = existingResponse.value[0].id;
              }
 
+            // Find the selected resident to get their lastVisitDate
+            const selectedResident = existingResidents.find(r => r.name === nameInput);
+
             // update state on success
             setResidentInfo({
                 id: residentId,
                 name: nameInput,
                 unit: selectedUnit,
-                building: selectedBuilding
+                building: selectedBuilding,
+                lastVisitDate: selectedResident?.lastVisitDate || null
             });
             setShowError(false);
             handleShowDialog();
@@ -274,9 +307,13 @@ const ResidentDetailDialog = ({
                         }}
                         renderOption={(props, option) => {
                         const { key, ...optionProps } = props;
+                        const lastVisit = option.lastVisitDate
+                            ? new Date(option.lastVisitDate).toLocaleDateString()
+                            : 'No previous visits';
+
                         return (
                             <li key={key} {...optionProps}>
-                            {option.name}
+                            {option.name} - Last visit: {lastVisit}
                             </li>
                             );
                         }}

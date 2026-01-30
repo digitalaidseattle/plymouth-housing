@@ -261,7 +261,7 @@ const EnterPinPage: React.FC = () => {
             {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>
           <Box sx={{ marginBottom: 6 }}>
-            <PinInput onPinChange={handlePinChange} />
+            <PinInput onPinChange={handlePinChange} onSubmit={handleNextClick} />
           </Box>
 
           <Button

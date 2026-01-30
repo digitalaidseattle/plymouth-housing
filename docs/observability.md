@@ -77,9 +77,16 @@ trackException(err, {
 ### Secrets Management & Deployment
 
 - The connection string is **not hardcoded** in the repository.
-- It must be stored as a GitHub secret named `VITE_APPINSIGHTS_CONNECTION_STRING` (Settings → Secrets and variables → Actions).
-- The GitHub Actions workflows ([CD](.github/workflows/azure-static-web-apps-CD.yml) and [production](.github/workflows/azure-static-web-apps-prod.yml)) pass the secret to the build environment as `${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}`.
-- **Action Required**: A repository administrator must add this secret to enable Application Insights in staging/production.
+- **Separate Application Insights instances are used for staging and production** to keep telemetry data isolated and ensure staging test data doesn't pollute production metrics.
+- Each environment has its own GitHub environment secret named `VITE_APPINSIGHTS_CONNECTION_STRING`:
+  - **Staging environment**: Uses the staging Application Insights connection string
+  - **Production environment**: Uses the production Application Insights connection string
+- The GitHub Actions workflows ([CD](.github/workflows/azure-static-web-apps-CD.yml) for staging and [production](.github/workflows/azure-static-web-apps-prod.yml)) automatically use the correct connection string from their respective GitHub environments.
+- **Action Required**: A repository administrator must configure both environment secrets:
+  1. Navigate to Settings → Environments → staging → Add secret
+  2. Add `VITE_APPINSIGHTS_CONNECTION_STRING` with the staging Application Insights connection string
+  3. Navigate to Settings → Environments → production → Add secret
+  4. Add `VITE_APPINSIGHTS_CONNECTION_STRING` with the production Application Insights connection string
 
 ## Summary
 

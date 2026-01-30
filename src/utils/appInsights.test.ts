@@ -5,11 +5,13 @@ import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vite
 
 const mockLoadAppInsights = vi.fn();
 const mockTrackException = vi.fn();
+const mockTrackEvent = vi.fn();
 
 const MockApplicationInsights = vi.fn(function (this: unknown) {
   return {
     loadAppInsights: mockLoadAppInsights,
     trackException: mockTrackException,
+    trackEvent: mockTrackEvent,
   };
 });
 
@@ -26,6 +28,7 @@ describe('appInsights', () => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockLoadAppInsights.mockClear();
     mockTrackException.mockClear();
+    mockTrackEvent.mockClear();
     MockApplicationInsights.mockClear();
     vi.resetModules();
   });
@@ -36,32 +39,43 @@ describe('appInsights', () => {
   });
 
   describe('initializeAppInsights', () => {
-    it('should skip initialization in development mode', async () => {
+    it('should initialize in development mode', async () => {
       vi.stubEnv('MODE', 'development');
       vi.stubEnv('VITE_APPINSIGHTS_CONNECTION_STRING', 'test-connection-string');
 
       const { initializeAppInsights } = await import('./appInsights');
       initializeAppInsights();
 
+      expect(MockApplicationInsights).toHaveBeenCalledWith({
+        config: expect.objectContaining({
+          connectionString: 'test-connection-string',
+          enableAutoRouteTracking: false,
+          disableFetchTracking: false,
+          enableCorsCorrelation: true,
+        }),
+      });
+      expect(mockLoadAppInsights).toHaveBeenCalled();
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[AppInsights] Skipping initialization:',
-        'development mode',
+        '[AppInsights] Initialized successfully',
       );
-      expect(MockApplicationInsights).not.toHaveBeenCalled();
     });
 
-    it('should skip initialization when no connection string provided', async () => {
+    it('should initialize even without connection string', async () => {
       vi.stubEnv('MODE', 'production');
       vi.stubEnv('VITE_APPINSIGHTS_CONNECTION_STRING', '');
 
       const { initializeAppInsights } = await import('./appInsights');
       initializeAppInsights();
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[AppInsights] Skipping initialization:',
-        'no connection string',
-      );
-      expect(MockApplicationInsights).not.toHaveBeenCalled();
+      expect(MockApplicationInsights).toHaveBeenCalledWith({
+        config: expect.objectContaining({
+          connectionString: '',
+          enableAutoRouteTracking: false,
+          disableFetchTracking: false,
+          enableCorsCorrelation: true,
+        }),
+      });
+      expect(mockLoadAppInsights).toHaveBeenCalled();
     });
 
     it('should initialize App Insights in production with connection string', async () => {
@@ -135,13 +149,9 @@ describe('appInsights', () => {
     });
 
     it('should fallback to console.error when App Insights not initialized', async () => {
-      vi.stubEnv('MODE', 'development');
-      vi.stubEnv('VITE_APPINSIGHTS_CONNECTION_STRING', '');
+      vi.resetModules();
 
-      const { initializeAppInsights, trackException } = await import(
-        './appInsights'
-      );
-      initializeAppInsights();
+      const { trackException } = await import('./appInsights');
 
       const testError = new Error('Test error');
       const properties = { component: 'TestComponent' };
@@ -203,6 +213,71 @@ describe('appInsights', () => {
       expect(instance).not.toBeNull();
       expect(instance).toHaveProperty('loadAppInsights');
       expect(instance).toHaveProperty('trackException');
+    });
+  });
+
+  describe('trackEvent', () => {
+    it('should track event when App Insights is initialized', async () => {
+      vi.stubEnv('MODE', 'production');
+      vi.stubEnv(
+        'VITE_APPINSIGHTS_CONNECTION_STRING',
+        'InstrumentationKey=test-key',
+      );
+
+      const { initializeAppInsights, trackEvent } = await import(
+        './appInsights'
+      );
+      initializeAppInsights();
+
+      trackEvent('TestEvent', {
+        property1: 'value1',
+        property2: 123,
+        property3: true,
+      });
+
+      expect(mockTrackEvent).toHaveBeenCalledWith({
+        name: 'TestEvent',
+        properties: {
+          property1: 'value1',
+          property2: '123',
+          property3: 'true',
+        },
+      });
+    });
+
+    it('should fallback to console.log when not initialized', async () => {
+      vi.resetModules();
+
+      const { trackEvent } = await import('./appInsights');
+
+      trackEvent('TestEvent', { property1: 'value1' });
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        '[AppInsights] Event:',
+        'TestEvent',
+        { property1: 'value1' },
+      );
+      expect(mockTrackEvent).not.toHaveBeenCalled();
+    });
+
+    it('should track event without properties', async () => {
+      vi.stubEnv('MODE', 'production');
+      vi.stubEnv(
+        'VITE_APPINSIGHTS_CONNECTION_STRING',
+        'InstrumentationKey=test-key',
+      );
+
+      const { initializeAppInsights, trackEvent } = await import(
+        './appInsights'
+      );
+      initializeAppInsights();
+
+      trackEvent('SimpleEvent');
+
+      expect(mockTrackEvent).toHaveBeenCalledWith({
+        name: 'SimpleEvent',
+        properties: undefined,
+      });
     });
   });
 });

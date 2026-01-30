@@ -50,6 +50,30 @@ export const trackException = (
   }
 };
 
+export const trackEvent = (
+  name: string,
+  properties?: Record<string, string | number | boolean>,
+): void => {
+  if (appInsights) {
+    const stringProperties = properties
+      ? Object.entries(properties).reduce(
+          (acc, [key, value]) => {
+            acc[key] = String(value);
+            return acc;
+          },
+          {} as Record<string, string>,
+        )
+      : undefined;
+
+    appInsights.trackEvent({
+      name: name,
+      properties: stringProperties,
+    });
+  } else {
+    console.log('[AppInsights] Event:', name, properties);
+  }
+};
+
 export const getAppInsights = (): ApplicationInsights | null => {
   return appInsights;
 };

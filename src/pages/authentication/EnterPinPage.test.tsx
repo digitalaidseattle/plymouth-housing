@@ -6,6 +6,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 
 const mockNavigate = vi.fn();
 const mockTrackException = vi.hoisted(() => vi.fn());
+const mockTrackEvent = vi.hoisted(() => vi.fn());
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
@@ -13,6 +14,7 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('../../utils/appInsights', () => ({
   trackException: mockTrackException,
+  trackEvent: mockTrackEvent,
 }));
 
 // Mock PinInput to simulate PIN entry.
@@ -43,6 +45,7 @@ describe('EnterPinPage Component', () => {
     vi.resetAllMocks();
     mockNavigate.mockReset();
     mockTrackException.mockReset();
+    mockTrackEvent.mockReset();
   });
 
   test('redirects to /pick-your-name if loggedInUserId is null', () => {

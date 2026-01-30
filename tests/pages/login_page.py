@@ -1,12 +1,7 @@
-import time
 from selenium.common import StaleElementReferenceException
 from selenium.webdriver import ActionChains
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import LoginPageLocators
-
 
 class LoginPage(BasePage):
     def __init__(self, driver):
@@ -64,37 +59,3 @@ class LoginPage(BasePage):
 
     def is_database_popup_visible(self):
         return self.wait_for_visibility(self.locators.DATABASE_POPUP_TEXT)
-
-    # def get_event_name(self):
-    #     return self.driver.find_element(*self.event_name).text
-    #
-    # def get_event_location(self):
-    #     return self.driver.find_element(*self.event_location).text
-    #
-    # def get_event_date(self):
-    #     return self.driver.find_element(*self.event_date).text
-    #
-    # def get_event_time(self):
-    #     return self.driver.find_element(*self.event_time).text
-
-    # def enter_username(self, username):
-    #     self.driver.find_element(*self.username_input).send_keys(username)
-    #
-    # def enter_password(self, password):
-    #     self.driver.find_element(*self.password_input).send_keys(password)
-
-    # def enter_your_name(self, name):
-    #     self.driver.find_element(*self.enter_your_name_input).send_keys(name)
-    #
-    # def click_next_button(self):
-    #     self.driver.find_element(*self.next_button).click()
-    #
-    # def click_sign_in_button(self):
-    #     self.driver.find_element(*self.sign_in_button).click()
-    #
-    # def click_yes_button(self):
-    #     self.driver.find_element(*self.yes_button).click()
-    #
-    # def get_displayed_dish_names(self, index):
-    #     displayed_dish_names = self.driver.find_elements(*self.displayed_dish_names)
-    #     return displayed_dish_names[index].text

@@ -49,6 +49,7 @@ const ResidentDetailDialog = ({
     const [isLoadingResidents, setIsLoadingResidents] = useState(false);
     const [isLoadingUnits, setIsLoadingUnits] = useState(false);
     const [apiError, setApiError] = useState('');
+    const [currentLastVisitDate, setCurrentLastVisitDate] = useState<string | null>(null);
 
     const filter = createFilterOptions<ResidentNameOption>();
 
@@ -123,10 +124,13 @@ const ResidentDetailDialog = ({
                     if (cancelled) return;
 
                     setExistingResidents(residentsWithDates);
-                    setNameInput(residentsWithDates[residentsWithDates.length - 1].name);
+                    const lastResident = residentsWithDates[residentsWithDates.length - 1];
+                    setNameInput(lastResident.name);
+                    setCurrentLastVisitDate(lastResident.lastVisitDate || null);
                 } else {
                     setExistingResidents([]);
                     setNameInput('');
+                    setCurrentLastVisitDate(null);
                 }
             } catch (e) {
                 if (cancelled) return;
@@ -270,12 +274,17 @@ const ResidentDetailDialog = ({
                         onChange={(_event, newValue) => {
                             if (typeof newValue === 'string') {
                                 setNameInput(newValue);
+                                setCurrentLastVisitDate(null);
                             } else if (newValue && (newValue as ResidentNameOption).inputValue) {
                                 setNameInput((newValue as ResidentNameOption).inputValue!);
+                                setCurrentLastVisitDate(null);
                             } else if (newValue && (newValue as ResidentNameOption).name) {
-                                setNameInput((newValue as ResidentNameOption).name);
+                                const selectedResident = newValue as ResidentNameOption;
+                                setNameInput(selectedResident.name);
+                                setCurrentLastVisitDate(selectedResident.lastVisitDate || null);
                             } else {
                                 setNameInput('');
+                                setCurrentLastVisitDate(null);
                             }
                         }}
                         filterOptions={(options, params) => {
@@ -326,6 +335,11 @@ const ResidentDetailDialog = ({
                         )}
                     />
                 </FormControl>
+                {nameInput && (
+                    <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'flex-start' }}>
+                        last visit: {currentLastVisitDate ? new Date(currentLastVisitDate).toLocaleDateString() : 'none'}
+                    </Typography>
+                )}
                 {apiError && <Typography color="error">{apiError}</Typography>}
             </Box>
         </DialogTemplate>

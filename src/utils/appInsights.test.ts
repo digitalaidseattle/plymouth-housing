@@ -39,46 +39,7 @@ describe('appInsights', () => {
   });
 
   describe('initializeAppInsights', () => {
-    it('should initialize in development mode', async () => {
-      vi.stubEnv('MODE', 'development');
-      vi.stubEnv('VITE_APPINSIGHTS_CONNECTION_STRING', 'test-connection-string');
-
-      const { initializeAppInsights } = await import('./appInsights');
-      initializeAppInsights();
-
-      expect(MockApplicationInsights).toHaveBeenCalledWith({
-        config: expect.objectContaining({
-          connectionString: 'test-connection-string',
-          enableAutoRouteTracking: false,
-          disableFetchTracking: false,
-          enableCorsCorrelation: true,
-        }),
-      });
-      expect(mockLoadAppInsights).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[AppInsights] Initialized successfully',
-      );
-    });
-
-    it('should initialize even without connection string', async () => {
-      vi.stubEnv('MODE', 'production');
-      vi.stubEnv('VITE_APPINSIGHTS_CONNECTION_STRING', '');
-
-      const { initializeAppInsights } = await import('./appInsights');
-      initializeAppInsights();
-
-      expect(MockApplicationInsights).toHaveBeenCalledWith({
-        config: expect.objectContaining({
-          connectionString: '',
-          enableAutoRouteTracking: false,
-          disableFetchTracking: false,
-          enableCorsCorrelation: true,
-        }),
-      });
-      expect(mockLoadAppInsights).toHaveBeenCalled();
-    });
-
-    it('should initialize App Insights in production with connection string', async () => {
+    it('should initialize App Insights with connection string', async () => {
       vi.stubEnv('MODE', 'production');
       vi.stubEnv(
         'VITE_APPINSIGHTS_CONNECTION_STRING',

@@ -9,6 +9,19 @@ import People from '../pages/people';
 import Inventory from './inventory';
 import CheckoutPage from './checkout/CheckoutPage';
 import { RootRedirect } from '../components/RootRedirect';
+import { useLocation } from 'react-router-dom';
+
+const CheckoutPageContainer = () => {
+  const location = useLocation();
+  const checkoutType = (location.state as { checkoutType?: 'general' | 'welcomeBasket' })?.checkoutType || 'general';
+  const title = `Check out - ${checkoutType === 'general' ? 'General' : 'Welcome Basket'}`;
+
+  return (
+    <MainContainer title={title}>
+      <CheckoutPage />
+    </MainContainer>
+  );
+};
 
 const routes = [
   {
@@ -61,9 +74,7 @@ const routes = [
           // checkout card content is given a fixed height and scrollbar
           // to work with the sticky nav inside it
           <RootRedirect source="checkout">
-            <MainContainer title="Check out">
-              <CheckoutPage />,
-            </MainContainer>
+            <CheckoutPageContainer />
           </RootRedirect>
         ),
       },

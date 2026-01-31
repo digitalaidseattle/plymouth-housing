@@ -63,8 +63,8 @@ const VolunteerHome: React.FC = () => {
     setAddModal(false);
   };
 
-  const handleCheckOutClick = () => {
-    navigate('/checkout');
+  const handleCheckOutClick = (checkoutType: 'general' | 'welcomeBasket' = 'general') => {
+    navigate('/checkout', { state: { checkoutType } });
   };
 
   if (isLoading) {
@@ -95,74 +95,127 @@ const VolunteerHome: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Button Grid */}
-      <Grid
-        container
-        spacing={10}
-        justifyContent="space-between"
-        sx={{ height: '60%' }}
-      >
-        <Grid size ={{xs:12, md:6}}>
-          <Button
-            variant="outlined"
-            onClick={handleCheckOutClick}
-            sx={{
-              height: '100%',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#f5f5f5',
-              borderRadius: 5,
-              borderColor: '#f5f5f5',
-              color: 'black',
-              '&:hover': {
-                backgroundColor: '#e0e0e0',
-                borderColor: '#e0e0e0',
-              },
-            }}
-          >
-            <ShoppingCartIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
-            <Typography variant="h6">Check Out</Typography>
-          </Button>
-        </Grid>
+      {/* Action Sections */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {/* General Section */}
+        <Box>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            General
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 4 }}>
+            <Button
+              variant="outlined"
+              onClick={() => handleCheckOutClick('general')}
+              sx={{
+                flex: 1,
+                height: '200px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#f5f5f5',
+                borderRadius: 5,
+                borderColor: '#f5f5f5',
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#e0e0e0',
+                  borderColor: '#e0e0e0',
+                },
+              }}
+            >
+              <ShoppingCartIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
+              <Typography variant="h6">Check out</Typography>
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleAddOpen}
+              sx={{
+                flex: 1,
+                height: '200px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#f5f5f5',
+                borderRadius: 5,
+                borderColor: '#f5f5f5',
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#e0e0e0',
+                  borderColor: '#e0e0e0',
+                },
+              }}
+            >
+              <AddIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
+              <Typography variant="h6">Add item</Typography>
+            </Button>
+          </Box>
+        </Box>
 
-        <Grid size ={{xs:12, md:6}}>
-          <Button
-            variant="outlined"
-            onClick={handleAddOpen}
-            sx={{
-              height: '100%',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#f5f5f5',
-              borderRadius: 5,
-              borderColor: '#f5f5f5',
-              color: 'black',
-              '&:hover': {
-                backgroundColor: '#e0e0e0',
-                borderColor: '#e0e0e0',
-              },
-            }}
-          >
-            <AddIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
-            <Typography variant="h6">Add Item to Inventory</Typography>
-          </Button>
+        {/* Welcome Basket Section */}
+        <Box>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Welcome basket
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 4 }}>
+            <Button
+              variant="outlined"
+              onClick={() => handleCheckOutClick('welcomeBasket')}
+              sx={{
+                flex: 1,
+                height: '200px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#f5f5f5',
+                borderRadius: 5,
+                borderColor: '#f5f5f5',
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#e0e0e0',
+                  borderColor: '#e0e0e0',
+                },
+              }}
+            >
+              <ShoppingCartIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
+              <Typography variant="h6">Check out</Typography>
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => {/* TODO: Handle Welcome Basket Add Item */}}
+              sx={{
+                flex: 1,
+                height: '200px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#f5f5f5',
+                borderRadius: 5,
+                borderColor: '#f5f5f5',
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#e0e0e0',
+                  borderColor: '#e0e0e0',
+                },
+              }}
+            >
+              <AddIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
+              <Typography variant="h6">Add item</Typography>
+            </Button>
+          </Box>
+        </Box>
+      </Box>
 
-          <AddItemModal
-            addModal={addModal}
-            handleAddClose={handleAddClose}
-            fetchData={fetchData}
-            originalData={originalData}
-            showResults={showResults}
-            setShowResults={setShowResults}
-          />
-        </Grid>
-      </Grid>
+      <AddItemModal
+        addModal={addModal}
+        handleAddClose={handleAddClose}
+        fetchData={fetchData}
+        originalData={originalData}
+        showResults={showResults}
+        setShowResults={setShowResults}
+      />
     
       <SnackbarAlert
           open={snackbarState.open}

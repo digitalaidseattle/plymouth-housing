@@ -14,7 +14,9 @@ import {
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
+  GiftOutlined,
+  ShoppingCartOutlined,
 } from '@ant-design/icons';
 
 const icons = {
@@ -31,7 +33,9 @@ const icons = {
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
+  GiftOutlined,
+  ShoppingCartOutlined,
 };
 
 // ==============================|| MENU ITEMS ||============================== //
@@ -75,6 +79,7 @@ const dashboard = {
           title: 'General',
           type: 'item',
           url: '/checkout',
+          icon: icons.ShoppingCartOutlined,
           state: { checkoutType: 'general' },
           breadcrumbs: false,
         },
@@ -83,6 +88,7 @@ const dashboard = {
           title: 'Welcome basket',
           type: 'item',
           url: '/checkout',
+          icon: icons.GiftOutlined,
           state: { checkoutType: 'welcomeBasket' },
           breadcrumbs: false,
         },

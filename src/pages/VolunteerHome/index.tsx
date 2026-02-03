@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Box, Typography, Button, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
@@ -178,7 +179,7 @@ const VolunteerHome: React.FC = () => {
                 },
               }}
             >
-              <ShoppingCartIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
+              <CardGiftcardIcon sx={{ fontSize: 50, mb: 1, color: 'black' }} />
               <Typography variant="h6">Check out</Typography>
             </Button>
             <Button

@@ -462,7 +462,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
             setSearchActive={setSearchActive}
           />
         </Box>
-        {!searchActive && (
+        {!searchActive && checkoutType === 'general' && (
           <Navbar
             key={checkoutType}
             filteredData={navbarData}

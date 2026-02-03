@@ -7,6 +7,18 @@ CREATE PROCEDURE FindUserTransactionHistory
     @history_type NVARCHAR(10)
 AS
 BEGIN
+    -- Add validation at the start of the procedure:                                                          
+    IF @start_date > @end_date                                                                                
+    BEGIN                                                                                                     
+        RAISERROR('Start date must be before or equal to end date', 16, 1);                                   
+        RETURN;                                                                                               
+    END                                                                                                       
+                                                                                                            
+    IF @history_type NOT IN ('checkout', 'inventory')                                                         
+    BEGIN                                                                                                     
+        RAISERROR('Invalid history type. Must be checkout or inventory', 16, 1);                              
+        RETURN;                                                                                               
+    END 
     IF @history_type = 'checkout'
     BEGIN
         SELECT 

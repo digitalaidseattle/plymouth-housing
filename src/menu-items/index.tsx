@@ -66,10 +66,27 @@ const dashboard = {
     {
       id: 'checkout',
       title: 'Checkout',
-      type: 'item',
-      url: '/checkout',
+      type: 'collapse',
       icon: icons.EyeInvisibleOutlined,
       breadcrumbs: false,
+      children: [
+        {
+          id: 'checkout-general',
+          title: 'General',
+          type: 'item',
+          url: '/checkout',
+          state: { checkoutType: 'general' },
+          breadcrumbs: false,
+        },
+        {
+          id: 'checkout-welcome-basket',
+          title: 'Welcome basket',
+          type: 'item',
+          url: '/checkout',
+          state: { checkoutType: 'welcomeBasket' },
+          breadcrumbs: false,
+        },
+      ],
     },
     {
       id: 'people',

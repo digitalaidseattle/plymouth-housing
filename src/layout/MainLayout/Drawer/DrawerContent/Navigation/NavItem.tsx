@@ -27,7 +27,8 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   const theme = useTheme();
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
 
   const { drawerOpen } = useContext(DrawerOpenContext);
   const { activeMenuItem, setActiveMenuItem } = useContext(
@@ -37,9 +38,22 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   // active menu item on page load
   useEffect(() => {
     if (pathname.includes(item.url)) {
-      setActiveMenuItem(item.id);
+      // Check if state matches (for submenu items with state)
+      if (item.state) {
+        const locationState = location.state as Record<string, unknown> | null;
+        const stateMatches = locationState &&
+          Object.keys(item.state).every(
+            key => locationState[key] === item.state![key]
+          );
+        if (stateMatches) {
+          setActiveMenuItem(item.id);
+        }
+      } else {
+        // For items without state requirement, just match the URL
+        setActiveMenuItem(item.id);
+      }
     }
-  }, [pathname, item, setActiveMenuItem]);
+  }, [pathname, location.state, item, setActiveMenuItem]);
 
   let itemTarget = '_self';
   if (item.target) {
@@ -48,7 +62,7 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   const listItemProps = {
     component: forwardRef((props: React.ComponentProps<typeof Link>, ref: React.Ref<HTMLAnchorElement>) => (
-      <Link ref={ref} {...props} to={item.url} target={itemTarget} />
+      <Link ref={ref} {...props} to={item.url} target={itemTarget} state={item.state} />
     )),
   };
   // FIXME

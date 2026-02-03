@@ -35,7 +35,7 @@ BEGIN
         INNER JOIN Buildings ON Units.building_id = Buildings.id
         WHERE CONVERT(date, [transaction_date]) >= @start_date 
             AND CONVERT(date, [transaction_date]) <= @end_date
-            AND [transaction_type] = 1
+            AND [transaction_type] = 1  -- CHECKOUT
         ORDER BY Transactions.transaction_date DESC;
     END;
 
@@ -61,7 +61,7 @@ BEGIN
         FROM Transactions
         WHERE CONVERT(date, [transaction_date]) >= @start_date 
             AND CONVERT(date, [transaction_date]) <= @end_date
-            AND [transaction_type] IN (2, 3)
+            AND [transaction_type] IN (2, 3) -- RESTOCK and CORRECTION respectively
         ORDER BY Transactions.transaction_date DESC;
     END;
 END;

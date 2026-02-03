@@ -29,6 +29,54 @@ type ResidentNameOption = {
     name: string;
 }
 
+// =============================================================================
+// RESIDENT DETAIL DIALOG
+//
+// Dual Purpose Component:
+// 1. General Mode: Collects building + unit + resident for individual checkout
+// 2. Welcome Basket Mode: Collects only building, auto-selects 'welcome' unit
+//    and 'admin' resident for building-level welcome basket checkout
+// =============================================================================
+
+// Helper: Validate form based on checkout mode
+const validateResidentForm = (
+    checkoutType: 'general' | 'welcomeBasket',
+    selectedBuilding: Building,
+    selectedUnit: Unit,
+    nameInput: string
+): boolean => {
+    if (checkoutType === 'welcomeBasket') {
+        return !!selectedBuilding.id;
+    }
+    return !!nameInput && !!selectedBuilding.id && !!selectedUnit.id;
+};
+
+// Helper: Get default resident name based on mode
+const getDefaultResidentName = (
+    checkoutType: 'general' | 'welcomeBasket',
+    residents: ResidentNameOption[]
+): string => {
+    if (checkoutType === 'welcomeBasket') {
+        const adminResident = residents.find(r => r.name.toLowerCase() === 'admin');
+        return adminResident?.name || 'admin';
+    }
+    return residents.length > 0 ? residents[residents.length - 1].name : '';
+};
+
+// Helper: Auto-select welcome unit for Welcome Basket mode
+const applyWelcomeBasketDefaults = (
+    checkoutType: 'general' | 'welcomeBasket',
+    unitNumbers: Unit[],
+    setSelectedUnit: (unit: Unit) => void
+): void => {
+    if (checkoutType !== 'welcomeBasket') return;
+
+    const welcomeUnit = unitNumbers.find(u => u.unit_number.toLowerCase() === 'welcome');
+    if (welcomeUnit) {
+        setSelectedUnit(welcomeUnit);
+    }
+};
+
 const ResidentDetailDialog = ({
     showDialog,
     handleShowDialog,
@@ -64,12 +112,8 @@ const ResidentDetailDialog = ({
                 .filter((item: Unit) => item.unit_number.trim() !== '');
             setUnitNumberValues(unitNumbers);
 
-            if (checkoutType === 'welcomeBasket') {
-                const welcomeUnit = unitNumbers.find((unit: Unit) => unit.unit_number.toLowerCase() === 'welcome');
-                if (welcomeUnit) {
-                    setSelectedUnit(welcomeUnit);
-                }
-            }
+            // Auto-select 'welcome' unit for Welcome Basket mode
+            applyWelcomeBasketDefaults(checkoutType, unitNumbers, setSelectedUnit);
         } catch (error) {
             console.error('Error fetching unit numbers:', error);
             setUnitNumberValues([]);
@@ -103,21 +147,16 @@ const ResidentDetailDialog = ({
                 if (response.value.length > 0) {
                     const residents = response.value.map((r: { name: string }) => ({ name: r.name }));
                     setExistingResidents(residents);
-                    if (checkoutType === 'welcomeBasket') {
-                        const adminResident = residents.find((r: { name: string }) => r.name.toLowerCase() === 'admin');
-                        setNameInput(adminResident?.name || 'admin');
-                    } else {
-                        setNameInput(residents[residents.length - 1].name);
-                    }
+                    setNameInput(getDefaultResidentName(checkoutType, residents));
                 } else {
                     setExistingResidents([]);
-                    setNameInput(checkoutType === 'welcomeBasket' ? 'admin' : '');
+                    setNameInput(getDefaultResidentName(checkoutType, []));
                 }
             } catch (e) {
                 if (cancelled) return;
                 console.error('Error fetching residents:', e);
                 setExistingResidents([]);
-                setNameInput(checkoutType === 'welcomeBasket' ? 'admin' : '');
+                setNameInput(getDefaultResidentName(checkoutType, []));
                 if (e instanceof TypeError && e.message === 'Failed to fetch') {
                     setApiError('Unable to load resident data. Please check your connection and try again.');
                 } else {
@@ -138,16 +177,9 @@ const ResidentDetailDialog = ({
         e.preventDefault();
         setApiError('');
         // validate inputs, show error
-        if (checkoutType === 'welcomeBasket') {
-            if (!selectedBuilding.id) {
-                setShowError(true);
-                return;
-            }
-        } else {
-            if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
-                setShowError(true);
-                return;
-            }
+        if (!validateResidentForm(checkoutType, selectedBuilding, selectedUnit, nameInput)) {
+            setShowError(true);
+            return;
         }
         setIsSubmitting(true);
         document.body.style.cursor = 'wait';

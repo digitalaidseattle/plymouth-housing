@@ -20,7 +20,8 @@ type ResidentDetailDialogProps = {
     unitNumberValues: Unit[],
     setUnitNumberValues:  React.Dispatch<React.SetStateAction<Unit[]>>,
     residentInfo: ResidentInfo,
-    setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>
+    setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>,
+    checkoutType?: 'general' | 'welcomeBasket'
 }
 
 type ResidentNameOption = {
@@ -29,13 +30,14 @@ type ResidentNameOption = {
 }
 
 const ResidentDetailDialog = ({
-    showDialog, 
-    handleShowDialog, 
-    buildings, 
+    showDialog,
+    handleShowDialog,
+    buildings,
     unitNumberValues,
     setUnitNumberValues,
     residentInfo,
-    setResidentInfo
+    setResidentInfo,
+    checkoutType = 'general'
     }: ResidentDetailDialogProps) => {
     const {user} = useContext(UserContext);
     const [nameInput, setNameInput] = useState<string>(residentInfo.name)
@@ -61,6 +63,13 @@ const ResidentDetailDialog = ({
             const unitNumbers = response
                 .filter((item: Unit) => item.unit_number.trim() !== '');
             setUnitNumberValues(unitNumbers);
+
+            if (checkoutType === 'welcomeBasket') {
+                const welcomeUnit = unitNumbers.find((unit: Unit) => unit.unit_number.toLowerCase() === 'welcome');
+                if (welcomeUnit) {
+                    setSelectedUnit(welcomeUnit);
+                }
+            }
         } catch (error) {
             console.error('Error fetching unit numbers:', error);
             setUnitNumberValues([]);
@@ -94,16 +103,21 @@ const ResidentDetailDialog = ({
                 if (response.value.length > 0) {
                     const residents = response.value.map((r: { name: string }) => ({ name: r.name }));
                     setExistingResidents(residents);
-                    setNameInput(residents[residents.length - 1].name);
+                    if (checkoutType === 'welcomeBasket') {
+                        const adminResident = residents.find((r: { name: string }) => r.name.toLowerCase() === 'admin');
+                        setNameInput(adminResident?.name || 'admin');
+                    } else {
+                        setNameInput(residents[residents.length - 1].name);
+                    }
                 } else {
                     setExistingResidents([]);
-                    setNameInput('');
+                    setNameInput(checkoutType === 'welcomeBasket' ? 'admin' : '');
                 }
             } catch (e) {
                 if (cancelled) return;
                 console.error('Error fetching residents:', e);
                 setExistingResidents([]);
-                setNameInput('');
+                setNameInput(checkoutType === 'welcomeBasket' ? 'admin' : '');
                 if (e instanceof TypeError && e.message === 'Failed to fetch') {
                     setApiError('Unable to load resident data. Please check your connection and try again.');
                 } else {
@@ -118,15 +132,22 @@ const ResidentDetailDialog = ({
         };
         fetchResidents();
         return () => { cancelled = true; };
-    }, [user, selectedUnit]);
+    }, [user, selectedUnit, checkoutType]);
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setApiError('');
         // validate inputs, show error
-        if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
-            setShowError(true);
-            return;
+        if (checkoutType === 'welcomeBasket') {
+            if (!selectedBuilding.id) {
+                setShowError(true);
+                return;
+            }
+        } else {
+            if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
+                setShowError(true);
+                return;
+            }
         }
         setIsSubmitting(true);
         document.body.style.cursor = 'wait';
@@ -176,7 +197,7 @@ const ResidentDetailDialog = ({
             showDialog={showDialog}
             handleShowDialog={handleShowDialog}
             handleSubmit={handleSubmit}
-            title="provide details to continue"
+            title={checkoutType === 'welcomeBasket' ? 'provide building code to continue' : 'provide details to continue'}
             submitButtonText='continue'
             isSubmitting={isWaiting}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingY: '1rem' }}>
@@ -191,104 +212,108 @@ const ResidentDetailDialog = ({
                         disabled={isWaiting}/>
                 </FormControl>
 
-                <FormControl>
-                    <Autocomplete
-                        id="select-unit-number"
-                        data-testid="test-id-select-unit-number"
-                        options={unitNumberValues}
-                        value={selectedUnit}
-                        disabled={isWaiting}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
-                            if (reason === "clear") {
-                                setSelectedUnit({id: 0, unit_number: ''});
-                                return;
+                {checkoutType === 'general' && (
+                    <FormControl>
+                        <Autocomplete
+                            id="select-unit-number"
+                            data-testid="test-id-select-unit-number"
+                            options={unitNumberValues}
+                            value={selectedUnit}
+                            disabled={isWaiting}
+                            isOptionEqualToValue={(option, value) => option.id === value.id}
+                            onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
+                                if (reason === "clear") {
+                                    setSelectedUnit({id: 0, unit_number: ''});
+                                    return;
+                                }
+                                // runs whether value was selected or typed; matches value with corresponding unit object
+                                const matchingUnit = unitNumberValues.find(u => u.unit_number === newValue);
+                                if (matchingUnit) {
+                                    setSelectedUnit(matchingUnit)
+                                    setShowError(false)
+                                } else {
+                                    setSelectedUnit({id: 0, unit_number: newValue})
+                                    setShowError(true)
+                                }
+                            }}
+                            getOptionLabel={(option: Unit | string) => {
+                                if (typeof option === 'string') return option;
+                                return `${option.unit_number}`;
+                            }}
+                            renderInput={(params) =>
+                                <TextField {...params}
+                                    id={selectedUnit.unit_number}
+                                    label="Unit Number"
+                                    error={showError}
+                                    helperText={getUnitHelperText(showError, selectedUnit)}
+                                />
                             }
-                            // runs whether value was selected or typed; matches value with corresponding unit object
-                            const matchingUnit = unitNumberValues.find(u => u.unit_number === newValue);
-                            if (matchingUnit) { 
-                                setSelectedUnit(matchingUnit) 
-                                setShowError(false)
-                            } else {
-                                setSelectedUnit({id: 0, unit_number: newValue}) 
-                                setShowError(true)
-                            }
-                        }}
-                        getOptionLabel={(option: Unit | string) => {
-                            if (typeof option === 'string') return option;
-                            return `${option.unit_number}`;
-                        }}
-                        renderInput={(params) => 
-                            <TextField {...params} 
-                                id={selectedUnit.unit_number}
-                                label="Unit Number" 
-                                error={showError} 
-                                helperText={getUnitHelperText(showError, selectedUnit)}
-                            />
-                        }
-                        freeSolo
-                    />
-                </FormControl>
+                            freeSolo
+                        />
+                    </FormControl>
+                )}
 
-                <FormControl>
-                    <Autocomplete
-                        value={nameInput}
-                        disabled={isWaiting}
-                        onChange={(_event, newValue) => {
-                            if (typeof newValue === 'string') {
-                                setNameInput(newValue);
-                            } else if (newValue && (newValue as ResidentNameOption).inputValue) {
-                                setNameInput((newValue as ResidentNameOption).inputValue!);
-                            } else if (newValue && (newValue as ResidentNameOption).name) {
-                                setNameInput((newValue as ResidentNameOption).name);
-                            } else {
-                                setNameInput('');
+                {checkoutType === 'general' && (
+                    <FormControl>
+                        <Autocomplete
+                            value={nameInput}
+                            disabled={isWaiting}
+                            onChange={(_event, newValue) => {
+                                if (typeof newValue === 'string') {
+                                    setNameInput(newValue);
+                                } else if (newValue && (newValue as ResidentNameOption).inputValue) {
+                                    setNameInput((newValue as ResidentNameOption).inputValue!);
+                                } else if (newValue && (newValue as ResidentNameOption).name) {
+                                    setNameInput((newValue as ResidentNameOption).name);
+                                } else {
+                                    setNameInput('');
+                                }
+                            }}
+                            filterOptions={(options, params) => {
+                                const filtered = filter(options, params);
+                                const { inputValue } = params;
+                                // Suggest the creation of a new value
+                                const isExisting = options.some((option) => inputValue === option.name);
+                                if (inputValue !== '' && !isExisting) {
+                                    setNameInput(inputValue);
+                                }
+                                return filtered;
+                            }}
+                            selectOnFocus
+                            clearOnBlur
+                            handleHomeEndKeys
+                            id="resident-name-autocomplete"
+                            options={existingResidents}
+                            getOptionLabel={(option) => {
+                            // Value selected with enter, right from the input
+                            if (typeof option === 'string') {
+                                return option;
                             }
-                        }}
-                        filterOptions={(options, params) => {
-                            const filtered = filter(options, params);
-                            const { inputValue } = params;
-                            // Suggest the creation of a new value
-                            const isExisting = options.some((option) => inputValue === option.name);
-                            if (inputValue !== '' && !isExisting) {
-                                setNameInput(inputValue);
+                            // Add "xxx" option created dynamically
+                            if (option.inputValue) {
+                                return option.inputValue;
                             }
-                            return filtered;
-                        }}
-                        selectOnFocus
-                        clearOnBlur 
-                        handleHomeEndKeys
-                        id="resident-name-autocomplete"
-                        options={existingResidents}
-                        getOptionLabel={(option) => {
-                        // Value selected with enter, right from the input
-                        if (typeof option === 'string') {
-                            return option;
-                        }
-                        // Add "xxx" option created dynamically
-                        if (option.inputValue) {
-                            return option.inputValue;
-                        }
-                        // Regular option
-                        return option.name;
-                        }}
-                        renderOption={(props, option) => {
-                        const { key, ...optionProps } = props;
-                        return (
-                            <li key={key} {...optionProps}>
-                            {option.name}
-                            </li>
-                            );
-                        }}
-                        freeSolo
-                        renderInput={(params) => (
-                        <TextField {...params} 
-                            label="Resident Name" 
-                            error={showError && !nameInput} 
-                            helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
-                        )}
-                    />
-                </FormControl>
+                            // Regular option
+                            return option.name;
+                            }}
+                            renderOption={(props, option) => {
+                            const { key, ...optionProps } = props;
+                            return (
+                                <li key={key} {...optionProps}>
+                                {option.name}
+                                </li>
+                                );
+                            }}
+                            freeSolo
+                            renderInput={(params) => (
+                            <TextField {...params}
+                                label="Resident Name"
+                                error={showError && !nameInput}
+                                helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
+                            )}
+                        />
+                    </FormControl>
+                )}
                 {apiError && <Typography color="error">{apiError}</Typography>}
             </Box>
         </DialogTemplate>

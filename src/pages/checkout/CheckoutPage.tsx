@@ -395,6 +395,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
           setUnitNumberValues={setUnitNumberValues}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
+          checkoutType={checkoutType}
         />
       )}
       {showAdditionalNotesDialog && (
@@ -453,8 +454,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
             onClick={() => setShowResidentDetailDialog(true)}
           >
             {residentInfoIsMissing
-              ? 'Missing Resident Info'
-              : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name}`}
+              ? checkoutType === 'welcomeBasket' ? 'Missing Building Info' : 'Missing Resident Info'
+              : checkoutType === 'welcomeBasket'
+                ? `${residentInfo.building.code}`
+                : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name}`}
           </Button>
           <SearchBar
             data={data}

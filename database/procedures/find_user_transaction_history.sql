@@ -19,6 +19,17 @@ BEGIN
         RAISERROR('Invalid history type. Must be checkout or inventory', 16, 1);                              
         RETURN;                                                                                               
     END 
+
+    -- query for the transaction type IDs
+    DECLARE @CheckoutTransactionType INT;
+    SELECT @CheckoutTransactionType = id FROM TransactionTypes WHERE transaction_type = 'CHECKOUT';
+    
+    DECLARE @RestockTransactionType INT;
+    SELECT @RestockTransactionType = id FROM TransactionTypes WHERE transaction_type = 'RESTOCK';
+    
+    DECLARE @CorrectionTransactionType INT;
+    SELECT @CorrectionTransactionType = id FROM TransactionTypes WHERE transaction_type = 'CORRECTION';
+    
     IF @history_type = 'checkout'
     BEGIN
         SELECT 
@@ -47,7 +58,7 @@ BEGIN
         INNER JOIN Buildings ON Units.building_id = Buildings.id
         WHERE CONVERT(date, [transaction_date]) >= @start_date 
             AND CONVERT(date, [transaction_date]) <= @end_date
-            AND [transaction_type] = 1  -- CHECKOUT
+            AND [transaction_type] = @CheckoutTransactionType
         ORDER BY Transactions.transaction_date DESC;
     END;
 
@@ -73,7 +84,7 @@ BEGIN
         FROM Transactions
         WHERE CONVERT(date, [transaction_date]) >= @start_date 
             AND CONVERT(date, [transaction_date]) <= @end_date
-            AND [transaction_type] IN (2, 3) -- RESTOCK and CORRECTION respectively
+            AND [transaction_type] IN (@RestockTransactionType, @CorrectionTransactionType)
         ORDER BY Transactions.transaction_date DESC;
     END;
 END;

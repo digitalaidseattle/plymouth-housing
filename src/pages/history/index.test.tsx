@@ -12,7 +12,7 @@ import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as HistoryAPICalls from '../../components/History/HistoryAPICalls';
 import * as CheckoutAPICalls from '../../components/Checkout/CheckoutAPICalls';
-import * as helpers from '../../components/helpers/fetchCategorizedItems';
+import * as helpers from '../../components/utils/fetchCategorizedItems';
 import { TransactionType } from '../../types/history';
 
 // Mock modules

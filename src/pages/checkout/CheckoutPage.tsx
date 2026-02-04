@@ -32,7 +32,7 @@ import {
   getBuildings,
 } from '../../components/Checkout/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
-import fetchCategorizedItems from '../../components/helpers/fetchCategorizedItems';
+import fetchCategorizedItems from '../../components/utils/fetchCategorizedItems';
 
 const CheckoutPage = () => {
   const { user } = useContext(UserContext);

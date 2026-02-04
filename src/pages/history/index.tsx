@@ -19,7 +19,7 @@ import CircularLoader from '../../components/CircularLoader';
 import { Building, CategoryProps, User } from '../../types/interfaces';
 import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
-import fetchCategorizedItems from '../../components/helpers/fetchCategorizedItems';
+import fetchCategorizedItems from '../../components/utils/fetchCategorizedItems';
 import GeneralCheckoutCard from '../../components/History/GeneralCheckoutCard';
 import WelcomeBasketCard from '../../components/History/WelcomeBasketCard';
 import InventoryCard from '../../components/History/InventoryCard';

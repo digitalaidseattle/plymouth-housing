@@ -7,21 +7,8 @@ import Page404 from './error/404';
 import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
-import CheckoutPage from './checkout/CheckoutPage';
+import CheckoutPageContainer from './checkout/CheckoutPageContainer';
 import { RootRedirect } from '../components/RootRedirect';
-import { useLocation } from 'react-router-dom';
-
-const CheckoutPageContainer = () => {
-  const location = useLocation();
-  const checkoutType = (location.state as { checkoutType?: 'general' | 'welcomeBasket' })?.checkoutType || 'general';
-  const title = `Check out - ${checkoutType === 'general' ? 'General' : 'Welcome Basket'}`;
-
-  return (
-    <MainContainer title={title}>
-      <CheckoutPage />
-    </MainContainer>
-  );
-};
 
 const routes = [
   {

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Collapse,
@@ -22,6 +22,21 @@ interface NavCollapseProps {
   level: number;
 }
 
+const checkOpenForParent = (
+  children: MenuItem[],
+  currentPath: string,
+): boolean => {
+  return children.some((child) => {
+    if (child.url && currentPath.includes(child.url)) {
+      return true;
+    }
+    if (child.children) {
+      return checkOpenForParent(child.children, currentPath);
+    }
+    return false;
+  });
+};
+
 const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
   const theme = useTheme();
   const { drawerOpen } = useContext(DrawerOpenContext);
@@ -31,26 +46,18 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [open, setOpen] = useState(false);
+  const shouldAutoOpen = item.children
+    ? checkOpenForParent(item.children, location.pathname)
+    : false;
 
-  const checkOpenForParent = (children: MenuItem[], currentPath: string) => {
-    return children.some((child) => {
-      if (child.url && currentPath.includes(child.url)) {
-        return true;
-      }
-      if (child.children) {
-        return checkOpenForParent(child.children, currentPath);
-      }
-      return false;
-    });
-  };
+  const [open, setOpen] = useState(shouldAutoOpen);
+  const [lastPathname, setLastPathname] = useState(location.pathname);
 
-  useEffect(() => {
-    if (item.children) {
-      const shouldOpen = checkOpenForParent(item.children, location.pathname);
-      setOpen(shouldOpen);
-    }
-  }, [location.pathname, item.children]);
+  // Reset open state when pathname changes
+  if (lastPathname !== location.pathname) {
+    setLastPathname(location.pathname);
+    setOpen(shouldAutoOpen);
+  }
 
   const handleClick = () => {
     setOpen(!open);

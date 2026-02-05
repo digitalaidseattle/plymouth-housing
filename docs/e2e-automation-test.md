@@ -58,28 +58,36 @@ All test files must follow test_*.py and live under tests/test/.
 
 ### Prerequisites
 
-Python 3.x
+- Python 3.x
 https://www.python.org
-
-Google Chrome installed locally
-
-ChromeDriver compatible with your Chrome version
+- Google Chrome installed locally
+- ChromeDriver compatible with your Chrome version
 
 In CI environments, Chromium runs in headless mode automatically.
 
 Setup
 ### Create Virtual Environment (Recommended)
 
+Windows
+```
 python -m venv venv
-
 venv\Scripts\activate
-
 source venv/bin/activate
+```
 
-Add venv/ to .gitignore.
+
+Linux:
+
+```
+python3 -m venv venv
+source venv/bin/activate
+# Deactivate when done
+deactivate
+```
+
 
 ### Install Dependencies
-nstall Dependencies
+Install Dependencies
 
 All required Python dependencies are already listed in a single file:
 tests/requirements.txt.
@@ -96,18 +104,12 @@ pip install -r tests/requirements.txt
 
 ### This command will automatically install:
 
-Pytest
-
-Selenium
-
-pytest-xdist (parallel execution)
-
-webdriver-manager
-
-dotenv support
-
-reporting tools (HTML / Allure)
-
+- Pytest
+- Selenium
+- pytest-xdist (parallel execution)
+- webdriver-manager
+- dotenv support
+- reporting tools (HTML / Allure)
 and any other listed dependency
 
 You do not need to manually search for or install any of these packages individually.
@@ -125,17 +127,18 @@ pytest-xdist~=3.8
 
 #### Configuration (.env)
 
-Environment-specific values are managed using a .env file.
+Environment-specific values are managed using an .env file.
 
-Create a .env file at the project root (same level as package.json):
+Create an .env file at the project root (same level as package.json):
 
+```
 URL=https://your-test-environment-url.com
 
 ADMIN_USERNAME=admin_test@example.com
 ADMIN_PASSWORD=admin_test_password
 VOLUNTEER_USERNAME=volunteer_test@example.com
 VOLUNTEER_PASSWORD=volunteer_test_password
-
+```
 ## ⚠ Do not commit real or production credentials
 ## Ensure .env is included in .gitignore.
 

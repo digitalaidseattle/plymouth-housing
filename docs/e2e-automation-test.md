@@ -51,27 +51,46 @@ tests/
 │   ├── fixtures.py     # All pytest fixtures
 │   ├── locators.py
 │   └── data.py
-```
 
-### Naming convention
+```
+### Naming Convention
 All test files must follow test_*.py and live under tests/test/.
 
 ### Prerequisites
 
+<<<<<<< HEAD
 - Python 3.x
 https://www.python.org
 - Google Chrome installed locally
+=======
+- Python 3.x  
+  https://www.python.org
+
+- Google Chrome installed locally
+
+>>>>>>> 09082e6 (Add E2E automation test documentation)
 - ChromeDriver compatible with your Chrome version
 
 In CI environments, Chromium runs in headless mode automatically.
 
-Setup
+## Setup
 ### Create Virtual Environment (Recommended)
 
+<<<<<<< HEAD
 Windows
 ```
 python -m venv venv
 venv\Scripts\activate
+=======
+Create and activate a virtual environment to isolate dependencies.
+```bash
+## Windows (PowerShell)
+python -m venv venv
+venv\Scripts\Activate.ps1
+
+## Linux / macOS
+python3 -m venv venv
+>>>>>>> 09082e6 (Add E2E automation test documentation)
 source venv/bin/activate
 ```
 
@@ -85,25 +104,39 @@ source venv/bin/activate
 deactivate
 ```
 
+<<<<<<< HEAD
 
 ### Install Dependencies
 Install Dependencies
+=======
+## Deactivate when done
+deactivate
+```
+
+### Install Dependencies
+>>>>>>> 09082e6 (Add E2E automation test documentation)
 
 All required Python dependencies are already listed in a single file:
-tests/requirements.txt.
+```text
+tests/requirements.txt
+```
 
-⚠️ Important:
+⚠️ **Important:**  
 You do NOT need to install these packages one by one.
+
 
 When you run the command below, pip automatically reads the file and installs all listed dependencies in one step, including the correct versions.
 
 #### Install all dependencies:
-
+```bash
 pip install -r tests/requirements.txt
+```
 
+This command will automatically install:
 
-### This command will automatically install:
+- Pytest
 
+<<<<<<< HEAD
 - Pytest
 - Selenium
 - pytest-xdist (parallel execution)
@@ -111,6 +144,19 @@ pip install -r tests/requirements.txt
 - dotenv support
 - reporting tools (HTML / Allure)
 and any other listed dependency
+=======
+- Selenium
+
+- pytest-xdist (parallel execution)
+
+- webdriver-manager
+
+- dotenv support
+
+- reporting tools (HTML / Allure)
+
+and any other listed dependencies defined in the file.
+>>>>>>> 09082e6 (Add E2E automation test documentation)
 
 You do not need to manually search for or install any of these packages individually.
 Dependencies are defined in tests/requirements.txt using flexible version ranges:
@@ -131,7 +177,11 @@ Environment-specific values are managed using an .env file.
 
 Create an .env file at the project root (same level as package.json):
 
+<<<<<<< HEAD
 ```
+=======
+```dotenv
+>>>>>>> 09082e6 (Add E2E automation test documentation)
 URL=https://your-test-environment-url.com
 
 ADMIN_USERNAME=admin_test@example.com
@@ -139,47 +189,50 @@ ADMIN_PASSWORD=admin_test_password
 VOLUNTEER_USERNAME=volunteer_test@example.com
 VOLUNTEER_PASSWORD=volunteer_test_password
 ```
+<<<<<<< HEAD
 ## ⚠ Do not commit real or production credentials
 ## Ensure .env is included in .gitignore.
+=======
+⚠️ **Do not commit real or production credentials**  
+Ensure `.env` is included in `.gitignore`.
+>>>>>>> 09082e6 (Add E2E automation test documentation)
 
 ## Running Tests
 ### Run All Tests
-
-#### pytest
-
+```bash
+pytest
+```
 #### Run Smoke Tests Only
-
+```bash
 pytest -m smoke
-
+```
 #### Run Regression Tests
-
+```bash
 pytest -m regression
-
+```
 #### Parallel Execution (Exclude Serial Tests)
-
+```bash
 pytest -n auto -m "not serial"
-
+```
 #### Run Serial Tests Only
-
+```bash
 pytest -m serial
-
+```
 ### Headless Execution (CI / Azure DevOps)
 
 #### Headless mode is automatically enabled when the CI environment variable is set:
-
+```bash
 CI=true
-
+```
 
 ### Notes & Best Practices
 
-Page Object Model (POM) is enforced
-
-UI tests validate user behavior, not implementation details
-
-Inventory and checkout flows are stateful and should be marked @serial
-
-Smoke tests should remain fast and stable
-
-UI automation complements unit and API tests, it does not replace them
-
+- Page Object Model (POM) is enforced
+- UI tests validate user behavior, not implementation details
+- Inventory and checkout flows are stateful and should be marked `@serial`
+- Smoke tests should remain fast and stable
+- UI automation complements unit and API tests; it does not replace them
+- No additional flags are required for CI execution.
+- Serial tests protect shared state such as inventory and checkout flows.
+- Smoke tests are recommended for PR validation, while regression tests should be run before production releases.
 

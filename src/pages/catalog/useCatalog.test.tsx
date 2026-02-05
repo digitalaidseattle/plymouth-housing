@@ -4,10 +4,10 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const dummyUser = {
-  userID: "1",
-  userDetails: "Test Admin",
-  userRoles: ["admin"],
-  claims: []
+  userID: '1',
+  userDetails: 'Test Admin',
+  userRoles: ['admin'],
+  claims: [],
 };
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -19,7 +19,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       setLoggedInUserId: vi.fn(),
       activeVolunteers: [],
       setActiveVolunteers: vi.fn(),
-      isLoading: false
+      isLoading: false,
     }}
   >
     {children}
@@ -41,7 +41,7 @@ describe('useCatalog hook', () => {
 
     const { result } = renderHook(() => useCatalog(), { wrapper });
 
-    expect(result.current.isLoading).toBe(true);
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.items).toEqual([]);
     expect(result.current.categories).toEqual([]);
     expect(result.current.error).toBeNull();

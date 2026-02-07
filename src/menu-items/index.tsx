@@ -14,7 +14,9 @@ import {
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
+  SettingOutlined,
+  ClusterOutlined
 } from '@ant-design/icons';
 
 const icons = {
@@ -31,7 +33,9 @@ const icons = {
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
+  SettingOutlined,
+  ClusterOutlined
 };
 
 // ==============================|| MENU ITEMS ||============================== //
@@ -77,6 +81,14 @@ const dashboard = {
       type: 'admin',
       url: '/people',
       icon: icons.UserOutlined,
+      breadcrumbs: false,
+    },
+    {
+      id: 'catalog',
+      title: 'Catalog',
+      type: 'admin',
+      url: '/catalog',
+      icon: icons.ClusterOutlined,
       breadcrumbs: false,
     },
   ],

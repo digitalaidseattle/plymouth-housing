@@ -46,7 +46,7 @@ const validateResidentForm = (
     nameInput: string
 ): boolean => {
     if (checkoutType === 'welcomeBasket') {
-        return !!selectedBuilding.id;
+        return !!selectedBuilding.id && !!selectedUnit.id;
     }
     return !!nameInput && !!selectedBuilding.id && !!selectedUnit.id;
 };
@@ -114,6 +114,14 @@ const ResidentDetailDialog = ({
 
             // Auto-select 'welcome' unit for Welcome Basket mode
             applyWelcomeBasketDefaults(checkoutType, unitNumbers, setSelectedUnit);
+
+            // Validate that a welcome unit exists in Welcome Basket mode
+            if (checkoutType === 'welcomeBasket') {
+                const welcomeUnit = unitNumbers.find(u => u.unit_number.toLowerCase() === 'welcome');
+                if (!welcomeUnit) {
+                    setApiError('No welcome unit found for this building. Please contact an administrator.');
+                }
+            }
         } catch (error) {
             console.error('Error fetching unit numbers:', error);
             setUnitNumberValues([]);

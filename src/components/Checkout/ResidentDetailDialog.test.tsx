@@ -892,5 +892,68 @@ describe('ResidentDetailDialog', () => {
         expect(findResidentMock).toHaveBeenCalledWith(mockUser, 'admin', 1);
       });
     });
+
+    test('shows error when no welcome unit exists for selected building', async () => {
+      const unitsWithoutWelcome = [
+        { id: 2, unit_number: '101' },
+        { id: 3, unit_number: '102' },
+      ];
+      const getUnitNumbersMock = CheckoutAPICalls.getUnitNumbers as Mock;
+      getUnitNumbersMock.mockResolvedValue(unitsWithoutWelcome);
+
+      renderComponent({
+        checkoutType: 'welcomeBasket',
+      });
+
+      // Select building
+      const buildingSelect = screen.getByLabelText('Building Code');
+      fireEvent.mouseDown(buildingSelect);
+      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      fireEvent.click(buildingOption);
+
+      // Wait for error message to appear
+      await waitFor(() => {
+        expect(screen.getByText(/No welcome unit found for this building/i)).toBeInTheDocument();
+      });
+    });
+
+    test('prevents submission when no welcome unit exists', async () => {
+      const unitsWithoutWelcome = [
+        { id: 2, unit_number: '101' },
+        { id: 3, unit_number: '102' },
+      ];
+      const getUnitNumbersMock = CheckoutAPICalls.getUnitNumbers as Mock;
+      const findResidentMock = CheckoutAPICalls.findResident as Mock;
+      const handleShowDialog = vi.fn();
+
+      getUnitNumbersMock.mockResolvedValue(unitsWithoutWelcome);
+      findResidentMock.mockResolvedValue({ value: [] });
+
+      renderComponent({
+        checkoutType: 'welcomeBasket',
+        handleShowDialog,
+      });
+
+      // Select building
+      const buildingSelect = screen.getByLabelText('Building Code');
+      fireEvent.mouseDown(buildingSelect);
+      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      fireEvent.click(buildingOption);
+
+      // Wait for units to be fetched
+      await waitFor(() => {
+        expect(getUnitNumbersMock).toHaveBeenCalled();
+      });
+
+      // Try to submit form
+      const continueButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(continueButton);
+
+      // Verify form was not submitted (findResident should not be called)
+      await waitFor(() => {
+        expect(findResidentMock).not.toHaveBeenCalled();
+        expect(handleShowDialog).not.toHaveBeenCalled();
+      });
+    });
   });
 });

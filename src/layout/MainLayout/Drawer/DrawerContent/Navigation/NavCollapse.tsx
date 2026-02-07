@@ -67,12 +67,22 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
     }
   };
 
-  const Icon = item.icon as unknown as React.ForwardRefExoticComponent<
-    React.SVGProps<SVGSVGElement>
-  >;
-  const itemIcon = item.icon && (
-    <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />
-  );
+  const itemIcon = React.useMemo(() => {
+    if (!item.icon) return null;
+
+    // If icon is already a React element, render it directly
+    if (React.isValidElement(item.icon)) {
+      return item.icon;
+    }
+
+    // If icon is a function component, render it
+    if (typeof item.icon === 'function') {
+      const Icon = item.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
+      return <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />;
+    }
+
+    return null;
+  }, [item.icon, drawerOpen]);
 
   const isAnyChildSelected = item.children?.some(
     (child) => activeMenuItem === child.id,

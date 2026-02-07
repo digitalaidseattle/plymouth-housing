@@ -117,7 +117,7 @@ const ResidentDetailDialog = ({
 
             // Validate that a welcome unit exists in Welcome Basket mode
             if (checkoutType === 'welcomeBasket') {
-                const welcomeUnit = unitNumbers.find(u => u.unit_number.toLowerCase() === 'welcome');
+                const welcomeUnit = unitNumbers.find((u: Unit) => u.unit_number.toLowerCase() === 'welcome');
                 if (!welcomeUnit) {
                     setApiError('No welcome unit found for this building. Please contact an administrator.');
                 }

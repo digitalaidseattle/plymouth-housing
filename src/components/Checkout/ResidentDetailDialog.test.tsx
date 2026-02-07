@@ -862,21 +862,34 @@ describe('ResidentDetailDialog', () => {
     test('uses admin as default when welcome unit has no admin resident', async () => {
       const getUnitNumbersMock = CheckoutAPICalls.getUnitNumbers as Mock;
       const getResidentsMock = CheckoutAPICalls.getResidents as Mock;
+      const findResidentMock = CheckoutAPICalls.findResident as Mock;
+      const handleShowDialog = vi.fn();
 
       getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
       getResidentsMock.mockResolvedValue({ value: [{ name: 'Other Resident' }] });
+      findResidentMock.mockResolvedValue({ value: [{ id: 200, name: 'admin' }] });
 
       renderComponent({
         checkoutType: 'welcomeBasket',
         unitNumberValues: mockWelcomeUnits,
+        handleShowDialog,
         residentInfo: {
           ...defaultProps.residentInfo,
+          building: { id: 1, name: 'Building A', code: 'A' },
           unit: { id: 1, unit_number: 'welcome' },
         },
       });
 
       await waitFor(() => {
         expect(getResidentsMock).toHaveBeenCalledWith(mockUser, 1);
+      });
+
+      // Submit the form to verify 'admin' is used as the default
+      const continueButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(continueButton);
+
+      await waitFor(() => {
+        expect(findResidentMock).toHaveBeenCalledWith(mockUser, 'admin', 1);
       });
     });
   });

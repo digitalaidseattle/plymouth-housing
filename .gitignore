@@ -33,4 +33,4 @@ database/tests/test.sql
 # Python compiled files
 __pycache__/
 *.pyc
-
+venv/

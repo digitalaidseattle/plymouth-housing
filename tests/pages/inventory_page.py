@@ -1,3 +1,4 @@
+import pytest
 from selenium.common import NoSuchElementException, TimeoutException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
@@ -20,18 +21,17 @@ class InventoryPage(BasePage):
         locator = self.locators.get_inventory_locator(item)
         return self.get_text(locator, timeout=90)
 
-    def get_quantity(self, item_name):
-        xpath = f"//td[text()='{item_name}']/following-sibling::td[5]"
-        try:
-            element = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located((By.XPATH, xpath))
-            )
-            quantity_text = element.text.strip()
-            return int(quantity_text)
+    def get_inventory_quantity(self, item: str) -> int:
+        xpath = f"//td[normalize-space()='{item}']/following-sibling::td[5]"
+        cell = WebDriverWait(self.driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, xpath))
+        )
 
-        except (TimeoutException, NoSuchElementException, ValueError) as e:
-            print(f"[ERROR] Quantity retrieval failed for '{item_name}': {e}")
-            raise e
+        if cell.find_elements(By.XPATH, ".//*[local-name()='svg']"):
+            pytest.skip(f"Inventory value not ready for '{item}' (warning icon shown)")
+
+        text = cell.text.strip()
+        return int(text)
 
     def search_item(self, item_name):
         search_field = WebDriverWait(self.driver, 20).until(

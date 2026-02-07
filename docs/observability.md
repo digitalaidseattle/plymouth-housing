@@ -62,7 +62,7 @@ Application Insights requires a connection string from your Azure Application In
 
 ### Usage Example
 
-Manual exception tracking with context properties (see [`EnterPinPage.tsx`](../src/pages/authentication/EnterPinPage.tsx:61-65)):
+Manual exception tracking with context properties (see [`EnterPinPage.tsx:61-65`](../src/pages/authentication/EnterPinPage.tsx#L61-L65)):
 
 ```typescript
 import { trackException } from '../../utils/appInsights';

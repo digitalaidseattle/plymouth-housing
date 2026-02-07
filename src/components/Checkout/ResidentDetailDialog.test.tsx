@@ -733,4 +733,151 @@ describe('ResidentDetailDialog', () => {
       });
     });
   });
+
+  describe('Welcome Basket Mode', () => {
+    const mockWelcomeUnits = [
+      { id: 1, unit_number: 'welcome' },
+      { id: 2, unit_number: '101' },
+    ];
+
+    const mockAdminResidents = {
+      value: [
+        { name: 'admin' },
+        { name: 'Other Resident' },
+      ],
+    };
+
+    test('shows different dialog title for Welcome Basket mode', () => {
+      renderComponent({ checkoutType: 'welcomeBasket' });
+      expect(screen.getByText('provide building code to continue')).toBeInTheDocument();
+      expect(screen.queryByText('provide details to continue')).not.toBeInTheDocument();
+    });
+
+    test('hides Unit Number field in Welcome Basket mode', () => {
+      renderComponent({ checkoutType: 'welcomeBasket' });
+      expect(screen.queryByLabelText('Unit Number')).not.toBeInTheDocument();
+    });
+
+    test('hides Resident Name field in Welcome Basket mode', () => {
+      renderComponent({ checkoutType: 'welcomeBasket' });
+      expect(screen.queryByLabelText('Resident Name')).not.toBeInTheDocument();
+    });
+
+    test('only shows Building Code field in Welcome Basket mode', () => {
+      renderComponent({ checkoutType: 'welcomeBasket' });
+      expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Unit Number')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Resident Name')).not.toBeInTheDocument();
+    });
+
+    test('fetches units when building is selected in Welcome Basket mode', async () => {
+      const getUnitNumbersMock = CheckoutAPICalls.getUnitNumbers as Mock;
+      getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
+
+      renderComponent({
+        checkoutType: 'welcomeBasket',
+      });
+
+      const buildingSelect = screen.getByLabelText('Building Code');
+      fireEvent.mouseDown(buildingSelect);
+      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      fireEvent.click(buildingOption);
+
+      await waitFor(() => {
+        expect(getUnitNumbersMock).toHaveBeenCalledWith(mockUser, 1);
+      });
+    });
+
+    test('auto-selects admin resident when welcome unit is selected', async () => {
+      const getUnitNumbersMock = CheckoutAPICalls.getUnitNumbers as Mock;
+      const getResidentsMock = CheckoutAPICalls.getResidents as Mock;
+
+      getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
+      getResidentsMock.mockResolvedValue(mockAdminResidents);
+
+      renderComponent({
+        checkoutType: 'welcomeBasket',
+        unitNumberValues: mockWelcomeUnits,
+        residentInfo: {
+          ...defaultProps.residentInfo,
+          unit: { id: 1, unit_number: 'welcome' },
+        },
+      });
+
+      await waitFor(() => {
+        expect(getResidentsMock).toHaveBeenCalledWith(mockUser, 1);
+      });
+    });
+
+    test('validates only building in Welcome Basket mode', async () => {
+      renderComponent({ checkoutType: 'welcomeBasket' });
+
+      const continueButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(continueButton);
+
+      await waitFor(() => {
+        const buildingInput = screen.getByLabelText('Building Code');
+        expect(buildingInput).toHaveAttribute('aria-invalid', 'true');
+      });
+    });
+
+    test('submits successfully with only building in Welcome Basket mode', async () => {
+      const handleShowDialog = vi.fn();
+      const setResidentInfo = vi.fn();
+      const getUnitNumbersMock = CheckoutAPICalls.getUnitNumbers as Mock;
+      const getResidentsMock = CheckoutAPICalls.getResidents as Mock;
+      const findResidentMock = CheckoutAPICalls.findResident as Mock;
+
+      getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
+      getResidentsMock.mockResolvedValue(mockAdminResidents);
+      findResidentMock.mockResolvedValue({ value: [{ id: 100, name: 'admin' }] });
+
+      renderComponent({
+        checkoutType: 'welcomeBasket',
+        handleShowDialog,
+        setResidentInfo,
+      });
+
+      // Select building
+      const buildingSelect = screen.getByLabelText('Building Code');
+      fireEvent.mouseDown(buildingSelect);
+      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      fireEvent.click(buildingOption);
+
+      // Wait for units to be fetched and residents to be fetched
+      await waitFor(() => {
+        expect(getResidentsMock).toHaveBeenCalled();
+      });
+
+      // Submit form
+      const continueButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(continueButton);
+
+      await waitFor(() => {
+        expect(findResidentMock).toHaveBeenCalledWith(mockUser, 'admin', 1);
+        expect(handleShowDialog).toHaveBeenCalled();
+      });
+    });
+
+    test('uses admin as default when welcome unit has no admin resident', async () => {
+      const getUnitNumbersMock = CheckoutAPICalls.getUnitNumbers as Mock;
+      const getResidentsMock = CheckoutAPICalls.getResidents as Mock;
+
+      getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
+      getResidentsMock.mockResolvedValue({ value: [{ name: 'Other Resident' }] });
+
+      renderComponent({
+        checkoutType: 'welcomeBasket',
+        unitNumberValues: mockWelcomeUnits,
+        residentInfo: {
+          ...defaultProps.residentInfo,
+          unit: { id: 1, unit_number: 'welcome' },
+        },
+      });
+
+      await waitFor(() => {
+        expect(getResidentsMock).toHaveBeenCalledWith(mockUser, 1);
+      });
+    });
+  });
 });

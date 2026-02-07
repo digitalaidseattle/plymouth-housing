@@ -46,6 +46,6 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  admin: ['inventory', 'checkout', 'people'],
-  volunteer: ['volunteer-home', 'inventory', 'checkout'],
+  admin: ['inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'people'],
+  volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket'],
 } as const;

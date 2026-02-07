@@ -18,6 +18,7 @@ export type MenuItem = {
   breadcrumbs: boolean;
   disabled: boolean;
   chip: ChipProps;
+  state?: Record<string, unknown>;
 };
 
 interface MenuItemContextType {

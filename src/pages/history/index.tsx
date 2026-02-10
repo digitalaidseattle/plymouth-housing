@@ -233,7 +233,10 @@ const HistoryPage: React.FC = () => {
       ) : (
         <Stack gap="2rem">
           {userHistory && userHistory.length === 0 && (
-            <p>There are no transactions for this date.</p>
+            <p>
+              No transactions found for this date. Try selecting a different
+              date range.
+            </p>
           )}
           {transactionsByUser?.map((user) => (
             <Box key={user.user_id}>

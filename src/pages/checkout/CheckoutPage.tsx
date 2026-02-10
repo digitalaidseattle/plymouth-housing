@@ -306,16 +306,26 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
       setCheckoutItems(cleanCheckout);
 
       if (checkoutType === 'welcomeBasket') {
-        const welcomeBasket =
-          categorizedItems.filter(
-            (category: CategoryProps) => category.category === 'Welcome Basket',
-          ) || [];
-        welcomeBasket[0].items = welcomeBasket[0].items.filter(
-          (item: CheckoutItemProp) =>
-            item.name.toLowerCase().includes('full-size sheet set') ||
-            item.name.toLowerCase().includes('twin-size sheet set'),
+        const welcomeBasketCategory = categorizedItems.find(
+          (category: CategoryProps) => category.category === 'Welcome Basket',
         );
-        setWelcomeBasketData(welcomeBasket);
+
+        if (welcomeBasketCategory) {
+          const filteredItems = (welcomeBasketCategory.items || []).filter(
+            (item: CheckoutItemProp) =>
+              item.name.toLowerCase().includes('full-size sheet set') ||
+              item.name.toLowerCase().includes('twin-size sheet set'),
+          );
+
+          setWelcomeBasketData([
+            {
+              ...welcomeBasketCategory,
+              items: filteredItems,
+            },
+          ]);
+        } else {
+          setWelcomeBasketData([]);
+        }
       }
     } catch (error) {
       console.error('Error fetching categorized items:', error);

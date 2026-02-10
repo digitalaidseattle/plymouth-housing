@@ -11,7 +11,7 @@ const CheckoutPageContainer = () => {
 
   return (
     <MainContainer title={title}>
-      <CheckoutPage />
+      <CheckoutPage checkoutType={checkoutType} />
     </MainContainer>
   );
 };

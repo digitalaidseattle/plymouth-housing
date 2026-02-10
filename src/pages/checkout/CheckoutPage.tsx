@@ -697,11 +697,4 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   );
 };
 
-const CheckoutPageWrapper: React.FC = () => {
-  const location = useLocation();
-  const checkoutType = (location.state as { checkoutType?: CheckoutType })?.checkoutType || 'general';
-
-  return <CheckoutPage checkoutType={checkoutType} />;
-};
-
-export default CheckoutPageWrapper;
+export default CheckoutPage;

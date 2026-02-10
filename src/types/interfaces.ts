@@ -129,3 +129,8 @@ export type ResidentInfo = {
   building: Building;
 }
 
+export type ResidentNameOption = {
+  inputValue?: string;
+  name: string;
+}
+

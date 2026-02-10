@@ -27,6 +27,7 @@ import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
+import WelcomeBasketBuildingDialog from '../../components/Checkout/WelcomeBasketBuildingDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
 import {
   checkPastCheckout,
@@ -394,7 +395,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
 
   return (
     <>
-      {showResidentDetailDialog && (
+      {showResidentDetailDialog && checkoutType === 'general' && (
         <ResidentDetailDialog
           showDialog={showResidentDetailDialog}
           handleShowDialog={() =>
@@ -405,7 +406,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
           setUnitNumberValues={setUnitNumberValues}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
-          checkoutType={checkoutType}
+        />
+      )}
+      {showResidentDetailDialog && checkoutType === 'welcomeBasket' && (
+        <WelcomeBasketBuildingDialog
+          showDialog={showResidentDetailDialog}
+          handleShowDialog={() =>
+            setShowResidentDetailDialog(!showResidentDetailDialog)
+          }
+          buildings={buildings}
+          setResidentInfo={setResidentInfo}
         />
       )}
       {showAdditionalNotesDialog && (

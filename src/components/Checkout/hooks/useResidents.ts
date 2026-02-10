@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Unit, ClientPrincipal } from '../../../types/interfaces';
+import { Unit, ClientPrincipal, ResidentNameOption } from '../../../types/interfaces';
 import { getResidents } from '../CheckoutAPICalls';
-import { getDefaultResidentName, ResidentNameOption } from '../residentFormHelpers';
 
 export const useResidents = (
     user: ClientPrincipal | null,
-    selectedUnit: Unit,
-    checkoutType: 'general' | 'welcomeBasket'
+    selectedUnit: Unit
 ) => {
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [nameInput, setNameInput] = useState<string>('');
@@ -32,16 +30,16 @@ export const useResidents = (
                 if (response.value.length > 0) {
                     const residents = response.value.map((r: { name: string }) => ({ name: r.name }));
                     setExistingResidents(residents);
-                    setNameInput(getDefaultResidentName(checkoutType, residents));
+                    setNameInput(residents[residents.length - 1].name);
                 } else {
                     setExistingResidents([]);
-                    setNameInput(getDefaultResidentName(checkoutType, []));
+                    setNameInput('');
                 }
             } catch (e) {
                 if (cancelled) return;
                 console.error('Error fetching residents:', e);
                 setExistingResidents([]);
-                setNameInput(getDefaultResidentName(checkoutType, []));
+                setNameInput('');
                 if (e instanceof TypeError && e.message === 'Failed to fetch') {
                     setApiError('Unable to load resident data. Please check your connection and try again.');
                 } else {
@@ -56,7 +54,7 @@ export const useResidents = (
         };
         fetchResidents();
         return () => { cancelled = true; };
-    }, [user, selectedUnit, checkoutType]);
+    }, [user, selectedUnit]);
 
     return {
         existingResidents,

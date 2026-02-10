@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { Building, Unit, ResidentInfo, ClientPrincipal } from '../../../types/interfaces';
 import { addResident, findResident } from '../CheckoutAPICalls';
-import { validateResidentForm } from '../residentFormHelpers';
 
 export const useResidentFormSubmit = (
-    checkoutType: 'general' | 'welcomeBasket',
     user: ClientPrincipal | null,
     onSuccess: (residentInfo: ResidentInfo) => void
 ) => {
@@ -20,7 +18,7 @@ export const useResidentFormSubmit = (
     ) => {
         setApiError('');
         // validate inputs, show error
-        if (!validateResidentForm(checkoutType, selectedBuilding, selectedUnit, nameInput)) {
+        if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
             setShowError(true);
             return false;
         }

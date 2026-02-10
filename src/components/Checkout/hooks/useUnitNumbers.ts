@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { Unit, ClientPrincipal } from '../../../types/interfaces';
 import { getUnitNumbers } from '../CheckoutAPICalls';
-import { applyWelcomeBasketDefaults } from '../residentFormHelpers';
 
 export const useUnitNumbers = (
-    checkoutType: 'general' | 'welcomeBasket',
     setSelectedUnit: (unit: Unit) => void
 ) => {
     const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
@@ -20,17 +18,7 @@ export const useUnitNumbers = (
             const unitNumbers = response
                 .filter((item: Unit) => item.unit_number.trim() !== '');
             setUnitNumberValues(unitNumbers);
-
-            // Auto-select 'welcome' unit for Welcome Basket mode
-            applyWelcomeBasketDefaults(checkoutType, unitNumbers, setSelectedUnit);
-
-            // Validate that a welcome unit exists in Welcome Basket mode
-            if (checkoutType === 'welcomeBasket') {
-                const welcomeUnit = unitNumbers.find((u: Unit) => u.unit_number.toLowerCase() === 'welcome');
-                if (!welcomeUnit) {
-                    setApiError('No welcome unit found for this building. Please contact an administrator.');
-                }
-            }
+            setSelectedUnit({id: 0, unit_number: ''});
         } catch (error) {
             console.error('Error fetching unit numbers:', error);
             setUnitNumberValues([]);

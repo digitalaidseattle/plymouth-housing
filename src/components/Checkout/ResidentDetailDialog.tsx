@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState, useContext } from 'react';
+import React, { FormEvent, useState, useContext } from 'react';
 import {
   Box,
   FormControl,
@@ -7,10 +7,13 @@ import {
 } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
-import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
+import { ResidentNameOption, getUnitHelperText } from './residentFormHelpers';
+import { useUnitNumbers } from './hooks/useUnitNumbers';
+import { useResidents } from './hooks/useResidents';
+import { useResidentFormSubmit } from './hooks/useResidentFormSubmit';
 
 
 type ResidentDetailDialogProps = {
@@ -24,11 +27,6 @@ type ResidentDetailDialogProps = {
     checkoutType?: 'general' | 'welcomeBasket'
 }
 
-type ResidentNameOption = {
-    inputValue?: string;
-    name: string;
-}
-
 // =============================================================================
 // RESIDENT DETAIL DIALOG
 //
@@ -37,45 +35,6 @@ type ResidentNameOption = {
 // 2. Welcome Basket Mode: Collects only building, auto-selects 'welcome' unit
 //    and 'admin' resident for building-level welcome basket checkout
 // =============================================================================
-
-// Helper: Validate form based on checkout mode
-const validateResidentForm = (
-    checkoutType: 'general' | 'welcomeBasket',
-    selectedBuilding: Building,
-    selectedUnit: Unit,
-    nameInput: string
-): boolean => {
-    if (checkoutType === 'welcomeBasket') {
-        return !!selectedBuilding.id && !!selectedUnit.id;
-    }
-    return !!nameInput && !!selectedBuilding.id && !!selectedUnit.id;
-};
-
-// Helper: Get default resident name based on mode
-const getDefaultResidentName = (
-    checkoutType: 'general' | 'welcomeBasket',
-    residents: ResidentNameOption[]
-): string => {
-    if (checkoutType === 'welcomeBasket') {
-        const adminResident = residents.find(r => r.name.toLowerCase() === 'admin');
-        return adminResident?.name || 'admin';
-    }
-    return residents.length > 0 ? residents[residents.length - 1].name : '';
-};
-
-// Helper: Auto-select welcome unit for Welcome Basket mode
-const applyWelcomeBasketDefaults = (
-    checkoutType: 'general' | 'welcomeBasket',
-    unitNumbers: Unit[],
-    setSelectedUnit: (unit: Unit) => void
-): void => {
-    if (checkoutType !== 'welcomeBasket') return;
-
-    const welcomeUnit = unitNumbers.find(u => u.unit_number.toLowerCase() === 'welcome');
-    if (welcomeUnit) {
-        setSelectedUnit(welcomeUnit);
-    }
-};
 
 const ResidentDetailDialog = ({
     showDialog,
@@ -88,148 +47,55 @@ const ResidentDetailDialog = ({
     checkoutType = 'general'
     }: ResidentDetailDialogProps) => {
     const {user} = useContext(UserContext);
-    const [nameInput, setNameInput] = useState<string>(residentInfo.name)
     const [selectedBuilding, setSelectedBuilding] = useState<Building>(residentInfo.building)
     const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
-    const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [showError, setShowError] = useState<boolean>(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isLoadingResidents, setIsLoadingResidents] = useState(false);
-    const [isLoadingUnits, setIsLoadingUnits] = useState(false);
-    const [apiError, setApiError] = useState('');
 
     const filter = createFilterOptions<ResidentNameOption>();
 
-    const isWaiting = isSubmitting || isLoadingUnits || isLoadingResidents;
-
-    const fetchUnitNumbers = async (buildingId: number) => {
-        setIsLoadingUnits(true);
-        setApiError('');
-        document.body.style.cursor = 'wait';
-        try {
-            const response = await getUnitNumbers(user, buildingId);
-            const unitNumbers = response
-                .filter((item: Unit) => item.unit_number.trim() !== '');
-            setUnitNumberValues(unitNumbers);
-
-            // Auto-select 'welcome' unit for Welcome Basket mode
-            applyWelcomeBasketDefaults(checkoutType, unitNumbers, setSelectedUnit);
-
-            // Validate that a welcome unit exists in Welcome Basket mode
-            if (checkoutType === 'welcomeBasket') {
-                const welcomeUnit = unitNumbers.find((u: Unit) => u.unit_number.toLowerCase() === 'welcome');
-                if (!welcomeUnit) {
-                    setApiError('No welcome unit found for this building. Please contact an administrator.');
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching unit numbers:', error);
-            setUnitNumberValues([]);
-            if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                setApiError('Unable to load unit numbers. Please check your connection and try again.');
-            } else {
-                setApiError('An error occurred while loading unit numbers. Please try again.');
-            }
-        } finally {
-            setIsLoadingUnits(false);
-            document.body.style.cursor = 'default';
+    // Custom hooks for data fetching and state management
+    const unitNumbersHook = useUnitNumbers(checkoutType, setSelectedUnit);
+    const residentsHook = useResidents(user, selectedUnit, checkoutType);
+    const submitHook = useResidentFormSubmit(
+        checkoutType,
+        user,
+        (residentInfo) => {
+            setResidentInfo(residentInfo);
+            handleShowDialog();
         }
-    }
+    );
 
-    useEffect(() => {
-        let cancelled = false;
-        const fetchResidents = async () => {
-            if (!selectedUnit?.id) {
-                setExistingResidents([]);
-                setNameInput('');
-                setIsLoadingResidents(false);
-                setApiError('');
-                return;
-            }
-            setIsLoadingResidents(true);
-            setApiError('');
-            document.body.style.cursor = 'wait';
-            try {
-                const response = await getResidents(user, selectedUnit.id);
-                if (cancelled) return;
-                if (response.value.length > 0) {
-                    const residents = response.value.map((r: { name: string }) => ({ name: r.name }));
-                    setExistingResidents(residents);
-                    setNameInput(getDefaultResidentName(checkoutType, residents));
-                } else {
-                    setExistingResidents([]);
-                    setNameInput(getDefaultResidentName(checkoutType, []));
-                }
-            } catch (e) {
-                if (cancelled) return;
-                console.error('Error fetching residents:', e);
-                setExistingResidents([]);
-                setNameInput(getDefaultResidentName(checkoutType, []));
-                if (e instanceof TypeError && e.message === 'Failed to fetch') {
-                    setApiError('Unable to load resident data. Please check your connection and try again.');
-                } else {
-                    setApiError('An error occurred while loading resident data. Please try again.');
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsLoadingResidents(false);
-                    document.body.style.cursor = 'default';
-                }
-            }
-        };
-        fetchResidents();
-        return () => { cancelled = true; };
-    }, [user, selectedUnit, checkoutType]);
+    // Combine loading states
+    const isWaiting = submitHook.isSubmitting || unitNumbersHook.isLoadingUnits || residentsHook.isLoadingResidents;
+
+    // Combine API errors from different hooks
+    const apiError = unitNumbersHook.apiError || residentsHook.apiError || submitHook.apiError;
+
+    // Wrapper for fetchUnitNumbers that also updates parent state
+    const fetchUnitNumbers = async (buildingId: number) => {
+        await unitNumbersHook.fetchUnitNumbers(user, buildingId);
+    };
+
+    // Sync hook's unit numbers with parent state
+    React.useEffect(() => {
+        if (unitNumbersHook.unitNumberValues.length > 0) {
+            setUnitNumberValues(unitNumbersHook.unitNumberValues);
+        }
+    }, [unitNumbersHook.unitNumberValues, setUnitNumberValues]);
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        setApiError('');
-        // validate inputs, show error
-        if (!validateResidentForm(checkoutType, selectedBuilding, selectedUnit, nameInput)) {
-            setShowError(true);
-            return;
-        }
-        setIsSubmitting(true);
-        document.body.style.cursor = 'wait';
-        try {
-            let residentId;
-            // first check if the resident already exists
-            const existingResponse = await findResident(user, nameInput, selectedUnit.id);
-            // if not, add them to the db
-            if (!existingResponse.value.length) {
-                const response = await addResident(user, nameInput, selectedUnit.id);
-                residentId = response.value[0].id;
-             } else {
-                residentId = existingResponse.value[0].id;
-             }
-
-            // update state on success
-            setResidentInfo({
-                id: residentId,
-                name: nameInput,
-                unit: selectedUnit,
-                building: selectedBuilding
-            });
-            setShowError(false);
-            handleShowDialog();
-        } catch (error) {
-            console.error('Error submitting resident info', error);
-            if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                setApiError('Your system appears to be offline. Please check your connection and try again.');
-            } else {
-                setApiError('An error occurred while submitting. Please try again.');
-            }
-            setIsSubmitting(false);
-        } finally {
-            document.body.style.cursor = 'default';
-        }
-    }
-
-    function getUnitHelperText(showError: boolean, selectedUnit: Unit) {
-        if (!showError) return "";
-        if (selectedUnit.id === 0 && selectedUnit.unit_number) return "Not a valid unit";
-        if (selectedUnit.id === 0) return "Please select a unit from the list";
-        return "";
+        // Clear all API errors from all hooks before submission
+        unitNumbersHook.setApiError('');
+        residentsHook.setApiError('');
+        await submitHook.handleSubmit(
+            residentsHook.nameInput,
+            selectedBuilding,
+            selectedUnit,
+            showError,
+            setShowError
+        );
+        // submitHook handles closing dialog on success via callback
     }
 
     return (
@@ -296,17 +162,17 @@ const ResidentDetailDialog = ({
                 {checkoutType === 'general' && (
                     <FormControl>
                         <Autocomplete
-                            value={nameInput}
+                            value={residentsHook.nameInput}
                             disabled={isWaiting}
                             onChange={(_event, newValue) => {
                                 if (typeof newValue === 'string') {
-                                    setNameInput(newValue);
+                                    residentsHook.setNameInput(newValue);
                                 } else if (newValue && (newValue as ResidentNameOption).inputValue) {
-                                    setNameInput((newValue as ResidentNameOption).inputValue!);
+                                    residentsHook.setNameInput((newValue as ResidentNameOption).inputValue!);
                                 } else if (newValue && (newValue as ResidentNameOption).name) {
-                                    setNameInput((newValue as ResidentNameOption).name);
+                                    residentsHook.setNameInput((newValue as ResidentNameOption).name);
                                 } else {
-                                    setNameInput('');
+                                    residentsHook.setNameInput('');
                                 }
                             }}
                             filterOptions={(options, params) => {
@@ -315,7 +181,7 @@ const ResidentDetailDialog = ({
                                 // Suggest the creation of a new value
                                 const isExisting = options.some((option) => inputValue === option.name);
                                 if (inputValue !== '' && !isExisting) {
-                                    setNameInput(inputValue);
+                                    residentsHook.setNameInput(inputValue);
                                 }
                                 return filtered;
                             }}
@@ -323,7 +189,7 @@ const ResidentDetailDialog = ({
                             clearOnBlur
                             handleHomeEndKeys
                             id="resident-name-autocomplete"
-                            options={existingResidents}
+                            options={residentsHook.existingResidents}
                             getOptionLabel={(option) => {
                             // Value selected with enter, right from the input
                             if (typeof option === 'string') {
@@ -348,8 +214,8 @@ const ResidentDetailDialog = ({
                             renderInput={(params) => (
                             <TextField {...params}
                                 label="Resident Name"
-                                error={showError && !nameInput}
-                                helperText={showError && !nameInput ? "Please enter the resident's name" : ""}/>
+                                error={showError && !residentsHook.nameInput}
+                                helperText={showError && !residentsHook.nameInput ? "Please enter the resident's name" : ""}/>
                             )}
                         />
                     </FormControl>

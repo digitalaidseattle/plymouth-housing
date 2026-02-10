@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import {
-  findTransactionHistory,
   findUserTransactionHistory,
   getUsers,
 } from '../../components/History/HistoryAPICalls';
@@ -82,7 +81,7 @@ const HistoryPage: React.FC = () => {
       }
     }
     findUserHistoryForSelectedDate();
-  }, [dateRange, historyType, categorizedItems]);
+  }, [dateRange, historyType]);
 
   useEffect(() => {
     async function getUserList() {

@@ -56,8 +56,8 @@ BEGIN
         INNER JOIN Residents ON Transactions.resident_id = Residents.id
         INNER JOIN Units ON Residents.unit_id = Units.id
         INNER JOIN Buildings ON Units.building_id = Buildings.id
-        WHERE CONVERT(date, [transaction_date]) >= @start_date 
-            AND CONVERT(date, [transaction_date]) <= @end_date
+        WHERE [transaction_date] >= CAST(@start_date AS DATETIME)
+            AND [transaction_date] < DATEADD(DAY, 1, CAST(@end_date AS DATETIME))
             AND [transaction_type] = @CheckoutTransactionType
         ORDER BY Transactions.transaction_date DESC;
     END;
@@ -82,8 +82,8 @@ BEGIN
                 FOR JSON PATH
             ) AS items
         FROM Transactions
-        WHERE CONVERT(date, [transaction_date]) >= @start_date 
-            AND CONVERT(date, [transaction_date]) <= @end_date
+        WHERE [transaction_date] >= CAST(@start_date AS DATETIME)
+            AND [transaction_date] < DATEADD(DAY, 1, CAST(@end_date AS DATETIME))
             AND [transaction_type] IN (@RestockTransactionType, @CorrectionTransactionType)
         ORDER BY Transactions.transaction_date DESC;
     END;

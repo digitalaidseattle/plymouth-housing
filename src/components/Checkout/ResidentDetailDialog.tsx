@@ -78,32 +78,33 @@ const ResidentDetailDialog = ({
         }
     }
 
-    const fetchAllLastVisits = async (residents: { name: string, id: number }[]) => {
-        const residentsWithDates = await Promise.all(
-            residents.map(async (resident) => {
-                try {
-                    const response = await getLastResidentVisit(user, resident.id);
-                    const lastVisitDate = response.value?.[0]?.transaction_date || null;
-                    return {
-                        name: resident.name,
-                        id: resident.id,
-                        lastVisitDate: lastVisitDate
-                    };
-                } catch (error) {
-                    console.error(`Error fetching last visit for resident ${resident.id}:`, error);
-                    return {
-                        name: resident.name,
-                        id: resident.id,
-                        lastVisitDate: null
-                    };
-                }
-            })
-        );
-        return residentsWithDates;
-    };
-
     useEffect(() => {
         let cancelled = false;
+
+        const fetchAllLastVisits = async (residents: { name: string, id: number }[]) => {
+            const residentsWithDates = await Promise.all(
+                residents.map(async (resident) => {
+                    try {
+                        const response = await getLastResidentVisit(user, resident.id);
+                        const lastVisitDate = response.value?.[0]?.transaction_date || null;
+                        return {
+                            name: resident.name,
+                            id: resident.id,
+                            lastVisitDate: lastVisitDate
+                        };
+                    } catch (error) {
+                        console.error(`Error fetching last visit for resident ${resident.id}:`, error);
+                        return {
+                            name: resident.name,
+                            id: resident.id,
+                            lastVisitDate: null
+                        };
+                    }
+                })
+            );
+            return residentsWithDates;
+        };
+
         const fetchResidents = async () => {
             if (!selectedUnit?.id) {
                 setExistingResidents([]);

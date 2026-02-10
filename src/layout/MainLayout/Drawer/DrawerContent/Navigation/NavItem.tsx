@@ -1,7 +1,6 @@
 import React, { forwardRef, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-// material-ui
 import {
   Avatar,
   Chip,
@@ -12,14 +11,12 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-// project import
 import {
   ActiveMenuItemContext,
   MenuItem,
 } from '../../../../../components/contexts/ActiveMenuItemContext';
 import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpenContext';
 
-// ==============================|| NAVIGATION - LIST ITEM ||============================== //
 interface NavItemProps {
   item: MenuItem;
   level: number;
@@ -41,9 +38,10 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
       // Check if state matches (for submenu items with state)
       if (item.state) {
         const locationState = location.state as Record<string, unknown> | null;
-        const stateMatches = locationState &&
+        const stateMatches =
+          locationState &&
           Object.keys(item.state).every(
-            key => locationState[key] === item.state![key]
+            (key) => locationState[key] === item.state![key],
           );
         if (stateMatches) {
           setActiveMenuItem(item.id);
@@ -61,14 +59,21 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   }
 
   const listItemProps = {
-    component: forwardRef((props: React.ComponentProps<typeof Link>, ref: React.Ref<HTMLAnchorElement>) => (
-      <Link ref={ref} {...props} to={item.url} target={itemTarget} state={item.state} />
-    )),
+    component: forwardRef(
+      (
+        props: React.ComponentProps<typeof Link>,
+        ref: React.Ref<HTMLAnchorElement>,
+      ) => (
+        <Link
+          ref={ref}
+          {...props}
+          to={item.url}
+          target={itemTarget}
+          state={item.state}
+        />
+      ),
+    ),
   };
-  // FIXME
-  // if (item?.external) {
-  //   listItemProps = { component: 'a', href: item.url, target: itemTarget };
-  // }
 
   const itemHandler = (id: string) => {
     setActiveMenuItem(id);
@@ -76,7 +81,9 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   const textColor = 'text.primary';
   const iconSelectedColor = 'primary.main';
-  const Icon = item.icon as unknown as React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElement>>;
+  const Icon = item.icon as unknown as React.ForwardRefExoticComponent<
+    React.SVGProps<SVGSVGElement>
+  >;
   const itemIcon = item.icon && (
     <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />
   );

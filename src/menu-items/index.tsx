@@ -1,8 +1,6 @@
 // project import
 import {
   ChromeOutlined,
-// TODO Commenting out for now until PIT-52 (Admin dashboard)
-//   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   QuestionOutlined,
@@ -20,7 +18,6 @@ import {
 } from '@ant-design/icons';
 
 const icons = {
-//   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   ChromeOutlined,
@@ -38,19 +35,10 @@ const icons = {
   ShoppingCartOutlined,
 };
 
-// ==============================|| MENU ITEMS ||============================== //
 const dashboard = {
   id: 'group-dashboard',
   type: 'group',
   children: [
-/*     {
-      id: 'dashboard',
-      title: 'Dashboard',
-      type: 'item',
-      url: '/',
-      icon: icons.DashboardOutlined,
-      breadcrumbs: false,
-    }, */
     {
       id: 'volunteer-home',
       title: 'Volunteer Home',

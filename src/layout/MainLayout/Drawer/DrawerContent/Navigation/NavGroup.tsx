@@ -1,16 +1,14 @@
-// material-ui
 import { Box, List, Typography } from '@mui/material';
-
-// project import
 import { useContext } from 'react';
 import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpenContext';
 import NavItem from './NavItem';
 import NavCollapse from './NavCollapse';
 import { MenuItem } from '../../../../../components/contexts/ActiveMenuItemContext';
-import { UserContext, getRole } from '../../../../../components/contexts/UserContext';
+import {
+  UserContext,
+  getRole,
+} from '../../../../../components/contexts/UserContext';
 import { ROLE_PAGES } from '../../../../../types/constants';
-
-// ==============================|| NAVIGATION - LIST GROUP ||============================== //
 
 interface NavGroupProps {
   item: MenuItem;
@@ -19,8 +17,10 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
   const { drawerOpen } = useContext(DrawerOpenContext);
   const { user } = useContext(UserContext);
   const userRole = user ? getRole(user) : null;
-  const permittedPages: readonly string[] = userRole ? ROLE_PAGES[userRole as keyof typeof ROLE_PAGES] : [];
-  
+  const permittedPages: readonly string[] = userRole
+    ? ROLE_PAGES[userRole as keyof typeof ROLE_PAGES]
+    : [];
+
   const navCollapse = item.children?.map((menuItem: MenuItem) => {
     switch (menuItem.type) {
       case 'collapse':

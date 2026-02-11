@@ -37,7 +37,6 @@ const ResidentDetailDialog = ({
 
   const filter = createFilterOptions<ResidentNameOption>();
 
-  // Custom hooks for data fetching and state management
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
   const residentsHook = useResidents(user, selectedUnit);
   const submitHook = useResidentFormSubmit(user, (residentInfo) => {
@@ -55,7 +54,6 @@ const ResidentDetailDialog = ({
     await unitNumbersHook.fetchUnitNumbers(user, buildingId);
   };
 
-  // Sync hook's unit numbers with parent state
   React.useEffect(() => {
     if (unitNumbersHook.unitNumberValues.length > 0) {
       setUnitNumberValues(unitNumbersHook.unitNumberValues);
@@ -64,7 +62,6 @@ const ResidentDetailDialog = ({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // Clear all API errors from all hooks before submission
     unitNumbersHook.setApiError('');
     residentsHook.setApiError('');
     await submitHook.handleSubmit(
@@ -74,7 +71,6 @@ const ResidentDetailDialog = ({
       showError,
       setShowError,
     );
-    // submitHook handles closing dialog on success via callback
   }
 
   return (
@@ -119,7 +115,6 @@ const ResidentDetailDialog = ({
                 setSelectedUnit({ id: 0, unit_number: '' });
                 return;
               }
-              // runs whether value was selected or typed; matches value with corresponding unit object
               const matchingUnit = unitNumberValues.find(
                 (u) => u.unit_number === newValue,
               );
@@ -182,7 +177,6 @@ const ResidentDetailDialog = ({
             filterOptions={(options, params) => {
               const filtered = filter(options, params);
               const { inputValue } = params;
-              // Suggest the creation of a new value
               const isExisting = options.some(
                 (option) => inputValue === option.name,
               );
@@ -197,15 +191,12 @@ const ResidentDetailDialog = ({
             id="resident-name-autocomplete"
             options={residentsHook.existingResidents}
             getOptionLabel={(option) => {
-              // Value selected with enter, right from the input
               if (typeof option === 'string') {
                 return option;
               }
-              // Add "xxx" option created dynamically
               if (option.inputValue) {
                 return option.inputValue;
               }
-              // Regular option
               return option.name;
             }}
             renderOption={(props, option) => {

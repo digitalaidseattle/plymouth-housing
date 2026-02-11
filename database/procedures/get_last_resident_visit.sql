@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS [dbo].[GetLastResidentVisit];
 GO
 
-CREATE PROCEDURE GetLastResidentVisit
+CREATE PROCEDURE [dbo].[GetLastResidentVisit]
     @resident_id INT
 AS
 BEGIN

@@ -176,16 +176,13 @@ const ResidentDetailDialog = ({
                 residentId = existingResponse.value[0].id;
              }
 
-            // Find the selected resident to get their lastVisitDate
-            const selectedResident = existingResidents.find(r => r.name === nameInput);
-
             // update state on success
             setResidentInfo({
                 id: residentId,
                 name: nameInput,
                 unit: selectedUnit,
                 building: selectedBuilding,
-                lastVisitDate: selectedResident?.lastVisitDate || null
+                lastVisitDate: currentLastVisitDate
             });
             setShowError(false);
             handleShowDialog();

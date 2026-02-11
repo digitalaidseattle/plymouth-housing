@@ -17,7 +17,6 @@ export const useResidentFormSubmit = (
         setShowError: (show: boolean) => void
     ) => {
         setApiError('');
-        // validate inputs, show error
         if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
             setShowError(true);
             return false;
@@ -26,9 +25,7 @@ export const useResidentFormSubmit = (
         document.body.style.cursor = 'wait';
         try {
             let residentId;
-            // first check if the resident already exists
             const existingResponse = await findResident(user, nameInput, selectedUnit.id);
-            // if not, add them to the db
             if (!existingResponse.value.length) {
                 const response = await addResident(user, nameInput, selectedUnit.id);
                 residentId = response.value[0].id;
@@ -36,7 +33,6 @@ export const useResidentFormSubmit = (
                 residentId = existingResponse.value[0].id;
             }
 
-            // update state on success
             onSuccess({
                 id: residentId,
                 name: nameInput,
@@ -52,9 +48,9 @@ export const useResidentFormSubmit = (
             } else {
                 setApiError('An error occurred while submitting. Please try again.');
             }
-            setIsSubmitting(false);
             return false;
         } finally {
+            setIsSubmitting(false);
             document.body.style.cursor = 'default';
         }
     };

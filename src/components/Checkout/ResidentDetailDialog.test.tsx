@@ -928,13 +928,12 @@ describe('ResidentDetailDialog', () => {
       const autocomplete = nameInput.closest('.MuiAutocomplete-root');
       const clearButton = autocomplete?.querySelector('.MuiAutocomplete-clearIndicator');
 
-      if (clearButton) {
-        fireEvent.click(clearButton);
+      expect(clearButton).toBeTruthy();
+      fireEvent.click(clearButton!);
 
-        await waitFor(() => {
-          expect(screen.queryByText(/last visit: 1\/15\/2025/i)).not.toBeInTheDocument();
-        });
-      }
+      await waitFor(() => {
+        expect(screen.queryByText(/last visit: 1\/15\/2025/i)).not.toBeInTheDocument();
+      });
     });
 
     test('continues gracefully when last visit fetch fails', async () => {

@@ -30,6 +30,7 @@ import {
 } from '../../components/History/historyUtils';
 import { processTransactionsByUser } from '../../components/History/transactionProcessors';
 import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 const HistoryPage: React.FC = () => {
   const todaysDate = new Date();
@@ -48,6 +49,14 @@ const HistoryPage: React.FC = () => {
   }>({ startDate: todaysDate, endDate: todaysDate });
   const [dateInput, setDateInput] = useState('today');
   const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning' | 'error';
+  }>({ open: false, message: '', severity: 'warning' });
+
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
   );
@@ -75,7 +84,7 @@ const HistoryPage: React.FC = () => {
         );
         setUserHistory(response);
       } catch (error) {
-        console.error('Error fetching history:', error);
+        setError('Error fetching history: ' + error);
       } finally {
         setIsLoading(false);
       }
@@ -89,7 +98,7 @@ const HistoryPage: React.FC = () => {
         const response = await getUsers(user);
         setUserList(response);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        setError('Error fetching users: ' + error);
       }
     }
     async function fetchBuildings() {
@@ -97,7 +106,7 @@ const HistoryPage: React.FC = () => {
         const response = await getBuildings(user);
         setBuildings(response);
       } catch (error) {
-        console.error('Error fetching buildings:', error);
+        setError('Error fetching buildings: ' + error);
       }
     }
     async function getCategorizedItems() {
@@ -106,7 +115,7 @@ const HistoryPage: React.FC = () => {
         const response = await fetchCategorizedItems(userRole);
         setCategorizedItems(response);
       } catch (error) {
-        console.error('Error fetching item and category data:', error);
+        setError('Error fetching item and category data: ' + error);
       }
     }
     async function loadInitialData() {
@@ -123,6 +132,20 @@ const HistoryPage: React.FC = () => {
     }
     loadInitialData();
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      setSnackbarState({ open: true, message: error, severity: 'error' });
+    }
+  }, [error]);
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') return;
+    setSnackbarState({ ...snackbarState, open: false });
+  };
 
   function handleDateSelection(dateInput: string) {
     setDateInput(dateInput);
@@ -154,6 +177,13 @@ const HistoryPage: React.FC = () => {
 
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
+      <SnackbarAlert
+        open={snackbarState.open}
+        onClose={handleSnackbarClose}
+        severity={snackbarState.severity}
+      >
+        {snackbarState.message}
+      </SnackbarAlert>
       <CustomDateDialog
         showDialog={showCustomDateDialog}
         handleShowDialog={() => setShowCustomDateDialog(!showCustomDateDialog)}

@@ -63,7 +63,7 @@ const WelcomeBasketBuildingDialog = ({
 
       // Fetch or create admin resident for the welcome unit
       const residentsResponse = await getResidents(user, welcomeUnit.id);
-      let adminResident = residentsResponse.value.find(
+      const adminResident = residentsResponse.value.find(
         (r: { name: string }) => r.name.toLowerCase() === 'admin',
       );
 

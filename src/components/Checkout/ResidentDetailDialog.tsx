@@ -55,6 +55,13 @@ const ResidentDetailDialog = ({
 
     const isWaiting = isSubmitting || isLoadingUnits || isLoadingResidents;
 
+    function formatVisitDate(dateStr: string | null, fallback: string = 'No previous visits'): string {
+        if (!dateStr) return fallback;
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return fallback;
+        return date.toLocaleDateString();
+    }
+
     const fetchUnitNumbers = async (buildingId: number) => {
         setIsLoadingUnits(true);
         setApiError('');
@@ -314,9 +321,7 @@ const ResidentDetailDialog = ({
                         }}
                         renderOption={(props, option) => {
                         const { key, ...optionProps } = props;
-                        const lastVisit = option.lastVisitDate
-                            ? new Date(option.lastVisitDate).toLocaleDateString()
-                            : 'No previous visits';
+                        const lastVisit = formatVisitDate(option.lastVisitDate || null);
 
                         return (
                             <li key={key} {...optionProps}>
@@ -335,7 +340,7 @@ const ResidentDetailDialog = ({
                 </FormControl>
                 {nameInput && (
                     <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'flex-start' }}>
-                        last visit: {currentLastVisitDate ? new Date(currentLastVisitDate).toLocaleDateString() : 'none'}
+                        last visit: {formatVisitDate(currentLastVisitDate, 'none')}
                     </Typography>
                 )}
                 {apiError && <Typography color="error">{apiError}</Typography>}

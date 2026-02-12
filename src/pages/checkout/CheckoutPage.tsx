@@ -53,6 +53,7 @@ const CheckoutPage = () => {
     name: '',
     unit: { id: 0, unit_number: '' },
     building: { id: 0, code: '', name: '' },
+    lastVisitDate: null,
   });
 
   const [activeSection, setActiveSection] = useState<string>('');
@@ -68,7 +69,8 @@ const CheckoutPage = () => {
     useState<boolean>(true);
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
-      ([, val]) => val === null || val === undefined || val === '',
+      // lastVisitDate is optional and excluded from validation, all other fields must have values
+      ([key, val]) => key !== 'lastVisitDate' && (val === null || val === undefined || val === ''),
     ).length > 0;
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] =
     useState<boolean>(false);
@@ -439,7 +441,7 @@ const CheckoutPage = () => {
           >
             {residentInfoIsMissing
               ? 'Missing Resident Info'
-              : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name}`}
+              : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`}
           </Button>
           <SearchBar
             data={data}

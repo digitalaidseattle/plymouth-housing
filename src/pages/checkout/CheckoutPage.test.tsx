@@ -165,6 +165,7 @@ describe('CheckoutPage', async () => {
     expect(screen.queryByText(/items added/i)).not.toBeInTheDocument();
   });
 
+
   // it('shows checkout dialog when "Continue" is clicked', () => {
 
   //   const select = screen.getByLabelText('Building Code');

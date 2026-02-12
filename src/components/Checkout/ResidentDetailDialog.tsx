@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
-import { addResident, findResident, getResidents, getUnitNumbers } from './CheckoutAPICalls';
+import { addResident, findResident, getResidents, getUnitNumbers, getLastResidentVisit } from './CheckoutAPICalls';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -26,6 +26,8 @@ type ResidentDetailDialogProps = {
 type ResidentNameOption = {
     inputValue?: string;
     name: string;
+    id?: number;
+    lastVisitDate?: string | null;
 }
 
 const ResidentDetailDialog = ({
@@ -47,10 +49,26 @@ const ResidentDetailDialog = ({
     const [isLoadingResidents, setIsLoadingResidents] = useState(false);
     const [isLoadingUnits, setIsLoadingUnits] = useState(false);
     const [apiError, setApiError] = useState('');
+    const [currentLastVisitDate, setCurrentLastVisitDate] = useState<string | null>(null);
 
     const filter = createFilterOptions<ResidentNameOption>();
 
     const isWaiting = isSubmitting || isLoadingUnits || isLoadingResidents;
+
+    function formatVisitDate(dateStr: string | null, fallback: string = 'No previous visits'): string {
+        if (!dateStr) return fallback;
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return fallback;
+        return date.toLocaleDateString();
+    }
+
+    function isDateInCurrentMonth(dateStr: string | null): boolean {
+        if (!dateStr) return false;
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return false;
+        const now = new Date();
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }
 
     const fetchUnitNumbers = async (buildingId: number) => {
         setIsLoadingUnits(true);
@@ -77,6 +95,31 @@ const ResidentDetailDialog = ({
 
     useEffect(() => {
         let cancelled = false;
+
+        const fetchAllLastVisits = async (residents: { name: string, id: number }[]) => {
+            const residentsWithDates = await Promise.all(
+                residents.map(async (resident) => {
+                    try {
+                        const response = await getLastResidentVisit(user, resident.id);
+                        const lastVisitDate = response.value?.[0]?.transaction_date || null;
+                        return {
+                            name: resident.name,
+                            id: resident.id,
+                            lastVisitDate: lastVisitDate
+                        };
+                    } catch (error) {
+                        console.error(`Error fetching last visit for resident ${resident.id}:`, error);
+                        return {
+                            name: resident.name,
+                            id: resident.id,
+                            lastVisitDate: null
+                        };
+                    }
+                })
+            );
+            return residentsWithDates;
+        };
+
         const fetchResidents = async () => {
             if (!selectedUnit?.id) {
                 setExistingResidents([]);
@@ -91,13 +134,19 @@ const ResidentDetailDialog = ({
             try {
                 const response = await getResidents(user, selectedUnit.id);
                 if (cancelled) return;
+
                 if (response.value.length > 0) {
-                    const residents = response.value.map((r: { name: string }) => ({ name: r.name }));
-                    setExistingResidents(residents);
-                    setNameInput(residents[residents.length - 1].name);
+                    const residentsWithDates = await fetchAllLastVisits(response.value);
+                    if (cancelled) return;
+
+                    setExistingResidents(residentsWithDates);
+                    const lastResident = residentsWithDates[residentsWithDates.length - 1];
+                    setNameInput(lastResident.name);
+                    setCurrentLastVisitDate(lastResident.lastVisitDate || null);
                 } else {
                     setExistingResidents([]);
                     setNameInput('');
+                    setCurrentLastVisitDate(null);
                 }
             } catch (e) {
                 if (cancelled) return;
@@ -147,7 +196,8 @@ const ResidentDetailDialog = ({
                 id: residentId,
                 name: nameInput,
                 unit: selectedUnit,
-                building: selectedBuilding
+                building: selectedBuilding,
+                lastVisitDate: currentLastVisitDate
             });
             setShowError(false);
             handleShowDialog();
@@ -218,11 +268,11 @@ const ResidentDetailDialog = ({
                             if (typeof option === 'string') return option;
                             return `${option.unit_number}`;
                         }}
-                        renderInput={(params) => 
-                            <TextField {...params} 
+                        renderInput={(params) =>
+                            <TextField {...params}
                                 id={selectedUnit.unit_number}
-                                label="Unit Number" 
-                                error={showError} 
+                                label="Unit Number"
+                                error={showError && selectedUnit.id === 0}
                                 helperText={getUnitHelperText(showError, selectedUnit)}
                             />
                         }
@@ -237,22 +287,27 @@ const ResidentDetailDialog = ({
                         onChange={(_event, newValue) => {
                             if (typeof newValue === 'string') {
                                 setNameInput(newValue);
+                                setCurrentLastVisitDate(null);
                             } else if (newValue && (newValue as ResidentNameOption).inputValue) {
                                 setNameInput((newValue as ResidentNameOption).inputValue!);
+                                setCurrentLastVisitDate(null);
                             } else if (newValue && (newValue as ResidentNameOption).name) {
-                                setNameInput((newValue as ResidentNameOption).name);
+                                const selectedResident = newValue as ResidentNameOption;
+                                setNameInput(selectedResident.name);
+                                setCurrentLastVisitDate(selectedResident.lastVisitDate || null);
                             } else {
                                 setNameInput('');
+                                setCurrentLastVisitDate(null);
+                            }
+                        }}
+                        onInputChange={(_event, newInputValue, reason) => {
+                            if (reason === 'input') {
+                                setNameInput(newInputValue);
+                                setCurrentLastVisitDate(null);
                             }
                         }}
                         filterOptions={(options, params) => {
                             const filtered = filter(options, params);
-                            const { inputValue } = params;
-                            // Suggest the creation of a new value
-                            const isExisting = options.some((option) => inputValue === option.name);
-                            if (inputValue !== '' && !isExisting) {
-                                setNameInput(inputValue);
-                            }
                             return filtered;
                         }}
                         selectOnFocus
@@ -274,9 +329,11 @@ const ResidentDetailDialog = ({
                         }}
                         renderOption={(props, option) => {
                         const { key, ...optionProps } = props;
+                        const lastVisit = formatVisitDate(option.lastVisitDate || null);
+
                         return (
                             <li key={key} {...optionProps}>
-                            {option.name}
+                            {option.name} - Last visit: {lastVisit}
                             </li>
                             );
                         }}
@@ -289,6 +346,14 @@ const ResidentDetailDialog = ({
                         )}
                     />
                 </FormControl>
+                {nameInput && (
+                    <Typography
+                        variant="h5"
+                        color={isDateInCurrentMonth(currentLastVisitDate) ? 'error' : 'text.secondary'}
+                        sx={{ alignSelf: 'flex-start' }}>
+                        last visit: {formatVisitDate(currentLastVisitDate, 'none')}
+                    </Typography>
+                )}
                 {apiError && <Typography color="error">{apiError}</Typography>}
             </Box>
         </DialogTemplate>

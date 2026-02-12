@@ -11,6 +11,7 @@ vi.mock('./CheckoutAPICalls', () => ({
   getResidents: vi.fn(),
   findResident: vi.fn(),
   addResident: vi.fn(),
+  getLastResidentVisit: vi.fn(),
 }));
 
 describe('ResidentDetailDialog', () => {
@@ -342,7 +343,10 @@ describe('ResidentDetailDialog', () => {
     test('submits form with existing resident', async () => {
       (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
       (CheckoutAPICalls.getResidents as Mock).mockResolvedValue({
-        value: [{ name: 'John Doe' }],
+        value: [{ id: 1, name: 'John Doe' }],
+      });
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
+        value: [{ transaction_date: '2025-01-15T10:30:00' }]
       });
       (CheckoutAPICalls.findResident as Mock).mockResolvedValue({
         value: [{ id: 5, name: 'John Doe' }],
@@ -400,6 +404,7 @@ describe('ResidentDetailDialog', () => {
           expect.objectContaining({
             id: 5,
             name: 'John Doe',
+            lastVisitDate: '2025-01-15T10:30:00'
           })
         );
         expect(handleShowDialog).toHaveBeenCalled();
@@ -730,6 +735,346 @@ describe('ResidentDetailDialog', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Not a valid unit/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Last Visit Date Features', () => {
+    test('fetches and displays last visit dates for residents when unit is selected', async () => {
+      const mockResidentsWithIds = {
+        value: [
+          { id: 1, name: 'John Doe' },
+          { id: 2, name: 'Jane Smith' }
+        ]
+      };
+
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock)
+        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-01-15T10:30:00' }] })
+        .mockResolvedValueOnce({ value: [] });
+
+      const propsWithUnits = {
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+      };
+
+      renderComponent(propsWithUnits);
+
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getLastResidentVisit).toHaveBeenCalledWith(mockUser, 1);
+        expect(CheckoutAPICalls.getLastResidentVisit).toHaveBeenCalledWith(mockUser, 2);
+      });
+    });
+
+    test('displays last visit date in autocomplete dropdown options', async () => {
+      const mockResidentsWithIds = {
+        value: [
+          { id: 1, name: 'John Doe' },
+          { id: 2, name: 'Jane Smith' }
+        ]
+      };
+
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock)
+        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-01-15T10:30:00' }] })
+        .mockResolvedValueOnce({ value: [] });
+
+      const propsWithUnits = {
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+      };
+
+      renderComponent(propsWithUnits);
+
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalled();
+      });
+
+      // Open the autocomplete dropdown
+      const nameInput = screen.getByLabelText('Resident Name');
+      fireEvent.mouseDown(nameInput);
+
+      await waitFor(() => {
+        expect(screen.getByText(/John Doe - Last visit: 1\/15\/2025/i)).toBeInTheDocument();
+        expect(screen.getByText(/Jane Smith - Last visit: No previous visits/i)).toBeInTheDocument();
+      });
+    });
+
+    test('displays last visit date below resident name field when resident selected', async () => {
+      const mockResidentsWithIds = {
+        value: [{ id: 1, name: 'John Doe' }]
+      };
+
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
+        value: [{ transaction_date: '2025-01-15T10:30:00' }]
+      });
+
+      const propsWithUnits = {
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+      };
+
+      renderComponent(propsWithUnits);
+
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(screen.getByText(/last visit: 1\/15\/2025/i)).toBeInTheDocument();
+      });
+    });
+
+    test('displays "none" when resident has no previous visits', async () => {
+      const mockResidentsWithIds = {
+        value: [{ id: 1, name: 'John Doe' }]
+      };
+
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({ value: [] });
+
+      const propsWithUnits = {
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+      };
+
+      renderComponent(propsWithUnits);
+
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(screen.getByText(/last visit: none/i)).toBeInTheDocument();
+      });
+    });
+
+    test('updates last visit date when different resident is selected', async () => {
+      const mockResidentsWithIds = {
+        value: [
+          { id: 1, name: 'John Doe' },
+          { id: 2, name: 'Jane Smith' }
+        ]
+      };
+
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock)
+        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-01-15T10:30:00' }] })
+        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-02-01T14:20:00' }] });
+
+      const propsWithUnits = {
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+      };
+
+      renderComponent(propsWithUnits);
+
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      // Wait for residents to load - should show Jane's date (last resident)
+      await waitFor(() => {
+        expect(screen.getByText(/last visit: 2\/1\/2025/i)).toBeInTheDocument();
+      });
+
+      // Open autocomplete and select John
+      const nameInput = screen.getByLabelText('Resident Name');
+      fireEvent.mouseDown(nameInput);
+
+      await waitFor(() => {
+        expect(screen.getByText(/John Doe - Last visit:/i)).toBeInTheDocument();
+      });
+
+      const johnOption = screen.getByText(/John Doe - Last visit:/i);
+      fireEvent.click(johnOption);
+
+      // Should now show John's date
+      await waitFor(() => {
+        expect(screen.getByText(/last visit: 1\/15\/2025/i)).toBeInTheDocument();
+      });
+    });
+
+    test('clears last visit date when new resident name is entered via autocomplete', async () => {
+      const mockResidentsWithIds = {
+        value: [{ id: 1, name: 'John Doe' }]
+      };
+
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
+        value: [{ transaction_date: '2025-01-15T10:30:00' }]
+      });
+
+      const propsWithUnits = {
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+      };
+
+      renderComponent(propsWithUnits);
+
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(screen.getByText(/last visit: 1\/15\/2025/i)).toBeInTheDocument();
+      });
+
+      // Clear the autocomplete by clicking the clear button
+      const nameInput = screen.getByLabelText('Resident Name');
+      const autocomplete = nameInput.closest('.MuiAutocomplete-root');
+      const clearButton = autocomplete?.querySelector('.MuiAutocomplete-clearIndicator');
+
+      expect(clearButton).toBeTruthy();
+      fireEvent.click(clearButton!);
+
+      await waitFor(() => {
+        expect(screen.queryByText(/last visit: 1\/15\/2025/i)).not.toBeInTheDocument();
+      });
+    });
+
+    test('continues gracefully when last visit fetch fails', async () => {
+      const mockResidentsWithIds = {
+        value: [{ id: 1, name: 'John Doe' }]
+      };
+
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockRejectedValue(new Error('Network error'));
+
+      const propsWithUnits = {
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+      };
+
+      renderComponent(propsWithUnits);
+
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Resident Name')).toHaveValue('John Doe');
+        expect(screen.getByText(/last visit: none/i)).toBeInTheDocument();
+      });
+    });
+
+    test('passes lastVisitDate to parent when submitting with existing resident', async () => {
+      const mockResidentsWithIds = {
+        value: [{ id: 1, name: 'John Doe' }]
+      };
+
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
+        value: [{ transaction_date: '2025-01-15T10:30:00' }]
+      });
+      (CheckoutAPICalls.findResident as Mock).mockResolvedValue({
+        value: [{ id: 5, name: 'John Doe' }],
+      });
+
+      const setResidentInfo = vi.fn();
+      const handleShowDialog = vi.fn();
+
+      renderComponent({
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+        setResidentInfo,
+        handleShowDialog,
+      });
+
+      // Select building
+      const buildingInput = screen.getByLabelText('Building Code');
+      fireEvent.mouseDown(buildingInput);
+      const buildingOption = await screen.findByText('A (Building A)');
+      fireEvent.click(buildingOption);
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getUnitNumbers).toHaveBeenCalled();
+      });
+
+      // Select unit
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Resident Name')).toHaveValue('John Doe');
+      });
+
+      // Submit form
+      const continueButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(continueButton);
+
+      await waitFor(() => {
+        expect(setResidentInfo).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 5,
+            name: 'John Doe',
+            lastVisitDate: '2025-01-15T10:30:00'
+          })
+        );
+        expect(handleShowDialog).toHaveBeenCalled();
+      });
+    });
+
+    test('passes null lastVisitDate when submitting new resident', async () => {
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue({ value: [] });
+      (CheckoutAPICalls.findResident as Mock).mockResolvedValue({ value: [] });
+      (CheckoutAPICalls.addResident as Mock).mockResolvedValue({
+        value: [{ id: 10, name: 'New Resident' }],
+      });
+
+      const setResidentInfo = vi.fn();
+      const handleShowDialog = vi.fn();
+
+      renderComponent({
+        ...defaultProps,
+        unitNumberValues: mockUnits,
+        setResidentInfo,
+        handleShowDialog,
+      });
+
+      // Select building
+      const buildingInput = screen.getByLabelText('Building Code');
+      fireEvent.mouseDown(buildingInput);
+      const buildingOption = await screen.findByText('A (Building A)');
+      fireEvent.click(buildingOption);
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getUnitNumbers).toHaveBeenCalled();
+      });
+
+      // Select unit
+      const unitInput = screen.getByLabelText('Unit Number');
+      fireEvent.change(unitInput, { target: { value: '101' } });
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalled();
+      });
+
+      // Enter new resident name
+      const nameInput = screen.getByLabelText('Resident Name');
+      fireEvent.change(nameInput, { target: { value: 'New Resident' } });
+
+      // Submit form
+      const continueButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(continueButton);
+
+      await waitFor(() => {
+        expect(setResidentInfo).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 10,
+            name: 'New Resident',
+            lastVisitDate: null
+          })
+        );
+        expect(handleShowDialog).toHaveBeenCalled();
       });
     });
   });

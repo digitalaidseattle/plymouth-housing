@@ -1,7 +1,7 @@
 {
   "name": "plymouth-housing",
   "private": true,
-  "version": "1.2.1",
+  "version": "1.2.2",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
@@ -13,10 +13,11 @@
     "test:unit": "vitest --root src/"
   },
   "dependencies": {
-    "@ant-design/colors": "^7.2.0",
+    "@ant-design/colors": "^8.0.1",
     "@ant-design/icons": "^5.5.2",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@microsoft/applicationinsights-web": "^3.3.11",
     "@microsoft/clarity": "^1.0.0",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
@@ -34,7 +35,7 @@
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.8",
+    "@types/node": "^25.1.0",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^8.29.0",

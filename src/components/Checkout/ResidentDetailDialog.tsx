@@ -50,6 +50,25 @@ const ResidentDetailDialog = ({
     residentsHook.isLoadingResidents;
   const apiError =
     unitNumbersHook.apiError || residentsHook.apiError || submitHook.apiError;
+
+  function formatVisitDate(
+    dateStr: string | null,
+    fallback: string = 'No previous visits',
+  ): string {
+    if (!dateStr) return fallback;
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return fallback;
+    return date.toLocaleDateString();
+  }
+
+  function isDateInCurrentMonth(dateStr: string | null): boolean {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return false;
+    const now = new Date();
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }
+
   const fetchUnitNumbers = async (buildingId: number) => {
     await unitNumbersHook.fetchUnitNumbers(user, buildingId);
   };
@@ -159,6 +178,7 @@ const ResidentDetailDialog = ({
             onChange={(_event, newValue) => {
               if (typeof newValue === 'string') {
                 residentsHook.setNameInput(newValue);
+                residentsHook.setCurrentLastVisitDate(null);
               } else if (
                 newValue &&
                 (newValue as ResidentNameOption).inputValue
@@ -166,20 +186,22 @@ const ResidentDetailDialog = ({
                 residentsHook.setNameInput(
                   (newValue as ResidentNameOption).inputValue!,
                 );
+                residentsHook.setCurrentLastVisitDate(null);
               } else if (newValue && (newValue as ResidentNameOption).name) {
-                residentsHook.setNameInput(
-                  (newValue as ResidentNameOption).name,
+                const selectedResident = newValue as ResidentNameOption;
+                residentsHook.setNameInput(selectedResident.name);
+                residentsHook.setCurrentLastVisitDate(
+                  selectedResident.lastVisitDate || null,
                 );
               } else {
                 residentsHook.setNameInput('');
+                residentsHook.setCurrentLastVisitDate(null);
               }
             }}
-            onInputChange={(_event, newInputValue) => {
-              const isExisting = residentsHook.existingResidents.some(
-                (option) => newInputValue === option.name,
-              );
-              if (newInputValue !== '' && !isExisting) {
+            onInputChange={(_event, newInputValue, reason) => {
+              if (reason === 'input') {
                 residentsHook.setNameInput(newInputValue);
+                residentsHook.setCurrentLastVisitDate(null);
               }
             }}
             filterOptions={(options, params) => {
@@ -202,9 +224,11 @@ const ResidentDetailDialog = ({
             }}
             renderOption={(props, option) => {
               const { key, ...optionProps } = props;
+              const lastVisit = formatVisitDate(option.lastVisitDate || null);
+
               return (
                 <li key={key} {...optionProps}>
-                  {option.name}
+                  {option.name} - Last visit: {lastVisit}
                 </li>
               );
             }}
@@ -223,6 +247,19 @@ const ResidentDetailDialog = ({
             )}
           />
         </FormControl>
+        {residentsHook.nameInput && (
+          <Typography
+            variant="h5"
+            color={
+              isDateInCurrentMonth(residentsHook.currentLastVisitDate)
+                ? 'error'
+                : 'text.secondary'
+            }
+            sx={{ alignSelf: 'flex-start' }}
+          >
+            last visit: {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
+          </Typography>
+        )}
         {apiError && <Typography color="error">{apiError}</Typography>}
       </Box>
     </DialogTemplate>

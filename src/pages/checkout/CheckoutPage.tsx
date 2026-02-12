@@ -352,6 +352,17 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   }, [error]);
 
   useEffect(() => {
+    setResidentInfo({
+      id: 0,
+      name: '',
+      unit: { id: 0, unit_number: '' },
+      building: { id: 0, code: '', name: '' },
+    });
+    setUnitNumberValues([]);
+    setShowResidentDetailDialog(true);
+  }, [checkoutType]);
+
+  useEffect(() => {
     fetchBuildings();
     fetchData();
   }, [fetchData, fetchBuildings]);

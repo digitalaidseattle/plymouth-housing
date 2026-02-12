@@ -89,6 +89,7 @@ const ResidentDetailDialog = ({
       selectedUnit,
       showError,
       setShowError,
+      residentsHook.currentLastVisitDate,
     );
   }
 

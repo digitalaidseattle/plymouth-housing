@@ -133,5 +133,7 @@ export type ResidentInfo = {
 export type ResidentNameOption = {
   inputValue?: string;
   name: string;
+  id?: number;
+  lastVisitDate?: string | null;
 }
 

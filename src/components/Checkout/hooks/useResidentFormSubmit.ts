@@ -14,7 +14,8 @@ export const useResidentFormSubmit = (
         selectedBuilding: Building,
         selectedUnit: Unit,
         _showError: boolean,
-        setShowError: (show: boolean) => void
+        setShowError: (show: boolean) => void,
+        currentLastVisitDate: string | null = null
     ) => {
         setApiError('');
         if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
@@ -37,7 +38,8 @@ export const useResidentFormSubmit = (
                 id: residentId,
                 name: nameInput,
                 unit: selectedUnit,
-                building: selectedBuilding
+                building: selectedBuilding,
+                lastVisitDate: currentLastVisitDate
             });
             setShowError(false);
             return true;

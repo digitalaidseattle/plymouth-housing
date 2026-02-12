@@ -3,6 +3,7 @@ import {
   useEffect,
   useContext,
   useCallback,
+  useMemo,
   SetStateAction,
 } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
@@ -26,6 +27,7 @@ import CheckoutCard from '../../components/Checkout/CheckoutCard';
 import { useNavigate } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
+import WelcomeBasketBuildingDialog from '../../components/Checkout/WelcomeBasketBuildingDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
 import {
   checkPastCheckout,
@@ -33,7 +35,13 @@ import {
 } from '../../components/Checkout/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 
-const CheckoutPage = () => {
+type CheckoutType = 'general' | 'welcomeBasket';
+
+interface CheckoutPageProps {
+  checkoutType?: CheckoutType;
+}
+
+const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' }) => {
   const { user } = useContext(UserContext);
   const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>(
     [],
@@ -300,20 +308,32 @@ const CheckoutPage = () => {
 
       setCheckoutItems(cleanCheckout);
 
-      const welcomeBasket =
-        categorizedItems.filter(
+      if (checkoutType === 'welcomeBasket') {
+        const welcomeBasketCategory = categorizedItems.find(
           (category: CategoryProps) => category.category === 'Welcome Basket',
-        ) || [];
-      welcomeBasket[0].items = welcomeBasket[0].items.filter(
-        (item: CheckoutItemProp) =>
-          item.name.toLowerCase().includes('full-size sheet set') ||
-          item.name.toLowerCase().includes('twin-size sheet set'),
-      );
-      setWelcomeBasketData(welcomeBasket);
+        );
+
+        if (welcomeBasketCategory) {
+          const filteredItems = (welcomeBasketCategory.items || []).filter(
+            (item: CheckoutItemProp) =>
+              item.name.toLowerCase().includes('full-size sheet set') ||
+              item.name.toLowerCase().includes('twin-size sheet set'),
+          );
+
+          setWelcomeBasketData([
+            {
+              ...welcomeBasketCategory,
+              items: filteredItems,
+            },
+          ]);
+        } else {
+          setWelcomeBasketData([]);
+        }
+      }
     } catch (error) {
       console.error('Error fetching categorized items:', error);
     }
-  }, [user]);
+  }, [user, checkoutType]);
 
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
@@ -334,6 +354,18 @@ const CheckoutPage = () => {
   }, [error]);
 
   useEffect(() => {
+    setResidentInfo({
+      id: 0,
+      name: '',
+      unit: { id: 0, unit_number: '' },
+      building: { id: 0, code: '', name: '' },
+      lastVisitDate: null,
+    });
+    setUnitNumberValues([]);
+    setShowResidentDetailDialog(true);
+  }, [checkoutType]);
+
+  useEffect(() => {
     fetchBuildings();
     fetchData();
   }, [fetchData, fetchBuildings]);
@@ -343,6 +375,12 @@ const CheckoutPage = () => {
       data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'),
     );
   }, [data]);
+
+  const navbarData = useMemo(() => {
+    return checkoutType === 'general'
+      ? filteredData
+      : data;
+  }, [checkoutType, filteredData, data]);
 
   const handleCheckoutSuccess = (errorMessage?: string) => {
     const isError = !!errorMessage;
@@ -371,7 +409,7 @@ const CheckoutPage = () => {
 
   return (
     <>
-      {showResidentDetailDialog && (
+      {showResidentDetailDialog && checkoutType === 'general' && (
         <ResidentDetailDialog
           showDialog={showResidentDetailDialog}
           handleShowDialog={() =>
@@ -381,6 +419,16 @@ const CheckoutPage = () => {
           unitNumberValues={unitNumberValues}
           setUnitNumberValues={setUnitNumberValues}
           residentInfo={residentInfo}
+          setResidentInfo={setResidentInfo}
+        />
+      )}
+      {showResidentDetailDialog && checkoutType === 'welcomeBasket' && (
+        <WelcomeBasketBuildingDialog
+          showDialog={showResidentDetailDialog}
+          handleShowDialog={() =>
+            setShowResidentDetailDialog(!showResidentDetailDialog)
+          }
+          buildings={buildings}
           setResidentInfo={setResidentInfo}
         />
       )}
@@ -440,8 +488,12 @@ const CheckoutPage = () => {
             onClick={() => setShowResidentDetailDialog(true)}
           >
             {residentInfoIsMissing
-              ? 'Missing Resident Info'
-              : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`}
+              ? checkoutType === 'welcomeBasket'
+                ? 'Missing Building Info'
+                : 'Missing Resident Info'
+              : checkoutType === 'welcomeBasket'
+                ? `${residentInfo.building.code}`
+                : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`}
           </Button>
           <SearchBar
             data={data}
@@ -449,9 +501,10 @@ const CheckoutPage = () => {
             setSearchActive={setSearchActive}
           />
         </Box>
-        {!searchActive && (
+        {!searchActive && checkoutType === 'general' && (
           <Navbar
-            filteredData={filteredData}
+            key={checkoutType}
+            filteredData={navbarData}
             scrollToCategory={scrollToCategory}
           />
         )}
@@ -535,111 +588,108 @@ const CheckoutPage = () => {
           </Grid>
         ) : (
           <Box>
-            <Typography
-              id="Welcome Basket"
-              sx={{
-                paddingLeft: '5%',
-                paddingTop: '5%',
-                fontSize: '24px',
-                fontWeight: 'bold',
-              }}
-            >
-              Welcome Basket
-            </Typography>
-
-            {/* Filters for welcome basket  */}
-            {welcomeBasketData.map((category) => {
-              const matchingCategory = checkoutItems.find(
-                (cat) => cat.category === category.category,
-              ) || {
-                id: 0,
-                category: '',
-                items: [],
-                checkout_limit: 0,
-                categoryCount: 0,
-              };
-              return (
-                <CategorySection
-                  key={category.id}
-                  category={category}
-                  categoryCheckout={matchingCategory}
-                  addItemToCart={(item, quantity) =>
-                    addItemToCart(
-                      item,
-                      quantity,
-                      category.category,
-                      'welcomeBasket',
-                    )
-                  }
-                  removeItemFromCart={removeItemFromCart}
-                  removeButton={false}
-                  disabled={
-                    searchActive ||
-                    (activeSection !== '' && activeSection !== 'welcomeBasket')
-                  }
-                  activeSection={activeSection}
-                  checkoutHistory={checkoutHistory}
-                />
-              );
-            })}
-
-            <Typography
-              sx={{
-                paddingLeft: '5%',
-                paddingTop: '5%',
-                fontSize: '24px',
-                fontWeight: 'bold',
-              }}
-            >
-              General
-            </Typography>
-
-            {/* Filters for general items */}
-            {filteredData.map((category) => {
-              const matchingCategory = checkoutItems.find(
-                (cat) => cat.category === category.category,
-              ) || {
-                id: 0,
-                category: '',
-                items: [],
-                checkout_limit: 0,
-                categoryCount: 0,
-              };
-              return (
-                <CategorySection
-                  key={category.id}
-                  category={category}
-                  categoryCheckout={matchingCategory}
-                  addItemToCart={(item, quantity) => {
-                    if (item.name === 'Appliance Miscellaneous') {
-                      setSelectedItem(item);
-                      if (quantity > 0) {
-                        setShowAdditionalNotesDialog(true);
-                        return;
-                      }
-                    }
-                    if (
-                      checkoutHistory.map((i) => i.item_id).includes(item.id)
-                    ) {
-                      setSelectedItem(item);
-                      if (quantity > 0) {
-                        setShowPastCheckoutDialog(true);
-                        return;
-                      }
-                    }
-                    addItemToCart(item, quantity, category.category, 'general');
+            {checkoutType === 'welcomeBasket' && (
+              <>
+                <Typography
+                  id="Welcome Basket"
+                  sx={{
+                    paddingLeft: '5%',
+                    paddingTop: '5%',
+                    fontSize: '24px',
+                    fontWeight: 'bold',
                   }}
-                  removeItemFromCart={removeItemFromCart}
-                  removeButton={false}
-                  disabled={
-                    searchActive ||
-                    (activeSection !== '' && activeSection !== 'general')
-                  }
-                  activeSection={activeSection}
-                  checkoutHistory={checkoutHistory}
-                />
-              );
-            })}
+                >
+                  Welcome Basket
+                </Typography>
+
+                {/* Filters for welcome basket  */}
+                {welcomeBasketData.map((category) => {
+                  const matchingCategory = checkoutItems.find(
+                    (cat) => cat.category === category.category,
+                  ) || {
+                    id: 0,
+                    category: '',
+                    items: [],
+                    checkout_limit: 0,
+                    categoryCount: 0,
+                  };
+                  return (
+                    <CategorySection
+                      key={category.id}
+                      category={category}
+                      categoryCheckout={matchingCategory}
+                      addItemToCart={(item, quantity) =>
+                        addItemToCart(
+                          item,
+                          quantity,
+                          category.category,
+                          'welcomeBasket',
+                        )
+                      }
+                      removeItemFromCart={removeItemFromCart}
+                      removeButton={false}
+                      disabled={
+                        searchActive ||
+                        (activeSection !== '' && activeSection !== 'welcomeBasket')
+                      }
+                      activeSection={activeSection}
+                      checkoutHistory={checkoutHistory}
+                    />
+                  );
+                })}
+              </>
+            )}
+
+            {checkoutType === 'general' && (
+              <>
+                {/* Filters for general items */}
+                {filteredData.map((category) => {
+                  const matchingCategory = checkoutItems.find(
+                    (cat) => cat.category === category.category,
+                  ) || {
+                    id: 0,
+                    category: '',
+                    items: [],
+                    checkout_limit: 0,
+                    categoryCount: 0,
+                  };
+                  return (
+                    <CategorySection
+                      key={category.id}
+                      category={category}
+                      categoryCheckout={matchingCategory}
+                      addItemToCart={(item, quantity) => {
+                        if (item.name === 'Appliance Miscellaneous') {
+                          setSelectedItem(item);
+                          if (quantity > 0) {
+                            setShowAdditionalNotesDialog(true);
+                            return;
+                          }
+                        }
+                        if (
+                          checkoutHistory.map((i) => i.item_id).includes(item.id)
+                        ) {
+                          setSelectedItem(item);
+                          if (quantity > 0) {
+                            setShowPastCheckoutDialog(true);
+                            return;
+                          }
+                        }
+                        addItemToCart(item, quantity, category.category, 'general');
+                      }}
+                      removeItemFromCart={removeItemFromCart}
+                      removeButton={false}
+                      disabled={
+                        searchActive ||
+                        (activeSection !== '' && activeSection !== 'general')
+                      }
+                      activeSection={activeSection}
+                      checkoutHistory={checkoutHistory}
+                    />
+                  );
+                })}
+              </>
+            )}
           </Box>
         )}
 

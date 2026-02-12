@@ -189,3 +189,203 @@ describe('CheckoutPage', async () => {
   //   expect(screen.getByText(/Checkout Summary/i)).toBeInTheDocument();
   // });
 });
+
+describe('CheckoutPage - Welcome Basket Mode', () => {
+  beforeEach(() => {
+    // Clear sessionStorage before each test to prevent cached data interference
+    sessionStorage.clear();
+  });
+
+  it('renders welcome basket items when category exists', async () => {
+    global.fetch = vi.fn((url) => {
+      if (url.includes(ENDPOINTS.BUILDINGS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, name: 'Building 1', code: 'B1' },
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.CATEGORIZED_ITEMS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              {
+                id: 2,
+                category: 'Welcome Basket',
+                items: [
+                  { id: 162, name: 'Full-size sheet set', quantity: 5 },
+                  { id: 163, name: 'Twin-size sheet set', quantity: 3 },
+                  { id: 164, name: 'Pillow', quantity: 10 },
+                ],
+              },
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.CHECK_PAST_CHECKOUT)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ value: [] }),
+        });
+      } else if (url.includes(ENDPOINTS.UNITS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [{ id: 1, building_id: 1, unit_number: "201" }],
+          }),
+        });
+      }
+      return Promise.reject(new Error('Unknown endpoint'));
+    }) as Mock;
+
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <UserContext.Provider value={mockUserContext}>
+            <CheckoutPage checkoutType="welcomeBasket" />
+          </UserContext.Provider>
+        </BrowserRouter>
+      );
+    });
+
+    // Should show sheet sets and filter out other items
+    expect(screen.getByText('Full-size sheet set')).toBeInTheDocument();
+    expect(screen.getByText('Twin-size sheet set')).toBeInTheDocument();
+    expect(screen.queryByText('Pillow')).not.toBeInTheDocument();
+  });
+
+  it('handles missing Welcome Basket category gracefully without crashing', async () => {
+    // Mock console.error to avoid noise in test output
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    global.fetch = vi.fn((url) => {
+      if (url.includes(ENDPOINTS.BUILDINGS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, name: 'Building 1', code: 'B1' },
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.CATEGORIZED_ITEMS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              {
+                id: 1,
+                category: 'Electronics',
+                items: [
+                  { id: 1, name: 'Laptop', quantity: 1 },
+                ],
+              },
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.CHECK_PAST_CHECKOUT)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ value: [] }),
+        });
+      } else if (url.includes(ENDPOINTS.UNITS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [{ id: 1, building_id: 1, unit_number: "201" }],
+          }),
+        });
+      }
+      return Promise.reject(new Error('Unknown endpoint'));
+    }) as Mock;
+
+    let renderError;
+    try {
+      await act(async () => {
+        render(
+          <BrowserRouter>
+            <UserContext.Provider value={mockUserContext}>
+              <CheckoutPage checkoutType="welcomeBasket" />
+            </UserContext.Provider>
+          </BrowserRouter>
+        );
+      });
+    } catch (error) {
+      renderError = error;
+    }
+
+    // Should render without throwing errors even when Welcome Basket category is missing
+    expect(renderError).toBeUndefined();
+    expect(screen.getAllByText('Welcome Basket')[0]).toBeInTheDocument();
+    expect(screen.queryByText('Full-size sheet set')).not.toBeInTheDocument();
+
+    consoleSpy.mockRestore();
+  });
+
+  it('handles Welcome Basket category with missing items array without crashing', async () => {
+    // Mock console.error to avoid noise in test output
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    global.fetch = vi.fn((url) => {
+      if (url.includes(ENDPOINTS.BUILDINGS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              { id: 1, name: 'Building 1', code: 'B1' },
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.CATEGORIZED_ITEMS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [
+              {
+                id: 2,
+                category: 'Welcome Basket',
+                // items array is missing/undefined
+              },
+            ],
+          }),
+        });
+      } else if (url.includes(ENDPOINTS.CHECK_PAST_CHECKOUT)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ value: [] }),
+        });
+      } else if (url.includes(ENDPOINTS.UNITS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [{ id: 1, building_id: 1, unit_number: "201" }],
+          }),
+        });
+      }
+      return Promise.reject(new Error('Unknown endpoint'));
+    }) as Mock;
+
+    let renderError;
+    try {
+      await act(async () => {
+        render(
+          <BrowserRouter>
+            <UserContext.Provider value={mockUserContext}>
+              <CheckoutPage checkoutType="welcomeBasket" />
+            </UserContext.Provider>
+          </BrowserRouter>
+        );
+      });
+    } catch (error) {
+      renderError = error;
+    }
+
+    // Should render without throwing errors even when items array is missing
+    expect(renderError).toBeUndefined();
+    expect(screen.getAllByText('Welcome Basket')[0]).toBeInTheDocument();
+
+    consoleSpy.mockRestore();
+  });
+});

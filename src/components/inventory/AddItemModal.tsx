@@ -32,6 +32,7 @@ type AddItemModalProps = {
   originalData: InventoryItem[];
   showResults: boolean;
   setShowResults: (b: boolean) => void;
+  inventoryType?: 'General' | 'Welcome Basket';
 };
 
 const AddItemModal = ({
@@ -41,11 +42,12 @@ const AddItemModal = ({
   originalData,
   showResults,
   setShowResults,
+  inventoryType,
 }: AddItemModalProps) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [updateItem, setUpdateItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    type: '',
+    type: inventoryType || '',
     name: '',
     quantity: 0,
   });
@@ -59,6 +61,15 @@ const AddItemModal = ({
       setTransactionId(crypto.randomUUID());
     }
   }, [addModal]);
+
+  useEffect(() => {
+    if (addModal && inventoryType) {
+      const filteredItems = originalData.filter((item) =>
+        item.type.toLowerCase().includes(inventoryType.toLowerCase()),
+      );
+      setNameSearch(filteredItems);
+    }
+  }, [addModal, inventoryType, originalData]);
 
   const newTotalQuantity =
     Number(updateItem?.quantity || 0) + Number(formData.quantity || 0);
@@ -106,7 +117,7 @@ const AddItemModal = ({
     handleAddClose();
     setFormData({
       name: '',
-      type: '',
+      type: inventoryType || '',
       quantity: 0,
     });
     setUpdateItem(null);
@@ -199,10 +210,13 @@ const AddItemModal = ({
 
   const QuantityForm = () => (
     <>
-      <DialogTitle>Edit Item Quantity</DialogTitle>
+      <DialogTitle>
+        {inventoryType ? `Add Item - ${inventoryType}` : 'Edit Item Quantity'}
+      </DialogTitle>
 
       {/* Item Type */}
-      <Box id="add-item-type" sx={{ width: '100%' }}>
+      {!inventoryType && (
+        <Box id="add-item-type" sx={{ width: '100%' }}>
         <Typography fontWeight="bold">Inventory Type</Typography>
         <Select
           value={formData.type}
@@ -213,6 +227,7 @@ const AddItemModal = ({
           <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
         </Select>
       </Box>
+      )}
 
       {/* Item Name */}
       <Box id="add-item-name" sx={{ width: '100%' }}>

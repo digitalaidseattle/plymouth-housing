@@ -74,9 +74,7 @@ const ResidentDetailDialog = ({
   };
 
   React.useEffect(() => {
-    if (unitNumbersHook.unitNumberValues.length > 0) {
-      setUnitNumberValues(unitNumbersHook.unitNumberValues);
-    }
+    setUnitNumberValues(unitNumbersHook.unitNumberValues);
   }, [unitNumbersHook.unitNumberValues, setUnitNumberValues]);
 
   async function handleSubmit(e: FormEvent) {

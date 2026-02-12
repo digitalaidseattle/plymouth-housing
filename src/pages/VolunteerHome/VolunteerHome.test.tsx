@@ -21,8 +21,8 @@ vi.mock('react-router-dom', () => ({
 
 // Mock AddItemModal so we can control its display state using a test id
 vi.mock('../../components/inventory/AddItemModal.tsx', () => ({
-  default: ({ addModal, handleAddClose, originalData }: any) => (
-    <div data-testid="add-item-modal">
+  default: ({ addModal, handleAddClose, originalData, inventoryType }: any) => (
+    <div data-testid={`add-item-modal-${inventoryType?.toLowerCase().replace(' ', '-') || 'default'}`}>
       {addModal ? "Modal Open" : "Modal Closed"} - {originalData.length} items
       <button onClick={handleAddClose}>Close Modal</button>
     </div>
@@ -124,7 +124,7 @@ describe('VolunteerHome Component', () => {
     );
 
     // Initially, the modal should be closed
-    const modal = screen.getByTestId('add-item-modal');
+    const modal = screen.getByTestId('add-item-modal-general');
     expect(modal).toHaveTextContent('Modal Closed');
 
     // After clicking the Add Item button, the modal should open
@@ -134,15 +134,15 @@ describe('VolunteerHome Component', () => {
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
     await waitFor(() => {
-      expect(screen.getByTestId('add-item-modal')).toHaveTextContent('Modal Open');
+      expect(screen.getByTestId('add-item-modal-general')).toHaveTextContent('Modal Open');
     });
 
     // Simulate clicking the close button inside the modal to close it
-    const closeModalButton = screen.getByText('Close Modal');
-    fireEvent.click(closeModalButton);
+    const closeModalButtons = screen.getAllByText('Close Modal');
+    fireEvent.click(closeModalButtons[0]); // Click the first close button (General modal)
 
     await waitFor(() => {
-      expect(screen.getByTestId('add-item-modal')).toHaveTextContent('Modal Closed');
+      expect(screen.getByTestId('add-item-modal-general')).toHaveTextContent('Modal Closed');
     });
   });
 
@@ -191,8 +191,8 @@ describe('VolunteerHome Component', () => {
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    // Check if the state is updated with fetched data
-    expect(screen.getByTestId('add-item-modal')).toHaveTextContent('2 items');
+    // Check if the state is updated with fetched data (both modals get the same data)
+    expect(screen.getByTestId('add-item-modal-general')).toHaveTextContent('2 items');
   });
 
   test('render snackbar', async () => {

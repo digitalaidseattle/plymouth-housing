@@ -13,6 +13,7 @@ import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { trackEvent, trackException } from '../../utils/appInsights';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -21,12 +22,17 @@ const EnterPinPage: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<
     'success' | 'warning'
   >('warning');
-  const { loggedInUserId, user } = useContext(UserContext);
+  const { loggedInUserId, user, activeVolunteers } = useContext(UserContext);
   const navigate = useNavigate();
 
   if (!loggedInUserId) {
     navigate('/pick-your-name');
   }
+
+  const getVolunteerName = (id: number | null): string => {
+    if (!id) return 'Unknown';
+    return activeVolunteers.find((v) => v.id === id)?.name || 'Unknown';
+  };
 
   const handleTheSnackies = (
     message: string,
@@ -82,7 +88,12 @@ const EnterPinPage: React.FC = () => {
       const data = await response.json();
 
       // Validate response structure
-      if (!data || !data.value || !Array.isArray(data.value) || data.value.length === 0) {
+      if (
+        !data ||
+        !data.value ||
+        !Array.isArray(data.value) ||
+        data.value.length === 0
+      ) {
         console.error('Invalid response format from PIN verification API:', {
           hasData: !!data,
           hasValue: !!(data && data.value),
@@ -106,13 +117,24 @@ const EnterPinPage: React.FC = () => {
 
       return result;
     } catch (error) {
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error verifying PIN');
       console.error('Error verifying PIN:', error);
-      console.error('Error details:', {
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        volunteerId: id,
-        timestamp: new Date().toISOString(),
+      trackException(err, {
+        component: 'EnterPinPage',
+        action: 'verifyPin',
+        volunteerId: id.toString(),
       });
-
+      trackEvent('PIN_Submission', {
+        volunteerId: id.toString(),
+        volunteerName: getVolunteerName(id),
+        success: false,
+        errorMessage: err instanceof Error ? err.message : 'API error',
+        component: 'EnterPinPage',
+        action: 'pin_api_error',
+      });
       handleTheSnackies('Failed to verify PIN. Please try again.', 'warning');
       return null;
     }
@@ -131,7 +153,16 @@ const EnterPinPage: React.FC = () => {
         throw new Error('Failed to update last signed in.');
       }
     } catch (error) {
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error updating last signed in');
       console.error('Error updating last signed in:', error);
+      trackException(err, {
+        component: 'EnterPinPage',
+        action: 'updateLastSignedIn',
+        volunteerId: id.toString(),
+      });
     }
   };
 
@@ -149,12 +180,27 @@ const EnterPinPage: React.FC = () => {
       }
 
       if (result?.IsValid) {
+        trackEvent('PIN_Submission', {
+          volunteerId: loggedInUserId?.toString() || 'unknown',
+          volunteerName: getVolunteerName(loggedInUserId),
+          success: true,
+          component: 'EnterPinPage',
+          action: 'pin_verified',
+        });
         handleTheSnackies('Login successful! Redirecting...', 'success');
         if (loggedInUserId !== null) {
           result = await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
         navigate('/volunteer-home');
       } else if (result) {
+        trackEvent('PIN_Submission', {
+          volunteerId: loggedInUserId?.toString() || 'unknown',
+          volunteerName: getVolunteerName(loggedInUserId),
+          success: false,
+          errorMessage: result.ErrorMessage || 'Incorrect PIN',
+          component: 'EnterPinPage',
+          action: 'pin_failed',
+        });
         // API succeeded but PIN was incorrect
         handleTheSnackies(
           result.ErrorMessage || 'Incorrect PIN. Please try again.',
@@ -215,7 +261,7 @@ const EnterPinPage: React.FC = () => {
             {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>
           <Box sx={{ marginBottom: 6 }}>
-            <PinInput onPinChange={handlePinChange} />
+            <PinInput onPinChange={handlePinChange} onSubmit={handleNextClick} />
           </Box>
 
           <Button

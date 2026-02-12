@@ -80,8 +80,15 @@ Steps to set up the project locally:
    ```  
 5. Open a Pull Request.  
 
-### **Code of Conduct**  
+### **Code of Conduct**
 Please read our [Working Agreement](docs/working-agreement.md) for the project guidelines.
+
+### **Documentation**
+- [Database Setup](docs/database-setup.md) - SQL Server configuration and bootstrapping
+- [DAB Setup](docs/DAB-setup.md) - Data API Builder configuration and local development
+- [Deployment Guide](docs/deployment-guide.md) - Azure deployment instructions
+- [Observability](docs/observability.md) - Microsoft Clarity and Azure Application Insights setup
+- [Working Agreement](docs/working-agreement.md) - Team guidelines and practices
 
 ---
 

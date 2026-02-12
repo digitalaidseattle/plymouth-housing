@@ -359,6 +359,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
       name: '',
       unit: { id: 0, unit_number: '' },
       building: { id: 0, code: '', name: '' },
+      lastVisitDate: null,
     });
     setUnitNumberValues([]);
     setShowResidentDetailDialog(true);

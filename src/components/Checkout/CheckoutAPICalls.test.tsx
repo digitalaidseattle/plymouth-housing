@@ -67,11 +67,12 @@ describe('CheckoutAPICalls', () => {
       await expect(processWelcomeBasket(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
     });
 
-    it('should throw an error when transaction ID already exists', async () => {
+    it('should return error response when transaction ID already exists', async () => {
       const duplicateErrorResponse = {
         value: [{
           Status: 'Error',
-          message: 'Transaction already exists. GUID: 123e4567-e89b-12d3-a456-426614174000, Resident: John Doe, Building: B1, Unit: 101, Date: 2025-01-15 10:30:00'
+          ErrorCode: 'DUPLICATE_TRANSACTION',
+          message: 'Transaction with this ID already exists.'
         }]
       };
       (fetch as Mock).mockResolvedValue({
@@ -121,11 +122,12 @@ describe('CheckoutAPICalls', () => {
       await expect(processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
     });
 
-    it('should throw an error when transaction ID already exists', async () => {
+    it('should return error response when transaction ID already exists', async () => {
       const duplicateErrorResponse = {
         value: [{
           Status: 'Error',
-          message: 'Transaction already exists. GUID: 123e4567-e89b-12d3-a456-426614174000, Resident: Jane Smith, Building: A2, Unit: 205, Date: 2025-01-15 14:45:00'
+          ErrorCode: 'DUPLICATE_TRANSACTION',
+          message: 'Transaction with this ID already exists.'
         }]
       };
       (fetch as Mock).mockResolvedValue({

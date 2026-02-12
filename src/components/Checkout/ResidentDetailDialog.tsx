@@ -174,15 +174,16 @@ const ResidentDetailDialog = ({
                 residentsHook.setNameInput('');
               }
             }}
+            onInputChange={(_event, newInputValue) => {
+              const isExisting = residentsHook.existingResidents.some(
+                (option) => newInputValue === option.name,
+              );
+              if (newInputValue !== '' && !isExisting) {
+                residentsHook.setNameInput(newInputValue);
+              }
+            }}
             filterOptions={(options, params) => {
               const filtered = filter(options, params);
-              const { inputValue } = params;
-              const isExisting = options.some(
-                (option) => inputValue === option.name,
-              );
-              if (inputValue !== '' && !isExisting) {
-                residentsHook.setNameInput(inputValue);
-              }
               return filtered;
             }}
             selectOnFocus

@@ -268,11 +268,11 @@ const ResidentDetailDialog = ({
                             if (typeof option === 'string') return option;
                             return `${option.unit_number}`;
                         }}
-                        renderInput={(params) => 
-                            <TextField {...params} 
+                        renderInput={(params) =>
+                            <TextField {...params}
                                 id={selectedUnit.unit_number}
-                                label="Unit Number" 
-                                error={showError} 
+                                label="Unit Number"
+                                error={showError && selectedUnit.id === 0}
                                 helperText={getUnitHelperText(showError, selectedUnit)}
                             />
                         }

@@ -300,6 +300,12 @@ const ResidentDetailDialog = ({
                                 setCurrentLastVisitDate(null);
                             }
                         }}
+                        onInputChange={(_event, newInputValue, reason) => {
+                            if (reason === 'input') {
+                                setNameInput(newInputValue);
+                                setCurrentLastVisitDate(null);
+                            }
+                        }}
                         filterOptions={(options, params) => {
                             const filtered = filter(options, params);
                             return filtered;

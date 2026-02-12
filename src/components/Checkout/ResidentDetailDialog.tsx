@@ -141,7 +141,6 @@ const ResidentDetailDialog = ({
                 setShowError(false);
               } else {
                 setSelectedUnit({ id: 0, unit_number: newValue });
-                setShowError(true);
               }
             }}
             getOptionLabel={(option: Unit | string) => {

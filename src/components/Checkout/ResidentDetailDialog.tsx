@@ -62,6 +62,14 @@ const ResidentDetailDialog = ({
         return date.toLocaleDateString();
     }
 
+    function isDateInCurrentMonth(dateStr: string | null): boolean {
+        if (!dateStr) return false;
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return false;
+        const now = new Date();
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }
+
     const fetchUnitNumbers = async (buildingId: number) => {
         setIsLoadingUnits(true);
         setApiError('');
@@ -339,7 +347,10 @@ const ResidentDetailDialog = ({
                     />
                 </FormControl>
                 {nameInput && (
-                    <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'flex-start' }}>
+                    <Typography
+                        variant="h5"
+                        color={isDateInCurrentMonth(currentLastVisitDate) ? 'error' : 'text.secondary'}
+                        sx={{ alignSelf: 'flex-start' }}>
                         last visit: {formatVisitDate(currentLastVisitDate, 'none')}
                     </Typography>
                 )}

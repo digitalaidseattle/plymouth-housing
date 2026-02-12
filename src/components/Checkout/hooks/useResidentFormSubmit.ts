@@ -29,6 +29,9 @@ export const useResidentFormSubmit = (
             const existingResponse = await findResident(user, nameInput, selectedUnit.id);
             if (!existingResponse.value.length) {
                 const response = await addResident(user, nameInput, selectedUnit.id);
+                if (!response.value || response.value.length === 0) {
+                    throw new Error('Failed to create resident: API returned no data');
+                }
                 residentId = response.value[0].id;
             } else {
                 residentId = existingResponse.value[0].id;

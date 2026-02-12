@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import {
@@ -58,23 +58,6 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
     itemTarget = '_blank';
   }
 
-  const listItemProps = {
-    component: forwardRef(
-      (
-        props: React.ComponentProps<typeof Link>,
-        ref: React.Ref<HTMLAnchorElement>,
-      ) => (
-        <Link
-          ref={ref}
-          {...props}
-          to={item.url}
-          target={itemTarget}
-          state={item.state}
-        />
-      ),
-    ),
-  };
-
   const itemHandler = (id: string) => {
     setActiveMenuItem(id);
   };
@@ -91,7 +74,10 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   return (
     <ListItemButton
-      {...listItemProps}
+      component={Link}
+      to={item.url}
+      target={itemTarget}
+      state={item.state}
       disabled={item.disabled}
       onClick={() => itemHandler(item.id)}
       selected={isSelected}

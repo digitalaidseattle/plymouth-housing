@@ -127,10 +127,13 @@ export type ResidentInfo = {
   name: string;
   unit: Unit;
   building: Building;
+  lastVisitDate?: string | null;
 }
 
 export type ResidentNameOption = {
   inputValue?: string;
   name: string;
+  id?: number;
+  lastVisitDate?: string | null;
 }
 

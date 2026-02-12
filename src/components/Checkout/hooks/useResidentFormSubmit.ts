@@ -14,7 +14,8 @@ export const useResidentFormSubmit = (
         selectedBuilding: Building,
         selectedUnit: Unit,
         _showError: boolean,
-        setShowError: (show: boolean) => void
+        setShowError: (show: boolean) => void,
+        currentLastVisitDate: string | null = null
     ) => {
         setApiError('');
         if (!nameInput || !selectedBuilding.id || !selectedUnit.id) {
@@ -28,6 +29,9 @@ export const useResidentFormSubmit = (
             const existingResponse = await findResident(user, nameInput, selectedUnit.id);
             if (!existingResponse.value.length) {
                 const response = await addResident(user, nameInput, selectedUnit.id);
+                if (!response.value || response.value.length === 0) {
+                    throw new Error('Failed to create resident: API returned no data');
+                }
                 residentId = response.value[0].id;
             } else {
                 residentId = existingResponse.value[0].id;
@@ -37,7 +41,8 @@ export const useResidentFormSubmit = (
                 id: residentId,
                 name: nameInput,
                 unit: selectedUnit,
-                building: selectedBuilding
+                building: selectedBuilding,
+                lastVisitDate: currentLastVisitDate
             });
             setShowError(false);
             return true;

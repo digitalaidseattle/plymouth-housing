@@ -61,6 +61,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     name: '',
     unit: { id: 0, unit_number: '' },
     building: { id: 0, code: '', name: '' },
+    lastVisitDate: null,
   });
 
   const [activeSection, setActiveSection] = useState<string>('');
@@ -76,7 +77,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     useState<boolean>(true);
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
-      ([, val]) => val === null || val === undefined || val === '',
+      // lastVisitDate is optional and excluded from validation, all other fields must have values
+      ([key, val]) => key !== 'lastVisitDate' && (val === null || val === undefined || val === ''),
     ).length > 0;
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] =
     useState<boolean>(false);
@@ -352,6 +354,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   }, [error]);
 
   useEffect(() => {
+    setResidentInfo({
+      id: 0,
+      name: '',
+      unit: { id: 0, unit_number: '' },
+      building: { id: 0, code: '', name: '' },
+      lastVisitDate: null,
+    });
+    setUnitNumberValues([]);
+    setShowResidentDetailDialog(true);
+  }, [checkoutType]);
+
+  useEffect(() => {
     fetchBuildings();
     fetchData();
   }, [fetchData, fetchBuildings]);
@@ -474,10 +488,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
             onClick={() => setShowResidentDetailDialog(true)}
           >
             {residentInfoIsMissing
-              ? checkoutType === 'welcomeBasket' ? 'Missing Building Info' : 'Missing Resident Info'
+              ? checkoutType === 'welcomeBasket'
+                ? 'Missing Building Info'
+                : 'Missing Resident Info'
               : checkoutType === 'welcomeBasket'
                 ? `${residentInfo.building.code}`
-                : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name}`}
+                : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`}
           </Button>
           <SearchBar
             data={data}

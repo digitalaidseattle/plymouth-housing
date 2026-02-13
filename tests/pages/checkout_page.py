@@ -14,8 +14,18 @@ class CheckOutPage(BasePage):
         self.locators = CheckoutPageLocators
         self.common_locators = CommonLocators
 
-    def click_checkout(self):
-        self.click(self.common_locators.CHECKOUT_BUTTON)
+    def click_checkout(self, flow="general"):
+
+        # open checkout group
+        self.click(self.common_locators.CHECKOUT_MENU_BUTTON)
+
+        if flow == "general":
+            self.click(self.common_locators.GENERAL_MENU_BUTTON)
+        elif flow == "welcome":
+            self.click(self.common_locators.WELCOME_MENU_BUTTON)
+        else:
+            raise ValueError("Invalid checkout flow")
+
         self.find(self.locators.CHECKOUT_INFO_TEXT, timeout=15)
 
     def click_building_code(self):

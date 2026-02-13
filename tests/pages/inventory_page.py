@@ -93,4 +93,32 @@ class InventoryPage(BasePage):
         # Step 6: Enter new item name
         search_field.send_keys(item_name)
 
+    def click_status(self):
+        wait = WebDriverWait(self.driver, 15)
 
+        status_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//div[@id='status-button-container']//button")
+            )
+        )
+
+        status_btn.click()
+
+    def select_status(self, status_text):
+        wait = WebDriverWait(self.driver, 10)
+        option = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, f"//li[normalize-space()='{status_text}']")
+            )
+        )
+        option.click()
+
+    def get_filtered_rows(self, status_text):
+        self.wait.until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, f"//tr[td//span[normalize-space()='{status_text}']]")
+            )
+        )
+        return self.driver.find_elements(
+            By.XPATH, f"//tr[td//span[normalize-space()='{status_text}']]"
+        )

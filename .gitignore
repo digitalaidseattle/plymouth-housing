@@ -34,3 +34,4 @@ database/tests/test.sql
 __pycache__/
 *.pyc
 venv/
+allure-results/

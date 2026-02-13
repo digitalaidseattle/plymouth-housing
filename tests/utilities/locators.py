@@ -3,7 +3,10 @@ from selenium.webdriver.common.by import By
 class CommonLocators:
     INVENTORY_BUTTON = (By.XPATH, '//h6[text()="Inventory"]')
     VOLUNTEER_HOME_BUTTON = (By.XPATH, '//h6[text()="Volunteer Home"]')
-    CHECKOUT_BUTTON = (By.XPATH,"//button[.//h6[normalize-space()='Checkout']] | //a[.//h6[normalize-space()='Checkout']]")
+    CHECKOUT_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='Checkout']")
+    GENERAL_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='General']/ancestor::a")
+    WELCOME_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='Welcome basket']/ancestor::a")
+
 
 class HomePageLocators:
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, '(//a[contains(@class,"MuiButtonBase")])[1]') # TODO COMMON LOCATORS PUT IN CommonLocators
@@ -21,7 +24,7 @@ class LoginPageLocators:
     YES_BUTTON      = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Yes"]')
     NO_BUTTON       = (By.ID,    'idBtn_Back')
     DATABASE_POPUP_TEXT = (By.XPATH, '//*[text()="Database is starting up"]')
-    USER_PERSON = (By.ID, ':r7:')
+    USER_PERSON = (By.XPATH, "//input[@role='combobox']")
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"Continue")]')
     HOMEPAGE_TEXT = (By.XPATH, '//*[text()="Volunteer Home"]')
     FIRST_OPTION = (By.XPATH, "//ul[contains(@class, 'MuiAutocomplete-listbox')]/li[1]")
@@ -34,6 +37,7 @@ class LogoutPageLocators:
     AFTER_LOGOUT_MESSAGE = (By.XPATH, "//p[contains(text(), 'logged out')]")
 
 class InventoryPageLocators:
+    TABLE_ROWS = (By.XPATH, "//tr[td]")
     ADD_BUTTON = (By.XPATH, "//button[contains(@class,'MuiButton') and normalize-space()='Add']")
     INVENTORY_TYPE = (By.XPATH, "//div[@role='combobox' and contains(@class, 'MuiSelect-select')]")
     SELECT_GENERAL = (By.XPATH, "//li[@role='option' and @data-value='General']")

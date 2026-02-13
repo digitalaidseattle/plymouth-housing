@@ -1,5 +1,6 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from tests.utilities.locators import HomePageLocators, CommonLocators
 
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import HomePageLocators
@@ -10,6 +11,7 @@ class HomePage(BasePage):
         super().__init__(driver)
         self.locators = HomePageLocators
         self.wait = WebDriverWait(driver, 15)
+        self.common_locators = CommonLocators
 
     def click_email_id(self):
        self.click(self.locators.EMAIL_ID)
@@ -43,6 +45,18 @@ class HomePage(BasePage):
 
         actual_header = self.get_header().strip()
         assert actual_header == expected_header
+
+    def go_to_checkout(self, flow="general"):
+
+        # open checkout group
+        self.click(self.common_locators.CHECKOUT_MENU_BUTTON)
+
+        if flow == "general":
+            self.click(self.common_locators.GENERAL_MENU_BUTTON)
+        elif flow == "welcome":
+            self.click(self.common_locators.WELCOME_MENU_BUTTON)
+        else:
+            raise ValueError("Invalid checkout flow")
 
 
 

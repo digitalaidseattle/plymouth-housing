@@ -17,10 +17,14 @@ def checkout_page(driver):
 @pytest.mark.serial
 @pytest.mark.smoke
 class TestCheckout:
+
     @pytest.mark.parametrize("item", ["Clothing Rack"])
     def test_checkout(self, driver, checkout_page, home_page, item):
+
         home_page.verify_volunteer_home_header()
-        checkout_page.click_checkout()
+
+        home_page.go_to_checkout("general")
+
         checkout_page.click_building_code()
         checkout_page.select_first_building_option()
         checkout_page.click_unit_number()

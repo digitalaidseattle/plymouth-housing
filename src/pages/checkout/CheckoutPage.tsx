@@ -15,7 +15,6 @@ import {
   CheckoutHistoryItem,
   TransactionItem,
 } from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';

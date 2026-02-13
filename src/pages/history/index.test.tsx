@@ -27,7 +27,6 @@ vi.mock('../../components/History/CustomDateDialog', () => ({
     showDialog,
     handleShowDialog,
     handleSetDateRange,
-    handleSetDateInput,
   }: any) =>
     showDialog && (
       <div data-testid="custom-date-dialog">
@@ -101,20 +100,6 @@ const mockCheckoutTransactions = [
   },
 ];
 
-const mockInventoryTransactions = [
-  {
-    id: '2',
-    user_id: 1,
-    user_name: 'John Doe',
-    timestamp: new Date().toISOString(),
-    transaction_type: TransactionType.InventoryAdd,
-    item_id: 1,
-    quantity: 10,
-    item_name: 'Bread',
-    category_name: 'Food',
-  },
-];
-
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <UserContext.Provider
     value={{
@@ -137,7 +122,7 @@ describe('HistoryPage Component', () => {
 
     // Mock API calls with a slight delay to simulate real API behavior
     // This allows the component to show the loading state
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockImplementation(
+    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => resolve(mockCheckoutTransactions), 50),
@@ -216,7 +201,7 @@ describe('HistoryPage Component', () => {
     });
 
     // Verify API was called for inventory
-    expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalledWith(
+    expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalledWith(
       mockUser,
       expect.any(String),
       expect.any(String),
@@ -225,7 +210,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('fetches and displays checkout transactions', async () => {
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue(
       mockCheckoutTransactions,
     );
 
@@ -236,7 +221,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
     });
 
     // Verify user list is fetched
@@ -270,7 +255,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles empty transaction history', async () => {
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue([]);
+    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue([]);
 
     render(
       <Wrapper>
@@ -299,7 +284,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(yesterdayOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
     });
   });
 
@@ -317,7 +302,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(thisWeekOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
     });
   });
 
@@ -372,7 +357,7 @@ describe('HistoryPage Component', () => {
     const consoleErrorSpy = vi
       .spyOn(console, 'error')
       .mockImplementation(() => {});
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockRejectedValue(
+    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockRejectedValue(
       new Error('API Error'),
     );
 
@@ -409,7 +394,7 @@ describe('HistoryPage Component', () => {
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue(
       multiUserTransactions,
     );
 
@@ -420,7 +405,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
     });
   });
 
@@ -440,7 +425,7 @@ describe('HistoryPage Component', () => {
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue(
       currentUserTransactions,
     );
 
@@ -456,7 +441,7 @@ describe('HistoryPage Component', () => {
     });
   });
 
-  test('calls findTransactionHistory with correct date format', async () => {
+  test('calls findUserTransactionHistory with correct date format', async () => {
     render(
       <Wrapper>
         <HistoryPage />
@@ -464,7 +449,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalledWith(
+      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalledWith(
         mockUser,
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
@@ -481,10 +466,10 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
     });
 
-    const callCount = vi.mocked(HistoryAPICalls.findTransactionHistory).mock
+    const callCount = vi.mocked(HistoryAPICalls.findUserTransactionHistory).mock
       .calls.length;
 
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
@@ -495,7 +480,7 @@ describe('HistoryPage Component', () => {
 
     await waitFor(() => {
       expect(
-        vi.mocked(HistoryAPICalls.findTransactionHistory).mock.calls.length,
+        vi.mocked(HistoryAPICalls.findUserTransactionHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
   });

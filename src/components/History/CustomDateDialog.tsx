@@ -5,7 +5,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button, Stack } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 
 type CustomDateDialogProps = {
   showDialog: boolean;
@@ -25,8 +24,6 @@ const CustomDateDialog = ({
   const [endDate, setEndDate] = useState<Dayjs>(dayjs(today));
   const [error, setError] = useState<string>('');
   const [activePreset, setActivePreset] = useState<string>('none');
-
-  const theme = useTheme();
 
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
@@ -67,8 +64,10 @@ const CustomDateDialog = ({
           label="Start date"
           value={startDate}
           onChange={(newValue) => {
-            setStartDate(newValue);
-            setActivePreset('none');
+            if (newValue) {
+              setStartDate(newValue);
+              setActivePreset('none');
+            }
           }}
         />
         <DatePicker
@@ -76,10 +75,12 @@ const CustomDateDialog = ({
           value={endDate}
           minDate={startDate}
           onChange={(newValue) => {
-            setEndDate(newValue);
-            setActivePreset('none');
+            if (newValue) {
+              setEndDate(newValue);
+              setActivePreset('none');
+            }
           }}
-          onError={(newError) => setError(newError)}
+          onError={(newError) => setError(newError ?? '')}
           slotProps={{
             textField: {
               helperText: errorMessage,
@@ -89,11 +90,8 @@ const CustomDateDialog = ({
       </LocalizationProvider>
       <Stack flexDirection="row" gap="0.5rem">
         <Button
-          variant={
-            activePreset === 'this-month'
-              ? 'active-secondary'
-              : 'inactive-secondary'
-          }
+          variant={activePreset === 'this-month' ? 'contained' : 'outlined'}
+          color="secondary"
           onClick={() => {
             const month = dayjs().month();
             const year = dayjs().year();
@@ -107,11 +105,8 @@ const CustomDateDialog = ({
           This month
         </Button>
         <Button
-          variant={
-            activePreset === 'last-month'
-              ? 'active-secondary'
-              : 'inactive-secondary'
-          }
+          variant={activePreset === 'last-month' ? 'contained' : 'outlined'}
+          color="secondary"
           onClick={() => {
             const month = dayjs().month() - 1;
             const year = dayjs().year();
@@ -125,11 +120,8 @@ const CustomDateDialog = ({
           Last month
         </Button>
         <Button
-          variant={
-            activePreset === 'last-30-days'
-              ? 'active-secondary'
-              : 'inactive-secondary'
-          }
+          variant={activePreset === 'last-30-days' ? 'contained' : 'outlined'}
+          color="secondary"
           onClick={() => {
             const thirtyDaysAgo = dayjs().subtract(30, 'day');
             setStartDate(dayjs(thirtyDaysAgo));

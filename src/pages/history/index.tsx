@@ -171,7 +171,7 @@ const HistoryPage: React.FC = () => {
     }
   }
   const transactionsByUser = useMemo(
-    () => processTransactionsByUser(userHistory, loggedInUserId),
+    () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),
     [userHistory, loggedInUserId],
   );
 
@@ -200,19 +200,15 @@ const HistoryPage: React.FC = () => {
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Stack direction="row" gap="1rem">
           <Button
-            variant={
-              historyType === 'checkout' ? 'active-primary' : 'inactive-primary'
-            }
+            variant={historyType === 'checkout' ? 'contained' : 'outlined'}
+            color="primary"
             onClick={() => setHistoryType('checkout')}
           >
             Check out
           </Button>
           <Button
-            variant={
-              historyType === 'inventory'
-                ? 'active-primary'
-                : 'inactive-primary'
-            }
+            variant={historyType === 'inventory' ? 'contained' : 'outlined'}
+            color="primary"
             onClick={() => setHistoryType('inventory')}
           >
             Inventory

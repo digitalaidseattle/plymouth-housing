@@ -5,7 +5,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button, Stack } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 
 type CustomDateDialogProps = {
   showDialog: boolean;
@@ -25,8 +24,6 @@ const CustomDateDialog = ({
   const [endDate, setEndDate] = useState<Dayjs>(dayjs(today));
   const [error, setError] = useState<string>('');
   const [activePreset, setActivePreset] = useState<string>('none');
-
-  const theme = useTheme();
 
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();

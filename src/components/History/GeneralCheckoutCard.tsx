@@ -9,6 +9,7 @@ type GeneralCheckoutCardProps = {
   buildings: Building[] | null;
   quantity: number;
   howLongAgoString: string;
+  onClick?: () => void;
 };
 
 const GeneralCheckoutCard = ({
@@ -16,6 +17,7 @@ const GeneralCheckoutCard = ({
   buildings,
   quantity,
   howLongAgoString,
+  onClick,
 }: GeneralCheckoutCardProps) => {
   const theme = useTheme();
 
@@ -23,6 +25,8 @@ const GeneralCheckoutCard = ({
     <HistoryCard
       key={checkoutTransaction.transaction_id}
       transactionId={checkoutTransaction.transaction_id}
+      onClick={onClick}
+      clickable={!!onClick}
     >
       <div>
         <h3>{checkoutTransaction.resident_name}</h3>

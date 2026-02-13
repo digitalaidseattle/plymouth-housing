@@ -33,3 +33,26 @@ export type InventoryTransaction = {
     | TransactionType.InventoryReplaceValue;
   user_id: number;
 };
+
+export type HistoryNavigationState = {
+  fromHistory: true;
+  transactionType: 'checkout' | 'inventory';
+
+  checkoutData?: {
+    original_transaction_id: string;
+    residentInfo: {
+      id: number;
+      name: string;
+      building_id: number;
+      unit_number: string;
+    };
+    items: TransactionItem[];
+    item_type: 'general' | 'welcome';
+  };
+
+  inventoryData?: {
+    items: TransactionItem[];
+    transaction_type: TransactionType;
+    item_type: 'general' | 'welcome';
+  };
+};

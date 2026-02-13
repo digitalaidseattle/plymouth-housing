@@ -9,6 +9,7 @@ import {
   MenuItem,
   Button,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import {
   findUserTransactionHistory,
@@ -29,12 +30,17 @@ import {
   formatFullDate,
 } from '../../components/History/historyUtils';
 import { processTransactionsByUser } from '../../components/History/transactionProcessors';
-import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
+import {
+  CheckoutTransaction,
+  InventoryTransaction,
+  HistoryNavigationState,
+} from '../../types/history';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 const HistoryPage: React.FC = () => {
   const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
+  const navigate = useNavigate();
   const [userList, setUserList] = useState<User[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userHistory, setUserHistory] = useState<
@@ -170,6 +176,39 @@ const HistoryPage: React.FC = () => {
       });
     }
   }
+
+  const handleCheckoutCardClick = (transaction: CheckoutTransaction) => {
+    const navigationState: HistoryNavigationState = {
+      fromHistory: true,
+      transactionType: 'checkout',
+      checkoutData: {
+        original_transaction_id: transaction.transaction_id,
+        residentInfo: {
+          id: transaction.resident_id,
+          name: transaction.resident_name,
+          building_id: transaction.building_id,
+          unit_number: transaction.unit_number,
+        },
+        items: transaction.items,
+        item_type: transaction.item_type,
+      },
+    };
+    navigate('/checkout', { state: navigationState });
+  };
+
+  const handleInventoryCardClick = (transaction: InventoryTransaction) => {
+    const navigationState: HistoryNavigationState = {
+      fromHistory: true,
+      transactionType: 'inventory',
+      inventoryData: {
+        items: transaction.items,
+        transaction_type: transaction.transaction_type,
+        item_type: transaction.item_type,
+      },
+    };
+    navigate('/inventory', { state: navigationState });
+  };
+
   const transactionsByUser = useMemo(
     () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),
     [userHistory, loggedInUserId],
@@ -317,6 +356,7 @@ const HistoryPage: React.FC = () => {
                           buildings={buildings}
                           quantity={quantity}
                           howLongAgoString={howLongAgoString}
+                          onClick={() => handleCheckoutCardClick(checkoutTransaction)}
                         />
                       );
                     } else if (
@@ -329,6 +369,7 @@ const HistoryPage: React.FC = () => {
                           checkoutTransaction={checkoutTransaction}
                           buildings={buildings}
                           howLongAgoString={howLongAgoString}
+                          onClick={() => handleCheckoutCardClick(checkoutTransaction)}
                         />
                       );
                     } else if (historyType === 'inventory') {
@@ -338,6 +379,7 @@ const HistoryPage: React.FC = () => {
                           key={inventoryTransaction.transaction_id}
                           inventoryTransaction={inventoryTransaction}
                           howLongAgoString={howLongAgoString}
+                          onClick={() => handleInventoryCardClick(inventoryTransaction)}
                         />
                       );
                     }

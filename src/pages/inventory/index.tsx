@@ -10,6 +10,7 @@ import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, API_HEADERS, SETTINGS } from "../../types/constants";
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
+import { HistoryNavigationState } from '../../types/history';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -240,6 +241,39 @@ const Inventory = () => {
       setSnackbarState({ open: true, message: error, severity: 'warning' });
     }
   }, [error]);
+
+  // Pre-fill from history navigation
+  useEffect(() => {
+    const navigationState = location.state as HistoryNavigationState | null;
+
+    if (
+      navigationState?.fromHistory &&
+      navigationState.inventoryData &&
+      originalData.length > 0
+    ) {
+      const { items } = navigationState.inventoryData;
+
+      if (items.length > 0) {
+        const historyItem = items[0];
+        const currentItem = originalData.find(
+          (item) => item.id === historyItem.item_id,
+        );
+
+        if (currentItem) {
+          setItemToEdit(currentItem);
+          setAdjustModal(true);
+        } else {
+          setSnackbarState({
+            open: true,
+            message: `Item "${historyItem.item_name}" no longer exists in inventory`,
+            severity: 'warning',
+          });
+        }
+      }
+
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, originalData]);
 
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,

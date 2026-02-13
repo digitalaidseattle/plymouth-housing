@@ -15,6 +15,7 @@ import {
   CheckoutItemProp,
   ResidentInfo,
 } from '../../types/interfaces';
+import { TransactionItem as HistoryTransactionItem } from '../../types/history';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -40,6 +41,11 @@ type CheckoutDialogProps = {
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
   onError: (message: string) => void;
+  originalTransactionData?: {
+    transaction_id: string;
+    resident_id: number;
+    items: HistoryTransactionItem[];
+  } | null;
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
@@ -58,6 +64,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   residentInfo,
   setResidentInfo,
   onError,
+  originalTransactionData,
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
@@ -99,6 +106,54 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     onClose();
   };
 
+  const calculateDeltaItems = (
+    currentItems: CategoryProps[],
+    originalItems: HistoryTransactionItem[],
+  ): CheckoutItemProp[] => {
+    const deltaItems: CheckoutItemProp[] = [];
+
+    // Create a map of original quantities by item_id
+    const originalQuantities = new Map<number, number>();
+    originalItems.forEach((item) => {
+      originalQuantities.set(item.item_id, item.quantity);
+    });
+
+    // Calculate delta for each current item
+    currentItems.forEach((category) => {
+      category.items.forEach((item) => {
+        const originalQty = originalQuantities.get(item.id) || 0;
+        const delta = item.quantity - originalQty;
+
+        if (delta !== 0) {
+          // Only include items with non-zero delta
+          deltaItems.push({
+            ...item,
+            quantity: delta, // Can be negative (return) or positive (additional checkout)
+          });
+        }
+
+        // Remove from map (to find items that were removed entirely)
+        originalQuantities.delete(item.id);
+      });
+    });
+
+    // Any remaining items in originalQuantities were removed (delta = -original_qty)
+    originalQuantities.forEach((qty, itemId) => {
+      // Find the item details from original transaction
+      const originalItem = originalItems.find((i) => i.item_id === itemId);
+      if (originalItem) {
+        deltaItems.push({
+          id: itemId,
+          name: originalItem.item_name,
+          quantity: -qty, // Negative (return)
+          description: '',
+        });
+      }
+    });
+
+    return deltaItems;
+  };
+
   const handleConfirm = async (bypassWarning?: boolean) => {
     if (
       bypassWarning !== true &&
@@ -120,14 +175,17 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         throw new Error('Transaction ID not created.');
       }
 
+      // Determine if this is a welcome basket checkout
       const welcomeBasketItemIds = welcomeBasketData.flatMap((basket) =>
         basket.items.map((item) => item.id),
       );
       const isWelcomeBasket = allItems.some((item) =>
         welcomeBasketItemIds.includes(item.id),
       );
+
       let data = null;
       if (isWelcomeBasket) {
+        // Welcome baskets always use full items (no delta calculation)
         data = await processWelcomeBasket(
           transactionId,
           user,
@@ -136,12 +194,42 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           residentInfo,
         );
       } else {
+        // General items: calculate delta if linked transaction
+        let itemsToSubmit: CheckoutItemProp[];
+        let original_transaction_id: string | undefined;
+
+        if (
+          originalTransactionData &&
+          residentInfo.id === originalTransactionData.resident_id
+        ) {
+          // This is a linked transaction - calculate delta
+          itemsToSubmit = calculateDeltaItems(
+            checkoutItems,
+            originalTransactionData.items,
+          );
+          original_transaction_id = originalTransactionData.transaction_id;
+
+          console.log('Delta transaction:', {
+            original_transaction_id,
+            delta_items: itemsToSubmit,
+          });
+
+          // If delta is empty, no changes were made
+          if (itemsToSubmit.length === 0) {
+            throw new Error('No changes detected from original transaction');
+          }
+        } else {
+          // Not a linked transaction - use full items
+          itemsToSubmit = allItems;
+        }
+
         data = await processGeneralItems(
           transactionId,
           user,
           loggedInUserId,
-          allItems,
+          itemsToSubmit,
           residentInfo,
+          original_transaction_id,
         );
       }
 
@@ -341,6 +429,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             marginBottom: '30px',
           }}
         >
+          {originalTransactionData &&
+            residentInfo.id === originalTransactionData.resident_id && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Modifying existing transaction. Only changes will be recorded.
+              </Alert>
+            )}
           <Typography>
             <strong>Building code: </strong>{selectedBuildingCode}
           </Typography>

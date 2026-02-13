@@ -4,6 +4,7 @@ import {
   useContext,
   useCallback,
   SetStateAction,
+  useRef,
 } from 'react';
 import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
 import {
@@ -15,6 +16,10 @@ import {
   CheckoutHistoryItem,
   TransactionItem,
 } from '../../types/interfaces';
+import {
+  HistoryNavigationState,
+  TransactionItem as HistoryTransactionItem,
+} from '../../types/history';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
@@ -22,7 +27,7 @@ import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import SearchBar from '../../components/Searchbar/SearchBar';
 import Navbar from '../../components/Checkout/Navbar';
 import CheckoutCard from '../../components/Checkout/CheckoutCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import ResidentDetailDialog from '../../components/Checkout/ResidentDetailDialog';
 import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDialog';
@@ -88,6 +93,15 @@ const CheckoutPage = () => {
 
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [isPrefilling, setIsPrefilling] = useState(false);
+  const [originalTransactionData, setOriginalTransactionData] = useState<{
+    transaction_id: string;
+    resident_id: number;
+    items: HistoryTransactionItem[];
+  } | null>(null);
+  const prefilledTransactionId = useRef<string | null>(null);
 
   useEffect(() => {
     async function checkItemsForPrevCheckouts() {
@@ -323,6 +337,104 @@ const CheckoutPage = () => {
     );
   }, [data]);
 
+  // Pre-fill from history navigation
+  useEffect(() => {
+    const navigationState = location.state as HistoryNavigationState | null;
+
+    if (
+      navigationState?.fromHistory &&
+      navigationState.checkoutData &&
+      data.length > 0 &&
+      buildings.length > 0
+    ) {
+      const { original_transaction_id } = navigationState.checkoutData;
+
+      // Prevent re-running if we've already pre-filled this transaction
+      if (prefilledTransactionId.current === original_transaction_id) {
+        return;
+      }
+
+      setIsPrefilling(true);
+
+      const {
+        residentInfo: historyResidentInfo,
+        items: historyItems,
+        item_type,
+      } = navigationState.checkoutData;
+
+      // 1. Store original transaction data for delta calculation later
+      setOriginalTransactionData({
+        transaction_id: original_transaction_id,
+        resident_id: historyResidentInfo.id,
+        items: historyItems,
+      });
+
+      // 2. Pre-fill resident information
+      const building = buildings.find(
+        (b) => b.id === historyResidentInfo.building_id,
+      );
+      if (building) {
+        setResidentInfo({
+          id: historyResidentInfo.id,
+          name: historyResidentInfo.name,
+          building: building,
+          unit: {
+            id: 0,
+            unit_number: historyResidentInfo.unit_number,
+          },
+        });
+      }
+
+      // 3. Create item lookup map for O(n) performance
+      const itemLookupMap = new Map();
+      data.forEach((category) => {
+        category.items.forEach((item) => {
+          itemLookupMap.set(item.id, { item, category: category.category });
+        });
+      });
+
+      // 4. Match historical items with current inventory and add to cart
+      const sectionType = item_type === 'welcome' ? 'welcomeBasket' : 'general';
+
+      historyItems.forEach((historyItem) => {
+        const lookup = itemLookupMap.get(historyItem.item_id);
+        if (lookup) {
+          addItemToCart(
+            lookup.item,
+            historyItem.quantity,
+            lookup.category,
+            sectionType,
+          );
+        } else {
+          console.warn(
+            `Item ${historyItem.item_name} (ID: ${historyItem.item_id}) no longer exists in inventory`,
+          );
+        }
+      });
+
+      // 5. Mark this transaction as pre-filled
+      prefilledTransactionId.current = original_transaction_id;
+
+      // 6. Open the checkout dialog immediately
+      setOpenSummary(true);
+      setIsPrefilling(false);
+
+      // 7. Clear location state to prevent re-triggering on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, data, buildings, addItemToCart]);
+
+  // Clear original transaction data if resident changes
+  useEffect(() => {
+    if (
+      originalTransactionData &&
+      residentInfo.id !== originalTransactionData.resident_id
+    ) {
+      console.log('Resident changed - transaction will not be linked to original');
+      setOriginalTransactionData(null);
+    }
+  }, [residentInfo.id, originalTransactionData]);
+
   const handleCheckoutSuccess = (errorMessage?: string) => {
     const isError = !!errorMessage;
     const numberOfItems = checkoutItems.reduce(
@@ -350,7 +462,7 @@ const CheckoutPage = () => {
 
   return (
     <>
-      {showResidentDetailDialog && (
+      {showResidentDetailDialog && !isPrefilling && (
         <ResidentDetailDialog
           showDialog={showResidentDetailDialog}
           handleShowDialog={() =>
@@ -645,6 +757,7 @@ const CheckoutPage = () => {
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
           activeSection={activeSection}
+          originalTransactionData={originalTransactionData}
         />
         <SnackbarAlert
           open={snackbarState.open}

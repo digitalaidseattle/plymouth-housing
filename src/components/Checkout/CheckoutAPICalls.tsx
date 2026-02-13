@@ -71,6 +71,7 @@ export async function processGeneralItems(
   loggedInUserId: number,
   checkoutItems: CheckoutItemProp[],
   residentInfo: ResidentInfo,
+  original_transaction_id?: string,
 ) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
@@ -87,6 +88,7 @@ export async function processGeneralItems(
         })),
         resident_id: residentInfo.id,
         message: '',
+        original_transaction_id,
       }),
     });
 

@@ -6,12 +6,14 @@ type WelcomeBasketCardProps = {
   checkoutTransaction: CheckoutTransaction;
   buildings: Building[] | null;
   howLongAgoString: string;
+  onClick?: () => void;
 };
 
 const WelcomeBasketCard = ({
   checkoutTransaction,
   buildings,
   howLongAgoString,
+  onClick,
 }: WelcomeBasketCardProps) => {
   const itemIds = checkoutTransaction.items.map((i) => i.item_id);
   let welcomeBasketType;
@@ -25,7 +27,11 @@ const WelcomeBasketCard = ({
   }
 
   return (
-    <HistoryCard transactionId={checkoutTransaction.transaction_id}>
+    <HistoryCard
+      transactionId={checkoutTransaction.transaction_id}
+      onClick={onClick}
+      clickable={!!onClick}
+    >
       <div>
         <h3>Welcome Basket: {welcomeBasketType}</h3>
         <p>

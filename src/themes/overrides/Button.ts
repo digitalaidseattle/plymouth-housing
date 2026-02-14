@@ -30,27 +30,27 @@ export default function Button(theme: Theme) {
         {
           props: { variant: 'active-primary' },
           style: {
-            backgroundColor: (theme.palette.primary as any)['900'],
+            backgroundColor: theme.palette.primary['900'],
             color: theme.palette.common.white,
-            padding: '1rem 0.rem',
+            padding: '1rem 0',
             borderRadius: '18px',
-            size: '1.25rem',
+            fontSize: '1.25rem',
           },
         },
         {
           props: { variant: 'inactive-primary' },
           style: {
-            color: theme.palette.text,
+            color: theme.palette.text.primary,
             backgroundColor: theme.palette.grey[100],
-            padding: '1rem 0.rem',
+            padding: '1rem 0',
             borderRadius: '18px',
-            size: '1.25rem',
+            fontSize: '1.25rem',
           },
         },
         {
           props: { variant: 'active-secondary' },
           style: {
-            background: (theme.palette.primary as any)['900'],
+            background: theme.palette.primary['900'],
             color: theme.palette.primary.contrastText,
             borderRadius: '20px',
             padding: '0.5rem 1rem',

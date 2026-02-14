@@ -18,6 +18,7 @@ import {
   CheckoutTransaction,
   InventoryTransaction,
 } from '../../types/history';
+import { Building } from '../../types/interfaces';
 
 // Mock modules
 vi.mock('../../components/History/HistoryAPICalls');
@@ -86,9 +87,9 @@ const mockUserList = [
   { id: 2, name: 'Jane Smith' },
 ];
 
-const mockBuildings = [
-  { id: 1, building_code: 'A', address: '123 Main St' },
-  { id: 2, building_code: 'B', address: '456 Oak Ave' },
+const mockBuildings: Building[] = [
+  { id: 1, code: 'A', name: '123 Main St' },
+  { id: 2, code: 'B', name: '456 Oak Ave' },
 ];
 
 const mockCategorizedItems = [

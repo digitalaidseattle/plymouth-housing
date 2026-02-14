@@ -61,10 +61,14 @@ const HistoryPage: React.FC = () => {
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
   );
-  const formattedDateRange = {
-    startDate: dateRange.startDate.toLocaleDateString('en-CA'),
-    endDate: dateRange.endDate.toLocaleDateString('en-CA'),
-  };
+  // en-CA locale produces YYYY-MM-DD format (ISO 8601) required by SQL Server DATE columns
+  const formattedDateRange = useMemo(
+    () => ({
+      startDate: dateRange.startDate.toLocaleDateString('en-CA'),
+      endDate: dateRange.endDate.toLocaleDateString('en-CA'),
+    }),
+    [dateRange],
+  );
 
   const dateString = formatFullDate(dateRange.startDate);
   const dateRangeString = formatDateRange(
@@ -98,7 +102,7 @@ const HistoryPage: React.FC = () => {
       }
     }
     findUserHistoryForSelectedDate();
-  }, [dateRange, historyType]);
+  }, [formattedDateRange, historyType, user, categorizedItems]);
 
   useEffect(() => {
     async function getUserList() {
@@ -139,7 +143,7 @@ const HistoryPage: React.FC = () => {
       }
     }
     loadInitialData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (error) {

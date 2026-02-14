@@ -4,7 +4,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { ToggleButton, ToggleButtonGroup, styled } from '@mui/material';
+import { getPresetDateRange } from './historyUtils';
 
 type CustomDateDialogProps = {
   showDialog: boolean;
@@ -12,6 +13,27 @@ type CustomDateDialogProps = {
   handleSetDateRange: (startDate: Date, endDate: Date) => void;
   handleSetDateInput: () => void;
 };
+
+const PresetToggleButton = styled(ToggleButton)(({ theme }) => ({
+  borderRadius: '20px',
+  padding: '0.5rem 1rem',
+  border: '1px solid',
+  borderColor: theme.palette.text.primary,
+  textTransform: 'none',
+  backgroundColor: 'transparent',
+  color: theme.palette.text.primary,
+  '&.Mui-selected': {
+    backgroundColor: theme.palette.primary.dark,
+    color: theme.palette.primary.contrastText,
+    border: 'none',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
+  '&:hover': {
+    backgroundColor: theme.palette.grey[100],
+  },
+}));
 
 const CustomDateDialog = ({
   showDialog,
@@ -108,104 +130,17 @@ const CustomDateDialog = ({
         onChange={(_, preset) => {
           if (!preset) return;
 
-          if (preset === 'this-month') {
-            const month = dayjs().month();
-            const year = dayjs().year();
-            const startOfMonth = new Date(year, month, 1);
-            const endOfMonth = new Date(year, month + 1, 0);
-            setStartDate(dayjs(startOfMonth));
-            setEndDate(dayjs(endOfMonth));
-          } else if (preset === 'last-month') {
-            const month = dayjs().month() - 1;
-            const year = dayjs().year();
-            const startOfMonth = new Date(year, month, 1);
-            const endOfMonth = new Date(year, month + 1, 0);
-            setStartDate(dayjs(startOfMonth));
-            setEndDate(dayjs(endOfMonth));
-          } else if (preset === 'last-30-days') {
-            const thirtyDaysAgo = dayjs().subtract(30, 'day');
-            setStartDate(dayjs(thirtyDaysAgo));
-            setEndDate(dayjs());
-          }
-
+          const { startDate, endDate } = getPresetDateRange(preset);
+          setStartDate(dayjs(startDate));
+          setEndDate(dayjs(endDate));
           setActivePreset(preset);
         }}
       >
-        <ToggleButton
-          value="this-month"
-          sx={{
-            borderRadius: '20px',
-            padding: '0.5rem 1rem',
-            border: '1px solid',
-            borderColor: 'text.primary',
-            textTransform: 'none',
-            backgroundColor: 'transparent',
-            color: 'text.primary',
-            '&.Mui-selected': {
-              backgroundColor: 'primary.dark',
-              color: 'primary.contrastText',
-              border: 'none',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            },
-            '&:hover': {
-              backgroundColor: 'grey.100',
-            },
-          }}
-        >
-          This month
-        </ToggleButton>
-        <ToggleButton
-          value="last-month"
-          sx={{
-            borderRadius: '20px',
-            padding: '0.5rem 1rem',
-            border: '1px solid',
-            borderColor: 'text.primary',
-            textTransform: 'none',
-            backgroundColor: 'transparent',
-            color: 'text.primary',
-            '&.Mui-selected': {
-              backgroundColor: 'primary.dark',
-              color: 'primary.contrastText',
-              border: 'none',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            },
-            '&:hover': {
-              backgroundColor: 'grey.100',
-            },
-          }}
-        >
-          Last month
-        </ToggleButton>
-        <ToggleButton
-          value="last-30-days"
-          sx={{
-            borderRadius: '20px',
-            padding: '0.5rem 1rem',
-            border: '1px solid',
-            borderColor: 'text.primary',
-            textTransform: 'none',
-            backgroundColor: 'transparent',
-            color: 'text.primary',
-            '&.Mui-selected': {
-              backgroundColor: 'primary.dark',
-              color: 'primary.contrastText',
-              border: 'none',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            },
-            '&:hover': {
-              backgroundColor: 'grey.100',
-            },
-          }}
-        >
+        <PresetToggleButton value="this-month">This month</PresetToggleButton>
+        <PresetToggleButton value="last-month">Last month</PresetToggleButton>
+        <PresetToggleButton value="last-30-days">
           Last 30 days
-        </ToggleButton>
+        </PresetToggleButton>
       </ToggleButtonGroup>
     </DialogTemplate>
   );

@@ -103,3 +103,41 @@ export function determineWelcomeBasketType(itemIds: number[]): string {
   }
   return 'Other';
 }
+
+export function getPresetDateRange(preset: string): {
+  startDate: Date;
+  endDate: Date;
+} {
+  const now = new Date();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+
+  switch (preset) {
+    case 'this-month': {
+      return {
+        startDate: new Date(year, month, 1),
+        endDate: new Date(year, month + 1, 0),
+      };
+    }
+    case 'last-month': {
+      return {
+        startDate: new Date(year, month - 1, 1),
+        endDate: new Date(year, month, 0),
+      };
+    }
+    case 'last-30-days': {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      return {
+        startDate: thirtyDaysAgo,
+        endDate: now,
+      };
+    }
+    default: {
+      return {
+        startDate: now,
+        endDate: now,
+      };
+    }
+  }
+}

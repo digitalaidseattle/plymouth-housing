@@ -1,13 +1,15 @@
 import React, { useState, useContext, useEffect, useMemo } from 'react';
 import {
   Box,
+  Button,
   Stack,
   Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Button,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import {
@@ -210,26 +212,70 @@ const HistoryPage: React.FC = () => {
       />
 
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Stack direction="row" gap="1rem">
-          <Button
-            variant={
-              historyType === 'checkout' ? 'active-primary' : 'inactive-primary'
-            }
-            onClick={() => setHistoryType('checkout')}
+        <ToggleButtonGroup
+          value={historyType}
+          exclusive
+          onChange={(_, newType) => newType && setHistoryType(newType)}
+          sx={{
+            gap: '1rem',
+            '& .MuiToggleButton-root': {
+              border: 'none',
+              borderRadius: '18px !important', // Override grouped styles
+              marginLeft: '0 !important',
+            },
+          }}
+        >
+          <ToggleButton
+            value="checkout"
+            sx={{
+              padding: '1rem 2rem',
+              borderRadius: '18px',
+              fontSize: '1.25rem',
+              border: 'none',
+              textTransform: 'none',
+              backgroundColor: 'grey.100',
+              color: 'text.primary',
+              '&.Mui-selected': {
+                backgroundColor: 'primary.dark',
+                color: 'common.white',
+                border: 'none',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              },
+              '&:hover': {
+                backgroundColor: 'grey.200',
+              },
+            }}
           >
             Check out
-          </Button>
-          <Button
-            variant={
-              historyType === 'inventory'
-                ? 'active-primary'
-                : 'inactive-primary'
-            }
-            onClick={() => setHistoryType('inventory')}
+          </ToggleButton>
+          <ToggleButton
+            value="inventory"
+            sx={{
+              padding: '1rem 2rem',
+              borderRadius: '18px',
+              fontSize: '1.25rem',
+              border: 'none',
+              textTransform: 'none',
+              backgroundColor: 'grey.100',
+              color: 'text.primary',
+              '&.Mui-selected': {
+                backgroundColor: 'primary.dark',
+                color: 'common.white',
+                border: 'none',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              },
+              '&:hover': {
+                backgroundColor: 'grey.200',
+              },
+            }}
           >
             Inventory
-          </Button>
-        </Stack>
+          </ToggleButton>
+        </ToggleButtonGroup>
         <FormControl>
           <InputLabel id="select-date-label">Date</InputLabel>
           <Select

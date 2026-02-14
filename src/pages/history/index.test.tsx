@@ -13,12 +13,16 @@ import { UserContext } from '../../components/contexts/UserContext';
 import * as HistoryAPICalls from '../../components/History/HistoryAPICalls';
 import * as CheckoutAPICalls from '../../components/Checkout/CheckoutAPICalls';
 import * as helpers from '../../components/utils/fetchCategorizedItems';
-import { TransactionType } from '../../types/history';
+import {
+  TransactionType,
+  CheckoutTransaction,
+  InventoryTransaction,
+} from '../../types/history';
 
 // Mock modules
 vi.mock('../../components/History/HistoryAPICalls');
 vi.mock('../../components/Checkout/CheckoutAPICalls');
-vi.mock('../../components/helpers/fetchCategorizedItems');
+vi.mock('../../components/utils/fetchCategorizedItems');
 vi.mock('../../components/CircularLoader', () => ({
   default: () => <div data-testid="circular-loader">Loading...</div>,
 }));
@@ -43,21 +47,27 @@ vi.mock('../../components/History/CustomDateDialog', () => ({
 }));
 vi.mock('../../components/History/GeneralCheckoutCard', () => ({
   default: ({ checkoutTransaction }: any) => (
-    <div data-testid={`general-checkout-card-${checkoutTransaction.id}`}>
+    <div
+      data-testid={`general-checkout-card-${checkoutTransaction.transaction_id}`}
+    >
       General Checkout
     </div>
   ),
 }));
 vi.mock('../../components/History/WelcomeBasketCard', () => ({
   default: ({ checkoutTransaction }: any) => (
-    <div data-testid={`welcome-basket-card-${checkoutTransaction.id}`}>
+    <div
+      data-testid={`welcome-basket-card-${checkoutTransaction.transaction_id}`}
+    >
       Welcome Basket
     </div>
   ),
 }));
 vi.mock('../../components/History/InventoryCard', () => ({
   default: ({ inventoryTransaction }: any) => (
-    <div data-testid={`inventory-card-${inventoryTransaction.id}`}>
+    <div
+      data-testid={`inventory-card-${inventoryTransaction.transaction_id}`}
+    >
       Inventory
     </div>
   ),
@@ -82,10 +92,23 @@ const mockBuildings = [
 ];
 
 const mockCategorizedItems = [
-  { categoryId: 1, categoryName: 'Food', items: [{ id: 1, name: 'Bread' }] },
+  {
+    id: 1,
+    category: 'Food',
+    items: [
+      {
+        id: 1,
+        name: 'Bread',
+        quantity: 10,
+        description: 'Fresh bread',
+      },
+    ],
+    checkout_limit: 5,
+    categoryCount: 1,
+  },
 ];
 
-const mockCheckoutTransactions = [
+const mockCheckoutTransactions: CheckoutTransaction[] = [
   {
     transaction_id: '1',
     user_id: 1,
@@ -94,7 +117,7 @@ const mockCheckoutTransactions = [
     resident_id: 1,
     resident_name: 'Resident A',
     transaction_date: new Date().toISOString(),
-    item_type: 'general' as const,
+    item_type: 'general',
     items: [
       {
         item_id: 1,
@@ -106,13 +129,13 @@ const mockCheckoutTransactions = [
   },
 ];
 
-const mockInventoryTransactions = [
+const mockInventoryTransactions: InventoryTransaction[] = [
   {
     transaction_id: '2',
     user_id: 1,
     transaction_date: new Date().toISOString(),
-    transaction_type: TransactionType.InventoryAdd as TransactionType.InventoryAdd,
-    item_type: 'general' as const,
+    transaction_type: TransactionType.InventoryAdd,
+    item_type: 'general',
     items: [
       {
         item_id: 1,
@@ -411,7 +434,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('displays user-specific transaction grouping', async () => {
-    const multiUserTransactions = [
+    const multiUserTransactions: CheckoutTransaction[] = [
       ...mockCheckoutTransactions,
       {
         transaction_id: '2',
@@ -421,7 +444,7 @@ describe('HistoryPage Component', () => {
         resident_id: 2,
         resident_name: 'Resident B',
         transaction_date: new Date().toISOString(),
-        item_type: 'general' as const,
+        item_type: 'general',
         items: [
           {
             item_id: 1,
@@ -449,7 +472,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('displays "You" for current user transactions', async () => {
-    const currentUserTransactions = [
+    const currentUserTransactions: CheckoutTransaction[] = [
       {
         transaction_id: '1',
         user_id: 1,
@@ -458,7 +481,7 @@ describe('HistoryPage Component', () => {
         resident_id: 1,
         resident_name: 'Resident A',
         transaction_date: new Date().toISOString(),
-        item_type: 'general' as const,
+        item_type: 'general',
         items: [
           {
             item_id: 1,

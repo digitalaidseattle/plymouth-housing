@@ -1,0 +1,157 @@
+name: SQL Unit Tests CI
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!main'
+    paths:
+      - 'database/**/*.sql'
+
+jobs:
+  test-stored-procedures:
+    runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: ${{ secrets.SQL_SA_TEST_PASSWORD }}
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for SQL Server to be ready
+        run: |
+          echo "Waiting for SQL Server to be fully ready..."
+          sleep 15
+
+      - name: Install SQL Server tools
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)"
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools18 unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bash_profile
+          source ~/.bash_profile
+
+      - name: Create test database
+        run: |
+          /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -Q "CREATE DATABASE Inventory;"
+          echo "Test database created successfully"
+
+      - name: Deploy database tables
+        run: |
+          echo "Deploying database tables..."
+          for file in ./database/tables/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Executing: $file"
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file"
+            fi
+          done
+
+      - name: Deploy database dependencies
+        run: |
+          echo "Deploying database dependencies..."
+          for file in ./database/dependencies/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Executing: $file"
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file"
+            fi
+          done
+
+      - name: Deploy database types
+        run: |
+          echo "Deploying database types..."
+          for file in ./database/types/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Executing: $file"
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file"
+            fi
+          done
+
+      - name: Deploy database procedures
+        run: |
+          echo "Deploying database procedures..."
+          for file in ./database/procedures/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Executing: $file"
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file"
+            fi
+          done
+
+      - name: Deploy database data_seed
+        run: |
+          echo "Deploying database data_seed..."
+          for file in ./database/data_seed/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Executing: $file"
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file"
+            fi
+          done
+
+      - name: Deploy database data_test
+        run: |
+          echo "Deploying database data_test..."
+          for file in ./database/data_test/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Executing: $file"
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file"
+            fi
+          done
+
+      - name: Run database tests
+        run: |
+          echo "Running tests..."
+          TEST_FAILED=0
+          if [ -d "./database/tests" ]; then
+            for file in ./database/tests/*.sql; do
+              if [ -f "$file" ]; then
+                echo "========================================"
+                echo "Running test: $file"
+                echo "========================================"
+
+                # Capture both stdout and stderr
+                if ! /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file" -b 2>&1; then
+                  echo "❌ Test failed: $file"
+                  TEST_FAILED=1
+                else
+                  echo "✅ Test passed: $file"
+                fi
+                echo ""
+              fi
+            done
+
+            if [ $TEST_FAILED -eq 1 ]; then
+              echo "One or more tests failed"
+              exit 1
+            fi
+
+            echo "All tests completed successfully!"
+          else
+            echo "No tests directory found, skipping..."
+          fi
+
+      - name: Generate test report
+        if: always()
+        run: |
+          echo "Generating test report..."
+          /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -Q "
+          SELECT
+            'Test Results Summary' as Report,
+            @@VERSION as SQLServerVersion,
+            GETDATE() as TestRunTime
+          " -o test-results.txt
+          cat test-results.txt
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.txt

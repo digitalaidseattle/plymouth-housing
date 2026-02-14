@@ -30,6 +30,7 @@ export const ENDPOINTS = {
     API_PREFIX + '/process-inventory-reset-quantity',
   GET_CHECKOUT_HISTORY: API_PREFIX + '/get-checkout-history',
   GET_INVENTORY_HISTORY: API_PREFIX + '/get-inventory-history',
+  GET_LAST_RESIDENT_VISIT: API_PREFIX + '/get-last-resident-visit',
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
   CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
@@ -48,6 +49,6 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  admin: ['inventory', 'checkout', 'people', 'history'],
-  volunteer: ['volunteer-home', 'inventory', 'checkout', 'history'],
+  admin: ['inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'people', 'history'],
+  volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'history'],
 } as const;

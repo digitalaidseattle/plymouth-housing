@@ -9,6 +9,7 @@ import {
   findResident,
   addResident,
   checkPastCheckout,
+  getLastResidentVisit,
 } from './CheckoutAPICalls';
 import { API_HEADERS, ENDPOINTS } from '../../types/constants';
 import { getRole } from '../contexts/UserContext';
@@ -319,6 +320,49 @@ describe('CheckoutAPICalls', () => {
       });
 
       await expect(checkPastCheckout(user, residentId)).rejects.toThrow('Error');
+    });
+  });
+
+  describe('getLastResidentVisit', () => {
+    const residentId = 1;
+
+    it('should fetch last resident visit successfully', async () => {
+      const mockResponse = { value: [{ transaction_date: '2025-01-15T10:30:00' }] };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await getLastResidentVisit(user, residentId);
+
+      expect(fetch).toHaveBeenCalledWith(ENDPOINTS.GET_LAST_RESIDENT_VISIT, {
+        method: 'POST',
+        headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+        body: JSON.stringify({ resident_id: residentId }),
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle empty result when resident has no visits', async () => {
+      const mockResponse = { value: [] };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await getLastResidentVisit(user, residentId);
+
+      expect(result).toEqual(mockResponse);
+      expect(result.value).toEqual([]);
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+      });
+
+      await expect(getLastResidentVisit(user, residentId)).rejects.toThrow('Error');
     });
   });
 });

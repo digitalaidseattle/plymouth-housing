@@ -1,8 +1,11 @@
 import { API_HEADERS, ENDPOINTS } from '../../types/constants';
+import { CategoryProps } from '../../types/interfaces';
 
-export default async function fetchCategorizedItems(userRole: string) {
+export default async function fetchCategorizedItems(
+  userRole: string,
+): Promise<CategoryProps[]> {
   try {
-    let categorizedItems;
+    let categorizedItems: CategoryProps[] = [];
     const cachedCategorizedItems = sessionStorage.getItem('categorizedItems');
     if (cachedCategorizedItems) {
       categorizedItems = JSON.parse(cachedCategorizedItems);
@@ -25,5 +28,6 @@ export default async function fetchCategorizedItems(userRole: string) {
     return categorizedItems;
   } catch (error) {
     console.error('There was an error fetching categorized items', error);
+    return [];
   }
 }

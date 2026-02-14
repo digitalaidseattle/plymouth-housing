@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import {
-  Box,
   Button,
   Stack,
   Typography,
@@ -14,14 +13,7 @@ import {
 import { UserContext } from '../../components/contexts/UserContext';
 import CircularLoader from '../../components/CircularLoader';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
-import GeneralCheckoutCard from '../../components/History/GeneralCheckoutCard';
-import WelcomeBasketCard from '../../components/History/WelcomeBasketCard';
-import InventoryCard from '../../components/History/InventoryCard';
-import {
-  createHowLongAgoString,
-  calculateTimeDifference,
-} from '../../components/History/historyUtils';
-import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
+import TransactionsList from '../../components/History/TransactionsList';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
@@ -191,96 +183,14 @@ const HistoryPage: React.FC = () => {
       {isLoading ? (
         <CircularLoader />
       ) : (
-        <Stack gap="2rem">
-          {userHistory && userHistory.length === 0 && (
-            <p>
-              No transactions found for this date. Try selecting a different
-              date range.
-            </p>
-          )}
-          {transactionsByUser?.map((user) => (
-            <Box key={user.user_id}>
-              <Stack direction="row" alignItems="center" gap="1rem">
-                <h2>
-                  {loggedInUserId === user.user_id
-                    ? 'You'
-                    : (userList?.find((v) => v.id === user.user_id)?.name ??
-                      '')}
-                </h2>
-                <span>
-                  {user.transactions.length}{' '}
-                  {user.transactions.length > 1 ? 'records' : 'record'}
-                </span>
-              </Stack>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: {
-                    xs: '1fr',
-                    lg: 'repeat(2, 1fr)',
-                    xl: 'repeat(3, 1fr)',
-                  },
-                  gap: '1rem',
-                }}
-              >
-                {user.transactions.map(
-                  (t: CheckoutTransaction | InventoryTransaction) => {
-                    const { minutes, hours, days } = calculateTimeDifference(
-                      t.transaction_date,
-                    );
-                    const howLongAgoString = createHowLongAgoString(
-                      minutes,
-                      hours,
-                      days,
-                    );
-                    const checkoutTransaction = t as CheckoutTransaction;
-                    if (
-                      historyType === 'checkout' &&
-                      checkoutTransaction.item_type === 'general'
-                    ) {
-                      const quantity = checkoutTransaction.items.reduce(
-                        (acc, item) => {
-                          return acc + item.quantity;
-                        },
-                        0,
-                      );
-                      return (
-                        <GeneralCheckoutCard
-                          key={t.transaction_id}
-                          checkoutTransaction={checkoutTransaction}
-                          buildings={buildings}
-                          quantity={quantity}
-                          howLongAgoString={howLongAgoString}
-                        />
-                      );
-                    } else if (
-                      historyType === 'checkout' &&
-                      checkoutTransaction.item_type === 'welcome'
-                    ) {
-                      return (
-                        <WelcomeBasketCard
-                          key={t.transaction_id}
-                          checkoutTransaction={checkoutTransaction}
-                          buildings={buildings}
-                          howLongAgoString={howLongAgoString}
-                        />
-                      );
-                    } else if (historyType === 'inventory') {
-                      const inventoryTransaction = t as InventoryTransaction;
-                      return (
-                        <InventoryCard
-                          key={inventoryTransaction.transaction_id}
-                          inventoryTransaction={inventoryTransaction}
-                          howLongAgoString={howLongAgoString}
-                        />
-                      );
-                    }
-                  },
-                )}
-              </Box>
-            </Box>
-          ))}
-        </Stack>
+        <TransactionsList
+          transactionsByUser={transactionsByUser}
+          userList={userList}
+          buildings={buildings}
+          loggedInUserId={loggedInUserId}
+          historyType={historyType}
+          userHistory={userHistory}
+        />
       )}
     </Stack>
   );

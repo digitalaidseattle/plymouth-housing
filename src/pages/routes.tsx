@@ -8,6 +8,7 @@ import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
+import HistoryPage from './history';
 import { RootRedirect } from '../components/RootRedirect';
 
 const routes = [
@@ -62,6 +63,16 @@ const routes = [
           // to work with the sticky nav inside it
           <RootRedirect source="checkout">
             <CheckoutPageContainer />
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'history',
+        element: (
+          <RootRedirect source="history">
+            <MainContainer title="History">
+              <HistoryPage />,
+            </MainContainer>
           </RootRedirect>
         ),
       },

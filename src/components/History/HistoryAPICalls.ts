@@ -1,31 +1,58 @@
 import { getRole } from '../contexts/UserContext';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { ClientPrincipal, CategoryProps } from '../../types/interfaces';
-import { expandTransactionItems } from './transactionProcessors';
+import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
+import {
+  groupCheckoutTransactions,
+  groupInventoryTransactions,
+} from './transactionProcessors';
 
-export async function findUserTransactionHistory(
+export async function findCheckoutHistory(
   user: ClientPrincipal | null,
   startDate: string,
   endDate: string,
-  historyType: string,
   categorizedItems: CategoryProps[] = [],
-) {
+): Promise<CheckoutTransaction[]> {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.FIND_USER_TRANSACTION_HISTORY, {
+    const response = await fetch(ENDPOINTS.FIND_CHECKOUT_HISTORY, {
       headers: headers,
       method: 'POST',
       body: JSON.stringify({
         start_date: startDate,
         end_date: endDate,
-        history_type: historyType,
       }),
     });
     if (!response.ok) throw new Error(response.statusText);
     const data = await response.json();
-    return expandTransactionItems(data.value, categorizedItems);
+    return groupCheckoutTransactions(data.value, categorizedItems);
   } catch (error) {
-    console.error('Error fetching transaction history:', error);
+    console.error('Error fetching checkout history:', error);
+    throw error;
+  }
+}
+
+export async function findInventoryHistory(
+  user: ClientPrincipal | null,
+  startDate: string,
+  endDate: string,
+  categorizedItems: CategoryProps[] = [],
+): Promise<InventoryTransaction[]> {
+  try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    const response = await fetch(ENDPOINTS.FIND_INVENTORY_HISTORY, {
+      headers: headers,
+      method: 'POST',
+      body: JSON.stringify({
+        start_date: startDate,
+        end_date: endDate,
+      }),
+    });
+    if (!response.ok) throw new Error(response.statusText);
+    const data = await response.json();
+    return groupInventoryTransactions(data.value, categorizedItems);
+  } catch (error) {
+    console.error('Error fetching inventory history:', error);
     throw error;
   }
 }

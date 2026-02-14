@@ -11,7 +11,8 @@ import {
 } from '@mui/material';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import {
-  findUserTransactionHistory,
+  findCheckoutHistory,
+  findInventoryHistory,
   getUsers,
 } from '../../components/History/HistoryAPICalls';
 import CircularLoader from '../../components/CircularLoader';
@@ -75,13 +76,20 @@ const HistoryPage: React.FC = () => {
     async function findUserHistoryForSelectedDate() {
       try {
         setIsLoading(true);
-        const response = await findUserTransactionHistory(
-          user,
-          formattedDateRange.startDate,
-          formattedDateRange.endDate,
-          historyType,
-          categorizedItems,
-        );
+        const response =
+          historyType === 'checkout'
+            ? await findCheckoutHistory(
+                user,
+                formattedDateRange.startDate,
+                formattedDateRange.endDate,
+                categorizedItems,
+              )
+            : await findInventoryHistory(
+                user,
+                formattedDateRange.startDate,
+                formattedDateRange.endDate,
+                categorizedItems,
+              );
         setUserHistory(response);
       } catch (error) {
         setError('Error fetching history: ' + error);

@@ -7,6 +7,7 @@ declare module '@mui/material/styles' {
     700?: string;
     900?: string;
     darker?: string;
+    [key: string]: string | undefined;
   }
 
   interface SimplePaletteColorOptions {
@@ -17,6 +18,7 @@ declare module '@mui/material/styles' {
     700?: string;
     900?: string;
     darker?: string;
+    [key: string]: string | undefined;
   }
 }
 

@@ -137,10 +137,16 @@ describe('HistoryPage Component', () => {
 
     // Mock API calls with a slight delay to simulate real API behavior
     // This allows the component to show the loading state
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockImplementation(
+    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => resolve(mockCheckoutTransactions), 50),
+        ),
+    );
+    vi.spyOn(HistoryAPICalls, 'findInventoryHistory').mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve(mockInventoryTransactions), 50),
         ),
     );
     vi.spyOn(HistoryAPICalls, 'getUsers').mockImplementation(
@@ -216,16 +222,16 @@ describe('HistoryPage Component', () => {
     });
 
     // Verify API was called for inventory
-    expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalledWith(
+    expect(HistoryAPICalls.findInventoryHistory).toHaveBeenCalledWith(
       mockUser,
       expect.any(String),
       expect.any(String),
-      'inventory',
+      mockCategorizedItems,
     );
   });
 
   test('fetches and displays checkout transactions', async () => {
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue(
       mockCheckoutTransactions,
     );
 
@@ -236,7 +242,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
     });
 
     // Verify user list is fetched
@@ -270,7 +276,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles empty transaction history', async () => {
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue([]);
+    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue([]);
 
     render(
       <Wrapper>
@@ -280,7 +286,7 @@ describe('HistoryPage Component', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/There are no transactions for this date/i),
+        screen.getByText(/No transactions found for this date/i),
       ).toBeInTheDocument();
     });
   });
@@ -299,7 +305,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(yesterdayOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -317,7 +323,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(thisWeekOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -369,10 +375,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles API errors gracefully', async () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockRejectedValue(
+    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockRejectedValue(
       new Error('API Error'),
     );
 
@@ -382,14 +385,10 @@ describe('HistoryPage Component', () => {
       </Wrapper>,
     );
 
+    // Error should be displayed in a snackbar
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error fetching history:',
-        expect.any(Error),
-      );
+      expect(screen.getByText(/Error fetching history:/i)).toBeInTheDocument();
     });
-
-    consoleErrorSpy.mockRestore();
   });
 
   test('displays user-specific transaction grouping', async () => {
@@ -409,7 +408,7 @@ describe('HistoryPage Component', () => {
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue(
       multiUserTransactions,
     );
 
@@ -420,7 +419,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -440,7 +439,7 @@ describe('HistoryPage Component', () => {
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue(
       currentUserTransactions,
     );
 
@@ -456,7 +455,7 @@ describe('HistoryPage Component', () => {
     });
   });
 
-  test('calls findTransactionHistory with correct date format', async () => {
+  test('calls findCheckoutHistory with correct date format', async () => {
     render(
       <Wrapper>
         <HistoryPage />
@@ -464,11 +463,11 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalledWith(
+      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        'checkout',
+        mockCategorizedItems,
       );
     });
   });
@@ -481,10 +480,10 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
     });
 
-    const callCount = vi.mocked(HistoryAPICalls.findTransactionHistory).mock
+    const callCount = vi.mocked(HistoryAPICalls.findCheckoutHistory).mock
       .calls.length;
 
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
@@ -495,7 +494,7 @@ describe('HistoryPage Component', () => {
 
     await waitFor(() => {
       expect(
-        vi.mocked(HistoryAPICalls.findTransactionHistory).mock.calls.length,
+        vi.mocked(HistoryAPICalls.findCheckoutHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
   });

@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import {
-  findCheckoutHistory,
-  findInventoryHistory,
+  getCheckoutHistory,
+  getInventoryHistory,
   getUsers,
 } from '../../components/History/HistoryAPICalls';
 import CircularLoader from '../../components/CircularLoader';
@@ -84,13 +84,13 @@ const HistoryPage: React.FC = () => {
         setIsLoading(true);
         const response =
           historyType === 'checkout'
-            ? await findCheckoutHistory(
+            ? await getCheckoutHistory(
                 user,
                 formattedDateRange.startDate,
                 formattedDateRange.endDate,
                 categorizedItems,
               )
-            : await findInventoryHistory(
+            : await getInventoryHistory(
                 user,
                 formattedDateRange.startDate,
                 formattedDateRange.endDate,

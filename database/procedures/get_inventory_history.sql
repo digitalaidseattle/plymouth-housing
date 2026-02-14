@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS [dbo].[FindCheckoutHistory];
+DROP PROCEDURE IF EXISTS [dbo].[GetInventoryHistory];
 GO
 
-CREATE PROCEDURE FindCheckoutHistory
+CREATE PROCEDURE GetInventoryHistory
     @start_date Date,
     @end_date Date
 AS
@@ -13,31 +13,28 @@ BEGIN
         RETURN;
     END
 
-    -- Query for the checkout transaction type ID
-    DECLARE @CheckoutTransactionType INT;
-    SELECT @CheckoutTransactionType = id FROM TransactionTypes WHERE transaction_type = 'CHECKOUT';
+    -- Query for the inventory transaction type IDs
+    DECLARE @RestockTransactionType INT;
+    SELECT @RestockTransactionType = id FROM TransactionTypes WHERE transaction_type = 'RESTOCK';
+
+    DECLARE @CorrectionTransactionType INT;
+    SELECT @CorrectionTransactionType = id FROM TransactionTypes WHERE transaction_type = 'CORRECTION';
 
     SELECT
         Transactions.user_id,
         Transactions.id AS transaction_id,
-        Transactions.resident_id,
-        Residents.name AS resident_name,
-        Units.unit_number,
-        Buildings.id AS building_id,
+        Transactions.transaction_type,
         Transactions.transaction_date,
         ti.item_id,
         i.name as item_name,
         c.name as category_name,
         ti.quantity
     FROM Transactions
-    INNER JOIN Residents ON Transactions.resident_id = Residents.id
-    INNER JOIN Units ON Residents.unit_id = Units.id
-    INNER JOIN Buildings ON Units.building_id = Buildings.id
     INNER JOIN TransactionItems ti ON ti.transaction_id = Transactions.id
     INNER JOIN Items i ON ti.item_id = i.id
     INNER JOIN Categories c ON i.category_id = c.id
     WHERE [transaction_date] >= CAST(@start_date AS DATETIME)
         AND [transaction_date] < DATEADD(DAY, 1, CAST(@end_date AS DATETIME))
-        AND [transaction_type] = @CheckoutTransactionType
+        AND [transaction_type] IN (@RestockTransactionType, @CorrectionTransactionType)
     ORDER BY Transactions.transaction_date DESC, Transactions.id, ti.item_id;
 END;

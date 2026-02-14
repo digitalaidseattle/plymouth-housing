@@ -303,14 +303,14 @@
         }
       ]
     },
-    "FindCheckoutHistory": {
+    "GetCheckoutHistory": {
       "source": {
-        "object": "dbo.FindCheckoutHistory",
+        "object": "dbo.GetCheckoutHistory",
         "type": "stored-procedure"
       },
       "rest": {
         "enabled": true,
-        "path": "/find-checkout-history"
+        "path": "/get-checkout-history"
       },
       "permissions": [
         {
@@ -323,14 +323,14 @@
         }
       ]
     },
-    "FindInventoryHistory": {
+    "GetInventoryHistory": {
       "source": {
-        "object": "dbo.FindInventoryHistory",
+        "object": "dbo.GetInventoryHistory",
         "type": "stored-procedure"
       },
       "rest": {
         "enabled": true,
-        "path": "/find-inventory-history"
+        "path": "/get-inventory-history"
       },
       "permissions": [
         {

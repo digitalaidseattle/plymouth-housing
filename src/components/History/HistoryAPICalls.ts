@@ -7,7 +7,7 @@ import {
   groupInventoryTransactions,
 } from './transactionProcessors';
 
-export async function findCheckoutHistory(
+export async function getCheckoutHistory(
   user: ClientPrincipal | null,
   startDate: string,
   endDate: string,
@@ -15,7 +15,7 @@ export async function findCheckoutHistory(
 ): Promise<CheckoutTransaction[]> {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.FIND_CHECKOUT_HISTORY, {
+    const response = await fetch(ENDPOINTS.GET_CHECKOUT_HISTORY, {
       headers: headers,
       method: 'POST',
       body: JSON.stringify({
@@ -32,7 +32,7 @@ export async function findCheckoutHistory(
   }
 }
 
-export async function findInventoryHistory(
+export async function getInventoryHistory(
   user: ClientPrincipal | null,
   startDate: string,
   endDate: string,
@@ -40,7 +40,7 @@ export async function findInventoryHistory(
 ): Promise<InventoryTransaction[]> {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.FIND_INVENTORY_HISTORY, {
+    const response = await fetch(ENDPOINTS.GET_INVENTORY_HISTORY, {
       headers: headers,
       method: 'POST',
       body: JSON.stringify({

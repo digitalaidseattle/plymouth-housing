@@ -137,13 +137,13 @@ describe('HistoryPage Component', () => {
 
     // Mock API calls with a slight delay to simulate real API behavior
     // This allows the component to show the loading state
-    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockImplementation(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => resolve(mockCheckoutTransactions), 50),
         ),
     );
-    vi.spyOn(HistoryAPICalls, 'findInventoryHistory').mockImplementation(
+    vi.spyOn(HistoryAPICalls, 'getInventoryHistory').mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => resolve(mockInventoryTransactions), 50),
@@ -222,7 +222,7 @@ describe('HistoryPage Component', () => {
     });
 
     // Verify API was called for inventory
-    expect(HistoryAPICalls.findInventoryHistory).toHaveBeenCalledWith(
+    expect(HistoryAPICalls.getInventoryHistory).toHaveBeenCalledWith(
       mockUser,
       expect.any(String),
       expect.any(String),
@@ -231,7 +231,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('fetches and displays checkout transactions', async () => {
-    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
       mockCheckoutTransactions,
     );
 
@@ -242,7 +242,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
 
     // Verify user list is fetched
@@ -276,7 +276,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles empty transaction history', async () => {
-    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue([]);
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue([]);
 
     render(
       <Wrapper>
@@ -305,7 +305,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(yesterdayOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -323,7 +323,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(thisWeekOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -375,7 +375,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles API errors gracefully', async () => {
-    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockRejectedValue(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockRejectedValue(
       new Error('API Error'),
     );
 
@@ -408,7 +408,7 @@ describe('HistoryPage Component', () => {
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
       multiUserTransactions,
     );
 
@@ -419,7 +419,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -439,7 +439,7 @@ describe('HistoryPage Component', () => {
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findCheckoutHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
       currentUserTransactions,
     );
 
@@ -455,7 +455,7 @@ describe('HistoryPage Component', () => {
     });
   });
 
-  test('calls findCheckoutHistory with correct date format', async () => {
+  test('calls getCheckoutHistory with correct date format', async () => {
     render(
       <Wrapper>
         <HistoryPage />
@@ -463,7 +463,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalledWith(
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
@@ -480,10 +480,10 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findCheckoutHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
 
-    const callCount = vi.mocked(HistoryAPICalls.findCheckoutHistory).mock
+    const callCount = vi.mocked(HistoryAPICalls.getCheckoutHistory).mock
       .calls.length;
 
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
@@ -494,7 +494,7 @@ describe('HistoryPage Component', () => {
 
     await waitFor(() => {
       expect(
-        vi.mocked(HistoryAPICalls.findCheckoutHistory).mock.calls.length,
+        vi.mocked(HistoryAPICalls.getCheckoutHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
   });

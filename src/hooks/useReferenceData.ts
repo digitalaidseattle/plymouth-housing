@@ -40,9 +40,13 @@ export function useReferenceData({ user, onError }: UseReferenceDataProps) {
       try {
         const userRole = getRole(user);
         const response = await fetchCategorizedItems(userRole);
+        if (!response) {
+          throw new Error('Failed to fetch categorized items');
+        }
         setCategorizedItems(response);
       } catch (error) {
         onError('Error fetching item and category data: ' + error);
+        setCategorizedItems([]);
       }
     }
 

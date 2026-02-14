@@ -63,11 +63,18 @@ const CustomDateDialog = ({
         <DatePicker
           label="Start date"
           value={startDate}
+          maxDate={endDate}
           onChange={(newValue) => {
             if (newValue) {
               setStartDate(newValue);
               setActivePreset('none');
             }
+          }}
+          onError={(newError) => setError(newError ?? '')}
+          slotProps={{
+            textField: {
+              helperText: errorMessage,
+            },
           }}
         />
         <DatePicker

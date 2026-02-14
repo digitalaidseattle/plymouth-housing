@@ -30,7 +30,7 @@ export default function Button(theme: Theme) {
         {
           props: { variant: 'active-primary' },
           style: {
-            backgroundColor: theme.palette.primary['900'],
+            backgroundColor: theme.palette.primary.dark,
             color: theme.palette.common.white,
             padding: '1rem 0',
             borderRadius: '18px',
@@ -50,7 +50,7 @@ export default function Button(theme: Theme) {
         {
           props: { variant: 'active-secondary' },
           style: {
-            background: theme.palette.primary['900'],
+            background: theme.palette.primary.dark,
             color: theme.palette.primary.contrastText,
             borderRadius: '20px',
             padding: '0.5rem 1rem',

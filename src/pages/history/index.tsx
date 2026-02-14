@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   Box,
   Button,
@@ -12,10 +12,6 @@ import {
   ToggleButtonGroup,
 } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
-import {
-  getCheckoutHistory,
-  getInventoryHistory,
-} from '../../components/History/HistoryAPICalls';
 import CircularLoader from '../../components/CircularLoader';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
 import GeneralCheckoutCard from '../../components/History/GeneralCheckoutCard';
@@ -25,12 +21,12 @@ import {
   createHowLongAgoString,
   calculateTimeDifference,
 } from '../../components/History/historyUtils';
-import { processTransactionsByUser } from '../../components/History/transactionProcessors';
 import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
 import { useReferenceData } from '../../hooks/useReferenceData';
+import { useHistoryData } from '../../hooks/useHistoryData';
 
 const HistoryPage: React.FC = () => {
   const { user, loggedInUserId } = useContext(UserContext);
@@ -53,49 +49,24 @@ const HistoryPage: React.FC = () => {
     isLoading: isLoadingReferenceData,
   } = useReferenceData({ user, onError: showSnackbar });
 
-  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
-  const [userHistory, setUserHistory] = useState<
-    CheckoutTransaction[] | InventoryTransaction[] | null
-  >(null);
-
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
   );
 
+  const {
+    userHistory,
+    transactionsByUser,
+    isLoading: isLoadingHistory,
+  } = useHistoryData({
+    user,
+    formattedDateRange,
+    historyType,
+    categorizedItems,
+    loggedInUserId,
+    onError: showSnackbar,
+  });
+
   const isLoading = isLoadingReferenceData || isLoadingHistory;
-
-  useEffect(() => {
-    async function findUserHistoryForSelectedDate() {
-      try {
-        setIsLoadingHistory(true);
-        const response =
-          historyType === 'checkout'
-            ? await getCheckoutHistory(
-                user,
-                formattedDateRange.startDate,
-                formattedDateRange.endDate,
-                categorizedItems,
-              )
-            : await getInventoryHistory(
-                user,
-                formattedDateRange.startDate,
-                formattedDateRange.endDate,
-                categorizedItems,
-              );
-        setUserHistory(response);
-      } catch (error) {
-        showSnackbar('Error fetching history: ' + error);
-      } finally {
-        setIsLoadingHistory(false);
-      }
-    }
-    findUserHistoryForSelectedDate();
-  }, [formattedDateRange, historyType, user, categorizedItems, showSnackbar]);
-
-  const transactionsByUser = useMemo(
-    () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),
-    [userHistory, loggedInUserId],
-  );
 
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>

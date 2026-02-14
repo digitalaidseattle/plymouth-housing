@@ -11,72 +11,63 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { UserContext } from '../../components/contexts/UserContext';
 import {
   getCheckoutHistory,
   getInventoryHistory,
-  getUsers,
 } from '../../components/History/HistoryAPICalls';
 import CircularLoader from '../../components/CircularLoader';
-import { Building, CategoryProps, User } from '../../types/interfaces';
-import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
-import fetchCategorizedItems from '../../components/utils/fetchCategorizedItems';
 import GeneralCheckoutCard from '../../components/History/GeneralCheckoutCard';
 import WelcomeBasketCard from '../../components/History/WelcomeBasketCard';
 import InventoryCard from '../../components/History/InventoryCard';
 import {
   createHowLongAgoString,
   calculateTimeDifference,
-  formatDateRange,
-  formatFullDate,
 } from '../../components/History/historyUtils';
 import { processTransactionsByUser } from '../../components/History/transactionProcessors';
 import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useSnackbar } from '../../hooks/useSnackbar';
+import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
+import { useReferenceData } from '../../hooks/useReferenceData';
 
 const HistoryPage: React.FC = () => {
-  const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
-  const [userList, setUserList] = useState<User[] | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    dateRange,
+    dateInput,
+    showCustomDateDialog,
+    formattedDateRange,
+    dateString,
+    dateRangeString,
+    handleDateSelection,
+    handleSetCustomDateRange,
+    toggleCustomDateDialog,
+  } = useDateRangeFilter();
+  const {
+    userList,
+    buildings,
+    categorizedItems,
+    isLoading: isLoadingReferenceData,
+  } = useReferenceData({ user, onError: showSnackbar });
+
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [userHistory, setUserHistory] = useState<
     CheckoutTransaction[] | InventoryTransaction[] | null
   >(null);
-  const [buildings, setBuildings] = useState<Building[] | null>(null);
-  const [categorizedItems, setCategorizedItems] = useState<CategoryProps[]>([]);
-  const [dateRange, setDateRange] = useState<{
-    startDate: Date;
-    endDate: Date;
-    isCustom?: boolean;
-  }>({ startDate: todaysDate, endDate: todaysDate });
-  const [dateInput, setDateInput] = useState('today');
-  const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
 
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
   );
-  // en-CA locale produces YYYY-MM-DD format (ISO 8601) required by SQL Server DATE columns
-  const formattedDateRange = useMemo(
-    () => ({
-      startDate: dateRange.startDate.toLocaleDateString('en-CA'),
-      endDate: dateRange.endDate.toLocaleDateString('en-CA'),
-    }),
-    [dateRange],
-  );
 
-  const dateString = formatFullDate(dateRange.startDate);
-  const dateRangeString = formatDateRange(
-    dateRange.startDate,
-    dateRange.endDate,
-  );
+  const isLoading = isLoadingReferenceData || isLoadingHistory;
 
   useEffect(() => {
     async function findUserHistoryForSelectedDate() {
       try {
-        setIsLoading(true);
+        setIsLoadingHistory(true);
         const response =
           historyType === 'checkout'
             ? await getCheckoutHistory(
@@ -95,76 +86,12 @@ const HistoryPage: React.FC = () => {
       } catch (error) {
         showSnackbar('Error fetching history: ' + error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingHistory(false);
       }
     }
     findUserHistoryForSelectedDate();
   }, [formattedDateRange, historyType, user, categorizedItems, showSnackbar]);
 
-  useEffect(() => {
-    async function getUserList() {
-      try {
-        const response = await getUsers(user);
-        setUserList(response);
-      } catch (error) {
-        showSnackbar('Error fetching users: ' + error);
-      }
-    }
-    async function fetchBuildings() {
-      try {
-        const response = await getBuildings(user);
-        setBuildings(response);
-      } catch (error) {
-        showSnackbar('Error fetching buildings: ' + error);
-      }
-    }
-    async function getCategorizedItems() {
-      try {
-        const userRole = getRole(user);
-        const response = await fetchCategorizedItems(userRole);
-        setCategorizedItems(response);
-      } catch (error) {
-        showSnackbar('Error fetching item and category data: ' + error);
-      }
-    }
-    async function loadInitialData() {
-      try {
-        setIsLoading(true);
-        await Promise.all([
-          getUserList(),
-          fetchBuildings(),
-          getCategorizedItems(),
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadInitialData();
-  }, [user, showSnackbar]);
-
-  function handleDateSelection(dateInput: string) {
-    setDateInput(dateInput);
-    if (dateInput === 'today') {
-      setDateRange({
-        startDate: todaysDate,
-        endDate: todaysDate,
-      });
-    } else if (dateInput === 'yesterday') {
-      const yesterday = new Date();
-      yesterday.setDate(todaysDate.getDate() - 1);
-      setDateRange({
-        startDate: yesterday,
-        endDate: yesterday,
-      });
-    } else if (dateInput === 'this week') {
-      const lastWeekDate = new Date();
-      lastWeekDate.setDate(todaysDate.getDate() - 7);
-      setDateRange({
-        startDate: lastWeekDate,
-        endDate: todaysDate,
-      });
-    }
-  }
   const transactionsByUser = useMemo(
     () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),
     [userHistory, loggedInUserId],
@@ -181,15 +108,9 @@ const HistoryPage: React.FC = () => {
       </SnackbarAlert>
       <CustomDateDialog
         showDialog={showCustomDateDialog}
-        handleShowDialog={() => setShowCustomDateDialog(!showCustomDateDialog)}
-        handleSetDateRange={(newStartDate: Date, newEndDate: Date) =>
-          setDateRange({
-            startDate: newStartDate,
-            endDate: newEndDate,
-            isCustom: true,
-          })
-        }
-        handleSetDateInput={() => setDateInput('custom')}
+        handleShowDialog={toggleCustomDateDialog}
+        handleSetDateRange={handleSetCustomDateRange}
+        handleSetDateInput={() => {}}
       />
 
       <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -265,10 +186,11 @@ const HistoryPage: React.FC = () => {
             value={dateInput}
             label="Date"
             onChange={(e) => {
-              if (e.target.value === 'custom') {
-                setShowCustomDateDialog(true);
+              const value = e.target.value as DatePreset;
+              if (value === 'custom') {
+                toggleCustomDateDialog();
               } else {
-                handleDateSelection(e.target.value);
+                handleDateSelection(value);
               }
             }}
             sx={{ width: '10rem' }}
@@ -288,9 +210,7 @@ const HistoryPage: React.FC = () => {
           {dateRange.isCustom ? dateRangeString : dateInput}
         </Typography>
         {dateInput === 'custom' ? (
-          <Button onClick={() => setShowCustomDateDialog(true)}>
-            Change date range
-          </Button>
+          <Button onClick={toggleCustomDateDialog}>Change date range</Button>
         ) : (
           <Typography variant="body1">
             {dateInput !== 'this week' ? dateString : dateRangeString}

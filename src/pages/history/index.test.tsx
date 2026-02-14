@@ -196,7 +196,7 @@ describe('HistoryPage Component', () => {
     );
 
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
-    expect(checkoutButton).toHaveClass('MuiButton-active-primary');
+    expect(checkoutButton).toHaveClass('Mui-selected');
   });
 
   test('switches between checkout and inventory history types', async () => {
@@ -209,16 +209,26 @@ describe('HistoryPage Component', () => {
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
+    // Wait for initial data load to complete (including categorizedItems being used in API call)
+    await waitFor(() => {
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
+        mockUser,
+        expect.any(String),
+        expect.any(String),
+        mockCategorizedItems,
+      );
+    });
+
     // Initially, checkout is active
-    expect(checkoutButton).toHaveClass('MuiButton-active-primary');
-    expect(inventoryButton).toHaveClass('MuiButton-inactive-primary');
+    expect(checkoutButton).toHaveClass('Mui-selected');
+    expect(inventoryButton).not.toHaveClass('Mui-selected');
 
     // Click inventory button
     fireEvent.click(inventoryButton);
 
     await waitFor(() => {
-      expect(inventoryButton).toHaveClass('MuiButton-active-primary');
-      expect(checkoutButton).toHaveClass('MuiButton-inactive-primary');
+      expect(inventoryButton).toHaveClass('Mui-selected');
+      expect(checkoutButton).not.toHaveClass('Mui-selected');
     });
 
     // Verify API was called for inventory

@@ -34,10 +34,12 @@ import {
 import { processTransactionsByUser } from '../../components/History/transactionProcessors';
 import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 const HistoryPage: React.FC = () => {
   const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const [userList, setUserList] = useState<User[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userHistory, setUserHistory] = useState<
@@ -52,13 +54,6 @@ const HistoryPage: React.FC = () => {
   }>({ startDate: todaysDate, endDate: todaysDate });
   const [dateInput, setDateInput] = useState('today');
   const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
-
-  const [error, setError] = useState<string | null>(null);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning' | 'error';
-  }>({ open: false, message: '', severity: 'warning' });
 
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
@@ -98,13 +93,13 @@ const HistoryPage: React.FC = () => {
               );
         setUserHistory(response);
       } catch (error) {
-        setError('Error fetching history: ' + error);
+        showSnackbar('Error fetching history: ' + error);
       } finally {
         setIsLoading(false);
       }
     }
     findUserHistoryForSelectedDate();
-  }, [formattedDateRange, historyType, user, categorizedItems]);
+  }, [formattedDateRange, historyType, user, categorizedItems, showSnackbar]);
 
   useEffect(() => {
     async function getUserList() {
@@ -112,7 +107,7 @@ const HistoryPage: React.FC = () => {
         const response = await getUsers(user);
         setUserList(response);
       } catch (error) {
-        setError('Error fetching users: ' + error);
+        showSnackbar('Error fetching users: ' + error);
       }
     }
     async function fetchBuildings() {
@@ -120,7 +115,7 @@ const HistoryPage: React.FC = () => {
         const response = await getBuildings(user);
         setBuildings(response);
       } catch (error) {
-        setError('Error fetching buildings: ' + error);
+        showSnackbar('Error fetching buildings: ' + error);
       }
     }
     async function getCategorizedItems() {
@@ -129,7 +124,7 @@ const HistoryPage: React.FC = () => {
         const response = await fetchCategorizedItems(userRole);
         setCategorizedItems(response);
       } catch (error) {
-        setError('Error fetching item and category data: ' + error);
+        showSnackbar('Error fetching item and category data: ' + error);
       }
     }
     async function loadInitialData() {
@@ -145,21 +140,7 @@ const HistoryPage: React.FC = () => {
       }
     }
     loadInitialData();
-  }, [user]);
-
-  useEffect(() => {
-    if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'error' });
-    }
-  }, [error]);
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
+  }, [user, showSnackbar]);
 
   function handleDateSelection(dateInput: string) {
     setDateInput(dateInput);
@@ -193,7 +174,7 @@ const HistoryPage: React.FC = () => {
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
       <SnackbarAlert
         open={snackbarState.open}
-        onClose={handleSnackbarClose}
+        onClose={handleClose}
         severity={snackbarState.severity}
       >
         {snackbarState.message}

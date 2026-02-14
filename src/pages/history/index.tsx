@@ -185,7 +185,7 @@ const HistoryPage: React.FC = () => {
     }
   }
   const transactionsByUser = useMemo(
-    () => processTransactionsByUser(userHistory, loggedInUserId),
+    () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),
     [userHistory, loggedInUserId],
   );
 

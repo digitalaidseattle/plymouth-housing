@@ -4,7 +4,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { ToggleButton, ToggleButtonGroup, Stack } from '@mui/material';
+import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 
 type CustomDateDialogProps = {
   showDialog: boolean;
@@ -64,8 +64,10 @@ const CustomDateDialog = ({
           label="Start date"
           value={startDate}
           onChange={(newValue) => {
-            setStartDate(newValue);
-            setActivePreset('none');
+            if (newValue) {
+              setStartDate(newValue);
+              setActivePreset('none');
+            }
           }}
         />
         <DatePicker
@@ -73,10 +75,12 @@ const CustomDateDialog = ({
           value={endDate}
           minDate={startDate}
           onChange={(newValue) => {
-            setEndDate(newValue);
-            setActivePreset('none');
+            if (newValue) {
+              setEndDate(newValue);
+              setActivePreset('none');
+            }
           }}
-          onError={(newError) => setError(newError)}
+          onError={(newError) => setError(newError ?? '')}
           slotProps={{
             textField: {
               helperText: errorMessage,

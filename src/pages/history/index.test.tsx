@@ -27,7 +27,6 @@ vi.mock('../../components/History/CustomDateDialog', () => ({
     showDialog,
     handleShowDialog,
     handleSetDateRange,
-    handleSetDateInput,
   }: any) =>
     showDialog && (
       <div data-testid="custom-date-dialog">
@@ -88,30 +87,40 @@ const mockCategorizedItems = [
 
 const mockCheckoutTransactions = [
   {
-    id: '1',
+    transaction_id: '1',
     user_id: 1,
-    user_name: 'John Doe',
-    timestamp: new Date().toISOString(),
-    transaction_type: TransactionType.Checkout,
     building_id: 1,
     unit_number: '101',
+    resident_id: 1,
     resident_name: 'Resident A',
-    item_id: 1,
-    quantity: 2,
+    transaction_date: new Date().toISOString(),
+    item_type: 'general' as const,
+    items: [
+      {
+        item_id: 1,
+        item_name: 'Test Item',
+        quantity: 2,
+        category_name: 'Food',
+      },
+    ],
   },
 ];
 
 const mockInventoryTransactions = [
   {
-    id: '2',
+    transaction_id: '2',
     user_id: 1,
-    user_name: 'John Doe',
-    timestamp: new Date().toISOString(),
-    transaction_type: TransactionType.InventoryAdd,
-    item_id: 1,
-    quantity: 10,
-    item_name: 'Bread',
-    category_name: 'Food',
+    transaction_date: new Date().toISOString(),
+    transaction_type: TransactionType.InventoryAdd as TransactionType.InventoryAdd,
+    item_type: 'general' as const,
+    items: [
+      {
+        item_id: 1,
+        item_name: 'Bread',
+        quantity: 10,
+        category_name: 'Food',
+      },
+    ],
   },
 ];
 
@@ -405,16 +414,22 @@ describe('HistoryPage Component', () => {
     const multiUserTransactions = [
       ...mockCheckoutTransactions,
       {
-        id: '2',
+        transaction_id: '2',
         user_id: 2,
-        user_name: 'Jane Smith',
-        timestamp: new Date().toISOString(),
-        transaction_type: TransactionType.Checkout,
         building_id: 1,
         unit_number: '102',
+        resident_id: 2,
         resident_name: 'Resident B',
-        item_id: 1,
-        quantity: 1,
+        transaction_date: new Date().toISOString(),
+        item_type: 'general' as const,
+        items: [
+          {
+            item_id: 1,
+            item_name: 'Test Item',
+            quantity: 1,
+            category_name: 'Food',
+          },
+        ],
       },
     ];
 
@@ -436,16 +451,22 @@ describe('HistoryPage Component', () => {
   test('displays "You" for current user transactions', async () => {
     const currentUserTransactions = [
       {
-        id: '1',
+        transaction_id: '1',
         user_id: 1,
-        user_name: 'Current User',
-        timestamp: new Date().toISOString(),
-        transaction_type: TransactionType.Checkout,
         building_id: 1,
         unit_number: '101',
+        resident_id: 1,
         resident_name: 'Resident A',
-        item_id: 1,
-        quantity: 2,
+        transaction_date: new Date().toISOString(),
+        item_type: 'general' as const,
+        items: [
+          {
+            item_id: 1,
+            item_name: 'Test Item',
+            quantity: 2,
+            category_name: 'Food',
+          },
+        ],
       },
     ];
 

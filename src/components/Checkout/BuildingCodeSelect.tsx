@@ -36,6 +36,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         id="select-building"
         data-testid="test-id-select-building"
         options={buildings}
+        filterOptions={filterOptions}
         value={selectedBuilding}
         disabled={disabled}
         isOptionEqualToValue={(option, value) => option.id === value.id}

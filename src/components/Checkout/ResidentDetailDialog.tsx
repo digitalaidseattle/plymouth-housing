@@ -40,7 +40,9 @@ const ResidentDetailDialog = ({
   const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
   const [showError, setShowError] = useState<boolean>(false);
 
-  const filter = createFilterOptions<ResidentNameOption>();
+  const residentNameFilter = createFilterOptions<ResidentNameOption>({
+    matchFrom: 'start',
+  });
 
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
   const residentsHook = useResidents(user, selectedUnit);
@@ -213,7 +215,7 @@ const ResidentDetailDialog = ({
               }
             }}
             filterOptions={(options, params) => {
-              const filtered = filter(options, params);
+              const filtered = residentNameFilter(options, params);
               return filtered;
             }}
             selectOnFocus

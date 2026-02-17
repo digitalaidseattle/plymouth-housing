@@ -273,7 +273,6 @@ const ResidentDetailDialog = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                id={selectedUnit.unit_number}
                 label="Unit Number"
                 error={formError.unitError.length > 0}
                 helperText={formError.unitError}

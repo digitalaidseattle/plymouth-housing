@@ -301,6 +301,11 @@ const ResidentDetailDialog = ({
               }
               setFormError({ ...formError, nameError: '' });
             }}
+            onInputChange={(_event, newValue) => {
+              setNameInput(newValue);
+              if (newValue.trim().length > 0)
+                setFormError((prev) => ({ ...prev, nameError: '' }));
+            }}
             filterOptions={(options, params) => {
               const filtered = filter(options, params);
               return filtered;

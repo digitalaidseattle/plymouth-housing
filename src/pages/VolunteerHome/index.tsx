@@ -117,19 +117,11 @@ const VolunteerHome: React.FC = () => {
   }
 
   return (
-    <Box sx={{ paddingX: 20, paddingY: 5, height: '75vh' }}>
+    <Box sx={{ paddingX: 20, paddingY: 2, height: '75vh' }}>
       {/* Header */}
-      <Box sx={{ paddingBottom: 5 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          {new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </Typography>
-        <Typography variant="h4" sx={{ mb: 4 }}>
-          Thanks for being here! <br />
-          Let's make a difference.
+      <Box sx={{ paddingBottom: 2 }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
+          Thanks for being here! Let's make a difference.
         </Typography>
       </Box>
 

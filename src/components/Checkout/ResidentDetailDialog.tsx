@@ -152,7 +152,7 @@ const ResidentDetailDialog = ({
     setApiError('');
     // validate inputs, show error
     const activeErrors = defaultErrorState;
-    if (!nameInput) {
+    if (nameInput.trim().length === 0) {
       activeErrors.nameError = 'Please enter the name of the resident';
     }
     if (!selectedBuilding.id) {
@@ -286,10 +286,6 @@ const ResidentDetailDialog = ({
           <Autocomplete
             value={nameInput}
             disabled={isWaiting}
-            onBlur={(_event) => {
-              if (_event.target.value.trim().length > 0)
-                setFormError({ ...formError, nameError: '' });
-            }}
             onChange={(_event, newValue) => {
               if (typeof newValue === 'string') {
                 setNameInput(newValue);

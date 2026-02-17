@@ -151,21 +151,24 @@ const ResidentDetailDialog = ({
     e.preventDefault();
     setApiError('');
     // validate inputs, show error
-    const errorObject = {};
+    const activeErrors = defaultErrorState;
     if (!nameInput) {
-      errorObject.nameError = 'Please enter the name of the resident';
+      activeErrors.nameError = 'Please enter the name of the resident';
     }
     if (!selectedBuilding.id) {
-      errorObject.buildingError = 'Please select the building code';
+      activeErrors.buildingError = 'Please select the building code';
     }
     if (!selectedUnit.id) {
-      errorObject.unitError = 'Please select a unit from the list';
+      activeErrors.unitError = 'Please select a unit from the list';
     }
-    if (Object.keys(errorObject).length > 0) {
-      setFormError({ ...formError, ...errorObject });
+    setFormError(activeErrors);
+    if (
+      activeErrors.nameError ||
+      activeErrors.buildingError ||
+      activeErrors.unitError
+    ) {
       return;
     }
-    setFormError(defaultErrorState);
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {

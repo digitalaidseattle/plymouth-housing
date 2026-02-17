@@ -308,16 +308,10 @@ const ResidentDetailDialog = ({
             }}
             filterOptions={(options, params) => {
               const filtered = filter(options, params);
-              const { inputValue } = params;
-              // Suggest the creation of a new value
-              const isExisting = options.some(
-                (option) => inputValue === option.name,
-              );
-              if (inputValue !== '' && !isExisting) {
-                setNameInput(inputValue);
-              }
               return filtered;
             }}
+            freeSolo
+            autoSelect
             selectOnFocus
             clearOnBlur
             handleHomeEndKeys
@@ -343,7 +337,6 @@ const ResidentDetailDialog = ({
                 </li>
               );
             }}
-            freeSolo
             renderInput={(params) => (
               <TextField
                 {...params}

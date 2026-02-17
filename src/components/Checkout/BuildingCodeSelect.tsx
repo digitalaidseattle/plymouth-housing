@@ -14,6 +14,7 @@ interface BuildingCodeSelectProps {
   setSelectedUnit: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
   error: boolean;
+  disabled?: boolean;
 }
 
 const filterOptions = createFilterOptions<Building>({
@@ -27,6 +28,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   setSelectedUnit,
   fetchUnitNumbers,
   error,
+  disabled = false,
 }) => {
   return (
     <FormControl>
@@ -34,8 +36,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         id="select-building"
         data-testid="test-id-select-building"
         options={buildings}
-        filterOptions={filterOptions}
         value={selectedBuilding}
+        disabled={disabled}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         onChange={(event: React.SyntheticEvent, newValue: Building | null) => {
           event.preventDefault();

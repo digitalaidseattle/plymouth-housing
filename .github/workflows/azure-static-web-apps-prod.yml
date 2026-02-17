@@ -88,6 +88,7 @@ jobs:
           ###### End of Repository/Build Configurations ######
         env:
           VITE_CLARITY_PROJECT_ID: ${{ secrets.VITE_CLARITY_PROJECT_ID }}
+          VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
 
       - name: Post URL
         run: |

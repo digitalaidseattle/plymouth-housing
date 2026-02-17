@@ -161,12 +161,12 @@ const ResidentDetailDialog = ({
     if (!selectedUnit.id) {
       activeErrors.unitError = 'Please select a unit from the list';
     }
-    setFormError(activeErrors);
     if (
       activeErrors.nameError ||
       activeErrors.buildingError ||
       activeErrors.unitError
     ) {
+      setFormError(activeErrors);
       return;
     }
     setIsSubmitting(true);
@@ -204,9 +204,9 @@ const ResidentDetailDialog = ({
       } else {
         setApiError('An error occurred while submitting. Please try again.');
       }
-      setIsSubmitting(false);
     } finally {
       document.body.style.cursor = 'default';
+      setIsSubmitting(false);
     }
   }
 

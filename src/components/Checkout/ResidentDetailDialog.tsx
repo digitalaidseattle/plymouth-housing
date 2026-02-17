@@ -1,7 +1,12 @@
 import React, { FormEvent, useState, useContext } from 'react';
 import { Box, FormControl, TextField, Typography } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
-import { Building, ResidentInfo, Unit, ResidentNameOption } from '../../types/interfaces';
+import {
+  Building,
+  ResidentInfo,
+  Unit,
+  ResidentNameOption,
+} from '../../types/interfaces';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -66,7 +71,10 @@ const ResidentDetailDialog = ({
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return false;
     const now = new Date();
-    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
   }
 
   const fetchUnitNumbers = async (buildingId: number) => {
@@ -150,8 +158,10 @@ const ResidentDetailDialog = ({
             renderInput={(params) => {
               const getHelperText = () => {
                 if (!showError) return '';
-                if (selectedUnit.id === 0 && selectedUnit.unit_number) return 'Not a valid unit';
-                if (selectedUnit.id === 0) return 'Please select a unit from the list';
+                if (selectedUnit.id === 0 && selectedUnit.unit_number)
+                  return 'Not a valid unit';
+                if (selectedUnit.id === 0)
+                  return 'Please select a unit from the list';
                 return '';
               };
 
@@ -255,7 +265,8 @@ const ResidentDetailDialog = ({
             }
             sx={{ alignSelf: 'flex-start' }}
           >
-            last visit: {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
+            last visit:{' '}
+            {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
           </Typography>
         )}
         {apiError && <Typography color="error">{apiError}</Typography>}

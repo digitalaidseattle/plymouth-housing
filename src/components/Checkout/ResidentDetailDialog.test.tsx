@@ -19,7 +19,7 @@ describe('ResidentDetailDialog', () => {
     id: 1,
     userDetails: 'Test User',
     userRoles: ['volunteer'],
-    userID: 'testuser'
+    userID: 'testuser',
   };
 
   const mockUserContext = {
@@ -44,10 +44,7 @@ describe('ResidentDetailDialog', () => {
   ];
 
   const mockResidents = {
-    value: [
-      { name: 'John Doe' },
-      { name: 'Jane Smith' },
-    ],
+    value: [{ name: 'John Doe' }, { name: 'Jane Smith' }],
   };
 
   const defaultProps = {
@@ -75,14 +72,16 @@ describe('ResidentDetailDialog', () => {
     return render(
       <UserContext.Provider value={mockUserContext}>
         <ResidentDetailDialog {...defaultProps} {...props} />
-      </UserContext.Provider>
+      </UserContext.Provider>,
     );
   };
 
   describe('Rendering', () => {
     test('renders dialog when showDialog is true', () => {
       renderComponent();
-      expect(screen.getByText('provide details to continue')).toBeInTheDocument();
+      expect(
+        screen.getByText('provide details to continue'),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
       expect(screen.getByLabelText('Unit Number')).toBeInTheDocument();
       expect(screen.getByLabelText('Resident Name')).toBeInTheDocument();
@@ -90,12 +89,16 @@ describe('ResidentDetailDialog', () => {
 
     test('does not render dialog when showDialog is false', () => {
       renderComponent({ showDialog: false });
-      expect(screen.queryByText('provide details to continue')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('provide details to continue'),
+      ).not.toBeInTheDocument();
     });
 
     test('renders continue button', () => {
       renderComponent();
-      expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /continue/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -112,14 +115,19 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(buildingOption);
 
       await waitFor(() => {
-        expect(CheckoutAPICalls.getUnitNumbers).toHaveBeenCalledWith(mockUser, 1);
+        expect(CheckoutAPICalls.getUnitNumbers).toHaveBeenCalledWith(
+          mockUser,
+          1,
+        );
       });
     });
 
     test('shows wait cursor while fetching units', async () => {
       (CheckoutAPICalls.getUnitNumbers as Mock).mockImplementation(() => {
         expect(document.body.style.cursor).toBe('wait');
-        return new Promise(resolve => setTimeout(() => resolve(mockUnits), 100));
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(mockUnits), 100),
+        );
       });
 
       renderComponent();
@@ -148,13 +156,17 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(buildingOption);
 
       await waitFor(() => {
-        expect(screen.getByText(/Unable to load unit numbers/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Unable to load unit numbers/i),
+        ).toBeInTheDocument();
       });
     });
 
     test('disables all fields while fetching units', async () => {
       (CheckoutAPICalls.getUnitNumbers as Mock).mockImplementation(() => {
-        return new Promise(resolve => setTimeout(() => resolve(mockUnits), 100));
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(mockUnits), 100),
+        );
       });
 
       renderComponent();
@@ -212,14 +224,18 @@ describe('ResidentDetailDialog', () => {
       fireEvent.change(unitInput, { target: { value: '101' } });
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Resident Name')).toHaveValue('Jane Smith');
+        expect(screen.getByLabelText('Resident Name')).toHaveValue(
+          'Jane Smith',
+        );
       });
     });
 
     test('shows wait cursor while fetching residents', async () => {
       (CheckoutAPICalls.getResidents as Mock).mockImplementation(() => {
         expect(document.body.style.cursor).toBe('wait');
-        return new Promise(resolve => setTimeout(() => resolve(mockResidents), 100));
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(mockResidents), 100),
+        );
       });
 
       const propsWithUnits = {
@@ -252,13 +268,17 @@ describe('ResidentDetailDialog', () => {
       fireEvent.change(unitInput, { target: { value: '101' } });
 
       await waitFor(() => {
-        expect(screen.getByText(/Unable to load resident data/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Unable to load resident data/i),
+        ).toBeInTheDocument();
       });
     });
 
     test('disables all fields while fetching residents', async () => {
       (CheckoutAPICalls.getResidents as Mock).mockImplementation(() => {
-        return new Promise(resolve => setTimeout(() => resolve(mockResidents), 100));
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(mockResidents), 100),
+        );
       });
 
       const propsWithUnits = {
@@ -299,7 +319,9 @@ describe('ResidentDetailDialog', () => {
       fireEvent.change(unitInput, { target: { value: '101' } });
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Resident Name')).toHaveValue('Jane Smith');
+        expect(screen.getByLabelText('Resident Name')).toHaveValue(
+          'Jane Smith',
+        );
       });
 
       // Then clear the unit
@@ -319,9 +341,15 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Please select a building/i)).toBeInTheDocument();
-        expect(screen.getByText(/Please select a unit from the list/i)).toBeInTheDocument();
-        expect(screen.getByText(/Please enter the resident's name/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Please select a building from the list/i),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(/Please select a unit from the list/i),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(/Please enter the name of the resident/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -346,7 +374,7 @@ describe('ResidentDetailDialog', () => {
         value: [{ id: 1, name: 'John Doe' }],
       });
       (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
-        value: [{ transaction_date: '2025-01-15T10:30:00' }]
+        value: [{ transaction_date: '2025-01-15T10:30:00' }],
       });
       (CheckoutAPICalls.findResident as Mock).mockResolvedValue({
         value: [{ id: 5, name: 'John Doe' }],
@@ -395,7 +423,7 @@ describe('ResidentDetailDialog', () => {
         expect(CheckoutAPICalls.findResident).toHaveBeenCalledWith(
           mockUser,
           'John Doe',
-          1
+          1,
         );
       });
 
@@ -404,8 +432,8 @@ describe('ResidentDetailDialog', () => {
           expect.objectContaining({
             id: 5,
             name: 'John Doe',
-            lastVisitDate: '2025-01-15T10:30:00'
-          })
+            lastVisitDate: '2025-01-15T10:30:00',
+          }),
         );
         expect(handleShowDialog).toHaveBeenCalled();
       });
@@ -461,7 +489,7 @@ describe('ResidentDetailDialog', () => {
         expect(CheckoutAPICalls.findResident).toHaveBeenCalledWith(
           mockUser,
           'New Resident',
-          1
+          1,
         );
       });
 
@@ -469,7 +497,7 @@ describe('ResidentDetailDialog', () => {
         expect(CheckoutAPICalls.addResident).toHaveBeenCalledWith(
           mockUser,
           'New Resident',
-          1
+          1,
         );
       });
 
@@ -478,7 +506,7 @@ describe('ResidentDetailDialog', () => {
           expect.objectContaining({
             id: 10,
             name: 'New Resident',
-          })
+          }),
         );
         expect(handleShowDialog).toHaveBeenCalled();
       });
@@ -491,8 +519,8 @@ describe('ResidentDetailDialog', () => {
       });
       (CheckoutAPICalls.findResident as Mock).mockImplementation(() => {
         expect(document.body.style.cursor).toBe('wait');
-        return new Promise(resolve =>
-          setTimeout(() => resolve({ value: [{ id: 5 }] }), 100)
+        return new Promise((resolve) =>
+          setTimeout(() => resolve({ value: [{ id: 5 }] }), 100),
         );
       });
 
@@ -572,7 +600,9 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Your system appears to be offline/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Your system appears to be offline/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -581,7 +611,9 @@ describe('ResidentDetailDialog', () => {
       (CheckoutAPICalls.getResidents as Mock).mockResolvedValue({
         value: [{ name: 'John Doe' }],
       });
-      (CheckoutAPICalls.findResident as Mock).mockRejectedValue(new Error('Server error'));
+      (CheckoutAPICalls.findResident as Mock).mockRejectedValue(
+        new Error('Server error'),
+      );
 
       renderComponent({
         ...defaultProps,
@@ -615,7 +647,9 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/An error occurred while submitting/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/An error occurred while submitting/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -625,8 +659,8 @@ describe('ResidentDetailDialog', () => {
         value: [{ name: 'John Doe' }],
       });
       (CheckoutAPICalls.findResident as Mock).mockImplementation(() => {
-        return new Promise(resolve =>
-          setTimeout(() => resolve({ value: [{ id: 5 }] }), 200)
+        return new Promise((resolve) =>
+          setTimeout(() => resolve({ value: [{ id: 5 }] }), 200),
         );
       });
 
@@ -646,10 +680,11 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select unit
-      const unitInput = screen.getByTestId('test-id-select-unit-number').querySelector('input');
-      if (unitInput) {
-        fireEvent.change(unitInput, { target: { value: '101' } });
-      }
+      const unitInput = screen
+        .getByTestId('test-id-select-unit-number')
+        .querySelector('input');
+      expect(unitInput).not.toBeNull();
+      fireEvent.change(unitInput!, { target: { value: '101' } });
 
       await waitFor(() => {
         expect(CheckoutAPICalls.getResidents).toHaveBeenCalled();
@@ -667,8 +702,12 @@ describe('ResidentDetailDialog', () => {
       // Fields should be disabled during submission
       // Use querySelector to avoid ambiguity with autocomplete dropdowns
       await waitFor(() => {
-        const buildingInputElement = screen.getByTestId('test-id-select-building').querySelector('input');
-        const unitInputElement = screen.getByTestId('test-id-select-unit-number').querySelector('input');
+        const buildingInputElement = screen
+          .getByTestId('test-id-select-building')
+          .querySelector('input');
+        const unitInputElement = screen
+          .getByTestId('test-id-select-unit-number')
+          .querySelector('input');
         const residentInputElement = screen.getByLabelText('Resident Name');
 
         expect(buildingInputElement).toBeDisabled();
@@ -680,7 +719,9 @@ describe('ResidentDetailDialog', () => {
 
     test('clears API error when starting new submission', async () => {
       // First, cause an error by selecting a building
-      (CheckoutAPICalls.getUnitNumbers as Mock).mockRejectedValue(new TypeError('Failed to fetch'));
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockRejectedValue(
+        new TypeError('Failed to fetch'),
+      );
 
       renderComponent();
 
@@ -691,12 +732,16 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(buildingOption);
 
       await waitFor(() => {
-        expect(screen.getByText(/Unable to load unit numbers/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Unable to load unit numbers/i),
+        ).toBeInTheDocument();
       });
 
       // Now set up the form with complete data and mock successful API calls
       (CheckoutAPICalls.getResidents as Mock).mockResolvedValue({ value: [] });
-      (CheckoutAPICalls.findResident as Mock).mockResolvedValue({ value: [{ id: 5 }] });
+      (CheckoutAPICalls.findResident as Mock).mockResolvedValue({
+        value: [{ id: 5 }],
+      });
 
       // Manually fill in the rest of the form
       const unitInput = screen.getByLabelText('Unit Number');
@@ -712,13 +757,15 @@ describe('ResidentDetailDialog', () => {
       // The old error should disappear once we start the submission
       // (even though submission will fail due to validation)
       await waitFor(() => {
-        expect(screen.queryByText(/Unable to load unit numbers/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/Unable to load unit numbers/i),
+        ).not.toBeInTheDocument();
       });
     });
   });
 
   describe('Unit Helper Text', () => {
-    test('shows "Not a valid unit" when invalid unit is entered', async () => {
+    test('shows "Please select a unit from the list" when invalid unit is entered', async () => {
       const propsWithUnits = {
         ...defaultProps,
         unitNumberValues: mockUnits,
@@ -744,13 +791,17 @@ describe('ResidentDetailDialog', () => {
       const mockResidentsWithIds = {
         value: [
           { id: 1, name: 'John Doe' },
-          { id: 2, name: 'Jane Smith' }
-        ]
+          { id: 2, name: 'Jane Smith' },
+        ],
       };
 
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
       (CheckoutAPICalls.getLastResidentVisit as Mock)
-        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-01-15T10:30:00' }] })
+        .mockResolvedValueOnce({
+          value: [{ transaction_date: '2025-01-15T10:30:00' }],
+        })
         .mockResolvedValueOnce({ value: [] });
 
       const propsWithUnits = {
@@ -764,8 +815,14 @@ describe('ResidentDetailDialog', () => {
       fireEvent.change(unitInput, { target: { value: '101' } });
 
       await waitFor(() => {
-        expect(CheckoutAPICalls.getLastResidentVisit).toHaveBeenCalledWith(mockUser, 1);
-        expect(CheckoutAPICalls.getLastResidentVisit).toHaveBeenCalledWith(mockUser, 2);
+        expect(CheckoutAPICalls.getLastResidentVisit).toHaveBeenCalledWith(
+          mockUser,
+          1,
+        );
+        expect(CheckoutAPICalls.getLastResidentVisit).toHaveBeenCalledWith(
+          mockUser,
+          2,
+        );
       });
     });
 
@@ -773,13 +830,17 @@ describe('ResidentDetailDialog', () => {
       const mockResidentsWithIds = {
         value: [
           { id: 1, name: 'John Doe' },
-          { id: 2, name: 'Jane Smith' }
-        ]
+          { id: 2, name: 'Jane Smith' },
+        ],
       };
 
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
       (CheckoutAPICalls.getLastResidentVisit as Mock)
-        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-01-15T10:30:00' }] })
+        .mockResolvedValueOnce({
+          value: [{ transaction_date: '2025-01-15T10:30:00' }],
+        })
         .mockResolvedValueOnce({ value: [] });
 
       const propsWithUnits = {
@@ -801,19 +862,25 @@ describe('ResidentDetailDialog', () => {
       fireEvent.mouseDown(nameInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/John Doe - Last visit: 1\/15\/2025/i)).toBeInTheDocument();
-        expect(screen.getByText(/Jane Smith - Last visit: No previous visits/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/John Doe - Last visit: 1\/15\/2025/i),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(/Jane Smith - Last visit: No previous visits/i),
+        ).toBeInTheDocument();
       });
     });
 
     test('displays last visit date below resident name field when resident selected', async () => {
       const mockResidentsWithIds = {
-        value: [{ id: 1, name: 'John Doe' }]
+        value: [{ id: 1, name: 'John Doe' }],
       };
 
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
       (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
-        value: [{ transaction_date: '2025-01-15T10:30:00' }]
+        value: [{ transaction_date: '2025-01-15T10:30:00' }],
       });
 
       const propsWithUnits = {
@@ -827,17 +894,23 @@ describe('ResidentDetailDialog', () => {
       fireEvent.change(unitInput, { target: { value: '101' } });
 
       await waitFor(() => {
-        expect(screen.getByText(/last visit: 1\/15\/2025/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/last visit: 1\/15\/2025/i),
+        ).toBeInTheDocument();
       });
     });
 
     test('displays "none" when resident has no previous visits', async () => {
       const mockResidentsWithIds = {
-        value: [{ id: 1, name: 'John Doe' }]
+        value: [{ id: 1, name: 'John Doe' }],
       };
 
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
-      (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({ value: [] });
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
+        value: [],
+      });
 
       const propsWithUnits = {
         ...defaultProps,
@@ -858,14 +931,20 @@ describe('ResidentDetailDialog', () => {
       const mockResidentsWithIds = {
         value: [
           { id: 1, name: 'John Doe' },
-          { id: 2, name: 'Jane Smith' }
-        ]
+          { id: 2, name: 'Jane Smith' },
+        ],
       };
 
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
       (CheckoutAPICalls.getLastResidentVisit as Mock)
-        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-01-15T10:30:00' }] })
-        .mockResolvedValueOnce({ value: [{ transaction_date: '2025-02-01T14:20:00' }] });
+        .mockResolvedValueOnce({
+          value: [{ transaction_date: '2025-01-15T10:30:00' }],
+        })
+        .mockResolvedValueOnce({
+          value: [{ transaction_date: '2025-02-01T14:20:00' }],
+        });
 
       const propsWithUnits = {
         ...defaultProps,
@@ -895,18 +974,22 @@ describe('ResidentDetailDialog', () => {
 
       // Should now show John's date
       await waitFor(() => {
-        expect(screen.getByText(/last visit: 1\/15\/2025/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/last visit: 1\/15\/2025/i),
+        ).toBeInTheDocument();
       });
     });
 
     test('clears last visit date when new resident name is entered via autocomplete', async () => {
       const mockResidentsWithIds = {
-        value: [{ id: 1, name: 'John Doe' }]
+        value: [{ id: 1, name: 'John Doe' }],
       };
 
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
       (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
-        value: [{ transaction_date: '2025-01-15T10:30:00' }]
+        value: [{ transaction_date: '2025-01-15T10:30:00' }],
       });
 
       const propsWithUnits = {
@@ -920,29 +1003,39 @@ describe('ResidentDetailDialog', () => {
       fireEvent.change(unitInput, { target: { value: '101' } });
 
       await waitFor(() => {
-        expect(screen.getByText(/last visit: 1\/15\/2025/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/last visit: 1\/15\/2025/i),
+        ).toBeInTheDocument();
       });
 
       // Clear the autocomplete by clicking the clear button
       const nameInput = screen.getByLabelText('Resident Name');
       const autocomplete = nameInput.closest('.MuiAutocomplete-root');
-      const clearButton = autocomplete?.querySelector('.MuiAutocomplete-clearIndicator');
+      const clearButton = autocomplete?.querySelector(
+        '.MuiAutocomplete-clearIndicator',
+      );
 
       expect(clearButton).toBeTruthy();
       fireEvent.click(clearButton!);
 
       await waitFor(() => {
-        expect(screen.queryByText(/last visit: 1\/15\/2025/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/last visit: 1\/15\/2025/i),
+        ).not.toBeInTheDocument();
       });
     });
 
     test('continues gracefully when last visit fetch fails', async () => {
       const mockResidentsWithIds = {
-        value: [{ id: 1, name: 'John Doe' }]
+        value: [{ id: 1, name: 'John Doe' }],
       };
 
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
-      (CheckoutAPICalls.getLastResidentVisit as Mock).mockRejectedValue(new Error('Network error'));
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
+      (CheckoutAPICalls.getLastResidentVisit as Mock).mockRejectedValue(
+        new Error('Network error'),
+      );
 
       const propsWithUnits = {
         ...defaultProps,
@@ -962,13 +1055,15 @@ describe('ResidentDetailDialog', () => {
 
     test('passes lastVisitDate to parent when submitting with existing resident', async () => {
       const mockResidentsWithIds = {
-        value: [{ id: 1, name: 'John Doe' }]
+        value: [{ id: 1, name: 'John Doe' }],
       };
 
       (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
-      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidentsWithIds);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(
+        mockResidentsWithIds,
+      );
       (CheckoutAPICalls.getLastResidentVisit as Mock).mockResolvedValue({
-        value: [{ transaction_date: '2025-01-15T10:30:00' }]
+        value: [{ transaction_date: '2025-01-15T10:30:00' }],
       });
       (CheckoutAPICalls.findResident as Mock).mockResolvedValue({
         value: [{ id: 5, name: 'John Doe' }],
@@ -1015,8 +1110,8 @@ describe('ResidentDetailDialog', () => {
           expect.objectContaining({
             id: 5,
             name: 'John Doe',
-            lastVisitDate: '2025-01-15T10:30:00'
-          })
+            lastVisitDate: '2025-01-15T10:30:00',
+          }),
         );
         expect(handleShowDialog).toHaveBeenCalled();
       });
@@ -1071,8 +1166,8 @@ describe('ResidentDetailDialog', () => {
           expect.objectContaining({
             id: 10,
             name: 'New Resident',
-            lastVisitDate: null
-          })
+            lastVisitDate: null,
+          }),
         );
         expect(handleShowDialog).toHaveBeenCalled();
       });

@@ -8,7 +8,7 @@ interface BuildingCodeSelectProps {
   setSelectedBuilding: (building: Building) => void;
   setSelectedUnit: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
-  error: boolean;
+  error: string;
   resetError: () => void;
   disabled?: boolean;
 }
@@ -49,8 +49,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           <TextField
             {...params}
             label="Building Code"
-            error={error}
-            helperText={error ? 'Please select a building' : ''}
+            error={error.length > 0}
+            helperText={error.length > 0 ? error : ''}
           />
         )}
       />

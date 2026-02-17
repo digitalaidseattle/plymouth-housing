@@ -156,7 +156,7 @@ const ResidentDetailDialog = ({
       activeErrors.nameError = 'Please enter the name of the resident';
     }
     if (!selectedBuilding.id) {
-      activeErrors.buildingError = 'Please select the building code';
+      activeErrors.buildingError = 'Please select a building from the list';
     }
     if (!selectedUnit.id) {
       activeErrors.unitError = 'Please select a unit from the list';
@@ -234,7 +234,7 @@ const ResidentDetailDialog = ({
             setSelectedBuilding={setSelectedBuilding}
             setSelectedUnit={setSelectedUnit}
             fetchUnitNumbers={fetchUnitNumbers}
-            error={formError.buildingError.length > 0}
+            error={formError.buildingError}
             disabled={isWaiting}
             resetError={() => {
               setFormError({ ...formError, buildingError: '' });

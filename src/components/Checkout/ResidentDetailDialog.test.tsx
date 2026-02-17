@@ -341,7 +341,7 @@ describe('ResidentDetailDialog', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/Please select the building code/i),
+          screen.getByText(/Please select a building from the list/i),
         ).toBeInTheDocument();
         expect(
           screen.getByText(/Please select a unit from the list/i),

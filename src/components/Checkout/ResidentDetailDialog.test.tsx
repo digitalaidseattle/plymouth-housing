@@ -678,9 +678,8 @@ describe('ResidentDetailDialog', () => {
       const unitInput = screen
         .getByTestId('test-id-select-unit-number')
         .querySelector('input');
-      if (unitInput) {
-        fireEvent.change(unitInput, { target: { value: '101' } });
-      }
+      expect(unitInput).not.toBeNull();
+      fireEvent.change(unitInput!, { target: { value: '101' } });
 
       await waitFor(() => {
         expect(CheckoutAPICalls.getResidents).toHaveBeenCalled();

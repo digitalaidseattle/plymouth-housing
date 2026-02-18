@@ -3,11 +3,11 @@ import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { RootRedirect } from './RootRedirect';
-import { UserContext } from './contexts/UserContext';
+import { UserContext } from '../components/contexts/UserContext';
 import { UserContextType } from '../types/interfaces';
 
 // Mock the Page404 component
-vi.mock('../pages/error/404', () => ({
+vi.mock('./error/404', () => ({
   default: () => <div>404 Page</div>,
 }));
 

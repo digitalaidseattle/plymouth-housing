@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { UserContext, getRole } from './contexts/UserContext';
+import { UserContext } from '../components/contexts/UserContext';
+import { getRole } from '../utils/userUtils';
 import { ROLE_PAGES } from '../types/constants';
 import Page404 from '../pages/error/404';
 

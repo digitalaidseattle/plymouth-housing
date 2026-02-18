@@ -17,7 +17,8 @@ import {
   TransactionItem,
 } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
@@ -32,7 +33,7 @@ import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDial
 import {
   checkPastCheckout,
   getBuildings,
-} from '../../components/Checkout/CheckoutAPICalls';
+} from '../../services/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 
 type CheckoutType = 'general' | 'welcomeBasket';

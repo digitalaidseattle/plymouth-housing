@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { User } from '../../types/interfaces';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 
 const useUsers = () => {

@@ -1,11 +1,11 @@
-import { getRole } from '../contexts/UserContext';
+import { getRole } from '../utils/userUtils';
 import {
   Building,
   CheckoutItemProp,
   ClientPrincipal,
   ResidentInfo,
-} from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
+} from '../types/interfaces';
+import { ENDPOINTS, API_HEADERS } from '../types/constants';
 
 async function getErrorMessage(response: Response): Promise<string> {
   let errorMessage: string | undefined;

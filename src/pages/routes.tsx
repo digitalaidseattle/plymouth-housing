@@ -8,7 +8,7 @@ import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
-import { RootRedirect } from '../components/RootRedirect';
+import { RootRedirect } from './RootRedirect';
 
 const routes = [
   {

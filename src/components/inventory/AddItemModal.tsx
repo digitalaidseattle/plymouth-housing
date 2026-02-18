@@ -15,7 +15,8 @@ import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
-import { getRole, UserContext } from '../contexts/UserContext.ts';
+import { UserContext } from '../contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { Add, Remove } from '@mui/icons-material';
 import DialogTemplate from '../DialogTemplate.tsx';
 

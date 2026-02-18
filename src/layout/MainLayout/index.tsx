@@ -19,7 +19,7 @@ import { AdminUser, User} from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
 import { SETTINGS } from '../../types/constants';
-import { fetchWithRetry } from '../../components/fetchWithRetry';
+import { fetchWithRetry } from '../../services/fetchWithRetry';
 import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
 
 const MainLayout: React.FC = () => {

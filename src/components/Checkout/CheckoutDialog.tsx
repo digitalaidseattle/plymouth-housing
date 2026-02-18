@@ -171,13 +171,22 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           unit: { id: 0, unit_number: '' },
           building: { id: 0, code: '', name: '' },
         });
+        setCheckoutItems([]);
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
       } else if (result.Status === 'Error' && result.ErrorCode === 'DUPLICATE_TRANSACTION') {
         // Handle duplicate transaction - clear the cart and show success
+        setActiveSection('');
+        setResidentInfo({
+          id: 0,
+          name: '',
+          unit: { id: 0, unit_number: '' },
+          building: { id: 0, code: '', name: '' },
+        });
         setCheckoutItems([]);
+        fetchData();
         onClose();
         onSuccess('This transaction has already been submitted.');
         return;

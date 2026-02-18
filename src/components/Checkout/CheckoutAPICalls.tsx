@@ -277,3 +277,25 @@ export async function checkPastCheckout(
     throw error;
   }
 }
+
+export async function getLastResidentVisit(
+  user: ClientPrincipal | null,
+  residentId: number,
+) {
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+  try {
+    const response = await fetch(ENDPOINTS.GET_LAST_RESIDENT_VISIT, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({ resident_id: residentId }),
+    });
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching last resident visit:', error);
+    throw error;
+  }
+}

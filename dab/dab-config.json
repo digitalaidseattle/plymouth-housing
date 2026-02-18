@@ -17,12 +17,11 @@
       "source": {
         "object": "dbo.Items",
         "type": "table",
-        "key-fields": []
+        "key-fields": ["id"]
       },
       "rest": {
         "enabled": true,
-        "path": "/items",
-        "methods": ["get", "post", "patch"]
+        "path": "/items"
       },
       "permissions": [
         {
@@ -43,8 +42,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/itemswithcategory",
-        "methods": ["get", "post", "patch"]
+        "path": "/itemswithcategory"
       },
       "permissions": [
         {
@@ -65,8 +63,7 @@
       },
       "rest": {
         "enabled": true,
-        "path": "/itemsbycategory",
-        "methods": ["get", "post", "patch"]
+        "path": "/itemsbycategory"
       },
       "permissions": [
         {
@@ -83,7 +80,7 @@
       "source": {
         "object": "dbo.Categories",
         "type": "table",
-        "key-fields": []
+        "key-fields": ["id"]
       },
       "rest": {
         "enabled": true,
@@ -104,12 +101,11 @@
       "source": {
         "object": "dbo.Buildings",
         "type": "table",
-        "key-fields": []
+        "key-fields": ["id"]
       },
       "rest": {
         "enabled": true,
-        "path": "/building",
-        "methods": ["get", "post", "patch"]
+        "path": "/building"
       },
       "permissions": [
         {
@@ -126,12 +122,11 @@
       "source": {
         "object": "dbo.Units",
         "type": "table",
-        "key-fields": []
+        "key-fields": ["id"]
       },
       "rest": {
         "enabled": true,
-        "path": "/units",
-        "methods": ["get", "post", "patch"]
+        "path": "/units"
       },
       "permissions": [
         {
@@ -148,7 +143,7 @@
       "source": {
         "object": "dbo.Users",
         "type": "table",
-        "key-fields": []
+        "key-fields": ["id"]
       },
       "rest": {
         "enabled": true,
@@ -169,12 +164,11 @@
       "source": {
         "object": "dbo.Residents",
         "type": "table",
-        "key-fields": []
+        "key-fields": ["id"]
       },
       "rest": {
         "enabled": true,
-        "path": "/residents",
-        "methods": ["get", "post", "patch"]
+        "path": "/residents"
       },
       "permissions": [
         {
@@ -303,14 +297,14 @@
         }
       ]
     },
-    "FindUserTransactionHistory": {
+    "GetLastResidentVisit": {
       "source": {
-        "object": "dbo.FindUserTransactionHistory",
+        "object": "dbo.GetLastResidentVisit",
         "type": "stored-procedure"
       },
       "rest": {
         "enabled": true,
-        "path": "/find-user-transaction-history"
+        "path": "/get-last-resident-visit"
       },
       "permissions": [
         {

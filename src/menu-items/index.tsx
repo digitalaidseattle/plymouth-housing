@@ -1,8 +1,6 @@
 // project import
 import {
   ChromeOutlined,
-  // TODO Commenting out for now until PIT-52 (Admin dashboard)
-  //   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   QuestionOutlined,
@@ -15,10 +13,11 @@ import {
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
+  GiftOutlined,
+  ShoppingCartOutlined,
 } from '@ant-design/icons';
 
 const icons = {
-  //   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   ChromeOutlined,
@@ -32,21 +31,14 @@ const icons = {
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
+  GiftOutlined,
+  ShoppingCartOutlined,
 };
 
-// ==============================|| MENU ITEMS ||============================== //
 const dashboard = {
   id: 'group-dashboard',
   type: 'group',
   children: [
-    /*     {
-      id: 'dashboard',
-      title: 'Dashboard',
-      type: 'item',
-      url: '/',
-      icon: icons.DashboardOutlined,
-      breadcrumbs: false,
-    }, */
     {
       id: 'volunteer-home',
       title: 'Volunteer Home',
@@ -66,10 +58,29 @@ const dashboard = {
     {
       id: 'checkout',
       title: 'Checkout',
-      type: 'item',
-      url: '/checkout',
+      type: 'collapse',
       icon: icons.EyeInvisibleOutlined,
       breadcrumbs: false,
+      children: [
+        {
+          id: 'checkout-general',
+          title: 'General',
+          type: 'item',
+          url: '/checkout',
+          icon: icons.ShoppingCartOutlined,
+          state: { checkoutType: 'general' },
+          breadcrumbs: false,
+        },
+        {
+          id: 'checkout-welcome-basket',
+          title: 'Welcome basket',
+          type: 'item',
+          url: '/checkout',
+          icon: icons.GiftOutlined,
+          state: { checkoutType: 'welcomeBasket' },
+          breadcrumbs: false,
+        },
+      ],
     },
     {
       id: 'people',

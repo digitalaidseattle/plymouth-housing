@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 // material-ui
 import {
@@ -50,25 +50,22 @@ const actionSX = {
   transform: 'none',
 };
 
-// ==============================|| HEADER CONTENT - NOTIFICATION ||============================== //
-
 const Notification = () => {
   const theme = useTheme();
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
 
-  const anchorRef = useRef(null);
-  const [open, setOpen] = useState(false);
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+
+  const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
   };
 
   const handleClose = (event: MouseEvent | TouchEvent) => {
-    // REVIEW this casting works, but ugh
-    const ref = anchorRef as unknown as Record<string, HTMLElement>;
-    if (ref.current && ref.current === event.target) {
+    if (anchorEl && anchorEl.contains(event.target as Node)) {
       return;
     }
-    setOpen(false);
+    setAnchorEl(null);
   };
 
   const iconBackColorOpen = 'grey.300';
@@ -84,7 +81,6 @@ const Notification = () => {
           bgcolor: open ? iconBackColorOpen : iconBackColor,
         }}
         aria-label="open profile"
-        ref={anchorRef}
         aria-controls={open ? 'profile-grow' : undefined}
         aria-haspopup="true"
         onClick={handleToggle}
@@ -96,7 +92,7 @@ const Notification = () => {
       <Popper
         placement={matchesXs ? 'bottom' : 'bottom-end'}
         open={open}
-        anchorEl={anchorRef.current}
+        anchorEl={anchorEl}
         role={undefined}
         transition
         disablePortal

@@ -45,8 +45,8 @@ const GeneralCheckoutCard = ({
               : theme.palette.success.dark,
           backgroundColor:
             quantity > 10
-              ? theme.palette.warning.light
-              : theme.palette.success.light,
+              ? theme.palette.warning.lighter
+              : theme.palette.success.lighter,
         }}
         label={`${quantity} / 10`}
       />

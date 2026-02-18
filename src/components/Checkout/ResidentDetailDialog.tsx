@@ -44,6 +44,10 @@ const ResidentDetailDialog = ({
     matchFrom: 'start',
   });
 
+  const unitNumberFilter = createFilterOptions<Unit>({
+    matchFrom: 'start',
+  });
+
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
   const residentsHook = useResidents(user, selectedUnit);
   const submitHook = useResidentFormSubmit(user, (residentInfo) => {
@@ -137,6 +141,7 @@ const ResidentDetailDialog = ({
             options={unitNumberValues}
             value={selectedUnit}
             disabled={isWaiting}
+            filterOptions={unitNumberFilter}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
               if (reason === 'clear') {

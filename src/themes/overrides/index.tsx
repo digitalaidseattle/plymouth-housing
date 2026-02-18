@@ -16,6 +16,7 @@ import OutlinedInput from './OutlinedInput';
 import Tab from './Tab';
 import TableCell from './TableCell';
 import Tabs from './Tabs';
+import ToggleButton from './ToggleButton';
 import Typography from './Typography';
 import { Theme } from '@mui/material';
 
@@ -37,6 +38,7 @@ export default function ComponentsOverrides(theme: Theme) {
     Tab(theme),
     TableCell(theme),
     Tabs(),
+    ToggleButton(theme),
     Typography(),
   );
 }

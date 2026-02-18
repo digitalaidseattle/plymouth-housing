@@ -1,181 +1,71 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useContext } from 'react';
 import {
-  Box,
+  Button,
   Stack,
   Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Button,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
-import {
-  findUserTransactionHistory,
-  getUsers,
-} from '../../components/History/HistoryAPICalls';
+import { UserContext } from '../../components/contexts/UserContext';
 import CircularLoader from '../../components/CircularLoader';
-import { Building, CategoryProps, User } from '../../types/interfaces';
-import { getBuildings } from '../../components/Checkout/CheckoutAPICalls';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
-import fetchCategorizedItems from '../../components/utils/fetchCategorizedItems';
-import GeneralCheckoutCard from '../../components/History/GeneralCheckoutCard';
-import WelcomeBasketCard from '../../components/History/WelcomeBasketCard';
-import InventoryCard from '../../components/History/InventoryCard';
-import {
-  createHowLongAgoString,
-  calculateTimeDifference,
-  formatDateRange,
-  formatFullDate,
-} from '../../components/History/historyUtils';
-import { processTransactionsByUser } from '../../components/History/transactionProcessors';
+import TransactionsList from '../../components/History/TransactionsList';
+import SnackbarAlert from '../../components/SnackbarAlert';
+import { useSnackbar } from '../../hooks/useSnackbar';
+import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
+import { useReferenceData } from '../../hooks/useReferenceData';
+import { useHistoryData } from '../../hooks/useHistoryData';
 import {
   CheckoutTransaction,
-  InventoryTransaction,
   HistoryNavigationState,
+  InventoryTransaction,
 } from '../../types/history';
-import SnackbarAlert from '../../components/SnackbarAlert';
 
 const HistoryPage: React.FC = () => {
-  const todaysDate = new Date();
   const { user, loggedInUserId } = useContext(UserContext);
   const navigate = useNavigate();
-  const [userList, setUserList] = useState<User[] | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userHistory, setUserHistory] = useState<
-    CheckoutTransaction[] | InventoryTransaction[] | null
-  >(null);
-  const [buildings, setBuildings] = useState<Building[] | null>(null);
-  const [categorizedItems, setCategorizedItems] = useState<CategoryProps[]>([]);
-  const [dateRange, setDateRange] = useState<{
-    startDate: Date;
-    endDate: Date;
-    isCustom?: boolean;
-  }>({ startDate: todaysDate, endDate: todaysDate });
-  const [dateInput, setDateInput] = useState('today');
-  const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
-
-  const [error, setError] = useState<string | null>(null);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning' | 'error';
-  }>({ open: false, message: '', severity: 'warning' });
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
+  const {
+    dateRange,
+    dateInput,
+    showCustomDateDialog,
+    formattedDateRange,
+    dateString,
+    dateRangeString,
+    handleDateSelection,
+    handleSetCustomDateRange,
+    toggleCustomDateDialog,
+  } = useDateRangeFilter();
+  const {
+    userList,
+    buildings,
+    categorizedItems,
+    isLoading: isLoadingReferenceData,
+  } = useReferenceData({ user, onError: showSnackbar });
 
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
   );
-  const formattedDateRange = {
-    startDate: dateRange.startDate.toLocaleDateString('en-CA'),
-    endDate: dateRange.endDate.toLocaleDateString('en-CA'),
-  };
 
-  const dateString = formatFullDate(dateRange.startDate);
-  const dateRangeString = formatDateRange(
-    dateRange.startDate,
-    dateRange.endDate,
-  );
+  const {
+    userHistory,
+    transactionsByUser,
+    isLoading: isLoadingHistory,
+  } = useHistoryData({
+    user,
+    formattedDateRange,
+    historyType,
+    categorizedItems,
+    loggedInUserId,
+    onError: showSnackbar,
+  });
 
-  useEffect(() => {
-    async function findUserHistoryForSelectedDate() {
-      try {
-        setIsLoading(true);
-        const response = await findUserTransactionHistory(
-          user,
-          formattedDateRange.startDate,
-          formattedDateRange.endDate,
-          historyType,
-          categorizedItems,
-        );
-        setUserHistory(response);
-      } catch (error) {
-        setError('Error fetching history: ' + error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    findUserHistoryForSelectedDate();
-  }, [dateRange, historyType]);
-
-  useEffect(() => {
-    async function getUserList() {
-      try {
-        const response = await getUsers(user);
-        setUserList(response);
-      } catch (error) {
-        setError('Error fetching users: ' + error);
-      }
-    }
-    async function fetchBuildings() {
-      try {
-        const response = await getBuildings(user);
-        setBuildings(response);
-      } catch (error) {
-        setError('Error fetching buildings: ' + error);
-      }
-    }
-    async function getCategorizedItems() {
-      try {
-        const userRole = getRole(user);
-        const response = await fetchCategorizedItems(userRole);
-        setCategorizedItems(response);
-      } catch (error) {
-        setError('Error fetching item and category data: ' + error);
-      }
-    }
-    async function loadInitialData() {
-      try {
-        setIsLoading(true);
-        await Promise.all([
-          getUserList(),
-          fetchBuildings(),
-          getCategorizedItems(),
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadInitialData();
-  }, []);
-
-  useEffect(() => {
-    if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'error' });
-    }
-  }, [error]);
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
-
-  function handleDateSelection(dateInput: string) {
-    setDateInput(dateInput);
-    if (dateInput === 'today') {
-      setDateRange({
-        startDate: todaysDate,
-        endDate: todaysDate,
-      });
-    } else if (dateInput === 'yesterday') {
-      const yesterday = new Date();
-      yesterday.setDate(todaysDate.getDate() - 1);
-      setDateRange({
-        startDate: yesterday,
-        endDate: yesterday,
-      });
-    } else if (dateInput === 'this week') {
-      const lastWeekDate = new Date();
-      lastWeekDate.setDate(todaysDate.getDate() - 7);
-      setDateRange({
-        startDate: lastWeekDate,
-        endDate: todaysDate,
-      });
-    }
-  }
+  const isLoading = isLoadingReferenceData || isLoadingHistory;
 
   const handleCheckoutCardClick = (transaction: CheckoutTransaction) => {
     const navigationState: HistoryNavigationState = {
@@ -193,7 +83,13 @@ const HistoryPage: React.FC = () => {
         item_type: transaction.item_type,
       },
     };
-    navigate('/checkout', { state: navigationState });
+    navigate('/checkout', {
+      state: {
+        ...navigationState,
+        checkoutType:
+          transaction.item_type === 'welcome' ? 'welcomeBasket' : 'general',
+      },
+    });
   };
 
   const handleInventoryCardClick = (transaction: InventoryTransaction) => {
@@ -209,50 +105,87 @@ const HistoryPage: React.FC = () => {
     navigate('/inventory', { state: navigationState });
   };
 
-  const transactionsByUser = useMemo(
-    () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),
-    [userHistory, loggedInUserId],
-  );
-
   return (
     <Stack gap="2rem" sx={{ paddingY: 5 }}>
       <SnackbarAlert
         open={snackbarState.open}
-        onClose={handleSnackbarClose}
+        onClose={handleClose}
         severity={snackbarState.severity}
       >
         {snackbarState.message}
       </SnackbarAlert>
       <CustomDateDialog
         showDialog={showCustomDateDialog}
-        handleShowDialog={() => setShowCustomDateDialog(!showCustomDateDialog)}
-        handleSetDateRange={(newStartDate: Date, newEndDate: Date) =>
-          setDateRange({
-            startDate: newStartDate,
-            endDate: newEndDate,
-            isCustom: true,
-          })
-        }
-        handleSetDateInput={() => setDateInput('custom')}
+        handleShowDialog={toggleCustomDateDialog}
+        handleSetDateRange={handleSetCustomDateRange}
+        handleSetDateInput={() => {}}
       />
 
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Stack direction="row" gap="1rem">
-          <Button
-            variant={historyType === 'checkout' ? 'contained' : 'outlined'}
-            color="primary"
-            onClick={() => setHistoryType('checkout')}
+        <ToggleButtonGroup
+          value={historyType}
+          exclusive
+          onChange={(_, newType) => newType && setHistoryType(newType)}
+          sx={{
+            gap: '1rem',
+            '& .MuiToggleButton-root': {
+              border: 'none',
+              borderRadius: '18px !important', // Override grouped styles
+              marginLeft: '0 !important',
+            },
+          }}
+        >
+          <ToggleButton
+            value="checkout"
+            sx={{
+              padding: '1rem 2rem',
+              borderRadius: '18px',
+              fontSize: '1.25rem',
+              border: 'none',
+              textTransform: 'none',
+              backgroundColor: 'grey.100',
+              color: 'text.primary',
+              '&.Mui-selected': {
+                backgroundColor: 'primary.dark',
+                color: 'common.white',
+                border: 'none',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              },
+              '&:hover': {
+                backgroundColor: 'grey.200',
+              },
+            }}
           >
             Check out
-          </Button>
-          <Button
-            variant={historyType === 'inventory' ? 'contained' : 'outlined'}
-            color="primary"
-            onClick={() => setHistoryType('inventory')}
+          </ToggleButton>
+          <ToggleButton
+            value="inventory"
+            sx={{
+              padding: '1rem 2rem',
+              borderRadius: '18px',
+              fontSize: '1.25rem',
+              border: 'none',
+              textTransform: 'none',
+              backgroundColor: 'grey.100',
+              color: 'text.primary',
+              '&.Mui-selected': {
+                backgroundColor: 'primary.dark',
+                color: 'common.white',
+                border: 'none',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              },
+              '&:hover': {
+                backgroundColor: 'grey.200',
+              },
+            }}
           >
             Inventory
-          </Button>
-        </Stack>
+          </ToggleButton>
+        </ToggleButtonGroup>
         <FormControl>
           <InputLabel id="select-date-label">Date</InputLabel>
           <Select
@@ -261,10 +194,11 @@ const HistoryPage: React.FC = () => {
             value={dateInput}
             label="Date"
             onChange={(e) => {
-              if (e.target.value === 'custom') {
-                setShowCustomDateDialog(true);
+              const value = e.target.value as DatePreset;
+              if (value === 'custom') {
+                toggleCustomDateDialog();
               } else {
-                handleDateSelection(e.target.value);
+                handleDateSelection(value);
               }
             }}
             sx={{ width: '10rem' }}
@@ -284,9 +218,7 @@ const HistoryPage: React.FC = () => {
           {dateRange.isCustom ? dateRangeString : dateInput}
         </Typography>
         {dateInput === 'custom' ? (
-          <Button onClick={() => setShowCustomDateDialog(true)}>
-            Change date range
-          </Button>
+          <Button onClick={toggleCustomDateDialog}>Change date range</Button>
         ) : (
           <Typography variant="body1">
             {dateInput !== 'this week' ? dateString : dateRangeString}
@@ -296,99 +228,16 @@ const HistoryPage: React.FC = () => {
       {isLoading ? (
         <CircularLoader />
       ) : (
-        <Stack gap="2rem">
-          {userHistory && userHistory.length === 0 && (
-            <p>
-              No transactions found for this date. Try selecting a different
-              date range.
-            </p>
-          )}
-          {transactionsByUser?.map((user) => (
-            <Box key={user.user_id}>
-              <Stack direction="row" alignItems="center" gap="1rem">
-                <h2>
-                  {loggedInUserId === user.user_id
-                    ? 'You'
-                    : (userList?.find((v) => v.id === user.user_id)?.name ??
-                      '')}
-                </h2>
-                <span>
-                  {user.transactions.length}{' '}
-                  {user.transactions.length > 1 ? 'records' : 'record'}
-                </span>
-              </Stack>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: {
-                    xs: '1fr',
-                    lg: 'repeat(2, 1fr)',
-                    xl: 'repeat(3, 1fr)',
-                  },
-                  gap: '1rem',
-                }}
-              >
-                {user.transactions.map(
-                  (t: CheckoutTransaction | InventoryTransaction) => {
-                    const { minutes, hours, days } = calculateTimeDifference(
-                      t.transaction_date,
-                    );
-                    const howLongAgoString = createHowLongAgoString(
-                      minutes,
-                      hours,
-                      days,
-                    );
-                    const checkoutTransaction = t as CheckoutTransaction;
-                    if (
-                      historyType === 'checkout' &&
-                      checkoutTransaction.item_type === 'general'
-                    ) {
-                      const quantity = checkoutTransaction.items.reduce(
-                        (acc, item) => {
-                          return acc + item.quantity;
-                        },
-                        0,
-                      );
-                      return (
-                        <GeneralCheckoutCard
-                          key={t.transaction_id}
-                          checkoutTransaction={checkoutTransaction}
-                          buildings={buildings}
-                          quantity={quantity}
-                          howLongAgoString={howLongAgoString}
-                          onClick={() => handleCheckoutCardClick(checkoutTransaction)}
-                        />
-                      );
-                    } else if (
-                      historyType === 'checkout' &&
-                      checkoutTransaction.item_type === 'welcome'
-                    ) {
-                      return (
-                        <WelcomeBasketCard
-                          key={t.transaction_id}
-                          checkoutTransaction={checkoutTransaction}
-                          buildings={buildings}
-                          howLongAgoString={howLongAgoString}
-                          onClick={() => handleCheckoutCardClick(checkoutTransaction)}
-                        />
-                      );
-                    } else if (historyType === 'inventory') {
-                      const inventoryTransaction = t as InventoryTransaction;
-                      return (
-                        <InventoryCard
-                          key={inventoryTransaction.transaction_id}
-                          inventoryTransaction={inventoryTransaction}
-                          howLongAgoString={howLongAgoString}
-                          onClick={() => handleInventoryCardClick(inventoryTransaction)}
-                        />
-                      );
-                    }
-                  },
-                )}
-              </Box>
-            </Box>
-          ))}
-        </Stack>
+        <TransactionsList
+          transactionsByUser={transactionsByUser}
+          userList={userList}
+          buildings={buildings}
+          loggedInUserId={loggedInUserId}
+          historyType={historyType}
+          userHistory={userHistory}
+          onCheckoutClick={handleCheckoutCardClick}
+          onInventoryClick={handleInventoryCardClick}
+        />
       )}
     </Stack>
   );

@@ -36,6 +36,7 @@ import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDial
 import {
   checkPastCheckout,
   getBuildings,
+  getUnitNumbers,
 } from '../../components/Checkout/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 import fetchCategorizedItems from '../../components/utils/fetchCategorizedItems';
@@ -50,13 +51,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   checkoutType = 'general',
 }) => {
   const { user } = useContext(UserContext);
+  const location = useLocation();
+  const locationState = location.state as HistoryNavigationState | null;
+  const isFromHistory =
+    locationState?.fromHistory === true &&
+    locationState?.transactionType === 'checkout';
+
   const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>(
     [],
   );
   const [data, setData] = useState<CategoryProps[]>([]);
   const [searchData, setSearchData] = useState<CategoryProps[]>([]);
   const [searchActive, setSearchActive] = useState<boolean>(false);
-  const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
@@ -72,7 +78,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   });
 
   const [activeSection, setActiveSection] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
 
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -81,7 +86,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   }>({ open: false, message: '', severity: 'warning' });
 
   const [showResidentDetailDialog, setShowResidentDetailDialog] =
-    useState<boolean>(true);
+    useState<boolean>(!isFromHistory);
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
       // lastVisitDate is optional and excluded from validation, all other fields must have values
@@ -107,15 +112,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   const theme = useTheme();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [isPrefilling, setIsPrefilling] = useState(false);
   const [originalTransactionData, setOriginalTransactionData] = useState<{
     transaction_id: string;
     resident_id: number;
     items: HistoryTransactionItem[];
   } | null>(null);
   const prefilledTransactionId = useRef<string | null>(null);
+  const hasAutoOpenedDialog = useRef(false);
 
   useEffect(() => {
     async function checkItemsForPrevCheckouts() {
@@ -288,10 +292,112 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const buildings = await getBuildings(user);
       setBuildings(buildings);
     } catch (error) {
-      setError('Could not get buildings. \r\n' + error);
+      const errorMessage = 'Could not get buildings. \r\n' + error;
+      setSnackbarState({
+        open: true,
+        message: errorMessage,
+        severity: 'warning',
+      });
       console.error('Error fetching buildings:', error);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!isFromHistory || buildings.length === 0) return;
+
+    const checkoutData = locationState!.checkoutData!;
+    const building = buildings.find(
+      (b) => b.id === checkoutData.residentInfo.building_id,
+    );
+    if (!building) return;
+
+    /* eslint-disable react-hooks/set-state-in-effect */
+    async function populateResidentFromHistory(resolvedBuilding: Building) {
+      const units: Unit[] = await getUnitNumbers(
+        user,
+        checkoutData.residentInfo.building_id,
+      );
+      const unit = units.find(
+        (u) => u.unit_number === checkoutData.residentInfo.unit_number,
+      );
+      setResidentInfo({
+        id: checkoutData.residentInfo.id,
+        name: checkoutData.residentInfo.name,
+        unit: unit ?? {
+          id: 0,
+          unit_number: checkoutData.residentInfo.unit_number,
+        },
+        building: resolvedBuilding,
+        lastVisitDate: null,
+      });
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+
+    populateResidentFromHistory(building);
+  }, [buildings, isFromHistory, locationState, user]);
+
+  useEffect(() => {
+    if (!isFromHistory || data.length === 0) return;
+
+    const checkoutData = locationState!.checkoutData!;
+    if (prefilledTransactionId.current === checkoutData.original_transaction_id)
+      return;
+    prefilledTransactionId.current = checkoutData.original_transaction_id;
+
+    const section =
+      checkoutData.item_type === 'welcome' ? 'welcomeBasket' : 'general';
+
+    setCheckoutItems((prev) => {
+      const updated = prev.map((category) => ({
+        ...category,
+        items: [] as CheckoutItemProp[],
+        categoryCount: 0,
+      }));
+      checkoutData.items.forEach((historyItem) => {
+        const categoryIndex = updated.findIndex(
+          (cat) => cat.category === historyItem.category_name,
+        );
+        if (categoryIndex === -1) return;
+        const catalogCategory = data.find(
+          (cat) => cat.category === historyItem.category_name,
+        );
+        const catalogItem = catalogCategory?.items.find(
+          (i) => i.id === historyItem.item_id,
+        );
+        if (!catalogItem) return;
+        updated[categoryIndex] = {
+          ...updated[categoryIndex],
+          items: [
+            ...updated[categoryIndex].items,
+            { ...catalogItem, quantity: historyItem.quantity },
+          ],
+          categoryCount:
+            updated[categoryIndex].categoryCount + historyItem.quantity,
+        };
+      });
+      return updated;
+    });
+
+    setOriginalTransactionData({
+      transaction_id: checkoutData.original_transaction_id,
+      resident_id: checkoutData.residentInfo.id,
+      items: checkoutData.items,
+    });
+
+    setActiveSection(section);
+  }, [data, isFromHistory, locationState]);
+
+  useEffect(() => {
+    if (
+      isFromHistory &&
+      originalTransactionData !== null &&
+      !residentInfoIsMissing &&
+      !hasAutoOpenedDialog.current
+    ) {
+      hasAutoOpenedDialog.current = true;
+      setOpenSummary(true);
+    }
+  }, [isFromHistory, originalTransactionData, residentInfoIsMissing]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -346,34 +452,23 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     setSnackbarState({ open: true, message, severity: 'warning' });
   };
 
-  useEffect(() => {
-    if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'warning' });
-    }
-  }, [error]);
-
-  useEffect(() => {
-    setResidentInfo({
-      id: 0,
-      name: '',
-      unit: { id: 0, unit_number: '' },
-      building: { id: 0, code: '', name: '' },
-      lastVisitDate: null,
-    });
-    setUnitNumberValues([]);
-    setShowResidentDetailDialog(true);
-  }, [checkoutType]);
-
+  // Fetch initial data on component mount - standard data fetching pattern
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchBuildings();
     fetchData();
   }, [fetchData, fetchBuildings]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
-  useEffect(() => {
-    setFilteredData(
-      data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'),
+  const filteredData = useMemo(() => {
+    return data.filter(
+      (item: CategoryProps) => item.category !== 'Welcome Basket',
     );
   }, [data]);
+
+  const navbarData = useMemo(() => {
+    return checkoutType === 'general' ? filteredData : data;
+  }, [checkoutType, filteredData, data]);
 
   const handleCheckoutSuccess = (errorMessage?: string) => {
     const isError = !!errorMessage;
@@ -478,7 +573,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           <Button
             variant="outlined"
             color={residentInfoIsMissing ? 'error' : 'primary'}
-            onClick={() => setShowResidentDetailDialog(true)}
+            onClick={
+              isFromHistory
+                ? undefined
+                : () => setShowResidentDetailDialog(true)
+            }
           >
             {residentInfoIsMissing
               ? checkoutType === 'welcomeBasket'

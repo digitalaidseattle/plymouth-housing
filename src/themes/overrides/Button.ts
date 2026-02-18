@@ -26,47 +26,6 @@ export default function Button(theme: Theme) {
           ...disabledStyle,
         },
       },
-      variants: [
-        {
-          props: { variant: 'active-primary' },
-          style: {
-            backgroundColor: (theme.palette.primary as any)['900'],
-            color: theme.palette.common.white,
-            padding: '1rem 0.rem',
-            borderRadius: '18px',
-            size: '1.25rem',
-          },
-        },
-        {
-          props: { variant: 'inactive-primary' },
-          style: {
-            color: theme.palette.text,
-            backgroundColor: theme.palette.grey[100],
-            padding: '1rem 0.rem',
-            borderRadius: '18px',
-            size: '1.25rem',
-          },
-        },
-        {
-          props: { variant: 'active-secondary' },
-          style: {
-            background: (theme.palette.primary as any)['900'],
-            color: theme.palette.primary.contrastText,
-            borderRadius: '20px',
-            padding: '0.5rem 1rem',
-          },
-        },
-        {
-          props: { variant: 'inactive-secondary' },
-          style: {
-            background: 'transparent',
-            border: `1px solid ${theme.palette.text.primary}`,
-            color: theme.palette.text.primary,
-            borderRadius: '20px',
-            padding: '0.5rem 1rem',
-          },
-        },
-      ],
     },
   };
 }

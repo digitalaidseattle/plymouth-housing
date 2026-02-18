@@ -37,6 +37,7 @@ export type InventoryTransaction = {
 export type HistoryNavigationState = {
   fromHistory: true;
   transactionType: 'checkout' | 'inventory';
+  checkoutType?: 'general' | 'welcomeBasket';
 
   checkoutData?: {
     original_transaction_id: string;

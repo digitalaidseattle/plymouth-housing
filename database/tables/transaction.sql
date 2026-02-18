@@ -8,6 +8,7 @@ CREATE TABLE Transactions (
     transaction_type INT NOT NULL,
     transaction_date DATETIME DEFAULT GETDATE() NOT NULL,
     building_id INT,
+    original_transaction_id UNIQUEIDENTIFIER NULL,
 );
 
 GO

@@ -13,12 +13,17 @@ import { UserContext } from '../../components/contexts/UserContext';
 import * as HistoryAPICalls from '../../components/History/HistoryAPICalls';
 import * as CheckoutAPICalls from '../../components/Checkout/CheckoutAPICalls';
 import * as helpers from '../../components/utils/fetchCategorizedItems';
-import { TransactionType } from '../../types/history';
+import {
+  TransactionType,
+  CheckoutTransaction,
+  InventoryTransaction,
+} from '../../types/history';
+import { Building } from '../../types/interfaces';
 
 // Mock modules
 vi.mock('../../components/History/HistoryAPICalls');
 vi.mock('../../components/Checkout/CheckoutAPICalls');
-vi.mock('../../components/helpers/fetchCategorizedItems');
+vi.mock('../../components/utils/fetchCategorizedItems');
 vi.mock('../../components/CircularLoader', () => ({
   default: () => <div data-testid="circular-loader">Loading...</div>,
 }));
@@ -43,21 +48,27 @@ vi.mock('../../components/History/CustomDateDialog', () => ({
 }));
 vi.mock('../../components/History/GeneralCheckoutCard', () => ({
   default: ({ checkoutTransaction }: any) => (
-    <div data-testid={`general-checkout-card-${checkoutTransaction.id}`}>
+    <div
+      data-testid={`general-checkout-card-${checkoutTransaction.transaction_id}`}
+    >
       General Checkout
     </div>
   ),
 }));
 vi.mock('../../components/History/WelcomeBasketCard', () => ({
   default: ({ checkoutTransaction }: any) => (
-    <div data-testid={`welcome-basket-card-${checkoutTransaction.id}`}>
+    <div
+      data-testid={`welcome-basket-card-${checkoutTransaction.transaction_id}`}
+    >
       Welcome Basket
     </div>
   ),
 }));
 vi.mock('../../components/History/InventoryCard', () => ({
   default: ({ inventoryTransaction }: any) => (
-    <div data-testid={`inventory-card-${inventoryTransaction.id}`}>
+    <div
+      data-testid={`inventory-card-${inventoryTransaction.transaction_id}`}
+    >
       Inventory
     </div>
   ),
@@ -76,27 +87,64 @@ const mockUserList = [
   { id: 2, name: 'Jane Smith' },
 ];
 
-const mockBuildings = [
-  { id: 1, building_code: 'A', address: '123 Main St' },
-  { id: 2, building_code: 'B', address: '456 Oak Ave' },
+const mockBuildings: Building[] = [
+  { id: 1, code: 'A', name: '123 Main St' },
+  { id: 2, code: 'B', name: '456 Oak Ave' },
 ];
 
 const mockCategorizedItems = [
-  { categoryId: 1, categoryName: 'Food', items: [{ id: 1, name: 'Bread' }] },
+  {
+    id: 1,
+    category: 'Food',
+    items: [
+      {
+        id: 1,
+        name: 'Bread',
+        quantity: 10,
+        description: 'Fresh bread',
+      },
+    ],
+    checkout_limit: 5,
+    categoryCount: 1,
+  },
 ];
 
-const mockCheckoutTransactions = [
+const mockCheckoutTransactions: CheckoutTransaction[] = [
   {
-    id: '1',
+    transaction_id: '1',
     user_id: 1,
-    user_name: 'John Doe',
-    timestamp: new Date().toISOString(),
-    transaction_type: TransactionType.Checkout,
     building_id: 1,
     unit_number: '101',
+    resident_id: 1,
     resident_name: 'Resident A',
-    item_id: 1,
-    quantity: 2,
+    transaction_date: new Date().toISOString(),
+    item_type: 'general',
+    items: [
+      {
+        item_id: 1,
+        item_name: 'Test Item',
+        quantity: 2,
+        category_name: 'Food',
+      },
+    ],
+  },
+];
+
+const mockInventoryTransactions: InventoryTransaction[] = [
+  {
+    transaction_id: '2',
+    user_id: 1,
+    transaction_date: new Date().toISOString(),
+    transaction_type: TransactionType.InventoryAdd,
+    item_type: 'general',
+    items: [
+      {
+        item_id: 1,
+        item_name: 'Bread',
+        quantity: 10,
+        category_name: 'Food',
+      },
+    ],
   },
 ];
 
@@ -122,10 +170,16 @@ describe('HistoryPage Component', () => {
 
     // Mock API calls with a slight delay to simulate real API behavior
     // This allows the component to show the loading state
-    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockImplementation(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => resolve(mockCheckoutTransactions), 50),
+        ),
+    );
+    vi.spyOn(HistoryAPICalls, 'getInventoryHistory').mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve(mockInventoryTransactions), 50),
         ),
     );
     vi.spyOn(HistoryAPICalls, 'getUsers').mockImplementation(
@@ -175,7 +229,7 @@ describe('HistoryPage Component', () => {
     );
 
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
-    expect(checkoutButton).toHaveClass('MuiButton-active-primary');
+    expect(checkoutButton).toHaveClass('Mui-selected');
   });
 
   test('switches between checkout and inventory history types', async () => {
@@ -188,29 +242,39 @@ describe('HistoryPage Component', () => {
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
+    // Wait for initial data load to complete (including categorizedItems being used in API call)
+    await waitFor(() => {
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
+        mockUser,
+        expect.any(String),
+        expect.any(String),
+        mockCategorizedItems,
+      );
+    });
+
     // Initially, checkout is active
-    expect(checkoutButton).toHaveClass('MuiButton-active-primary');
-    expect(inventoryButton).toHaveClass('MuiButton-inactive-primary');
+    expect(checkoutButton).toHaveClass('Mui-selected');
+    expect(inventoryButton).not.toHaveClass('Mui-selected');
 
     // Click inventory button
     fireEvent.click(inventoryButton);
 
     await waitFor(() => {
-      expect(inventoryButton).toHaveClass('MuiButton-active-primary');
-      expect(checkoutButton).toHaveClass('MuiButton-inactive-primary');
+      expect(inventoryButton).toHaveClass('Mui-selected');
+      expect(checkoutButton).not.toHaveClass('Mui-selected');
     });
 
     // Verify API was called for inventory
-    expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalledWith(
+    expect(HistoryAPICalls.getInventoryHistory).toHaveBeenCalledWith(
       mockUser,
       expect.any(String),
       expect.any(String),
-      'inventory',
+      mockCategorizedItems,
     );
   });
 
   test('fetches and displays checkout transactions', async () => {
-    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
       mockCheckoutTransactions,
     );
 
@@ -221,7 +285,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
 
     // Verify user list is fetched
@@ -255,7 +319,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles empty transaction history', async () => {
-    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue([]);
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue([]);
 
     render(
       <Wrapper>
@@ -265,7 +329,7 @@ describe('HistoryPage Component', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/There are no transactions for this date/i),
+        screen.getByText(/No transactions found for this date/i),
       ).toBeInTheDocument();
     });
   });
@@ -284,7 +348,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(yesterdayOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -302,7 +366,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(thisWeekOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -354,10 +418,8 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles API errors gracefully', async () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockRejectedValue(
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockRejectedValue(
       new Error('API Error'),
     );
 
@@ -367,34 +429,36 @@ describe('HistoryPage Component', () => {
       </Wrapper>,
     );
 
+    // Error should be displayed in a snackbar
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error fetching history:',
-        expect.any(Error),
-      );
+      expect(screen.getByText(/Error fetching history:/i)).toBeInTheDocument();
     });
-
-    consoleErrorSpy.mockRestore();
   });
 
   test('displays user-specific transaction grouping', async () => {
-    const multiUserTransactions = [
+    const multiUserTransactions: CheckoutTransaction[] = [
       ...mockCheckoutTransactions,
       {
-        id: '2',
+        transaction_id: '2',
         user_id: 2,
-        user_name: 'Jane Smith',
-        timestamp: new Date().toISOString(),
-        transaction_type: TransactionType.Checkout,
         building_id: 1,
         unit_number: '102',
+        resident_id: 2,
         resident_name: 'Resident B',
-        item_id: 1,
-        quantity: 1,
+        transaction_date: new Date().toISOString(),
+        item_type: 'general',
+        items: [
+          {
+            item_id: 1,
+            item_name: 'Test Item',
+            quantity: 1,
+            category_name: 'Food',
+          },
+        ],
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
       multiUserTransactions,
     );
 
@@ -405,27 +469,33 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
   test('displays "You" for current user transactions', async () => {
-    const currentUserTransactions = [
+    const currentUserTransactions: CheckoutTransaction[] = [
       {
-        id: '1',
+        transaction_id: '1',
         user_id: 1,
-        user_name: 'Current User',
-        timestamp: new Date().toISOString(),
-        transaction_type: TransactionType.Checkout,
         building_id: 1,
         unit_number: '101',
+        resident_id: 1,
         resident_name: 'Resident A',
-        item_id: 1,
-        quantity: 2,
+        transaction_date: new Date().toISOString(),
+        item_type: 'general',
+        items: [
+          {
+            item_id: 1,
+            item_name: 'Test Item',
+            quantity: 2,
+            category_name: 'Food',
+          },
+        ],
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'findUserTransactionHistory').mockResolvedValue(
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
       currentUserTransactions,
     );
 
@@ -441,7 +511,7 @@ describe('HistoryPage Component', () => {
     });
   });
 
-  test('calls findUserTransactionHistory with correct date format', async () => {
+  test('calls getCheckoutHistory with correct date format', async () => {
     render(
       <Wrapper>
         <HistoryPage />
@@ -449,11 +519,11 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalledWith(
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        'checkout',
+        mockCategorizedItems,
       );
     });
   });
@@ -466,10 +536,10 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.findUserTransactionHistory).toHaveBeenCalled();
+      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
 
-    const callCount = vi.mocked(HistoryAPICalls.findUserTransactionHistory).mock
+    const callCount = vi.mocked(HistoryAPICalls.getCheckoutHistory).mock
       .calls.length;
 
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
@@ -480,7 +550,7 @@ describe('HistoryPage Component', () => {
 
     await waitFor(() => {
       expect(
-        vi.mocked(HistoryAPICalls.findUserTransactionHistory).mock.calls.length,
+        vi.mocked(HistoryAPICalls.getCheckoutHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
   });

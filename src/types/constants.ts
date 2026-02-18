@@ -28,6 +28,8 @@ export const ENDPOINTS = {
   CHECK_PAST_CHECKOUT: API_PREFIX + '/check-past-checkout',
   PROCESS_INVENTORY_RESET_QUANTITY:
     API_PREFIX + '/process-inventory-reset-quantity',
+  GET_CHECKOUT_HISTORY: API_PREFIX + '/get-checkout-history',
+  GET_INVENTORY_HISTORY: API_PREFIX + '/get-inventory-history',
   GET_LAST_RESIDENT_VISIT: API_PREFIX + '/get-last-resident-visit',
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
@@ -53,6 +55,7 @@ export const ROLE_PAGES = {
     'checkout-general',
     'checkout-welcome-basket',
     'people',
+    'history',
   ],
   volunteer: [
     'volunteer-home',
@@ -60,5 +63,6 @@ export const ROLE_PAGES = {
     'checkout',
     'checkout-general',
     'checkout-welcome-basket',
+    'history',
   ],
 } as const;

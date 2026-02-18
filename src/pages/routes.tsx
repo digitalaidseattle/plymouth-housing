@@ -21,7 +21,7 @@ const routes = [
         element: (
           <RootRedirect source="volunteer-home">
             <MainContainer title="Volunteer Home">
-              <VolunteerHome />,
+              <VolunteerHome />
             </MainContainer>
           </RootRedirect>
         ),
@@ -31,7 +31,7 @@ const routes = [
         element: (
           <RootRedirect source="inventory">
             <MainContainer title="Inventory">
-              <Inventory />,
+              <Inventory />
             </MainContainer>
           </RootRedirect>
         ),
@@ -41,7 +41,7 @@ const routes = [
         element: (
           <RootRedirect source="people">
             <MainContainer title="People">
-              <People />,
+              <People />
             </MainContainer>
           </RootRedirect>
         ),
@@ -51,7 +51,7 @@ const routes = [
         element: (
           <RootRedirect source="volunteer-home">
             <MainContainer title="Volunteer Home">
-              <VolunteerHome />,
+              <VolunteerHome />
             </MainContainer>
           </RootRedirect>
         ),
@@ -71,7 +71,7 @@ const routes = [
         element: (
           <RootRedirect source="history">
             <MainContainer title="History">
-              <HistoryPage />,
+              <HistoryPage />
             </MainContainer>
           </RootRedirect>
         ),

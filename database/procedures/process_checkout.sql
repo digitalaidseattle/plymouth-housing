@@ -6,7 +6,8 @@ CREATE PROCEDURE ProcessCheckout
     @items NVARCHAR(MAX),
     @message NVARCHAR(MAX) = NULL OUTPUT,
     @resident_id INT,
-    @new_transaction_id UNIQUEIDENTIFIER
+    @new_transaction_id UNIQUEIDENTIFIER,
+    @original_transaction_id UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -134,7 +135,8 @@ BEGIN
             @user_id = @user_id,
             @transaction_type = 1,
             @resident_id = @resident_id,
-            @new_transaction_id = @new_transaction_id;
+            @new_transaction_id = @new_transaction_id,
+            @original_transaction_id = @original_transaction_id;
 
         WHILE @@FETCH_STATUS = 0
         BEGIN

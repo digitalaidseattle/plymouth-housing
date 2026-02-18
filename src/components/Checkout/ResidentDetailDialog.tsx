@@ -224,7 +224,6 @@ const ResidentDetailDialog = ({
               return filtered;
             }}
             selectOnFocus
-            clearOnBlur
             handleHomeEndKeys
             id="resident-name-autocomplete"
             options={residentsHook.existingResidents}

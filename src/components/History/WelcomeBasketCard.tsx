@@ -1,3 +1,4 @@
+import { Chip } from '@mui/material';
 import { CheckoutTransaction } from '../../types/history';
 import { Building } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
@@ -6,15 +7,18 @@ type WelcomeBasketCardProps = {
   checkoutTransaction: CheckoutTransaction;
   buildings: Building[] | null;
   howLongAgoString: string;
+  quantity: number;
 };
 
 const WelcomeBasketCard = ({
   checkoutTransaction,
   buildings,
   howLongAgoString,
+  quantity,
 }: WelcomeBasketCardProps) => {
   const itemIds = checkoutTransaction.items.map((i) => i.item_id);
   let welcomeBasketType;
+  console.log('trans', checkoutTransaction);
   // TODO: is there a way to identify the welcome-basket-type w/o hardcoded values?
   if (itemIds.includes(175)) {
     welcomeBasketType = 'Twin-size Sheet Set';
@@ -37,6 +41,7 @@ const WelcomeBasketCard = ({
         </p>
         <p>{howLongAgoString}</p>
       </div>
+      <Chip label={`${quantity / 57}x`} />
     </HistoryCard>
   );
 };

@@ -99,10 +99,14 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   historyType === 'checkout' &&
                   checkoutTransaction.item_type === 'welcome'
                 ) {
+                  const quantity = t.items.reduce((acc, item) => {
+                    return acc + item.quantity;
+                  }, 0);
                   return (
                     <WelcomeBasketCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
+                      quantity={quantity}
                       buildings={buildings}
                       howLongAgoString={howLongAgoString}
                     />

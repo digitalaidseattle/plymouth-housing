@@ -25,8 +25,6 @@ export default [{
         "**/.eslintrc.cjs",
         "**/*.test.ts",
         "**/*.test.tsx",
-        "src/pages/dashboard",
-        "src/pages/components-overview",
         "src/components/@extended",
     ],
 

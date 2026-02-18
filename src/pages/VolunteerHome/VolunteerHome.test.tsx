@@ -77,9 +77,12 @@ describe('VolunteerHome Component', () => {
     // Verify header content; note that the date part cannot be compared precisely, so only keywords are checked
     expect(screen.getByText(/Thanks for being here!/i)).toBeInTheDocument();
 
-    // Verify that the Check Out and Add Item buttons exist
-    expect(screen.getByRole('button', { name: /Check Out/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Add Item/i })).toBeInTheDocument();
+    // Verify that the Check Out and Add Item buttons exist (2 of each for General and Welcome basket sections)
+    const checkOutButtons = screen.getAllByRole('button', { name: /Check out/i });
+    expect(checkOutButtons).toHaveLength(2);
+
+    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
+    expect(addItemButtons).toHaveLength(2);
   });
 
   test('navigates to checkout when Check Out button is clicked', async () => {
@@ -89,10 +92,23 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    const checkOutButton = screen.getByRole('button', { name: /Check Out/i });
-    fireEvent.click(checkOutButton);
+    const checkOutButtons = screen.getAllByRole('button', { name: /Check out/i });
+    fireEvent.click(checkOutButtons[0]); // Click the first (General) checkout button
 
-    expect(mockNavigate).toHaveBeenCalledWith('/checkout');
+    expect(mockNavigate).toHaveBeenCalledWith('/checkout', { state: { checkoutType: 'general' } });
+  });
+
+  test('navigates to checkout with welcomeBasket type when Welcome Basket Check Out button is clicked', async () => {
+    render(
+      <Wrapper>
+        <VolunteerHome />
+      </Wrapper>
+    );
+
+    const checkOutButtons = screen.getAllByRole('button', { name: /Check out/i });
+    fireEvent.click(checkOutButtons[1]); // Click the second (Welcome Basket) checkout button
+
+    expect(mockNavigate).toHaveBeenCalledWith('/checkout', { state: { checkoutType: 'welcomeBasket' } });
   });
 
   test('opens and closes AddItemModal when Add Item button is clicked', async () => {
@@ -112,8 +128,8 @@ describe('VolunteerHome Component', () => {
     expect(modal).toHaveTextContent('Modal Closed');
 
     // After clicking the Add Item button, the modal should open
-    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
-    fireEvent.click(addItemButton);
+    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
+    fireEvent.click(addItemButtons[0]); // Click the first (General) add item button
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
@@ -147,8 +163,8 @@ describe('VolunteerHome Component', () => {
     );
 
     // After clicking the Add Item button, the fetch call should happen
-    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
-    fireEvent.click(addItemButton);
+    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
+    fireEvent.click(addItemButtons[0]); // Click the first (General) add item button
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
@@ -170,8 +186,8 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
-    fireEvent.click(addItemButton);
+    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
+    fireEvent.click(addItemButtons[0]); // Click the first (General) add item button
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 

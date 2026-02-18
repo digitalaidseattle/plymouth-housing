@@ -114,6 +114,8 @@ This project uses the official DAB container image from Microsoft Container Regi
 Follow Microsoft's official guide for publishing DAB to Container Apps:
 [https://learn.microsoft.com/en-us/azure/data-api-builder/deployment/how-to-publish-container-apps](https://learn.microsoft.com/en-us/azure/data-api-builder/deployment/how-to-publish-container-apps)
 
+To deploy configuration file changes to an existing Container App, see [dab-deployment.md](dab-deployment.md).
+
 ### Environment Variables
 
 Set the following environment variables in your Container App:

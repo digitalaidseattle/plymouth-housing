@@ -8,7 +8,7 @@ import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
 import Catalog from './catalog';
-import CheckoutPage from './checkout/CheckoutPage';
+import CheckoutPageContainer from './checkout/CheckoutPageContainer';
 import { RootRedirect } from '../components/RootRedirect';
 
 const routes = [
@@ -62,9 +62,7 @@ const routes = [
           // checkout card content is given a fixed height and scrollbar
           // to work with the sticky nav inside it
           <RootRedirect source="checkout">
-            <MainContainer title="Check out">
-              <CheckoutPage />,
-            </MainContainer>
+            <CheckoutPageContainer />
           </RootRedirect>
         ),
       },

@@ -14,7 +14,7 @@ import {
 import { API_HEADERS, ENDPOINTS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
 
-vi.mock('../contexts/UserContext', () => ({
+vi.mock('../utils/userUtils', () => ({
   getRole: vi.fn(),
 }));
 

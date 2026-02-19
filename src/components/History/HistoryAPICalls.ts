@@ -72,3 +72,23 @@ export async function getUsers(user: ClientPrincipal | null) {
     throw error;
   }
 }
+
+export async function getWelcomeBasketQuantities(user: ClientPrincipal | null) {
+  try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
+    const response = await fetch(
+      ENDPOINTS.ITEMS +
+        `?$select=items_per_basket&$filter=type eq 'Welcome Basket'`,
+      {
+        headers: headers,
+        method: 'GET',
+      },
+    );
+    if (!response.ok) throw new Error(response.statusText);
+    const data = await response.json();
+    return data.value;
+  } catch (error) {
+    console.error('Error fetching welcome basket quantity:', error);
+    throw error;
+  }
+}

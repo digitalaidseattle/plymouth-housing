@@ -39,6 +39,7 @@ const HistoryPage: React.FC = () => {
     buildings,
     categorizedItems,
     isLoading: isLoadingReferenceData,
+    singleWelcomeBasketQuantity,
   } = useReferenceData({ user, onError: showSnackbar });
 
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
@@ -190,6 +191,7 @@ const HistoryPage: React.FC = () => {
           loggedInUserId={loggedInUserId}
           historyType={historyType}
           userHistory={userHistory}
+          singleWelcomeBasketQuantity={singleWelcomeBasketQuantity}
         />
       )}
     </Stack>

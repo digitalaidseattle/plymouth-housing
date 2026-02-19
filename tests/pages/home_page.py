@@ -1,9 +1,8 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from tests.utilities.locators import HomePageLocators, CommonLocators
 
 from tests.pages.base_page import BasePage
-from tests.utilities.locators import HomePageLocators
+from tests.utilities.locators import HomePageLocators, CommonLocators
 
 
 class HomePage(BasePage):

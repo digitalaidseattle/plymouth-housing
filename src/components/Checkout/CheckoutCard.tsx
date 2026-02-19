@@ -7,6 +7,7 @@ import {
   Chip,
 } from '@mui/material';
 import { CheckoutCardProps } from '../../types/interfaces';
+import { SPECIAL_ITEMS } from '../../types/constants';
 import ItemQuantityButton from './ItemQuantityButton';
 
 const CheckoutCard = ({
@@ -76,7 +77,7 @@ const CheckoutCard = ({
       }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
-        {pastCheckout && item.id !== 166 && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: '0.5rem' }} />}
+        {pastCheckout && item.id !== SPECIAL_ITEMS.APPLIANCE_MISC && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: '0.5rem' }} />}
         <Tooltip title={item.name} arrow>
           <Typography
             sx={{
@@ -89,7 +90,7 @@ const CheckoutCard = ({
             {item.name}
           </Typography>
         </Tooltip>
-        {item.id === 166 && item.additional_notes && removeButton ? <Typography>{item.additional_notes}</Typography>
+        {item.id === SPECIAL_ITEMS.APPLIANCE_MISC && item.additional_notes && removeButton ? <Typography>{item.additional_notes}</Typography>
         : item.description ? <Typography>{item.description}</Typography>
         : <></>}
       </CardContent>

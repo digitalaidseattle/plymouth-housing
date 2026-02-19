@@ -56,3 +56,7 @@ export const WELCOME_BASKET_ITEMS = {
   TWIN: 175,
   FULL: 176,
 } as const;
+
+export const SPECIAL_ITEMS = {
+  APPLIANCE_MISC: 166,
+} as const;

@@ -16,7 +16,7 @@ import {
   CheckoutHistoryItem,
   TransactionItem,
 } from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS, SPECIAL_ITEMS } from '../../types/constants';
 import { cacheGet, cacheSet } from '../../utils/sessionCache';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -108,7 +108,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
 
       response.value.forEach((transaction: TransactionItem) => {
         // round up quantity for appliance miscellaneous checkouts
-        if (transaction.item_id === 166) {
+        if (transaction.item_id === SPECIAL_ITEMS.APPLIANCE_MISC) {
           if (
             tempCheckOutHistory.find(
               (entry) =>
@@ -129,7 +129,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
               return acc + transaction.quantity;
             }, 0);
           tempCheckOutHistory.push({
-            item_id: 166,
+            item_id: SPECIAL_ITEMS.APPLIANCE_MISC,
             timesCheckedOut: checkedOutQuantity,
             additionalNotes: transaction.additional_notes,
           });

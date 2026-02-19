@@ -6,7 +6,7 @@ import {
   ResidentInfo,
   Unit,
 } from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS, SETTINGS } from '../../types/constants';
 import { cacheGet, cacheSet } from '../../utils/sessionCache';
 
 async function getErrorMessage(response: Response): Promise<string> {
@@ -151,7 +151,7 @@ export async function getUnitNumbers(
 
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(
-      `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=1000`,
+      `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=${SETTINGS.api_fetch_limit_units}`,
       {
         method: 'GET',
         headers: headers,

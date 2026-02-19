@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { CheckoutHistoryItem, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
+import { SPECIAL_ITEMS } from '../../types/constants';
 import CheckedoutListItem from './CheckedoutListItem';
 import DialogTemplate from '../DialogTemplate';
 
@@ -36,7 +37,7 @@ const AdditionalNotesDialog = ({
     const [additionalNotesInput, setAdditionalNotesInput] = useState<string>('')
     const [showError, setShowError] = useState<boolean>(false);
     
-    const applianceMiscCheckouts = checkoutHistory.filter(i => i.item_id===166);
+    const applianceMiscCheckouts = checkoutHistory.filter(i => i.item_id === SPECIAL_ITEMS.APPLIANCE_MISC);
     const autocompleteOptions: AutocompleteOption[] = applianceMiscCheckouts.map((appliance: CheckoutHistoryItem) => ({ name: appliance.additionalNotes }))
 
     const filter = createFilterOptions<AutocompleteOption>();

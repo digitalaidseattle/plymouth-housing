@@ -15,7 +15,7 @@ import {
   CheckoutItemProp,
   ResidentInfo,
 } from '../../types/interfaces';
-import { WELCOME_BASKET_ITEMS } from '../../types/constants';
+import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -71,7 +71,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
   const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
-  const totalItemLimitExceeded = totalItemCount > 10;
+  const totalItemLimitExceeded = totalItemCount > SETTINGS.checkout_item_limit;
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
   const [transactionId, setTransactionId] = useState<string | null>(null);
 

@@ -11,7 +11,7 @@ import {
   checkPastCheckout,
   getLastResidentVisit,
 } from './CheckoutAPICalls';
-import { API_HEADERS, ENDPOINTS } from '../../types/constants';
+import { API_HEADERS, ENDPOINTS, SETTINGS } from '../../types/constants';
 import { getRole } from '../contexts/UserContext';
 
 vi.mock('../contexts/UserContext', () => ({
@@ -32,7 +32,7 @@ describe('CheckoutAPICalls', () => {
   });
 
   describe('processWelcomeBasket', () => {
-    const checkoutItems = [{ id: 1, quantity: 1, name: 'Mattress', description: 'test', additional_notes: '' }];
+    const sheetSetItem = { id: 1, quantity: 1, name: 'Twin-size Sheet Set', description: 'test', additional_notes: '' };
     const transactionID = '123e4567-e89b-12d3-a456-426614174000';
 
     it('should process welcome basket successfully', async () => {
@@ -42,7 +42,7 @@ describe('CheckoutAPICalls', () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
+      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo);
 
       expect(fetch).toHaveBeenCalledWith(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
         method: 'POST',
@@ -50,8 +50,8 @@ describe('CheckoutAPICalls', () => {
         body: JSON.stringify({
           new_transaction_id: transactionID,
           user_id: loggedInUserId,
-          mattress_size: checkoutItems[0].id,
-          quantity: checkoutItems[0].quantity,
+          mattress_size: sheetSetItem.id,
+          quantity: sheetSetItem.quantity,
           resident_id: residentInfo.id,
           message: '',
         }),
@@ -65,7 +65,7 @@ describe('CheckoutAPICalls', () => {
         statusText: 'Error',
       });
 
-      await expect(processWelcomeBasket(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
+      await expect(processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo)).rejects.toThrow('Error');
     });
 
     it('should throw an error when transaction ID already exists', async () => {
@@ -80,7 +80,7 @@ describe('CheckoutAPICalls', () => {
         json: () => Promise.resolve(duplicateErrorResponse),
       });
 
-      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
+      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo);
 
       expect(result).toEqual(duplicateErrorResponse);
     });
@@ -179,7 +179,7 @@ describe('CheckoutAPICalls', () => {
 
       const result = await getUnitNumbers(user, buildingId);
 
-      expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=1000`, {
+      expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=${SETTINGS.api_fetch_limit_units}`, {
         method: 'GET',
         headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
       });

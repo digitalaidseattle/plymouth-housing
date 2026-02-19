@@ -36,6 +36,9 @@ export const ENDPOINTS = {
 
 export const SETTINGS = {
   itemsPerPage: 10,
+  checkout_item_limit: 10,
+  api_fetch_limit_items: 10000,
+  api_fetch_limit_units: 1000,
   database_retry_attempts: 20,
   database_retry_delay: 5000,
   inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds

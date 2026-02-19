@@ -1,4 +1,4 @@
-import { Chip } from '@mui/material';
+import { Chip, useTheme } from '@mui/material';
 import { CheckoutTransaction } from '../../types/history';
 import { Building } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
@@ -8,6 +8,7 @@ type WelcomeBasketCardProps = {
   buildings: Building[] | null;
   howLongAgoString: string;
   quantity: number;
+  singleWelcomeBasketQuantity: number;
 };
 
 const WelcomeBasketCard = ({
@@ -15,10 +16,11 @@ const WelcomeBasketCard = ({
   buildings,
   howLongAgoString,
   quantity,
+  singleWelcomeBasketQuantity,
 }: WelcomeBasketCardProps) => {
+  const theme = useTheme();
   const itemIds = checkoutTransaction.items.map((i) => i.item_id);
   let welcomeBasketType;
-  console.log('trans', checkoutTransaction);
   // TODO: is there a way to identify the welcome-basket-type w/o hardcoded values?
   if (itemIds.includes(175)) {
     welcomeBasketType = 'Twin-size Sheet Set';
@@ -27,6 +29,8 @@ const WelcomeBasketCard = ({
   } else {
     welcomeBasketType = 'Other';
   }
+
+  const numberOfBaskets = quantity / singleWelcomeBasketQuantity;
 
   return (
     <HistoryCard transactionId={checkoutTransaction.transaction_id}>
@@ -41,7 +45,19 @@ const WelcomeBasketCard = ({
         </p>
         <p>{howLongAgoString}</p>
       </div>
-      <Chip label={`${quantity / 57}x`} />
+      <Chip
+        sx={{
+          color:
+            numberOfBaskets > 5
+              ? theme.palette.warning.dark
+              : theme.palette.success.dark,
+          backgroundColor:
+            numberOfBaskets > 5
+              ? theme.palette.warning.lighter
+              : theme.palette.success.lighter,
+        }}
+        label={`${Math.floor(numberOfBaskets)}x`}
+      />
     </HistoryCard>
   );
 };

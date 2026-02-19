@@ -17,6 +17,7 @@ import {
   TransactionItem,
 } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
+import { cacheGet, cacheSet } from '../../utils/sessionCache';
 import { getRole, UserContext } from '../../components/contexts/UserContext';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
@@ -278,10 +279,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   const fetchData = useCallback(async () => {
     try {
       let categorizedItems;
-      const cachedCategorizedItems = sessionStorage.getItem('categorizedItems');
-      if (cachedCategorizedItems) {
-        categorizedItems = JSON.parse(cachedCategorizedItems);
-      } else {
+      categorizedItems = cacheGet('categorizedItems');
+      if (!categorizedItems) {
         const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
         const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, {
           headers: headers,
@@ -293,10 +292,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
 
         const responseData = await response.json();
         categorizedItems = responseData.value;
-        sessionStorage.setItem(
-          'categorizedItems',
-          JSON.stringify(categorizedItems),
-        );
+        cacheSet('categorizedItems', categorizedItems);
       }
       setData(categorizedItems);
 
@@ -708,7 +704,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
           onSuccess={handleCheckoutSuccess}
           onError={handleCheckoutError}
           checkoutItems={checkoutItems}
-          welcomeBasketData={welcomeBasketData}
           addItemToCart={(item, quantity, category) =>
             addItemToCart(item, quantity, category, activeSection)
           }

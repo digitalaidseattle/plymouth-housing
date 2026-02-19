@@ -39,6 +39,7 @@ export const SETTINGS = {
   database_retry_attempts: 20,
   database_retry_delay: 5000,
   inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
+  cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
 };
 
 export const USER_ROLES = {
@@ -49,4 +50,9 @@ export const USER_ROLES = {
 export const ROLE_PAGES = {
   admin: ['inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'people'],
   volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket'],
+} as const;
+
+export const WELCOME_BASKET_ITEMS = {
+  TWIN: 175,
+  FULL: 176,
 } as const;

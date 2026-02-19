@@ -20,7 +20,6 @@ interface TransactionsListProps {
   loggedInUserId: number | null;
   historyType: 'checkout' | 'inventory';
   userHistory: CheckoutTransaction[] | InventoryTransaction[] | null;
-  singleWelcomeBasketQuantity: number;
 }
 
 const TransactionsList: React.FC<TransactionsListProps> = ({
@@ -30,7 +29,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   loggedInUserId,
   historyType,
   userHistory,
-  singleWelcomeBasketQuantity,
 }) => {
   if (userHistory && userHistory.length === 0) {
     return (
@@ -101,17 +99,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   historyType === 'checkout' &&
                   checkoutTransaction.item_type === 'welcome'
                 ) {
-                  const quantity = t.items.reduce((acc, item) => {
-                    return acc + item.quantity;
-                  }, 0);
                   return (
                     <WelcomeBasketCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
-                      quantity={quantity}
                       buildings={buildings}
                       howLongAgoString={howLongAgoString}
-                      singleWelcomeBasketQuantity={singleWelcomeBasketQuantity}
                     />
                   );
                 } else if (historyType === 'inventory') {

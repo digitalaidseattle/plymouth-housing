@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Building, CategoryProps, User } from '../types/interfaces';
 import { getBuildings } from '../components/Checkout/CheckoutAPICalls';
-import {
-  getUsers,
-  getWelcomeBasketQuantities,
-} from '../components/History/HistoryAPICalls';
+import { getUsers } from '../components/History/HistoryAPICalls';
 import fetchCategorizedItems from '../components/utils/fetchCategorizedItems';
 import { getRole } from '../components/contexts/UserContext';
 import type { ClientPrincipal } from '../types/interfaces';
@@ -19,8 +16,6 @@ export function useReferenceData({ user, onError }: UseReferenceDataProps) {
   const [buildings, setBuildings] = useState<Building[] | null>(null);
   const [categorizedItems, setCategorizedItems] = useState<CategoryProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [singleWelcomeBasketQuantity, setSingleWelcomeBasketQuantity] =
-    useState<number>(0);
 
   useEffect(() => {
     async function getUserList() {
@@ -52,22 +47,6 @@ export function useReferenceData({ user, onError }: UseReferenceDataProps) {
       }
     }
 
-    async function getWelcomeBasketQuantity() {
-      try {
-        const response = await getWelcomeBasketQuantities(user);
-        const sum = response.reduce(
-          (accumulator: number, currentValue: { items_per_basket: number }) =>
-            accumulator + currentValue.items_per_basket,
-          0,
-        );
-        // add 1 to final quantity to account for the selected mattress sheet
-        setSingleWelcomeBasketQuantity(sum + 1);
-      } catch (error) {
-        onError('Error fetching item and category data: ' + error);
-        setCategorizedItems([]);
-      }
-    }
-
     async function loadInitialData() {
       try {
         setIsLoading(true);
@@ -75,7 +54,6 @@ export function useReferenceData({ user, onError }: UseReferenceDataProps) {
           getUserList(),
           fetchBuildings(),
           getCategorizedItems(),
-          getWelcomeBasketQuantity(),
         ]);
       } finally {
         setIsLoading(false);
@@ -90,6 +68,5 @@ export function useReferenceData({ user, onError }: UseReferenceDataProps) {
     buildings,
     categorizedItems,
     isLoading,
-    singleWelcomeBasketQuantity,
   };
 }

@@ -7,30 +7,28 @@ type WelcomeBasketCardProps = {
   checkoutTransaction: CheckoutTransaction;
   buildings: Building[] | null;
   howLongAgoString: string;
-  quantity: number;
-  singleWelcomeBasketQuantity: number;
 };
 
 const WelcomeBasketCard = ({
   checkoutTransaction,
   buildings,
   howLongAgoString,
-  quantity,
-  singleWelcomeBasketQuantity,
 }: WelcomeBasketCardProps) => {
   const theme = useTheme();
-  const itemIds = checkoutTransaction.items.map((i) => i.item_id);
+  const basketItem = checkoutTransaction.items.find(
+    (i) => i.item_id === 175 || i.item_id === 176,
+  );
   let welcomeBasketType;
   // TODO: is there a way to identify the welcome-basket-type w/o hardcoded values?
-  if (itemIds.includes(175)) {
+  if (basketItem?.item_id === 175) {
     welcomeBasketType = 'Twin-size Sheet Set';
-  } else if (itemIds.includes(176)) {
+  } else if (basketItem?.item_id === 176) {
     welcomeBasketType = 'Full-size Sheet Set';
   } else {
     welcomeBasketType = 'Other';
   }
 
-  const numberOfBaskets = quantity / singleWelcomeBasketQuantity;
+  const numberOfBaskets = basketItem?.quantity ?? 0;
 
   return (
     <HistoryCard transactionId={checkoutTransaction.transaction_id}>

@@ -88,7 +88,7 @@ export async function getWelcomeBasketQuantities(user: ClientPrincipal | null) {
     const data = await response.json();
     return data.value;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching welcome basket quantity:', error);
     throw error;
   }
 }

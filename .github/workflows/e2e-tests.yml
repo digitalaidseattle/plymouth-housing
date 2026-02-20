@@ -1,10 +1,10 @@
 name: E2E UI Tests
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["Azure Static Web Apps CD"]
+    types:
+      - completed
   workflow_dispatch:
 
 # Least-privilege access for GITHUB_TOKEN
@@ -13,9 +13,8 @@ permissions:
 
 jobs:
   e2e-tests:
-    #  Prevent secrets from running on forked PRs
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request' }}
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
     runs-on: ubuntu-latest
 
     env:

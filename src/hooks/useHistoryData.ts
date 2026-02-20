@@ -33,6 +33,8 @@ export function useHistoryData({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     async function findUserHistoryForSelectedDate() {
       try {
         setIsLoading(true);
@@ -50,14 +52,17 @@ export function useHistoryData({
                 formattedDateRange.endDate,
                 categorizedItems,
               );
-        setUserHistory(response);
+        if (mounted) setUserHistory(response);
       } catch (error) {
-        onError('Error fetching history: ' + error);
+        if (mounted) onError('Error fetching history: ' + error);
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     }
     findUserHistoryForSelectedDate();
+    return () => {
+      mounted = false;
+    };
   }, [formattedDateRange, historyType, user, categorizedItems, onError]);
 
   const transactionsByUser = useMemo(

@@ -33,3 +33,8 @@ export type InventoryTransaction = {
     | TransactionType.InventoryReplaceValue;
   user_id: number;
 };
+
+export type TransactionsByUser<T> = {
+  user_id: number;
+  transactions: T[];
+};

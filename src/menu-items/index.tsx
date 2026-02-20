@@ -90,6 +90,14 @@ const dashboard = {
       icon: icons.UserOutlined,
       breadcrumbs: false,
     },
+    {
+      id: 'history',
+      title: 'History',
+      type: 'item',
+      url: '/history',
+      icon: icons.FileOutlined,
+      breadcrumbs: false,
+    },
   ],
 };
 

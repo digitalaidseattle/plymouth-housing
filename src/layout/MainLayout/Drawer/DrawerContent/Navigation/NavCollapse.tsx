@@ -69,19 +69,8 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
 
   const itemIcon = React.useMemo(() => {
     if (!item.icon) return null;
-
-    // If icon is already a React element, render it directly
-    if (React.isValidElement(item.icon)) {
-      return item.icon;
-    }
-
-    // If icon is a function component, render it
-    if (typeof item.icon === 'function') {
-      const Icon = item.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
-      return <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />;
-    }
-
-    return null;
+    const Icon = item.icon;
+    return <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />;
   }, [item.icon, drawerOpen]);
 
   const isAnyChildSelected = item.children?.some(

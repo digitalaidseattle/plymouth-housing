@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import VolunteerHome from './index';
@@ -74,15 +74,15 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    // Verify header content; note that the date part cannot be compared precisely, so only keywords are checked
     expect(screen.getByText(/Thanks for being here!/i)).toBeInTheDocument();
 
-    // Verify that the Check Out and Add Item buttons exist (2 of each for General and Welcome basket sections)
-    const checkOutButtons = screen.getAllByRole('button', { name: /Check out/i });
-    expect(checkOutButtons).toHaveLength(2);
+    const checkoutSection = screen.getByTestId('section-checkout');
+    const stockSection = screen.getByTestId('section-stock');
 
-    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
-    expect(addItemButtons).toHaveLength(2);
+    expect(within(checkoutSection).getByRole('button', { name: /General Inventory/i })).toBeInTheDocument();
+    expect(within(checkoutSection).getByRole('button', { name: /Welcome Basket/i })).toBeInTheDocument();
+    expect(within(stockSection).getByRole('button', { name: /General Inventory/i })).toBeInTheDocument();
+    expect(within(stockSection).getByRole('button', { name: /Welcome Basket/i })).toBeInTheDocument();
   });
 
   test('navigates to checkout when Check Out button is clicked', async () => {
@@ -92,8 +92,8 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    const checkOutButtons = screen.getAllByRole('button', { name: /Check out/i });
-    fireEvent.click(checkOutButtons[0]); // Click the first (General) checkout button
+    const checkoutSection = screen.getByTestId('section-checkout');
+    fireEvent.click(within(checkoutSection).getByRole('button', { name: /General Inventory/i }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/checkout', { state: { checkoutType: 'general' } });
   });
@@ -105,8 +105,8 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    const checkOutButtons = screen.getAllByRole('button', { name: /Check out/i });
-    fireEvent.click(checkOutButtons[1]); // Click the second (Welcome Basket) checkout button
+    const checkoutSection = screen.getByTestId('section-checkout');
+    fireEvent.click(within(checkoutSection).getByRole('button', { name: /Welcome Basket/i }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/checkout', { state: { checkoutType: 'welcomeBasket' } });
   });
@@ -123,13 +123,11 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    // Initially, the modal should be closed
     const modal = screen.getByTestId('add-item-modal');
     expect(modal).toHaveTextContent('Modal Closed');
 
-    // After clicking the Add Item button, the modal should open
-    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
-    fireEvent.click(addItemButtons[0]); // Click the first (General) add item button
+    const stockSection = screen.getByTestId('section-stock');
+    fireEvent.click(within(stockSection).getByRole('button', { name: /General Inventory/i }));
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
@@ -137,7 +135,6 @@ describe('VolunteerHome Component', () => {
       expect(screen.getByTestId('add-item-modal')).toHaveTextContent('Modal Open');
     });
 
-    // Simulate clicking the close button inside the modal to close it
     const closeModalButton = screen.getByText('Close Modal');
     fireEvent.click(closeModalButton);
 
@@ -147,10 +144,8 @@ describe('VolunteerHome Component', () => {
   });
 
   test('handles fetch error gracefully and logs error', async () => {
-    // Spy on console.error
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    // Mock fetch to return a non-ok status
     (global.fetch as any) = vi.fn().mockResolvedValue({
       ok: false,
       statusText: 'Internal Server Error',
@@ -162,13 +157,11 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    // After clicking the Add Item button, the fetch call should happen
-    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
-    fireEvent.click(addItemButtons[0]); // Click the first (General) add item button
+    const stockSection = screen.getByTestId('section-stock');
+    fireEvent.click(within(stockSection).getByRole('button', { name: /General Inventory/i }));
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    // Check that console.error was called (the component logs error via console.error)
     expect(consoleErrorSpy).toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
   });
@@ -186,12 +179,11 @@ describe('VolunteerHome Component', () => {
       </Wrapper>
     );
 
-    const addItemButtons = screen.getAllByRole('button', { name: /Add item/i });
-    fireEvent.click(addItemButtons[0]); // Click the first (General) add item button
+    const stockSection = screen.getByTestId('section-stock');
+    fireEvent.click(within(stockSection).getByRole('button', { name: /General Inventory/i }));
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    // Check if the state is updated with fetched data
     expect(screen.getByTestId('add-item-modal')).toHaveTextContent('2 items');
   });
 

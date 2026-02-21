@@ -7,13 +7,11 @@ import {
   ExclamationOutlined,
   FileOutlined,
   FileExclamationOutlined,
-  EyeInvisibleOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
-  GiftOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
 
@@ -25,13 +23,11 @@ const icons = {
   ExclamationOutlined,
   FileOutlined,
   FileExclamationOutlined,
-  EyeInvisibleOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
-  GiftOutlined,
   ShoppingCartOutlined,
 };
 
@@ -59,7 +55,7 @@ const dashboard = {
       id: 'checkout',
       title: 'Checkout',
       type: 'collapse',
-      icon: icons.EyeInvisibleOutlined,
+      icon: icons.ShoppingCartOutlined,
       breadcrumbs: false,
       children: [
         {
@@ -67,7 +63,6 @@ const dashboard = {
           title: 'General',
           type: 'item',
           url: '/checkout',
-          icon: icons.ShoppingCartOutlined,
           state: { checkoutType: 'general' },
           breadcrumbs: false,
         },
@@ -76,7 +71,6 @@ const dashboard = {
           title: 'Welcome basket',
           type: 'item',
           url: '/checkout',
-          icon: icons.GiftOutlined,
           state: { checkoutType: 'welcomeBasket' },
           breadcrumbs: false,
         },

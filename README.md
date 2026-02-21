@@ -114,3 +114,7 @@ If you're using Visual Studio Code, you can also set up Prettier to automaticall
 - Search for "Default Formatter" and select "Prettier - Code formatter".
 - Now, every time you save a file, Prettier will automatically format it for you.
 
+## Automated Tests
+### For detailed setup instructions, dependency management, and test execution
+
+- **UI tests**: [docs/e2e-automation-test.md](./docs/e2e-automation-test.md)

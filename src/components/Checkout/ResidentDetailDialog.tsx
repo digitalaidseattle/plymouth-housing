@@ -1,7 +1,12 @@
 import React, { FormEvent, useState, useContext } from 'react';
 import { Box, FormControl, TextField, Typography } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
-import { Building, ResidentInfo, Unit, ResidentNameOption } from '../../types/interfaces';
+import {
+  Building,
+  ResidentInfo,
+  Unit,
+  ResidentNameOption,
+} from '../../types/interfaces';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -35,7 +40,13 @@ const ResidentDetailDialog = ({
   const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
   const [showError, setShowError] = useState<boolean>(false);
 
-  const filter = createFilterOptions<ResidentNameOption>();
+  const residentNameFilter = createFilterOptions<ResidentNameOption>({
+    matchFrom: 'start',
+  });
+
+  const unitNumberFilter = createFilterOptions<Unit>({
+    matchFrom: 'start',
+  });
 
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
   const residentsHook = useResidents(user, selectedUnit);
@@ -66,7 +77,10 @@ const ResidentDetailDialog = ({
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return false;
     const now = new Date();
-    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
   }
 
   const fetchUnitNumbers = async (buildingId: number) => {
@@ -127,6 +141,7 @@ const ResidentDetailDialog = ({
             options={unitNumberValues}
             value={selectedUnit}
             disabled={isWaiting}
+            filterOptions={unitNumberFilter}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
               if (reason === 'clear') {
@@ -150,8 +165,10 @@ const ResidentDetailDialog = ({
             renderInput={(params) => {
               const getHelperText = () => {
                 if (!showError) return '';
-                if (selectedUnit.id === 0 && selectedUnit.unit_number) return 'Not a valid unit';
-                if (selectedUnit.id === 0) return 'Please select a unit from the list';
+                if (selectedUnit.id === 0 && selectedUnit.unit_number)
+                  return 'Not a valid unit';
+                if (selectedUnit.id === 0)
+                  return 'Please select a unit from the list';
                 return '';
               };
 
@@ -203,11 +220,10 @@ const ResidentDetailDialog = ({
               }
             }}
             filterOptions={(options, params) => {
-              const filtered = filter(options, params);
+              const filtered = residentNameFilter(options, params);
               return filtered;
             }}
             selectOnFocus
-            clearOnBlur
             handleHomeEndKeys
             id="resident-name-autocomplete"
             options={residentsHook.existingResidents}
@@ -255,7 +271,8 @@ const ResidentDetailDialog = ({
             }
             sx={{ alignSelf: 'flex-start' }}
           >
-            last visit: {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
+            last visit:{' '}
+            {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
           </Typography>
         )}
         {apiError && <Typography color="error">{apiError}</Typography>}

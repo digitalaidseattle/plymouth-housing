@@ -1,8 +1,5 @@
 import time
-
-from selenium.common import TimeoutException, NoSuchElementException, StaleElementReferenceException, \
-    InvalidSelectorException
-from selenium.webdriver import Keys
+from selenium.common import TimeoutException, StaleElementReferenceException, InvalidSelectorException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -17,8 +14,19 @@ class CheckOutPage(BasePage):
         self.locators = CheckoutPageLocators
         self.common_locators = CommonLocators
 
-    def click_checkout(self):
-        self.safe_click(self.common_locators.CHECKOUT_BUTTON, label="Checkout")
+    def click_checkout(self, flow="general"):
+
+        # open checkout group
+        self.click(self.common_locators.CHECKOUT_MENU_BUTTON)
+
+        if flow == "general":
+            self.click(self.common_locators.GENERAL_MENU_BUTTON)
+        elif flow == "welcome":
+            self.click(self.common_locators.WELCOME_MENU_BUTTON)
+        else:
+            raise ValueError("Invalid checkout flow")
+
+        self.find(self.locators.CHECKOUT_INFO_TEXT, timeout=15)
 
     def click_building_code(self):
         self.click(self.locators.BUILDING_CODE)
@@ -79,11 +87,6 @@ class CheckOutPage(BasePage):
 
     def click_confirm(self):
         self.click(self.locators.CONFIRM)
-
-    # def search_item(self, item_name):
-    #     search_field = self.driver.find_element(self.locators.SEARCH)
-    #     search_field.clear()
-    #     search_field.send_keys(item_name)
 
     def wait_for_search_results(self, item_name):
         WebDriverWait(self.driver, 10).until(

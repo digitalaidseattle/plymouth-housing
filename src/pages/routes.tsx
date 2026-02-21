@@ -8,6 +8,7 @@ import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
+import HistoryPage from './history';
 import { RootRedirect } from './RootRedirect';
 
 const routes = [
@@ -20,7 +21,7 @@ const routes = [
         element: (
           <RootRedirect source="volunteer-home">
             <MainContainer title="Volunteer Home">
-              <VolunteerHome />,
+              <VolunteerHome />
             </MainContainer>
           </RootRedirect>
         ),
@@ -30,7 +31,7 @@ const routes = [
         element: (
           <RootRedirect source="inventory">
             <MainContainer title="Inventory">
-              <Inventory />,
+              <Inventory />
             </MainContainer>
           </RootRedirect>
         ),
@@ -40,7 +41,7 @@ const routes = [
         element: (
           <RootRedirect source="people">
             <MainContainer title="People">
-              <People />,
+              <People />
             </MainContainer>
           </RootRedirect>
         ),
@@ -50,7 +51,7 @@ const routes = [
         element: (
           <RootRedirect source="volunteer-home">
             <MainContainer title="Volunteer Home">
-              <VolunteerHome />,
+              <VolunteerHome />
             </MainContainer>
           </RootRedirect>
         ),
@@ -62,6 +63,16 @@ const routes = [
           // to work with the sticky nav inside it
           <RootRedirect source="checkout">
             <CheckoutPageContainer />
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'history',
+        element: (
+          <RootRedirect source="history">
+            <MainContainer title="History">
+              <HistoryPage />
+            </MainContainer>
           </RootRedirect>
         ),
       },

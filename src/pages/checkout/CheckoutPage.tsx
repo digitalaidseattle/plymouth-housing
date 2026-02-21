@@ -16,7 +16,6 @@ import {
   CheckoutHistoryItem,
   TransactionItem,
 } from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getRole } from '../../utils/userUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -35,6 +34,7 @@ import {
   getBuildings,
 } from '../../services/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
+import fetchCategorizedItems from '../../components/utils/fetchCategorizedItems';
 
 type CheckoutType = 'general' | 'welcomeBasket';
 
@@ -50,7 +50,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   const [data, setData] = useState<CategoryProps[]>([]);
   const [searchData, setSearchData] = useState<CategoryProps[]>([]);
   const [searchActive, setSearchActive] = useState<boolean>(false);
-  const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
@@ -66,7 +65,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   });
 
   const [activeSection, setActiveSection] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
 
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -271,34 +269,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
       const buildings = await getBuildings(user);
       setBuildings(buildings);
     } catch (error) {
-      setError('Could not get buildings. \r\n' + error);
+      const errorMessage = 'Could not get buildings. \r\n' + error;
+      setSnackbarState({ open: true, message: errorMessage, severity: 'warning' });
       console.error('Error fetching buildings:', error);
     }
   }, [user]);
 
   const fetchData = useCallback(async () => {
     try {
-      let categorizedItems;
-      const cachedCategorizedItems = sessionStorage.getItem('categorizedItems');
-      if (cachedCategorizedItems) {
-        categorizedItems = JSON.parse(cachedCategorizedItems);
-      } else {
-        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-        const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, {
-          headers: headers,
-          method: 'GET',
-        });
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
-
-        const responseData = await response.json();
-        categorizedItems = responseData.value;
-        sessionStorage.setItem(
-          'categorizedItems',
-          JSON.stringify(categorizedItems),
-        );
-      }
+      const userRole = getRole(user);
+      const categorizedItems = await fetchCategorizedItems(userRole);
       setData(categorizedItems);
 
       const cleanCheckout = categorizedItems.map((category: CategoryProps) => ({
@@ -348,33 +328,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     setSnackbarState({ open: true, message, severity: 'warning' });
   };
 
-  useEffect(() => {
-    if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'warning' });
-    }
-  }, [error]);
-
-  useEffect(() => {
-    setResidentInfo({
-      id: 0,
-      name: '',
-      unit: { id: 0, unit_number: '' },
-      building: { id: 0, code: '', name: '' },
-      lastVisitDate: null,
-    });
-    setUnitNumberValues([]);
-    setShowResidentDetailDialog(true);
-  }, [checkoutType]);
-
+  // Fetch initial data on component mount - standard data fetching pattern
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchBuildings();
     fetchData();
   }, [fetchData, fetchBuildings]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
-  useEffect(() => {
-    setFilteredData(
-      data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'),
-    );
+  const filteredData = useMemo(() => {
+    return data.filter((item: CategoryProps) => item.category !== 'Welcome Basket');
   }, [data]);
 
   const navbarData = useMemo(() => {

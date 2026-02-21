@@ -1,0 +1,63 @@
+name: E2E UI Tests
+
+on:
+  workflow_run:
+    workflows: ["Azure Static Web Apps CD"]
+    types:
+      - completed
+  workflow_dispatch:
+
+# Least-privilege access for GITHUB_TOKEN
+permissions:
+  contents: read
+
+jobs:
+  e2e-tests:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    runs-on: ubuntu-latest
+
+    env:
+      CI: "true"
+      URL: ${{ secrets.URL }}
+      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      VOLUNTEER_USERNAME: ${{ secrets.VOLUNTEER_USERNAME }}
+      VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # Ensure Chrome is available on runner
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+          if [ -f tests/requirements.txt ]; then
+            echo "Installing dependencies from tests/requirements.txt"
+            pip install -r tests/requirements.txt
+          else
+            echo "tests/requirements.txt not found, installing inline dependencies"
+            pip install \
+              pytest~=8.3 \
+              selenium~=4.27 \
+              python-dotenv~=1.1 \
+              allure-pytest~=2.14 \
+              requests~=2.32 \
+              pytest-html~=4.1 \
+              webdriver-manager~=4.0 \
+              pytest-xdist~=3.8
+          fi
+
+      - name: Run smoke tests (headless)
+        run: |
+          pytest -m smoke -n auto --maxfail=1 --disable-warnings -q

@@ -93,6 +93,14 @@ const dashboard = {
       breadcrumbs: false,
     },
     {
+      id: 'history',
+      title: 'History',
+      type: 'item',
+      url: '/history',
+      icon: icons.FileOutlined,
+      breadcrumbs: false,
+    },
+    {
       id: 'catalog',
       title: 'Catalog',
       type: 'admin',

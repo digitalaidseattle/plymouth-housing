@@ -1,8 +1,8 @@
-from piglet.parsers.semicolonseparated import value
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 from tests.utilities.locators import CommonLocators, InventoryPageLocators
 from selenium.common.exceptions import StaleElementReferenceException
 
@@ -21,31 +21,33 @@ class BasePage:
             raise Exception(f"Element not found: {locator}")
 
     def find_all(self, locator):
-        return self.driver.find_elements(locator)
+        return self.driver.find_elements(*locator)
 
-    def click(self, locator, wait_for_clickable=True, retries=2):
-        last_exception = None
-        for attempt in range(retries + 1):
+    def click(self, locator, timeout=15, retries=4):
+        last = None
+        for attempt in range(retries):
             try:
-                element = self.wait_for_clickable(locator) if wait_for_clickable else self.find(locator)
+                wait = WebDriverWait(
+                    self.driver,
+                    timeout,
+                    ignored_exceptions=(StaleElementReferenceException,)
+                )
 
-                # Ensure visibility — avoids “element not clickable at point” errors
-                self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", element)
+                el = wait.until(EC.element_to_be_clickable(locator))
+                self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", el)
 
-                element.click()
+                try:
+                    el.click()
+                except ElementClickInterceptedException:
+                    self.driver.execute_script("arguments[0].click();", el)
+
                 return
-            except StaleElementReferenceException as e:
-                last_exception = e
-                print(f"[RETRY {attempt + 1}] Stale element for {locator}: {e}")
-            except TimeoutException as e:
-                last_exception = e
-                print(f"[RETRY {attempt + 1}] Timeout for {locator}: {e}")
-            except Exception as e:
-                last_exception = e
-                print(f"[RETRY {attempt + 1}] Unexpected error for {locator}: {e}")
 
-        raise last_exception
+            except (StaleElementReferenceException, TimeoutException) as e:
+                last = e
+                time.sleep(0.25)
 
+        raise last
     def send_keys(self, locator, text):
         element = self.find(locator)
         element.clear()

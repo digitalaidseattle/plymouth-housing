@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # Load environment variables from .env file
+load_dotenv()
 
 URL = os.getenv("URL")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")

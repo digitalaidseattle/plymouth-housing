@@ -19,7 +19,6 @@ interface TransactionsListProps {
   buildings: Building[] | null;
   loggedInUserId: number | null;
   historyType: 'checkout' | 'inventory';
-  userHistory: CheckoutTransaction[] | InventoryTransaction[] | null;
 }
 
 const TransactionsList: React.FC<TransactionsListProps> = ({
@@ -28,9 +27,8 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   buildings,
   loggedInUserId,
   historyType,
-  userHistory,
 }) => {
-  if (userHistory && userHistory.length === 0) {
+  if (transactionsByUser.length === 0) {
     return (
       <p>
         No transactions found for this date. Try selecting a different date
@@ -80,18 +78,11 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   historyType === 'checkout' &&
                   checkoutTransaction.item_type === 'general'
                 ) {
-                  const quantity = checkoutTransaction.items.reduce(
-                    (acc, item) => {
-                      return acc + item.quantity;
-                    },
-                    0,
-                  );
                   return (
                     <GeneralCheckoutCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
                       buildings={buildings}
-                      quantity={quantity}
                       howLongAgoString={howLongAgoString}
                     />
                   );

@@ -15,6 +15,7 @@ import {
   CheckoutItemProp,
   ResidentInfo,
 } from '../../types/interfaces';
+import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
 import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
 import CategorySection from './CategorySection';
@@ -24,7 +25,6 @@ type CheckoutDialogProps = {
   onClose: () => void;
   onSuccess: (errorMessage?: string) => void;
   checkoutItems: CategoryProps[];
-  welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   addItemToCart: (
     item: CheckoutItemProp,
@@ -46,7 +46,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   open,
   onClose,
   checkoutItems,
-  welcomeBasketData,
   setCheckoutItems,
   removeItemFromCart,
   addItemToCart,
@@ -72,7 +71,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
   const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
-  const totalItemLimitExceeded = totalItemCount > 10;
+  const totalItemLimitExceeded = totalItemCount > SETTINGS.checkout_item_limit;
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
@@ -120,19 +119,26 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         throw new Error('Transaction ID not created.');
       }
 
-      const welcomeBasketItemIds = welcomeBasketData.flatMap((basket) =>
-        basket.items.map((item) => item.id),
-      );
+      // A checkout is treated as a welcome basket if the cart contains either sheet set.
+      // We find the sheet set explicitly here because allItems may contain all basket items
+      // when editing from history, so relying on array position would send the wrong item.
+      const sheetSetIds: number[] = Object.values(WELCOME_BASKET_ITEMS);
       const isWelcomeBasket = allItems.some((item) =>
-        welcomeBasketItemIds.includes(item.id),
+        sheetSetIds.includes(item.id),
       );
       let data = null;
       if (isWelcomeBasket) {
+        const sheetSetItem = allItems.find((item) =>
+          sheetSetIds.includes(item.id),
+        );
+        if (!sheetSetItem) {
+          throw new Error('Please select a sheet set to continue.');
+        }
         data = await processWelcomeBasket(
           transactionId,
           user,
           loggedInUserId,
-          allItems,
+          sheetSetItem,
           residentInfo,
         );
       } else {
@@ -152,15 +158,23 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       }
 
       // Validate response structure
-      if (!data.value || !Array.isArray(data.value) || data.value.length === 0) {
-        throw new Error('Invalid response format from server (missing result data)');
+      if (
+        !data.value ||
+        !Array.isArray(data.value) ||
+        data.value.length === 0
+      ) {
+        throw new Error(
+          'Invalid response format from server (missing result data)',
+        );
       }
 
       const result = data.value[0];
 
       // Validate result has required fields
       if (!result || typeof result !== 'object') {
-        throw new Error('Invalid response format from server (malformed result)');
+        throw new Error(
+          'Invalid response format from server (malformed result)',
+        );
       }
 
       if (result.Status === 'Success') {
@@ -177,11 +191,14 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         onSuccess();
       } else if (result.Status === 'Error') {
         const errorMessage =
-          result.message || 'Checkout failed (server returned error with no message)';
+          result.message ||
+          'Checkout failed (server returned error with no message)';
         throw new Error(errorMessage);
       } else {
         // Unexpected status value
-        throw new Error(`Unexpected response status: ${result.Status || 'undefined'}`);
+        throw new Error(
+          `Unexpected response status: ${result.Status || 'undefined'}`,
+        );
       }
     } catch (error) {
       let userFriendlyMessage = 'Checkout failed. Please try again.';
@@ -194,7 +211,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           setCheckoutItems([]);
           onSuccess(error.message);
           return;
-        } else if (errorMessage.includes('cannot read properties of undefined')) {
+        } else if (
+          errorMessage.includes('cannot read properties of undefined')
+        ) {
           errorCode = 'UNDEFINED_PROPERTY';
           userFriendlyMessage =
             'There was a connection issue with the checkout system. Please try again in a moment.';
@@ -268,8 +287,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             {totalItemLimitExceeded && categoryLimitExceeded
               ? 'Over the usual limits'
               : totalItemLimitExceeded
-              ? 'Over the usual total limit'
-              : 'Over the usual category limit'}
+                ? 'Over the usual total limit'
+                : 'Over the usual category limit'}
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -342,13 +361,16 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           }}
         >
           <Typography>
-            <strong>Building code: </strong>{selectedBuildingCode}
+            <strong>Building code: </strong>
+            {selectedBuildingCode}
           </Typography>
           <Typography>
-            <strong>Unit number: </strong>{residentInfo.unit.unit_number}
+            <strong>Unit number: </strong>
+            {residentInfo.unit.unit_number}
           </Typography>
           <Typography>
-            <strong>Resident name: </strong>{residentInfo.name}
+            <strong>Resident name: </strong>
+            {residentInfo.name}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

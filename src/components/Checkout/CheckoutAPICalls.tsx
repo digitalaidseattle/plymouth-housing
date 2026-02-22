@@ -4,8 +4,10 @@ import {
   CheckoutItemProp,
   ClientPrincipal,
   ResidentInfo,
+  Unit,
 } from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
+import { ENDPOINTS, API_HEADERS, SETTINGS } from '../../types/constants';
+import { cacheGet, cacheSet } from '../../utils/sessionCache';
 
 async function getErrorMessage(response: Response): Promise<string> {
   let errorMessage: string | undefined;
@@ -35,7 +37,7 @@ export async function processWelcomeBasket(
   newTransactionID: string,
   user: ClientPrincipal | null,
   loggedInUserId: number,
-  checkoutItems: CheckoutItemProp[],
+  sheetSetItem: CheckoutItemProp,
   residentInfo: ResidentInfo,
 ) {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
@@ -46,8 +48,8 @@ export async function processWelcomeBasket(
       body: JSON.stringify({
         new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
-        mattress_size: checkoutItems[0].id,
-        quantity: checkoutItems[0].quantity,
+        mattress_size: sheetSetItem.id,
+        quantity: sheetSetItem.quantity,
         resident_id: residentInfo.id,
         message: '',
       }),
@@ -104,9 +106,9 @@ export async function processGeneralItems(
 
 export async function getBuildings(user: ClientPrincipal | null) {
   try {
-    const cachedBuildings = sessionStorage.getItem('buildings');
+    const cachedBuildings = cacheGet<Building[]>('buildings');
     if (cachedBuildings) {
-      return JSON.parse(cachedBuildings);
+      return cachedBuildings;
     }
 
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
@@ -128,7 +130,7 @@ export async function getBuildings(user: ClientPrincipal | null) {
     const data = await response.json();
     data.value.sort((a: Building, b: Building) => a.code.localeCompare(b.code));
 
-    sessionStorage.setItem('buildings', JSON.stringify(data.value));
+    cacheSet('buildings', data.value);
     return data.value;
   } catch (error) {
     console.error('Error fetching buildings:', error);
@@ -142,14 +144,14 @@ export async function getUnitNumbers(
 ) {
   try {
     const cacheKey = `units_${buildingId}`;
-    const cachedUnits = sessionStorage.getItem(cacheKey);
+    const cachedUnits = cacheGet<Unit[]>(cacheKey);
     if (cachedUnits) {
-      return JSON.parse(cachedUnits);
+      return cachedUnits;
     }
 
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(
-      `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=1000`,
+      `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=${SETTINGS.api_fetch_limit_units}`,
       {
         method: 'GET',
         headers: headers,
@@ -167,7 +169,7 @@ export async function getUnitNumbers(
     }
 
     const data = await response.json();
-    sessionStorage.setItem(cacheKey, JSON.stringify(data.value));
+    cacheSet(cacheKey, data.value);
 
     return data.value;
   } catch (error) {

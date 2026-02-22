@@ -175,7 +175,7 @@ const Inventory = () => {
   const fetchData = useCallback(async () => {
     try {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: headers, method: 'GET' });
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + `?$first=${SETTINGS.api_fetch_limit_items}`, { headers: headers, method: 'GET' });
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error('Database is likely starting up. Try again in 30 seconds.');

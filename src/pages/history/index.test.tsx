@@ -520,8 +520,8 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
         mockCategorizedItems,
       );
     });

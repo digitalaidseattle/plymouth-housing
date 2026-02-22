@@ -2,8 +2,8 @@ DROP PROCEDURE IF EXISTS [dbo].[GetInventoryHistory];
 GO
 
 CREATE PROCEDURE GetInventoryHistory
-    @start_date Date,
-    @end_date Date
+    @start_date DATETIME,
+    @end_date DATETIME
 AS
 BEGIN
     -- Validate date range
@@ -33,8 +33,8 @@ BEGIN
     INNER JOIN TransactionItems ti ON ti.transaction_id = Transactions.id
     INNER JOIN Items i ON ti.item_id = i.id
     INNER JOIN Categories c ON i.category_id = c.id
-    WHERE [transaction_date] >= CAST(@start_date AS DATETIME)
-        AND [transaction_date] < DATEADD(DAY, 1, CAST(@end_date AS DATETIME))
+    WHERE [transaction_date] >= @start_date
+        AND [transaction_date] <= @end_date
         AND [transaction_type] IN (@RestockTransactionType, @CorrectionTransactionType)
     ORDER BY Transactions.transaction_date DESC, Transactions.id, ti.item_id;
 END;

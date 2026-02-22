@@ -37,7 +37,6 @@ const HistoryPage: React.FC = () => {
   const {
     userList,
     buildings,
-    categorizedItems,
     isLoading: isLoadingReferenceData,
   } = useReferenceData({ user, onError: showSnackbar });
 
@@ -46,14 +45,12 @@ const HistoryPage: React.FC = () => {
   );
 
   const {
-    userHistory,
     transactionsByUser,
     isLoading: isLoadingHistory,
   } = useHistoryData({
     user,
     formattedDateRange,
     historyType,
-    categorizedItems,
     loggedInUserId,
     onError: showSnackbar,
   });
@@ -189,7 +186,6 @@ const HistoryPage: React.FC = () => {
           buildings={buildings}
           loggedInUserId={loggedInUserId}
           historyType={historyType}
-          userHistory={userHistory}
         />
       )}
     </Stack>

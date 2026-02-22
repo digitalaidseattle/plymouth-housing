@@ -119,14 +119,9 @@ const mockCheckoutTransactions: CheckoutTransaction[] = [
     resident_name: 'Resident A',
     transaction_date: new Date().toISOString(),
     item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Test Item',
-        quantity: 2,
-        category_name: 'Food',
-      },
-    ],
+    total_quantity: 2,
+    welcome_basket_item_id: null,
+    welcome_basket_quantity: null,
   },
 ];
 
@@ -136,15 +131,9 @@ const mockInventoryTransactions: InventoryTransaction[] = [
     user_id: 1,
     transaction_date: new Date().toISOString(),
     transaction_type: TransactionType.InventoryAdd,
-    item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Bread',
-        quantity: 10,
-        category_name: 'Food',
-      },
-    ],
+    item_name: 'Bread',
+    category_name: 'Food',
+    quantity: 10,
   },
 ];
 
@@ -242,13 +231,11 @@ describe('HistoryPage Component', () => {
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
-    // Wait for initial data load to complete (including categorizedItems being used in API call)
     await waitFor(() => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.any(String),
         expect.any(String),
-        mockCategorizedItems,
       );
     });
 
@@ -269,7 +256,6 @@ describe('HistoryPage Component', () => {
       mockUser,
       expect.any(String),
       expect.any(String),
-      mockCategorizedItems,
     );
   });
 
@@ -446,14 +432,9 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident B',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 1,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 
@@ -483,14 +464,9 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident A',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 2,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 2,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 
@@ -522,7 +498,6 @@ describe('HistoryPage Component', () => {
         mockUser,
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        mockCategorizedItems,
       );
     });
   });

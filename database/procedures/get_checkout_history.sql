@@ -2,8 +2,8 @@ DROP PROCEDURE IF EXISTS [dbo].[GetCheckoutHistory];
 GO
 
 CREATE PROCEDURE GetCheckoutHistory
-    @start_date Date,
-    @end_date Date
+    @start_date DATETIME,
+    @end_date DATETIME
 AS
 BEGIN
     -- Validate date range
@@ -25,19 +25,25 @@ BEGIN
         Units.unit_number,
         Buildings.id AS building_id,
         Transactions.transaction_date,
-        ti.item_id,
-        i.name as item_name,
-        c.name as category_name,
-        ti.quantity
+        SUM(ti.quantity) AS total_quantity,
+        -- Item IDs 175 (Twin-size Sheet Set) and 176 (Full-size Sheet Set) identify welcome basket transactions
+        MAX(CASE WHEN ti.item_id IN (175, 176) THEN ti.item_id ELSE NULL END) AS welcome_basket_item_id,
+        MAX(CASE WHEN ti.item_id IN (175, 176) THEN ti.quantity ELSE NULL END) AS welcome_basket_quantity
     FROM Transactions
     INNER JOIN Residents ON Transactions.resident_id = Residents.id
     INNER JOIN Units ON Residents.unit_id = Units.id
     INNER JOIN Buildings ON Units.building_id = Buildings.id
     INNER JOIN TransactionItems ti ON ti.transaction_id = Transactions.id
-    INNER JOIN Items i ON ti.item_id = i.id
-    INNER JOIN Categories c ON i.category_id = c.id
-    WHERE [transaction_date] >= CAST(@start_date AS DATETIME)
-        AND [transaction_date] < DATEADD(DAY, 1, CAST(@end_date AS DATETIME))
+    WHERE [transaction_date] >= @start_date
+        AND [transaction_date] <= @end_date
         AND [transaction_type] = @CheckoutTransactionType
-    ORDER BY Transactions.transaction_date DESC, Transactions.id, ti.item_id;
+    GROUP BY
+        Transactions.user_id,
+        Transactions.id,
+        Transactions.resident_id,
+        Residents.name,
+        Units.unit_number,
+        Buildings.id,
+        Transactions.transaction_date
+    ORDER BY Transactions.transaction_date DESC, Transactions.id;
 END;

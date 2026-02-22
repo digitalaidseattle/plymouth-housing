@@ -1,4 +1,4 @@
-import { Building, CategoryProps } from '../../types/interfaces';
+import { Building } from '../../types/interfaces';
 
 export const DATE_FORMATS = {
   DATE_ONLY: {
@@ -82,27 +82,6 @@ export function formatBuildingInfo(
   return building ? `${building.code} - ${building.name}` : '';
 }
 
-export function checkIfWelcomeBasket(
-  itemId: number,
-  categorizedItems: CategoryProps[],
-): boolean {
-  if (!categorizedItems.length) return false;
-  const welcomeBasket = categorizedItems.find(
-    (c) => c.category === 'Welcome Basket',
-  );
-  const welcomeBasketIds = welcomeBasket?.items.map((i) => i.id);
-  return welcomeBasketIds?.includes(itemId) ?? false;
-}
-
-export function determineWelcomeBasketType(itemIds: number[]): string {
-  if (itemIds.includes(WELCOME_BASKET_ITEMS.TWIN)) {
-    return 'Twin-size Sheet Set';
-  }
-  if (itemIds.includes(WELCOME_BASKET_ITEMS.FULL)) {
-    return 'Full-size Sheet Set';
-  }
-  return 'Other';
-}
 
 export function getPresetDateRange(preset: string): {
   startDate: Date;

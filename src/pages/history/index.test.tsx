@@ -11,7 +11,7 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as HistoryAPICalls from '../../components/History/HistoryAPICalls';
-import * as CheckoutAPICalls from '../../components/Checkout/CheckoutAPICalls';
+import * as CheckoutAPICalls from '../../services/CheckoutAPICalls';
 import * as helpers from '../../components/utils/fetchCategorizedItems';
 import {
   TransactionType,
@@ -22,7 +22,7 @@ import { Building } from '../../types/interfaces';
 
 // Mock modules
 vi.mock('../../components/History/HistoryAPICalls');
-vi.mock('../../components/Checkout/CheckoutAPICalls');
+vi.mock('../../services/CheckoutAPICalls');
 vi.mock('../../components/utils/fetchCategorizedItems');
 vi.mock('../../components/CircularLoader', () => ({
   default: () => <div data-testid="circular-loader">Loading...</div>,

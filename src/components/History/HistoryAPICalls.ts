@@ -1,4 +1,4 @@
-import { getRole } from '../contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { ClientPrincipal, CategoryProps } from '../../types/interfaces';
 import { CheckoutTransaction, InventoryTransaction } from '../../types/history';

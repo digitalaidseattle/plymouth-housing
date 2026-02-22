@@ -2,7 +2,8 @@ import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import { AddVolunteerModalProps } from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { getRole, UserContext } from '../contexts/UserContext';
+import { UserContext } from '../contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 
 const AddVolunteerModal = ({
   addModal,

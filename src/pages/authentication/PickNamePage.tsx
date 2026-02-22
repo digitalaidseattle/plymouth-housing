@@ -13,7 +13,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
 import SpinUpDialog from './SpinUpDialog';
-import { fetchWithRetry } from '../../components/fetchWithRetry';
+import { fetchWithRetry } from '../../services/fetchWithRetry';
 import { ENDPOINTS, USER_ROLES } from '../../types/constants';
 import { trackException } from '../../utils/appInsights';
 

@@ -342,13 +342,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     setSnackbarState({ open: true, message, severity: 'warning' });
   };
 
-  // Fetch initial data on component mount - standard data fetching pattern
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchBuildings();
     fetchData();
   }, [fetchData, fetchBuildings]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const filteredData = useMemo(() => {
     return data.filter((item: CategoryProps) => item.category !== 'Welcome Basket');

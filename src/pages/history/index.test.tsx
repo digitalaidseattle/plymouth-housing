@@ -231,13 +231,11 @@ describe('HistoryPage Component', () => {
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
-    // Wait for initial data load to complete (including categorizedItems being used in API call)
     await waitFor(() => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.any(String),
         expect.any(String),
-        mockCategorizedItems,
       );
     });
 
@@ -258,7 +256,6 @@ describe('HistoryPage Component', () => {
       mockUser,
       expect.any(String),
       expect.any(String),
-      mockCategorizedItems,
     );
   });
 
@@ -501,7 +498,6 @@ describe('HistoryPage Component', () => {
         mockUser,
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        mockCategorizedItems,
       );
     });
   });

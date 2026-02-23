@@ -53,7 +53,6 @@ const HistoryPage: React.FC = () => {
     user,
     formattedDateRange,
     historyType,
-    categorizedItems,
     loggedInUserId,
     onError: showSnackbar,
   });

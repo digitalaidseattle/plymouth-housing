@@ -1,6 +1,6 @@
 import { getRole } from '../../utils/userUtils';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { ClientPrincipal, CategoryProps } from '../../types/interfaces';
+import { ClientPrincipal } from '../../types/interfaces';
 import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
 import {
   groupCheckoutTransactions,
@@ -11,7 +11,6 @@ export async function getCheckoutHistory(
   user: ClientPrincipal | null,
   startDate: string,
   endDate: string,
-  categorizedItems: CategoryProps[] = [],
 ): Promise<CheckoutTransaction[]> {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
@@ -25,7 +24,7 @@ export async function getCheckoutHistory(
     });
     if (!response.ok) throw new Error(response.statusText);
     const data = await response.json();
-    return groupCheckoutTransactions(data.value, categorizedItems);
+    return groupCheckoutTransactions(data.value);
   } catch (error) {
     console.error('Error fetching checkout history:', error);
     throw error;
@@ -36,7 +35,6 @@ export async function getInventoryHistory(
   user: ClientPrincipal | null,
   startDate: string,
   endDate: string,
-  categorizedItems: CategoryProps[] = [],
 ): Promise<InventoryTransaction[]> {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
@@ -50,7 +48,7 @@ export async function getInventoryHistory(
     });
     if (!response.ok) throw new Error(response.statusText);
     const data = await response.json();
-    return groupInventoryTransactions(data.value, categorizedItems);
+    return groupInventoryTransactions(data.value);
   } catch (error) {
     console.error('Error fetching inventory history:', error);
     throw error;

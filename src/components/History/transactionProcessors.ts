@@ -3,8 +3,6 @@ import {
   InventoryTransaction,
   TransactionsByUser,
 } from '../../types/history';
-import { CategoryProps } from '../../types/interfaces';
-import { checkIfWelcomeBasket } from './historyUtils';
 
 // Flat row from database (one row per transaction item)
 type FlatCheckoutRow = {
@@ -56,7 +54,6 @@ export function processTransactionsByUser(
 
 export function groupCheckoutTransactions(
   flatRows: FlatCheckoutRow[],
-  categorizedItems: CategoryProps[],
 ): CheckoutTransaction[] {
   const grouped = new Map<string, CheckoutTransaction>();
 
@@ -86,18 +83,17 @@ export function groupCheckoutTransactions(
 
   // Determine item_type for each transaction
   return Array.from(grouped.values()).map((transaction) => {
-    const firstItemId = transaction.items[0]?.item_id;
-    transaction.item_type =
-      firstItemId && checkIfWelcomeBasket(firstItemId, categorizedItems)
-        ? 'welcome'
-        : 'general';
+    transaction.item_type = transaction.items.some(
+      (item) => item.category_name === 'Welcome Basket',
+    )
+      ? 'welcome'
+      : 'general';
     return transaction;
   });
 }
 
 export function groupInventoryTransactions(
   flatRows: FlatInventoryRow[],
-  categorizedItems: CategoryProps[],
 ): InventoryTransaction[] {
   const grouped = new Map<string, InventoryTransaction>();
 
@@ -124,11 +120,11 @@ export function groupInventoryTransactions(
 
   // Determine item_type for each transaction
   return Array.from(grouped.values()).map((transaction) => {
-    const firstItemId = transaction.items[0]?.item_id;
-    transaction.item_type =
-      firstItemId && checkIfWelcomeBasket(firstItemId, categorizedItems)
-        ? 'welcome'
-        : 'general';
+    transaction.item_type = transaction.items.some(
+      (item) => item.category_name === 'Welcome Basket',
+    )
+      ? 'welcome'
+      : 'general';
     return transaction;
   });
 }

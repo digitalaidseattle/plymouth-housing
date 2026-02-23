@@ -9,7 +9,7 @@ import People from '../pages/people';
 import Inventory from './inventory';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
 import HistoryPage from './history';
-import { RootRedirect } from '../components/RootRedirect';
+import { RootRedirect } from './RootRedirect';
 
 const routes = [
   {

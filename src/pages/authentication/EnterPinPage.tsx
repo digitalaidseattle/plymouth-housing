@@ -12,7 +12,8 @@ import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { trackEvent, trackException } from '../../utils/appInsights';
 
 const EnterPinPage: React.FC = () => {

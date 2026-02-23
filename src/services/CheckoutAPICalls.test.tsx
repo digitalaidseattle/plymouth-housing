@@ -11,10 +11,10 @@ import {
   checkPastCheckout,
   getLastResidentVisit,
 } from './CheckoutAPICalls';
-import { API_HEADERS, ENDPOINTS } from '../../types/constants';
-import { getRole } from '../contexts/UserContext';
+import { API_HEADERS, ENDPOINTS } from '../types/constants';
+import { getRole } from '../utils/userUtils';
 
-vi.mock('../contexts/UserContext', () => ({
+vi.mock('../utils/userUtils', () => ({
   getRole: vi.fn(),
 }));
 

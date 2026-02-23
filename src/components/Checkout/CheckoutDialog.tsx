@@ -16,7 +16,7 @@ import {
   ResidentInfo,
 } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
-import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
+import { processGeneralItems, processWelcomeBasket } from '../../services/CheckoutAPICalls';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {

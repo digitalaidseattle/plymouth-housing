@@ -39,13 +39,11 @@ const ResidentDetailDialog = ({
     residentInfo.building,
   );
   const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
-  const defaultErrorState = {
+  const [formError, setFormError] = useState<ResidentFormError>({
     buildingError: '',
     unitError: '',
     nameError: '',
-  };
-  const [formError, setFormError] =
-    useState<ResidentFormError>(defaultErrorState);
+  });
 
   const residentNameFilter = createFilterOptions<ResidentNameOption>({
     matchFrom: 'start',

@@ -1,6 +1,7 @@
 import {
   CheckoutTransaction,
   InventoryTransaction,
+  TransactionType,
   TransactionsByUser,
 } from '../../types/history';
 
@@ -65,11 +66,23 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
   }));
 }
 
+function toInventoryTransactionType(
+  value: number,
+): TransactionType.InventoryAdd | TransactionType.InventoryReplaceValue {
+  if (value === TransactionType.InventoryAdd) {
+    return TransactionType.InventoryAdd;
+  }
+  if (value === TransactionType.InventoryReplaceValue) {
+    return TransactionType.InventoryReplaceValue;
+  }
+  throw new Error(`Invalid transaction type value: ${value}`);
+}
+
 export function mapInventoryRows(rows: InventoryRow[]): InventoryTransaction[] {
   return rows.map((row) => ({
     user_id: row.user_id,
     transaction_id: row.transaction_id,
-    transaction_type: row.transaction_type,
+    transaction_type: toInventoryTransactionType(row.transaction_type),
     transaction_date: row.transaction_date,
     item_name: row.item_name,
     category_name: row.category_name,

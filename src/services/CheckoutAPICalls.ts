@@ -1,13 +1,13 @@
-import { getRole } from '../contexts/UserContext';
+import { getRole } from '../utils/userUtils';
 import {
   Building,
   CheckoutItemProp,
   ClientPrincipal,
   ResidentInfo,
   Unit,
-} from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS, SETTINGS } from '../../types/constants';
-import { cacheGet, cacheSet } from '../../utils/sessionCache';
+} from '../types/interfaces';
+import { ENDPOINTS, API_HEADERS, SETTINGS } from '../types/constants';
+import { cacheGet, cacheSet } from '../utils/sessionCache';
 
 async function getErrorMessage(response: Response): Promise<string> {
   let errorMessage: string | undefined;

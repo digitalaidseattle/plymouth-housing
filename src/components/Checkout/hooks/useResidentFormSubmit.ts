@@ -70,7 +70,6 @@ export const useResidentFormSubmit = (
         building: selectedBuilding,
         lastVisitDate: currentLastVisitDate,
       });
-      setShowError(false);
       return true;
     } catch (error) {
       console.error('Error submitting resident info', error);

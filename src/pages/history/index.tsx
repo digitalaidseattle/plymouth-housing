@@ -45,7 +45,6 @@ const HistoryPage: React.FC = () => {
   );
 
   const {
-    userHistory,
     transactionsByUser,
     isLoading: isLoadingHistory,
   } = useHistoryData({
@@ -187,7 +186,6 @@ const HistoryPage: React.FC = () => {
           buildings={buildings}
           loggedInUserId={loggedInUserId}
           historyType={historyType}
-          userHistory={userHistory}
         />
       )}
     </Stack>

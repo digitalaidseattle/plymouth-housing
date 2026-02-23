@@ -17,8 +17,8 @@ import {
   TransactionType,
   CheckoutTransaction,
   InventoryTransaction,
-} from '../../types/history';
-import { Building } from '../../types/interfaces';
+  Building,
+} from '../../types/interfaces';
 
 // Mock modules
 vi.mock('../../components/History/HistoryAPICalls');
@@ -119,14 +119,9 @@ const mockCheckoutTransactions: CheckoutTransaction[] = [
     resident_name: 'Resident A',
     transaction_date: new Date().toISOString(),
     item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Test Item',
-        quantity: 2,
-        category_name: 'Food',
-      },
-    ],
+    total_quantity: 2,
+    welcome_basket_item_id: null,
+    welcome_basket_quantity: null,
   },
 ];
 
@@ -136,15 +131,9 @@ const mockInventoryTransactions: InventoryTransaction[] = [
     user_id: 1,
     transaction_date: new Date().toISOString(),
     transaction_type: TransactionType.InventoryAdd,
-    item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Bread',
-        quantity: 10,
-        category_name: 'Food',
-      },
-    ],
+    item_name: 'Bread',
+    category_name: 'Food',
+    quantity: 10,
   },
 ];
 
@@ -442,14 +431,9 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident B',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 1,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 
@@ -479,14 +463,9 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident A',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 2,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 2,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 

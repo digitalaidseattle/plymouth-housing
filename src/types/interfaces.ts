@@ -1,3 +1,5 @@
+// ─── Checkout / Cart ─────────────────────────────────────────────────────────
+
 export type CheckoutItemProp = {
   id: number;
   name: string;
@@ -7,18 +9,18 @@ export type CheckoutItemProp = {
 };
 
 export type CheckoutHistoryItem = {
-  item_id: number, 
-  timesCheckedOut: number, 
-  additionalNotes: string
-}
+  item_id: number;
+  timesCheckedOut: number;
+  additionalNotes: string;
+};
 
 export type TransactionItem = {
-  id: number,
-  item_id: number,
-  quantity: number,
-  transaction_id: string,
-  additional_notes: string,
-}
+  id: number;
+  item_id: number;
+  quantity: number;
+  transaction_id: string;
+  additional_notes: string;
+};
 
 export type CategoryProps = {
   id: number;
@@ -41,10 +43,17 @@ export type CheckoutCardProps = {
   checkoutHistory?: CheckoutHistoryItem[];
 };
 
-export interface ClientPrincipal{
-  userDetails: string,
-  userID: string,
-  userRoles: string[]
+export type ShoppingCart = {
+  user_id: string;
+  items: CheckoutItemProp[];
+};
+
+// ─── Users / Auth ─────────────────────────────────────────────────────────────
+
+export interface ClientPrincipal {
+  userDetails: string;
+  userID: string;
+  userRoles: string[];
 }
 
 export interface UserContextType {
@@ -56,22 +65,6 @@ export interface UserContextType {
   setActiveVolunteers: (activeVolunteers: User[]) => void;
   isLoading: boolean;
 }
-
-export type InventoryItem = {
-  id: number;
-  name: string;
-  type: string;
-  description: string;
-  quantity: number;
-  category: string;
-  status: string;
-};
-
-export type CategoryItem = {
-  id: number;
-  name: string;
-  item_limit: number;
-};
 
 export type AddVolunteerModalProps = {
   addModal: boolean;
@@ -85,7 +78,7 @@ export type BaseUser = {
   name: string;
   active: boolean;
   created_at: string;
-  last_signed_in: string| null;
+  last_signed_in: string | null;
   role: string;
 };
 
@@ -106,21 +99,36 @@ export type VolunteerUser = BaseUser & {
 // This approach aim to provide compile-time safety and better code maintainability.
 export type User = AdminUser | VolunteerUser;
 
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+export type InventoryItem = {
+  id: number;
+  name: string;
+  type: string;
+  description: string;
+  quantity: number;
+  category: string;
+  status: string;
+};
+
+export type CategoryItem = {
+  id: number;
+  name: string;
+  item_limit: number;
+};
+
+// ─── Location / Residents ─────────────────────────────────────────────────────
+
 export type Building = {
   id: number;
   name: string;
   code: string;
 };
 
-export type ShoppingCart = {
-  user_id: string;
-  items: CheckoutItemProp[];
-}
-
 export type Unit = {
   id: number;
   unit_number: string;
-}
+};
 
 export type ResidentInfo = {
   id: number;
@@ -128,12 +136,50 @@ export type ResidentInfo = {
   unit: Unit;
   building: Building;
   lastVisitDate?: string | null;
-}
+};
 
 export type ResidentNameOption = {
   inputValue?: string;
   name: string;
   id?: number;
   lastVisitDate?: string | null;
+};
+
+// ─── History / Transactions ───────────────────────────────────────────────────
+
+export enum TransactionType {
+  Checkout = 1,
+  InventoryAdd = 2,
+  InventoryReplaceValue = 3,
 }
 
+export type CheckoutTransaction = {
+  building_id: number;
+  item_type: 'general' | 'welcome';
+  resident_id: number;
+  resident_name: string;
+  total_quantity: number;
+  transaction_date: string;
+  transaction_id: string;
+  unit_number: string;
+  user_id: number;
+  welcome_basket_item_id: number | null;
+  welcome_basket_quantity: number | null;
+};
+
+export type InventoryTransaction = {
+  category_name: string;
+  item_name: string;
+  quantity: number;
+  transaction_date: string;
+  transaction_id: string;
+  transaction_type:
+    | TransactionType.InventoryAdd
+    | TransactionType.InventoryReplaceValue;
+  user_id: number;
+};
+
+export type TransactionsByUser<T> = {
+  user_id: number;
+  transactions: T[];
+};

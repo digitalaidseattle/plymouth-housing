@@ -1,11 +1,7 @@
 import { getRole } from '../../utils/userUtils';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { ClientPrincipal } from '../../types/interfaces';
-import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
-import {
-  groupCheckoutTransactions,
-  groupInventoryTransactions,
-} from './transactionProcessors';
+import { ClientPrincipal, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
+import { mapCheckoutRows, mapInventoryRows } from './transactionProcessors';
 
 export async function getCheckoutHistory(
   user: ClientPrincipal | null,
@@ -24,7 +20,7 @@ export async function getCheckoutHistory(
     });
     if (!response.ok) throw new Error(response.statusText);
     const data = await response.json();
-    return groupCheckoutTransactions(data.value);
+    return mapCheckoutRows(data.value);
   } catch (error) {
     console.error('Error fetching checkout history:', error);
     throw error;
@@ -48,7 +44,7 @@ export async function getInventoryHistory(
     });
     if (!response.ok) throw new Error(response.statusText);
     const data = await response.json();
-    return groupInventoryTransactions(data.value);
+    return mapInventoryRows(data.value);
   } catch (error) {
     console.error('Error fetching inventory history:', error);
     throw error;

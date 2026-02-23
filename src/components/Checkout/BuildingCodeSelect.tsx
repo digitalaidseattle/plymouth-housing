@@ -5,7 +5,7 @@ import {
   FormControl,
   TextField,
 } from '@mui/material';
-import { Building, ResidentFormError, Unit } from '../../types/interfaces';
+import { Building, Unit } from '../../types/interfaces';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
@@ -13,8 +13,8 @@ interface BuildingCodeSelectProps {
   setSelectedBuilding: (building: Building) => void;
   setSelectedUnit: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
-  formError: ResidentFormError;
-  setFormError: (formError: ResidentFormError) => void;
+  error: boolean;
+  resetError: () => void;
   disabled?: boolean;
 }
 
@@ -28,8 +28,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   setSelectedBuilding,
   setSelectedUnit,
   fetchUnitNumbers,
-  formError,
-  setFormError,
+  error,
+  resetError,
   disabled = false,
 }) => {
   return (
@@ -48,7 +48,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
             setSelectedBuilding(newValue);
             setSelectedUnit({ id: 0, unit_number: '' });
             fetchUnitNumbers(newValue.id);
-            setFormError({ ...formError, buildingError: '' });
+            resetError();
           }
         }}
         getOptionLabel={(option: Building) => {
@@ -59,8 +59,8 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
           <TextField
             {...params}
             label="Building Code"
-            error={formError.buildingError.length > 0}
-            helperText={formError.buildingError}
+            error={error}
+            helperText={error ? 'Please select the building code' : ''}
           />
         )}
       />

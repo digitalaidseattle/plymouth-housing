@@ -40,9 +40,9 @@ const ResidentDetailDialog = ({
   );
   const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
   const [formError, setFormError] = useState<ResidentFormError>({
-    buildingError: '',
-    unitError: '',
-    nameError: '',
+    buildingError: false,
+    unitError: false,
+    nameError: false,
   });
 
   const residentNameFilter = createFilterOptions<ResidentNameOption>({
@@ -133,8 +133,10 @@ const ResidentDetailDialog = ({
             setSelectedBuilding={setSelectedBuilding}
             setSelectedUnit={setSelectedUnit}
             fetchUnitNumbers={fetchUnitNumbers}
-            formError={formError}
-            setFormError={setFormError}
+            error={formError.buildingError}
+            resetError={() =>
+              setFormError({ ...formError, buildingError: false })
+            }
             disabled={isWaiting}
           />
         </FormControl>
@@ -158,7 +160,7 @@ const ResidentDetailDialog = ({
               );
               if (matchingUnit) {
                 setSelectedUnit(matchingUnit);
-                setFormError({ ...formError, unitError: '' });
+                setFormError({ ...formError, unitError: false });
               } else {
                 setSelectedUnit({ id: 0, unit_number: newValue });
               }
@@ -173,8 +175,12 @@ const ResidentDetailDialog = ({
                   {...params}
                   id={selectedUnit.unit_number}
                   label="Unit Number"
-                  error={formError.unitError.length > 0}
-                  helperText={formError.unitError}
+                  error={formError.unitError}
+                  helperText={
+                    formError.unitError
+                      ? 'Please select a unit from the list'
+                      : ''
+                  }
                 />
               );
             }}
@@ -188,7 +194,7 @@ const ResidentDetailDialog = ({
             disabled={isWaiting}
             onChange={(_event, newValue) => {
               if (formError.nameError) {
-                setFormError({ ...formError, nameError: '' });
+                setFormError({ ...formError, nameError: false });
               }
               if (typeof newValue === 'string') {
                 residentsHook.setNameInput(newValue);
@@ -214,7 +220,7 @@ const ResidentDetailDialog = ({
             }}
             onInputChange={(_event, newInputValue, reason) => {
               if (formError.nameError) {
-                setFormError({ ...formError, nameError: '' });
+                setFormError({ ...formError, nameError: false });
               }
               if (reason === 'input') {
                 residentsHook.setNameInput(newInputValue);
@@ -253,8 +259,12 @@ const ResidentDetailDialog = ({
               <TextField
                 {...params}
                 label="Resident Name"
-                error={formError.nameError.length > 0}
-                helperText={formError.nameError}
+                error={formError.nameError}
+                helperText={
+                  formError.nameError
+                    ? 'Please enter the name of the resident'
+                    : ''
+                }
               />
             )}
           />

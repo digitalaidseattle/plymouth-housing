@@ -23,18 +23,18 @@ export const useResidentFormSubmit = (
     currentLastVisitDate: string | null = null,
   ) => {
     const activeErrors = {
-      buildingError: '',
-      unitError: '',
-      nameError: '',
+      buildingError: false,
+      unitError: false,
+      nameError: false,
     };
     if (!nameInput.trim()) {
-      activeErrors.nameError = 'Please enter the name of the resident';
+      activeErrors.nameError = true;
     }
     if (!selectedBuilding.id) {
-      activeErrors.buildingError = 'Please select the building code';
+      activeErrors.buildingError = true;
     }
     if (!selectedUnit.id) {
-      activeErrors.unitError = 'Please select a unit from the list';
+      activeErrors.unitError = true;
     }
     setFormError(activeErrors);
     if (

@@ -139,4 +139,97 @@ describe('AddItemModal', () => {
             expect(mockHandleAddClose).toHaveBeenCalledTimes(1);
         }, { timeout: 3000 });
     });
+
+    it('should display "Add Item - General" title and hide type dropdown when inventoryType="General"', () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="General"
+                />
+            </UserContext.Provider>
+        );
+
+        expect(screen.getByText('Add Item - General')).toBeInTheDocument();
+        expect(screen.queryByText('Inventory Type')).not.toBeInTheDocument();
+    });
+
+    it('should display "Add Item - Welcome Basket" title and hide type dropdown when inventoryType="Welcome Basket"', () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="Welcome Basket"
+                />
+            </UserContext.Provider>
+        );
+
+        expect(screen.getByText('Add Item - Welcome Basket')).toBeInTheDocument();
+        expect(screen.queryByText('Inventory Type')).not.toBeInTheDocument();
+    });
+
+    it('should only show General items in autocomplete when inventoryType="General"', async () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="General"
+                />
+            </UserContext.Provider>
+        );
+
+        const autocomplete = screen.getByRole('combobox');
+        fireEvent.change(autocomplete, { target: { value: 'Item' } });
+
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: /Item 1/ })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: /Item 2/ })).not.toBeInTheDocument();
+        });
+    });
+
+    it('should only show Welcome Basket items in autocomplete when inventoryType="Welcome Basket"', async () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="Welcome Basket"
+                />
+            </UserContext.Provider>
+        );
+
+        const autocomplete = screen.getByRole('combobox');
+        fireEvent.change(autocomplete, { target: { value: 'Item' } });
+
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: /Item 2/ })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: /Item 1/ })).not.toBeInTheDocument();
+        });
+    });
+
+    it('should display "Edit Item Quantity" title and show type dropdown when no inventoryType is provided', () => {
+        renderComponent();
+
+        expect(screen.getByText('Edit Item Quantity')).toBeInTheDocument();
+        expect(screen.getByText('Inventory Type')).toBeInTheDocument();
+    });
 });

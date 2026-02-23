@@ -1,11 +1,11 @@
 /**
  *  ActiveMenuItemContext.ts
  *
- *  @copyright 2024 Digital Aid Seattle
+ *  @copyright 2026 Digital Aid Seattle
  *
  */
 import { ChipProps } from '@mui/material';
-import { ReactNode, createContext } from 'react';
+import React, { createContext } from 'react';
 
 export type MenuItem = {
   id: string;
@@ -14,7 +14,7 @@ export type MenuItem = {
   children: MenuItem[];
   url: string;
   target: string;
-  icon: ReactNode;
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   breadcrumbs: boolean;
   disabled: boolean;
   chip: ChipProps;

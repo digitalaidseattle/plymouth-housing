@@ -2,8 +2,8 @@ DROP PROCEDURE IF EXISTS [dbo].[GetInventoryHistory];
 GO
 
 CREATE PROCEDURE GetInventoryHistory
-    @start_date DATETIME,
-    @end_date DATETIME
+    @start_date DATETIME2(3),
+    @end_date DATETIME2(3)
 AS
 BEGIN
     -- Validate date range

@@ -47,7 +47,7 @@ export function calculateTimeDifference(timestamp: string): {
   hours: number;
   days: number;
 } {
-  const dateCreated = new Date(timestamp);
+  const dateCreated = new Date(timestamp.endsWith('Z') ? timestamp : timestamp + 'Z');
   const now = new Date();
   const seconds = (now.getTime() - dateCreated.getTime()) / 1000;
   const minutes = Math.floor(seconds / 60);

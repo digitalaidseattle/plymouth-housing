@@ -2,7 +2,7 @@ import Chip from '@mui/material/Chip';
 import { Building, CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import { useTheme } from '@mui/material';
-import { CHECKOUT_QUANTITY_LIMIT } from './historyUtils';
+import { SETTINGS } from '../../types/constants';
 
 type GeneralCheckoutCardProps = {
   checkoutTransaction: CheckoutTransaction;
@@ -39,15 +39,15 @@ const GeneralCheckoutCard = ({
       <Chip
         sx={{
           color:
-            total_quantity > CHECKOUT_QUANTITY_LIMIT
+            total_quantity > SETTINGS.checkout_item_limit
               ? theme.palette.warning.dark
               : theme.palette.success.dark,
           backgroundColor:
-            total_quantity > CHECKOUT_QUANTITY_LIMIT
+            total_quantity > SETTINGS.checkout_item_limit
               ? theme.palette.warning.lighter
               : theme.palette.success.lighter,
         }}
-        label={`${total_quantity} / ${CHECKOUT_QUANTITY_LIMIT}`}
+        label={`${total_quantity} / ${SETTINGS.checkout_item_limit}`}
       />
     </HistoryCard>
   );

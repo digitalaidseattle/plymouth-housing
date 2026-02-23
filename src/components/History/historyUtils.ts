@@ -1,6 +1,6 @@
 import { Building } from '../../types/interfaces';
 
-export const DATE_FORMATS = {
+const DATE_FORMATS = {
   DATE_ONLY: {
     month: 'short' as const,
     day: 'numeric' as const,
@@ -18,12 +18,6 @@ export const DATE_FORMATS = {
   },
 };
 
-export const WELCOME_BASKET_ITEMS = {
-  TWIN: 175,
-  FULL: 176,
-} as const;
-
-export const CHECKOUT_QUANTITY_LIMIT = 10;
 
 export function createHowLongAgoString(
   minutes: number,

@@ -1,7 +1,7 @@
 import { Chip, useTheme } from '@mui/material';
 import { Building, CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
-import { WELCOME_BASKET_ITEMS } from './historyUtils';
+import { WELCOME_BASKET_ITEMS } from '../../types/constants';
 
 type WelcomeBasketCardProps = {
   checkoutTransaction: CheckoutTransaction;

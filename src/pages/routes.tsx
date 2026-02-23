@@ -7,6 +7,7 @@ import Page404 from './error/404';
 import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
+import Catalog from './catalog';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
 import HistoryPage from './history';
 import { RootRedirect } from '../components/RootRedirect';
@@ -72,6 +73,16 @@ const routes = [
           <RootRedirect source="history">
             <MainContainer title="History">
               <HistoryPage />
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'catalog',
+        element: (
+          <RootRedirect source="catalog">
+            <MainContainer title="Catalog">
+              <Catalog />,
             </MainContainer>
           </RootRedirect>
         ),

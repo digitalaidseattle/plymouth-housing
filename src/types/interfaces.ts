@@ -73,6 +73,20 @@ export type CategoryItem = {
   item_limit: number;
 };
 
+// Admin item type with all database fields for editing
+export type AdminItem = {
+  id: number;
+  name: string;
+  type: string;
+  category_id: number;
+  description: string | null;
+  quantity: number;
+  threshold: number;
+  items_per_basket: number | null;
+  // Joined from category for display
+  category_name?: string;
+};
+
 export type AddVolunteerModalProps = {
   addModal: boolean;
   handleAddClose: () => void;

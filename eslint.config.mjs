@@ -21,6 +21,7 @@ export default [{
 {
     ignores: [
         "**/dist",
+        "**/coverage",
         "**/.eslintrc.cjs",
         "**/*.test.ts",
         "**/*.test.tsx",

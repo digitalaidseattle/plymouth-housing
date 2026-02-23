@@ -10,5 +10,5 @@ export function getRole(user: ClientPrincipal | null): string {
     return USER_ROLES.ADMIN;
   }
 
-  throw new Error(`${user} - User is not a member of Admin or Volunteer role.`);
+  throw new Error(`${user?.userDetails ?? JSON.stringify(user)} - User is not a member of Admin or Volunteer role.`);
 }

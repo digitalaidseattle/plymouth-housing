@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Building, Unit, ResidentInfo, ClientPrincipal } from '../../../types/interfaces';
-import { addResident, findResident } from '../CheckoutAPICalls';
+import { addResident, findResident } from '../../../services/CheckoutAPICalls';
 
 export const useResidentFormSubmit = (
     user: ClientPrincipal | null,

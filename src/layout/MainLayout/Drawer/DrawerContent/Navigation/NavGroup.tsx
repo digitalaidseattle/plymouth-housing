@@ -4,10 +4,8 @@ import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpen
 import NavItem from './NavItem';
 import NavCollapse from './NavCollapse';
 import { MenuItem } from '../../../../../components/contexts/ActiveMenuItemContext';
-import {
-  UserContext,
-  getRole,
-} from '../../../../../components/contexts/UserContext';
+import { UserContext } from '../../../../../components/contexts/UserContext';
+import { getRole } from '../../../../../utils/userUtils';
 import { ROLE_PAGES } from '../../../../../types/constants';
 
 interface NavGroupProps {

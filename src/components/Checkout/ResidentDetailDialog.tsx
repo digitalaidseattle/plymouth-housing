@@ -177,7 +177,7 @@ const ResidentDetailDialog = ({
                   {...params}
                   id={selectedUnit.unit_number}
                   label="Unit Number"
-                  error={showError}
+                  error={showError && !selectedUnit.id}
                   helperText={getHelperText()}
                 />
               );

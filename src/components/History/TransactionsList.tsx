@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Stack } from '@mui/material';
-import { Building, User } from '../../types/interfaces';
-import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
+import { Building, User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
 import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';

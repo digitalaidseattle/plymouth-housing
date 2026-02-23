@@ -1,4 +1,4 @@
-import { InventoryTransaction, TransactionType } from '../../types/history';
+import { InventoryTransaction, TransactionType } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 
 type InventoryCardProps = {

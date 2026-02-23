@@ -1,6 +1,5 @@
 import { Chip, useTheme } from '@mui/material';
-import { CheckoutTransaction } from '../../types/history';
-import { Building } from '../../types/interfaces';
+import { Building, CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import { WELCOME_BASKET_ITEMS } from './historyUtils';
 

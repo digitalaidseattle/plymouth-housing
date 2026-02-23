@@ -1,6 +1,5 @@
 import Chip from '@mui/material/Chip';
-import { CheckoutTransaction } from '../../types/history';
-import { Building } from '../../types/interfaces';
+import { Building, CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import { useTheme } from '@mui/material';
 import { CHECKOUT_QUANTITY_LIMIT } from './historyUtils';

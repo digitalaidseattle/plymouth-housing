@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { ClientPrincipal } from '../types/interfaces';
-import { CheckoutTransaction, InventoryTransaction } from '../types/history';
+import type { ClientPrincipal, CheckoutTransaction, InventoryTransaction } from '../types/interfaces';
 import {
   getCheckoutHistory,
   getInventoryHistory,

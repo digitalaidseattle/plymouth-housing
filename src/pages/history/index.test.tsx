@@ -17,8 +17,8 @@ import {
   TransactionType,
   CheckoutTransaction,
   InventoryTransaction,
-} from '../../types/history';
-import { Building } from '../../types/interfaces';
+  Building,
+} from '../../types/interfaces';
 
 // Mock modules
 vi.mock('../../components/History/HistoryAPICalls');

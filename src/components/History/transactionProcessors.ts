@@ -3,7 +3,7 @@ import {
   InventoryTransaction,
   TransactionType,
   TransactionsByUser,
-} from '../../types/history';
+} from '../../types/interfaces';
 
 type CheckoutRow = {
   user_id: number;

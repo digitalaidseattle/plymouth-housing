@@ -242,13 +242,11 @@ describe('HistoryPage Component', () => {
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
-    // Wait for initial data load to complete (including categorizedItems being used in API call)
     await waitFor(() => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.any(String),
         expect.any(String),
-        mockCategorizedItems,
       );
     });
 
@@ -264,12 +262,10 @@ describe('HistoryPage Component', () => {
       expect(checkoutButton).not.toHaveClass('Mui-selected');
     });
 
-    // Verify API was called for inventory
     expect(HistoryAPICalls.getInventoryHistory).toHaveBeenCalledWith(
       mockUser,
       expect.any(String),
       expect.any(String),
-      mockCategorizedItems,
     );
   });
 
@@ -520,9 +516,8 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        mockCategorizedItems,
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       );
     });
   });

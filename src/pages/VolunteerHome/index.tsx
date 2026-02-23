@@ -57,6 +57,7 @@ const VolunteerHome: React.FC = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const [addModal, setAddModal] = useState(false);
+  const [addWelcomeBasketModal, setAddWelcomeBasketModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -105,6 +106,16 @@ const VolunteerHome: React.FC = () => {
 
   const handleAddClose = () => {
     setAddModal(false);
+  };
+
+  const handleAddWelcomeBasketOpen = async () => {
+    await fetchData();
+    setAddWelcomeBasketModal(true);
+    setShowResults(false);
+  };
+
+  const handleAddWelcomeBasketClose = () => {
+    setAddWelcomeBasketModal(false);
   };
 
   const handleCheckOutClick = (
@@ -166,9 +177,7 @@ const VolunteerHome: React.FC = () => {
             </Button>
             <Button
               variant="outlined"
-              onClick={() => {
-                /* TODO: Handle Welcome Basket Stock */
-              }}
+              onClick={handleAddWelcomeBasketOpen}
               sx={buttonSx}
             >
               <Typography variant="h5">Welcome Basket</Typography>
@@ -184,6 +193,17 @@ const VolunteerHome: React.FC = () => {
         originalData={originalData}
         showResults={showResults}
         setShowResults={setShowResults}
+        inventoryType="General"
+      />
+
+      <AddItemModal
+        addModal={addWelcomeBasketModal}
+        handleAddClose={handleAddWelcomeBasketClose}
+        fetchData={fetchData}
+        originalData={originalData}
+        showResults={showResults}
+        setShowResults={setShowResults}
+        inventoryType="Welcome Basket"
       />
 
       <SnackbarAlert

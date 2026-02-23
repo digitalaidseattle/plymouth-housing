@@ -6,6 +6,7 @@ import {
   ResidentInfo,
   Unit,
   ResidentNameOption,
+  ResidentFormError,
 } from '../../types/interfaces';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
@@ -38,7 +39,13 @@ const ResidentDetailDialog = ({
     residentInfo.building,
   );
   const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
-  const [showError, setShowError] = useState<boolean>(false);
+  const defaultErrorState = {
+    buildingError: '',
+    unitError: '',
+    nameError: '',
+  };
+  const [formError, setFormError] =
+    useState<ResidentFormError>(defaultErrorState);
 
   const residentNameFilter = createFilterOptions<ResidentNameOption>({
     matchFrom: 'start',
@@ -99,8 +106,7 @@ const ResidentDetailDialog = ({
       residentsHook.nameInput,
       selectedBuilding,
       selectedUnit,
-      showError,
-      setShowError,
+      setFormError,
       residentsHook.currentLastVisitDate,
     );
   }
@@ -129,7 +135,8 @@ const ResidentDetailDialog = ({
             setSelectedBuilding={setSelectedBuilding}
             setSelectedUnit={setSelectedUnit}
             fetchUnitNumbers={fetchUnitNumbers}
-            error={showError && !selectedBuilding.id}
+            formError={formError}
+            setFormError={setFormError}
             disabled={isWaiting}
           />
         </FormControl>
@@ -153,7 +160,7 @@ const ResidentDetailDialog = ({
               );
               if (matchingUnit) {
                 setSelectedUnit(matchingUnit);
-                setShowError(false);
+                setFormError({ ...formError, unitError: '' });
               } else {
                 setSelectedUnit({ id: 0, unit_number: newValue });
               }
@@ -163,22 +170,13 @@ const ResidentDetailDialog = ({
               return `${option.unit_number}`;
             }}
             renderInput={(params) => {
-              const getHelperText = () => {
-                if (!showError) return '';
-                if (selectedUnit.id === 0 && selectedUnit.unit_number)
-                  return 'Not a valid unit';
-                if (selectedUnit.id === 0)
-                  return 'Please select a unit from the list';
-                return '';
-              };
-
               return (
                 <TextField
                   {...params}
                   id={selectedUnit.unit_number}
                   label="Unit Number"
-                  error={showError && !selectedUnit.id}
-                  helperText={getHelperText()}
+                  error={formError.unitError.length > 0}
+                  helperText={formError.unitError}
                 />
               );
             }}
@@ -191,6 +189,9 @@ const ResidentDetailDialog = ({
             value={residentsHook.nameInput}
             disabled={isWaiting}
             onChange={(_event, newValue) => {
+              if (formError.nameError) {
+                setFormError({ ...formError, nameError: '' });
+              }
               if (typeof newValue === 'string') {
                 residentsHook.setNameInput(newValue);
                 residentsHook.setCurrentLastVisitDate(null);
@@ -214,6 +215,9 @@ const ResidentDetailDialog = ({
               }
             }}
             onInputChange={(_event, newInputValue, reason) => {
+              if (formError.nameError) {
+                setFormError({ ...formError, nameError: '' });
+              }
               if (reason === 'input') {
                 residentsHook.setNameInput(newInputValue);
                 residentsHook.setCurrentLastVisitDate(null);
@@ -251,12 +255,8 @@ const ResidentDetailDialog = ({
               <TextField
                 {...params}
                 label="Resident Name"
-                error={showError && !residentsHook.nameInput}
-                helperText={
-                  showError && !residentsHook.nameInput
-                    ? "Please enter the resident's name"
-                    : ''
-                }
+                error={formError.nameError.length > 0}
+                helperText={formError.nameError}
               />
             )}
           />

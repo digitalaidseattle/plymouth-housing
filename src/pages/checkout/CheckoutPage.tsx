@@ -16,8 +16,10 @@ import {
   CheckoutHistoryItem,
   TransactionItem,
 } from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { ENDPOINTS, API_HEADERS, SPECIAL_ITEMS } from '../../types/constants';
+import { cacheGet, cacheSet } from '../../utils/sessionCache';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CategorySection from '../../components/Checkout/CategorySection';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
@@ -32,7 +34,7 @@ import AdditionalNotesDialog from '../../components/Checkout/AdditionalNotesDial
 import {
   checkPastCheckout,
   getBuildings,
-} from '../../components/Checkout/CheckoutAPICalls';
+} from '../../services/CheckoutAPICalls';
 import PastCheckoutDialog from '../../components/Checkout/PastCheckoutDialog';
 
 type CheckoutType = 'general' | 'welcomeBasket';
@@ -49,7 +51,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   const [data, setData] = useState<CategoryProps[]>([]);
   const [searchData, setSearchData] = useState<CategoryProps[]>([]);
   const [searchActive, setSearchActive] = useState<boolean>(false);
-  const [filteredData, setFilteredData] = useState<CategoryProps[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
@@ -65,7 +66,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   });
 
   const [activeSection, setActiveSection] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
 
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -107,7 +107,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
 
       response.value.forEach((transaction: TransactionItem) => {
         // round up quantity for appliance miscellaneous checkouts
-        if (transaction.item_id === 166) {
+        if (transaction.item_id === SPECIAL_ITEMS.APPLIANCE_MISC) {
           if (
             tempCheckOutHistory.find(
               (entry) =>
@@ -128,7 +128,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
               return acc + transaction.quantity;
             }, 0);
           tempCheckOutHistory.push({
-            item_id: 166,
+            item_id: SPECIAL_ITEMS.APPLIANCE_MISC,
             timesCheckedOut: checkedOutQuantity,
             additionalNotes: transaction.additional_notes,
           });
@@ -270,7 +270,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
       const buildings = await getBuildings(user);
       setBuildings(buildings);
     } catch (error) {
-      setError('Could not get buildings. \r\n' + error);
+      const errorMessage = 'Could not get buildings. \r\n' + error;
+      setSnackbarState({ open: true, message: errorMessage, severity: 'warning' });
       console.error('Error fetching buildings:', error);
     }
   }, [user]);
@@ -278,10 +279,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   const fetchData = useCallback(async () => {
     try {
       let categorizedItems;
-      const cachedCategorizedItems = sessionStorage.getItem('categorizedItems');
-      if (cachedCategorizedItems) {
-        categorizedItems = JSON.parse(cachedCategorizedItems);
-      } else {
+      categorizedItems = cacheGet('categorizedItems');
+      if (!categorizedItems) {
         const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
         const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, {
           headers: headers,
@@ -293,10 +292,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
 
         const responseData = await response.json();
         categorizedItems = responseData.value;
-        sessionStorage.setItem(
-          'categorizedItems',
-          JSON.stringify(categorizedItems),
-        );
+        cacheSet('categorizedItems', categorizedItems);
       }
       setData(categorizedItems);
 
@@ -348,32 +344,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   };
 
   useEffect(() => {
-    if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'warning' });
-    }
-  }, [error]);
-
-  useEffect(() => {
-    setResidentInfo({
-      id: 0,
-      name: '',
-      unit: { id: 0, unit_number: '' },
-      building: { id: 0, code: '', name: '' },
-      lastVisitDate: null,
-    });
-    setUnitNumberValues([]);
-    setShowResidentDetailDialog(true);
-  }, [checkoutType]);
-
-  useEffect(() => {
     fetchBuildings();
     fetchData();
   }, [fetchData, fetchBuildings]);
 
-  useEffect(() => {
-    setFilteredData(
-      data.filter((item: CategoryProps) => item.category !== 'Welcome Basket'),
-    );
+  const filteredData = useMemo(() => {
+    return data.filter((item: CategoryProps) => item.category !== 'Welcome Basket');
   }, [data]);
 
   const navbarData = useMemo(() => {
@@ -708,7 +684,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
           onSuccess={handleCheckoutSuccess}
           onError={handleCheckoutError}
           checkoutItems={checkoutItems}
-          welcomeBasketData={welcomeBasketData}
           addItemToCart={(item, quantity, category) =>
             addItemToCart(item, quantity, category, activeSection)
           }

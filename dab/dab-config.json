@@ -297,6 +297,46 @@
         }
       ]
     },
+    "GetCheckoutHistory": {
+      "source": {
+        "object": "dbo.GetCheckoutHistory",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/get-checkout-history"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
+    },
+    "GetInventoryHistory": {
+      "source": {
+        "object": "dbo.GetInventoryHistory",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/get-inventory-history"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
+    },
     "GetLastResidentVisit": {
       "source": {
         "object": "dbo.GetLastResidentVisit",

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Unit, ClientPrincipal, ResidentNameOption } from '../../../types/interfaces';
-import { getResidents, getLastResidentVisit } from '../CheckoutAPICalls';
+import { getResidents, getLastResidentVisit } from '../../../services/CheckoutAPICalls';
 
 export const useResidents = (
     user: ClientPrincipal | null,

@@ -1,20 +1,37 @@
 from selenium.webdriver.common.by import By
 
 class CommonLocators:
-    INVENTORY_BUTTON = (By.XPATH, '//h6[text()="Inventory"]')
+    INVENTORY_BUTTON = (By.XPATH, "//h6[normalize-space()='Inventory']")
     VOLUNTEER_HOME_BUTTON = (By.XPATH, '//h6[text()="Volunteer Home"]')
     CHECKOUT_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='Checkout']")
     GENERAL_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='General']/ancestor::a")
     WELCOME_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='Welcome basket']/ancestor::a")
+    HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
+class HistoryPageLocators:
+    HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
+    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'records')]")
+    HISTORY_CARDS = (By.XPATH,"//p[contains(text(),'Created')]/ancestor::div[contains(@class,'MuiBox-root')][1]")
 
 class HomePageLocators:
+    # ---- Sections ----
+    CHECKOUT_SECTION = (By.XPATH, "//h3[normalize-space()='Check out']")
+    STOCK_SECTION = (By.XPATH, "//h3[normalize-space()='Stock']")
+    # ---- Scoped CTAs ----
+    CHECKOUT_GENERAL_INVENTORY = (
+        By.XPATH,
+        "//h3[normalize-space()='Check out']/following::button[normalize-space()='General Inventory'][1]"
+    )
+
+    STOCK_GENERAL_INVENTORY = (
+        By.XPATH,
+        "//h3[normalize-space()='Stock']/following::button[normalize-space()='General Inventory'][1]"
+    )
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, '(//a[contains(@class,"MuiButtonBase")])[1]') # TODO COMMON LOCATORS PUT IN CommonLocators
     EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")
     LOGOUT_BUTTON = (By.XPATH, "//h6[normalize-space()='Log out']")
     PLYMOUTH_HOUSING_TEXT = (By.XPATH, '//h5[normalize-space()="Plymouth Housing"]')
-    VOLUNTEER_HOME_HEADER = (By.XPATH, '//p[normalize-space()="Volunteer Home"]')
-    DATE = (By.CSS_SELECTOR, '.MuiTypography-root.MuiTypography-h6.css-1uc0icm')
+    VOLUNTEER_HOME_HEADER = (By.XPATH, "//*[normalize-space()='Volunteer Home']")
 
 class LoginPageLocators:
     USERNAME_INPUT  = (By.NAME,  'loginfmt')

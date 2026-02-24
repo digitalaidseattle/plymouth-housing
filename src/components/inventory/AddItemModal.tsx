@@ -218,16 +218,16 @@ const AddItemModal = ({
       {/* Item Type */}
       {!inventoryType && (
         <Box id="add-item-type" sx={{ width: '100%' }}>
-        <Typography fontWeight="bold">Inventory Type</Typography>
-        <Select
-          value={formData.type}
-          onChange={(e) => handleInputChange('type', e.target.value)}
-          sx={{ width: '100%' }}
-        >
-          <MenuItem value={'General'}>General</MenuItem>
-          <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
-        </Select>
-      </Box>
+          <Typography fontWeight="bold">Inventory Type</Typography>
+          <Select
+            value={formData.type}
+            onChange={(e) => handleInputChange('type', e.target.value)}
+            sx={{ width: '100%' }}
+          >
+            <MenuItem value={'General'}>General</MenuItem>
+            <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
+          </Select>
+        </Box>
       )}
 
       {/* Item Name */}
@@ -273,8 +273,16 @@ const AddItemModal = ({
         />
       </Box>
 
+      {updateItem && (
+        <Box id="current-value">
+          <Typography>
+            Current Quantity of this Item: {updateItem.quantity}
+          </Typography>
+        </Box>
+      )}
+
       <Box id="add-item-quantity">
-        <Typography fontWeight="bold">Quantity</Typography>
+        <Typography fontWeight="bold">Quantity To Add/Remove</Typography>
         <Box
           sx={{
             display: 'flex',

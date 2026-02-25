@@ -3,7 +3,7 @@ name: Azure Static Web Apps CD
 on:
   push:
     branches:
-      - main
+      - staging
 
 jobs:
   build_and_deploy_job:

@@ -53,8 +53,21 @@ hotfix/* ───────────────────────�
 
 1. Create a new Azure Static Web App resource for the `dev` environment.
 2. Copy its deployment token → add as GitHub secret `AZURE_STATIC_WEB_APPS_API_TOKEN_DEV`.
+3. Create a dedicated DAB instance and Azure SQL database for dev.
+4. Link the dev DAB to the dev SWA in Azure Portal → SWA → Settings → APIs.
 
 > Staging already works as a named environment slot on the existing prod SWA — no new Azure resource needed for staging.
+
+> **Current status**: Steps 3–4 are not yet done. The dev SWA is deployed but has no backend wired up — API calls will fail until a DAB + DB is provisioned and linked. If standing up a separate dev database is a blocker, a short-term fallback is to share the existing staging DAB, accepting that dev and staging data will not be isolated (see trade-offs below).
+
+### Dev backend trade-offs
+
+| Option | Pro | Con |
+|---|---|---|
+| Dedicated dev DAB + DB | Full isolation; DAB config changes in dev don't affect staging | Requires new Azure resources; DB needs seeding |
+| Share staging DAB + DB | No new Azure resources needed | Dev data changes affect staging; DAB config changes in dev immediately affect staging QA |
+
+PR preview environments (ephemeral per-PR) always share whichever backend is linked to the dev SWA — per-PR database isolation is not feasible with Azure SWA.
 
 ### GitHub Actions workflows
 

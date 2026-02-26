@@ -28,6 +28,8 @@ class HistoryPage(BasePage):
     def get_record_count_number(self):
         text = self.get_record_count_text()
         digits = ''.join(c for c in text if c.isdigit())
+        if not digits:
+            raise AssertionError(f"Record count text had no digits: '{text}'")
         return int(digits)
 
     def get_history_cards(self):

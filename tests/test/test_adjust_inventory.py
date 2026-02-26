@@ -1,11 +1,4 @@
 import pytest
-from tests.pages.inventory_page import InventoryPage
-
-
-@pytest.fixture(scope="function")
-def inventory_page(driver):
-    return InventoryPage(driver)
-
 
 @pytest.mark.regression
 @pytest.mark.serial

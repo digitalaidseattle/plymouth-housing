@@ -1,8 +1,6 @@
 import pytest
 from tests.pages.inventory_page import InventoryPage
 from tests.pages.checkout_page import CheckOutPage
-from tests.utilities.fixtures import login_with_volunteer
-from tests.utilities.fixtures import driver
 
 @pytest.fixture(scope="function")
 def inventory_page(driver):

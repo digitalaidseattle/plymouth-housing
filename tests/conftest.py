@@ -3,7 +3,8 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-
+from tests.pages.checkout_page import CheckOutPage
+from tests.pages.inventory_page import InventoryPage
 from tests.pages.home_page import HomePage
 from tests.pages.login_page import LoginPage
 from tests.utilities.data import (
@@ -14,40 +15,35 @@ from tests.utilities.data import (
     VOLUNTEER_PASSWORD,
 )
 
-# =====================================================
 # WebDriver Fixture
-# =====================================================
 @pytest.fixture(scope="function")
 def driver():
     options = Options()
 
-    # -----------------------
-    # Headless for CI
-    # -----------------------
     if os.getenv("CI") == "true":
         options.add_argument("--headless=new")
         options.add_argument("--window-size=1920,1080")
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-notifications")
+        options.add_argument("--blink-settings=imagesEnabled=false")
+
+    options.page_load_strategy = "eager"
 
     driver = webdriver.Chrome(options=options)
 
-    # Local only (not CI)
     if os.getenv("CI") != "true":
         driver.maximize_window()
 
-    driver.implicitly_wait(10)
-    driver.wait = WebDriverWait(driver, 15)
+    driver.wait = WebDriverWait(driver, 10)
     driver.get(URL)
 
     yield driver
     driver.quit()
 
-
-# =====================================================
 # Volunteer Login Fixture
-# =====================================================
 @pytest.fixture(scope="function")
 def login_with_volunteer(driver):
     login_page = LoginPage(driver)
@@ -68,10 +64,7 @@ def login_with_volunteer(driver):
 
     return HomePage(driver)
 
-
-# =====================================================
 # Admin Login Fixture
-# =====================================================
 @pytest.fixture(scope="function")
 def admin_home_page(driver):
     login_page = LoginPage(driver)
@@ -85,3 +78,22 @@ def admin_home_page(driver):
 
     return HomePage(driver)
 
+from tests.pages.history_page import HistoryPage
+
+@pytest.fixture(scope="function")
+def history_page(driver):
+    return HistoryPage(driver)
+
+@pytest.fixture(scope="function")
+def checkout_page(driver):
+    return CheckOutPage(driver)
+
+
+@pytest.fixture(scope="function")
+def inventory_page(driver):
+    return InventoryPage(driver)
+
+
+@pytest.fixture(scope="function")
+def home_page(login_with_volunteer):
+    return login_with_volunteer

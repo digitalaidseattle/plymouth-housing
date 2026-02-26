@@ -1,5 +1,3 @@
-from tests.utilities.fixtures import login_with_volunteer
-from tests.utilities.fixtures import driver
 from tests.pages.add_item_page import AddItemPage
 import pytest
 from tests.pages.inventory_page import InventoryPage

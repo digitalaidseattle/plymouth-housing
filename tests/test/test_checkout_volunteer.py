@@ -1,8 +1,5 @@
 import pytest
-
 from tests.pages.home_page import HomePage
-from tests.utilities.fixtures import driver
-from tests.utilities.fixtures import login_with_volunteer
 from tests.pages.checkout_page import CheckOutPage
 
 @pytest.fixture(scope="function")
@@ -18,12 +15,12 @@ def checkout_page(driver):
 @pytest.mark.smoke
 class TestCheckout:
 
-    @pytest.mark.parametrize("item", ["Clothing Rack"])
+    @pytest.mark.parametrize("item", ["Curtains"])
     def test_checkout(self, driver, checkout_page, home_page, item):
 
         home_page.verify_volunteer_home_header()
 
-        home_page.go_to_checkout("general")
+        home_page.go_to_checkout_general()
 
         checkout_page.click_building_code()
         checkout_page.select_first_building_option()

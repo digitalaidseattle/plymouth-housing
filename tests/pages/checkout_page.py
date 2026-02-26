@@ -103,8 +103,23 @@ class CheckOutPage(BasePage):
         time.sleep(1)
         search_field.send_keys(item_name)
 
+    def complete_checkout(self, item_name):
 
+        self.click_checkout()
 
+        self.click_building_code()
+        self.select_first_building_option()
 
+        self.click_unit_number()
+        self.select_first_unit_number()
 
+        self.click_name_input()
+        self.select_first_unit_number()
 
+        self.click_continue_button()
+
+        self.search_item(item_name)
+        self.add_item(item_name)
+
+        self.click_proceed_to_checkout()
+        self.click_confirm()

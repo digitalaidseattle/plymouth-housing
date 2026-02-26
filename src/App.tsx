@@ -4,7 +4,7 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useEffect} from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './pages/routes';
 import ThemeCustomization from './themes/themeCustomization';
@@ -24,8 +24,6 @@ const App: React.FC = () => {
 
   useAuthorization(user, Object.values(USER_ROLES));
 
-  // Clarity is used for observability in Staging and Production environments. (See documentation)
-  // We should igore it in development.
   useEffect(() => {
     const projectId = import.meta.env.VITE_CLARITY_PROJECT_ID;
     if (projectId) {
@@ -33,21 +31,21 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const contextValue = useMemo(
+    () => ({
+      user,
+      setUser,
+      loggedInUserId,
+      setLoggedInUserId,
+      activeVolunteers,
+      setActiveVolunteers,
+      isLoading: user === null,
+    }),
+    [user, setUser, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers]
+  );
+
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser,
-        loggedInUserId,
-        setLoggedInUserId,
-        activeVolunteers,
-        setActiveVolunteers,
-        // There is a race condition where user is null at the start
-        // Consider loading until user state is determined. 
-        // It is used in RootRedirect to show a loading state.
-        isLoading: user === null, 
-      }}
-    >
+    <UserContext.Provider value={contextValue}>
       <ThemeCustomization>
         <RouterProvider router={router} />
       </ThemeCustomization>

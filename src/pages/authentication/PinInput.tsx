@@ -22,9 +22,10 @@ const PinInput = styled(TextField)({
   },
 });
 
-const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
-  onPinChange,
-}) => {
+const PinInputComponent: React.FC<{
+  onPinChange: (pin: string[]) => void;
+  onSubmit?: () => void;
+}> = ({ onPinChange, onSubmit }) => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
@@ -97,6 +98,14 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
     setOpenSnackbar(false);
   };
 
+  const handleSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      onSubmit?.();
+    },
+    [onSubmit],
+  );
+
   return (
     <Box
       display="flex"
@@ -104,7 +113,13 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
       alignItems="center"
       justifyContent="center"
     >
-      <Box display="flex" justifyContent="space-between" width="100%">
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        display="flex"
+        justifyContent="space-between"
+        width="100%"
+      >
         {pin.map((digit, index) => (
           <PinInput
             key={`pin-input-${index}`}
@@ -113,7 +128,11 @@ const PinInputComponent: React.FC<{ onPinChange: (pin: string[]) => void }> = ({
             value={digit}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, index)}
             onKeyDown={(e: React.KeyboardEvent<HTMLDivElement | HTMLInputElement>) => handleKeyDown(e, index)}
-            inputProps={{ maxLength: 1 }}
+            inputProps={{
+              maxLength: 1,
+              autoComplete: 'off',
+              inputMode: 'numeric',
+            }}
             type={visibleIndex === index ? 'text' : 'password'}
             inputRef={(el: HTMLInputElement | null) => { pinRefs.current[index] = el; }}
           />

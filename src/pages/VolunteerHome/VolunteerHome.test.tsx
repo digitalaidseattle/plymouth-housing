@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import VolunteerHome from './index';
@@ -10,8 +16,8 @@ const mockLocation = {
   pathname: '/volunteer-home',
   search: '',
   hash: '',
-  state: { checkoutSuccess: true, message: "1 item has been checked out" },
-  key: 'default'
+  state: { checkoutSuccess: true, message: '1 item has been checked out' },
+  key: 'default',
 };
 
 vi.mock('react-router-dom', () => ({
@@ -21,9 +27,11 @@ vi.mock('react-router-dom', () => ({
 
 // Mock AddItemModal so we can control its display state using a test id
 vi.mock('../../components/inventory/AddItemModal.tsx', () => ({
-  default: ({ addModal, handleAddClose, originalData }: any) => (
-    <div data-testid="add-item-modal">
-      {addModal ? "Modal Open" : "Modal Closed"} - {originalData.length} items
+  default: ({ addModal, handleAddClose, originalData, inventoryType }: any) => (
+    <div
+      data-testid={`add-item-modal-${inventoryType?.toLowerCase().replace(' ', '-') || 'default'}`}
+    >
+      {addModal ? 'Modal Open' : 'Modal Closed'} - {originalData.length} items
       <button onClick={handleAddClose}>Close Modal</button>
     </div>
   ),
@@ -32,32 +40,32 @@ vi.mock('../../components/inventory/AddItemModal.tsx', () => ({
 // Mock SnackbarAlert
 vi.mock('../../components/SnackbarAlert.tsx', () => ({
   default: ({ children }: any) => (
-    <div data-testid="snackbar-alert">
-      {children}
-    </div>
+    <div data-testid="snackbar-alert">{children}</div>
   ),
 }));
 
-// Provide a user object that meets the requirements of UserContext 
+// Provide a user object that meets the requirements of UserContext
 // (Note: according to the type, userRoles and claims must be provided)
 const mockUser = {
-  userID: "1",
-  userDetails: "Test User",
-  userRoles: ["admin"],
-  claims: []
+  userID: '1',
+  userDetails: 'Test User',
+  userRoles: ['admin'],
+  claims: [],
 };
 
 // Wrapper component to wrap VolunteerHome with the required Context provider
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <UserContext.Provider value={{ 
-    user: mockUser, 
-    setUser: vi.fn(),
-    loggedInUserId: 1,
-    setLoggedInUserId: vi.fn(),
-    activeVolunteers: [],
-    setActiveVolunteers: vi.fn(),
-    isLoading: false
-  }}>
+  <UserContext.Provider
+    value={{
+      user: mockUser,
+      setUser: vi.fn(),
+      loggedInUserId: 1,
+      setLoggedInUserId: vi.fn(),
+      activeVolunteers: [],
+      setActiveVolunteers: vi.fn(),
+      isLoading: false,
+    }}
+  >
     {children}
   </UserContext.Provider>
 );
@@ -71,28 +79,64 @@ describe('VolunteerHome Component', () => {
     render(
       <Wrapper>
         <VolunteerHome />
-      </Wrapper>
+      </Wrapper>,
     );
 
-    // Verify header content; note that the date part cannot be compared precisely, so only keywords are checked
     expect(screen.getByText(/Thanks for being here!/i)).toBeInTheDocument();
 
-    // Verify that the Check Out and Add Item buttons exist
-    expect(screen.getByRole('button', { name: /Check Out/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Add Item/i })).toBeInTheDocument();
+    const checkoutSection = screen.getByTestId('section-checkout');
+    const stockSection = screen.getByTestId('section-stock');
+
+    expect(
+      within(checkoutSection).getByRole('button', {
+        name: /General Inventory/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(checkoutSection).getByRole('button', { name: /Welcome Basket/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(stockSection).getByRole('button', { name: /General Inventory/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(stockSection).getByRole('button', { name: /Welcome Basket/i }),
+    ).toBeInTheDocument();
   });
 
   test('navigates to checkout when Check Out button is clicked', async () => {
     render(
       <Wrapper>
         <VolunteerHome />
-      </Wrapper>
+      </Wrapper>,
     );
 
-    const checkOutButton = screen.getByRole('button', { name: /Check Out/i });
-    fireEvent.click(checkOutButton);
+    const checkoutSection = screen.getByTestId('section-checkout');
+    fireEvent.click(
+      within(checkoutSection).getByRole('button', {
+        name: /General Inventory/i,
+      }),
+    );
 
-    expect(mockNavigate).toHaveBeenCalledWith('/checkout');
+    expect(mockNavigate).toHaveBeenCalledWith('/checkout', {
+      state: { checkoutType: 'general' },
+    });
+  });
+
+  test('navigates to checkout with welcomeBasket type when Welcome Basket Check Out button is clicked', async () => {
+    render(
+      <Wrapper>
+        <VolunteerHome />
+      </Wrapper>,
+    );
+
+    const checkoutSection = screen.getByTestId('section-checkout');
+    fireEvent.click(
+      within(checkoutSection).getByRole('button', { name: /Welcome Basket/i }),
+    );
+
+    expect(mockNavigate).toHaveBeenCalledWith('/checkout', {
+      state: { checkoutType: 'welcomeBasket' },
+    });
   });
 
   test('opens and closes AddItemModal when Add Item button is clicked', async () => {
@@ -104,37 +148,42 @@ describe('VolunteerHome Component', () => {
     render(
       <Wrapper>
         <VolunteerHome />
-      </Wrapper>
+      </Wrapper>,
     );
 
     // Initially, the modal should be closed
-    const modal = screen.getByTestId('add-item-modal');
+    const modal = screen.getByTestId('add-item-modal-general');
     expect(modal).toHaveTextContent('Modal Closed');
 
-    // After clicking the Add Item button, the modal should open
-    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
-    fireEvent.click(addItemButton);
+    const stockSection = screen.getByTestId('section-stock');
+    fireEvent.click(
+      within(stockSection).getByRole('button', { name: /General Inventory/i }),
+    );
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
     await waitFor(() => {
-      expect(screen.getByTestId('add-item-modal')).toHaveTextContent('Modal Open');
+      expect(screen.getByTestId('add-item-modal-general')).toHaveTextContent(
+        'Modal Open',
+      );
     });
 
     // Simulate clicking the close button inside the modal to close it
-    const closeModalButton = screen.getByText('Close Modal');
-    fireEvent.click(closeModalButton);
+    const closeModalButtons = screen.getAllByText('Close Modal');
+    fireEvent.click(closeModalButtons[0]); // Click the first close button (General modal)
 
     await waitFor(() => {
-      expect(screen.getByTestId('add-item-modal')).toHaveTextContent('Modal Closed');
+      expect(screen.getByTestId('add-item-modal-general')).toHaveTextContent(
+        'Modal Closed',
+      );
     });
   });
 
   test('handles fetch error gracefully and logs error', async () => {
-    // Spy on console.error
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
-    // Mock fetch to return a non-ok status
     (global.fetch as any) = vi.fn().mockResolvedValue({
       ok: false,
       statusText: 'Internal Server Error',
@@ -143,22 +192,25 @@ describe('VolunteerHome Component', () => {
     render(
       <Wrapper>
         <VolunteerHome />
-      </Wrapper>
+      </Wrapper>,
     );
 
-    // After clicking the Add Item button, the fetch call should happen
-    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
-    fireEvent.click(addItemButton);
+    const stockSection = screen.getByTestId('section-stock');
+    fireEvent.click(
+      within(stockSection).getByRole('button', { name: /General Inventory/i }),
+    );
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    // Check that console.error was called (the component logs error via console.error)
     expect(consoleErrorSpy).toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
   });
 
   test('fetches data successfully and updates state', async () => {
-    const mockData = [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }];
+    const mockData = [
+      { id: 1, name: 'Item 1' },
+      { id: 2, name: 'Item 2' },
+    ];
     (global.fetch as any) = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ value: mockData }),
@@ -167,28 +219,33 @@ describe('VolunteerHome Component', () => {
     render(
       <Wrapper>
         <VolunteerHome />
-      </Wrapper>
+      </Wrapper>,
     );
 
-    const addItemButton = screen.getByRole('button', { name: /Add Item/i });
-    fireEvent.click(addItemButton);
+    const stockSection = screen.getByTestId('section-stock');
+    fireEvent.click(
+      within(stockSection).getByRole('button', { name: /General Inventory/i }),
+    );
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    // Check if the state is updated with fetched data
-    expect(screen.getByTestId('add-item-modal')).toHaveTextContent('2 items');
+    // Check if the state is updated with fetched data (both modals get the same data)
+    expect(screen.getByTestId('add-item-modal-general')).toHaveTextContent(
+      '2 items',
+    );
   });
 
   test('render snackbar', async () => {
     render(
       <Wrapper>
         <VolunteerHome />
-      </Wrapper>
+      </Wrapper>,
     );
 
-    expect(screen.queryByTestId('snackbar-alert')).toBeInTheDocument();  
+    expect(screen.queryByTestId('snackbar-alert')).toBeInTheDocument();
     // snackbar should take message from the location object
-    expect(screen.queryByTestId('snackbar-alert')).toHaveTextContent(mockLocation.state.message);  
-  })
-
+    expect(screen.queryByTestId('snackbar-alert')).toHaveTextContent(
+      mockLocation.state.message,
+    );
+  });
 });

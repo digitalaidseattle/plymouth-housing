@@ -28,6 +28,9 @@ export const ENDPOINTS = {
   CHECK_PAST_CHECKOUT: API_PREFIX + '/check-past-checkout',
   PROCESS_INVENTORY_RESET_QUANTITY:
     API_PREFIX + '/process-inventory-reset-quantity',
+  GET_CHECKOUT_HISTORY: API_PREFIX + '/get-checkout-history',
+  GET_INVENTORY_HISTORY: API_PREFIX + '/get-inventory-history',
+  GET_LAST_RESIDENT_VISIT: API_PREFIX + '/get-last-resident-visit',
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
   CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
@@ -35,9 +38,13 @@ export const ENDPOINTS = {
 
 export const SETTINGS = {
   itemsPerPage: 10,
+  checkout_item_limit: 10,
+  api_fetch_limit_items: 10000,
+  api_fetch_limit_units: 1000,
   database_retry_attempts: 20,
   database_retry_delay: 5000,
   inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
+  cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
 };
 
 export const USER_ROLES = {
@@ -46,6 +53,15 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  admin: ['inventory', 'checkout', 'people'],
-  volunteer: ['volunteer-home', 'inventory', 'checkout'],
+  admin: ['inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'people', 'history'],
+  volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'history'],
+} as const;
+
+export const WELCOME_BASKET_ITEMS = {
+  TWIN: 175,
+  FULL: 176,
+} as const;
+
+export const SPECIAL_ITEMS = {
+  APPLIANCE_MISC: 166,
 } as const;

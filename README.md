@@ -80,8 +80,15 @@ Steps to set up the project locally:
    ```  
 5. Open a Pull Request.  
 
-### **Code of Conduct**  
+### **Code of Conduct**
 Please read our [Working Agreement](docs/working-agreement.md) for the project guidelines.
+
+### **Documentation**
+- [Database Setup](docs/database-setup.md) - SQL Server configuration and bootstrapping
+- [DAB Setup](docs/DAB-setup.md) - Data API Builder configuration and local development
+- [Deployment Guide](docs/deployment-guide.md) - Azure deployment instructions
+- [Observability](docs/observability.md) - Microsoft Clarity and Azure Application Insights setup
+- [Working Agreement](docs/working-agreement.md) - Team guidelines and practices
 
 ---
 
@@ -107,3 +114,7 @@ If you're using Visual Studio Code, you can also set up Prettier to automaticall
 - Search for "Default Formatter" and select "Prettier - Code formatter".
 - Now, every time you save a file, Prettier will automatically format it for you.
 
+## Automated Tests
+### For detailed setup instructions, dependency management, and test execution
+
+- **UI tests**: [docs/e2e-automation-test.md](./docs/e2e-automation-test.md)

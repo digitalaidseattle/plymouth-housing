@@ -13,8 +13,9 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
 import SpinUpDialog from './SpinUpDialog';
-import { fetchWithRetry } from '../../components/fetchWithRetry';
+import { fetchWithRetry } from '../../services/fetchWithRetry';
 import { ENDPOINTS, USER_ROLES } from '../../types/constants';
+import { trackException } from '../../utils/appInsights';
 
 const PickYourNamePage: React.FC = () => {
   const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
@@ -44,7 +45,15 @@ const PickYourNamePage: React.FC = () => {
         });
         setActiveVolunteers(data.value);
       } catch (error) {
+        const err =
+          error instanceof Error
+            ? error
+            : new Error('Unknown error fetching volunteers');
         console.error('Failed to fetch volunteers:', error);
+        trackException(err, {
+          component: 'PickNamePage',
+          action: 'fetchVolunteers',
+        });
         setSnackbarState({
           open: true,
           message: 'Failed to load volunteer list. Please try again later.',

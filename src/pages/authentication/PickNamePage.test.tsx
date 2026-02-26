@@ -6,13 +6,18 @@ import { UserContext } from '../../components/contexts/UserContext';
 
 const mockNavigate = vi.fn();
 const mockFetchWithRetry = vi.fn();
+const mockTrackException = vi.hoisted(() => vi.fn());
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate
 }));
 
-vi.mock('../../components/fetchWithRetry', () => ({
+vi.mock('../../services/fetchWithRetry', () => ({
   fetchWithRetry: () => mockFetchWithRetry()
+}));
+
+vi.mock('../../utils/appInsights', () => ({
+  trackException: mockTrackException,
 }));
 
 vi.mock('./SpinUpDialog', () => ({
@@ -39,6 +44,7 @@ describe('PickNamePage Component', () => {
     vi.resetAllMocks();
     mockNavigate.mockReset();
     mockFetchWithRetry.mockReset();
+    mockTrackException.mockReset();
   });
 
   test('fetches volunteers on mount and updates Autocomplete label', async () => {
@@ -168,6 +174,33 @@ describe('PickNamePage Component', () => {
     await waitFor(() => {
       // After resolution, SpinUpDialog should display as "Dialog Closed"
       expect(screen.getByTestId('spin-up-dialog')).toHaveTextContent(/Dialog Closed/);
+    });
+  });
+
+  test('tracks exception when fetchVolunteers fails', async () => {
+    const networkError = new Error('Network error');
+    mockFetchWithRetry.mockRejectedValueOnce(networkError);
+
+    render(
+      <UserContext.Provider value={createUserContextValue()}>
+        <PickNamePage />
+      </UserContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockTrackException).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          component: 'PickNamePage',
+          action: 'fetchVolunteers',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Failed to load volunteer list. Please try again later./i)
+      ).toBeInTheDocument();
     });
   });
 });

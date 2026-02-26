@@ -1,24 +1,21 @@
 // project import
 import {
   ChromeOutlined,
-// TODO Commenting out for now until PIT-52 (Admin dashboard)
-//   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   QuestionOutlined,
   ExclamationOutlined,
   FileOutlined,
   FileExclamationOutlined,
-  EyeInvisibleOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
+  ShoppingCartOutlined,
 } from '@ant-design/icons';
 
 const icons = {
-//   DashboardOutlined,
   LoginOutlined,
   ProfileOutlined,
   ChromeOutlined,
@@ -26,27 +23,18 @@ const icons = {
   ExclamationOutlined,
   FileOutlined,
   FileExclamationOutlined,
-  EyeInvisibleOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
+  ShoppingCartOutlined,
 };
 
-// ==============================|| MENU ITEMS ||============================== //
 const dashboard = {
   id: 'group-dashboard',
   type: 'group',
   children: [
-/*     {
-      id: 'dashboard',
-      title: 'Dashboard',
-      type: 'item',
-      url: '/',
-      icon: icons.DashboardOutlined,
-      breadcrumbs: false,
-    }, */
     {
       id: 'volunteer-home',
       title: 'Volunteer Home',
@@ -66,10 +54,27 @@ const dashboard = {
     {
       id: 'checkout',
       title: 'Checkout',
-      type: 'item',
-      url: '/checkout',
-      icon: icons.EyeInvisibleOutlined,
+      type: 'collapse',
+      icon: icons.ShoppingCartOutlined,
       breadcrumbs: false,
+      children: [
+        {
+          id: 'checkout-general',
+          title: 'General',
+          type: 'item',
+          url: '/checkout',
+          state: { checkoutType: 'general' },
+          breadcrumbs: false,
+        },
+        {
+          id: 'checkout-welcome-basket',
+          title: 'Welcome basket',
+          type: 'item',
+          url: '/checkout',
+          state: { checkoutType: 'welcomeBasket' },
+          breadcrumbs: false,
+        },
+      ],
     },
     {
       id: 'people',
@@ -77,6 +82,14 @@ const dashboard = {
       type: 'admin',
       url: '/people',
       icon: icons.UserOutlined,
+      breadcrumbs: false,
+    },
+    {
+      id: 'history',
+      title: 'History',
+      type: 'item',
+      url: '/history',
+      icon: icons.FileOutlined,
       breadcrumbs: false,
     },
   ],

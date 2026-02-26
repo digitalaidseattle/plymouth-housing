@@ -5,7 +5,8 @@ import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
 import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { ENDPOINTS, API_HEADERS, SETTINGS } from "../../types/constants";
 import SnackbarAlert from '../../components/SnackbarAlert';
@@ -175,7 +176,7 @@ const Inventory = () => {
   const fetchData = useCallback(async () => {
     try {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: headers, method: 'GET' });
+      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + `?$first=${SETTINGS.api_fetch_limit_items}`, { headers: headers, method: 'GET' });
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error('Database is likely starting up. Try again in 30 seconds.');

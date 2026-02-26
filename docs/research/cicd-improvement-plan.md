@@ -23,11 +23,14 @@ So staging is ahead of prod, but it moves on every single merge to `main`.
 
 ### Branch flow
 
-```
-feature/* ──► dev ──► staging ──► main (prod)
-                                    ▲
-hotfix/* ───────────────────────────┘
-               └──► (back-merge to staging + dev)
+```mermaid
+graph LR
+    F["feature/*"] --> dev
+    dev --> staging
+    staging --> main["main (prod)"]
+    H["hotfix/*"] --> main
+    main -.->|back-merge| staging
+    staging -.->|back-merge| dev
 ```
 
 ### Environment mapping
@@ -43,7 +46,7 @@ hotfix/* ───────────────────────�
 
 - **Stable test env**: QA works against `staging`, which only updates when dev is deliberately promoted — not on every feature merge.
 - **Preview environment**: Every PR to `dev` gets its own live URL automatically (Azure SWA does this natively).
-- **Hotfixes**: `hotfix/*` → PR directly to `main` → deploy to prod → back-merge to `staging` and `dev`.
+- **Hotfixes**: `hotfix/*` → PR directly to `main` → deploy to prod → back-merge to `staging` and `dev` (see [hotfix-handling.md](../hotfix-handling.md)).
 
 ---
 
@@ -73,9 +76,9 @@ PR preview environments (ephemeral per-PR) always share whichever backend is lin
 
 | File | Change |
 |---|---|
-| `azure-static-web-apps-dev.yml` | **New** — push to `dev` + PR previews for PRs targeting `dev`. Needs `AZURE_STATIC_WEB_APPS_API_TOKEN_DEV`. No `api_location`. Include `VITE_CLARITY_PROJECT_ID` and `VITE_APPINSIGHTS_CONNECTION_STRING` env vars. |
+| `azure-static-web-apps-dev.yml` | **New** — push to `dev` + PR previews for PRs targeting `dev`. Needs `AZURE_STATIC_WEB_APPS_API_TOKEN_DEV`. `api_location` is omitted — this project has no co-deployed Azure Functions API; the backend is DAB, which is a separately managed service. Dev SWA and all PR previews will point at the staging DAB instance. This means DAB config or schema changes merged into `dev` will not be reflected in the dev/preview environment until staging is updated — backend integration may break in previews. **This is an accepted trade-off.** If that becomes a problem, provisioning a dedicated dev DAB instance and linking it to the dev SWA would resolve it (see Dev backend trade-offs above). Include `VITE_CLARITY_PROJECT_ID` and `VITE_APPINSIGHTS_CONNECTION_STRING` env vars. |
 | `azure-static-web-apps-CD.yml` | **Modify** — change trigger from `main` → `staging` branch. |
-| `e2e-tests.yml` | **Modify** — ensure it still triggers after the staging CD workflow (name unchanged, trigger branch changes). |
+| `e2e-tests.yml` | **Modify** — update `workflow_run.branches` from `main` → `staging`. The trigger already uses `workflow_run: workflows: ["Azure Static Web Apps CD"]` with `types: [completed]` and an `if: conclusion == 'success'` guard, so it will naturally follow the CD workflow once the branch filter is updated. No structural change needed. |
 | `azure-static-web-apps-prod.yml` | **No change** — stays triggered by `main` + version bump logic. |
 | `azure-static-web-apps-CI.yml` | **No change** — already runs on all branches except `main`. |
 | `azure-sql-CI.yml` | **No change** |
@@ -85,4 +88,11 @@ PR preview environments (ephemeral per-PR) always share whichever backend is lin
 - `dev` (from `main`)
 - `staging` (from `main`)
 
-Both should be set as protected branches in GitHub with required PR reviews.
+Both should be set as protected branches in GitHub with:
+
+- **Required PR reviews** (at least 1 approval)
+- **Dismiss stale reviews** enabled (recommended) — ensures a new push after approval requires re-review
+- **Required status checks** — require the following checks to pass before merge:
+  - `build` (from `azure-static-web-apps-CI.yml`)
+  - `lint` (from `azure-static-web-apps-CI.yml`)
+  - `test` (from `azure-static-web-apps-CI.yml`)

@@ -58,8 +58,8 @@ export const ROLE_PAGES = {
 } as const;
 
 export const WELCOME_BASKET_ITEMS = {
-  TWIN: 175,
-  FULL: 176,
+  TWIN: 171,
+  FULL: 172,
 } as const;
 
 export const SPECIAL_ITEMS = {

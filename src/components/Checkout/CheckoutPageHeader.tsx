@@ -1,10 +1,12 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Box, Button, useTheme } from '@mui/material';
-import { CategoryProps, ResidentInfo } from '../../types/interfaces';
+import {
+  CategoryProps,
+  CheckoutType,
+  ResidentInfo,
+} from '../../types/interfaces';
 import SearchBar from '../Searchbar/SearchBar';
 import Navbar from './Navbar';
-
-type CheckoutType = 'general' | 'welcomeBasket';
 
 type CheckoutPageHeaderProps = {
   residentInfo: ResidentInfo;
@@ -50,7 +52,14 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         background: theme.palette.common.white,
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', p: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'end',
+          p: 1,
+        }}
+      >
         <Button
           variant="outlined"
           color={residentInfoIsMissing ? 'error' : 'primary'}
@@ -58,16 +67,24 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         >
           {residentLabel}
         </Button>
-        <SearchBar data={data} setSearchData={setSearchData} setSearchActive={setSearchActive} />
+        <SearchBar
+          data={data}
+          setSearchData={setSearchData}
+          setSearchActive={setSearchActive}
+        />
       </Box>
       {!searchActive && checkoutType === 'general' && (
-        <Navbar key={checkoutType} filteredData={navbarData} scrollToCategory={(id) => {
-          const element = document.getElementById(id);
-          if (element) {
-            element.style.scrollMarginTop = '200px';
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }} />
+        <Navbar
+          key={checkoutType}
+          filteredData={navbarData}
+          scrollToCategory={(id) => {
+            const element = document.getElementById(id);
+            if (element) {
+              element.style.scrollMarginTop = '200px';
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }}
+        />
       )}
     </Box>
   );

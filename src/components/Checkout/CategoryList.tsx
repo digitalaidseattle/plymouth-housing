@@ -3,12 +3,11 @@ import {
   CategoryProps,
   CheckoutHistoryItem,
   CheckoutItemProp,
+  CheckoutType,
 } from '../../types/interfaces';
 import CategorySection from './CategorySection';
 import CheckoutCard from './CheckoutCard';
 import { SPECIAL_ITEMS } from '../../types/constants';
-
-type CheckoutType = 'general' | 'welcomeBasket';
 
 type CategoryListProps = {
   categories: CategoryProps[];

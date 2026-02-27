@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { CategoryProps, CheckoutItemProp, Building, Unit, ClientPrincipal, CheckoutType } from '../types/interfaces';
+import {
+  CategoryProps,
+  CheckoutItemProp,
+  Building,
+  Unit,
+  ClientPrincipal,
+  CheckoutType,
+} from '../types/interfaces';
 import { getBuildings } from '../services/CheckoutAPICalls';
 import { getCategorizedItems } from '../services/items';
 import { CATEGORY_IDS, WELCOME_BASKET_ITEMS } from '../types/constants';
@@ -15,16 +22,24 @@ interface UseCheckoutDataProps {
 // the Welcome Basket category for general checkouts), and welcomeBasketData scoped to just
 // the two welcome basket item types (Full/Twin). Exposes fetchData so the checkout dialog
 // can refresh inventory after a successful transaction.
-export function useCheckoutData({ user, checkoutType, onError }: UseCheckoutDataProps) {
+export function useCheckoutData({
+  user,
+  checkoutType,
+  onError,
+}: UseCheckoutDataProps) {
   const [data, setData] = useState<CategoryProps[]>([]);
-  const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>([]);
+  const [welcomeBasketData, setWelcomeBasketData] = useState<CategoryProps[]>(
+    [],
+  );
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<CategoryProps[]>([]);
 
   // Use a ref so onError never appears in useCallback dependency arrays
   const onErrorRef = useRef(onError);
-  useEffect(() => { onErrorRef.current = onError; });
+  useEffect(() => {
+    onErrorRef.current = onError;
+  });
 
   // Returned so CheckoutDialog can refresh inventory after a successful checkout
   const fetchData = useCallback(async () => {
@@ -42,7 +57,8 @@ export function useCheckoutData({ user, checkoutType, onError }: UseCheckoutData
 
       if (checkoutType === 'welcomeBasket') {
         const welcomeBasketCategory = categorizedItems.find(
-          (category: CategoryProps) => category.id === CATEGORY_IDS.WELCOME_BASKET,
+          (category: CategoryProps) =>
+            category.id === CATEGORY_IDS.WELCOME_BASKET,
         );
         if (welcomeBasketCategory) {
           const filteredItems = (welcomeBasketCategory.items || []).filter(
@@ -50,13 +66,16 @@ export function useCheckoutData({ user, checkoutType, onError }: UseCheckoutData
               item.id === WELCOME_BASKET_ITEMS.FULL ||
               item.id === WELCOME_BASKET_ITEMS.TWIN,
           );
-          setWelcomeBasketData([{ ...welcomeBasketCategory, items: filteredItems }]);
+          setWelcomeBasketData([
+            { ...welcomeBasketCategory, items: filteredItems },
+          ]);
         } else {
           // TODO: dead code - 'Welcome Basket' category always exists. Should throw instead of silently showing empty page.
           setWelcomeBasketData([]);
         }
       }
     } catch (error) {
+      onErrorRef.current('Could not get categorized items. \r\n' + error);
       console.error('Error fetching categorized items:', error);
     }
   }, [user, checkoutType]);
@@ -76,11 +95,16 @@ export function useCheckoutData({ user, checkoutType, onError }: UseCheckoutData
     }
 
     loadInitialData();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [user, fetchData]);
 
   const filteredData = useMemo(
-    () => data.filter((item: CategoryProps) => item.id !== CATEGORY_IDS.WELCOME_BASKET),
+    () =>
+      data.filter(
+        (item: CategoryProps) => item.id !== CATEGORY_IDS.WELCOME_BASKET,
+      ),
     [data],
   );
 

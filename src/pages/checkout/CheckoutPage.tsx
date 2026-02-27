@@ -1,6 +1,6 @@
 import { useState, useContext, useMemo } from 'react';
 import { Box, useTheme } from '@mui/material';
-import { CategoryProps, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
+import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getRole } from '../../utils/userUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -18,8 +18,6 @@ import { useCheckoutData } from '../../hooks/useCheckoutData';
 import { useCheckoutHistory } from '../../hooks/useCheckoutHistory';
 import { useCartOperations } from '../../hooks/useCartOperations';
 import { SPECIAL_ITEMS } from '../../types/constants';
-
-type CheckoutType = 'general' | 'welcomeBasket';
 
 interface CheckoutPageProps {
   checkoutType?: CheckoutType;
@@ -65,6 +63,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     user,
     residentId: residentInfo.id,
     residentInfoIsMissing,
+    onError: (msg) => showSnackbar(msg, 'error'),
   });
 
   const [openSummary, setOpenSummary] = useState<boolean>(false);

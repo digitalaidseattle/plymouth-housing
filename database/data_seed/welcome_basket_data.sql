@@ -49,3 +49,20 @@ INSERT INTO Items (name, type, category_id, quantity, items_per_basket, descript
 ('Shampoo', 'Welcome Basket', 15, 10, 1, NULL, 14),
 ('Conditioner', 'Welcome Basket', 15, 10, 1, NULL, 16);
 GO
+
+-- General items added after Welcome Basket (IDs 215-226)
+INSERT INTO Items (name, type, category_id, quantity, description, threshold)
+VALUES
+('Glasses', 'General', 10, 0, 'Spectacles, sunglasses, eyeglasses', 1),
+('Pitcher', 'General', 3, 0, 'Jug or carafe', 15),
+('Cleaning gloves', 'General', 12, 0, 'Latex or rubber gloves', 1),
+('Toothbrush/toothpaste', 'General', 10, 0, 'Combi pack', 10),
+('Dish Rack', 'General', 3, 0, 'Dish drainer', 2),
+('Wash bin', 'General', 12, 0, '', 2),
+('Umbrella', 'General', 4, 0, 'Parasol', 2),
+('Napkins', 'General', 3, 0, 'linen/ fabric/ reusable napkins', 5),
+('Placemats', 'General', 3, 0, 'table mats, serving mats', 5),
+('Ramen', 'General', 6, 0, '4 ramen packets = 1 item', 5),
+('Mop head replacement', 'General', 12, 0, 'just mop head, no bucket/pole', 5),
+('Blender', 'General', 2, 0, '', 5);
+GO

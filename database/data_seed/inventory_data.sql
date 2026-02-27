@@ -53,7 +53,7 @@ VALUES
     ('Playing Cards', 'General', 4, 2, '', 2),
     ('Puzzle', 'General', 4, 19, '', 2),
     ('Sports / Recreation', 'General', 4, 2, 'Camping gear, picnic blanket, sleeping bag, fishing, weights, yoga mat, bat and ball, outdoor activities, exercise equipment, workout gear, sport', 2),
-    ('Baking Pan / dish', 'General', 3, 38, 'Cake pan, muffin tin, baking sheet, casserole dish, pie pan', 10),
+    ('Baking Pan / dish', 'General', 3, 38, 'Cake pan, muffin tin, baking sheet, casserole dish, pie pan, cooking sheet', 10),
     ('Bowl', 'General', 3, 46, 'Cereal bowl, soup bowl, snack bowl, salad bowl, dinner bowl', 15),
     ('Can opener', 'General', 3, 45, '', 10),
     ('Cooking Spoon', 'General', 3, 40, 'Large spoon, wooden spoon, metal spoon, plastic spoon, slotted spoon', 10),
@@ -122,7 +122,7 @@ VALUES
     ('Coffee', 'General', 6, 0, 'Ground coffee beans, coffee beans, tea', 5),
     ('Cooking Oil', 'General', 6, 1, 'Avocado oil, olive oil, vegetable oil, cooking spray, crisco', 5),
     ('Fruit', 'General', 6, 20, 'Mandarin oranges, apple sauce, pineapple, dried fruit', 10),
-    ('Meal', 'General', 6, 130, '"One pot": mac n cheese, ramen, chef boyardi, chili, soup', 10),
+    ('Meal', 'General', 6, 130, '"One pot": mac n cheese, chef boyardi, chili, soup', 10),
     ('Meat', 'General', 6, 59, 'Chicken, tuna, spam, fish', 10),
     ('Pasta / Rice', 'General', 6, 5, 'Pastaroni, ricearoni, noodles, spaghetti', 10),
     ('Pasta Sauce', 'General', 6, 6, 'Marinara sauce, alfredo sauce', 5),
@@ -169,9 +169,5 @@ VALUES
     ('Tea Kettle', 'General', 2, 0, 'Electric tea kettle', 1),
     ('Television', 'General', 2, 0, '', 1),
     ('Toaster / Toaster Oven', 'General', 2, 1, '', 1),
-    ('Appliance Miscellaneous', 'General', 2, 0, 'Waffle maker, blender, rice cooker, air fryer', 1),
-    ('Glasses', 'General', 10, 0, 'Spectacles, sunglasses, eyeglasses', 1),
-    ('Pitcher', 'General', 3, 291, 'Jug or carafe', 15),
-    ('Cleaning gloves', 'General', 12, 0, 'Latex or rubber gloves', 1),
-    ('Toothbrush/toothpaste', 'General', 10, 343, 'Combi pack', 10);
+    ('Appliance Miscellaneous', 'General', 2, 0, 'Waffle maker, rice cooker, air fryer', 1);
 GO

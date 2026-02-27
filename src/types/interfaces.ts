@@ -1,5 +1,7 @@
 // ─── Checkout / Cart ─────────────────────────────────────────────────────────
 
+export type CheckoutType = 'general' | 'welcomeBasket';
+
 export type CheckoutItemProp = {
   id: number;
   name: string;

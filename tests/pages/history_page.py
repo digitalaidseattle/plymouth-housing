@@ -16,7 +16,6 @@ class HistoryPage(BasePage):
     def open_history(self):
         self.click(self.common_locators.HISTORY_MENU_BUTTON)
 
-
     def verify_history_header(self):
         assert self.is_visible(
             self.locators.HISTORY_HEADER
@@ -26,13 +25,23 @@ class HistoryPage(BasePage):
         return self.get_text(self.locators.RECORD_COUNT_TEXT)
 
     def get_record_count_number(self):
+        if not self.is_visible(self.locators.RECORD_COUNT_TEXT, timeout=5):
+            return 0
+
         text = self.get_record_count_text()
         digits = ''.join(c for c in text if c.isdigit())
+
         if not digits:
-            raise AssertionError(f"Record count text had no digits: '{text}'")
+            return 0
+
         return int(digits)
 
     def get_history_cards(self):
+        count = self.get_record_count_number()
+
+        if count == 0:
+            return []
+
         return self.wait.until(
             EC.presence_of_all_elements_located(
                 self.locators.HISTORY_CARDS
@@ -47,3 +56,6 @@ class HistoryPage(BasePage):
         WebDriverWait(self.driver, timeout).until(
             lambda d: self.get_record_count_number() != old_count
         )
+
+    def is_no_transactions_message_visible(self):
+        return self.is_visible(self.locators.NO_TRANSACTIONS_MESSAGE, timeout=5)

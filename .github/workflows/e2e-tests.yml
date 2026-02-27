@@ -5,6 +5,8 @@ on:
     workflows: ["Azure Static Web Apps CD"]
     types:
       - completed
+    branches:
+      - staging
   workflow_dispatch:
 
 # Least-privilege access for GITHUB_TOKEN

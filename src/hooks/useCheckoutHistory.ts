@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   ClientPrincipal,
   CheckoutHistoryItem,
@@ -26,6 +26,12 @@ export function useCheckoutHistory({
   const [checkoutHistory, setCheckoutHistory] = useState<CheckoutHistoryItem[]>(
     [],
   );
+
+  // Use a ref so onError never appears in useEffect dependency arrays
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  });
 
   useEffect(() => {
     if (residentInfoIsMissing) return;
@@ -93,7 +99,7 @@ export function useCheckoutHistory({
         console.error('Failed to fetch checkout history:', err);
         if (mounted) {
           setCheckoutHistory([]);
-          onError?.('Failed to load checkout history. Please try again.');
+          onErrorRef.current?.('Failed to load checkout history. Please try again.');
         }
       }
     }

@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CD
+name: Azure Static Web Apps Staging
 
 on:
   push:
@@ -6,7 +6,30 @@ on:
       - staging
 
 jobs:
+  ci:
+    runs-on: ubuntu-latest
+    name: CI
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Linting
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
   build_and_deploy_job:
+    needs: ci
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     environment: staging # this is a reference to the github environment and determines the env: location below

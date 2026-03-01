@@ -10,7 +10,33 @@ on:
       - dev
 
 jobs:
+  ci:
+    if:
+      github.event_name == 'push' || (github.event_name == 'pull_request' &&
+      github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: CI
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Linting
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
   build_and_deploy_job:
+    needs: ci
     if:
       github.event_name == 'push' || (github.event_name == 'pull_request' &&
       github.event.action != 'closed')

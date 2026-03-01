@@ -62,7 +62,7 @@ jobs:
     environment: production # this is a reference to the github environment and determines the env: location below
     steps:
       - name: Check out source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false

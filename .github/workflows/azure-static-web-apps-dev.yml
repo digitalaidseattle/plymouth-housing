@@ -18,7 +18,7 @@ jobs:
     name: CI
     steps:
       - name: Check out source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
@@ -44,7 +44,7 @@ jobs:
     name: Build and Deploy Job
     steps:
       - name: Check out source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false

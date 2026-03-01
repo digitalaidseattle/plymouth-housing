@@ -43,26 +43,37 @@ def driver():
     yield driver
     driver.quit()
 
+
 # Volunteer Login Fixture
 @pytest.fixture(scope="function")
 def login_with_volunteer(driver):
     login_page = LoginPage(driver)
 
+    # --- Microsoft Login ---
     login_page.enter_username(VOLUNTEER_USERNAME)
     login_page.click_next_button()
 
     login_page.enter_password(VOLUNTEER_PASSWORD)
     login_page.click_sign_in_button()
-    login_page.click_yes_button()
 
+    # Optional Microsoft prompt
+    login_page.handle_stay_signed_in()
+
+    # --- Pick Your Name ---
     login_page.click_person()
     login_page.select_first_option()
     login_page.click_continue_button()
 
+    # --- PIN ---
     login_page.enter_pin()
     login_page.click_continue_button()
 
-    return HomePage(driver)
+    # --- Ensure Home Fully Loaded ---
+    home_page = HomePage(driver)
+    home_page.wait_for_homepage_loaded()
+
+    return home_page
+
 
 # Admin Login Fixture
 @pytest.fixture(scope="function")
@@ -78,11 +89,14 @@ def admin_home_page(driver):
 
     return HomePage(driver)
 
+
 from tests.pages.history_page import HistoryPage
+
 
 @pytest.fixture(scope="function")
 def history_page(driver):
     return HistoryPage(driver)
+
 
 @pytest.fixture(scope="function")
 def checkout_page(driver):

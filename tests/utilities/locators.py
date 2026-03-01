@@ -12,6 +12,7 @@ class HistoryPageLocators:
     HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
     RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'records')]")
     HISTORY_CARDS = (By.XPATH,"//p[contains(text(),'Created')]/ancestor::div[contains(@class,'MuiBox-root')][1]")
+    NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
 
 class HomePageLocators:
     # ---- Sections ----
@@ -41,7 +42,7 @@ class LoginPageLocators:
     YES_BUTTON      = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Yes"]')
     NO_BUTTON       = (By.ID,    'idBtn_Back')
     DATABASE_POPUP_TEXT = (By.XPATH, '//*[text()="Database is starting up"]')
-    USER_PERSON = (By.XPATH, "//input[@role='combobox']")
+    USER_PERSON = (By.XPATH, "//*[@data-testid='volunteer-name-autocomplete']//input")
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"Continue")]')
     HOMEPAGE_TEXT = (By.XPATH, '//*[text()="Volunteer Home"]')
     FIRST_OPTION = (By.XPATH, "//ul[contains(@class, 'MuiAutocomplete-listbox')]/li[1]")

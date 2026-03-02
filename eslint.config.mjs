@@ -26,6 +26,7 @@ export default [{
         "**/*.test.ts",
         "**/*.test.tsx",
         "src/components/@extended",
+        "venv/**",
     ],
 
 }, ...fixupConfigRules(compat.extends(

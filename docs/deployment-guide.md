@@ -96,16 +96,18 @@ Key steps:
 
 ## CI/CD
 
-In .github/workflows you'll find three files: one for CI, one for CD, one for deployment to prod. 
+In .github/workflows you'll find three files for the frontend deployment pipeline.
 
-- [azure-static-web-apps-CI.yml](../.github/workflows/azure-static-web-apps-CI.yml).
-The CI action runs on every push to the repo. It will run the linter, the unit tests, and builds the app. It will not deploy. 
+- [azure-static-web-apps-dev.yml](../.github/workflows/azure-static-web-apps-dev.yml).
+Triggers on push to `dev` or on any PR targeting `dev`. Runs lint, unit tests, and build, then deploys to the dev environment. Cleans up the preview deployment when a PR is closed.
 
-- [azure-static-web-apps-CD.yml](../.github/workflows/azure-static-web-apps-CD.yml). The CD action runs on a merge to main. It will build and deploy to staging. 
+- [azure-static-web-apps-staging.yml](../.github/workflows/azure-static-web-apps-staging.yml).
+Triggers on push to `staging`. Runs the same CI steps, then deploys to the staging environment. To promote dev to staging, open a PR from `dev` → `staging` and merge it.
 
 - [azure-static-web-apps-prod.yml](../.github/workflows/azure-static-web-apps-prod.yml).
-This workflow triggers on a version change in ```package.json```. 
-When that happens, a github tag for that version is created. 
-It then builds from that tag, and deploys to production. 
+Triggers on push to `main`. Reads the version from `package.json` and checks whether a matching git tag (e.g. `v1.2.3`) already exists. If the tag is new, it creates the tag, generates a GitHub Release, and deploys to production. If the tag already exists, the deploy is skipped entirely. This makes the workflow idempotent — pushing to `main` multiple times is safe.
 
-The idea is that the version bump happens manually when staging has been tested and deemed stable. 
+To promote staging to production:
+1. Bump the version in `package.json` on `staging`
+2. Open a PR from `staging` → `main` and merge it
+3. The workflow detects the new version tag and deploys automatically

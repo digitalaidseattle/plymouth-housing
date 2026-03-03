@@ -42,7 +42,7 @@ export const useResidentFormSubmit = (
       activeErrors.buildingError ||
       activeErrors.unitError
     ) {
-      return;
+      return false;
     }
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';

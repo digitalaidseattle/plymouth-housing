@@ -135,7 +135,11 @@ const ResidentDetailDialog = ({
             fetchUnitNumbers={fetchUnitNumbers}
             error={formError.buildingError}
             resetError={() =>
-              setFormError({ ...formError, buildingError: false })
+              setFormError({
+                buildingError: false,
+                unitError: false,
+                nameError: false,
+              })
             }
             disabled={isWaiting}
           />
@@ -160,7 +164,11 @@ const ResidentDetailDialog = ({
               );
               if (matchingUnit) {
                 setSelectedUnit(matchingUnit);
-                setFormError({ ...formError, unitError: false });
+                setFormError({
+                  ...formError,
+                  unitError: false,
+                  nameError: false,
+                });
               } else {
                 setSelectedUnit({ id: 0, unit_number: newValue });
               }

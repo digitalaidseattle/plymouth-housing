@@ -3,8 +3,8 @@ name: SQL Unit Tests CI
 on:
   push:
     branches:
-      - '**'
-      - '!main'
+      - dev
+      - staging
     paths:
       - 'database/**/*.sql'
 

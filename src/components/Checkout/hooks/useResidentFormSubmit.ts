@@ -22,12 +22,13 @@ export const useResidentFormSubmit = (
     setFormError: (formErrorObject: ResidentFormError) => void,
     currentLastVisitDate: string | null = null,
   ) => {
+    const normalizedName = nameInput.trim();
     const activeErrors = {
       buildingError: false,
       unitError: false,
       nameError: false,
     };
-    if (!nameInput.trim()) {
+    if (!normalizedName) {
       activeErrors.nameError = true;
     }
     if (!selectedBuilding.id) {
@@ -50,11 +51,15 @@ export const useResidentFormSubmit = (
       let residentId;
       const existingResponse = await findResident(
         user,
-        nameInput,
+        normalizedName,
         selectedUnit.id,
       );
       if (!existingResponse.value.length) {
-        const response = await addResident(user, nameInput, selectedUnit.id);
+        const response = await addResident(
+          user,
+          normalizedName,
+          selectedUnit.id,
+        );
         if (!response.value || response.value.length === 0) {
           throw new Error('Failed to create resident: API returned no data');
         }
@@ -62,10 +67,9 @@ export const useResidentFormSubmit = (
       } else {
         residentId = existingResponse.value[0].id;
       }
-
       onSuccess({
         id: residentId,
-        name: nameInput,
+        name: normalizedName,
         unit: selectedUnit,
         building: selectedBuilding,
         lastVisitDate: currentLastVisitDate,

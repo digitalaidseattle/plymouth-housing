@@ -35,7 +35,6 @@ export function useCheckoutHistory({
 
   useEffect(() => {
     if (residentInfoIsMissing) {
-      setCheckoutHistory([]);
       return;
     }
 
@@ -113,5 +112,5 @@ export function useCheckoutHistory({
     };
   }, [user, residentId, residentInfoIsMissing]);
 
-  return { checkoutHistory };
+  return { checkoutHistory: residentInfoIsMissing ? [] : checkoutHistory };
 }

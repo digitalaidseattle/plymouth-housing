@@ -34,7 +34,10 @@ export function useCheckoutHistory({
   });
 
   useEffect(() => {
-    if (residentInfoIsMissing) return;
+    if (residentInfoIsMissing) {
+      setCheckoutHistory([]);
+      return;
+    }
 
     let mounted = true; // prevents state update if component unmounts before fetch completes
 

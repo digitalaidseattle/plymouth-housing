@@ -136,16 +136,9 @@ const Inventory = () => {
     setCurrentPage(value);
   };
 
-  const negativeItemCount = originalData.reduce(
-    (accumulator, currentVal: InventoryItem) => {
-      if (currentVal.quantity < 0) {
-        return accumulator + 1;
-      } else {
-        return accumulator;
-      }
-    },
-    0,
-  );
+  const negativeItemCount = originalData.filter(
+    (item) => item.quantity < 0,
+  ).length;
 
   const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(

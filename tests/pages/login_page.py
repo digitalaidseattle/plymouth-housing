@@ -1,4 +1,4 @@
-from selenium.common import StaleElementReferenceException, TimeoutException
+from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -10,7 +10,6 @@ from tests.utilities.locators import LoginPageLocators
 class LoginPage(BasePage):
     def __init__(self, driver):
         super().__init__(driver)
-        self.driver = driver
         self.locators = LoginPageLocators
         self.wait = WebDriverWait(driver, 60)
 

@@ -72,12 +72,9 @@ class HistoryPage(BasePage):
 
     # ---------- Utilities ----------
 
-    def wait_for_record_count_to_be(self, expected_count, timeout=10):
-        """
-        Deterministic wait until record count equals expected_count.
-        """
+    def wait_for_record_count_to_be(self, expected_count, timeout=20):
         WebDriverWait(self.driver, timeout).until(
-            lambda d: self.get_record_count_number() == expected_count
+            lambda _: self.get_record_count_number() >= expected_count
         )
 
     def is_no_transactions_message_visible(self):

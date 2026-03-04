@@ -39,6 +39,9 @@ class BasePage:
     # ---------------------------------------------------
 
     def click(self, locator, timeout=None, retries=3):
+        if retries < 1:
+            raise ValueError("retries must be >= 1")
+
         timeout = timeout or self.DEFAULT_TIMEOUT
         last_exception = None
 

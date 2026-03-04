@@ -16,17 +16,17 @@ class HistoryPageLocators:
 
 class HomePageLocators:
     # ---- Sections ----
-    CHECKOUT_SECTION = (By.XPATH, "//h3[normalize-space()='Check out']")
-    STOCK_SECTION = (By.XPATH, "//h3[normalize-space()='Stock']")
+    CHECKOUT_SECTION = (By.XPATH, "//h5[normalize-space()='Check out']")
+    STOCK_SECTION = (By.XPATH, "//h5[normalize-space()='Stock']")
     # ---- Scoped CTAs ----
     CHECKOUT_GENERAL_INVENTORY = (
         By.XPATH,
-        "//h3[normalize-space()='Check out']/following::button[normalize-space()='General Inventory'][1]"
+        "//h5[normalize-space()='Check out']/following::button[normalize-space()='General Inventory'][1]"
     )
 
     STOCK_GENERAL_INVENTORY = (
         By.XPATH,
-        "//h3[normalize-space()='Stock']/following::button[normalize-space()='General Inventory'][1]"
+        "//h5[normalize-space()='Stock']/following::button[normalize-space()='General Inventory'][1]"
     )
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, '(//a[contains(@class,"MuiButtonBase")])[1]') # TODO COMMON LOCATORS PUT IN CommonLocators
     EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")

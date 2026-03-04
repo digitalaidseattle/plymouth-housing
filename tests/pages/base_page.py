@@ -28,7 +28,7 @@ class BasePage:
     def find(self, locator, timeout=None):
         timeout = timeout or self.DEFAULT_TIMEOUT
         return WebDriverWait(self.driver, timeout).until(
-            EC.visibility_of_element_located(locator)
+            EC.presence_of_element_located(locator)
         )
 
     def find_all(self, locator):
@@ -64,10 +64,12 @@ class BasePage:
 
                 return
 
-            except (StaleElementReferenceException, TimeoutException) as e:
-                last_exception = e
+            except (StaleElementReferenceException, TimeoutException) as err:
+                last_exception = err
 
-        raise last_exception
+        raise last_exception or TimeoutException(
+            f"Failed to click element after {retries} retries: {locator}"
+        )
 
     # ---------------------------------------------------
     # Input
@@ -176,7 +178,7 @@ class BasePage:
                 "arguments[0].scrollIntoView({block:'center'});", element
             )
             element.click()
-        except TimeoutException:
+        except TimeoutException as err:
             raise AssertionError(
                 f"[ERROR] Could not click on {label or locator}"
-            )
+            ) from err

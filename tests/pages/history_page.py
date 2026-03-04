@@ -1,7 +1,5 @@
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import HistoryPageLocators, CommonLocators
 
@@ -49,22 +47,17 @@ class HistoryPage(BasePage):
 
     def get_history_cards(self):
         """
-        Return visible history cards under the 'You' section.
-        Uses business-text anchor ('Created') instead of fragile MUI classes.
+        Return visible history cards.
+
+        Cards are located using the HISTORY_CARDS locator and filtered to include
+        only displayed elements to avoid hidden DOM containers.
         """
 
         if self.get_record_count_number() == 0:
             return []
 
-        cards_xpath = (
-            "//h2[normalize-space()='You']"
-            "/following::div[.//text()[contains(.,'Created')]]"
-        )
-
-        cards = self.driver.find_elements(By.XPATH, cards_xpath)
-
-        return [c for c in cards if c.is_displayed()]
-
+        cards = self.find_all(self.locators.HISTORY_CARDS)
+        return [card for card in cards if card.is_displayed()]
 
     def get_latest_card(self):
         cards = self.get_history_cards()

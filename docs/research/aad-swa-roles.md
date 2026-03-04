@@ -69,13 +69,13 @@ Add the appropriate Plymouth Housing staff as members. Note the **Object ID** of
 
 1. In the Azure portal, go to **Microsoft Entra ID → App registrations → New registration**
 2. Set the redirect URI to:
-   ```
+   ```text
    https://<your-swa-url>/.auth/login/aad/callback
    ```
 3. After registration, note the **Application (client) ID** and **Directory (tenant) ID**
 4. Under **Authentication**, enable **ID tokens** (implicit grant)
 5. Under **Certificates & secrets**, create a new client secret and note the value
-6. Under **API permissions**, add `User.Read.All` (Microsoft Graph, application permission) and grant admin consent
+6. Under **API permissions**, add `User.Read.All` as a **delegated** permission (Microsoft Graph, delegated) and grant admin consent. It must be delegated — not an application permission — because the SWA `GetRoles` function calls the Graph `/v1.0/me/memberOf` endpoint using the user's own access token; `me/*` endpoints require a signed-in user context and do not support application permissions.
 
 ### 3. Add the `GetRoles` API Function
 

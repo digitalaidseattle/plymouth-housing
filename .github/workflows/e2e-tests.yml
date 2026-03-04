@@ -62,4 +62,4 @@ jobs:
 
       - name: Run smoke tests (headless)
         run: |
-          pytest -m smoke -n auto --maxfail=1 --disable-warnings -q
+          pytest -m smoke --maxfail=1 --disable-warnings -q

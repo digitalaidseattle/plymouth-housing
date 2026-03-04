@@ -6,11 +6,11 @@ import pytest
 @pytest.mark.smoke
 def test_checkout_updates_history(home_page, checkout_page, history_page):
 
-    # 1️⃣ Get initial history count
+    # Get initial history count
     history_page.open_history()
     initial_count = history_page.get_record_count_number()
 
-    # 2️⃣ Perform checkout
+    # Perform checkout
     home_page.go_to_checkout_general()
 
     checkout_page.click_building_code()
@@ -26,13 +26,13 @@ def test_checkout_updates_history(home_page, checkout_page, history_page):
     checkout_page.click_proceed_to_checkout()
     checkout_page.click_confirm()
 
-    # 3️⃣ Reopen and refresh History page to ensure UI state updates
+    # Reopen and refresh History page to ensure UI state updates
     history_page.open_history()
     history_page.driver.refresh()
 
-    history_page.wait_for_record_count_change(initial_count)
+    history_page.wait_for_record_count_to_be(initial_count + 1)
 
-    # 4️⃣ Validate increment
+    # Validate increment
     new_count = history_page.get_record_count_number()
 
     assert new_count > initial_count, \

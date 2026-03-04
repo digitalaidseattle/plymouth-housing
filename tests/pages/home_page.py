@@ -1,6 +1,6 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import HomePageLocators, CommonLocators
@@ -12,23 +12,26 @@ class HomePage(BasePage):
         super().__init__(driver)
         self.locators = HomePageLocators
         self.common_locators = CommonLocators
-        self.wait = WebDriverWait(driver, 20)
+        self.wait = WebDriverWait(driver, 60)  # CI safe timeout
 
     # ---------------------------------------------------
-    # Page Load Guard
+    # Page Load Guard (Admin + Volunteer Safe)
     # ---------------------------------------------------
 
     def wait_for_homepage_loaded(self):
         """
-        Ensure Volunteer Home page is fully rendered.
+        Wait until either Volunteer or Admin homepage is rendered.
+        Cold-start & CI safe.
         """
+
         self.wait.until(
-            EC.visibility_of_element_located(
-                self.locators.VOLUNTEER_HOME_HEADER
+            lambda d: (
+                d.find_elements(*self.locators.VOLUNTEER_HOME_HEADER)
+                or d.find_elements(*self.locators.PLYMOUTH_HOUSING_TEXT)
             )
         )
 
-        # Ensure sidebar loaded
+        # Sidebar must exist in both roles
         self.wait.until(
             EC.visibility_of_element_located(
                 self.common_locators.CHECKOUT_MENU_BUTTON
@@ -56,7 +59,7 @@ class HomePage(BasePage):
         return self.get_text(self.locators.PLYMOUTH_HOUSING_TEXT).strip()
 
     # ---------------------------------------------------
-    # Volunteer Header & Info
+    # Volunteer Header
     # ---------------------------------------------------
 
     def get_header(self):
@@ -68,18 +71,19 @@ class HomePage(BasePage):
         return self.get_text(self.locators.VOLUNTEER_HOME_HEADER).strip()
 
     def verify_volunteer_home_header(self):
-        expected_header = "Volunteer Home"
         actual_header = self.get_header()
+        assert actual_header == "Volunteer Home", \
+            f"Expected 'Volunteer Home' but got '{actual_header}'"
 
-        assert actual_header == expected_header, \
-            f"Expected '{expected_header}' but got '{actual_header}'"
+    # ---------------------------------------------------
+    # Email
+    # ---------------------------------------------------
 
     def get_email_id(self):
         email_el = self.wait.until(
             EC.visibility_of_element_located(self.locators.EMAIL_ID)
         )
 
-        # Prevent race condition where email renders as "null"
         self.wait.until(
             lambda d: email_el.text and email_el.text.strip().lower() != "null"
         )
@@ -105,7 +109,7 @@ class HomePage(BasePage):
         self.click_logout()
 
     # ---------------------------------------------------
-    # Sidebar Navigation (Checkout Menu)
+    # Sidebar Navigation
     # ---------------------------------------------------
 
     def go_to_checkout_general(self):
@@ -133,22 +137,6 @@ class HomePage(BasePage):
                 self.common_locators.WELCOME_MENU_BUTTON
             )
         ).click()
-
-    # ---------------------------------------------------
-    # Volunteer Dashboard CTA
-    # ---------------------------------------------------
-
-    def click_checkout_general_inventory(self):
-        self.wait.until(
-            EC.element_to_be_clickable(
-                self.locators.CHECKOUT_GENERAL_INVENTORY
-            )
-        ).click()
-
-    def is_stock_general_inventory_visible(self):
-        return self.is_visible(
-            self.locators.STOCK_GENERAL_INVENTORY
-        )
 
     # ---------------------------------------------------
     # Section Visibility

@@ -12,6 +12,7 @@ class LoginPage(BasePage):
         super().__init__(driver)
         self.driver = driver
         self.locators = LoginPageLocators
+        self.wait = WebDriverWait(driver, 60)
 
     # ---------------------------------------------------
     # Basic Microsoft Login
@@ -36,58 +37,69 @@ class LoginPage(BasePage):
         raise Exception("Failed to click the sign-in button due to stale element.")
 
     # ---------------------------------------------------
-    # Handle Microsoft "Stay signed in?" (Optional)
+    # Microsoft "Stay signed in?" (Optional)
     # ---------------------------------------------------
 
     def handle_stay_signed_in(self):
-        """
-        Clicks 'Yes' on the 'Stay signed in?' prompt if it appears.
-        Continues silently if it does not.
-        """
         try:
-            # Ensure we are actually on the Stay Signed In screen
             WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located(
                     (By.XPATH, "//*[contains(text(),'Stay signed in')]")
                 )
             )
 
-            # Click Yes
             WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.ID, "idSIButton9"))
             ).click()
 
         except TimeoutException:
-            # Prompt did not appear — continue normally
             pass
 
     # ---------------------------------------------------
-    # Pick Your Name (Async Stabilized)
+    # Cold Start Handling
     # ---------------------------------------------------
 
-    def wait_for_name_dropdown_ready(self):
+    def wait_for_database_ready(self):
         """
-        Wait until:
-        1. Dropdown input is visible
-        2. 'Loading...' disappears
+        If warmup popup appears, wait until it disappears.
         """
-        WebDriverWait(self.driver, 60).until(
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(self.locators.DATABASE_POPUP_TEXT)
+            )
+
+            WebDriverWait(self.driver, 180).until_not(
+                EC.visibility_of_element_located(self.locators.DATABASE_POPUP_TEXT)
+            )
+
+        except TimeoutException:
+            pass
+
+    def wait_for_volunteer_ready(self):
+        """
+        Wait until volunteer dropdown is rendered & clickable.
+        Only for volunteer flow.
+        """
+        self.wait_for_database_ready()
+
+        self.wait.until(
             EC.visibility_of_element_located(self.locators.USER_PERSON)
         )
 
-        WebDriverWait(self.driver, 60).until(
-            lambda d: "Loading..." not in d.page_source
+        self.wait.until(
+            EC.element_to_be_clickable(self.locators.USER_PERSON)
         )
 
-    def click_person(self):
-        self.wait_for_name_dropdown_ready()
+    # ---------------------------------------------------
+    # Volunteer Selection
+    # ---------------------------------------------------
 
-        WebDriverWait(self.driver, 30).until(
-            EC.element_to_be_clickable(self.locators.USER_PERSON)
-        ).click()
+    def click_person(self):
+        self.wait_for_volunteer_ready()
+        self.click(self.locators.USER_PERSON)
 
     def select_first_option(self):
-        WebDriverWait(self.driver, 60).until(
+        self.wait.until(
             EC.visibility_of_element_located(self.locators.FIRST_OPTION)
         )
         self.click(self.locators.FIRST_OPTION)
@@ -110,4 +122,7 @@ class LoginPage(BasePage):
     # ---------------------------------------------------
 
     def is_database_popup_visible(self):
-        return self.wait_for_visibility(self.locators.DATABASE_POPUP_TEXT)
+        try:
+            return self.wait_for_visibility(self.locators.DATABASE_POPUP_TEXT)
+        except TimeoutException:
+            return False

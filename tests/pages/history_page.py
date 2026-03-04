@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -13,49 +14,74 @@ class HistoryPage(BasePage):
         self.common_locators = CommonLocators
         self.wait = WebDriverWait(driver, 15)
 
+    # ---------- Navigation ----------
+
     def open_history(self):
+        """
+        Click History menu and wait until History page loads.
+        """
         self.click(self.common_locators.HISTORY_MENU_BUTTON)
 
-    def verify_history_header(self):
-        assert self.is_visible(
-            self.locators.HISTORY_HEADER
-        ), "History header not visible"
+        self.wait.until(
+            EC.text_to_be_present_in_element(
+                self.locators.HISTORY_HEADER,
+                "History"
+            )
+        )
+
+    # ---------- Record Count ----------
 
     def get_record_count_text(self):
         return self.get_text(self.locators.RECORD_COUNT_TEXT)
 
     def get_record_count_number(self):
+        """
+        Extract numeric record count from 'You 10 records'
+        """
         if not self.is_visible(self.locators.RECORD_COUNT_TEXT, timeout=5):
             return 0
 
         text = self.get_record_count_text()
         digits = ''.join(c for c in text if c.isdigit())
+        return int(digits) if digits else 0
 
-        if not digits:
-            return 0
-
-        return int(digits)
+    # ---------- Card Retrieval ----------
 
     def get_history_cards(self):
-        count = self.get_record_count_number()
+        """
+        Return visible history cards under the 'You' section.
+        Uses business-text anchor ('Created') instead of fragile MUI classes.
+        """
 
-        if count == 0:
+        if self.get_record_count_number() == 0:
             return []
 
-        return self.wait.until(
-            EC.presence_of_all_elements_located(
-                self.locators.HISTORY_CARDS
-            )
+        cards_xpath = (
+            "//h2[normalize-space()='You']"
+            "/following::div[.//text()[contains(.,'Created')]]"
         )
+
+        cards = self.driver.find_elements(By.XPATH, cards_xpath)
+
+        return [c for c in cards if c.is_displayed()]
+
 
     def get_latest_card(self):
         cards = self.get_history_cards()
         return cards[0] if cards else None
 
-    def wait_for_record_count_change(self, old_count, timeout=10):
+    # ---------- Utilities ----------
+
+    def wait_for_record_count_to_be(self, expected_count, timeout=10):
+        """
+        Deterministic wait until record count equals expected_count.
+        """
         WebDriverWait(self.driver, timeout).until(
-            lambda d: self.get_record_count_number() != old_count
+            lambda d: self.get_record_count_number() == expected_count
         )
 
     def is_no_transactions_message_visible(self):
-        return self.is_visible(self.locators.NO_TRANSACTIONS_MESSAGE, timeout=5)
+        return self.is_visible(
+            self.locators.NO_TRANSACTIONS_MESSAGE,
+            timeout=5
+        )

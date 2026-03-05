@@ -4,10 +4,7 @@ import { Building, User, CheckoutTransaction, InventoryTransaction } from '../..
 import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';
-import {
-  createHowLongAgoString,
-  calculateTimeDifference,
-} from './historyUtils';
+import { formatTransactionDate } from './historyUtils';
 
 interface TransactionsListProps {
   transactionsByUser: Array<{
@@ -64,14 +61,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
           >
             {user.transactions.map(
               (t: CheckoutTransaction | InventoryTransaction) => {
-                const { minutes, hours, days } = calculateTimeDifference(
-                  t.transaction_date,
-                );
-                const howLongAgoString = createHowLongAgoString(
-                  minutes,
-                  hours,
-                  days,
-                );
+                const howLongAgoString = formatTransactionDate(t.transaction_date);
                 const checkoutTransaction = t as CheckoutTransaction;
                 if (
                   historyType === 'checkout' &&

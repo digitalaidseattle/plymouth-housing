@@ -17,7 +17,7 @@ const DrawerHeader = (props: { open: boolean }) => {
       display="flex"
       alignItems="center"
       justifyContent={props.open ? 'stretch' : 'center'}
-      paddingLeft={theme.spacing(props.open ? 0 : 0)}
+      paddingLeft={theme.spacing(0)}
       paddingTop={theme.spacing(props.open ? 1.5 : 1)}
       sx={props.open ? { bgcolor: '#e8a817', mr: '-1px', pb: '10px' } : undefined}
     >

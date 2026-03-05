@@ -5,6 +5,7 @@
  *
  */
 import { ChipProps } from '@mui/material';
+import type { SvgIconProps } from '@mui/material/SvgIcon';
 import React, { createContext } from 'react';
 
 export type MenuItem = {
@@ -14,7 +15,7 @@ export type MenuItem = {
   children: MenuItem[];
   url: string;
   target: string;
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon?: React.ElementType<SvgIconProps>;
   breadcrumbs: boolean;
   disabled: boolean;
   chip: ChipProps;

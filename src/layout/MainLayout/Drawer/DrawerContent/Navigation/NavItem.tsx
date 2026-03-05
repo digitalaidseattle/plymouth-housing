@@ -8,6 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -24,6 +25,7 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const location = useLocation();
   const { pathname } = location;
 
@@ -60,7 +62,9 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   const itemHandler = (id: string) => {
     setActiveMenuItem(id);
-    setDrawerOpen(false);
+    if (isMobile) {
+      setDrawerOpen(false);
+    }
   };
 
   const textColor = 'text.primary';

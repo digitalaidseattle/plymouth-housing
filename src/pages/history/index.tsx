@@ -44,10 +44,7 @@ const HistoryPage: React.FC = () => {
     'checkout',
   );
 
-  const {
-    transactionsByUser,
-    isLoading: isLoadingHistory,
-  } = useHistoryData({
+  const { transactionsByUser, isLoading: isLoadingHistory } = useHistoryData({
     user,
     formattedDateRange,
     historyType,

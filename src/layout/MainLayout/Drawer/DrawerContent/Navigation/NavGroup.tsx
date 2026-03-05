@@ -1,4 +1,4 @@
-import { Box, List, Typography } from '@mui/material';
+import { Box, Divider, List, Typography } from '@mui/material';
 import { useContext } from 'react';
 import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpenContext';
 import NavItem from './NavItem';
@@ -69,7 +69,14 @@ const NavGroup: React.FC<NavGroupProps> = ({ item }) => {
       }
       sx={{ mb: drawerOpen ? 1.5 : 0, py: 0, zIndex: 0 }}
     >
-      {navCollapse}
+      {navCollapse?.filter(Boolean).map((item, index, arr) => (
+        <Box key={index}>
+          {item}
+          {index < arr.length - 1 && drawerOpen && (
+            <Divider sx={{ borderColor: 'grey.300', mx: 2 }} />
+          )}
+        </Box>
+      ))}
     </List>
   );
 };

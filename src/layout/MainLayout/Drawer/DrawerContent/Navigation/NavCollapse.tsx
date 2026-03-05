@@ -1,7 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
+  Box,
   Collapse,
+  Divider,
   List,
   ListItemButton,
   ListItemIcon,
@@ -129,7 +131,10 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {item.children?.map((child) => (
-              <NavItem key={child.id} item={child} level={level + 1} />
+              <Box key={child.id}>
+                <Divider sx={{ borderColor: 'grey.300', ml: `${(level + 1) * 24}px`, mr: 2 }} />
+                <NavItem item={child} level={level + 1} />
+              </Box>
             ))}
           </List>
         </Collapse>

@@ -472,7 +472,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
                 : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`}
           </Button>
           <SearchBar
-            data={data}
+            data={checkoutType === 'general' ? filteredData : data}
             setSearchData={setSearchData}
             setSearchActive={setSearchActive}
           />

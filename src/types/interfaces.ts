@@ -35,7 +35,11 @@ export type CategoryProps = {
 export type CheckoutCardProps = {
   item: CheckoutItemProp;
   categoryCheckout: CategoryProps;
-  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string) => void;
+  addItemToCart: (
+    item: CheckoutItemProp,
+    quantity: number,
+    category: string,
+  ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disableAdd?: boolean;
@@ -48,6 +52,12 @@ export type CheckoutCardProps = {
 export type ShoppingCart = {
   user_id: string;
   items: CheckoutItemProp[];
+};
+
+export type ResidentFormError = {
+  buildingError: boolean;
+  unitError: boolean;
+  nameError: boolean;
 };
 
 // ─── Users / Auth ─────────────────────────────────────────────────────────────

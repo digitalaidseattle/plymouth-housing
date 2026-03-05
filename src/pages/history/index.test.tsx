@@ -507,7 +507,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Showing 1 records total/i)).toBeInTheDocument();
+      expect(screen.getByText(/Showing 1 record total/i)).toBeInTheDocument();
     });
   });
 

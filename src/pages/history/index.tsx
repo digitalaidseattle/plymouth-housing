@@ -162,7 +162,7 @@ const HistoryPage: React.FC = () => {
         </FormControl>
       </Stack>
 
-      <Stack direction="row" alignItems="center" gap="1.5rem">
+      <Stack>
         <Typography variant="h2" textTransform="capitalize">
           {dateRange.isCustom ? dateRangeString : dateInput}
         </Typography>
@@ -173,19 +173,22 @@ const HistoryPage: React.FC = () => {
             {dateInput !== 'this week' ? dateString : dateRangeString}
           </Typography>
         )}
+        {!isLoading && (() => {
+          const totalRecords = transactionsByUser.reduce(
+            (sum, user) => sum + user.transactions.length,
+            0,
+          );
+          return (
+            <Typography variant="body1">
+              Showing {totalRecords} {totalRecords === 1 ? 'record' : 'records'} total
+            </Typography>
+          );
+        })()}
       </Stack>
       {isLoading ? (
         <CircularLoader />
       ) : (
         <>
-          <Typography variant="body1">
-            Showing{' '}
-            {transactionsByUser.reduce(
-              (sum, user) => sum + user.transactions.length,
-              0,
-            )}{' '}
-            records total
-          </Typography>
           <TransactionsList
             transactionsByUser={transactionsByUser}
             userList={userList}

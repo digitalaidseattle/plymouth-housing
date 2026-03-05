@@ -471,11 +471,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
                 ? `${residentInfo.building.code}`
                 : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`}
           </Button>
-          <SearchBar
-            data={checkoutType === 'general' ? filteredData : data}
-            setSearchData={setSearchData}
-            setSearchActive={setSearchActive}
-          />
+          {/* Search is only shown for general checkout — Welcome Basket only has two items */}
+          {checkoutType === 'general' && (
+            <SearchBar
+              data={filteredData}
+              setSearchData={setSearchData}
+              setSearchActive={setSearchActive}
+            />
+          )}
         </Box>
         {!searchActive && checkoutType === 'general' && (
           <Navbar

@@ -47,11 +47,12 @@ export function useCheckoutHistory({
 
         response.value.forEach((transaction: TransactionItem) => {
           if (transaction.item_id === SPECIAL_ITEMS.APPLIANCE_MISC) {
+            const applianceNotes = transaction.additional_notes.toLowerCase();
             if (
               tempCheckOutHistory.find(
                 (entry) =>
-                  entry.additionalNotes.toLowerCase() ===
-                  transaction.additional_notes.toLowerCase(),
+                  entry.item_id === SPECIAL_ITEMS.APPLIANCE_MISC &&
+                  entry.additionalNotes.toLowerCase() === applianceNotes,
               )
             ) {
               return;
@@ -59,9 +60,9 @@ export function useCheckoutHistory({
             const checkedOutQuantity = response.value
               .filter(
                 (item: TransactionItem) =>
+                  item.item_id === SPECIAL_ITEMS.APPLIANCE_MISC &&
                   item.additional_notes &&
-                  item.additional_notes.toLowerCase() ===
-                    transaction.additional_notes.toLowerCase(),
+                  item.additional_notes.toLowerCase() === applianceNotes,
               )
               .reduce(
                 (acc: number, t: { quantity: number }) => acc + t.quantity,
@@ -101,7 +102,9 @@ export function useCheckoutHistory({
         console.error('Failed to fetch checkout history:', err);
         if (mounted) {
           setCheckoutHistory([]);
-          onErrorRef.current?.('Failed to load checkout history. Please try again.');
+          onErrorRef.current?.(
+            'Failed to load checkout history. Please try again.',
+          );
         }
       }
     }

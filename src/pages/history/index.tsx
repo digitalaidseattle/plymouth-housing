@@ -180,13 +180,23 @@ const HistoryPage: React.FC = () => {
       {isLoading ? (
         <CircularLoader />
       ) : (
-        <TransactionsList
-          transactionsByUser={transactionsByUser}
-          userList={userList}
-          buildings={buildings}
-          loggedInUserId={loggedInUserId}
-          historyType={historyType}
-        />
+        <>
+          <Typography variant="body1">
+            Showing{' '}
+            {transactionsByUser.reduce(
+              (sum, user) => sum + user.transactions.length,
+              0,
+            )}{' '}
+            records total
+          </Typography>
+          <TransactionsList
+            transactionsByUser={transactionsByUser}
+            userList={userList}
+            buildings={buildings}
+            loggedInUserId={loggedInUserId}
+            historyType={historyType}
+          />
+        </>
       )}
     </Stack>
   );

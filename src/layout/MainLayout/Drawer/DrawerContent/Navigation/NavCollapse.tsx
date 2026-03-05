@@ -8,7 +8,6 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import {
   ActiveMenuItemContext,
@@ -38,11 +37,8 @@ const checkOpenForParent = (
 };
 
 const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
-  const theme = useTheme();
   const { drawerOpen } = useContext(DrawerOpenContext);
-  const { activeMenuItem, setActiveMenuItem } = useContext(
-    ActiveMenuItemContext,
-  );
+  const { setActiveMenuItem } = useContext(ActiveMenuItemContext);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -70,14 +66,10 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
   const itemIcon = React.useMemo(() => {
     if (!item.icon) return null;
     const Icon = item.icon;
-    return <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />;
+    return <Icon sx={{ fontSize: drawerOpen ? '1.25rem' : '1.5rem' }} />;
   }, [item.icon, drawerOpen]);
 
-  const isAnyChildSelected = item.children?.some(
-    (child) => activeMenuItem === child.id,
-  );
   const textColor = 'text.primary';
-  const iconSelectedColor = 'primary.main';
 
   return (
     <>
@@ -89,13 +81,8 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
           py: !drawerOpen && level === 1 ? 1.25 : 1,
           ...(drawerOpen && {
             '&:hover': {
-              bgcolor: 'primary.lighter',
+              bgcolor: 'warning.lighter',
             },
-            ...(isAnyChildSelected && {
-              bgcolor: 'primary.lighter',
-              borderRight: `2px solid ${theme.palette.primary.main}`,
-              color: iconSelectedColor,
-            }),
           }),
           ...(!drawerOpen && {
             '&:hover': {
@@ -108,7 +95,7 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
           <ListItemIcon
             sx={{
               minWidth: 28,
-              color: isAnyChildSelected ? iconSelectedColor : textColor,
+              color: textColor,
               ...(!drawerOpen && {
                 borderRadius: 1.5,
                 width: 36,
@@ -119,13 +106,6 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
                   bgcolor: 'secondary.lighter',
                 },
               }),
-              ...(!drawerOpen &&
-                isAnyChildSelected && {
-                  bgcolor: 'primary.lighter',
-                  '&:hover': {
-                    bgcolor: 'primary.lighter',
-                  },
-                }),
             }}
           >
             {itemIcon}
@@ -136,7 +116,7 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
             primary={
               <Typography
                 variant="h6"
-                sx={{ color: isAnyChildSelected ? iconSelectedColor : textColor }}
+                sx={{ color: textColor }}
               >
                 {item.title}
               </Typography>

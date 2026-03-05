@@ -1,34 +1,19 @@
-// project import
-import {
-  ChromeOutlined,
-  LoginOutlined,
-  ProfileOutlined,
-  QuestionOutlined,
-  ExclamationOutlined,
-  FileOutlined,
-  FileExclamationOutlined,
-  UploadOutlined,
-  DragOutlined,
-  GlobalOutlined,
-  UserOutlined,
-  HomeOutlined,
-  ShoppingCartOutlined,
-} from '@ant-design/icons';
+import Home from '@mui/icons-material/Home';
+import Inventory2 from '@mui/icons-material/Inventory2';
+import ShoppingCart from '@mui/icons-material/ShoppingCart';
+import People from '@mui/icons-material/People';
+import AccessTimeFilled from '@mui/icons-material/AccessTimeFilled';
+import CategoryOutlined from '@mui/icons-material/CategoryOutlined';
+import ShoppingBasketOutlined from '@mui/icons-material/ShoppingBasketOutlined';
 
 const icons = {
-  LoginOutlined,
-  ProfileOutlined,
-  ChromeOutlined,
-  QuestionOutlined,
-  ExclamationOutlined,
-  FileOutlined,
-  FileExclamationOutlined,
-  UploadOutlined,
-  DragOutlined,
-  GlobalOutlined,
-  UserOutlined,
-  HomeOutlined,
-  ShoppingCartOutlined,
+  Home,
+  Inventory2,
+  ShoppingCart,
+  People,
+  AccessTimeFilled,
+  CategoryOutlined,
+  ShoppingBasketOutlined,
 };
 
 const dashboard = {
@@ -40,22 +25,14 @@ const dashboard = {
       title: 'Volunteer Home',
       type: 'item',
       url: '/volunteer-home',
-      icon: icons.HomeOutlined,
-      breadcrumbs: false,
-    },
-    {
-      id: 'inventory',
-      title: 'Inventory',
-      type: 'item',
-      url: '/inventory',
-      icon: icons.FileExclamationOutlined,
+      icon: icons.Home,
       breadcrumbs: false,
     },
     {
       id: 'checkout',
       title: 'Checkout',
       type: 'collapse',
-      icon: icons.ShoppingCartOutlined,
+      icon: icons.ShoppingCart,
       breadcrumbs: false,
       children: [
         {
@@ -64,24 +41,26 @@ const dashboard = {
           type: 'item',
           url: '/checkout',
           state: { checkoutType: 'general' },
+          icon: icons.CategoryOutlined,
           breadcrumbs: false,
         },
         {
           id: 'checkout-welcome-basket',
-          title: 'Welcome basket',
+          title: 'Welcome Basket',
           type: 'item',
           url: '/checkout',
           state: { checkoutType: 'welcomeBasket' },
+          icon: icons.ShoppingBasketOutlined,
           breadcrumbs: false,
         },
       ],
     },
     {
-      id: 'people',
-      title: 'People',
-      type: 'admin',
-      url: '/people',
-      icon: icons.UserOutlined,
+      id: 'inventory',
+      title: 'Inventory',
+      type: 'item',
+      url: '/inventory',
+      icon: icons.Inventory2,
       breadcrumbs: false,
     },
     {
@@ -89,7 +68,15 @@ const dashboard = {
       title: 'History',
       type: 'item',
       url: '/history',
-      icon: icons.FileOutlined,
+      icon: icons.AccessTimeFilled,
+      breadcrumbs: false,
+    },
+    {
+      id: 'people',
+      title: 'People',
+      type: 'admin',
+      url: '/people',
+      icon: icons.People,
       breadcrumbs: false,
     },
   ],

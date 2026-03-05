@@ -8,6 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -24,10 +25,11 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const location = useLocation();
   const { pathname } = location;
 
-  const { drawerOpen } = useContext(DrawerOpenContext);
+  const { drawerOpen, setDrawerOpen } = useContext(DrawerOpenContext);
   const { activeMenuItem, setActiveMenuItem } = useContext(
     ActiveMenuItemContext,
   );
@@ -60,13 +62,16 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   const itemHandler = (id: string) => {
     setActiveMenuItem(id);
+    if (isMobile) {
+      setDrawerOpen(false);
+    }
   };
 
   const textColor = 'text.primary';
-  const iconSelectedColor = 'primary.main';
+  const iconSelectedColor = 'text.primary';
   const Icon = item.icon;
   const itemIcon = Icon && (
-    <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />
+    <Icon sx={{ fontSize: drawerOpen ? '1.25rem' : '1.5rem' }} />
   );
   const isSelected = activeMenuItem === item.id;
 
@@ -81,19 +86,19 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
       selected={isSelected}
       sx={{
         zIndex: 1201,
-        pl: drawerOpen ? `${level * 28}px` : 1.5,
+        pl: drawerOpen ? `${level === 1 ? 28 : level * 32}px` : 1.5,
         py: !drawerOpen && level === 1 ? 1.25 : 1,
         ...(drawerOpen && {
           '&:hover': {
-            bgcolor: 'primary.lighter',
+            bgcolor: 'warning.lighter',
           },
           '&.Mui-selected': {
-            bgcolor: 'primary.lighter',
-            borderRight: `2px solid ${theme.palette.primary.main}`,
+            bgcolor: 'warning.lighter',
+            borderRight: `4px solid ${theme.palette.warning.main}`,
             color: iconSelectedColor,
             '&:hover': {
               color: iconSelectedColor,
-              bgcolor: 'primary.lighter',
+              bgcolor: 'warning.lighter',
             },
           },
         }),
@@ -127,9 +132,9 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
             }),
             ...(!drawerOpen &&
               isSelected && {
-                bgcolor: 'primary.lighter',
+                bgcolor: 'warning.lighter',
                 '&:hover': {
-                  bgcolor: 'primary.lighter',
+                  bgcolor: 'warning.lighter',
                 },
               }),
           }}
@@ -142,7 +147,10 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
           primary={
             <Typography
               variant="h6"
-              sx={{ color: isSelected ? iconSelectedColor : textColor }}
+              sx={{
+                color: isSelected ? iconSelectedColor : textColor,
+                fontWeight: isSelected ? 'bold' : 'normal',
+              }}
             >
               {item.title}
             </Typography>

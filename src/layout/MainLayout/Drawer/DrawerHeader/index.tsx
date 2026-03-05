@@ -4,10 +4,10 @@
  *
  */
 
-import { Box, Stack, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Logo from '../../../../components/Logo/Logo';
-import { VITE_APPLICATION_NAME } from '../../../../types/constants';
+import plymouthHousingLogo from '../../../../assets/images/plymouth_housing_logo.png';
 
 const DrawerHeader = (props: { open: boolean }) => {
   const theme = useTheme();
@@ -16,14 +16,27 @@ const DrawerHeader = (props: { open: boolean }) => {
     <Box
       display="flex"
       alignItems="center"
-      justifyContent={props.open ? 'flex-start' : 'center'}
-      paddingLeft={theme.spacing(props.open ? 3 : 0)}
-      paddingTop={theme.spacing(1)}
+      justifyContent={props.open ? 'stretch' : 'center'}
+      paddingLeft={theme.spacing(0)}
+      paddingTop={theme.spacing(props.open ? 1.5 : 1)}
+      sx={props.open ? { bgcolor: '#e8a817', mr: '-1px', pb: '10px' } : undefined}
     >
-      <Stack direction="row" spacing={1} alignItems="center">
+      {props.open ? (
+        <Box
+          component="img"
+          src={plymouthHousingLogo}
+          alt="Plymouth Housing"
+          sx={{
+            display: 'block',
+            width: '100%',
+            height: 80,
+            objectFit: 'cover',
+            objectPosition: 'center',
+          }}
+        />
+      ) : (
         <Logo />
-        <Typography variant="h5">{VITE_APPLICATION_NAME}</Typography>
-      </Stack>
+      )}
     </Box>
   );
 };

@@ -28,11 +28,7 @@ vi.mock('../../components/CircularLoader', () => ({
   default: () => <div data-testid="circular-loader">Loading...</div>,
 }));
 vi.mock('../../components/History/CustomDateDialog', () => ({
-  default: ({
-    showDialog,
-    handleShowDialog,
-    handleSetDateRange,
-  }: any) =>
+  default: ({ showDialog, handleShowDialog, handleSetDateRange }: any) =>
     showDialog && (
       <div data-testid="custom-date-dialog">
         <button
@@ -66,9 +62,7 @@ vi.mock('../../components/History/WelcomeBasketCard', () => ({
 }));
 vi.mock('../../components/History/InventoryCard', () => ({
   default: ({ inventoryTransaction }: any) => (
-    <div
-      data-testid={`inventory-card-${inventoryTransaction.transaction_id}`}
-    >
+    <div data-testid={`inventory-card-${inventoryTransaction.transaction_id}`}>
       Inventory
     </div>
   ),
@@ -501,6 +495,55 @@ describe('HistoryPage Component', () => {
     });
   });
 
+  test('displays total record count after loading', async () => {
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
+      mockCheckoutTransactions,
+    );
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 1 record total/i)).toBeInTheDocument();
+    });
+  });
+
+  test('displays total record count across multiple users', async () => {
+    const multiUserTransactions: CheckoutTransaction[] = [
+      ...mockCheckoutTransactions,
+      {
+        transaction_id: '2',
+        user_id: 2,
+        building_id: 1,
+        unit_number: '102',
+        resident_id: 2,
+        resident_name: 'Resident B',
+        transaction_date: new Date().toISOString(),
+        item_type: 'general',
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
+      },
+    ];
+
+    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
+      multiUserTransactions,
+    );
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
+    });
+  });
+
   test('refetches transactions when date range changes', async () => {
     render(
       <Wrapper>
@@ -512,8 +555,8 @@ describe('HistoryPage Component', () => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
     });
 
-    const callCount = vi.mocked(HistoryAPICalls.getCheckoutHistory).mock
-      .calls.length;
+    const callCount = vi.mocked(HistoryAPICalls.getCheckoutHistory).mock.calls
+      .length;
 
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
     fireEvent.mouseDown(dateSelect);

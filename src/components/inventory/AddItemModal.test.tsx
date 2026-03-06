@@ -232,4 +232,42 @@ describe('AddItemModal', () => {
         expect(screen.getByText('Edit Item Quantity')).toBeInTheDocument();
         expect(screen.getByText('Inventory Type')).toBeInTheDocument();
     });
+
+    it('should clear selected item when inventory type changes', async () => {
+        renderComponent();
+
+        // Select General type
+        const typeSelect = screen.getAllByRole('combobox')[0];
+        fireEvent.mouseDown(typeSelect);
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: 'General' }));
+        });
+
+        // Select Item 1 (a General item)
+        const autocomplete = screen.getAllByRole('combobox')[1];
+        fireEvent.change(autocomplete, { target: { value: 'Item 1' } });
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: /Item 1/ }));
+        });
+
+        // Verify Item 1 is selected
+        expect(screen.getByText(/Current Quantity of this Item: 10/)).toBeInTheDocument();
+
+        // Switch to Welcome Basket type
+        fireEvent.mouseDown(screen.getAllByRole('combobox')[0]);
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: 'Welcome Basket' }));
+        });
+
+        // Previously selected item should be cleared
+        expect(screen.queryByText(/Current Quantity of this Item/)).not.toBeInTheDocument();
+
+        // Only Welcome Basket items should be in the dropdown
+        const itemAutocomplete = screen.getAllByRole('combobox')[1];
+        fireEvent.change(itemAutocomplete, { target: { value: 'Item' } });
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: /Item 2/ })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: /Item 1/ })).not.toBeInTheDocument();
+        });
+    });
 });

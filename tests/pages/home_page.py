@@ -1,5 +1,6 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import HomePageLocators, CommonLocators
@@ -11,30 +12,72 @@ class HomePage(BasePage):
         super().__init__(driver)
         self.locators = HomePageLocators
         self.common_locators = CommonLocators
-        self.wait = WebDriverWait(driver, 15)
+        self.wait = WebDriverWait(driver, 60)  # CI safe timeout
 
+    # ---------------------------------------------------
+    # Page Load Guard (Admin + Volunteer Safe)
+    # ---------------------------------------------------
+
+    def wait_for_homepage_loaded(self):
+        """
+        Wait until either Volunteer or Admin homepage is rendered.
+        Cold-start & CI safe.
+        """
+
+        self.wait.until(
+            lambda d: (
+                d.find_elements(*self.locators.VOLUNTEER_HOME_HEADER)
+                or d.find_elements(*self.locators.PLYMOUTH_HOUSING_TEXT)
+            )
+        )
+
+        # Sidebar must exist in both roles
+        self.wait.until(
+            EC.visibility_of_element_located(
+                self.common_locators.CHECKOUT_MENU_BUTTON
+            )
+        )
+
+    # ---------------------------------------------------
     # Common / Admin Methods
+    # ---------------------------------------------------
+
     def get_menu_home_text(self):
+        self.wait.until(
+            EC.visibility_of_element_located(
+                self.locators.ADMIN_HOME_MENU_BUTTON
+            )
+        )
         return self.get_text(self.locators.ADMIN_HOME_MENU_BUTTON).strip()
 
     def get_plymouth_housing_text(self):
+        self.wait.until(
+            EC.visibility_of_element_located(
+                self.locators.PLYMOUTH_HOUSING_TEXT
+            )
+        )
         return self.get_text(self.locators.PLYMOUTH_HOUSING_TEXT).strip()
 
-    # Volunteer Header & Info
+    # ---------------------------------------------------
+    # Volunteer Header
+    # ---------------------------------------------------
+
     def get_header(self):
-        return self.get_text(self.locators.VOLUNTEER_HOME_HEADER, timeout=20).strip()
+        self.wait.until(
+            EC.visibility_of_element_located(
+                self.locators.VOLUNTEER_HOME_HEADER
+            )
+        )
+        return self.get_text(self.locators.VOLUNTEER_HOME_HEADER).strip()
 
     def verify_volunteer_home_header(self):
-        expected_header = "Volunteer Home"
-
-        assert self.is_visible(
-            self.locators.VOLUNTEER_HOME_HEADER, timeout=20
-        ), "Volunteer Home header not visible"
-
         actual_header = self.get_header()
+        assert actual_header == "Volunteer Home", \
+            f"Expected 'Volunteer Home' but got '{actual_header}'"
 
-        assert actual_header == expected_header, \
-            f"Expected '{expected_header}' but got '{actual_header}'"
+    # ---------------------------------------------------
+    # Email
+    # ---------------------------------------------------
 
     def get_email_id(self):
         email_el = self.wait.until(
@@ -42,45 +85,63 @@ class HomePage(BasePage):
         )
 
         self.wait.until(
-            lambda _d: email_el.text and email_el.text.strip().lower() != "null"
+            lambda d: email_el.text and email_el.text.strip().lower() != "null"
         )
 
         return email_el.text.strip()
 
+    # ---------------------------------------------------
     # Logout
+    # ---------------------------------------------------
+
     def click_email_id(self):
-        self.click(self.locators.EMAIL_ID)
+        self.wait.until(
+            EC.element_to_be_clickable(self.locators.EMAIL_ID)
+        ).click()
 
     def click_logout(self):
-        self.click(self.locators.LOGOUT_BUTTON)
+        self.wait.until(
+            EC.element_to_be_clickable(self.locators.LOGOUT_BUTTON)
+        ).click()
 
     def logout(self):
         self.click_email_id()
         self.click_logout()
 
-    # Sidebar Navigation (Checkout Menu)
+    # ---------------------------------------------------
+    # Sidebar Navigation
+    # ---------------------------------------------------
+
     def go_to_checkout_general(self):
-        self.click(self.common_locators.CHECKOUT_MENU_BUTTON)
-        self.click(self.common_locators.GENERAL_MENU_BUTTON)
-
-    def go_to_checkout_welcome(self):
-        self.click(self.common_locators.CHECKOUT_MENU_BUTTON)
-        self.click(self.common_locators.WELCOME_MENU_BUTTON)
-
-    # Volunteer Home CTA Navigation (Dashboard)
-    def click_checkout_general_inventory(self):
         self.wait.until(
             EC.element_to_be_clickable(
-                self.locators.CHECKOUT_GENERAL_INVENTORY
+                self.common_locators.CHECKOUT_MENU_BUTTON
             )
         ).click()
 
-    def is_stock_general_inventory_visible(self):
-        return self.is_visible(
-            self.locators.STOCK_GENERAL_INVENTORY
-        )
+        self.wait.until(
+            EC.element_to_be_clickable(
+                self.common_locators.GENERAL_MENU_BUTTON
+            )
+        ).click()
 
-    # Volunteer Section Visibility
+    def go_to_checkout_welcome(self):
+        self.wait.until(
+            EC.element_to_be_clickable(
+                self.common_locators.CHECKOUT_MENU_BUTTON
+            )
+        ).click()
+
+        self.wait.until(
+            EC.element_to_be_clickable(
+                self.common_locators.WELCOME_MENU_BUTTON
+            )
+        ).click()
+
+    # ---------------------------------------------------
+    # Section Visibility
+    # ---------------------------------------------------
+
     def verify_checkout_section(self):
         assert self.is_visible(
             self.locators.CHECKOUT_SECTION

@@ -11,21 +11,22 @@ class CommonLocators:
 class HistoryPageLocators:
     HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
     RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'records')]")
-    HISTORY_CARDS = (By.XPATH,"//p[contains(text(),'Created')]/ancestor::div[contains(@class,'MuiBox-root')][1]")
+    HISTORY_CARDS = (By.XPATH,"//div[contains(@class,'MuiBox-root') and .//h3 and .//p[contains(text(),'Created')]]")
+    NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
 
 class HomePageLocators:
     # ---- Sections ----
-    CHECKOUT_SECTION = (By.XPATH, "//h3[normalize-space()='Check out']")
-    STOCK_SECTION = (By.XPATH, "//h3[normalize-space()='Stock']")
+    CHECKOUT_SECTION = (By.XPATH, "//h5[normalize-space()='Check out']")
+    STOCK_SECTION = (By.XPATH, "//h5[normalize-space()='Stock']")
     # ---- Scoped CTAs ----
     CHECKOUT_GENERAL_INVENTORY = (
         By.XPATH,
-        "//h3[normalize-space()='Check out']/following::button[normalize-space()='General Inventory'][1]"
+        "//h5[normalize-space()='Check out']/following::button[normalize-space()='General Inventory'][1]"
     )
 
     STOCK_GENERAL_INVENTORY = (
         By.XPATH,
-        "//h3[normalize-space()='Stock']/following::button[normalize-space()='General Inventory'][1]"
+        "//h5[normalize-space()='Stock']/following::button[normalize-space()='General Inventory'][1]"
     )
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, '(//a[contains(@class,"MuiButtonBase")])[1]') # TODO COMMON LOCATORS PUT IN CommonLocators
     EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")
@@ -41,7 +42,7 @@ class LoginPageLocators:
     YES_BUTTON      = (By.XPATH, '//*[@id="idSIButton9" and normalize-space()="Yes"]')
     NO_BUTTON       = (By.ID,    'idBtn_Back')
     DATABASE_POPUP_TEXT = (By.XPATH, '//*[text()="Database is starting up"]')
-    USER_PERSON = (By.XPATH, "//input[@role='combobox']")
+    USER_PERSON = (By.XPATH, "//*[@data-testid='volunteer-name-autocomplete']//input")
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"Continue")]')
     HOMEPAGE_TEXT = (By.XPATH, '//*[text()="Volunteer Home"]')
     FIRST_OPTION = (By.XPATH, "//ul[contains(@class, 'MuiAutocomplete-listbox')]/li[1]")

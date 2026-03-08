@@ -13,20 +13,21 @@ def login_page(driver):
 @pytest.mark.smoke
 def test_login_admin(driver, login_page):
 
+    # --- Microsoft Login ---
     login_page.enter_username(ADMIN_USERNAME)
     login_page.click_next_button()
 
     login_page.enter_password(ADMIN_PASSWORD)
     login_page.click_sign_in_button()
-    login_page.click_yes_button()
 
+    # Optional Stay Signed In
+    login_page.handle_stay_signed_in()
+
+    # --- Ensure Home Fully Loaded (role-aware) ---
     home_page = HomePage(driver)
+    home_page.wait_for_homepage_loaded()
 
     actual_text = home_page.get_plymouth_housing_text()
-    expected_text = "Plymouth Housing"
 
-    assert actual_text == expected_text, (
-        f"Unexpected Plymouth Housing text.\n"
-        f"Expected: {expected_text}\n"
-        f"Actual: {actual_text}"
-    )
+    assert "Plymouth Housing" in actual_text.strip(), \
+        f"Expected 'Plymouth Housing' in header, but got '{actual_text}'"

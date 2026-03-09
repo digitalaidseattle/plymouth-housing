@@ -209,14 +209,20 @@ const Inventory = () => {
   }, [user]);
 
   useEffect(() => {
-    fetchData();
-    fetchCategories();
+    const handler = setTimeout(() => {
+      fetchData();
+      fetchCategories();
+    }, 0);
+    return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
   useEffect(() => {
-    calculateItemsPerPage();
+    const handler = setTimeout(() => {
+      calculateItemsPerPage();
+    }, 0);
     window.addEventListener('resize', calculateItemsPerPage);
     return () => {
+      clearTimeout(handler);
       window.removeEventListener('resize', calculateItemsPerPage);
     };
   }, []);
@@ -231,12 +237,18 @@ const Inventory = () => {
   }, [filters, handleFilter]);
 
   useEffect(() => {
-    handleFilter();
+    const handler = setTimeout(() => {
+      handleFilter();
+    }, 0);
+    return () => clearTimeout(handler);
   }, [sortDirection, handleFilter]);
 
   useEffect(() => {
     if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'warning' });
+      const handler = setTimeout(() => {
+        setSnackbarState({ open: true, message: error, severity: 'warning' });
+      }, 0);
+      return () => clearTimeout(handler);
     }
   }, [error]);
 

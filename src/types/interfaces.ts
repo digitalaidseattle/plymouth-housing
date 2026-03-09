@@ -70,7 +70,7 @@ export interface ClientPrincipal {
 
 export interface UserContextType {
   user: ClientPrincipal | null;
-  setUser: (user: ClientPrincipal) => void;
+  setUser: (user: ClientPrincipal | null) => void;
   loggedInUserId: number | null;
   setLoggedInUserId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: User[];

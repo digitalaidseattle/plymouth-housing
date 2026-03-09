@@ -4,7 +4,7 @@ import { useContext, useMemo, useState } from 'react';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { UserContext } from '../contexts/UserContext';
-import { createItem, updateItem } from '../../services/itemsService';
+import { createItem, updateItem as updateItemService } from '../../services/itemsService';
 
 type FormData = {
   name: string;
@@ -129,7 +129,7 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
       setErrorMessage('Missing Information')
     } else {
       try {
-        await updateItem(user, updateId!, formData);
+        await updateItemService(user, updateId!, formData);
         setErrorMessage('');
         fetchData();
         handleAddClose();

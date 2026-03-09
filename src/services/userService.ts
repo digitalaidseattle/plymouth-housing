@@ -25,7 +25,7 @@ export async function getUsersByFilter(
 ): Promise<User[]> {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(`${ENDPOINTS.USERS}?$filter=${filter}`, {
+    const response = await fetch(`${ENDPOINTS.USERS}?$filter=${encodeURIComponent(filter)}`, {
       headers,
       method: 'GET',
     });

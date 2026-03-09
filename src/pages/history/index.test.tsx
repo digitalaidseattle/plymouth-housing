@@ -11,18 +11,18 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as HistoryAPICalls from '../../components/History/HistoryAPICalls';
-import * as CheckoutAPICalls from '../../components/Checkout/CheckoutAPICalls';
+import * as CheckoutAPICalls from '../../services/CheckoutAPICalls';
 import * as helpers from '../../components/utils/fetchCategorizedItems';
 import {
   TransactionType,
   CheckoutTransaction,
   InventoryTransaction,
-} from '../../types/history';
-import { Building } from '../../types/interfaces';
+  Building,
+} from '../../types/interfaces';
 
 // Mock modules
 vi.mock('../../components/History/HistoryAPICalls');
-vi.mock('../../components/Checkout/CheckoutAPICalls');
+vi.mock('../../services/CheckoutAPICalls');
 vi.mock('../../components/utils/fetchCategorizedItems');
 vi.mock('../../components/CircularLoader', () => ({
   default: () => <div data-testid="circular-loader">Loading...</div>,
@@ -119,14 +119,9 @@ const mockCheckoutTransactions: CheckoutTransaction[] = [
     resident_name: 'Resident A',
     transaction_date: new Date().toISOString(),
     item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Test Item',
-        quantity: 2,
-        category_name: 'Food',
-      },
-    ],
+    total_quantity: 2,
+    welcome_basket_item_id: null,
+    welcome_basket_quantity: null,
   },
 ];
 
@@ -136,15 +131,9 @@ const mockInventoryTransactions: InventoryTransaction[] = [
     user_id: 1,
     transaction_date: new Date().toISOString(),
     transaction_type: TransactionType.InventoryAdd,
-    item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Bread',
-        quantity: 10,
-        category_name: 'Food',
-      },
-    ],
+    item_name: 'Bread',
+    category_name: 'Food',
+    quantity: 10,
   },
 ];
 
@@ -242,13 +231,11 @@ describe('HistoryPage Component', () => {
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
-    // Wait for initial data load to complete (including categorizedItems being used in API call)
     await waitFor(() => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.any(String),
         expect.any(String),
-        mockCategorizedItems,
       );
     });
 
@@ -264,12 +251,10 @@ describe('HistoryPage Component', () => {
       expect(checkoutButton).not.toHaveClass('Mui-selected');
     });
 
-    // Verify API was called for inventory
     expect(HistoryAPICalls.getInventoryHistory).toHaveBeenCalledWith(
       mockUser,
       expect.any(String),
       expect.any(String),
-      mockCategorizedItems,
     );
   });
 
@@ -446,14 +431,9 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident B',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 1,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 
@@ -483,14 +463,9 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident A',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 2,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 2,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 
@@ -520,9 +495,8 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        mockCategorizedItems,
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       );
     });
   });

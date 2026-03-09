@@ -1,9 +1,6 @@
 import pytest
 from tests.pages.home_page import HomePage
-from tests.utilities.fixtures import driver
-from tests.utilities.fixtures import admin_home_page
 from tests.utilities.data import ADMIN_USERNAME
-from datetime import datetime
 
 @pytest.fixture(scope="function")
 def home_page(driver):

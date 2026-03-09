@@ -1,6 +1,6 @@
-import { Building, CategoryProps } from '../../types/interfaces';
+import { Building } from '../../types/interfaces';
 
-export const DATE_FORMATS = {
+const DATE_FORMATS = {
   DATE_ONLY: {
     month: 'short' as const,
     day: 'numeric' as const,
@@ -18,12 +18,6 @@ export const DATE_FORMATS = {
   },
 };
 
-export const WELCOME_BASKET_ITEMS = {
-  TWIN: 175,
-  FULL: 176,
-} as const;
-
-export const CHECKOUT_QUANTITY_LIMIT = 10;
 
 export function createHowLongAgoString(
   minutes: number,
@@ -47,7 +41,7 @@ export function calculateTimeDifference(timestamp: string): {
   hours: number;
   days: number;
 } {
-  const dateCreated = new Date(timestamp);
+  const dateCreated = new Date(timestamp.endsWith('Z') ? timestamp : timestamp + 'Z');
   const now = new Date();
   const seconds = (now.getTime() - dateCreated.getTime()) / 1000;
   const minutes = Math.floor(seconds / 60);
@@ -82,27 +76,6 @@ export function formatBuildingInfo(
   return building ? `${building.code} - ${building.name}` : '';
 }
 
-export function checkIfWelcomeBasket(
-  itemId: number,
-  categorizedItems: CategoryProps[],
-): boolean {
-  if (!categorizedItems.length) return false;
-  const welcomeBasket = categorizedItems.find(
-    (c) => c.category === 'Welcome Basket',
-  );
-  const welcomeBasketIds = welcomeBasket?.items.map((i) => i.id);
-  return welcomeBasketIds?.includes(itemId) ?? false;
-}
-
-export function determineWelcomeBasketType(itemIds: number[]): string {
-  if (itemIds.includes(WELCOME_BASKET_ITEMS.TWIN)) {
-    return 'Twin-size Sheet Set';
-  }
-  if (itemIds.includes(WELCOME_BASKET_ITEMS.FULL)) {
-    return 'Full-size Sheet Set';
-  }
-  return 'Other';
-}
 
 export function getPresetDateRange(preset: string): {
   startDate: Date;

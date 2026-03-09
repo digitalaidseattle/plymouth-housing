@@ -9,7 +9,7 @@ import {
   getResidents,
   addResident,
   findResident,
-} from './CheckoutAPICalls';
+} from '../../services/CheckoutAPICalls';
 
 type WelcomeBasketBuildingDialogProps = {
   showDialog: boolean;
@@ -132,6 +132,7 @@ const WelcomeBasketBuildingDialog = ({
             setSelectedUnit={() => {}} // No-op since we don't show unit selector
             fetchUnitNumbers={async () => {}} // No-op since we handle units in submit
             error={showError && !selectedBuilding.id}
+            resetError={() => setShowError(false)}
             disabled={isSubmitting}
           />
         </FormControl>

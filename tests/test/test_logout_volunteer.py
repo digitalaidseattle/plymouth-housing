@@ -1,6 +1,4 @@
 import pytest
-from tests.utilities.fixtures import driver
-from tests.utilities.fixtures import login_with_volunteer
 from tests.pages.logout_page import LogoutPage
 from tests.pages.home_page import HomePage
 

@@ -10,7 +10,7 @@ import Inventory from './inventory';
 import Catalog from './catalog';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
 import HistoryPage from './history';
-import { RootRedirect } from '../components/RootRedirect';
+import { RootRedirect } from './RootRedirect';
 
 const routes = [
   {

@@ -1,8 +1,6 @@
 import pytest
 from tests.pages.logout_page import LogoutPage
 from tests.pages.home_page import HomePage
-from tests.utilities.fixtures import login_with_volunteer
-from tests.utilities.fixtures import driver
 
 @pytest.fixture(scope="function")
 def home_page(driver):

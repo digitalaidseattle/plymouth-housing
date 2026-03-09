@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Building, CategoryProps, User } from '../types/interfaces';
-import { getBuildings } from '../components/Checkout/CheckoutAPICalls';
+import { getBuildings } from '../services/CheckoutAPICalls';
 import { getUsers } from '../components/History/HistoryAPICalls';
 import fetchCategorizedItems from '../components/utils/fetchCategorizedItems';
-import { getRole } from '../components/contexts/UserContext';
+import { getRole } from '../utils/userUtils';
 import type { ClientPrincipal } from '../types/interfaces';
 
 interface UseReferenceDataProps {

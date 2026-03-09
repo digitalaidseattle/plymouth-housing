@@ -3,10 +3,10 @@ import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import WelcomeBasketBuildingDialog from './WelcomeBasketBuildingDialog';
 import { UserContext } from '../contexts/UserContext';
-import * as CheckoutAPICalls from './CheckoutAPICalls';
+import * as CheckoutAPICalls from '../../services/CheckoutAPICalls';
 
 // Mock the CheckoutAPICalls module
-vi.mock('./CheckoutAPICalls', () => ({
+vi.mock('../../services/CheckoutAPICalls', () => ({
   getUnitNumbers: vi.fn(),
   getResidents: vi.fn(),
   findResident: vi.fn(),
@@ -18,7 +18,7 @@ describe('WelcomeBasketBuildingDialog', () => {
     id: 1,
     userDetails: 'Test User',
     userRoles: ['volunteer'],
-    userID: 'testuser'
+    userID: 'testuser',
   };
 
   const mockUserContext = {
@@ -42,10 +42,7 @@ describe('WelcomeBasketBuildingDialog', () => {
   ];
 
   const mockAdminResidents = {
-    value: [
-      { id: 100, name: 'admin' },
-      { name: 'Other Resident' },
-    ],
+    value: [{ id: 100, name: 'admin' }, { name: 'Other Resident' }],
   };
 
   const defaultProps = {
@@ -64,20 +61,24 @@ describe('WelcomeBasketBuildingDialog', () => {
     return render(
       <UserContext.Provider value={mockUserContext}>
         <WelcomeBasketBuildingDialog {...defaultProps} {...props} />
-      </UserContext.Provider>
+      </UserContext.Provider>,
     );
   };
 
   describe('Rendering', () => {
     test('renders dialog when showDialog is true', () => {
       renderComponent();
-      expect(screen.getByText('provide building code to continue')).toBeInTheDocument();
+      expect(
+        screen.getByText('provide building code to continue'),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
     });
 
     test('does not render dialog when showDialog is false', () => {
       renderComponent({ showDialog: false });
-      expect(screen.queryByText('provide building code to continue')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('provide building code to continue'),
+      ).not.toBeInTheDocument();
     });
 
     test('only shows Building Code field', () => {
@@ -89,7 +90,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
     test('renders continue button', () => {
       renderComponent();
-      expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /continue/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -113,7 +116,9 @@ describe('WelcomeBasketBuildingDialog', () => {
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Please select a building/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Please select the building code/i),
+        ).toBeInTheDocument();
       });
     });
   });
@@ -128,7 +133,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
       getResidentsMock.mockResolvedValue(mockAdminResidents);
-      findResidentMock.mockResolvedValue({ value: [{ id: 100, name: 'admin' }] });
+      findResidentMock.mockResolvedValue({
+        value: [{ id: 100, name: 'admin' }],
+      });
 
       renderComponent({
         handleShowDialog,
@@ -137,7 +144,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
@@ -168,9 +177,13 @@ describe('WelcomeBasketBuildingDialog', () => {
       const addResidentMock = CheckoutAPICalls.addResident as Mock;
 
       getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
-      getResidentsMock.mockResolvedValue({ value: [{ name: 'Other Resident' }] });
+      getResidentsMock.mockResolvedValue({
+        value: [{ name: 'Other Resident' }],
+      });
       findResidentMock.mockResolvedValue({ value: [] });
-      addResidentMock.mockResolvedValue({ value: [{ id: 200, name: 'admin' }] });
+      addResidentMock.mockResolvedValue({
+        value: [{ id: 200, name: 'admin' }],
+      });
 
       renderComponent({
         handleShowDialog,
@@ -179,7 +192,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
@@ -210,8 +225,12 @@ describe('WelcomeBasketBuildingDialog', () => {
       const addResidentMock = CheckoutAPICalls.addResident as Mock;
 
       getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
-      getResidentsMock.mockResolvedValue({ value: [{ name: 'Other Resident' }] });
-      findResidentMock.mockResolvedValue({ value: [{ id: 150, name: 'admin' }] });
+      getResidentsMock.mockResolvedValue({
+        value: [{ name: 'Other Resident' }],
+      });
+      findResidentMock.mockResolvedValue({
+        value: [{ id: 150, name: 'admin' }],
+      });
 
       renderComponent({
         handleShowDialog,
@@ -220,7 +239,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
@@ -255,14 +276,18 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/No welcome unit found for this building/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/No welcome unit found for this building/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -283,7 +308,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
@@ -308,7 +335,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
@@ -331,7 +360,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
@@ -351,14 +382,18 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/An error occurred while submitting/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/An error occurred while submitting/i),
+        ).toBeInTheDocument();
       });
     });
   });
@@ -370,7 +405,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       getUnitNumbersMock.mockImplementation(() => {
         expect(document.body.style.cursor).toBe('wait');
-        return new Promise(resolve => setTimeout(() => resolve(mockWelcomeUnits), 100));
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(mockWelcomeUnits), 100),
+        );
       });
       getResidentsMock.mockResolvedValue(mockAdminResidents);
 
@@ -378,7 +415,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
@@ -396,7 +435,9 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       getUnitNumbersMock.mockResolvedValue(mockWelcomeUnits);
       getResidentsMock.mockImplementation(() => {
-        return new Promise(resolve => setTimeout(() => resolve(mockAdminResidents), 200));
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(mockAdminResidents), 200),
+        );
       });
       findResidentMock.mockResolvedValue({ value: [{ id: 100 }] });
 
@@ -404,18 +445,21 @@ describe('WelcomeBasketBuildingDialog', () => {
 
       const buildingSelect = screen.getByLabelText('Building Code');
       fireEvent.mouseDown(buildingSelect);
-      const buildingOption = await screen.findByRole('option', { name: /A \(Building A\)/i });
+      const buildingOption = await screen.findByRole('option', {
+        name: /A \(Building A\)/i,
+      });
       fireEvent.click(buildingOption);
 
       const continueButton = screen.getByRole('button', { name: /continue/i });
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        const buildingInput = screen.getByTestId('test-id-select-building').querySelector('input');
+        const buildingInput = screen
+          .getByTestId('test-id-select-building')
+          .querySelector('input');
         expect(buildingInput).toBeDisabled();
         expect(continueButton).toBeDisabled();
       });
     });
   });
-
 });

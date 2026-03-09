@@ -1,13 +1,20 @@
-import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
 import { Alert, Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
 import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getRole } from '../../utils/userUtils';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
-import { ENDPOINTS, API_HEADERS, SETTINGS } from "../../types/constants";
+import { ENDPOINTS, API_HEADERS, SETTINGS } from '../../types/constants';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
 
@@ -17,10 +24,12 @@ const Inventory = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'original'>('original');
+  const [sortDirection, setSortDirection] = useState<
+    'asc' | 'desc' | 'original'
+  >('original');
   const [addModal, setAddModal] = useState(false);
   const [adjustModal, setAdjustModal] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null)
+  const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     type: '',
@@ -39,10 +48,11 @@ const Inventory = () => {
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
-  }>({ 
-    open: location.state && location.state.message, 
-    message: location.state ? location.state.message : '', 
-    severity: 'success' });
+  }>({
+    open: location.state && location.state.message,
+    message: location.state ? location.state.message : '',
+    severity: 'success',
+  });
   const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
   const tableContainerRef = useRef<HTMLElement | null>(null);
   const [showResults, setShowResults] = useState(false);
@@ -53,12 +63,13 @@ const Inventory = () => {
 
   const calculateItemsPerPage = () => {
     if (tableContainerRef.current) {
-      const parentHeight = tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
+      const parentHeight =
+        tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
       const tableHeight = (parentHeight * 80) / 100; // Calculates the table height in px as 80% of the parent height
       const items = Math.floor(tableHeight / 64); // Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
       setItemsPerPage(items > 0 ? items - 1 : 1); // Subtract 1 because of header row
     }
-  }
+  };
 
   const handleAddOpen = () => {
     setAddModal(true);
@@ -70,7 +81,10 @@ const Inventory = () => {
   };
 
   // Consolidated function for handling all filter clicks
-  const handleFilterClick = (filter: 'type' | 'category' | 'status', event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleFilterClick = (
+    filter: 'type' | 'category' | 'status',
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
     setAnchors((prev) => ({ ...prev, [filter]: event.currentTarget }));
   };
 
@@ -89,7 +103,10 @@ const Inventory = () => {
   };
 
   // Consolidated function for handling all menu item clicks (type, category, status)
-  const handleMenuClick = (filter: 'type' | 'category' | 'status', value: string) => {
+  const handleMenuClick = (
+    filter: 'type' | 'category' | 'status',
+    value: string,
+  ) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       [filter]: value,
@@ -112,18 +129,16 @@ const Inventory = () => {
     }));
   };
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number,
+  ) => {
     setCurrentPage(value);
   };
 
-  const negativeItemCount = originalData.reduce((accumulator, currentVal: InventoryItem) => {
-    if (currentVal.quantity < 0) { 
-      return accumulator + 1;
-    } else {
-      return accumulator;
-    }
-  }, 0);
-
+  const negativeItemCount = originalData.filter(
+    (item) => item.quantity < 0,
+  ).length;
 
   const handleFilter = useCallback(() => {
     const searchFiltered = originalData.filter(
@@ -151,11 +166,11 @@ const Inventory = () => {
 
         const matchesSearch = filters.search
           ? row.name.toLowerCase().includes(lowerCaseSearch) ||
-          row.description?.toLowerCase().includes(lowerCaseSearch) ||
-          row.type.toLowerCase().includes(lowerCaseSearch) ||
-          row.category.toLowerCase().includes(lowerCaseSearch) ||
-          row.status.toLowerCase().includes(lowerCaseSearch) ||
-          row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
+            row.description?.toLowerCase().includes(lowerCaseSearch) ||
+            row.type.toLowerCase().includes(lowerCaseSearch) ||
+            row.category.toLowerCase().includes(lowerCaseSearch) ||
+            row.status.toLowerCase().includes(lowerCaseSearch) ||
+            row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
         return matchesType && matchesCategory && matchesSearch && matchesStatus;
@@ -175,11 +190,16 @@ const Inventory = () => {
   const fetchData = useCallback(async () => {
     try {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', { headers: headers, method: 'GET' });
+      const response = await fetch(
+        ENDPOINTS.EXPANDED_ITEMS + `?$first=${SETTINGS.api_fetch_limit_items}`,
+        { headers: headers, method: 'GET' },
+      );
       if (!response.ok) {
         if (response.status === 500) {
-          throw new Error('Database is likely starting up. Try again in 30 seconds.');
-        } else { 
+          throw new Error(
+            'Database is likely starting up. Try again in 30 seconds.',
+          );
+        } else {
           throw new Error(response.statusText);
         }
       }
@@ -187,8 +207,7 @@ const Inventory = () => {
       const inventoryList = data.value;
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
-    }
-    catch (error) {
+    } catch (error) {
       setError('Could not get inventory. \r\n' + error);
       console.error('Could not get inventory:', error);
     }
@@ -198,7 +217,10 @@ const Inventory = () => {
   const fetchCategories = useCallback(async () => {
     try {
       const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.CATEGORY, { headers: headers, method: 'GET' });
+      const response = await fetch(ENDPOINTS.CATEGORY, {
+        headers: headers,
+        method: 'GET',
+      });
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -256,15 +278,25 @@ const Inventory = () => {
   return (
     <Box ref={tableContainerRef} sx={{ height: '100%' }}>
       {/* Negative item warning */}
-      <Box id="negative-warning-container" sx={{ display: 'flex', justifyContent: 'start', marginTop: '1rem' }}>
-        {negativeItemCount > 0 ? <Alert severity="warning">
-          {negativeItemCount} {negativeItemCount === 1 ? 'item needs' : 'items need'} review: 
-          &nbsp;{originalData.filter(i => i.quantity < 0).map(i => i.name).join(", ")}
-        </Alert> : <></>}
+      <Box
+        id="negative-warning-container"
+        sx={{ display: 'flex', justifyContent: 'start', marginTop: '1rem' }}
+      >
+        {negativeItemCount > 0 ? (
+          <Alert severity="warning">
+            {negativeItemCount}{' '}
+            {negativeItemCount === 1 ? 'item needs' : 'items need'} review.
+          </Alert>
+        ) : (
+          <></>
+        )}
       </Box>
       {/* Add button */}
       <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
+        <Button
+          sx={{ bgcolor: '#F5F5F5', color: 'black' }}
+          onClick={handleAddOpen}
+        >
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
           Add
         </Button>
@@ -281,7 +313,7 @@ const Inventory = () => {
 
       <AdjustQuantityModal
         showDialog={adjustModal}
-        handleClose={()=>setAdjustModal(false)}
+        handleClose={() => setAdjustModal(false)}
         fetchData={fetchData}
         itemToEdit={itemToEdit}
         handleSnackbar={setSnackbarState}
@@ -308,7 +340,9 @@ const Inventory = () => {
       />
 
       {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '15px'}}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}
+      >
         <Pagination
           count={Math.ceil(displayData.length / itemsPerPage)}
           page={currentPage}

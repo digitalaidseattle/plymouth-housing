@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SETTINGS } from '../../types/constants';
 import { Box, Button, Pagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UserFilters from './UserFilters';
@@ -15,7 +16,7 @@ const UserPage = () => {
     'original',
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = SETTINGS.itemsPerPage;
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;

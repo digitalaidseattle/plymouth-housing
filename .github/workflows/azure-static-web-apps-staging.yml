@@ -1,18 +1,41 @@
-name: Azure Static Web Apps CD
+name: Azure Static Web Apps Staging
 
 on:
   push:
     branches:
-      - main
+      - staging
 
 jobs:
+  ci:
+    runs-on: ubuntu-latest
+    name: CI
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Linting
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
   build_and_deploy_job:
+    needs: ci
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     environment: staging # this is a reference to the github environment and determines the env: location below
     steps:
       - name: Check out source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
@@ -21,7 +44,8 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token:
-            ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_ISLAND_01BE9BF1E }}
+            ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_ISLAND_01BE9BF1E
+            }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: 'upload'
           deployment_environment: 'staging' # this is a reference to the Azure environment for deployment
@@ -32,7 +56,8 @@ jobs:
           ###### End of Repository/Build Configurations ######
         env:
           VITE_CLARITY_PROJECT_ID: ${{ secrets.VITE_CLARITY_PROJECT_ID }}
-          VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
+          VITE_APPINSIGHTS_CONNECTION_STRING:
+            ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
       - name: Post URL
         run: |
           echo "App deployed :rocket:" >> $GITHUB_STEP_SUMMARY

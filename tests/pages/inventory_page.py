@@ -20,10 +20,7 @@ class InventoryPage(BasePage):
         self.common_locators = CommonLocators
         self.wait = WebDriverWait(self.driver, 10)
 
-    # ==============================
     # BASIC INVENTORY METHODS
-    # ==============================
-
     def get_inventory(self, item: str) -> str:
         locator = self.locators.get_inventory_locator(item)
         return self.get_text(locator, timeout=90)
@@ -68,10 +65,7 @@ class InventoryPage(BasePage):
                 f"Timeout while retrieving inventory quantity for '{item}'"
             )
 
-    # ==============================
     # SEARCH METHODS
-    # ==============================
-
     def search_item(self, item_name: str):
         search_field = WebDriverWait(self.driver, 20).until(
             EC.element_to_be_clickable(self.locators.SEARCH)
@@ -107,10 +101,7 @@ class InventoryPage(BasePage):
             f"'{item_name}' not found in inventory table after retries."
         )
 
-    # ==============================
     # LOADING HANDLING
-    # ==============================
-
     def wait_for_inventory_loaded(self):
         WebDriverWait(self.driver, 10).until(
             EC.invisibility_of_element_located(
@@ -118,10 +109,7 @@ class InventoryPage(BasePage):
             )
         )
 
-    # ==============================
     # DEFENSIVE SEARCH (STABILIZED)
-    # ==============================
-
     def second_search_item(self, item_name: str):
 
         search_field = WebDriverWait(self.driver, 20).until(
@@ -151,10 +139,7 @@ class InventoryPage(BasePage):
 
         search_field.send_keys(item_name)
 
-    # ==============================
     # STATUS FILTER METHODS
-    # ==============================
-
     def click_status(self):
         status_btn = WebDriverWait(self.driver, 15).until(
             EC.element_to_be_clickable(

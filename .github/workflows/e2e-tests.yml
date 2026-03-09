@@ -2,9 +2,11 @@ name: E2E UI Tests
 
 on:
   workflow_run:
-    workflows: ["Azure Static Web Apps CD"]
+    workflows: ["Azure Static Web Apps Staging"]
     types:
       - completed
+    branches:
+      - staging
   workflow_dispatch:
 
 # Least-privilege access for GITHUB_TOKEN
@@ -60,4 +62,4 @@ jobs:
 
       - name: Run smoke tests (headless)
         run: |
-          pytest -m smoke -n auto --maxfail=1 --disable-warnings -q
+          pytest -m smoke --maxfail=1 --disable-warnings -q

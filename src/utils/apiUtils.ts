@@ -12,7 +12,8 @@ export async function getErrorMessage(response: Response): Promise<string> {
     const errorData = await response.clone().json();
     errorMessage = errorData?.error?.message || errorData?.message;
   } catch {
-    console.error('Failed to parse error response as JSON.');
+    const text = await response.clone().text();
+    if (text) errorMessage = text;
   }
 
   if (!errorMessage) {

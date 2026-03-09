@@ -234,6 +234,7 @@ describe('AddItemModal', () => {
     });
 
     it('should clear selected item when inventory type changes', async () => {
+    it('should show only the quantity error when quantity is 0, not the transaction ID error', async () => {
         renderComponent();
 
         // Select General type
@@ -244,6 +245,7 @@ describe('AddItemModal', () => {
         });
 
         // Select Item 1 (a General item)
+        // Select an item
         const autocomplete = screen.getAllByRole('combobox')[1];
         fireEvent.change(autocomplete, { target: { value: 'Item 1' } });
         await waitFor(() => {
@@ -269,5 +271,14 @@ describe('AddItemModal', () => {
             expect(screen.getByRole('option', { name: /Item 2/ })).toBeInTheDocument();
             expect(screen.queryByRole('option', { name: /Item 1/ })).not.toBeInTheDocument();
         });
+        // Leave quantity at 0 and submit
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+        await waitFor(() => {
+            expect(screen.getByText('"Quantity To Add/Remove" cannot be 0')).toBeInTheDocument();
+        });
+
+        // Should NOT show transaction ID error
+        expect(screen.queryByText(/Transaction ID/i)).not.toBeInTheDocument();
     });
 });

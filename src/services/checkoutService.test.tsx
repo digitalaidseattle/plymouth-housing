@@ -10,7 +10,7 @@ import {
   addResident,
   checkPastCheckout,
   getLastResidentVisit,
-} from './CheckoutAPICalls';
+} from './checkoutService';
 import { API_HEADERS, ENDPOINTS, SETTINGS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
 
@@ -20,7 +20,7 @@ vi.mock('../utils/userUtils', () => ({
 
 global.fetch = vi.fn();
 
-describe('CheckoutAPICalls', () => {
+describe('checkoutService', () => {
   const user = { userDetails: 'testuser' } as any;
   const loggedInUserId = 1;
   const residentInfo = { id: 1, name: 'John Doe', unit: { id: 1, unit_number: '1'}, building: { id: 1, name: 'building', code: 'B1'} };

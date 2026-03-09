@@ -3,9 +3,8 @@ import { Modal, Box, Typography, Select, MenuItem, TextField, Button, Autocomple
 import { useContext, useMemo, useState } from 'react';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { UserContext } from '../contexts/UserContext';
-import { getRole } from '../../utils/userUtils';
+import { createItem, updateItem } from '../../services/itemsService';
 
 type FormData = {
   name: string;
@@ -112,16 +111,11 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
       setErrorMessage('Missing Information')
     } else {
       try {
-        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-        const response = await fetch(ENDPOINTS.ITEMS, { method: "POST", headers: headers, body: JSON.stringify(formData) });
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        } else {
-          setErrorMessage('');
-          fetchData();
-          handleAddClose();
-          resetInputsHandler();
-        }
+        await createItem(user, formData);
+        setErrorMessage('');
+        fetchData();
+        handleAddClose();
+        resetInputsHandler();
       }
       catch (error) {
         console.error('Error posting to database:', error);
@@ -135,16 +129,11 @@ const UpdateItemModal = ({ addModal, handleAddClose, fetchData, categoryData, or
       setErrorMessage('Missing Information')
     } else {
       try {
-        const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-        const response = await fetch(`${ENDPOINTS.ITEMS}/id/${updateId}`, { method: "PATCH", headers: headers, body: JSON.stringify(formData) });
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        } else {
-          setErrorMessage('');
-          fetchData();
-          handleAddClose();
-          resetInputsHandler();
-        }
+        await updateItem(user, updateId!, formData);
+        setErrorMessage('');
+        fetchData();
+        handleAddClose();
+        resetInputsHandler();
       }
       catch (error) {
         console.error('Error updating to database:', error);

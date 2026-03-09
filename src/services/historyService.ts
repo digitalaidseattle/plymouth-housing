@@ -1,7 +1,14 @@
-import { getRole } from '../../utils/userUtils';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { ClientPrincipal, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
-import { mapCheckoutRows, mapInventoryRows } from './transactionProcessors';
+import { getRole } from '../utils/userUtils';
+import { ENDPOINTS, API_HEADERS } from '../types/constants';
+import {
+  ClientPrincipal,
+  CheckoutTransaction,
+  InventoryTransaction,
+} from '../types/interfaces';
+import {
+  mapCheckoutRows,
+  mapInventoryRows,
+} from '../components/History/transactionProcessors';
 
 export async function getCheckoutHistory(
   user: ClientPrincipal | null,
@@ -47,22 +54,6 @@ export async function getInventoryHistory(
     return mapInventoryRows(data.value);
   } catch (error) {
     console.error('Error fetching inventory history:', error);
-    throw error;
-  }
-}
-
-export async function getUsers(user: ClientPrincipal | null) {
-  try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.USERS, {
-      headers: headers,
-      method: 'GET',
-    });
-    if (!response.ok) throw new Error(response.statusText);
-    const data = await response.json();
-    return data.value;
-  } catch (error) {
-    console.error('Error fetching users:', error);
     throw error;
   }
 }

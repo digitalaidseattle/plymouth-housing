@@ -17,7 +17,7 @@ import {
 } from '../../types/interfaces';
 import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
-import { processGeneralItems, processWelcomeBasket } from '../../services/CheckoutAPICalls';
+import { processGeneralItems, processWelcomeBasket } from '../../services/checkoutService';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {

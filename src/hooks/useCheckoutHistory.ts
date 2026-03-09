@@ -5,7 +5,7 @@ import {
   TransactionItem,
 } from '../types/interfaces';
 import { SPECIAL_ITEMS } from '../types/constants';
-import { checkPastCheckout } from '../services/CheckoutAPICalls';
+import { checkPastCheckout } from '../services/checkoutService';
 
 interface UseCheckoutHistoryProps {
   user: ClientPrincipal | null;

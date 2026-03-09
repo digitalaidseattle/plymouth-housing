@@ -7,8 +7,8 @@ import {
   ClientPrincipal,
   CheckoutType,
 } from '../types/interfaces';
-import { getBuildings } from '../services/CheckoutAPICalls';
-import { getCategorizedItems } from '../services/items';
+import { getBuildings } from '../services/checkoutService';
+import { getCategorizedItems } from '../services/itemsService';
 import { CATEGORY_IDS, WELCOME_BASKET_ITEMS } from '../types/constants';
 
 interface UseCheckoutDataProps {

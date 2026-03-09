@@ -26,6 +26,8 @@ import {
   createUser,
 } from '../../services/userService';
 
+const requestCache = new Map<string, Promise<AdminUser>>();
+
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
@@ -89,8 +91,6 @@ const MainLayout: React.FC = () => {
    *  - If it exists, update the last_signed_in field and return the updated record.
    *  - Otherwise, insert a new admin record and return it.
    */
-  const requestCache = new Map<string, Promise<AdminUser>>();
-
   const upsertAdminUser = async (adminInfo: {
     name: string;
     email: string;

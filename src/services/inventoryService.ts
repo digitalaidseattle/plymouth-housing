@@ -1,13 +1,7 @@
 import { API_HEADERS, ENDPOINTS } from '../types/constants';
-import { ClientPrincipal } from '../types/interfaces';
+import { ClientPrincipal, InventoryResult } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
 import { getErrorMessage } from '../utils/apiUtils';
-
-interface InventoryResult {
-  Status: string;
-  ErrorCode?: string;
-  message?: string;
-}
 
 export async function processInventoryChange(
   user: ClientPrincipal | null,

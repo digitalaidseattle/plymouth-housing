@@ -113,6 +113,12 @@ export type User = AdminUser | VolunteerUser;
 
 // ─── Inventory ────────────────────────────────────────────────────────────────
 
+export type InventoryResult = {
+  Status: string;
+  ErrorCode?: string;
+  message?: string;
+};
+
 export type InventoryItem = {
   id: number;
   name: string;

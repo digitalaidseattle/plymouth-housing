@@ -82,13 +82,12 @@ export async function processGeneralItems(
 }
 
 export async function getBuildings(user: ClientPrincipal | null) {
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const cachedBuildings = cacheGet<Building[]>('buildings');
     if (cachedBuildings) {
       return cachedBuildings;
     }
-
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.BUILDINGS, {
       headers,
       method: 'GET',
@@ -119,14 +118,13 @@ export async function getUnitNumbers(
   user: ClientPrincipal | null,
   buildingId: number,
 ) {
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
     const cacheKey = `units_${buildingId}`;
     const cachedUnits = cacheGet<Unit[]>(cacheKey);
     if (cachedUnits) {
       return cachedUnits;
     }
-
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(
       `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=${SETTINGS.api_fetch_limit_units}`,
       {

@@ -126,23 +126,23 @@ const AddItemModal = ({
   };
 
   const updateItemHandler = async () => {
-    if (
-      formData.type === '' ||
-      formData.name === '' ||
-      formData.quantity === 0 ||
-      !updateItem ||
-      !transactionId
-    ) {
-      setErrorMessage(
-        'Missing Information, Quantity cannot be 0, or Transaction ID not initialized',
-      );
+    if (formData.type === '') {
+      setErrorMessage('Please select an inventory type.');
+      return;
+    }
+    if (formData.name === '' || !updateItem) {
+      setErrorMessage('Please select an item.');
+      return;
+    }
+    if (formData.quantity === 0) {
+      setErrorMessage('"Quantity To Add/Remove" cannot be 0');
       return;
     }
     // regex test to check for only whole numbers, including negatives
     const rx = new RegExp(/^-?\d+$/);
     if (!rx.test(formData.quantity.toString())) {
       setErrorMessage('The quantity must be a non-decimal number.');
-      return false;
+      return;
     }
     if (!transactionId) {
       setErrorMessage('Transaction ID is missing. Please try again.');

@@ -16,6 +16,7 @@ import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { UserContext } from '../contexts/UserContext';
 import { processInventoryResetQuantity } from '../../services/inventoryService';
+import { assertLoggedIn } from '../../utils/userUtils';
 import InfoIcon from '@mui/icons-material/Info';
 import DialogTemplate from '../DialogTemplate.tsx';
 
@@ -99,10 +100,7 @@ const AdjustQuantityModal = ({
       setErrorMessage('Invalid item');
       return;
     }
-    if (loggedInUserId === null) {
-      setErrorMessage('You must be signed in to update inventory.');
-      return;
-    }
+    assertLoggedIn(loggedInUserId);
     if (formData.newQuantity === null) {
       setErrorMessage('You must enter a number for the new quantity.');
       return;
@@ -124,7 +122,7 @@ const AdjustQuantityModal = ({
     try {
       const resultValues = await processInventoryResetQuantity(
         user,
-        loggedInUserId!,
+        loggedInUserId,
         itemToEdit.id,
         formData.newQuantity!,
         JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }),

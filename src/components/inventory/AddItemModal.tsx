@@ -16,6 +16,7 @@ import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { UserContext } from '../contexts/UserContext';
 import { processInventoryChange } from '../../services/inventoryService';
+import { assertLoggedIn } from '../../utils/userUtils';
 import { Add, Remove } from '@mui/icons-material';
 import DialogTemplate from '../DialogTemplate.tsx';
 
@@ -144,6 +145,7 @@ const AddItemModal = ({
       setErrorMessage('The quantity must be a non-decimal number.');
       return;
     }
+    assertLoggedIn(loggedInUserId);
     if (!transactionId) {
       setErrorMessage('Transaction ID is missing. Please try again.');
       return;
@@ -153,7 +155,7 @@ const AddItemModal = ({
     try {
       const resultValues = await processInventoryChange(
         user,
-        loggedInUserId!,
+        loggedInUserId,
         [{ id: updateItem.id, quantity: formData.quantity }],
         transactionId,
       );

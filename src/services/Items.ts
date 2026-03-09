@@ -1,6 +1,6 @@
 import { ClientPrincipal, AdminItem } from '../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../types/constants';
-import { getRole } from '../components/contexts/UserContext';
+import { getRole } from '../utils/userUtils';
 
 export async function getItems(user: ClientPrincipal | null): Promise<AdminItem[]> {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };

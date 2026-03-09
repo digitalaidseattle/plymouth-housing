@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { getCategories, createCategory, updateCategory } from './Categories';
 import { API_HEADERS, ENDPOINTS } from '../types/constants';
-import { getRole } from '../components/contexts/UserContext';
+import { getRole } from '../utils/userUtils';
 
-vi.mock('../components/contexts/UserContext', () => ({
+vi.mock('../utils/userUtils', () => ({
   getRole: vi.fn(),
 }));
 

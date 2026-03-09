@@ -337,7 +337,7 @@ const ItemsTable = ({
 
     return (
       <Box
-        onClick={() => handleCellClick(item.id, field, value)}
+        onClick={() => handleCellClick(item.id, field as string, value)}
         sx={{
           cursor: 'pointer',
           padding: '8px',

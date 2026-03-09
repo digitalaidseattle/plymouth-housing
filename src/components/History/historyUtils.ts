@@ -20,7 +20,7 @@ const DATE_FORMATS = {
 
 
 export function formatTransactionDate(timestamp: string): string {
-  const hasTimezone = /(?:Z|[+\-]\d{2}:\d{2})$/i.test(timestamp);
+  const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp);
   const dateCreated = new Date(hasTimezone ? timestamp : timestamp + 'Z');
   const now = new Date();
 

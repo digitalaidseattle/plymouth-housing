@@ -4,8 +4,8 @@ import { getRole } from '../utils/userUtils';
 import { getErrorMessage } from '../utils/apiUtils';
 
 export async function getUsers(user: ClientPrincipal | null): Promise<User[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.USERS, { headers, method: 'GET' });
     if (!response.ok) {
       const errorMessage = await getErrorMessage(response);
@@ -23,8 +23,8 @@ export async function getUsersByFilter(
   user: ClientPrincipal | null,
   filter: string,
 ): Promise<User[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(`${ENDPOINTS.USERS}?$filter=${filter}`, {
       headers,
       method: 'GET',
@@ -45,8 +45,8 @@ export async function createUser(
   user: ClientPrincipal | null,
   data: object,
 ): Promise<User> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.USERS, {
       method: 'POST',
       headers,
@@ -69,8 +69,8 @@ export async function updateUser(
   id: number,
   data: object,
 ): Promise<void> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
       method: 'PATCH',
       headers,

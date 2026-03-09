@@ -15,8 +15,8 @@ export async function getCategorizedItems(
   const cached = cacheGet<CategoryProps[]>('categorizedItems');
   if (cached) return cached;
 
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CATEGORIZED_ITEMS, {
       headers,
       method: 'GET',
@@ -37,8 +37,8 @@ export async function getCategorizedItems(
 export async function getItems(
   user: ClientPrincipal | null,
 ): Promise<InventoryItem[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(
       `${ENDPOINTS.EXPANDED_ITEMS}?$first=${SETTINGS.api_fetch_limit_items}`,
       { headers, method: 'GET' },
@@ -63,8 +63,8 @@ export async function getItems(
 export async function getCategories(
   user: ClientPrincipal | null,
 ): Promise<CategoryItem[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CATEGORY, { headers, method: 'GET' });
     if (!response.ok) {
       const errorMessage = await getErrorMessage(response);
@@ -82,8 +82,8 @@ export async function createItem(
   user: ClientPrincipal | null,
   data: object,
 ): Promise<void> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.ITEMS, {
       method: 'POST',
       headers,
@@ -104,8 +104,8 @@ export async function updateItem(
   id: number,
   data: object,
 ): Promise<void> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(`${ENDPOINTS.ITEMS}/id/${id}`, {
       method: 'PATCH',
       headers,

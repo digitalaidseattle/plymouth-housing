@@ -16,8 +16,8 @@ export async function getCheckoutHistory(
   startDate: string,
   endDate: string,
 ): Promise<CheckoutTransaction[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.GET_CHECKOUT_HISTORY, {
       headers,
       method: 'POST',
@@ -43,8 +43,8 @@ export async function getInventoryHistory(
   startDate: string,
   endDate: string,
 ): Promise<InventoryTransaction[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.GET_INVENTORY_HISTORY, {
       headers,
       method: 'POST',

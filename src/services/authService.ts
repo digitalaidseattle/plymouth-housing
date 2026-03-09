@@ -22,8 +22,8 @@ export async function verifyPin(
   volunteerId: number,
   enteredPin: string,
 ): Promise<{ value: Array<{ IsValid: boolean; ErrorMessage?: string }> }> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.VERIFY_PIN, {
       method: 'POST',
       headers,

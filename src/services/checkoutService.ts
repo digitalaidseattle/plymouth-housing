@@ -17,8 +17,8 @@ export async function processWelcomeBasket(
   sheetSetItem: CheckoutItemProp,
   residentInfo: ResidentInfo,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
       method: 'POST',
       headers,
@@ -51,8 +51,8 @@ export async function processGeneralItems(
   checkoutItems: CheckoutItemProp[],
   residentInfo: ResidentInfo,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
       method: 'POST',
       headers,
@@ -82,8 +82,8 @@ export async function processGeneralItems(
 }
 
 export async function getBuildings(user: ClientPrincipal | null) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const cachedBuildings = cacheGet<Building[]>('buildings');
     if (cachedBuildings) {
       return cachedBuildings;
@@ -118,8 +118,8 @@ export async function getUnitNumbers(
   user: ClientPrincipal | null,
   buildingId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const cacheKey = `units_${buildingId}`;
     const cachedUnits = cacheGet<Unit[]>(cacheKey);
     if (cachedUnits) {
@@ -157,8 +157,8 @@ export async function getResidents(
   user: ClientPrincipal | null,
   unitId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(
       `${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`,
       {
@@ -182,8 +182,8 @@ export async function findResident(
   name: string,
   unitId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const safeName = name.replace(/'/g, "''");
     const filter = encodeURIComponent(
       `name eq '${safeName}' and unit_id eq ${unitId}`,
@@ -208,8 +208,8 @@ export async function addResident(
   name: string,
   unitId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
       method: 'POST',
       headers,
@@ -233,8 +233,8 @@ export async function checkPastCheckout(
   user: ClientPrincipal | null,
   residentId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
       method: 'POST',
       headers,
@@ -257,8 +257,8 @@ export async function getLastResidentVisit(
   user: ClientPrincipal | null,
   residentId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.GET_LAST_RESIDENT_VISIT, {
       method: 'POST',
       headers,

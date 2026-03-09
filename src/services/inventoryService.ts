@@ -9,8 +9,8 @@ export async function processInventoryChange(
   items: { id: number; quantity: number }[],
   transactionId: string,
 ): Promise<InventoryResult[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, {
       method: 'POST',
       headers,
@@ -43,8 +43,8 @@ export async function processInventoryResetQuantity(
   additionalNotes: string,
   transactionId: string,
 ): Promise<InventoryResult[]> {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_RESET_QUANTITY, {
       method: 'POST',
       headers,

@@ -100,7 +100,6 @@ const AdjustQuantityModal = ({
       setErrorMessage('Invalid item');
       return;
     }
-    assertLoggedIn(loggedInUserId);
     if (formData.newQuantity === null) {
       setErrorMessage('You must enter a number for the new quantity.');
       return;
@@ -120,6 +119,7 @@ const AdjustQuantityModal = ({
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
+      assertLoggedIn(loggedInUserId);
       const resultValues = await processInventoryResetQuantity(
         user,
         loggedInUserId,

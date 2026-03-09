@@ -145,7 +145,6 @@ const AddItemModal = ({
       setErrorMessage('The quantity must be a non-decimal number.');
       return;
     }
-    assertLoggedIn(loggedInUserId);
     if (!transactionId) {
       setErrorMessage('Transaction ID is missing. Please try again.');
       return;
@@ -153,6 +152,7 @@ const AddItemModal = ({
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
+      assertLoggedIn(loggedInUserId);
       const resultValues = await processInventoryChange(
         user,
         loggedInUserId,

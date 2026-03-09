@@ -1,13 +1,22 @@
 import { API_HEADERS, ENDPOINTS } from '../types/constants';
 import { ClientPrincipal, User } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
+import { getErrorMessage } from '../utils/apiUtils';
 
 export async function getUsers(user: ClientPrincipal | null): Promise<User[]> {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-  const response = await fetch(ENDPOINTS.USERS, { headers, method: 'GET' });
-  if (!response.ok) throw new Error(response.statusText);
-  const data = await response.json();
-  return data.value;
+  try {
+    const response = await fetch(ENDPOINTS.USERS, { headers, method: 'GET' });
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
+    const data = await response.json();
+    return data.value;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
 }
 
 export async function getUsersByFilter(
@@ -15,13 +24,21 @@ export async function getUsersByFilter(
   filter: string,
 ): Promise<User[]> {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-  const response = await fetch(`${ENDPOINTS.USERS}?$filter=${filter}`, {
-    headers,
-    method: 'GET',
-  });
-  if (!response.ok) throw new Error(response.statusText);
-  const data = await response.json();
-  return data.value;
+  try {
+    const response = await fetch(`${ENDPOINTS.USERS}?$filter=${filter}`, {
+      headers,
+      method: 'GET',
+    });
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
+    const data = await response.json();
+    return data.value;
+  } catch (error) {
+    console.error('Error fetching users by filter:', error);
+    throw error;
+  }
 }
 
 export async function createUser(
@@ -29,20 +46,22 @@ export async function createUser(
   data: object,
 ): Promise<User> {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-  const response = await fetch(ENDPOINTS.USERS, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      (errorData as { error?: { message?: string } }).error?.message ||
-        response.statusText,
-    );
+  try {
+    const response = await fetch(ENDPOINTS.USERS, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
+    const result = await response.json();
+    return result.value ? result.value[0] : result;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
   }
-  const result = await response.json();
-  return result.value ? result.value[0] : result;
 }
 
 export async function updateUser(
@@ -51,16 +70,18 @@ export async function updateUser(
   data: object,
 ): Promise<void> {
   const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-  const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      (errorData as { error?: { message?: string } }).error?.message ||
-        response.statusText,
-    );
+  try {
+    const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
   }
 }

@@ -1,4 +1,5 @@
 import { getRole } from '../utils/userUtils';
+import { getErrorMessage } from '../utils/apiUtils';
 import { ENDPOINTS, API_HEADERS } from '../types/constants';
 import {
   ClientPrincipal,
@@ -15,17 +16,20 @@ export async function getCheckoutHistory(
   startDate: string,
   endDate: string,
 ): Promise<CheckoutTransaction[]> {
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.GET_CHECKOUT_HISTORY, {
-      headers: headers,
+      headers,
       method: 'POST',
       body: JSON.stringify({
         start_date: startDate,
         end_date: endDate,
       }),
     });
-    if (!response.ok) throw new Error(response.statusText);
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
     const data = await response.json();
     return mapCheckoutRows(data.value);
   } catch (error) {
@@ -39,17 +43,20 @@ export async function getInventoryHistory(
   startDate: string,
   endDate: string,
 ): Promise<InventoryTransaction[]> {
+  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.GET_INVENTORY_HISTORY, {
-      headers: headers,
+      headers,
       method: 'POST',
       body: JSON.stringify({
         start_date: startDate,
         end_date: endDate,
       }),
     });
-    if (!response.ok) throw new Error(response.statusText);
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(response);
+      throw new Error(errorMessage);
+    }
     const data = await response.json();
     return mapInventoryRows(data.value);
   } catch (error) {

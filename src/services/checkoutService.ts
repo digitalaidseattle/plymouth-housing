@@ -1,4 +1,5 @@
 import { getRole } from '../utils/userUtils';
+import { getErrorMessage } from '../utils/apiUtils';
 import {
   Building,
   CheckoutItemProp,
@@ -8,30 +9,6 @@ import {
 } from '../types/interfaces';
 import { ENDPOINTS, API_HEADERS, SETTINGS } from '../types/constants';
 import { cacheGet, cacheSet } from '../utils/sessionCache';
-
-async function getErrorMessage(response: Response): Promise<string> {
-  let errorMessage: string | undefined;
-
-  try {
-    const errorData = await response.clone().json();
-    errorMessage = errorData?.error?.message || errorData?.message;
-  } catch {
-    // If JSON parsing fails, we'll handle it below
-    console.error('Failed to parse error response as JSON.');
-  }
-
-  if (!errorMessage) {
-    if (response.statusText) {
-      errorMessage = response.statusText;
-    } else if (typeof response.status === 'number' && response.status > 0) {
-      errorMessage = `HTTP ${response.status}`;
-    } else {
-      errorMessage = 'Request failed';
-    }
-  }
-
-  return errorMessage;
-}
 
 export async function processWelcomeBasket(
   newTransactionID: string,
@@ -44,7 +21,7 @@ export async function processWelcomeBasket(
   try {
     const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
@@ -78,7 +55,7 @@ export async function processGeneralItems(
   try {
     const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
@@ -113,7 +90,7 @@ export async function getBuildings(user: ClientPrincipal | null) {
 
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.BUILDINGS, {
-      headers: headers,
+      headers,
       method: 'GET',
     });
 
@@ -154,7 +131,7 @@ export async function getUnitNumbers(
       `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=${SETTINGS.api_fetch_limit_units}`,
       {
         method: 'GET',
-        headers: headers,
+        headers,
       },
     );
 
@@ -188,7 +165,7 @@ export async function getResidents(
       `${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`,
       {
         method: 'GET',
-        headers: headers,
+        headers,
       },
     );
     if (!response.ok) {
@@ -215,7 +192,7 @@ export async function findResident(
     );
     const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=${filter}`, {
       method: 'GET',
-      headers: headers,
+      headers,
     });
     if (!response.ok) {
       const errorMessage = await getErrorMessage(response);
@@ -237,7 +214,7 @@ export async function addResident(
   try {
     const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         name: name,
         unit_id: unitId,
@@ -262,7 +239,7 @@ export async function checkPastCheckout(
   try {
     const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         resident_id: residentId,
       }),
@@ -286,7 +263,7 @@ export async function getLastResidentVisit(
   try {
     const response = await fetch(ENDPOINTS.GET_LAST_RESIDENT_VISIT, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({ resident_id: residentId }),
     });
     if (!response.ok) {

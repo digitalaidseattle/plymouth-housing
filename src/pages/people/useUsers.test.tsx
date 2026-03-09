@@ -125,7 +125,7 @@ describe('useUsers hook', () => {
       expect(result.current.originalData).toHaveLength(1);
     });
     await act(async () => {
-      await expect(result.current.updateUserStatus(1)).rejects.toThrow(`Error updating user: ${errorMsg}`);
+      await expect(result.current.updateUserStatus(1)).rejects.toThrow(errorMsg);
     });
   });
 

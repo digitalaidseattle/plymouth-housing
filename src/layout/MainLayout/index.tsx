@@ -123,6 +123,9 @@ const MainLayout: React.FC = () => {
             adminInfo.claims,
             `id eq ${userId}`,
           );
+          if (!updated || updated.length === 0) {
+            throw new Error(`User with id ${userId} not found after update`);
+          }
           return updated[0] as AdminUser;
         } else {
           // No record found, create a new admin entry

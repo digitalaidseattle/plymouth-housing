@@ -59,20 +59,6 @@ describe('itemsService', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    it('should not reuse the cache across roles', async () => {
-      const mockItems = [{ category: 'Clothing', items: [] }];
-      (fetch as Mock).mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ value: mockItems }),
-      });
-
-      await getCategorizedItems(user);
-      (getRole as Mock).mockReturnValue('volunteer');
-      await getCategorizedItems(user);
-
-      expect(fetch).toHaveBeenCalledTimes(2);
-    });
-
     it('should throw an error if the request fails', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,

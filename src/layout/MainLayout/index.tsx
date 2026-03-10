@@ -31,7 +31,8 @@ const requestCache = new Map<string, Promise<AdminUser>>();
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const { setUser, loggedInUserId, setLoggedInUserId } = useContext(UserContext);
+  const { setUser, loggedInUserId, setLoggedInUserId } =
+    useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [retryCount] = useState(0);
   const [showSpinUpDialog] = useState(false);
@@ -41,17 +42,17 @@ const MainLayout: React.FC = () => {
   const resetTimer = useInactivityTimer({
     onInactivity: () => {
       localStorage.clear();
-      window.location.href = '/.auth/logout?post_logout_redirect_uri=/login.html';
+      window.location.href =
+        '/.auth/logout?post_logout_redirect_uri=/login.html';
     },
     timeout: SETTINGS.inactivity_timeout,
   });
 
   useEffect(() => {
     const fetchTokenAndRole = async () => {
-      const payload = await getAuthMe();
-      const { clientPrincipal } = payload;
-
       try {
+        const payload = await getAuthMe();
+        const { clientPrincipal } = payload;
         const userClaims = clientPrincipal;
         setUser(userClaims || null);
 
@@ -81,8 +82,8 @@ const MainLayout: React.FC = () => {
     };
     fetchTokenAndRole();
 
-  // The effect is intended to run only once on mount.
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    // The effect is intended to run only once on mount.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []);
 
   /**
@@ -106,9 +107,10 @@ const MainLayout: React.FC = () => {
     // Query whether this user already exists by email
     const promise = (async () => {
       try {
+        const escapedEmail = adminInfo.email.replace(/'/g, "''");
         const users = await getUsersByFilter(
           adminInfo.claims,
-          `email eq '${adminInfo.email}'`,
+          `email eq '${escapedEmail}'`,
         );
 
         // If there's an existing record, update last_signed_in
@@ -166,14 +168,8 @@ const MainLayout: React.FC = () => {
           onClick={resetTimer}
           onKeyPress={resetTimer}
         >
-          <Header
-            open={drawerOpen}
-            handleDrawerToggle={handleDrawerToggle}
-          />
-          <Drawer
-            open={drawerOpen}
-            handleDrawerToggle={handleDrawerToggle}
-          />
+          <Header open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
+          <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Box
             component="main"
             sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}

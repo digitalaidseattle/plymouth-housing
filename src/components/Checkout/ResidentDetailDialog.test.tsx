@@ -44,7 +44,10 @@ describe('ResidentDetailDialog', () => {
   ];
 
   const mockResidents = {
-    value: [{ name: 'John Doe' }, { name: 'Jane Smith' }],
+    value: [
+      { id: 1, name: 'John Doe' },
+      { id: 2, name: 'Jane Smith' },
+    ],
   };
 
   const defaultProps = {
@@ -64,6 +67,7 @@ describe('ResidentDetailDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(CheckoutAPICalls.getLastResidentVisit).mockResolvedValue({ value: [] });
     // Reset cursor
     document.body.style.cursor = 'default';
   });

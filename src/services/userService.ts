@@ -57,7 +57,13 @@ export async function createUser(
       throw new Error(errorMessage);
     }
     const result = await response.json();
-    return result.value ? result.value[0] : result;
+    if (Array.isArray(result.value)) {
+      if (result.value.length === 0) {
+        throw new Error('Create user returned no records');
+      }
+      return result.value[0] as User;
+    }
+    return result as User;
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;

@@ -50,6 +50,7 @@ describe('historyService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Internal Server Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getCheckoutHistory(user, startDate, endDate)).rejects.toThrow(
@@ -83,6 +84,7 @@ describe('historyService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Bad Gateway',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getInventoryHistory(user, startDate, endDate)).rejects.toThrow('Bad Gateway');

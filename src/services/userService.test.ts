@@ -38,6 +38,7 @@ describe('userService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Unauthorized',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getUsers(user)).rejects.toThrow('Unauthorized');
@@ -56,7 +57,7 @@ describe('userService', () => {
 
       const result = await getUsersByFilter(user, filter);
 
-      expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.USERS}?$filter=${filter}`, {
+      expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.USERS}?$filter=${encodeURIComponent(filter)}`, {
         headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
         method: 'GET',
       });
@@ -67,6 +68,7 @@ describe('userService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Bad Request',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getUsersByFilter(user, filter)).rejects.toThrow('Bad Request');
@@ -109,6 +111,7 @@ describe('userService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Internal Server Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(createUser(user, newUserData)).rejects.toThrow('Internal Server Error');
@@ -135,6 +138,7 @@ describe('userService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Not Found',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(updateUser(user, userId, updateData)).rejects.toThrow('Not Found');

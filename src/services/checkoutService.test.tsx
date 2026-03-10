@@ -63,6 +63,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo)).rejects.toThrow('Error');
@@ -118,6 +119,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
@@ -163,6 +165,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getBuildings(user)).rejects.toThrow('Error');
@@ -192,6 +195,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getUnitNumbers(user, buildingId)).rejects.toThrow('Error');
@@ -221,6 +225,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getResidents(user, unitId)).rejects.toThrow('Error');
@@ -253,6 +258,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(findResident(user, name, unitId)).rejects.toThrow('Error');
@@ -287,6 +293,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(addResident(user, name, unitId)).rejects.toThrow('Error');
@@ -319,6 +326,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(checkPastCheckout(user, residentId)).rejects.toThrow('Error');
@@ -362,6 +370,7 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getLastResidentVisit(user, residentId)).rejects.toThrow('Error');

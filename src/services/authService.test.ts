@@ -44,7 +44,7 @@ describe('authService', () => {
     });
 
     it('should throw an error if the request fails', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Unauthorized' });
+      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Unauthorized', clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }) });
 
       await expect(getAuthMe()).rejects.toThrow('Unauthorized');
     });
@@ -93,6 +93,7 @@ describe('authService', () => {
         ok: false,
         status: 403,
         statusText: 'Forbidden',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       const err = await verifyPin(user, volunteerId, enteredPin).catch((e) => e);

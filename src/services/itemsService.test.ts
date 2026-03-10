@@ -58,6 +58,7 @@ describe('itemsService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Internal Server Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getCategorizedItems(user)).rejects.toThrow('Internal Server Error');
@@ -90,7 +91,7 @@ describe('itemsService', () => {
     });
 
     it('should throw the API error message on non-500 failure', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: false, status: 403, statusText: 'Forbidden' });
+      (fetch as Mock).mockResolvedValue({ ok: false, status: 403, statusText: 'Forbidden', clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }) });
 
       await expect(getItems(user)).rejects.toThrow('Forbidden');
     });
@@ -114,7 +115,7 @@ describe('itemsService', () => {
     });
 
     it('should throw an error if the request fails', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Unauthorized' });
+      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Unauthorized', clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }) });
 
       await expect(getCategories(user)).rejects.toThrow('Unauthorized');
     });
@@ -136,7 +137,7 @@ describe('itemsService', () => {
     });
 
     it('should throw an error if the request fails', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Bad Request' });
+      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Bad Request', clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }) });
 
       await expect(createItem(user, newItemData)).rejects.toThrow('Bad Request');
     });
@@ -159,7 +160,7 @@ describe('itemsService', () => {
     });
 
     it('should throw an error if the request fails', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Not Found' });
+      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Not Found', clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }) });
 
       await expect(updateItem(user, itemId, updateData)).rejects.toThrow('Not Found');
     });

@@ -88,7 +88,7 @@ describe('inventoryService', () => {
     });
 
     it('should throw an error if the HTTP request fails', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Bad Request' });
+      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Bad Request', clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }) });
 
       await expect(processInventoryChange(user, userId, items, transactionId)).rejects.toThrow(
         'Bad Request',
@@ -140,7 +140,7 @@ describe('inventoryService', () => {
     });
 
     it('should throw an error if the HTTP request fails', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Internal Server Error' });
+      (fetch as Mock).mockResolvedValue({ ok: false, statusText: 'Internal Server Error', clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }) });
 
       await expect(
         processInventoryResetQuantity(user, userId, itemId, newQuantity, additionalNotes, transactionId),

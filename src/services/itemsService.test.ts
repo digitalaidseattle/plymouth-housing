@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import {
   getCategorizedItems,
   getItems,
@@ -13,15 +13,18 @@ vi.mock('../utils/userUtils', () => ({
   getRole: vi.fn(),
 }));
 
-global.fetch = vi.fn();
-
 describe('itemsService', () => {
   const user = { userDetails: 'testuser' } as any;
 
   beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
     vi.clearAllMocks();
     sessionStorage.clear();
     (getRole as Mock).mockReturnValue('admin');
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   describe('getCategorizedItems', () => {
@@ -48,10 +51,26 @@ describe('itemsService', () => {
         json: () => Promise.resolve({ value: mockItems }),
       });
 
+      const first = await getCategorizedItems(user);
+      const second = await getCategorizedItems(user);
+
+      expect(first).toEqual(mockItems);
+      expect(second).toEqual(mockItems);
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not reuse the cache across roles', async () => {
+      const mockItems = [{ category: 'Clothing', items: [] }];
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ value: mockItems }),
+      });
+
       await getCategorizedItems(user);
+      (getRole as Mock).mockReturnValue('volunteer');
       await getCategorizedItems(user);
 
-      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(fetch).toHaveBeenCalledTimes(2);
     });
 
     it('should throw an error if the request fails', async () => {

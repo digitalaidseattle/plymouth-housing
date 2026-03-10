@@ -1,4 +1,6 @@
-import { describe, test, expect, vi, afterEach } from 'vitest';
+import { describe, test, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
+
+process.env.TZ = 'UTC';
 import {
   formatTransactionDate,
   formatDateRange,
@@ -108,5 +110,30 @@ describe('formatBuildingInfo', () => {
 
   test('returns empty string when buildings is null', () => {
     expect(formatBuildingInfo(1, null)).toBe('');
+  });
+});
+
+describe('formatTransactionDate - America/New_York timezone', () => {
+  const savedTZ = process.env.TZ;
+
+  beforeAll(() => {
+    process.env.TZ = 'America/New_York';
+  });
+
+  afterAll(() => {
+    process.env.TZ = savedTZ;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('timestamp just after UTC midnight shows previous local date in New York', () => {
+    vi.useFakeTimers();
+    // "now" is Jun 15 at 2 PM UTC = Jun 15 at 10 AM EDT
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    // 00:30Z on Jun 15 = 8:30 PM EDT on Jun 14 — a different local date
+    const result = formatTransactionDate('2025-06-15T00:30:00Z');
+    expect(result).toMatch(/^Created Jun 14, 2025 at /);
   });
 });

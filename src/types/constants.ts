@@ -57,6 +57,12 @@ export const ROLE_PAGES = {
   volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'history'],
 } as const;
 
+export const CATEGORY_IDS = {
+  WELCOME_BASKET: 15,
+  APPLIANCE: 2,
+  HOME_GOODS: 1,
+} as const;
+
 export const WELCOME_BASKET_ITEMS = {
   TWIN: 171,
   FULL: 172,
@@ -64,4 +70,5 @@ export const WELCOME_BASKET_ITEMS = {
 
 export const SPECIAL_ITEMS = {
   APPLIANCE_MISC: 166,
+  RUG: 97,
 } as const;

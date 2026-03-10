@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
 
+const savedTZ = process.env.TZ;
 process.env.TZ = 'UTC';
 import {
   formatTransactionDate,
@@ -9,6 +10,10 @@ import {
   formatBuildingInfo,
 } from './historyUtils';
 import { Building } from '../../types/interfaces';
+
+afterAll(() => {
+  process.env.TZ = savedTZ;
+});
 
 describe('formatTransactionDate', () => {
   afterEach(() => {
@@ -114,14 +119,12 @@ describe('formatBuildingInfo', () => {
 });
 
 describe('formatTransactionDate - America/New_York timezone', () => {
-  const savedTZ = process.env.TZ;
-
   beforeAll(() => {
     process.env.TZ = 'America/New_York';
   });
 
   afterAll(() => {
-    process.env.TZ = savedTZ;
+    process.env.TZ = 'UTC';
   });
 
   afterEach(() => {

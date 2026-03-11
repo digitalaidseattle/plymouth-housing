@@ -53,13 +53,44 @@ describe('fetchWithRetry', () => {
     );
   });
 
-  it('throws immediately when max retries are exhausted', async () => {
+  it('throws when max retries are exhausted', async () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: 'Service Unavailable' });
 
     const config = createFetchConfig();
-    const promise = fetchWithRetry(config, SETTINGS.database_retry_attempts);
+    const assertion = expect(fetchWithRetry(config)).rejects.toThrow('Failed to fetch data: Service Unavailable');
 
-    await expect(promise).rejects.toThrow('Failed to fetch data: Service Unavailable');
+    for (let i = 1; i < SETTINGS.database_retry_attempts; i++) {
+      await vi.advanceTimersByTimeAsync(SETTINGS.database_retry_delay);
+    }
+
+    await assertion;
+  });
+
+  it('shows loading dialog after slow_request_threshold ms for a slow request', async () => {
+    let resolveFetch!: (value: Response) => void;
+    const slowResponse = new Promise<Response>((resolve) => { resolveFetch = resolve; });
+    global.fetch = vi.fn().mockReturnValueOnce(slowResponse);
+
+    const config = createFetchConfig();
+    const promise = fetchWithRetry(config);
+
+    await vi.advanceTimersByTimeAsync(SETTINGS.slow_request_threshold);
+    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(true);
+    expect(config.setRetryCount).toHaveBeenCalledWith(0);
+
+    resolveFetch({ ok: true, json: async () => ({ data: 'done' }) } as Response);
+    await promise;
+    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(false);
+  });
+
+  it('does not show loading dialog when request resolves before slow_request_threshold', async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+
+    const config = createFetchConfig();
+    await fetchWithRetry(config);
+
+    expect(config.setShowSpinUpDialog).not.toHaveBeenCalledWith(true);
+    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(false);
   });
 
   it('retries on failure and succeeds eventually', async () => {

@@ -261,6 +261,7 @@ describe('AddItemModal', () => {
 
         // Previously selected item should be cleared
         expect(screen.queryByText(/Current Quantity of this Item/)).not.toBeInTheDocument();
+        expect(screen.getAllByRole('combobox')[1]).toHaveValue('');
 
         // Only Welcome Basket items should be in the dropdown
         const itemAutocomplete = screen.getAllByRole('combobox')[1];

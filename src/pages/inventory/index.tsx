@@ -12,9 +12,9 @@ import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.
 import InventoryFilter from '../../components/inventory/InventoryFilter';
 import InventoryTable from '../../components/inventory/InventoryTable';
 import { UserContext } from '../../components/contexts/UserContext';
-import { getRole } from '../../utils/userUtils';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
-import { ENDPOINTS, API_HEADERS, SETTINGS } from '../../types/constants';
+import { getItems, getCategories } from '../../services/itemsService';
+import { SETTINGS } from '../../types/constants';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
 
@@ -189,22 +189,7 @@ const Inventory = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(
-        ENDPOINTS.EXPANDED_ITEMS + `?$first=${SETTINGS.api_fetch_limit_items}`,
-        { headers: headers, method: 'GET' },
-      );
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error(
-            'Database is likely starting up. Try again in 30 seconds.',
-          );
-        } else {
-          throw new Error(response.statusText);
-        }
-      }
-      const data = await response.json();
-      const inventoryList = data.value;
+      const inventoryList = await getItems(user);
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
@@ -216,30 +201,28 @@ const Inventory = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.CATEGORY, {
-        headers: headers,
-        method: 'GET',
-      });
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      const data = await response.json();
-      setCategoryData(data.value);
+      const categories = await getCategories(user);
+      setCategoryData(categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
   }, [user]);
 
   useEffect(() => {
-    fetchData();
-    fetchCategories();
+    const handler = setTimeout(() => {
+      fetchData();
+      fetchCategories();
+    }, 0);
+    return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
   useEffect(() => {
-    calculateItemsPerPage();
+    const handler = setTimeout(() => {
+      calculateItemsPerPage();
+    }, 0);
     window.addEventListener('resize', calculateItemsPerPage);
     return () => {
+      clearTimeout(handler);
       window.removeEventListener('resize', calculateItemsPerPage);
     };
   }, []);
@@ -254,12 +237,18 @@ const Inventory = () => {
   }, [filters, handleFilter]);
 
   useEffect(() => {
-    handleFilter();
+    const handler = setTimeout(() => {
+      handleFilter();
+    }, 0);
+    return () => clearTimeout(handler);
   }, [sortDirection, handleFilter]);
 
   useEffect(() => {
     if (error) {
-      setSnackbarState({ open: true, message: error, severity: 'warning' });
+      const handler = setTimeout(() => {
+        setSnackbarState({ open: true, message: error, severity: 'warning' });
+      }, 0);
+      return () => clearTimeout(handler);
     }
   }, [error]);
 

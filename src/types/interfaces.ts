@@ -70,7 +70,7 @@ export interface ClientPrincipal {
 
 export interface UserContextType {
   user: ClientPrincipal | null;
-  setUser: (user: ClientPrincipal) => void;
+  setUser: (user: ClientPrincipal | null) => void;
   loggedInUserId: number | null;
   setLoggedInUserId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: User[];
@@ -112,6 +112,12 @@ export type VolunteerUser = BaseUser & {
 export type User = AdminUser | VolunteerUser;
 
 // ─── Inventory ────────────────────────────────────────────────────────────────
+
+export type InventoryResult = {
+  Status: string;
+  ErrorCode?: string;
+  message?: string;
+};
 
 export type InventoryItem = {
   id: number;

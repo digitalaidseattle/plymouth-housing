@@ -1,4 +1,5 @@
 import { getRole } from '../utils/userUtils';
+import { getErrorMessage } from '../utils/apiUtils';
 import {
   Building,
   CheckoutItemProp,
@@ -9,30 +10,6 @@ import {
 import { ENDPOINTS, API_HEADERS, SETTINGS } from '../types/constants';
 import { cacheGet, cacheSet } from '../utils/sessionCache';
 
-async function getErrorMessage(response: Response): Promise<string> {
-  let errorMessage: string | undefined;
-
-  try {
-    const errorData = await response.clone().json();
-    errorMessage = errorData?.error?.message || errorData?.message;
-  } catch {
-    // If JSON parsing fails, we'll handle it below
-    console.error('Failed to parse error response as JSON.');
-  }
-
-  if (!errorMessage) {
-    if (response.statusText) {
-      errorMessage = response.statusText;
-    } else if (typeof response.status === 'number' && response.status > 0) {
-      errorMessage = `HTTP ${response.status}`;
-    } else {
-      errorMessage = 'Request failed';
-    }
-  }
-
-  return errorMessage;
-}
-
 export async function processWelcomeBasket(
   newTransactionID: string,
   user: ClientPrincipal | null,
@@ -40,11 +17,11 @@ export async function processWelcomeBasket(
   sheetSetItem: CheckoutItemProp,
   residentInfo: ResidentInfo,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
@@ -74,11 +51,11 @@ export async function processGeneralItems(
   checkoutItems: CheckoutItemProp[],
   residentInfo: ResidentInfo,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         new_transaction_id: newTransactionID,
         user_id: loggedInUserId,
@@ -106,14 +83,13 @@ export async function processGeneralItems(
 
 export async function getBuildings(user: ClientPrincipal | null) {
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const cachedBuildings = cacheGet<Building[]>('buildings');
     if (cachedBuildings) {
       return cachedBuildings;
     }
-
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.BUILDINGS, {
-      headers: headers,
+      headers,
       method: 'GET',
     });
 
@@ -143,18 +119,17 @@ export async function getUnitNumbers(
   buildingId: number,
 ) {
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const cacheKey = `units_${buildingId}`;
     const cachedUnits = cacheGet<Unit[]>(cacheKey);
     if (cachedUnits) {
       return cachedUnits;
     }
-
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(
       `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=${SETTINGS.api_fetch_limit_units}`,
       {
         method: 'GET',
-        headers: headers,
+        headers,
       },
     );
 
@@ -182,13 +157,13 @@ export async function getResidents(
   user: ClientPrincipal | null,
   unitId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(
       `${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`,
       {
         method: 'GET',
-        headers: headers,
+        headers,
       },
     );
     if (!response.ok) {
@@ -207,15 +182,15 @@ export async function findResident(
   name: string,
   unitId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const safeName = name.replace(/'/g, "''");
     const filter = encodeURIComponent(
       `name eq '${safeName}' and unit_id eq ${unitId}`,
     );
     const response = await fetch(`${ENDPOINTS.RESIDENTS}?$filter=${filter}`, {
       method: 'GET',
-      headers: headers,
+      headers,
     });
     if (!response.ok) {
       const errorMessage = await getErrorMessage(response);
@@ -233,11 +208,11 @@ export async function addResident(
   name: string,
   unitId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(`${ENDPOINTS.RESIDENTS}`, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         name: name,
         unit_id: unitId,
@@ -258,11 +233,11 @@ export async function checkPastCheckout(
   user: ClientPrincipal | null,
   residentId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.CHECK_PAST_CHECKOUT, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({
         resident_id: residentId,
       }),
@@ -282,11 +257,11 @@ export async function getLastResidentVisit(
   user: ClientPrincipal | null,
   residentId: number,
 ) {
-  const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
   try {
+    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
     const response = await fetch(ENDPOINTS.GET_LAST_RESIDENT_VISIT, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify({ resident_id: residentId }),
     });
     if (!response.ok) {

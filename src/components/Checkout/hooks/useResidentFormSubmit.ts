@@ -6,7 +6,7 @@ import {
   ClientPrincipal,
   ResidentFormError,
 } from '../../../types/interfaces';
-import { addResident, findResident } from '../../../services/CheckoutAPICalls';
+import { addResident, findResident } from '../../../services/checkoutService';
 
 export const useResidentFormSubmit = (
   user: ClientPrincipal | null,

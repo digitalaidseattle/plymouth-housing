@@ -33,8 +33,8 @@ describe('useKeepAlive', () => {
   });
 
   it('should ping immediately during business hours', () => {
-    // Mock Wednesday at 2 PM Pacific Time
-    const wednesdayAt2PM = new Date('2026-03-11T14:00:00-08:00');
+    // Mock Wednesday at 2 PM Pacific Time (PDT in March)
+    const wednesdayAt2PM = new Date('2026-03-11T14:00:00-07:00');
     vi.setSystemTime(wednesdayAt2PM);
 
     renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
@@ -52,8 +52,8 @@ describe('useKeepAlive', () => {
   });
 
   it('should not ping outside business hours', () => {
-    // Mock Monday at 2 PM Pacific Time (not Wed/Thu)
-    const mondayAt2PM = new Date('2026-03-09T14:00:00-08:00');
+    // Mock Monday at 2 PM Pacific Time (PDT in March, not Wed/Thu)
+    const mondayAt2PM = new Date('2026-03-09T14:00:00-07:00');
     vi.setSystemTime(mondayAt2PM);
 
     renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
@@ -62,8 +62,8 @@ describe('useKeepAlive', () => {
   });
 
   it('should not ping on Wednesday before noon', () => {
-    // Mock Wednesday at 11 AM Pacific Time
-    const wednesdayAt11AM = new Date('2026-03-11T11:00:00-08:00');
+    // Mock Wednesday at 11 AM Pacific Time (PDT in March)
+    const wednesdayAt11AM = new Date('2026-03-11T11:00:00-07:00');
     vi.setSystemTime(wednesdayAt11AM);
 
     renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
@@ -72,8 +72,8 @@ describe('useKeepAlive', () => {
   });
 
   it('should not ping on Thursday after 5 PM', () => {
-    // Mock Thursday at 6 PM Pacific Time
-    const thursdayAt6PM = new Date('2026-03-12T18:00:00-08:00');
+    // Mock Thursday at 6 PM Pacific Time (PDT in March)
+    const thursdayAt6PM = new Date('2026-03-12T18:00:00-07:00');
     vi.setSystemTime(thursdayAt6PM);
 
     renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));

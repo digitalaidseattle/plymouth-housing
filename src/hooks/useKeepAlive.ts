@@ -20,10 +20,22 @@ export const useKeepAlive = ({ user, enabled = true }: UseKeepAliveOptions) => {
 
     const isBusinessHours = (): boolean => {
       const now = new Date();
-      const localTime = new Date(now.toLocaleString('en-US', { timeZone: BUSINESS_HOURS.timezone }));
 
-      const day = localTime.getDay();
-      const hour = localTime.getHours();
+      // Get day and hour in the business timezone
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: BUSINESS_HOURS.timezone,
+        weekday: 'short',
+        hour: 'numeric',
+        hour12: false,
+      });
+
+      const parts = formatter.formatToParts(now);
+      const weekday = parts.find(p => p.type === 'weekday')?.value;
+      const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+
+      // Map weekday names to numbers (0 = Sunday)
+      const dayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      const day = weekday ? dayMap[weekday] : -1;
 
       const isBusinessDay = (BUSINESS_HOURS.days as readonly number[]).includes(day);
       const isDuringBusinessHours = hour >= BUSINESS_HOURS.openingHour && hour < BUSINESS_HOURS.closingHour;

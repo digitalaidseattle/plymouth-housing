@@ -45,6 +45,7 @@ export const SETTINGS = {
   database_retry_delay: 5000,
   inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
   cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
+  keep_alive_interval: 10 * 60 * 1000, // 10 minutes in milliseconds
 };
 
 export const USER_ROLES = {
@@ -64,4 +65,11 @@ export const WELCOME_BASKET_ITEMS = {
 
 export const SPECIAL_ITEMS = {
   APPLIANCE_MISC: 166,
+} as const;
+
+export const BUSINESS_HOURS = {
+  days: [3, 4], // 0 = Sunday, 3 = Wednesday, 4 = Thursday
+  openingHour: 12, // 12:00 PM (noon)
+  closingHour: 17, // 5:00 PM
+  timezone: 'America/Los_Angeles', // Pacific Time
 } as const;

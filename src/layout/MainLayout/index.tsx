@@ -18,6 +18,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User} from '../../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
+import { useKeepAlive } from '../../hooks/useKeepAlive';
 import { SETTINGS } from '../../types/constants';
 import { fetchWithRetry } from '../../services/fetchWithRetry';
 import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
@@ -25,7 +26,7 @@ import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
-  const { setUser, loggedInUserId, setLoggedInUserId } = useContext(UserContext);
+  const { user, setUser, loggedInUserId, setLoggedInUserId } = useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
@@ -38,6 +39,9 @@ const MainLayout: React.FC = () => {
       window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
     },    timeout: SETTINGS.inactivity_timeout
   });
+
+  // Keep backend warm during business hours
+  useKeepAlive({ user, enabled: true });
 
   useEffect(() => {
     const fetchTokenAndRole = async () => {

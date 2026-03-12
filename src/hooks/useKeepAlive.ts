@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ClientPrincipal } from '../types/interfaces';
 import { ENDPOINTS, API_HEADERS, SETTINGS, BUSINESS_HOURS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
+import { responsiveFontSizes } from '@mui/material';
 
 interface UseKeepAliveOptions {
   user: ClientPrincipal | null;
@@ -50,11 +51,13 @@ export const useKeepAlive = ({ user, enabled = true }: UseKeepAliveOptions) => {
 
       try {
         const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-        await fetch(ENDPOINTS.BUILDINGS, {
+        const response = await fetch(ENDPOINTS.BUILDINGS, {
           method: 'GET',
           headers: headers,
         });
-        console.log('[KeepAlive] Backend ping successful');
+        if (response.status !== 200) {
+          throw new Error(`Unexpected response status: ${response.status}`);
+        }
       } catch (error) {
         console.error('[KeepAlive] Backend ping failed:', error);
       }

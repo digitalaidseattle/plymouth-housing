@@ -3,10 +3,13 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+
 from tests.pages.checkout_page import CheckOutPage
 from tests.pages.inventory_page import InventoryPage
 from tests.pages.home_page import HomePage
 from tests.pages.login_page import LoginPage
+from tests.pages.history_page import HistoryPage
+
 from tests.utilities.data import (
     URL,
     ADMIN_USERNAME,
@@ -15,7 +18,10 @@ from tests.utilities.data import (
     VOLUNTEER_PASSWORD,
 )
 
+# ---------------------------------------------------
 # WebDriver Fixture
+# ---------------------------------------------------
+
 @pytest.fixture(scope="function")
 def driver():
     options = Options()
@@ -30,6 +36,7 @@ def driver():
         options.add_argument("--disable-notifications")
         options.add_argument("--blink-settings=imagesEnabled=false")
 
+    # SPA safe
     options.page_load_strategy = "eager"
 
     driver = webdriver.Chrome(options=options)
@@ -38,12 +45,17 @@ def driver():
         driver.maximize_window()
 
     driver.wait = WebDriverWait(driver, 10)
+
     driver.get(URL)
 
     yield driver
     driver.quit()
 
+
+# ---------------------------------------------------
 # Volunteer Login Fixture
+# ---------------------------------------------------
+
 @pytest.fixture(scope="function")
 def login_with_volunteer(driver):
     login_page = LoginPage(driver)
@@ -53,7 +65,11 @@ def login_with_volunteer(driver):
 
     login_page.enter_password(VOLUNTEER_PASSWORD)
     login_page.click_sign_in_button()
-    login_page.click_yes_button()
+
+    login_page.handle_stay_signed_in()
+
+    # Volunteer dropdown readiness (cold start safe)
+    login_page.wait_for_volunteer_ready()
 
     login_page.click_person()
     login_page.select_first_option()
@@ -62,9 +78,16 @@ def login_with_volunteer(driver):
     login_page.enter_pin()
     login_page.click_continue_button()
 
-    return HomePage(driver)
+    home_page = HomePage(driver)
+    home_page.wait_for_homepage_loaded()
 
+    return home_page
+
+
+# ---------------------------------------------------
 # Admin Login Fixture
+# ---------------------------------------------------
+
 @pytest.fixture(scope="function")
 def admin_home_page(driver):
     login_page = LoginPage(driver)
@@ -74,15 +97,26 @@ def admin_home_page(driver):
 
     login_page.enter_password(ADMIN_PASSWORD)
     login_page.click_sign_in_button()
-    login_page.click_yes_button()
 
-    return HomePage(driver)
+    login_page.handle_stay_signed_in()
 
-from tests.pages.history_page import HistoryPage
+    # Admin only needs DB readiness (no volunteer dropdown)
+    login_page.wait_for_database_ready()
+
+    home_page = HomePage(driver)
+    home_page.wait_for_homepage_loaded()
+
+    return home_page
+
+
+# ---------------------------------------------------
+# Page Fixtures
+# ---------------------------------------------------
 
 @pytest.fixture(scope="function")
 def history_page(driver):
     return HistoryPage(driver)
+
 
 @pytest.fixture(scope="function")
 def checkout_page(driver):
@@ -96,4 +130,7 @@ def inventory_page(driver):
 
 @pytest.fixture(scope="function")
 def home_page(login_with_volunteer):
+    """
+    Default home_page fixture logs in as volunteer.
+    """
     return login_with_volunteer

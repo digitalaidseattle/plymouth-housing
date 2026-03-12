@@ -8,7 +8,7 @@ def inventory_page(driver):
 @pytest.fixture()
 def return_to_home_page(driver, inventory_page):
     yield
-    inventory_page.click_on_volunteer_home(driver)
+    inventory_page.click_on_volunteer_home()
 
 @pytest.mark.usefixtures('login_with_volunteer')
 @pytest.mark.regression

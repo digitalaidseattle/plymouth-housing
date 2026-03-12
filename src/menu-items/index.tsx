@@ -12,6 +12,7 @@ import {
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
+  ClusterOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
 
@@ -28,6 +29,7 @@ const icons = {
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
+  ClusterOutlined,
   ShoppingCartOutlined,
 };
 
@@ -90,6 +92,14 @@ const dashboard = {
       type: 'item',
       url: '/history',
       icon: icons.FileOutlined,
+      breadcrumbs: false,
+    },
+    {
+      id: 'catalog',
+      title: 'Catalog',
+      type: 'admin',
+      url: '/catalog',
+      icon: icons.ClusterOutlined,
       breadcrumbs: false,
     },
   ],

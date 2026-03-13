@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { ClientPrincipal } from '../types/interfaces';
 import { ENDPOINTS, API_HEADERS, SETTINGS, BUSINESS_HOURS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
-import { responsiveFontSizes } from '@mui/material';
 
 interface UseKeepAliveOptions {
   user: ClientPrincipal | null;

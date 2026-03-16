@@ -2,14 +2,18 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useKeepAlive } from './useKeepAlive';
 import { ClientPrincipal } from '../types/interfaces';
+import * as appInsights from '../utils/appInsights';
 
 describe('useKeepAlive', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     global.fetch = vi.fn();
+    vi.spyOn(appInsights, 'trackException').mockImplementation(() => {});
+    vi.spyOn(appInsights, 'trackEvent').mockImplementation(() => {});
   });
 
   afterEach(() => {
+    vi.clearAllMocks();
     vi.restoreAllMocks();
     vi.useRealTimers();
   });
@@ -36,6 +40,11 @@ describe('useKeepAlive', () => {
     // Mock Wednesday at 2 PM Pacific Time (PDT in March)
     const wednesdayAt2PM = new Date('2026-03-11T14:00:00-07:00');
     vi.setSystemTime(wednesdayAt2PM);
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      status: 200,
+      statusText: 'OK',
+    } as Response);
 
     renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
 
@@ -86,6 +95,11 @@ describe('useKeepAlive', () => {
     const thursdayAt4PM = new Date('2026-03-12T16:00:00-07:00'); // DST
     vi.setSystemTime(thursdayAt4PM);
 
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      status: 200,
+      statusText: 'OK',
+    } as Response);
+
     renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -101,5 +115,124 @@ describe('useKeepAlive', () => {
     unmount();
 
     expect(clearIntervalSpy).toHaveBeenCalled();
+  });
+
+  it('should track exception and event when receiving non-200 status', async () => {
+    const wednesdayAt2PM = new Date('2026-03-11T14:00:00-07:00');
+    vi.setSystemTime(wednesdayAt2PM);
+
+    let resolvePromise: () => void;
+    const promise = new Promise<void>((resolve) => {
+      resolvePromise = resolve;
+    });
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      const result = {
+        status: 500,
+        statusText: 'Internal Server Error',
+      } as Response;
+      // Signal that fetch completed
+      queueMicrotask(() => resolvePromise!());
+      return result;
+    });
+
+    renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
+
+    // Wait for the ping to complete
+    await promise;
+
+    expect(appInsights.trackException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Unexpected response status: 500',
+      }),
+      expect.objectContaining({
+        component: 'useKeepAlive',
+        action: 'pingBackend',
+        status: '500',
+        statusText: 'Internal Server Error',
+      })
+    );
+
+    expect(appInsights.trackEvent).toHaveBeenCalledWith(
+      'KeepAlive_Ping',
+      expect.objectContaining({
+        success: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        component: 'useKeepAlive',
+      })
+    );
+  });
+
+  it('should track exception and event when fetch throws network error', async () => {
+    const wednesdayAt2PM = new Date('2026-03-11T14:00:00-07:00');
+    vi.setSystemTime(wednesdayAt2PM);
+
+    let resolvePromise: () => void;
+    const promise = new Promise<void>((resolve) => {
+      resolvePromise = resolve;
+    });
+
+    const networkError = new Error('Network error');
+    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      // Signal that fetch will complete (with error)
+      queueMicrotask(() => resolvePromise!());
+      throw networkError;
+    });
+
+    renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
+
+    // Wait for the ping to complete
+    await promise;
+
+    expect(appInsights.trackException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Network error',
+      }),
+      expect.objectContaining({
+        component: 'useKeepAlive',
+        action: 'pingBackend',
+        errorType: 'network_or_unexpected',
+      })
+    );
+
+    expect(appInsights.trackEvent).toHaveBeenCalledWith(
+      'KeepAlive_Ping',
+      expect.objectContaining({
+        success: false,
+        errorMessage: 'Network error',
+        component: 'useKeepAlive',
+        errorType: 'network_or_unexpected',
+      })
+    );
+  });
+
+  it('should not track App Insights on successful ping', async () => {
+    const wednesdayAt2PM = new Date('2026-03-11T14:00:00-07:00');
+    vi.setSystemTime(wednesdayAt2PM);
+
+    let resolvePromise: () => void;
+    const promise = new Promise<void>((resolve) => {
+      resolvePromise = resolve;
+    });
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      const result = {
+        status: 200,
+        statusText: 'OK',
+      } as Response;
+      // Signal that fetch completed
+      queueMicrotask(() => resolvePromise!());
+      return result;
+    });
+
+    renderHook(() => useKeepAlive({ user: mockUser, enabled: true }));
+
+    // Wait for the ping to complete
+    await promise;
+
+    expect(global.fetch).toHaveBeenCalled();
+    expect(appInsights.trackException).not.toHaveBeenCalled();
+    expect(appInsights.trackEvent).not.toHaveBeenCalled();
   });
 });

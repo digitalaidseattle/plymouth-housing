@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ClientPrincipal } from '../types/interfaces';
 import { ENDPOINTS, API_HEADERS, SETTINGS, BUSINESS_HOURS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
+import { trackException, trackEvent } from '../utils/appInsights';
 
 interface UseKeepAliveOptions {
   user: ClientPrincipal | null;
@@ -54,11 +55,49 @@ export const useKeepAlive = ({ user, enabled = true }: UseKeepAliveOptions) => {
           method: 'GET',
           headers: headers,
         });
+
         if (response.status !== 200) {
-          throw new Error(`Unexpected response status: ${response.status}`);
+          const error = new Error(`Unexpected response status: ${response.status}`);
+
+          trackException(error, {
+            component: 'useKeepAlive',
+            action: 'pingBackend',
+            status: response.status.toString(),
+            statusText: response.statusText,
+            endpoint: ENDPOINTS.BUILDINGS,
+          });
+
+          trackEvent('KeepAlive_Ping', {
+            success: false,
+            status: response.status,
+            statusText: response.statusText,
+            component: 'useKeepAlive',
+          });
+
+          throw error;
         }
+
+        console.log('[KeepAlive] Backend ping successful');
       } catch (error) {
+        const err = error instanceof Error ? error : new Error('Unknown error during keep-alive ping');
         console.error('[KeepAlive] Backend ping failed:', error);
+
+        // Only track network errors (non-HTTP errors) since HTTP errors are tracked above
+        if (!(error instanceof Error && error.message.includes('Unexpected response status'))) {
+          trackException(err, {
+            component: 'useKeepAlive',
+            action: 'pingBackend',
+            errorType: 'network_or_unexpected',
+            endpoint: ENDPOINTS.BUILDINGS,
+          });
+
+          trackEvent('KeepAlive_Ping', {
+            success: false,
+            errorMessage: err.message,
+            component: 'useKeepAlive',
+            errorType: 'network_or_unexpected',
+          });
+        }
       }
     };
 

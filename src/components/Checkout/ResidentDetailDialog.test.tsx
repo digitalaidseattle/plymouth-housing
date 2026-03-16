@@ -3,10 +3,10 @@ import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import ResidentDetailDialog from './ResidentDetailDialog';
 import { UserContext } from '../contexts/UserContext';
-import * as CheckoutAPICalls from '../../services/CheckoutAPICalls';
+import * as CheckoutAPICalls from '../../services/checkoutService';
 
 // Mock the CheckoutAPICalls module
-vi.mock('../../services/CheckoutAPICalls', () => ({
+vi.mock('../../services/checkoutService', () => ({
   getUnitNumbers: vi.fn(),
   getResidents: vi.fn(),
   findResident: vi.fn(),
@@ -44,7 +44,10 @@ describe('ResidentDetailDialog', () => {
   ];
 
   const mockResidents = {
-    value: [{ name: 'John Doe' }, { name: 'Jane Smith' }],
+    value: [
+      { id: 1, name: 'John Doe' },
+      { id: 2, name: 'Jane Smith' },
+    ],
   };
 
   const defaultProps = {
@@ -64,6 +67,7 @@ describe('ResidentDetailDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(CheckoutAPICalls.getLastResidentVisit).mockResolvedValue({ value: [] });
     // Reset cursor
     document.body.style.cursor = 'default';
   });

@@ -11,10 +11,10 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { UserContext } from '../../components/contexts/UserContext';
-import { getRole } from '../../utils/userUtils';
 import { trackEvent, trackException } from '../../utils/appInsights';
+import { verifyPin as verifyPinService } from '../../services/authService';
+import { updateUser } from '../../services/userService';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -46,55 +46,10 @@ const EnterPinPage: React.FC = () => {
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.VERIFY_PIN, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-          VolunteerId: id,
-          EnteredPin: enteredPin,
-          IsValid: null,
-          ErrorMessage: '',
-        }),
-      });
-
-      if (!response.ok) {
-        const errorContext = {
-          status: response.status,
-          statusText: response.statusText,
-          volunteerId: id,
-          timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent,
-          endpoint: ENDPOINTS.VERIFY_PIN,
-        };
-
-        console.error('PIN verification failed - Diagnostics:', errorContext);
-
-        // Check if this is an authentication/authorization error
-        if (response.status === 401 || response.status === 403) {
-          console.error(
-            'Authentication error detected - Azure AD token may have expired',
-          );
-          handleTheSnackies(
-            'Your session has expired. Please log out and log back in.',
-            'warning',
-          );
-          return null;
-        }
-        throw new Error(
-          `Failed to verify PIN (HTTP ${response.status}: ${response.statusText})`,
-        );
-      }
-
-      const data = await response.json();
+      const data = await verifyPinService(user, id, enteredPin);
 
       // Validate response structure
-      if (
-        !data ||
-        !data.value ||
-        !Array.isArray(data.value) ||
-        data.value.length === 0
-      ) {
+      if (!data?.value || !Array.isArray(data.value) || data.value.length === 0) {
         console.error('Invalid response format from PIN verification API:', {
           hasData: !!data,
           hasValue: !!(data && data.value),
@@ -122,6 +77,17 @@ const EnterPinPage: React.FC = () => {
         error instanceof Error
           ? error
           : new Error('Unknown error verifying PIN');
+
+      // Check if this is an authentication/authorization error
+      if ((err as Error & { status?: number }).status === 401 || (err as Error & { status?: number }).status === 403) {
+        console.error('Authentication error detected - Azure AD token may have expired');
+        handleTheSnackies(
+          'Your session has expired. Please log out and log back in.',
+          'warning',
+        );
+        return null;
+      }
+
       console.error('Error verifying PIN:', error);
       trackException(err, {
         component: 'EnterPinPage',
@@ -143,16 +109,7 @@ const EnterPinPage: React.FC = () => {
 
   const updateLastSignedIn = async (id: number) => {
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
-        method: 'PATCH',
-        headers: headers,
-        body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update last signed in.');
-      }
+      await updateUser(user, id, { last_signed_in: new Date().toISOString() });
     } catch (error) {
       const err =
         error instanceof Error

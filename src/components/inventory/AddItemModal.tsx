@@ -14,9 +14,9 @@ import {
 import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
 import { UserContext } from '../contexts/UserContext';
-import { getRole } from '../../utils/userUtils';
+import { processInventoryChange } from '../../services/inventoryService';
+import { assertLoggedIn } from '../../utils/userUtils';
 import { Add, Remove } from '@mui/icons-material';
 import DialogTemplate from '../DialogTemplate.tsx';
 
@@ -155,31 +155,16 @@ const AddItemModal = ({
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          user_id: loggedInUserId,
-          item: [{ id: updateItem.id, quantity: formData.quantity }],
-          new_transaction_id: transactionId,
-        }),
-      });
-      const result = await response.json();
-      if (!result) {
-        throw new Error('Response contained no data');
-      }
-      if (result.error) {
-        if (result.error.message) {
-          throw new Error(result.error.message);
-        } else {
-          throw new Error('An unknown error occurred');
-        }
-      }
+      assertLoggedIn(loggedInUserId);
+      const resultValues = await processInventoryChange(
+        user,
+        loggedInUserId,
+        [{ id: updateItem.id, quantity: formData.quantity }],
+        transactionId,
+      );
+      const resultData = resultValues[0];
 
-      const resultData = result?.value?.[0];
-
-      if (response.ok && resultData && resultData.Status === 'Success') {
+      if (resultData && resultData.Status === 'Success') {
         fetchData();
         setShowResults(true);
       } else if (
@@ -193,7 +178,7 @@ const AddItemModal = ({
           resetInputsHandler();
         }, 2000); // Give user time to see the error message
       } else {
-        throw new Error(resultData ? resultData.message : response.statusText);
+        throw new Error(resultData?.message || 'Unexpected response status');
       }
     } catch (error) {
       console.error('Error updating the database:', error);

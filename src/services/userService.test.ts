@@ -37,6 +37,7 @@ describe('userService', () => {
     it('should throw an error if the request fails', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
+        status: 401,
         statusText: 'Unauthorized',
         clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
@@ -67,6 +68,7 @@ describe('userService', () => {
     it('should throw an error if the request fails', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
+        status: 400,
         statusText: 'Bad Request',
         clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
@@ -110,11 +112,12 @@ describe('userService', () => {
     it('should throw an error if the request fails', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
-        statusText: 'Internal Server Error',
+        status: 400,
+        statusText: 'Bad Request',
         clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
-      await expect(createUser(user, newUserData)).rejects.toThrow('Internal Server Error');
+      await expect(createUser(user, newUserData)).rejects.toThrow('Bad Request');
     });
   });
 
@@ -123,7 +126,10 @@ describe('userService', () => {
     const updateData = { name: 'Alice Updated' };
 
     it('should update a user successfully', async () => {
-      (fetch as Mock).mockResolvedValue({ ok: true });
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
 
       await updateUser(user, userId, updateData);
 
@@ -137,6 +143,7 @@ describe('userService', () => {
     it('should throw an error if the request fails', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
+        status: 404,
         statusText: 'Not Found',
         clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });

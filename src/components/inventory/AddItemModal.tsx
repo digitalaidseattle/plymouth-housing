@@ -90,15 +90,18 @@ const AddItemModal = ({
   });
 
   const handleInputChange = (field: string, value: string | number) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [field]: field === 'quantity' ? Number(value) : value,
-    }));
     if (field === 'type' && typeof value === 'string') {
       const filteredItems = originalData.filter((item) =>
         item.type.toLowerCase().includes(value.toLowerCase()),
       );
       setNameSearch(filteredItems);
+      setUpdateItem(null);
+      setFormData((prev) => ({ ...prev, type: value, name: '' }));
+    } else {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [field]: field === 'quantity' ? Number(value) : value,
+      }));
     }
   };
 

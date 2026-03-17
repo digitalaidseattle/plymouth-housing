@@ -54,7 +54,7 @@ describe('fetchWithRetry', () => {
   });
 
   it('throws when max retries are exhausted', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: 'Service Unavailable' });
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: 'Service Unavailable' });
 
     const config = createFetchConfig();
     const assertion = expect(fetchWithRetry(config)).rejects.toThrow('Failed to fetch data: Service Unavailable');
@@ -95,8 +95,8 @@ describe('fetchWithRetry', () => {
 
   it('retries on failure and succeeds eventually', async () => {
     global.fetch = vi.fn()
-      .mockResolvedValueOnce({ ok: false, statusText: 'Service Unavailable' })
-      .mockResolvedValueOnce({ ok: false, statusText: 'Service Unavailable' })
+      .mockResolvedValueOnce({ ok: false, status: 503, statusText: 'Service Unavailable' })
+      .mockResolvedValueOnce({ ok: false, status: 503, statusText: 'Service Unavailable' })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ data: 'success' }) });
 
     const config = createFetchConfig();

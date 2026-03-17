@@ -1,7 +1,8 @@
-import { API_HEADERS, ENDPOINTS } from '../types/constants';
+import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
 import { getErrorMessage } from '../utils/apiUtils';
+import { fetchWithRetry } from './fetchWithRetry';
 
 export async function getAuthMe(): Promise<{ clientPrincipal: ClientPrincipal | null }> {
   try {
@@ -21,30 +22,28 @@ export async function verifyPin(
   user: ClientPrincipal | null,
   volunteerId: number,
   enteredPin: string,
+  setShowSpinUpDialog?: (show: boolean) => void,
+  setRetryCount?: (count: number) => void,
 ): Promise<{ value: Array<{ IsValid: boolean; ErrorMessage?: string }> }> {
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.VERIFY_PIN, {
+    const result = await fetchWithRetry<Array<{ IsValid: boolean; ErrorMessage?: string }>>({
+      url: ENDPOINTS.VERIFY_PIN,
+      role: getRole(user),
       method: 'POST',
-      headers,
-      body: JSON.stringify({
+      body: {
         VolunteerId: volunteerId,
         EnteredPin: enteredPin,
         IsValid: null,
         ErrorMessage: '',
-      }),
+      },
+      setShowSpinUpDialog,
+      setRetryCount,
     });
 
-    if (!response.ok) {
-      const message = await getErrorMessage(response);
-      const err = new Error(message) as Error & { status: number };
-      err.status = response.status;
-      throw err;
-    }
-
-    return response.json();
+    return result;
   } catch (error) {
     console.error('Error verifying PIN:', error);
+    // Status code is preserved by fetchWithRetry
     throw error;
   }
 }

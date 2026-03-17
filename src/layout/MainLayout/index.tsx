@@ -17,14 +17,10 @@ import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
-import { SETTINGS } from '../../types/constants';
+import { API_HEADERS, ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
 import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
 import { getAuthMe } from '../../services/authService';
-import {
-  getUsersByFilter,
-  updateUser,
-  createUser,
-} from '../../services/userService';
+import { fetchWithRetry } from '../../services/fetchWithRetry';
 
 const requestCache = new Map<string, Promise<AdminUser>>();
 
@@ -34,8 +30,8 @@ const MainLayout: React.FC = () => {
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const [retryCount] = useState(0);
-  const [showSpinUpDialog] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
   const navigate = useNavigate();
 
   // Add inactivity timer
@@ -108,41 +104,79 @@ const MainLayout: React.FC = () => {
     const promise = (async () => {
       try {
         const escapedEmail = adminInfo.email.replace(/'/g, "''");
-        const users = await getUsersByFilter(
-          adminInfo.claims,
-          `email eq '${escapedEmail}'`,
-        );
+        const filterUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`email eq '${escapedEmail}'`)}`;
+
+        const usersResponse = await fetchWithRetry<User[]>({
+          url: filterUrl,
+          role: USER_ROLES.ADMIN,
+          setShowSpinUpDialog,
+          setRetryCount,
+        });
+        const users = usersResponse.value;
 
         // If there's an existing record, update last_signed_in
         if (users && users.length > 0) {
           const userId = users[0].id;
-          await updateUser(adminInfo.claims, userId, {
-            last_signed_in: new Date().toISOString(),
+
+          // PATCH request for update (not using fetchWithRetry as it only supports GET)
+          const headers = { ...API_HEADERS, 'X-MS-API-ROLE': USER_ROLES.ADMIN };
+          const updateResponse = await fetch(`${ENDPOINTS.USERS}/id/${userId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
           });
 
+          if (!updateResponse.ok) {
+            throw new Error(`Failed to update user: ${updateResponse.statusText}`);
+          }
+
           // Re-fetch updated record to ensure it reflects the latest state
-          const updated = await getUsersByFilter(
-            adminInfo.claims,
-            `id eq ${userId}`,
-          );
+          const updatedUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`id eq ${userId}`)}`;
+          const updatedResponse = await fetchWithRetry<User[]>({
+            url: updatedUrl,
+            role: USER_ROLES.ADMIN,
+            setShowSpinUpDialog,
+            setRetryCount,
+          });
+          const updated = updatedResponse.value;
+
           if (!updated || updated.length === 0) {
             throw new Error(`User with id ${userId} not found after update`);
           }
           return updated[0] as AdminUser;
         } else {
           // No record found, create a new admin entry
-          const admin = await createUser(adminInfo.claims, {
-            name: adminInfo.name,
-            email: adminInfo.email,
-            role: 'admin',
-            active: true,
-            created_at: new Date().toISOString(),
-            last_signed_in: new Date().toISOString(),
+          // POST request for create (not using fetchWithRetry as it only supports GET)
+          const headers = { ...API_HEADERS, 'X-MS-API-ROLE': USER_ROLES.ADMIN };
+          const createResponse = await fetch(ENDPOINTS.USERS, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              name: adminInfo.name,
+              email: adminInfo.email,
+              role: 'admin',
+              active: true,
+              created_at: new Date().toISOString(),
+              last_signed_in: new Date().toISOString(),
+            }),
           });
-          return admin as AdminUser;
+
+          if (!createResponse.ok) {
+            throw new Error(`Failed to create user: ${createResponse.statusText}`);
+          }
+
+          const result = await createResponse.json();
+          if (Array.isArray(result.value)) {
+            if (result.value.length === 0) {
+              throw new Error('Create user returned no records');
+            }
+            return result.value[0] as AdminUser;
+          }
+          return result as AdminUser;
         }
       } finally {
         requestCache.delete(cacheKey);
+        setShowSpinUpDialog(false);
       }
     })();
 

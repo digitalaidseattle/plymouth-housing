@@ -1,8 +1,9 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import EnterPinPage from './EnterPinPage';
 import { UserContext } from '../../components/contexts/UserContext';
+import { SETTINGS } from '../../types/constants';
 
 const mockNavigate = vi.fn();
 const mockTrackException = vi.hoisted(() => vi.fn());
@@ -163,7 +164,13 @@ describe('EnterPinPage Component', () => {
 
   test('tracks exception when verifyPin fails', async () => {
     const networkError = new Error('Network error');
-    (global.fetch as any) = vi.fn().mockRejectedValueOnce(networkError);
+    // Mock fetch to reject with a 4xx error (won't retry - faster test)
+    (global.fetch as any) = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: 'Bad Request',
+      clone: () => ({ json: () => Promise.resolve({ error: 'Network error' }), text: () => Promise.resolve('Network error') }),
+    });
 
     render(
       <UserContext.Provider value={createUserContextValue()}>

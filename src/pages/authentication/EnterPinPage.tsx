@@ -11,6 +11,7 @@ import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import SpinUpDialog from './SpinUpDialog';
 import { UserContext } from '../../components/contexts/UserContext';
 import { trackEvent, trackException } from '../../utils/appInsights';
 import { verifyPin as verifyPinService } from '../../services/authService';
@@ -23,6 +24,8 @@ const EnterPinPage: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<
     'success' | 'warning'
   >('warning');
+  const [retryCount, setRetryCount] = useState(0);
+  const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
   const { loggedInUserId, user, activeVolunteers } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -46,7 +49,7 @@ const EnterPinPage: React.FC = () => {
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
-      const data = await verifyPinService(user, id, enteredPin);
+      const data = await verifyPinService(user, id, enteredPin, setShowSpinUpDialog, setRetryCount);
 
       // Validate response structure
       if (!data?.value || !Array.isArray(data.value) || data.value.length === 0) {
@@ -259,6 +262,7 @@ const EnterPinPage: React.FC = () => {
         >
           {snackbarMessage}
         </SnackbarAlert>
+        <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
       </CenteredLayout>
     </MinimalWrapper>
   );

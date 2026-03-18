@@ -1,7 +1,7 @@
-import { API_HEADERS, ENDPOINTS } from '../types/constants';
+import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal, InventoryResult } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
-import { getErrorMessage } from '../utils/apiUtils';
+import { fetchWithRetry } from './fetchWithRetry';
 
 export async function processInventoryChange(
   user: ClientPrincipal | null,
@@ -10,24 +10,16 @@ export async function processInventoryChange(
   transactionId: string,
 ): Promise<InventoryResult[]> {
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, {
+    const result = await fetchWithRetry<InventoryResult[]>({
+      url: ENDPOINTS.PROCESS_INVENTORY_CHANGE,
+      role: getRole(user),
       method: 'POST',
-      headers,
-      body: JSON.stringify({
+      body: {
         user_id: userId,
         item: items,
         new_transaction_id: transactionId,
-      }),
+      },
     });
-    if (!response.ok) {
-      const errorMessage = await getErrorMessage(response);
-      throw new Error(errorMessage);
-    }
-    const result = await response.json();
-    if (!result) throw new Error('Response contained no data');
-    if (result.error)
-      throw new Error(result.error.message || 'An unknown error occurred');
     return result.value ?? [];
   } catch (error) {
     console.error('Error processing inventory change:', error);
@@ -44,24 +36,19 @@ export async function processInventoryResetQuantity(
   transactionId: string,
 ): Promise<InventoryResult[]> {
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_RESET_QUANTITY, {
+    const result = await fetchWithRetry<InventoryResult[]>({
+      url: ENDPOINTS.PROCESS_INVENTORY_RESET_QUANTITY,
+      role: getRole(user),
       method: 'POST',
-      headers,
-      body: JSON.stringify({
+      body: {
         user_id: userId,
         item_id: itemId,
         new_quantity: newQuantity,
         additional_notes: additionalNotes,
         new_transaction_id: transactionId,
-      }),
+      },
     });
-    if (!response.ok) {
-      const errorMessage = await getErrorMessage(response);
-      throw new Error(errorMessage);
-    }
-    const data = await response.json();
-    return data?.value ?? [];
+    return result.value ?? [];
   } catch (error) {
     console.error('Error processing inventory reset quantity:', error);
     throw error;

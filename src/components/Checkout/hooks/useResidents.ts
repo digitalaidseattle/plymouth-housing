@@ -4,7 +4,7 @@ import { getResidents, getLastResidentVisit } from '../../../services/checkoutSe
 
 export const useResidents = (
     user: ClientPrincipal | null,
-    selectedUnit: Unit
+    selectedUnit: Unit,
 ) => {
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [nameInput, setNameInput] = useState<string>('');
@@ -20,7 +20,8 @@ export const useResidents = (
                 residents.map(async (resident) => {
                     try {
                         const response = await getLastResidentVisit(user, resident.id);
-                        const lastVisitDate = response.value?.[0]?.transaction_date || null;
+                        const visits = response.value as Array<{ transaction_date: string }>;
+                        const lastVisitDate = visits?.[0]?.transaction_date || null;
                         return {
                             name: resident.name,
                             id: resident.id,
@@ -55,8 +56,9 @@ export const useResidents = (
                 const response = await getResidents(user, selectedUnit.id);
                 if (cancelled) return;
 
-                if (response.value.length > 0) {
-                    const residentsWithDates = await fetchAllLastVisits(response.value);
+                const residents = response.value as { name: string; id: number }[];
+                if (residents.length > 0) {
+                    const residentsWithDates = await fetchAllLastVisits(residents);
                     if (cancelled) return;
 
                     setExistingResidents(residentsWithDates);

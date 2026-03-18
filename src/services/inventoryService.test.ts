@@ -26,6 +26,7 @@ describe('inventoryService', () => {
       const mockResult = { value: [{ id: 10, new_quantity: 7 }] };
       (fetch as Mock).mockResolvedValue({
         ok: true,
+        status: 200,
         json: () => Promise.resolve(mockResult),
       });
 
@@ -46,45 +47,13 @@ describe('inventoryService', () => {
     it('should return empty array when result.value is absent', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: true,
+        status: 200,
         json: () => Promise.resolve({ someOtherKey: 'data' }),
       });
 
       const result = await processInventoryChange(user, userId, items, transactionId);
 
       expect(result).toEqual([]);
-    });
-
-    it('should throw when result is null', async () => {
-      (fetch as Mock).mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(null),
-      });
-
-      await expect(processInventoryChange(user, userId, items, transactionId)).rejects.toThrow(
-        'Response contained no data',
-      );
-    });
-
-    it('should throw when result contains an error field', async () => {
-      (fetch as Mock).mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ error: { message: 'Insufficient stock' } }),
-      });
-
-      await expect(processInventoryChange(user, userId, items, transactionId)).rejects.toThrow(
-        'Insufficient stock',
-      );
-    });
-
-    it('should throw generic error when error field has no message', async () => {
-      (fetch as Mock).mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ error: {} }),
-      });
-
-      await expect(processInventoryChange(user, userId, items, transactionId)).rejects.toThrow(
-        'An unknown error occurred',
-      );
     });
 
     it('should throw an error if the HTTP request fails', async () => {
@@ -105,6 +74,7 @@ describe('inventoryService', () => {
       const mockResult = { value: [{ id: 10, quantity: 50 }] };
       (fetch as Mock).mockResolvedValue({
         ok: true,
+        status: 200,
         json: () => Promise.resolve(mockResult),
       });
 
@@ -129,7 +99,8 @@ describe('inventoryService', () => {
     it('should return empty array when response has no value', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(null),
+        status: 200,
+        json: () => Promise.resolve({ value: null }),
       });
 
       const result = await processInventoryResetQuantity(

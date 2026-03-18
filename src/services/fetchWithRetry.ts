@@ -9,12 +9,22 @@ interface FetchConfig {
   role: string;
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: object;
-  setShowSpinUpDialog?: (show: boolean) => void;
-  setRetryCount?: (count: number) => void;
 }
 
+// Global callbacks that can be set by SpinUpContext
+let globalSetShowSpinUpDialog: ((show: boolean) => void) | null = null;
+let globalSetRetryCount: ((count: number) => void) | null = null;
+
+export const setSpinUpCallbacks = (
+  setShowDialog: (show: boolean) => void,
+  setRetryCount: (count: number) => void
+) => {
+  globalSetShowSpinUpDialog = setShowDialog;
+  globalSetRetryCount = setRetryCount;
+};
+
 const fetchAttempts = async <T>(
-  { url, role, method = 'GET', body, setShowSpinUpDialog, setRetryCount }: FetchConfig,
+  { url, role, method = 'GET', body }: FetchConfig,
   attempt: number = 1
 ): Promise<FetchResponse<T>> => {
   try {
@@ -42,10 +52,10 @@ const fetchAttempts = async <T>(
       ((error as Error & { status: number }).status >= 500); // Server error
 
     if (shouldRetry && attempt < SETTINGS.database_retry_attempts) {
-      setShowSpinUpDialog?.(true);
-      setRetryCount?.(attempt);
+      globalSetShowSpinUpDialog?.(true);
+      globalSetRetryCount?.(attempt);
       await new Promise(resolve => setTimeout(resolve, SETTINGS.database_retry_delay));
-      return fetchAttempts<T>({ url, role, method, body, setShowSpinUpDialog, setRetryCount }, attempt + 1);
+      return fetchAttempts<T>({ url, role, method, body }, attempt + 1);
     }
     throw error;
   }
@@ -53,13 +63,13 @@ const fetchAttempts = async <T>(
 
 export const fetchWithRetry = async <T>(config: FetchConfig): Promise<FetchResponse<T>> => {
   const slowTimer = setTimeout(() => {
-    config.setShowSpinUpDialog?.(true);
-    config.setRetryCount?.(0);
+    globalSetShowSpinUpDialog?.(true);
+    globalSetRetryCount?.(0);
   }, SETTINGS.slow_request_threshold);
 
   try {
     const result = await fetchAttempts<T>(config);
-    config.setShowSpinUpDialog?.(false);
+    globalSetShowSpinUpDialog?.(false);
     return result;
   } finally {
     clearTimeout(slowTimer);

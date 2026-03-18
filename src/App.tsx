@@ -9,6 +9,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './pages/routes';
 import ThemeCustomization from './themes/themeCustomization';
 import { UserContext } from './components/contexts/UserContext';
+import { SpinUpProvider } from './components/contexts/SpinUpContext';
 import { ClientPrincipal, User } from './types/interfaces';
 import usePersistentState from './hooks/usePersistentState';
 import useAuthorization from './hooks/useAuthorization';
@@ -46,9 +47,11 @@ const App: React.FC = () => {
 
   return (
     <UserContext.Provider value={contextValue}>
-      <ThemeCustomization>
-        <RouterProvider router={router} />
-      </ThemeCustomization>
+      <SpinUpProvider>
+        <ThemeCustomization>
+          <RouterProvider router={router} />
+        </ThemeCustomization>
+      </SpinUpProvider>
     </UserContext.Provider>
   );
 };

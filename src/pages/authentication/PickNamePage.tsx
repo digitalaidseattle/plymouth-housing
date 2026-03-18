@@ -12,7 +12,6 @@ import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
-import SpinUpDialog from './SpinUpDialog';
 import { fetchWithRetry } from '../../services/fetchWithRetry';
 import { ENDPOINTS, USER_ROLES } from '../../types/constants';
 import { trackException } from '../../utils/appInsights';
@@ -25,8 +24,6 @@ const PickYourNamePage: React.FC = () => {
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
-  const [retryCount, setRetryCount] = useState(0);
-  const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
 
   const navigate = useNavigate();
 
@@ -38,10 +35,8 @@ const PickYourNamePage: React.FC = () => {
         setIsLoading(true);
         const url = `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`
         const data = await fetchWithRetry<User[]>({
-          url, 
+          url,
           role: USER_ROLES.VOLUNTEER,
-          setShowSpinUpDialog,
-          setRetryCount
         });
         setActiveVolunteers(data.value);
       } catch (error) {
@@ -61,7 +56,6 @@ const PickYourNamePage: React.FC = () => {
         });
       } finally {
         setIsLoading(false);
-        setShowSpinUpDialog(false);
       }
     };
     fetchVolunteers();
@@ -176,7 +170,6 @@ const PickYourNamePage: React.FC = () => {
             {snackbarState.message}
           </SnackbarAlert>
         </CenteredLayout>
-        <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
       </MinimalWrapper>
   );
 };

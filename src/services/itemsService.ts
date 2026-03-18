@@ -10,7 +10,7 @@ import { getRole } from '../utils/userUtils';
 import { fetchWithRetry } from './fetchWithRetry';
 
 export async function getCategorizedItems(
-  user: ClientPrincipal | null,
+  user: ClientPrincipal | null
 ): Promise<CategoryProps[]> {
   const cached = cacheGet<CategoryProps[]>('categorizedItems');
   if (cached) return cached;

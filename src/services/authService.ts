@@ -21,9 +21,7 @@ export async function getAuthMe(): Promise<{ clientPrincipal: ClientPrincipal | 
 export async function verifyPin(
   user: ClientPrincipal | null,
   volunteerId: number,
-  enteredPin: string,
-  setShowSpinUpDialog?: (show: boolean) => void,
-  setRetryCount?: (count: number) => void,
+  enteredPin: string
 ): Promise<{ value: Array<{ IsValid: boolean; ErrorMessage?: string }> }> {
   try {
     const result = await fetchWithRetry<Array<{ IsValid: boolean; ErrorMessage?: string }>>({
@@ -36,8 +34,6 @@ export async function verifyPin(
         IsValid: null,
         ErrorMessage: '',
       },
-      setShowSpinUpDialog,
-      setRetryCount,
     });
 
     return result;

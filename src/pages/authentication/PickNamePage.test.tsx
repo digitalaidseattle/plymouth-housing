@@ -153,30 +153,6 @@ describe('PickNamePage Component', () => {
     });
   });
 
-  test('renders SpinUpDialog with correct props', async () => {
-    // Simulate a pending fetch to trigger SpinUpDialog.
-    let resolvePromise: any;
-    const pendingPromise = new Promise((resolve) => { resolvePromise = resolve; });
-    mockFetchWithRetry.mockReturnValue(pendingPromise);
-
-    render(
-      <UserContext.Provider value={createUserContextValue()}>
-        <PickNamePage />
-      </UserContext.Provider>
-    );
-
-    // SpinUpDialog should be rendered.
-    const spinUpDialog = screen.getByTestId('spin-up-dialog');
-    expect(spinUpDialog).toBeInTheDocument();
-
-    // Now, resolve the fetch promise.
-    resolvePromise({ value: [] });
-    await waitFor(() => {
-      // After resolution, SpinUpDialog should display as "Dialog Closed"
-      expect(screen.getByTestId('spin-up-dialog')).toHaveTextContent(/Dialog Closed/);
-    });
-  });
-
   test('tracks exception when fetchVolunteers fails', async () => {
     const networkError = new Error('Network error');
     mockFetchWithRetry.mockRejectedValueOnce(networkError);

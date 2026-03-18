@@ -1,19 +1,25 @@
-import { apiRequest } from './apiRequest';
+import { apiRequest, setSpinUpCallbacks } from './apiRequest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SETTINGS } from '../types/constants';
 
-const createFetchConfig = (overrides = {}) => ({
+const createApiConfig = (overrides = {}) => ({
   url: 'https://example.com',
   role: 'volunteer',
-  setShowSpinUpDialog: vi.fn(),
-  setRetryCount: vi.fn(),
   ...overrides,
 });
 
 describe('apiRequest', () => {
+  let mockSetShowSpinUpDialog: ReturnType<typeof vi.fn>;
+  let mockSetRetryCount: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     vi.resetAllMocks();
     vi.useFakeTimers();
+
+    // Set up global callbacks
+    mockSetShowSpinUpDialog = vi.fn();
+    mockSetRetryCount = vi.fn();
+    setSpinUpCallbacks(mockSetShowSpinUpDialog, mockSetRetryCount);
   });
 
   afterEach(() => {
@@ -25,26 +31,26 @@ describe('apiRequest', () => {
     const mockResponse = {
       ok: true,
       status: 200,
-      json: async () => ({ data: 'success' }),
+      json: async () => ({ value: { data: 'success' } }),
     };
     global.fetch = vi.fn().mockResolvedValueOnce(mockResponse);
 
-    const config = createFetchConfig();
+    const config = createApiConfig();
     const response = await apiRequest(config);
-    expect(response).toEqual({ data: 'success' });
+    expect(response).toEqual({ value: { data: 'success' } });
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('hides the spin-up dialog and passes role header on success', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({}),
+      json: async () => ({ value: {} }),
     });
-    const config = createFetchConfig({ role: 'admin' });
+    const config = createApiConfig({ role: 'admin' });
 
     await apiRequest(config);
 
-    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(false);
+    expect(mockSetShowSpinUpDialog).toHaveBeenCalledWith(false);
     expect(global.fetch).toHaveBeenCalledWith(
       'https://example.com',
       expect.objectContaining({
@@ -56,7 +62,7 @@ describe('apiRequest', () => {
   it('throws when max retries are exhausted', async () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: 'Service Unavailable' });
 
-    const config = createFetchConfig();
+    const config = createApiConfig();
     const assertion = expect(apiRequest(config)).rejects.toThrow('Failed to fetch data: Service Unavailable');
 
     for (let i = 1; i < SETTINGS.database_retry_attempts; i++) {
@@ -71,36 +77,36 @@ describe('apiRequest', () => {
     const slowResponse = new Promise<Response>((resolve) => { resolveFetch = resolve; });
     global.fetch = vi.fn().mockReturnValueOnce(slowResponse);
 
-    const config = createFetchConfig();
+    const config = createApiConfig();
     const promise = apiRequest(config);
 
     await vi.advanceTimersByTimeAsync(SETTINGS.slow_request_threshold);
-    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(true);
-    expect(config.setRetryCount).toHaveBeenCalledWith(0);
+    expect(mockSetShowSpinUpDialog).toHaveBeenCalledWith(true);
+    expect(mockSetRetryCount).toHaveBeenCalledWith(0);
 
-    resolveFetch({ ok: true, json: async () => ({ data: 'done' }) } as Response);
+    resolveFetch({ ok: true, json: async () => ({ value: { data: 'done' } }) } as Response);
     await promise;
-    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(false);
+    expect(mockSetShowSpinUpDialog).toHaveBeenCalledWith(false);
   });
 
   it('does not show loading dialog when request resolves before slow_request_threshold', async () => {
-    global.fetch = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+    global.fetch = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ value: {} }) });
 
-    const config = createFetchConfig();
+    const config = createApiConfig();
     await apiRequest(config);
 
-    expect(config.setShowSpinUpDialog).not.toHaveBeenCalledWith(true);
-    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(false);
+    expect(mockSetShowSpinUpDialog).not.toHaveBeenCalledWith(true);
+    expect(mockSetShowSpinUpDialog).toHaveBeenCalledWith(false);
   });
 
   it('retries on failure and succeeds eventually', async () => {
     global.fetch = vi.fn()
       .mockResolvedValueOnce({ ok: false, status: 503, statusText: 'Service Unavailable' })
       .mockResolvedValueOnce({ ok: false, status: 503, statusText: 'Service Unavailable' })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ data: 'success' }) });
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ value: { data: 'success' } }) });
 
-    const config = createFetchConfig();
-    const promise = apiRequest(config); // starts at attempt 1 by default
+    const config = createApiConfig();
+    const promise = apiRequest(config);
 
     // advance past each retry's setTimeout to unblock the next attempt
     await vi.advanceTimersByTimeAsync(SETTINGS.database_retry_delay);
@@ -108,10 +114,82 @@ describe('apiRequest', () => {
 
     const response = await promise;
 
-    expect(response).toEqual({ data: 'success' });
+    expect(response).toEqual({ value: { data: 'success' } });
     expect(global.fetch).toHaveBeenCalledTimes(3);
-    expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(true);
-    expect(config.setRetryCount).toHaveBeenCalledWith(1);
-    expect(config.setRetryCount).toHaveBeenCalledWith(2);
+    expect(mockSetShowSpinUpDialog).toHaveBeenCalledWith(true);
+    expect(mockSetRetryCount).toHaveBeenCalledWith(1);
+    expect(mockSetRetryCount).toHaveBeenCalledWith(2);
+  });
+
+  it('does not retry on 4xx client errors', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 400, statusText: 'Bad Request' });
+
+    const config = createApiConfig();
+    await expect(apiRequest(config)).rejects.toThrow('Failed to fetch data: Bad Request');
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(mockSetShowSpinUpDialog).not.toHaveBeenCalledWith(true);
+  });
+
+  it('supports POST requests with body', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ value: { id: 123 } }),
+    });
+
+    const config = createApiConfig({
+      method: 'POST' as const,
+      body: { name: 'Test', value: 42 },
+    });
+    const response = await apiRequest(config);
+
+    expect(response).toEqual({ value: { id: 123 } });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://example.com',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ name: 'Test', value: 42 }),
+      }),
+    );
+  });
+
+  it('supports PATCH requests', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ value: { updated: true } }),
+    });
+
+    const config = createApiConfig({
+      method: 'PATCH' as const,
+      body: { status: 'active' },
+    });
+    await apiRequest(config);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://example.com',
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'active' }),
+      }),
+    );
+  });
+
+  it('supports DELETE requests', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ value: { deleted: true } }),
+    });
+
+    const config = createApiConfig({
+      method: 'DELETE' as const,
+    });
+    await apiRequest(config);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://example.com',
+      expect.objectContaining({
+        method: 'DELETE',
+      }),
+    );
   });
 });

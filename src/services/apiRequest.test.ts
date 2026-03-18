@@ -9,8 +9,8 @@ const createApiConfig = (overrides = {}) => ({
 });
 
 describe('apiRequest', () => {
-  let mockSetShowSpinUpDialog: ReturnType<typeof vi.fn>;
-  let mockSetRetryCount: ReturnType<typeof vi.fn>;
+  let mockSetShowSpinUpDialog: (show: boolean) => void;
+  let mockSetRetryCount: (count: number) => void;
 
   beforeEach(() => {
     vi.resetAllMocks();

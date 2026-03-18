@@ -5,7 +5,7 @@
  *
  */
 import { useContext } from 'react';
-import { SpinUpContext } from './spinUpContextTypes';
+import { SpinUpContext } from './spinUpContext';
 
 export const useSpinUp = () => {
   return useContext(SpinUpContext);

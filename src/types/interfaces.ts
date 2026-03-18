@@ -201,3 +201,12 @@ export type TransactionsByUser<T> = {
   user_id: number;
   transactions: T[];
 };
+
+// ─── Context Types ────────────────────────────────────────────────────────────
+
+export interface SpinUpContextType {
+  showDialog: boolean;
+  retryCount: number;
+  setShowDialog: (show: boolean) => void;
+  setRetryCount: (count: number) => void;
+}

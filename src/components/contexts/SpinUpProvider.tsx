@@ -7,7 +7,7 @@
 import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
 import { setSpinUpCallbacks } from '../../services/apiRequest';
-import { SpinUpContext } from './spinUpContextTypes';
+import { SpinUpContext } from './spinUpContext';
 
 interface SpinUpProviderProps {
   children: ReactNode;

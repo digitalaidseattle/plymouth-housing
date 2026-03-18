@@ -5,13 +5,25 @@ from selenium.webdriver.common.by import By
 
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import LoginPageLocators
-
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    StaleElementReferenceException
+)
 
 class LoginPage(BasePage):
     def __init__(self, driver):
         super().__init__(driver)
         self.locators = LoginPageLocators
-        self.wait = WebDriverWait(driver, 60)
+
+        self.wait = WebDriverWait(
+            driver,
+            timeout=60,
+            poll_frequency=1,  # her 1 sn kontrol
+            ignored_exceptions=[
+                NoSuchElementException,
+                StaleElementReferenceException
+            ]
+        )
 
     # ---------------------------------------------------
     # Basic Microsoft Login
@@ -60,19 +72,23 @@ class LoginPage(BasePage):
 
     def wait_for_database_ready(self):
         """
-        If warmup popup appears, wait until it disappears.
+        Wait until database warmup popup is gone (if it appears).
         """
+
         try:
-            WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(self.locators.DATABASE_POPUP_TEXT)
+            print("Checking for database warmup popup...")
+
+            # Popup ya hiç yok ya da kaybolmuş olmalı
+            self.wait.until(
+                lambda driver: len(driver.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
             )
 
-            WebDriverWait(self.driver, 180).until_not(
-                EC.visibility_of_element_located(self.locators.DATABASE_POPUP_TEXT)
-            )
+            print("Database is ready ✅")
 
-        except TimeoutException:
-            pass
+        except Exception:
+            print("Database warmup wait failed ❌")
+            self.driver.save_screenshot("db_wait_fail.png")
+            raise
 
     def wait_for_volunteer_ready(self):
         """

@@ -122,7 +122,7 @@ export async function getResidents(
   unitId: number,
 ) {
   try {
-    const result = await fetchWithRetry({
+    const result = await fetchWithRetry<Array<{ id: number; name: string }>>({
       url: `${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`,
       role: getRole(user),
     });
@@ -143,7 +143,7 @@ export async function findResident(
     const filter = encodeURIComponent(
       `name eq '${safeName}' and unit_id eq ${unitId}`,
     );
-    const result = await fetchWithRetry({
+    const result = await fetchWithRetry<Array<{ id: number; name: string }>>({
       url: `${ENDPOINTS.RESIDENTS}?$filter=${filter}`,
       role: getRole(user),
     });
@@ -160,7 +160,7 @@ export async function addResident(
   unitId: number,
 ) {
   try {
-    const result = await fetchWithRetry({
+    const result = await fetchWithRetry<Array<{ id: number; name: string }>>({
       url: ENDPOINTS.RESIDENTS,
       role: getRole(user),
       method: 'POST',
@@ -181,7 +181,13 @@ export async function checkPastCheckout(
   residentId: number,
 ) {
   try {
-    const result = await fetchWithRetry({
+    const result = await fetchWithRetry<Array<{
+      id: number;
+      item_id: number;
+      quantity: number;
+      transaction_id: string;
+      additional_notes: string;
+    }>>({
       url: ENDPOINTS.CHECK_PAST_CHECKOUT,
       role: getRole(user),
       method: 'POST',

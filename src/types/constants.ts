@@ -91,3 +91,7 @@ export const SPECIAL_ITEMS = {
   APPLIANCE_MISC: 166,
   RUG: 97,
 } as const;
+
+export const SPECIAL_UNITS = {
+  WELCOME: 'welcome',
+} as const;

@@ -1,4 +1,4 @@
-import { fetchWithRetry } from './fetchWithRetry';
+import { apiRequest } from './apiRequest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SETTINGS } from '../types/constants';
 
@@ -10,7 +10,7 @@ const createFetchConfig = (overrides = {}) => ({
   ...overrides,
 });
 
-describe('fetchWithRetry', () => {
+describe('apiRequest', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.useFakeTimers();
@@ -30,7 +30,7 @@ describe('fetchWithRetry', () => {
     global.fetch = vi.fn().mockResolvedValueOnce(mockResponse);
 
     const config = createFetchConfig();
-    const response = await fetchWithRetry(config);
+    const response = await apiRequest(config);
     expect(response).toEqual({ data: 'success' });
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
@@ -42,7 +42,7 @@ describe('fetchWithRetry', () => {
     });
     const config = createFetchConfig({ role: 'admin' });
 
-    await fetchWithRetry(config);
+    await apiRequest(config);
 
     expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(false);
     expect(global.fetch).toHaveBeenCalledWith(
@@ -57,7 +57,7 @@ describe('fetchWithRetry', () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: 'Service Unavailable' });
 
     const config = createFetchConfig();
-    const assertion = expect(fetchWithRetry(config)).rejects.toThrow('Failed to fetch data: Service Unavailable');
+    const assertion = expect(apiRequest(config)).rejects.toThrow('Failed to fetch data: Service Unavailable');
 
     for (let i = 1; i < SETTINGS.database_retry_attempts; i++) {
       await vi.advanceTimersByTimeAsync(SETTINGS.database_retry_delay);
@@ -72,7 +72,7 @@ describe('fetchWithRetry', () => {
     global.fetch = vi.fn().mockReturnValueOnce(slowResponse);
 
     const config = createFetchConfig();
-    const promise = fetchWithRetry(config);
+    const promise = apiRequest(config);
 
     await vi.advanceTimersByTimeAsync(SETTINGS.slow_request_threshold);
     expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(true);
@@ -87,7 +87,7 @@ describe('fetchWithRetry', () => {
     global.fetch = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
     const config = createFetchConfig();
-    await fetchWithRetry(config);
+    await apiRequest(config);
 
     expect(config.setShowSpinUpDialog).not.toHaveBeenCalledWith(true);
     expect(config.setShowSpinUpDialog).toHaveBeenCalledWith(false);
@@ -100,7 +100,7 @@ describe('fetchWithRetry', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ data: 'success' }) });
 
     const config = createFetchConfig();
-    const promise = fetchWithRetry(config); // starts at attempt 1 by default
+    const promise = apiRequest(config); // starts at attempt 1 by default
 
     // advance past each retry's setTimeout to unblock the next attempt
     await vi.advanceTimersByTimeAsync(SETTINGS.database_retry_delay);

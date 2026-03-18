@@ -9,7 +9,7 @@ import {
   mapCheckoutRows,
   mapInventoryRows,
 } from '../components/History/transactionProcessors';
-import { fetchWithRetry } from './fetchWithRetry';
+import { apiRequest } from './apiRequest';
 
 type CheckoutRow = {
   user_id: number;
@@ -40,7 +40,7 @@ export async function getCheckoutHistory(
   endDate: string,
 ): Promise<CheckoutTransaction[]> {
   try {
-    const result = await fetchWithRetry<CheckoutRow[]>({
+    const result = await apiRequest<CheckoutRow[]>({
       url: ENDPOINTS.GET_CHECKOUT_HISTORY,
       role: getRole(user),
       method: 'POST',
@@ -62,7 +62,7 @@ export async function getInventoryHistory(
   endDate: string,
 ): Promise<InventoryTransaction[]> {
   try {
-    const result = await fetchWithRetry<InventoryRow[]>({
+    const result = await apiRequest<InventoryRow[]>({
       url: ENDPOINTS.GET_INVENTORY_HISTORY,
       role: getRole(user),
       method: 'POST',

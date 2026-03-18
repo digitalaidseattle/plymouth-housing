@@ -8,7 +8,7 @@ import {
 } from '../types/interfaces';
 import { ENDPOINTS, SETTINGS } from '../types/constants';
 import { cacheGet, cacheSet } from '../utils/sessionCache';
-import { fetchWithRetry } from './fetchWithRetry';
+import { apiRequest } from './apiRequest';
 
 export async function processWelcomeBasket(
   newTransactionID: string,
@@ -18,7 +18,7 @@ export async function processWelcomeBasket(
   residentInfo: ResidentInfo
 ) {
   try {
-    const result = await fetchWithRetry({
+    const result = await apiRequest({
       url: ENDPOINTS.CHECKOUT_WELCOME_BASKET,
       role: getRole(user),
       method: 'POST',
@@ -46,7 +46,7 @@ export async function processGeneralItems(
   residentInfo: ResidentInfo
 ) {
   try {
-    const result = await fetchWithRetry({
+    const result = await apiRequest({
       url: ENDPOINTS.CHECKOUT_GENERAL_ITEMS,
       role: getRole(user),
       method: 'POST',
@@ -78,7 +78,7 @@ export async function getBuildings(
       return cachedBuildings;
     }
 
-    const result = await fetchWithRetry<Building[]>({
+    const result = await apiRequest<Building[]>({
       url: ENDPOINTS.BUILDINGS,
       role: getRole(user),
     });
@@ -104,7 +104,7 @@ export async function getUnitNumbers(
       return cachedUnits;
     }
 
-    const result = await fetchWithRetry<Unit[]>({
+    const result = await apiRequest<Unit[]>({
       url: `${ENDPOINTS.UNITS}?$filter=building_id eq ${buildingId}&$first=${SETTINGS.api_fetch_limit_units}`,
       role: getRole(user),
     });
@@ -122,7 +122,7 @@ export async function getResidents(
   unitId: number,
 ) {
   try {
-    const result = await fetchWithRetry<Array<{ id: number; name: string }>>({
+    const result = await apiRequest<Array<{ id: number; name: string }>>({
       url: `${ENDPOINTS.RESIDENTS}?$filter=unit_id eq ${unitId}`,
       role: getRole(user),
     });
@@ -143,7 +143,7 @@ export async function findResident(
     const filter = encodeURIComponent(
       `name eq '${safeName}' and unit_id eq ${unitId}`,
     );
-    const result = await fetchWithRetry<Array<{ id: number; name: string }>>({
+    const result = await apiRequest<Array<{ id: number; name: string }>>({
       url: `${ENDPOINTS.RESIDENTS}?$filter=${filter}`,
       role: getRole(user),
     });
@@ -160,7 +160,7 @@ export async function addResident(
   unitId: number,
 ) {
   try {
-    const result = await fetchWithRetry<Array<{ id: number; name: string }>>({
+    const result = await apiRequest<Array<{ id: number; name: string }>>({
       url: ENDPOINTS.RESIDENTS,
       role: getRole(user),
       method: 'POST',
@@ -181,7 +181,7 @@ export async function checkPastCheckout(
   residentId: number,
 ) {
   try {
-    const result = await fetchWithRetry<Array<{
+    const result = await apiRequest<Array<{
       id: number;
       item_id: number;
       quantity: number;
@@ -207,7 +207,7 @@ export async function getLastResidentVisit(
   residentId: number,
 ) {
   try {
-    const result = await fetchWithRetry({
+    const result = await apiRequest({
       url: ENDPOINTS.GET_LAST_RESIDENT_VISIT,
       role: getRole(user),
       method: 'POST',

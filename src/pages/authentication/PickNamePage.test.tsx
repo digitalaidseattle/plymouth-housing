@@ -12,8 +12,8 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate
 }));
 
-vi.mock('../../services/fetchWithRetry', () => ({
-  fetchWithRetry: () => mockFetchWithRetry()
+vi.mock('../../services/apiRequest', () => ({
+  apiRequest: () => mockFetchWithRetry()
 }));
 
 vi.mock('../../utils/appInsights', () => ({

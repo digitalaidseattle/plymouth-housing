@@ -6,7 +6,7 @@
  */
 import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
-import { setSpinUpCallbacks } from '../../services/fetchWithRetry';
+import { setSpinUpCallbacks } from '../../services/apiRequest';
 import { SpinUpContext } from './spinUpContextTypes';
 
 interface SpinUpProviderProps {
@@ -17,7 +17,7 @@ export const SpinUpProvider: React.FC<SpinUpProviderProps> = ({ children }) => {
   const [showDialog, setShowDialog] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Register callbacks with fetchWithRetry on mount
+  // Register callbacks with apiRequest on mount
   useEffect(() => {
     setSpinUpCallbacks(setShowDialog, setRetryCount);
   }, []);

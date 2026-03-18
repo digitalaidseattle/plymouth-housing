@@ -1,10 +1,10 @@
 import { API_HEADERS, SETTINGS } from '../types/constants';
 
-interface FetchResponse<T> {
+interface ApiResponse<T> {
   value: T;
 }
 
-interface FetchConfig {
+interface ApiConfig {
   url: string;
   role: string;
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -23,10 +23,10 @@ export const setSpinUpCallbacks = (
   globalSetRetryCount = setRetryCount;
 };
 
-const fetchAttempts = async <T>(
-  { url, role, method = 'GET', body }: FetchConfig,
+const apiAttempt = async <T>(
+  { url, role, method = 'GET', body }: ApiConfig,
   attempt: number = 1
-): Promise<FetchResponse<T>> => {
+): Promise<ApiResponse<T>> => {
   try {
     const headers = { ...API_HEADERS, 'X-MS-API-ROLE': role };
     const options: RequestInit = { method, headers };
@@ -55,20 +55,20 @@ const fetchAttempts = async <T>(
       globalSetShowSpinUpDialog?.(true);
       globalSetRetryCount?.(attempt);
       await new Promise(resolve => setTimeout(resolve, SETTINGS.database_retry_delay));
-      return fetchAttempts<T>({ url, role, method, body }, attempt + 1);
+      return apiAttempt<T>({ url, role, method, body }, attempt + 1);
     }
     throw error;
   }
 };
 
-export const fetchWithRetry = async <T>(config: FetchConfig): Promise<FetchResponse<T>> => {
+export const apiRequest = async <T>(config: ApiConfig): Promise<ApiResponse<T>> => {
   const slowTimer = setTimeout(() => {
     globalSetShowSpinUpDialog?.(true);
     globalSetRetryCount?.(0);
   }, SETTINGS.slow_request_threshold);
 
   try {
-    const result = await fetchAttempts<T>(config);
+    const result = await apiAttempt<T>(config);
     globalSetShowSpinUpDialog?.(false);
     return result;
   } finally {

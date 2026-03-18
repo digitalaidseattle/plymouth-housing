@@ -1,7 +1,7 @@
 import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal, InventoryResult } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
-import { fetchWithRetry } from './fetchWithRetry';
+import { apiRequest } from './apiRequest';
 
 export async function processInventoryChange(
   user: ClientPrincipal | null,
@@ -10,7 +10,7 @@ export async function processInventoryChange(
   transactionId: string,
 ): Promise<InventoryResult[]> {
   try {
-    const result = await fetchWithRetry<InventoryResult[]>({
+    const result = await apiRequest<InventoryResult[]>({
       url: ENDPOINTS.PROCESS_INVENTORY_CHANGE,
       role: getRole(user),
       method: 'POST',
@@ -36,7 +36,7 @@ export async function processInventoryResetQuantity(
   transactionId: string,
 ): Promise<InventoryResult[]> {
   try {
-    const result = await fetchWithRetry<InventoryResult[]>({
+    const result = await apiRequest<InventoryResult[]>({
       url: ENDPOINTS.PROCESS_INVENTORY_RESET_QUANTITY,
       role: getRole(user),
       method: 'POST',

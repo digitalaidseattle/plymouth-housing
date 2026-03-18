@@ -2,7 +2,7 @@ import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
 import { getErrorMessage } from '../utils/apiUtils';
-import { fetchWithRetry } from './fetchWithRetry';
+import { apiRequest } from './apiRequest';
 
 export async function getAuthMe(): Promise<{ clientPrincipal: ClientPrincipal | null }> {
   try {
@@ -24,7 +24,7 @@ export async function verifyPin(
   enteredPin: string
 ): Promise<{ value: Array<{ IsValid: boolean; ErrorMessage?: string }> }> {
   try {
-    const result = await fetchWithRetry<Array<{ IsValid: boolean; ErrorMessage?: string }>>({
+    const result = await apiRequest<Array<{ IsValid: boolean; ErrorMessage?: string }>>({
       url: ENDPOINTS.VERIFY_PIN,
       role: getRole(user),
       method: 'POST',
@@ -39,7 +39,7 @@ export async function verifyPin(
     return result;
   } catch (error) {
     console.error('Error verifying PIN:', error);
-    // Status code is preserved by fetchWithRetry
+    // Status code is preserved by apiRequest
     throw error;
   }
 }

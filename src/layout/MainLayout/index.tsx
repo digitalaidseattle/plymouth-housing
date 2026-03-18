@@ -19,7 +19,7 @@ import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
 import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
 import { getAuthMe } from '../../services/authService';
-import { fetchWithRetry } from '../../services/fetchWithRetry';
+import { apiRequest } from '../../services/apiRequest';
 
 const requestCache = new Map<string, Promise<AdminUser>>();
 
@@ -103,7 +103,7 @@ const MainLayout: React.FC = () => {
         const escapedEmail = adminInfo.email.replace(/'/g, "''");
         const filterUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`email eq '${escapedEmail}'`)}`;
 
-        const usersResponse = await fetchWithRetry<User[]>({
+        const usersResponse = await apiRequest<User[]>({
           url: filterUrl,
           role: USER_ROLES.ADMIN,
         });
@@ -113,7 +113,7 @@ const MainLayout: React.FC = () => {
         if (users && users.length > 0) {
           const userId = users[0].id;
 
-          await fetchWithRetry({
+          await apiRequest({
             url: `${ENDPOINTS.USERS}/id/${userId}`,
             role: USER_ROLES.ADMIN,
             method: 'PATCH',
@@ -122,7 +122,7 @@ const MainLayout: React.FC = () => {
 
           // Re-fetch updated record to ensure it reflects the latest state
           const updatedUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`id eq ${userId}`)}`;
-          const updatedResponse = await fetchWithRetry<User[]>({
+          const updatedResponse = await apiRequest<User[]>({
             url: updatedUrl,
             role: USER_ROLES.ADMIN,
           });
@@ -134,7 +134,7 @@ const MainLayout: React.FC = () => {
           return updated[0] as AdminUser;
         } else {
           // No record found, create a new admin entry
-          const result = await fetchWithRetry<User[]>({
+          const result = await apiRequest<User[]>({
             url: ENDPOINTS.USERS,
             role: USER_ROLES.ADMIN,
             method: 'POST',

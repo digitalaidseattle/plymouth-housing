@@ -1,11 +1,11 @@
 import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal, User } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
-import { fetchWithRetry } from './fetchWithRetry';
+import { apiRequest } from './apiRequest';
 
 export async function getUsers(user: ClientPrincipal | null): Promise<User[]> {
   try {
-    const result = await fetchWithRetry<User[]>({
+    const result = await apiRequest<User[]>({
       url: ENDPOINTS.USERS,
       role: getRole(user),
     });
@@ -21,7 +21,7 @@ export async function getUsersByFilter(
   filter: string,
 ): Promise<User[]> {
   try {
-    const result = await fetchWithRetry<User[]>({
+    const result = await apiRequest<User[]>({
       url: `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(filter)}`,
       role: getRole(user),
     });
@@ -37,7 +37,7 @@ export async function createUser(
   data: object,
 ): Promise<User> {
   try {
-    const result = await fetchWithRetry<User[]>({
+    const result = await apiRequest<User[]>({
       url: ENDPOINTS.USERS,
       role: getRole(user),
       method: 'POST',
@@ -62,7 +62,7 @@ export async function updateUser(
   data: object,
 ): Promise<void> {
   try {
-    await fetchWithRetry({
+    await apiRequest({
       url: `${ENDPOINTS.USERS}/id/${id}`,
       role: getRole(user),
       method: 'PATCH',

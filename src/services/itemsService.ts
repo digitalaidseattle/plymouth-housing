@@ -7,7 +7,7 @@ import {
 import { ENDPOINTS, SETTINGS } from '../types/constants';
 import { cacheGet, cacheSet } from '../utils/sessionCache';
 import { getRole } from '../utils/userUtils';
-import { fetchWithRetry } from './fetchWithRetry';
+import { apiRequest } from './apiRequest';
 
 export async function getCategorizedItems(
   user: ClientPrincipal | null
@@ -16,7 +16,7 @@ export async function getCategorizedItems(
   if (cached) return cached;
 
   try {
-    const result = await fetchWithRetry<CategoryProps[]>({
+    const result = await apiRequest<CategoryProps[]>({
       url: ENDPOINTS.CATEGORIZED_ITEMS,
       role: getRole(user),
     });
@@ -32,7 +32,7 @@ export async function getItems(
   user: ClientPrincipal | null,
 ): Promise<InventoryItem[]> {
   try {
-    const result = await fetchWithRetry<InventoryItem[]>({
+    const result = await apiRequest<InventoryItem[]>({
       url: `${ENDPOINTS.EXPANDED_ITEMS}?$first=${SETTINGS.api_fetch_limit_items}`,
       role: getRole(user),
     });
@@ -47,7 +47,7 @@ export async function getCategories(
   user: ClientPrincipal | null,
 ): Promise<CategoryItem[]> {
   try {
-    const result = await fetchWithRetry<CategoryItem[]>({
+    const result = await apiRequest<CategoryItem[]>({
       url: ENDPOINTS.CATEGORY,
       role: getRole(user),
     });
@@ -63,7 +63,7 @@ export async function createItem(
   data: object,
 ): Promise<void> {
   try {
-    await fetchWithRetry({
+    await apiRequest({
       url: ENDPOINTS.ITEMS,
       role: getRole(user),
       method: 'POST',
@@ -81,7 +81,7 @@ export async function updateItem(
   data: object,
 ): Promise<void> {
   try {
-    await fetchWithRetry({
+    await apiRequest({
       url: `${ENDPOINTS.ITEMS}/id/${id}`,
       role: getRole(user),
       method: 'PATCH',

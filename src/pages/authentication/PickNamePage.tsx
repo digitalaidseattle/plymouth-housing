@@ -12,7 +12,7 @@ import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
-import { fetchWithRetry } from '../../services/fetchWithRetry';
+import { apiRequest } from '../../services/apiRequest';
 import { ENDPOINTS, USER_ROLES } from '../../types/constants';
 import { trackException } from '../../utils/appInsights';
 
@@ -34,7 +34,7 @@ const PickYourNamePage: React.FC = () => {
       try {
         setIsLoading(true);
         const url = `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`
-        const data = await fetchWithRetry<User[]>({
+        const data = await apiRequest<User[]>({
           url,
           role: USER_ROLES.VOLUNTEER,
         });

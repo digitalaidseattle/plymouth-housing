@@ -20,6 +20,9 @@ export const SpinUpProvider: React.FC<SpinUpProviderProps> = ({ children }) => {
   // Register callbacks with apiRequest on mount
   useEffect(() => {
     setSpinUpCallbacks(setShowDialog, setRetryCount);
+    return () => {
+      setSpinUpCallbacks(() => undefined, () => undefined);
+    };
   }, []);
 
   const contextValue = useMemo(

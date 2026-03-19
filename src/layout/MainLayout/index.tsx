@@ -149,12 +149,12 @@ const MainLayout: React.FC = () => {
           });
 
           if (Array.isArray(result.value)) {
-            if (result.value.length === 0) {
-              throw new Error('Create user returned no records');
+            if (result.value.length != 1) {
+              throw new Error('Create admin did not return exactly one record');
             }
             return result.value[0] as AdminUser;
           }
-          return result as unknown as AdminUser;
+          throw new Error('Create admin returned an unexpected error.');
         }
       } finally {
         requestCache.delete(cacheKey);

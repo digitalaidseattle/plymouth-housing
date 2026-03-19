@@ -44,12 +44,13 @@ export async function createUser(
       body: data,
     });
     if (Array.isArray(result.value)) {
-      if (result.value.length === 0) {
-        throw new Error('Create user returned no records');
+      if (result.value.length != 1) {
+        throw new Error('Create user returned an error: expected exactly one user to be created');
       }
       return result.value[0] as User;
     }
-    return result as unknown as User;
+    throw new Error('Create user returned an unexpected error.');
+
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;

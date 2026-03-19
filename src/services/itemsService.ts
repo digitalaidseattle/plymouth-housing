@@ -58,37 +58,3 @@ export async function getCategories(
   }
 }
 
-export async function createItem(
-  user: ClientPrincipal | null,
-  data: object,
-): Promise<void> {
-  try {
-    await apiRequest({
-      url: ENDPOINTS.ITEMS,
-      role: getRole(user),
-      method: 'POST',
-      body: data,
-    });
-  } catch (error) {
-    console.error('Error creating item:', error);
-    throw error;
-  }
-}
-
-export async function updateItem(
-  user: ClientPrincipal | null,
-  id: number,
-  data: object,
-): Promise<void> {
-  try {
-    await apiRequest({
-      url: `${ENDPOINTS.ITEMS}/id/${id}`,
-      role: getRole(user),
-      method: 'PATCH',
-      body: data,
-    });
-  } catch (error) {
-    console.error('Error updating item:', error);
-    throw error;
-  }
-}

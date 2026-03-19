@@ -498,7 +498,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       >
         <Box
           sx={{
-            width: { xs: '90%', s: '80%', md: '70%' },
+            width: { xs: '90%', sm: '80%', md: '70%' },
             paddingTop: '20px',
             height: '100%',
             position: 'relative',

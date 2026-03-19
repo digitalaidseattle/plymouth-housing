@@ -201,4 +201,34 @@ describe('apiRequest', () => {
       }),
     );
   });
+
+  it('handles 204 No Content responses without calling json()', async () => {
+    const jsonMock = vi.fn();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 204,
+      json: jsonMock,
+    });
+
+    const config = createApiConfig({ method: 'PATCH' as const });
+    const response = await apiRequest(config);
+
+    expect(response).toEqual({ value: null });
+    expect(jsonMock).not.toHaveBeenCalled();
+  });
+
+  it('handles 205 Reset Content responses without calling json()', async () => {
+    const jsonMock = vi.fn();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 205,
+      json: jsonMock,
+    });
+
+    const config = createApiConfig({ method: 'DELETE' as const });
+    const response = await apiRequest(config);
+
+    expect(response).toEqual({ value: null });
+    expect(jsonMock).not.toHaveBeenCalled();
+  });
 });

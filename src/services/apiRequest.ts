@@ -43,6 +43,11 @@ const apiAttempt = async <T>(
       throw error;
     }
 
+    // Handle no-content responses (204, 205) - don't try to parse JSON
+    if (response.status === 204 || response.status === 205) {
+      return { value: null as unknown as T };
+    }
+
     return response.json();
   } catch (error) {
     // Only retry on network errors or 5xx server errors (like DB spin-up)

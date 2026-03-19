@@ -60,16 +60,25 @@ describe('apiRequest', () => {
   });
 
   it('throws when max retries are exhausted', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: 'Service Unavailable' });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: 'Service Unavailable' });
+    global.fetch = fetchMock;
 
     const config = createApiConfig();
     const assertion = expect(apiRequest(config)).rejects.toThrow('Failed to fetch data: Service Unavailable');
 
+    // Advance timers through all retry delays (first attempt doesn't need a delay)
     for (let i = 1; i < SETTINGS.database_retry_attempts; i++) {
       await vi.advanceTimersByTimeAsync(SETTINGS.database_retry_delay);
     }
 
     await assertion;
+
+    // Enforce retry contract: verify exactly database_retry_attempts fetch calls were made
+    expect(fetchMock).toHaveBeenCalledTimes(SETTINGS.database_retry_attempts);
+
+    // Note: If apiRequest is updated to include retry metadata in headers or request options
+    // (e.g., 'X-Retry-Attempt' header), add assertion here to verify the last call contains
+    // attempt indicator equal to SETTINGS.database_retry_attempts
   });
 
   it('shows loading dialog after slow_request_threshold ms for a slow request', async () => {

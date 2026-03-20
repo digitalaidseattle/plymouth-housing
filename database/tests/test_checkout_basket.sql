@@ -498,6 +498,50 @@ IF @transaction_items_count <> 0
 PRINT 'Test 15 PASSED: Empty JSON array handled correctly';
 GO
 
+-- Test 16: Checkout edit sets transaction_type = 4 and parent_transaction_id
+PRINT 'Test 16: Checkout edit sets transaction_type = 4 and parent_transaction_id'
+DECLARE @original_transaction_id UNIQUEIDENTIFIER = NEWID();
+DECLARE @edit_transaction_id UNIQUEIDENTIFIER = NEWID();
+DECLARE @stored_type INT;
+DECLARE @stored_parent UNIQUEIDENTIFIER;
+
+-- Create the original transaction
+EXEC ProcessCheckout
+    @user_id = 1,
+    @resident_id = 1,
+    @new_transaction_id = @original_transaction_id,
+    @items = N'[{"id": 2, "quantity": 1}]';
+
+-- Assert: Original transaction should exist with type 1
+IF NOT EXISTS (SELECT 1 FROM Transactions WHERE id = @original_transaction_id AND transaction_type = 1)
+    THROW 50016, 'Test 16 FAILED: Original transaction not created with type 1', 1;
+
+-- Execute edit checkout referencing the original
+EXEC ProcessCheckout
+    @user_id = 1,
+    @resident_id = 1,
+    @new_transaction_id = @edit_transaction_id,
+    @items = N'[{"id": 2, "quantity": 2}]',
+    @original_transaction_id = @original_transaction_id;
+
+-- Get stored transaction_type and parent_transaction_id
+SELECT
+    @stored_type = transaction_type,
+    @stored_parent = parent_transaction_id
+FROM Transactions
+WHERE id = @edit_transaction_id;
+
+-- Assert: transaction_type should be 4 (CHECKOUT_EDIT)
+IF @stored_type <> 4
+    THROW 50016, 'Test 16 FAILED: Edit transaction should have transaction_type = 4', 1;
+
+-- Assert: parent_transaction_id should reference the original transaction
+IF @stored_parent <> @original_transaction_id
+    THROW 50016, 'Test 16 FAILED: parent_transaction_id should reference original transaction', 1;
+
+PRINT 'Test 16 PASSED: Checkout edit sets transaction_type = 4 and parent_transaction_id correctly';
+GO
+
 PRINT '';
 PRINT '========================================';
 PRINT 'ALL TESTS PASSED for ProcessCheckout';

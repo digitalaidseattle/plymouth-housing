@@ -1,18 +1,15 @@
-import { API_HEADERS, ENDPOINTS } from '../types/constants';
+import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal, User } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';
-import { getErrorMessage } from '../utils/apiUtils';
+import { apiRequest } from './apiRequest';
 
 export async function getUsers(user: ClientPrincipal | null): Promise<User[]> {
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.USERS, { headers, method: 'GET' });
-    if (!response.ok) {
-      const errorMessage = await getErrorMessage(response);
-      throw new Error(errorMessage);
-    }
-    const data = await response.json();
-    return data.value;
+    const result = await apiRequest<User[]>({
+      url: ENDPOINTS.USERS,
+      role: getRole(user),
+    });
+    return result.value;
   } catch (error) {
     console.error('Error fetching users:', error);
     throw error;
@@ -24,17 +21,11 @@ export async function getUsersByFilter(
   filter: string,
 ): Promise<User[]> {
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(`${ENDPOINTS.USERS}?$filter=${encodeURIComponent(filter)}`, {
-      headers,
-      method: 'GET',
+    const result = await apiRequest<User[]>({
+      url: `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(filter)}`,
+      role: getRole(user),
     });
-    if (!response.ok) {
-      const errorMessage = await getErrorMessage(response);
-      throw new Error(errorMessage);
-    }
-    const data = await response.json();
-    return data.value;
+    return result.value;
   } catch (error) {
     console.error('Error fetching users by filter:', error);
     throw error;
@@ -46,24 +37,20 @@ export async function createUser(
   data: object,
 ): Promise<User> {
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(ENDPOINTS.USERS, {
+    const result = await apiRequest<User[]>({
+      url: ENDPOINTS.USERS,
+      role: getRole(user),
       method: 'POST',
-      headers,
-      body: JSON.stringify(data),
+      body: data,
     });
-    if (!response.ok) {
-      const errorMessage = await getErrorMessage(response);
-      throw new Error(errorMessage);
-    }
-    const result = await response.json();
     if (Array.isArray(result.value)) {
-      if (result.value.length === 0) {
-        throw new Error('Create user returned no records');
+      if (result.value.length != 1) {
+        throw new Error('Create user returned an error: expected exactly one user to be created');
       }
       return result.value[0] as User;
     }
-    return result as User;
+    throw new Error('Create user returned an unexpected error.');
+
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;
@@ -76,16 +63,12 @@ export async function updateUser(
   data: object,
 ): Promise<void> {
   try {
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-    const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
+    await apiRequest({
+      url: `${ENDPOINTS.USERS}/id/${id}`,
+      role: getRole(user),
       method: 'PATCH',
-      headers,
-      body: JSON.stringify(data),
+      body: data,
     });
-    if (!response.ok) {
-      const errorMessage = await getErrorMessage(response);
-      throw new Error(errorMessage);
-    }
   } catch (error) {
     console.error('Error updating user:', error);
     throw error;

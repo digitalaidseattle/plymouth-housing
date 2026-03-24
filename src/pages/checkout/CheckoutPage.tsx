@@ -40,7 +40,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     checkoutItems,
     setCheckoutItems,
     fetchData,
-  } = useCheckoutData({ user, checkoutType, onError: (msg) => showSnackbar(msg, 'warning') });
+  } = useCheckoutData({
+    user,
+    checkoutType,
+    onError: (msg) => showSnackbar(msg, 'warning'),
+  });
 
   const { activeSection, setActiveSection, addItemToCart, removeItemFromCart } =
     useCartOperations({ checkoutItems, setCheckoutItems });

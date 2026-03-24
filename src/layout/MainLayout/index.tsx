@@ -17,14 +17,9 @@ import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
-import { SETTINGS } from '../../types/constants';
-import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
+import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
 import { getAuthMe } from '../../services/authService';
-import {
-  getUsersByFilter,
-  updateUser,
-  createUser,
-} from '../../services/userService';
+import { apiRequest } from '../../services/apiRequest';
 
 const requestCache = new Map<string, Promise<AdminUser>>();
 
@@ -34,8 +29,6 @@ const MainLayout: React.FC = () => {
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const [retryCount] = useState(0);
-  const [showSpinUpDialog] = useState(false);
   const navigate = useNavigate();
 
   // Add inactivity timer
@@ -108,38 +101,60 @@ const MainLayout: React.FC = () => {
     const promise = (async () => {
       try {
         const escapedEmail = adminInfo.email.replace(/'/g, "''");
-        const users = await getUsersByFilter(
-          adminInfo.claims,
-          `email eq '${escapedEmail}'`,
-        );
+        const filterUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`email eq '${escapedEmail}'`)}`;
+
+        const usersResponse = await apiRequest<User[]>({
+          url: filterUrl,
+          role: USER_ROLES.ADMIN,
+        });
+        const users = usersResponse.value;
 
         // If there's an existing record, update last_signed_in
         if (users && users.length > 0) {
           const userId = users[0].id;
-          await updateUser(adminInfo.claims, userId, {
-            last_signed_in: new Date().toISOString(),
+
+          await apiRequest({
+            url: `${ENDPOINTS.USERS}/id/${userId}`,
+            role: USER_ROLES.ADMIN,
+            method: 'PATCH',
+            body: { last_signed_in: new Date().toISOString() },
           });
 
           // Re-fetch updated record to ensure it reflects the latest state
-          const updated = await getUsersByFilter(
-            adminInfo.claims,
-            `id eq ${userId}`,
-          );
+          const updatedUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`id eq ${userId}`)}`;
+          const updatedResponse = await apiRequest<User[]>({
+            url: updatedUrl,
+            role: USER_ROLES.ADMIN,
+          });
+          const updated = updatedResponse.value;
+
           if (!updated || updated.length === 0) {
             throw new Error(`User with id ${userId} not found after update`);
           }
           return updated[0] as AdminUser;
         } else {
           // No record found, create a new admin entry
-          const admin = await createUser(adminInfo.claims, {
-            name: adminInfo.name,
-            email: adminInfo.email,
-            role: 'admin',
-            active: true,
-            created_at: new Date().toISOString(),
-            last_signed_in: new Date().toISOString(),
+          const result = await apiRequest<User[]>({
+            url: ENDPOINTS.USERS,
+            role: USER_ROLES.ADMIN,
+            method: 'POST',
+            body: {
+              name: adminInfo.name,
+              email: adminInfo.email,
+              role: 'admin',
+              active: true,
+              created_at: new Date().toISOString(),
+              last_signed_in: new Date().toISOString(),
+            },
           });
-          return admin as AdminUser;
+
+          if (Array.isArray(result.value)) {
+            if (result.value.length != 1) {
+              throw new Error('Create admin did not return exactly one record');
+            }
+            return result.value[0] as AdminUser;
+          }
+          throw new Error('Create admin returned an unexpected error.');
         }
       } finally {
         requestCache.delete(cacheKey);
@@ -180,7 +195,6 @@ const MainLayout: React.FC = () => {
           </Box>
         </Box>
       </ScrollTop>
-      <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
     </DrawerOpenContext.Provider>
   );
 };

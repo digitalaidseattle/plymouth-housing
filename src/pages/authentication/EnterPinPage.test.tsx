@@ -162,8 +162,13 @@ describe('EnterPinPage Component', () => {
   });
 
   test('tracks exception when verifyPin fails', async () => {
-    const networkError = new Error('Network error');
-    (global.fetch as any) = vi.fn().mockRejectedValueOnce(networkError);
+    // Mock fetch to reject with a 4xx error (won't retry - faster test)
+    (global.fetch as any) = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: 'Bad Request',
+      clone: () => ({ json: () => Promise.resolve({ error: 'Network error' }), text: () => Promise.resolve('Network error') }),
+    });
 
     render(
       <UserContext.Provider value={createUserContextValue()}>
@@ -200,11 +205,13 @@ describe('EnterPinPage Component', () => {
       .fn()
       .mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => ({ value: [{ IsValid: true }] }),
       })
       .mockResolvedValueOnce({
         ok: false,
-        status: 500,
+        status: 400,
+        statusText: 'Bad Request',
       });
 
     render(

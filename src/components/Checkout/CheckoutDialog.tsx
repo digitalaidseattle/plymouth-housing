@@ -17,7 +17,7 @@ import {
 } from '../../types/interfaces';
 import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
-import { processGeneralItems, processWelcomeBasket } from '../../services/CheckoutAPICalls';
+import { processGeneralItems, processWelcomeBasket } from '../../services/checkoutService';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
@@ -149,12 +149,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           allItems,
           residentInfo,
         );
-      }
-
-      if (data.error) {
-        const errorMessage =
-          data.error.message || 'An unexpected error occurred during checkout';
-        throw new Error(errorMessage);
       }
 
       // Validate response structure
@@ -486,52 +480,54 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   };
 
   return (
-    <Dialog
-      sx={{
-        '& .MuiDialog-paper': {
-          width: { xs: '80vw', md: '65vw' },
-          maxHeight: '80vh',
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          borderRadius: '15px',
-        },
-      }}
-      onClose={onClose}
-      aria-labelledby="customized-dialog-title"
-      open={open}
-    >
-      <Box
+    <>
+      <Dialog
         sx={{
-          width: { xs: '90%', s: '80%', md: '70%' },
-          paddingTop: '20px',
-          height: '100%',
-          position: 'relative',
+          '& .MuiDialog-paper': {
+            width: { xs: '80vw', md: '65vw' },
+            maxHeight: '80vh',
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+            borderRadius: '15px',
+          },
         }}
+        onClose={onClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
       >
-        {isProcessing && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.7)',
-              zIndex: 1,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
+        <Box
+          sx={{
+            width: { xs: '90%', sm: '80%', md: '70%' },
+            paddingTop: '20px',
+            height: '100%',
+            position: 'relative',
+          }}
+        >
+          {isProcessing && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                zIndex: 1,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
 
-        {showLimitConfirmation
-          ? overLimitConfirmationContent()
-          : checkoutSummaryContent()}
-      </Box>
-    </Dialog>
+          {showLimitConfirmation
+            ? overLimitConfirmationContent()
+            : checkoutSummaryContent()}
+        </Box>
+      </Dialog>
+    </>
   );
 };

@@ -3,7 +3,7 @@ import type { ClientPrincipal, CheckoutTransaction, InventoryTransaction } from 
 import {
   getCheckoutHistory,
   getInventoryHistory,
-} from '../components/History/HistoryAPICalls';
+} from '../services/historyService';
 import { processTransactionsByUser } from '../components/History/transactionProcessors';
 
 interface UseHistoryDataProps {

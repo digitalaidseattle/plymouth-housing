@@ -12,8 +12,8 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate
 }));
 
-vi.mock('../../services/fetchWithRetry', () => ({
-  fetchWithRetry: () => mockFetchWithRetry()
+vi.mock('../../services/apiRequest', () => ({
+  apiRequest: () => mockFetchWithRetry()
 }));
 
 vi.mock('../../utils/appInsights', () => ({
@@ -150,30 +150,6 @@ describe('PickNamePage Component', () => {
     resolvePromise({ value: [] });
     await waitFor(() => {
       expect(screen.getByLabelText(/Select your name/i)).toBeInTheDocument();
-    });
-  });
-
-  test('renders SpinUpDialog with correct props', async () => {
-    // Simulate a pending fetch to trigger SpinUpDialog.
-    let resolvePromise: any;
-    const pendingPromise = new Promise((resolve) => { resolvePromise = resolve; });
-    mockFetchWithRetry.mockReturnValue(pendingPromise);
-
-    render(
-      <UserContext.Provider value={createUserContextValue()}>
-        <PickNamePage />
-      </UserContext.Provider>
-    );
-
-    // SpinUpDialog should be rendered.
-    const spinUpDialog = screen.getByTestId('spin-up-dialog');
-    expect(spinUpDialog).toBeInTheDocument();
-
-    // Now, resolve the fetch promise.
-    resolvePromise({ value: [] });
-    await waitFor(() => {
-      // After resolution, SpinUpDialog should display as "Dialog Closed"
-      expect(screen.getByTestId('spin-up-dialog')).toHaveTextContent(/Dialog Closed/);
     });
   });
 

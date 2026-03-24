@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Unit, ClientPrincipal } from '../../../types/interfaces';
-import { getUnitNumbers } from '../../../services/CheckoutAPICalls';
+import { getUnitNumbers } from '../../../services/checkoutService';
 
 export const useUnitNumbers = (
-    setSelectedUnit: (unit: Unit) => void
+    setSelectedUnit: (unit: Unit) => void,
 ) => {
     const [unitNumberValues, setUnitNumberValues] = useState<Unit[]>([]);
     const [isLoadingUnits, setIsLoadingUnits] = useState(false);

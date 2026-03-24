@@ -6,9 +6,8 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import { UserContext } from '../../components/contexts/UserContext';
-import { getRole } from '../../utils/userUtils';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
 import { InventoryItem } from '../../types/interfaces.ts';
+import { getItems } from '../../services/itemsService';
 import SnackbarAlert from '../../components/SnackbarAlert.tsx';
 
 const SectionHeader: React.FC<{
@@ -82,16 +81,8 @@ const VolunteerHome: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.EXPANDED_ITEMS + '?$first=10000', {
-        headers: headers,
-        method: 'GET',
-      });
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      const data = await response.json();
-      setOriginalData(data.value);
+      const items = await getItems(user);
+      setOriginalData(items);
     } catch (error) {
       console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
     }

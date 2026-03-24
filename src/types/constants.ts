@@ -43,6 +43,7 @@ export const SETTINGS = {
   api_fetch_limit_units: 1000,
   database_retry_attempts: 20,
   database_retry_delay: 5000,
+  slow_request_threshold: 1000,
   inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
   cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
   keep_alive_interval: 10 * 60 * 1000, // 10 minutes in milliseconds
@@ -58,6 +59,12 @@ export const ROLE_PAGES = {
   volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'history'],
 } as const;
 
+export const CATEGORY_IDS = {
+  WELCOME_BASKET: 15,
+  APPLIANCE: 2,
+  HOME_GOODS: 1,
+} as const;
+
 export const WELCOME_BASKET_ITEMS = {
   TWIN: 171,
   FULL: 172,
@@ -65,6 +72,7 @@ export const WELCOME_BASKET_ITEMS = {
 
 export const SPECIAL_ITEMS = {
   APPLIANCE_MISC: 166,
+  RUG: 97,
 } as const;
 
 export const BUSINESS_HOURS = {

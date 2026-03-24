@@ -5,15 +5,12 @@ on:
     branches:
       - dev
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
     branches:
       - dev
 
 jobs:
   ci:
-    if:
-      github.event_name == 'push' || (github.event_name == 'pull_request' &&
-      github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: CI
     steps:
@@ -34,52 +31,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-  build_and_deploy_job:
-    needs: ci
-    if:
-      github.event_name == 'push' || (github.event_name == 'pull_request' &&
-      github.event.action != 'closed')
-    runs-on: ubuntu-latest
-    name: Build and Deploy Job
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          lfs: false
-
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token:
-            ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DEV }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: 'upload'
-          app_location: '/' # App source code path
-          api_location: '' # Api source code path - optional
-          output_location: 'dist' # Built app content directory - optional
-        # We are not using Clarity and App Insights in dev environment.
-        # env:
-        #   VITE_CLARITY_PROJECT_ID: ${{ secrets.VITE_CLARITY_PROJECT_ID }}
-        #   VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
-
-      - name: Post URL
-        run: |
-          echo "App deployed :rocket:" >> $GITHUB_STEP_SUMMARY
-          echo ${{ steps.builddeploy.outputs.static_web_app_url }} >> $GITHUB_STEP_SUMMARY
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token:
-            ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DEV }}
-          action: 'close'
-          app_location: '/'

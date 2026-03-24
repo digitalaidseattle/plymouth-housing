@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Building, CategoryProps, User } from '../types/interfaces';
-import { getBuildings } from '../services/CheckoutAPICalls';
-import { getUsers } from '../components/History/HistoryAPICalls';
-import fetchCategorizedItems from '../components/utils/fetchCategorizedItems';
-import { getRole } from '../utils/userUtils';
+import { getBuildings } from '../services/checkoutService';
+import { getUsers } from '../services/userService';
+import { getCategorizedItems } from '../services/itemsService';
 import type { ClientPrincipal } from '../types/interfaces';
 
 interface UseReferenceDataProps {
@@ -36,10 +35,9 @@ export function useReferenceData({ user, onError }: UseReferenceDataProps) {
       }
     }
 
-    async function getCategorizedItems() {
+    async function fetchCategorizedItems() {
       try {
-        const userRole = getRole(user);
-        const response = await fetchCategorizedItems(userRole);
+        const response = await getCategorizedItems(user);
         setCategorizedItems(response);
       } catch (error) {
         onError('Error fetching item and category data: ' + error);
@@ -53,7 +51,7 @@ export function useReferenceData({ user, onError }: UseReferenceDataProps) {
         await Promise.all([
           getUserList(),
           fetchBuildings(),
-          getCategorizedItems(),
+          fetchCategorizedItems(),
         ]);
       } finally {
         setIsLoading(false);

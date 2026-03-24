@@ -14,6 +14,7 @@ interface BuildingCodeSelectProps {
   setSelectedUnit: (unit: Unit) => void;
   fetchUnitNumbers: (buildingId: number) => void;
   error: boolean;
+  resetError: () => void;
   disabled?: boolean;
 }
 
@@ -28,6 +29,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   setSelectedUnit,
   fetchUnitNumbers,
   error,
+  resetError,
   disabled = false,
 }) => {
   return (
@@ -46,6 +48,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
             setSelectedBuilding(newValue);
             setSelectedUnit({ id: 0, unit_number: '' });
             fetchUnitNumbers(newValue.id);
+            resetError();
           }
         }}
         getOptionLabel={(option: Building) => {
@@ -57,7 +60,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
             {...params}
             label="Building Code"
             error={error}
-            helperText={error ? 'Please select a building' : ''}
+            helperText={error ? 'Please select the building code' : ''}
           />
         )}
       />

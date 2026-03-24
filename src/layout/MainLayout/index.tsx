@@ -15,29 +15,30 @@ import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 import ScrollTop from '../../components/ScrollTop';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { UserContext } from '../../components/contexts/UserContext';
-import { AdminUser, User} from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
+import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
 import { useKeepAlive } from '../../hooks/useKeepAlive';
-import { SETTINGS } from '../../types/constants';
-import { fetchWithRetry } from '../../services/fetchWithRetry';
-import SpinUpDialog from '../../pages/authentication/SpinUpDialog';
+import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
+import { getAuthMe } from '../../services/authService';
+import { apiRequest } from '../../services/apiRequest';
+
+const requestCache = new Map<string, Promise<AdminUser>>();
 
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { user, setUser, loggedInUserId, setLoggedInUserId } = useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
-  const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
   const navigate = useNavigate();
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
     onInactivity: () => {
       localStorage.clear();
-      window.location.href = "/.auth/logout?post_logout_redirect_uri=/login.html";
-    },    timeout: SETTINGS.inactivity_timeout
+      window.location.href =
+        '/.auth/logout?post_logout_redirect_uri=/login.html';
+    },
+    timeout: SETTINGS.inactivity_timeout,
   });
 
   // Keep backend warm during business hours
@@ -45,15 +46,13 @@ const MainLayout: React.FC = () => {
 
   useEffect(() => {
     const fetchTokenAndRole = async () => {
-      const response = await fetch('/.auth/me');
-      const payload = await response.json();
-      const { clientPrincipal } = payload;
-
       try {
+        const payload = await getAuthMe();
+        const { clientPrincipal } = payload;
         const userClaims = clientPrincipal;
         setUser(userClaims || null);
 
-        if (userClaims.userRoles?.includes('volunteer') && !loggedInUserId) {
+        if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
           navigate('/pick-your-name');
           return;
         }
@@ -62,7 +61,8 @@ const MainLayout: React.FC = () => {
           try {
             const createdOrUpdatedAdmin = await upsertAdminUser({
               name: userClaims.userDetails ?? '',
-              email: userClaims.userId ?? ''
+              email: userClaims.userID ?? '',
+              claims: userClaims,
             });
             // Now we have an User object with id, name, created_at, last_signed_in
             setLoggedInUserId(createdOrUpdatedAdmin.id);
@@ -77,9 +77,9 @@ const MainLayout: React.FC = () => {
       }
     };
     fetchTokenAndRole();
-  
-  // The effect is intended to run only once on mount.
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+
+    // The effect is intended to run only once on mount.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []);
 
   /**
@@ -88,86 +88,83 @@ const MainLayout: React.FC = () => {
    *  - If it exists, update the last_signed_in field and return the updated record.
    *  - Otherwise, insert a new admin record and return it.
    */
-  const requestCache = new Map<string, Promise<AdminUser>>();
-
-  const upsertAdminUser = async (adminInfo: { name: string; email: string }): Promise<User> => {
-    const cacheKey = adminInfo.email; // Use email as the unique cache key
-    const headers = { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' };
+  const upsertAdminUser = async (adminInfo: {
+    name: string;
+    email: string;
+    claims: NonNullable<ReturnType<typeof Object.create>>;
+  }): Promise<User> => {
+    const cacheKey = adminInfo.email;
 
     // Prevent duplicate requests using a cache
     if (requestCache.has(cacheKey)) {
-      return requestCache.get(cacheKey)!; // Return the cached promise if it exists
+      return requestCache.get(cacheKey)!;
     }
 
     // Query whether this user already exists by email
     const promise = (async () => {
       try {
-        const getData = await fetchWithRetry<User[]>({
-          url: `${ENDPOINTS.USERS}?$filter=email eq '${adminInfo.email}'`,  
-          role: 'admin',
-          setShowSpinUpDialog,  
-          setRetryCount,
+        const escapedEmail = adminInfo.email.replace(/'/g, "''");
+        const filterUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`email eq '${escapedEmail}'`)}`;
+
+        const usersResponse = await apiRequest<User[]>({
+          url: filterUrl,
+          role: USER_ROLES.ADMIN,
         });
+        const users = usersResponse.value;
 
         // If there's an existing record, update last_signed_in
-        if (getData.value && getData.value.length > 0) {
-          const userRecord = getData.value[0]; // e.g. { id, name, email, created_at, last_signed_in, ... }
-          const userId = userRecord.id;
+        if (users && users.length > 0) {
+          const userId = users[0].id;
 
-          const patchResp = await fetch(`${ENDPOINTS.USERS}/id/${userId}`, {
+          await apiRequest({
+            url: `${ENDPOINTS.USERS}/id/${userId}`,
+            role: USER_ROLES.ADMIN,
             method: 'PATCH',
-            headers: headers,
-            body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
+            body: { last_signed_in: new Date().toISOString() },
           });
-
-          if (!patchResp.ok) {
-            throw new Error(`Failed to patch user: ${patchResp.statusText}`);
-          }
 
           // Re-fetch updated record to ensure it reflects the latest state
-          const updatedRecordResp = await fetch(`${ENDPOINTS.USERS}?$filter=id eq ${userId}`, {
-            method: 'GET',
-            headers: headers,
+          const updatedUrl = `${ENDPOINTS.USERS}?$filter=${encodeURIComponent(`id eq ${userId}`)}`;
+          const updatedResponse = await apiRequest<User[]>({
+            url: updatedUrl,
+            role: USER_ROLES.ADMIN,
           });
+          const updated = updatedResponse.value;
 
-          if (!updatedRecordResp.ok) {
-            throw new Error(`Failed to retrieve updated admin record: ${updatedRecordResp.statusText}`);
+          if (!updated || updated.length === 0) {
+            throw new Error(`User with id ${userId} not found after update`);
           }
-
-          const updatedData = await updatedRecordResp.json();
-          const admin: AdminUser = updatedData.value[0];
-          return admin
-
+          return updated[0] as AdminUser;
         } else {
           // No record found, create a new admin entry
-          const createResp = await fetch(ENDPOINTS.USERS, {
+          const result = await apiRequest<User[]>({
+            url: ENDPOINTS.USERS,
+            role: USER_ROLES.ADMIN,
             method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
+            body: {
               name: adminInfo.name,
               email: adminInfo.email,
               role: 'admin',
               active: true,
               created_at: new Date().toISOString(),
               last_signed_in: new Date().toISOString(),
-            }),
+            },
           });
 
-          if (!createResp.ok) {
-            throw new Error(`Failed to create admin user: ${createResp.statusText}`);
+          if (Array.isArray(result.value)) {
+            if (result.value.length != 1) {
+              throw new Error('Create admin did not return exactly one record');
+            }
+            return result.value[0] as AdminUser;
           }
-          const createdRecord = await createResp.json();
-          const admin = createdRecord.value ? createdRecord.value[0] : createdRecord;
-
-          return admin
+          throw new Error('Create admin returned an unexpected error.');
         }
       } finally {
-        requestCache.delete(cacheKey); // Remove cache entry after request completion
-        setShowSpinUpDialog(false);
+        requestCache.delete(cacheKey);
       }
     })();
 
-    requestCache.set(cacheKey, promise); // Cache the promise to prevent duplicate requests
+    requestCache.set(cacheKey, promise);
     return promise;
   };
 
@@ -189,14 +186,8 @@ const MainLayout: React.FC = () => {
           onClick={resetTimer}
           onKeyPress={resetTimer}
         >
-          <Header
-            open={drawerOpen}
-            handleDrawerToggle={handleDrawerToggle}
-          />
-          <Drawer
-            open={drawerOpen}
-            handleDrawerToggle={handleDrawerToggle}
-          />
+          <Header open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
+          <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Box
             component="main"
             sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}
@@ -207,8 +198,8 @@ const MainLayout: React.FC = () => {
           </Box>
         </Box>
       </ScrollTop>
-      <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
     </DrawerOpenContext.Provider>
-)}
+  );
+};
 
 export default MainLayout;

@@ -19,36 +19,33 @@ const DATE_FORMATS = {
 };
 
 
-export function createHowLongAgoString(
-  minutes: number,
-  hours: number,
-  days: number,
-): string {
-  const getTimeUnit = (): string => {
-    if (days > 0) {
-      return days === 1 ? '1 day' : `${days} days`;
-    }
-    if (hours > 0) {
-      return hours === 1 ? '1 hour' : `${hours} hours`;
-    }
-    return `${minutes} min`;
-  };
-  return `Created ${getTimeUnit()} ago`;
-}
-
-export function calculateTimeDifference(timestamp: string): {
-  minutes: number;
-  hours: number;
-  days: number;
-} {
-  const dateCreated = new Date(timestamp.endsWith('Z') ? timestamp : timestamp + 'Z');
+export function formatTransactionDate(timestamp: string): string {
+  const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp);
+  const dateCreated = new Date(hasTimezone ? timestamp : timestamp + 'Z');
   const now = new Date();
-  const seconds = (now.getTime() - dateCreated.getTime()) / 1000;
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
 
-  return { minutes, hours, days };
+  const isToday =
+    dateCreated.getFullYear() === now.getFullYear() &&
+    dateCreated.getMonth() === now.getMonth() &&
+    dateCreated.getDate() === now.getDate();
+
+  const timeStr = dateCreated.toLocaleString('en-us', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  if (isToday) {
+    return `Created today at ${timeStr}`;
+  }
+
+  const dateStr = dateCreated.toLocaleString('en-us', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  return `Created ${dateStr} at ${timeStr}`;
 }
 
 export function formatDateRange(startDate: Date, endDate: Date): string {

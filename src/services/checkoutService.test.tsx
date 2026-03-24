@@ -10,7 +10,7 @@ import {
   addResident,
   checkPastCheckout,
   getLastResidentVisit,
-} from './CheckoutAPICalls';
+} from './checkoutService';
 import { API_HEADERS, ENDPOINTS, SETTINGS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
 
@@ -20,7 +20,7 @@ vi.mock('../utils/userUtils', () => ({
 
 global.fetch = vi.fn();
 
-describe('CheckoutAPICalls', () => {
+describe('checkoutService', () => {
   const user = { userDetails: 'testuser' } as any;
   const loggedInUserId = 1;
   const residentInfo = { id: 1, name: 'John Doe', unit: { id: 1, unit_number: '1'}, building: { id: 1, name: 'building', code: 'B1'} };
@@ -63,6 +63,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo)).rejects.toThrow('Error');
@@ -118,6 +119,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
@@ -163,6 +165,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getBuildings(user)).rejects.toThrow('Error');
@@ -192,6 +195,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getUnitNumbers(user, buildingId)).rejects.toThrow('Error');
@@ -221,6 +225,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getResidents(user, unitId)).rejects.toThrow('Error');
@@ -253,6 +258,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(findResident(user, name, unitId)).rejects.toThrow('Error');
@@ -287,6 +293,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(addResident(user, name, unitId)).rejects.toThrow('Error');
@@ -319,6 +326,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(checkPastCheckout(user, residentId)).rejects.toThrow('Error');
@@ -362,6 +370,7 @@ describe('CheckoutAPICalls', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
       await expect(getLastResidentVisit(user, residentId)).rejects.toThrow('Error');

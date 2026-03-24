@@ -158,11 +158,8 @@ const PickYourNamePage: React.FC = () => {
                 fontSize: '16px',
                 backgroundColor: 'black',
                 color: 'white',
-                '&:hover': {
-                  backgroundColor: '#4f4f4f',
-                },
               }}
-              disabled={isLoading}
+              disabled={isLoading || !loggedInUserId}
             >
               Continue
             </Button>

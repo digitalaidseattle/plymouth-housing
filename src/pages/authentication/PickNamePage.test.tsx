@@ -95,12 +95,11 @@ describe('PickNamePage Component', () => {
     });
   });
 
-  test('shows snackbar warning if no name is selected when clicking Continue', async () => {
+  test('disables Continue button when no name is selected', async () => {
     const volunteers = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
 
     mockFetchWithRetry.mockResolvedValue({ value: volunteers });
 
-    // Provide context with volunteers but with no selected volunteer (loggedInUserId: null)
     render(
       <UserContext.Provider
         value={createUserContextValue({
@@ -117,15 +116,7 @@ describe('PickNamePage Component', () => {
     });
 
     const continueButton = screen.getByRole('button', { name: /Continue/i });
-    fireEvent.click(continueButton);
-
-    // Wait for the snackbar message; use a flexible matcher in case the text is split.
-    await waitFor(() => {
-      const snackbar = screen.getByText((content) =>
-        content.replace(/\s+/g, ' ').includes('Please select a name before continuing.')
-      );
-      expect(snackbar).toBeInTheDocument();
-    });
+    expect(continueButton).toBeDisabled();
   });
 
   test('disables Autocomplete and Continue button while loading', async () => {

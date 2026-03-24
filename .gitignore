@@ -13,6 +13,9 @@ dist-ssr
 *.local
 coverage
 
+# Claude Code local memory
+.claude/projects/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

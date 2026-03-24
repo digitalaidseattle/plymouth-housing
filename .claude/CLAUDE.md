@@ -111,6 +111,7 @@ Only add comments if reading the code is insufficient.
 Follow git flow convention: `{name}/{ticket-number}-brief-description`
 
 ### Pull Requests
+- All PRs target **`dev`**, not `main`
 - All code merges to `main` through PRs (require one approval)
 - Review existing PRs before starting new work
 - Treat documentation as code (same standards for Markdown)

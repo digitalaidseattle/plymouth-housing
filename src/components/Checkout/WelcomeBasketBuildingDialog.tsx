@@ -50,7 +50,7 @@ const WelcomeBasketBuildingDialog = ({
     try {
       const units = await getUnitNumbers(user, selectedBuilding.id);
       const welcomeUnit = units.find(
-        (u: Unit) => u.unit_number.toLowerCase() === SPECIAL_UNITS.WELCOME,
+        (u: Unit) => u.unit_number.trim().toLowerCase() === SPECIAL_UNITS.WELCOME,
       );
 
       if (!welcomeUnit) {

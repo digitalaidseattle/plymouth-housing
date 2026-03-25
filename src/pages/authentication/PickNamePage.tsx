@@ -99,7 +99,7 @@ const PickYourNamePage: React.FC = () => {
   };
 
   const isValidVolunteer = (volunteerId: number | null): boolean =>
-    volunteerId ? activeVolunteers.some(v => v.id === volunteerId) : false;
+    volunteerId !== null && activeVolunteers.some((v) => v.id === volunteerId);
 
   return (
       <MinimalWrapper>

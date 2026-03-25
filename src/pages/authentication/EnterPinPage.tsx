@@ -151,23 +151,21 @@ const EnterPinPage: React.FC = () => {
 
       if (result?.IsValid) {
         trackEvent('PIN_Submission', {
-          volunteerId: loggedInUserId?.toString() || 'unknown',
-          volunteerName: getVolunteerName(loggedInUserId),
+          volunteerId: volunteerId.toString(),
+          volunteerName: getVolunteerName(volunteerId),
           success: true,
           component: 'EnterPinPage',
           action: 'pin_verified',
         });
         handleTheSnackies('Login successful! Redirecting...', 'success');
-        if (loggedInUserId !== null) {
-          result = await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
-        }
+        result = await updateLastSignedIn(volunteerId); // Update last signed-in date after successful login
         navigate('/volunteer-home');
       } else if (result) {
         // API succeeded but PIN was incorrect
         const volunteerName =
-          getVolunteerName(loggedInUserId) || 'unknown volunteer';
+          getVolunteerName(volunteerId) || 'unknown volunteer';
         trackEvent('PIN_Submission', {
-          volunteerId: loggedInUserId?.toString() || 'unknown',
+          volunteerId: volunteerId.toString(),
           volunteerName: volunteerName,
           success: false,
           errorMessage: result.ErrorMessage || 'Incorrect PIN',

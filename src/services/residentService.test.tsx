@@ -6,6 +6,8 @@ import {
   getResidents,
   findResident,
   addResident,
+  getResidentsByBuilding,
+  getAllResidents,
   getLastResidentVisit,
 } from './residentService';
 import { API_HEADERS, ENDPOINTS, SETTINGS } from '../types/constants';
@@ -176,6 +178,64 @@ describe('residentService', () => {
       });
 
       await expect(addResident(user, name, unitId)).rejects.toThrow('Error');
+    });
+  });
+
+  describe('getResidentsByBuilding', () => {
+    const buildingId = 2;
+
+    it('should fetch residents filtered by building successfully', async () => {
+      const mockResponse = {
+        value: [{ id: 1, name: 'Jane', unit_id: 10, unit_number: '101', building_id: 2, building_name: 'B', building_code: 'B2' }],
+      };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await getResidentsByBuilding(user, buildingId);
+
+      const expectedUrl = `${ENDPOINTS.RESIDENTS_BY_BUILDING}?$filter=building_id eq ${buildingId}&$orderby=unit_number`;
+      expect(fetch).toHaveBeenCalledWith(expectedUrl, expect.objectContaining({ method: 'GET' }));
+      expect(result).toEqual(mockResponse.value);
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+      });
+
+      await expect(getResidentsByBuilding(user, buildingId)).rejects.toThrow('Error');
+    });
+  });
+
+  describe('getAllResidents', () => {
+    it('should fetch all residents with a high limit', async () => {
+      const mockResponse = { value: [{ id: 1, name: 'Jane', unit_id: 10, unit_number: '101', building_id: 2, building_name: 'B', building_code: 'B2' }] };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await getAllResidents(user);
+
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('$first=10000'),
+        expect.objectContaining({ method: 'GET' }),
+      );
+      expect(result).toEqual(mockResponse.value);
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+      });
+
+      await expect(getAllResidents(user)).rejects.toThrow('Error');
     });
   });
 

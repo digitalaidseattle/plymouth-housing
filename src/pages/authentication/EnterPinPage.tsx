@@ -214,7 +214,7 @@ const EnterPinPage: React.FC = () => {
               lineHeight: '50px',
             }}
           >
-            Welcome, <span id='volunteer-name'>{getVolunteerName(loggedInUserId)}!</span>
+            Welcome, <span id="volunteer-name">{getVolunteerName(loggedInUserId)}!</span>
           </Typography>
 
           <Typography

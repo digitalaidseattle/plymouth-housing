@@ -98,6 +98,9 @@ const PickYourNamePage: React.FC = () => {
     setSnackbarState((prev) => ({ ...prev, open: false }));
   };
 
+  const isValidVolunteer = (volunteerId: number | null): boolean =>
+    volunteerId ? activeVolunteers.some(v => v.id === volunteerId) : false;
+
   return (
       <MinimalWrapper>
         <CenteredLayout>
@@ -159,7 +162,7 @@ const PickYourNamePage: React.FC = () => {
                 backgroundColor: 'black',
                 color: 'white',
               }}
-              disabled={isLoading || !loggedInUserId}
+              disabled={isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)}
             >
               Continue
             </Button>

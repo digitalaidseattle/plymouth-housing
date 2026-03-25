@@ -9,7 +9,7 @@ import {
   getResidents,
   addResident,
   findResident,
-} from '../../services/checkoutService';
+} from '../../services/residentService';
 
 type WelcomeBasketBuildingDialogProps = {
   showDialog: boolean;

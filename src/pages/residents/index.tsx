@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import {
+  Autocomplete,
   Box,
   CircularProgress,
   FormControl,
@@ -12,49 +13,110 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from '@mui/material';
+import { createFilterOptions } from '@mui/material/Autocomplete';
 import { UserContext } from '../../components/contexts/UserContext';
 import { Building } from '../../types/interfaces';
-import { getBuildings } from '../../services/checkoutService';
+import { getBuildings, getAllResidents } from '../../services/residentService';
 import { useResidentsByBuilding } from './useResidentsByBuilding';
 import SnackbarAlert from '../../components/SnackbarAlert';
+
+type ResidentSearchResult = {
+  id: number;
+  name: string;
+  unit_id: number;
+  unit_number: string;
+  building_id: number;
+  building_code: string;
+};
+
+const filterOptions = createFilterOptions<ResidentSearchResult>({
+  stringify: (o) => o.name,
+});
 
 const ResidentsPage = () => {
   const { user } = useContext(UserContext);
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [allResidents, setAllResidents] = useState<ResidentSearchResult[]>([]);
   const [selectedBuildingId, setSelectedBuildingId] = useState<number | null>(null);
+  const [filteredUnitId, setFilteredUnitId] = useState<number | null>(null);
+  const [searchInput, setSearchInput] = useState('');
   const [buildingsError, setBuildingsError] = useState<string | null>(null);
 
   const { data, isLoading, error: residentsError } = useResidentsByBuilding(selectedBuildingId);
 
+  const visibleData =
+    filteredUnitId !== null
+      ? data.filter((d) => d.unit.id === filteredUnitId)
+      : searchInput
+        ? data.filter((d) =>
+            d.residents.some((r) => r.name.toLowerCase().includes(searchInput.toLowerCase())),
+          )
+        : data;
+
   useEffect(() => {
-    getBuildings(user)
-      .then(setBuildings)
-      .catch(() => setBuildingsError('Failed to load buildings'));
+    getBuildings(user).then(setBuildings).catch(() => setBuildingsError('Failed to load buildings'));
+    getAllResidents(user).then(setAllResidents).catch(() => {});
   }, [user]);
 
   const handleBuildingChange = (e: SelectChangeEvent<number>) => {
     setSelectedBuildingId(e.target.value as number);
+    setFilteredUnitId(null);
+  };
+
+  const handleSearchSelect = (_: React.SyntheticEvent, value: ResidentSearchResult | null) => {
+    if (!value) {
+      setFilteredUnitId(null);
+      return;
+    }
+    setSelectedBuildingId(value.building_id);
+    setFilteredUnitId(value.unit_id);
+  };
+
+  const handleSearchInputChange = (_: React.SyntheticEvent, value: string, reason: string) => {
+    setSearchInput(value);
+    if (reason === 'clear') setFilteredUnitId(null);
   };
 
   return (
     <Box>
-      <FormControl sx={{ minWidth: 240, mb: 3, mt: 3 }}>
-        <InputLabel id="building-select-label">Building</InputLabel>
-        <Select
-          labelId="building-select-label"
-          value={selectedBuildingId ?? ''}
-          label="Building"
-          onChange={handleBuildingChange}
-        >
-          {buildings.map((b) => (
-            <MenuItem key={b.id} value={b.id}>
-              {b.code} — {b.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 3, mb: 3 }}>
+        <FormControl sx={{ minWidth: 240 }}>
+          <InputLabel id="building-select-label">Building</InputLabel>
+          <Select
+            labelId="building-select-label"
+            value={selectedBuildingId ?? ''}
+            label="Building"
+            onChange={handleBuildingChange}
+          >
+            {buildings.map((b) => (
+              <MenuItem key={b.id} value={b.id}>
+                {b.code} — {b.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Autocomplete
+          options={allResidents}
+          getOptionLabel={(o) => `${o.name} — Unit ${o.unit_number} · ${o.building_code}`}
+          filterOptions={filterOptions}
+          inputValue={searchInput}
+          onInputChange={handleSearchInputChange}
+          onChange={handleSearchSelect}
+          noOptionsText="No residents found"
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="standard"
+              placeholder="Search resident by name…"
+            />
+          )}
+          sx={{ flexGrow: 1 }}
+        />
+      </Box>
 
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -62,11 +124,11 @@ const ResidentsPage = () => {
         </Box>
       )}
 
-      {!isLoading && selectedBuildingId !== null && data.length === 0 && (
-        <Typography color="text.secondary">No units found for this building.</Typography>
+      {!isLoading && selectedBuildingId !== null && visibleData.length === 0 && (
+        <Typography color="text.secondary">No units found.</Typography>
       )}
 
-      {!isLoading && data.length > 0 && (
+      {!isLoading && visibleData.length > 0 && (
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -75,7 +137,7 @@ const ResidentsPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map(({ unit, residents }) => (
+            {visibleData.map(({ unit, residents }) => (
               <TableRow key={unit.id} hover>
                 <TableCell>{unit.unit_number}</TableCell>
                 <TableCell>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../components/contexts/UserContext';
 import { Unit } from '../../types/interfaces';
-import { getResidentsByBuilding } from '../../services/checkoutService';
+import { getResidentsByBuilding } from '../../services/residentService';
 
 export type UnitWithResidents = {
   unit: Unit;

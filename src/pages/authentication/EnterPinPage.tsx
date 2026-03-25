@@ -136,18 +136,15 @@ const EnterPinPage: React.FC = () => {
   const handleNextClick = async () => {
     if (pin.every((p) => p !== '')) {
       const enteredPin = pin.join(''); // Combine array into a single string (e.g., '1234')
-      const volunteerId = loggedInUserId; // Capture volunteer ID at submission time
-
-      if (volunteerId === null) {
+      let result = null;
+      if (loggedInUserId !== null) {
+        result = await verifyPin(loggedInUserId, enteredPin);
+      } else {
         handleTheSnackies(
           'Volunteer ID is missing. Please try again.',
           'warning',
         );
-        return;
       }
-
-      let result = null;
-      result = await verifyPin(volunteerId, enteredPin);
 
       if (result?.IsValid) {
         trackEvent('PIN_Submission', {
@@ -163,19 +160,16 @@ const EnterPinPage: React.FC = () => {
         }
         navigate('/volunteer-home');
       } else if (result) {
-        // API succeeded but PIN was incorrect
-        const volunteerName =
-          getVolunteerName(loggedInUserId) || 'unknown volunteer';
         trackEvent('PIN_Submission', {
           volunteerId: loggedInUserId?.toString() || 'unknown',
-          volunteerName: volunteerName,
+          volunteerName: getVolunteerName(loggedInUserId),
           success: false,
           errorMessage: result.ErrorMessage || 'Incorrect PIN',
           component: 'EnterPinPage',
           action: 'pin_failed',
         });
         handleTheSnackies(
-          `${volunteerName}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
+          `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
       }

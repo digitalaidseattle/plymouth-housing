@@ -6,6 +6,26 @@ After logging out, pressing the browser Back button restores the authenticated s
 
 The fix is to switch to SWA **custom authentication** (standard plan only). With custom auth, the SWA runtime maintains a **server-side session**. When `/.auth/logout` is called, that session is invalidated. Any subsequent request — including a Back-button cache restoration that makes an API call — gets a 401, which `responseOverrides` redirects to the AAD login page.
 
+## Quick Fix: Auto-Login After Logout (no Azure admin required)
+
+**Problem**: After logging out, clicking "Log In" silently reuses the previous AAD session — the user never sees a login screen.
+
+**Cause**: SWA's `/.auth/logout` clears the SWA session cookie, but the AAD session cookie on `login.microsoftonline.com` remains alive. Without a `prompt` parameter, AAD silently reuses it.
+
+**Fix**: Add `?prompt=select_account` to the login link in [public/login.html](../../public/login.html):
+
+```html
+<a href="/.auth/login/aad?prompt=select_account" class="btn">Log In</a>
+```
+
+This forces AAD to show the account picker on every login, preventing silent re-authentication. `prompt=select_account` is preferred over `prompt=login` for a shared volunteer device: it lets someone switch accounts without forcing a full password re-entry every time.
+
+**Limitation**: This does not fix the back-button bypass described below. For that, the full custom auth migration is required.
+
+---
+
+## Back-Button Bypass After Logout
+
 Related upstream issues:
 - [How to properly make my SWA logout from a custom identity provider? · Issue #594](https://github.com/Azure/static-web-apps/issues/594)
 - [Impossible to log out with standard aad · Issue #1625](https://github.com/Azure/static-web-apps/issues/1625)

@@ -117,6 +117,30 @@ export async function getUnitNumbers(
   }
 }
 
+export async function getResidentsByBuilding(
+  user: ClientPrincipal | null,
+  buildingId: number,
+) {
+  try {
+    const result = await apiRequest<Array<{
+      id: number;
+      name: string;
+      unit_id: number;
+      unit_number: string;
+      building_id: number;
+      building_name: string;
+      building_code: string;
+    }>>({
+      url: `${ENDPOINTS.RESIDENTS_BY_BUILDING}?$filter=building_id eq ${buildingId}&$orderby=unit_number`,
+      role: getRole(user),
+    });
+    return result.value;
+  } catch (error) {
+    console.error('Error fetching residents by building:', error);
+    throw error;
+  }
+}
+
 export async function getResidents(
   user: ClientPrincipal | null,
   unitId: number,

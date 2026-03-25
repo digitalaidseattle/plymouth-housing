@@ -9,6 +9,7 @@ import People from '../pages/people';
 import Inventory from './inventory';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
 import HistoryPage from './history';
+import ResidentsPage from './residents';
 import { RootRedirect } from './RootRedirect';
 
 const routes = [
@@ -72,6 +73,16 @@ const routes = [
           <RootRedirect source="history">
             <MainContainer title="History">
               <HistoryPage />
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'residents',
+        element: (
+          <RootRedirect source="residents">
+            <MainContainer title="Manage Residents">
+              <ResidentsPage />
             </MainContainer>
           </RootRedirect>
         ),

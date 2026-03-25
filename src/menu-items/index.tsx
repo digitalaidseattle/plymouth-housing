@@ -13,6 +13,7 @@ import {
   UserOutlined,
   HomeOutlined,
   ShoppingCartOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 
 const icons = {
@@ -29,6 +30,7 @@ const icons = {
   UserOutlined,
   HomeOutlined,
   ShoppingCartOutlined,
+  TeamOutlined,
 };
 
 const dashboard = {
@@ -82,6 +84,14 @@ const dashboard = {
       type: 'admin',
       url: '/people',
       icon: icons.UserOutlined,
+      breadcrumbs: false,
+    },
+    {
+      id: 'residents',
+      title: 'Residents',
+      type: 'admin',
+      url: '/residents',
+      icon: icons.TeamOutlined,
       breadcrumbs: false,
     },
     {

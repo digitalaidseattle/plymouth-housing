@@ -33,8 +33,8 @@ const EnterPinPage: React.FC = () => {
   const isPinComplete = pin.every((p) => p !== '');
 
   useEffect(() => {
+    setPin(Array(4).fill('')); // Clear PIN on any loggedInUserId change
     if (!loggedInUserId) {
-      setPin(Array(4).fill('')); // Clear PIN when user changes or logs out
       navigate('/pick-your-name');
     }
   }, [loggedInUserId, navigate]);

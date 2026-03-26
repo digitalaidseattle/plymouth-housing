@@ -61,14 +61,19 @@ const ResidentsPage = () => {
 
   useEffect(() => {
     getBuildings(user).then(setBuildings).catch(() => setBuildingsError('Failed to load buildings'));
-    setAllResidentsLoading(true);
-    getAllResidents(user)
-      .then((residents) => {
+    async function fetchResidents() {
+      setAllResidentsLoading(true);
+      try {
+        const residents = await getAllResidents(user);
         setAllResidents(residents);
         setAllResidentsError(null);
-      })
-      .catch(() => setAllResidentsError('Failed to load residents'))
-      .finally(() => setAllResidentsLoading(false));
+      } catch {
+        setAllResidentsError('Failed to load residents');
+      } finally {
+        setAllResidentsLoading(false);
+      }
+    }
+    fetchResidents();
   }, [user]);
 
   const handleBuildingChange = (e: SelectChangeEvent<number>) => {

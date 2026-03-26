@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import ResidentsPage from './index';
@@ -8,7 +8,7 @@ import React from 'react';
 vi.mock('../../services/residentService', () => ({
   getBuildings: vi.fn().mockResolvedValue([
     { id: 1, name: 'Alpha House', code: 'AH' },
-    { id: 2, name: 'Beta House',  code: 'BH' },
+    { id: 2, name: 'Beta House', code: 'BH' },
   ]),
   getAllResidents: vi.fn().mockResolvedValue([]),
 }));
@@ -22,7 +22,12 @@ import { useResidentsByBuilding } from './useResidentsByBuilding';
 
 const mockHook = vi.mocked(useResidentsByBuilding);
 
-const dummyUser = { userID: '1', userDetails: 'Test', userRoles: ['admin'], claims: [] };
+const dummyUser = {
+  userID: '1',
+  userDetails: 'Test',
+  userRoles: ['admin'],
+  claims: [],
+};
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
   <UserContext.Provider
@@ -47,7 +52,10 @@ const buildingData = [
   },
   {
     unit: { id: 20, unit_number: '202' },
-    residents: [{ id: 2, name: 'Bob Jones' }, { id: 3, name: 'Carol Jones' }],
+    residents: [
+      { id: 2, name: 'Bob Jones' },
+      { id: 3, name: 'Carol Jones' },
+    ],
   },
   {
     unit: { id: 30, unit_number: '303' },
@@ -62,7 +70,11 @@ describe('ResidentsPage', () => {
   });
 
   test('renders building dropdown', async () => {
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     await waitFor(() => {
       expect(screen.getByLabelText('Building')).toBeInTheDocument();
@@ -70,7 +82,11 @@ describe('ResidentsPage', () => {
   });
 
   test('loads buildings on mount', async () => {
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     await waitFor(() => {
       expect(residentService.getBuildings).toHaveBeenCalled();
@@ -78,9 +94,17 @@ describe('ResidentsPage', () => {
   });
 
   test('shows unit and resident rows after building data loads', async () => {
-    mockHook.mockReturnValue({ data: buildingData, isLoading: false, error: null });
+    mockHook.mockReturnValue({
+      data: buildingData,
+      isLoading: false,
+      error: null,
+    });
 
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('101')).toBeInTheDocument();
@@ -90,9 +114,17 @@ describe('ResidentsPage', () => {
   });
 
   test('shows dash for units with no residents', async () => {
-    mockHook.mockReturnValue({ data: buildingData, isLoading: false, error: null });
+    mockHook.mockReturnValue({
+      data: buildingData,
+      isLoading: false,
+      error: null,
+    });
 
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('303')).toBeInTheDocument();
@@ -103,25 +135,47 @@ describe('ResidentsPage', () => {
   test('shows loading spinner while fetching', () => {
     mockHook.mockReturnValue({ data: [], isLoading: true, error: null });
 
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
   test('shows error snackbar when hook reports an error', async () => {
-    mockHook.mockReturnValue({ data: [], isLoading: false, error: 'Failed to load residents' });
+    mockHook.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: 'Failed to load residents',
+    });
 
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Failed to load residents');
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Failed to load residents',
+      );
     });
   });
 
   test('renders all units when data is loaded', async () => {
-    mockHook.mockReturnValue({ data: buildingData, isLoading: false, error: null });
+    mockHook.mockReturnValue({
+      data: buildingData,
+      isLoading: false,
+      error: null,
+    });
 
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('101')).toBeInTheDocument();
@@ -131,10 +185,16 @@ describe('ResidentsPage', () => {
   });
 
   test('renders search input alongside building dropdown', async () => {
-    render(<Wrapper><ResidentsPage /></Wrapper>);
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText('Search resident by name…')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText('Search resident by name…'),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Building')).toBeInTheDocument();
     });
   });

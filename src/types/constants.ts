@@ -42,6 +42,7 @@ export const SETTINGS = {
   checkout_item_limit: 10,
   api_fetch_limit_items: 10000,
   api_fetch_limit_units: 1000,
+  api_fetch_limit_residents: 10000,
   database_retry_attempts: 20,
   database_retry_delay: 5000,
   slow_request_threshold: 1000,

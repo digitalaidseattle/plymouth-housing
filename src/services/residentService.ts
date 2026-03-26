@@ -122,7 +122,7 @@ export async function getAllResidents(user: ClientPrincipal | null) {
       building_name: string;
       building_code: string;
     }>>({
-      url: `${ENDPOINTS.RESIDENTS_BY_BUILDING}?$first=10000`,
+      url: `${ENDPOINTS.RESIDENTS_BY_BUILDING}?$first=${SETTINGS.api_fetch_limit_residents}`,
       role: getRole(user),
     });
     return result.value;

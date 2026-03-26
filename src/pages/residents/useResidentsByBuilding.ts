@@ -24,6 +24,7 @@ export function useResidentsByBuilding(buildingId: number | null) {
 
     async function fetchData() {
       setIsLoading(true);
+      setData([]);
       setError(null);
       try {
         const rows = await getResidentsByBuilding(user, buildingId!);
@@ -36,17 +37,21 @@ export function useResidentsByBuilding(buildingId: number | null) {
               residents: [],
             });
           }
-          unitMap.get(row.unit_id)!.residents.push({ id: row.id, name: row.name });
+          unitMap
+            .get(row.unit_id)!
+            .residents.push({ id: row.id, name: row.name });
         }
 
         const result = Array.from(unitMap.values()).sort((a, b) =>
-          a.unit.unit_number.localeCompare(b.unit.unit_number, undefined, { numeric: true }),
+          a.unit.unit_number.localeCompare(b.unit.unit_number, undefined, {
+            numeric: true,
+          }),
         );
 
         if (!cancelled) {
           setData(result);
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError('Failed to load residents');
         }

@@ -44,21 +44,31 @@ const ResidentsPage = () => {
   const [filteredUnitId, setFilteredUnitId] = useState<number | null>(null);
   const [searchInput, setSearchInput] = useState('');
   const [buildingsError, setBuildingsError] = useState<string | null>(null);
+  const [allResidentsLoading, setAllResidentsLoading] = useState(false);
+  const [allResidentsError, setAllResidentsError] = useState<string | null>(null);
 
   const { data, isLoading, error: residentsError } = useResidentsByBuilding(selectedBuildingId);
 
-  const visibleData =
-    filteredUnitId !== null
-      ? data.filter((d) => d.unit.id === filteredUnitId)
-      : searchInput
-        ? data.filter((d) =>
-            d.residents.some((r) => r.name.toLowerCase().includes(searchInput.toLowerCase())),
-          )
-        : data;
+  let visibleData = data;
+  if (filteredUnitId !== null) {
+    visibleData = visibleData.filter((d) => d.unit.id === filteredUnitId);
+  }
+  if (searchInput) {
+    visibleData = visibleData.filter((d) =>
+      d.residents.some((r) => r.name.toLowerCase().includes(searchInput.toLowerCase())),
+    );
+  }
 
   useEffect(() => {
     getBuildings(user).then(setBuildings).catch(() => setBuildingsError('Failed to load buildings'));
-    getAllResidents(user).then(setAllResidents).catch(() => {});
+    setAllResidentsLoading(true);
+    getAllResidents(user)
+      .then((residents) => {
+        setAllResidents(residents);
+        setAllResidentsError(null);
+      })
+      .catch(() => setAllResidentsError('Failed to load residents'))
+      .finally(() => setAllResidentsLoading(false));
   }, [user]);
 
   const handleBuildingChange = (e: SelectChangeEvent<number>) => {
@@ -107,6 +117,8 @@ const ResidentsPage = () => {
           onInputChange={handleSearchInputChange}
           onChange={handleSearchSelect}
           noOptionsText="No residents found"
+          loading={allResidentsLoading}
+          disabled={allResidentsLoading}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -163,6 +175,11 @@ const ResidentsPage = () => {
       {residentsError && (
         <SnackbarAlert open severity="warning" onClose={() => {}}>
           {residentsError}
+        </SnackbarAlert>
+      )}
+      {allResidentsError && (
+        <SnackbarAlert open severity="warning" onClose={() => setAllResidentsError(null)}>
+          {allResidentsError}
         </SnackbarAlert>
       )}
     </Box>

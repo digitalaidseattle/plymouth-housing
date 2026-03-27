@@ -1,5 +1,7 @@
 // ─── Checkout / Cart ─────────────────────────────────────────────────────────
 
+export type CheckoutType = 'general' | 'welcomeBasket';
+
 export type CheckoutItemProp = {
   id: number;
   name: string;
@@ -33,7 +35,11 @@ export type CategoryProps = {
 export type CheckoutCardProps = {
   item: CheckoutItemProp;
   categoryCheckout: CategoryProps;
-  addItemToCart: (item: CheckoutItemProp, quantity: number, category: string) => void;
+  addItemToCart: (
+    item: CheckoutItemProp,
+    quantity: number,
+    category: string,
+  ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disableAdd?: boolean;
@@ -48,6 +54,12 @@ export type ShoppingCart = {
   items: CheckoutItemProp[];
 };
 
+export type ResidentFormError = {
+  buildingError: boolean;
+  unitError: boolean;
+  nameError: boolean;
+};
+
 // ─── Users / Auth ─────────────────────────────────────────────────────────────
 
 export interface ClientPrincipal {
@@ -58,7 +70,7 @@ export interface ClientPrincipal {
 
 export interface UserContextType {
   user: ClientPrincipal | null;
-  setUser: (user: ClientPrincipal) => void;
+  setUser: (user: ClientPrincipal | null) => void;
   loggedInUserId: number | null;
   setLoggedInUserId: (loggedInVolunteer: number | null) => void;
   activeVolunteers: User[];
@@ -100,6 +112,12 @@ export type VolunteerUser = BaseUser & {
 export type User = AdminUser | VolunteerUser;
 
 // ─── Inventory ────────────────────────────────────────────────────────────────
+
+export type InventoryResult = {
+  Status: string;
+  ErrorCode?: string;
+  message?: string;
+};
 
 export type InventoryItem = {
   id: number;
@@ -183,3 +201,12 @@ export type TransactionsByUser<T> = {
   user_id: number;
   transactions: T[];
 };
+
+// ─── Context Types ────────────────────────────────────────────────────────────
+
+export interface SpinUpContextType {
+  showDialog: boolean;
+  retryCount: number;
+  setShowDialog: (show: boolean) => void;
+  setRetryCount: (count: number) => void;
+}

@@ -9,7 +9,7 @@ import {
   getResidents,
   addResident,
   findResident,
-} from '../../services/CheckoutAPICalls';
+} from '../../services/checkoutService';
 
 type WelcomeBasketBuildingDialogProps = {
   showDialog: boolean;
@@ -64,7 +64,7 @@ const WelcomeBasketBuildingDialog = ({
       // Fetch or create admin resident for the welcome unit
       const residentsResponse = await getResidents(user, welcomeUnit.id);
       const adminResident = residentsResponse.value.find(
-        (r: { name: string }) => r.name.toLowerCase() === 'admin',
+        (r) => r.name.toLowerCase() === 'admin',
       );
 
       let residentId: number;
@@ -132,6 +132,7 @@ const WelcomeBasketBuildingDialog = ({
             setSelectedUnit={() => {}} // No-op since we don't show unit selector
             fetchUnitNumbers={async () => {}} // No-op since we handle units in submit
             error={showError && !selectedBuilding.id}
+            resetError={() => setShowError(false)}
             disabled={isSubmitting}
           />
         </FormControl>

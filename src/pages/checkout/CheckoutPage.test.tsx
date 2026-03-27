@@ -213,11 +213,11 @@ describe('CheckoutPage - Welcome Basket Mode', () => {
           json: () => Promise.resolve({
             value: [
               {
-                id: 2,
+                id: 15,
                 category: 'Welcome Basket',
                 items: [
-                  { id: 162, name: 'Full-size sheet set', quantity: 5 },
-                  { id: 163, name: 'Twin-size sheet set', quantity: 3 },
+                  { id: 172, name: 'Full-size sheet set', quantity: 5 },
+                  { id: 171, name: 'Twin-size sheet set', quantity: 3 },
                   { id: 164, name: 'Pillow', quantity: 10 },
                 ],
               },

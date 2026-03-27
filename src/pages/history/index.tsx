@@ -44,10 +44,7 @@ const HistoryPage: React.FC = () => {
     'checkout',
   );
 
-  const {
-    transactionsByUser,
-    isLoading: isLoadingHistory,
-  } = useHistoryData({
+  const { transactionsByUser, isLoading: isLoadingHistory } = useHistoryData({
     user,
     formattedDateRange,
     historyType,
@@ -165,7 +162,7 @@ const HistoryPage: React.FC = () => {
         </FormControl>
       </Stack>
 
-      <Stack direction="row" alignItems="center" gap="1.5rem">
+      <Stack>
         <Typography variant="h2" textTransform="capitalize">
           {dateRange.isCustom ? dateRangeString : dateInput}
         </Typography>
@@ -176,17 +173,30 @@ const HistoryPage: React.FC = () => {
             {dateInput !== 'this week' ? dateString : dateRangeString}
           </Typography>
         )}
+        {!isLoading && (() => {
+          const totalRecords = transactionsByUser.reduce(
+            (sum, user) => sum + user.transactions.length,
+            0,
+          );
+          return (
+            <Typography variant="body1">
+              Showing {totalRecords} {totalRecords === 1 ? 'record' : 'records'} total
+            </Typography>
+          );
+        })()}
       </Stack>
       {isLoading ? (
         <CircularLoader />
       ) : (
-        <TransactionsList
-          transactionsByUser={transactionsByUser}
-          userList={userList}
-          buildings={buildings}
-          loggedInUserId={loggedInUserId}
-          historyType={historyType}
-        />
+        <>
+          <TransactionsList
+            transactionsByUser={transactionsByUser}
+            userList={userList}
+            buildings={buildings}
+            loggedInUserId={loggedInUserId}
+            historyType={historyType}
+          />
+        </>
       )}
     </Stack>
   );

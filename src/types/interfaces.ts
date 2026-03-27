@@ -151,6 +151,7 @@ export enum TransactionType {
   Checkout = 1,
   InventoryAdd = 2,
   InventoryReplaceValue = 3,
+  CheckoutEdit = 4,
 }
 
 export type CheckoutTransaction = {
@@ -161,6 +162,8 @@ export type CheckoutTransaction = {
   total_quantity: number;
   transaction_date: string;
   transaction_id: string;
+  parent_transaction_id?: string;
+  is_edited?:boolean;
   unit_number: string;
   user_id: number;
   welcome_basket_item_id: number | null;

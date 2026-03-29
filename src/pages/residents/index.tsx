@@ -60,7 +60,12 @@ const ResidentsPage = () => {
   }
 
   useEffect(() => {
-    getBuildings(user).then(setBuildings).catch(() => setBuildingsError('Failed to load buildings'));
+    getBuildings(user)
+      .then((loadedBuildings) => {
+        setBuildings(loadedBuildings);
+        setBuildingsError(null);
+      })
+      .catch(() => setBuildingsError('Failed to load buildings'));
     async function fetchResidents() {
       setAllResidentsLoading(true);
       try {
@@ -91,8 +96,12 @@ const ResidentsPage = () => {
   };
 
   const handleSearchInputChange = (_: React.SyntheticEvent, value: string, reason: string) => {
-    setSearchInput(value);
-    if (reason === 'clear') setFilteredUnitId(null);
+    if (reason === 'input') {
+      setSearchInput(value);
+    } else if (reason === 'clear' || reason === 'reset') {
+      setSearchInput('');
+      setFilteredUnitId(null);
+    }
   };
 
   return (

@@ -135,6 +135,18 @@ export type CategoryItem = {
   item_limit: number;
 };
 
+export type AdminItem = {
+  id: number;
+  name: string;
+  type: string;
+  category_id: number;
+  category_name?: string;
+  description: string | null;
+  quantity: number;
+  threshold: number;
+  items_per_basket: number | null;
+};
+
 // ─── Location / Residents ─────────────────────────────────────────────────────
 
 export type Building = {

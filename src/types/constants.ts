@@ -56,8 +56,24 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  admin: ['inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'people', 'residents', 'history'],
-  volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'history'],
+  admin: [
+    'inventory',
+    'checkout',
+    'checkout-general',
+    'checkout-welcome-basket',
+    'people',
+    'residents',
+    'history',
+    'catalog',
+  ],
+  volunteer: [
+    'volunteer-home',
+    'inventory',
+    'checkout',
+    'checkout-general',
+    'checkout-welcome-basket',
+    'history',
+  ],
 } as const;
 
 export const CATEGORY_IDS = {

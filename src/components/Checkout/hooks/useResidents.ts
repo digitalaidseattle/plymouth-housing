@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Unit, ClientPrincipal, ResidentNameOption } from '../../../types/interfaces';
-import { getResidents, getLastResidentVisit } from '../../../services/checkoutService';
+import { getResidents, getLastResidentVisit } from '../../../services/residentService';
 
 export const useResidents = (
     user: ClientPrincipal | null,

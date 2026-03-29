@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Unit, ClientPrincipal } from '../../../types/interfaces';
-import { getUnitNumbers } from '../../../services/checkoutService';
+import { getUnitNumbers } from '../../../services/residentService';
 
 export const useUnitNumbers = (
     setSelectedUnit: (unit: Unit) => void,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Building, CategoryProps, User } from '../types/interfaces';
-import { getBuildings } from '../services/checkoutService';
+import { getBuildings } from '../services/residentService';
 import { getUsers } from '../services/userService';
 import { getCategorizedItems } from '../services/itemsService';
 import type { ClientPrincipal } from '../types/interfaces';

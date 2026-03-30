@@ -1,34 +1,11 @@
 import {
+  CheckoutRow,
   CheckoutTransaction,
+  InventoryRow,
   InventoryTransaction,
   TransactionType,
   TransactionsByUser,
 } from '../../types/interfaces';
-
-type CheckoutRow = {
-  user_id: number;
-  transaction_id: string;
-  transaction_type: number;
-  parent_transaction_id: string | null;
-  resident_id: number;
-  resident_name: string;
-  unit_number: string;
-  building_id: number;
-  transaction_date: string;
-  total_quantity: number;
-  welcome_basket_item_id: number | null;
-  welcome_basket_quantity: number | null;
-};
-
-type InventoryRow = {
-  user_id: number;
-  transaction_id: string;
-  transaction_type: number;
-  transaction_date: string;
-  item_name: string;
-  category_name: string;
-  quantity: number;
-};
 
 export function processTransactionsByUser(
   history: CheckoutTransaction[] | InventoryTransaction[],

@@ -2,6 +2,7 @@ import React, { FormEvent, useState, useContext } from 'react';
 import { Box, FormControl, Typography } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
+import { SPECIAL_UNITS } from '../../types/constants';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
 import {
@@ -49,7 +50,7 @@ const WelcomeBasketBuildingDialog = ({
     try {
       const units = await getUnitNumbers(user, selectedBuilding.id);
       const welcomeUnit = units.find(
-        (u: Unit) => u.unit_number.toLowerCase() === 'welcome',
+        (u: Unit) => u.unit_number.trim().toLowerCase() === SPECIAL_UNITS.WELCOME,
       );
 
       if (!welcomeUnit) {

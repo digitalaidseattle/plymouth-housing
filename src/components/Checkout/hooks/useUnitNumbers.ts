@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Unit, ClientPrincipal } from '../../../types/interfaces';
 import { getUnitNumbers } from '../../../services/residentService';
+import { SPECIAL_UNITS } from '../../../types/constants';
 
 export const useUnitNumbers = (
     setSelectedUnit: (unit: Unit) => void,
@@ -16,7 +17,10 @@ export const useUnitNumbers = (
         try {
             const response = await getUnitNumbers(user, buildingId);
             const unitNumbers = response
-                .filter((item: Unit) => item.unit_number.trim() !== '');
+                .filter((item: Unit) =>
+                    item.unit_number.trim() !== '' &&
+                    item.unit_number.trim().toLowerCase() !== SPECIAL_UNITS.WELCOME
+                );
             setUnitNumberValues(unitNumbers);
             setSelectedUnit({id: 0, unit_number: ''});
         } catch (error) {

@@ -181,10 +181,12 @@ export enum TransactionType {
   Checkout = 1,
   InventoryAdd = 2,
   InventoryReplaceValue = 3,
+  CheckoutEdit = 4,
 }
 
 export type CheckoutTransaction = {
   building_id: number;
+  is_edited: boolean;
   item_type: 'general' | 'welcome';
   resident_id: number;
   resident_name: string;

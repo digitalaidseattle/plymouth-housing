@@ -8,6 +8,8 @@ import {
 type CheckoutRow = {
   user_id: number;
   transaction_id: string;
+  transaction_type: number;
+  parent_transaction_id: string | null;
   resident_id: number;
   resident_name: string;
   unit_number: string;
@@ -50,20 +52,40 @@ export function processTransactionsByUser(
   }));
 }
 
+// Maps raw checkout rows to CheckoutTransactions. CHECKOUT_EDIT (type=4) rows are
+// delta corrections to an original CHECKOUT (type=1): their quantities are summed
+// and applied to the original's total. Edit rows are excluded from the output;
+// originals with at least one edit are flagged with is_edited=true.
 export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
-  return rows.map((row) => ({
-    user_id: row.user_id,
-    transaction_id: row.transaction_id,
-    resident_id: row.resident_id,
-    resident_name: row.resident_name,
-    unit_number: row.unit_number,
-    building_id: row.building_id,
-    transaction_date: row.transaction_date,
-    total_quantity: row.total_quantity,
-    welcome_basket_item_id: row.welcome_basket_item_id,
-    welcome_basket_quantity: row.welcome_basket_quantity,
-    item_type: row.welcome_basket_item_id != null ? 'welcome' : 'general',
-  }));
+  const editsByParent = new Map<string, CheckoutRow[]>();
+  for (const row of rows) {
+    if (row.transaction_type === TransactionType.CheckoutEdit && row.parent_transaction_id) {
+      const edits = editsByParent.get(row.parent_transaction_id) ?? [];
+      edits.push(row);
+      editsByParent.set(row.parent_transaction_id, edits);
+    }
+  }
+
+  return rows
+    .filter((row) => row.transaction_type === TransactionType.Checkout)
+    .map((row) => {
+      const edits = editsByParent.get(row.transaction_id) ?? [];
+      const deltaQuantity = edits.reduce((sum, e) => sum + e.total_quantity, 0);
+      return {
+        user_id: row.user_id,
+        transaction_id: row.transaction_id,
+        resident_id: row.resident_id,
+        resident_name: row.resident_name,
+        unit_number: row.unit_number,
+        building_id: row.building_id,
+        transaction_date: row.transaction_date,
+        total_quantity: row.total_quantity + deltaQuantity,
+        welcome_basket_item_id: row.welcome_basket_item_id,
+        welcome_basket_quantity: row.welcome_basket_quantity,
+        item_type: row.welcome_basket_item_id != null ? 'welcome' : 'general',
+        is_edited: edits.length > 0,
+      };
+    });
 }
 
 function toInventoryTransactionType(

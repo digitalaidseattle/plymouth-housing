@@ -16,6 +16,8 @@ BEGIN
     SELECT
         Transactions.user_id,
         Transactions.id AS transaction_id,
+        Transactions.transaction_type,
+        Transactions.parent_transaction_id,
         Transactions.resident_id,
         Residents.name AS resident_name,
         Units.unit_number,
@@ -36,6 +38,8 @@ BEGIN
     GROUP BY
         Transactions.user_id,
         Transactions.id,
+        Transactions.transaction_type,
+        Transactions.parent_transaction_id,
         Transactions.resident_id,
         Residents.name,
         Units.unit_number,

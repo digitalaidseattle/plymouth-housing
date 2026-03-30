@@ -13,10 +13,6 @@ BEGIN
         RETURN;
     END
 
-    -- Query for the checkout transaction type ID
-    DECLARE @CheckoutTransactionType INT;
-    SELECT @CheckoutTransactionType = id FROM TransactionTypes WHERE transaction_type = 'CHECKOUT';
-
     SELECT
         Transactions.user_id,
         Transactions.id AS transaction_id,
@@ -36,7 +32,7 @@ BEGIN
     INNER JOIN TransactionItems ti ON ti.transaction_id = Transactions.id
     WHERE [transaction_date] >= @start_date
         AND [transaction_date] <= @end_date
-        AND [transaction_type] = @CheckoutTransactionType
+        AND [transaction_type] IN (SELECT id FROM TransactionTypes WHERE transaction_type IN ('CHECKOUT', 'CHECKOUT_EDIT'))
     GROUP BY
         Transactions.user_id,
         Transactions.id,

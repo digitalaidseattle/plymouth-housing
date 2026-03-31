@@ -67,11 +67,13 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         >
           {residentLabel}
         </Button>
-        <SearchBar
-          data={data}
-          setSearchData={setSearchData}
-          setSearchActive={setSearchActive}
-        />
+        {checkoutType === 'general' && (
+          <SearchBar
+            data={data}
+            setSearchData={setSearchData}
+            setSearchActive={setSearchActive}
+          />
+        )}
       </Box>
       {!searchActive && checkoutType === 'general' && (
         <Navbar

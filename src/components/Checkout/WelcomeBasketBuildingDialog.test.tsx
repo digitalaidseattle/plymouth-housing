@@ -3,10 +3,10 @@ import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import WelcomeBasketBuildingDialog from './WelcomeBasketBuildingDialog';
 import { UserContext } from '../contexts/UserContext';
-import * as CheckoutAPICalls from '../../services/checkoutService';
+import * as CheckoutAPICalls from '../../services/residentService';
 
 // Mock the CheckoutAPICalls module
-vi.mock('../../services/checkoutService', () => ({
+vi.mock('../../services/residentService', () => ({
   getUnitNumbers: vi.fn(),
   getResidents: vi.fn(),
   findResident: vi.fn(),

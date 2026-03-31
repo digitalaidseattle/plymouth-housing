@@ -22,7 +22,7 @@ class TestAddItem:
         initial_quantity = inventory_page.get_inventory_quantity(item)
         print(f"Before checkout - '{item} quantity: {initial_quantity}'")
 
-        inventory_page.click_on_add_item(driver)
+        inventory_page.click_on_add_item()
 
         add_item_page = AddItemPage(driver)
         add_item_page.click_inventory_type()

@@ -57,20 +57,24 @@ describe('EnterPinPage Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
   });
 
-  test('shows snackbar warning when PIN is incomplete', async () => {
+  test('disables Continue button when PIN is incomplete', async () => {
     render(
       <UserContext.Provider value={createUserContextValue()}>
         <EnterPinPage />
       </UserContext.Provider>
     );
 
-    // With default PIN state (["", "", "", ""]), click Continue.
+    // With default PIN state (["", "", "", ""]), Continue button should be disabled
     const continueButton = screen.getByRole('button', { name: /Continue/i });
-    fireEvent.click(continueButton);
+    expect(continueButton).toBeDisabled();
 
-    // Expect a warning snackbar message about incomplete PIN
+    // Simulate entering a complete PIN via the mocked PinInput.
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '1234' } });
+
+    // After PIN is complete, button should be enabled
     await waitFor(() => {
-      expect(screen.getByText(/Please enter your PIN before continuing./i)).toBeInTheDocument();
+      expect(continueButton).not.toBeDisabled();
     });
   });
 

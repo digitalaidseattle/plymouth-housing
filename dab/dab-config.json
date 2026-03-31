@@ -181,6 +181,23 @@
         }
       ]
     },
+    "ResidentsByBuilding": {
+      "source": {
+        "object": "dbo.ResidentsByBuilding",
+        "type": "table",
+        "key-fields": ["id"]
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/residents-by-building"
+      },
+      "permissions": [
+        {
+          "actions": ["read"],
+          "role": "admin"
+        }
+      ]
+    },
     "VerifyPin": {
       "source": {
         "object": "dbo.VerifyVolunteerPin",

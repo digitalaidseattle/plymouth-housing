@@ -168,7 +168,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
         residentInfoIsMissing={residentInfoIsMissing}
         checkoutType={checkoutType}
         searchActive={searchActive}
-        data={data}
+        data={filteredData}
         navbarData={navbarData}
         setSearchData={setSearchData}
         setSearchActive={setSearchActive}

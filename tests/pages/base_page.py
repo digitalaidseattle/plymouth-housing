@@ -84,11 +84,11 @@ class BasePage:
 
                 return
 
-            except (StaleElementReferenceException, TimeoutException):
+            except (StaleElementReferenceException, TimeoutException) as err:
                 if attempt == retries - 1:
                     raise TimeoutException(
                         f"Failed to click {locator} after {retries} retries"
-                    )
+                    ) from err
 
     # ---------------------------------------------------
     # Input

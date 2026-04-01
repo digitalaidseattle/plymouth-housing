@@ -27,38 +27,6 @@ class CheckOutPage(BasePage):
 
         self.wait_for_visibility(self.locators.CHECKOUT_INFO_TEXT, timeout=15)
 
-    # ---------------------------------------------------
-    # CORE AUTOCOMPLETE ENGINE (FINAL FIXED)
-    # ---------------------------------------------------
-
-    def _select_autocomplete(self, input_locator, options_locator, trigger_text):
-        input_el = self.wait_for_visibility(input_locator)
-
-        self.get_wait(10).until(lambda d: input_el.is_enabled())
-
-        input_el.click()
-        input_el.clear()
-        input_el.send_keys(trigger_text)
-
-        # wait options
-        options = self.get_wait(20).until(
-            lambda d: [
-                el for el in d.find_elements(*options_locator)
-                if el.is_displayed() and el.text.strip()
-            ]
-        )
-
-        first_option = options[0]
-
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", first_option)
-        first_option.click()
-
-        # 🔥 CRITICAL FIX (NO ENTER)
-        self.driver.execute_script("arguments[0].blur();", input_el)
-
-        self.get_wait(10).until(
-            lambda d: input_el.get_attribute("value") != ""
-        )
 
     # ---------------------------------------------------
     # Dropdown Selections
@@ -70,7 +38,7 @@ class CheckOutPage(BasePage):
             self.locators.BUILDING_OPTIONS
         )
 
-        # dependent dropdown hazır mı?
+        # Ensure dependent dropdown is enabled
         self.get_wait(20).until(
             lambda d: d.find_element(*self.locators.UNIT_NUMBER).is_enabled()
         )
@@ -81,12 +49,6 @@ class CheckOutPage(BasePage):
             self.locators.UNIT_OPTIONS
         )
 
-    # def select_first_name(self):
-    #     self.select_from_autocomplete(
-    #         self.locators.NAME_INPUT,
-    #         self.locators.NAME_OPTIONS
-    #     )
-
     # ---------------------------------------------------
     # Actions
     # ---------------------------------------------------
@@ -94,25 +56,28 @@ class CheckOutPage(BasePage):
     def click_continue_button(self, timeout=20):
         wait = self.get_wait(timeout)
 
-        continue_btn = wait.until(
-            EC.presence_of_element_located(self.locators.CONTINUE_BUTTON)
-        )
-
-        # ✅ enabled olmasını bekle (CRITICAL)
+        # Wait until button is enabled (fresh lookup to avoid stale element)
         wait.until(
-            lambda d: "Mui-disabled" not in continue_btn.get_attribute("class")
+            lambda d: "Mui-disabled" not in d.find_element(
+                *self.locators.CONTINUE_BUTTON
+            ).get_attribute("class")
         )
 
-        # scroll
+        # Re-fetch element after state change (React re-render safe)
+        continue_btn = wait.until(
+            EC.element_to_be_clickable(self.locators.CONTINUE_BUTTON)
+        )
+
+        # Scroll into view
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
             continue_btn
         )
 
-        # hover (optional ama güzel)
+        # Hover (optional)
         ActionChains(self.driver).move_to_element(continue_btn).perform()
 
-        # click
+        # Click using JS for stability
         self.driver.execute_script(
             "arguments[0].click();",
             continue_btn
@@ -121,6 +86,7 @@ class CheckOutPage(BasePage):
     def wait_for_resident_autofill(self, timeout=20):
         wait = self.get_wait(timeout)
 
+        # Wait until resident field is auto-populated
         wait.until(
             lambda d: self.driver.find_element(
                 *self.locators.NAME_INPUT
@@ -164,6 +130,13 @@ class CheckOutPage(BasePage):
 
         search_field.click()
         search_field.clear()
+
+        # Ensure the input field is fully cleared before typing
+        wait.until(lambda d: search_field.get_attribute("value") == "")
+
+        # Ensure the field is ready for input
+        wait.until(lambda d: search_field.is_enabled())
+
         search_field.send_keys(item_name)
 
     # ---------------------------------------------------

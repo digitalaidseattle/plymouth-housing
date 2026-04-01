@@ -18,7 +18,7 @@ from tests.utilities.data import (
 )
 
 # ---------------------------------------------------
-# WebDriver Fixture (🔥 STABLE)
+# WebDriver Fixture ( STABLE)
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
@@ -47,10 +47,6 @@ def driver():
 
     yield driver
 
-    # DEBUG SAFE TEARDOWN
-    if hasattr(pytest, "current_test_failed") and pytest.current_test_failed:
-        driver.save_screenshot("failure.png")
-
     driver.quit()
 
 
@@ -72,6 +68,7 @@ def login_with_volunteer(driver):
 
     #  DB + dropdown ready
     login_page.wait_for_volunteer_ready()
+    login_page.wait_for_full_app_ready()
 
     # FIXED (NEW ENGINE)
     login_page.select_volunteer()

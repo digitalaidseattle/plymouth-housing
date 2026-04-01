@@ -73,7 +73,7 @@ class LoginPage(BasePage):
             lambda d: len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
         )
 
-        print("Database is ready ✅")
+        print("Database is ready")
 
     def wait_for_volunteer_ready(self):
         self.wait_for_database_ready()
@@ -83,19 +83,22 @@ class LoginPage(BasePage):
         )
 
     # ---------------------------------------------------
-    #  FINAL AUTOCOMPLETE ENGINE (IMPORTANT)
+    # Application Readiness
     # ---------------------------------------------------
 
     def wait_for_full_app_ready(self):
         WebDriverWait(self.driver, 60).until(
             lambda d: (
-                    "Loading, please wait" not in d.page_source
-                    and len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
+                "Loading, please wait" not in d.page_source
+                and len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
             )
         )
 
-    def select_volunteer(self, name="John Doe 1234"):
+    # ---------------------------------------------------
+    # Volunteer Selection (Autocomplete)
+    # ---------------------------------------------------
 
+    def select_volunteer(self, name="John Doe 1234"):
         input_el = self.wait.until(
             EC.visibility_of_element_located(self.locators.USER_PERSON)
         )
@@ -104,31 +107,34 @@ class LoginPage(BasePage):
 
         input_el.click()
         input_el.clear()
-        input_el.send_keys(name[:2])  #  trigger
 
-        options = self.wait.until(
-            lambda d: [
-                el for el in d.find_elements(*self.locators.NAME_OPTIONS)
-                if el.is_displayed() and el.text.strip()
-            ]
+        # Trigger dropdown
+        input_el.send_keys(name[:2])
+
+        # Wait for the matching option (handles async loading and race conditions)
+        option = self.wait.until(
+            lambda d: next(
+                (
+                    el for el in d.find_elements(*self.locators.NAME_OPTIONS)
+                    if el.is_displayed()
+                    and el.text.strip()
+                    and name.lower() in el.text.lower()
+                ),
+                False
+            )
         )
 
-        option = next(
-            el for el in options
-            if name.lower() in el.text.lower()
-        )
+        # Click using JavaScript for better stability
+        self.driver.execute_script("arguments[0].click();", option)
 
-        from selenium.webdriver.common.action_chains import ActionChains
+        # Blur to ensure React state is committed
+        self.driver.execute_script("arguments[0].blur();", input_el)
 
-        ActionChains(self.driver) \
-            .move_to_element(option) \
-            .pause(0.2) \
-            .click() \
-            .perform()
-
-        #  VERIFY SELECTION
+        # Verify selection using fresh lookup (avoid stale element issues)
         self.wait.until(
-            lambda d: name.lower() in input_el.get_attribute("value").lower()
+            lambda d: name.lower() in d.find_element(
+                *self.locators.USER_PERSON
+            ).get_attribute("value").lower()
         )
 
     def click_continue_button(self):

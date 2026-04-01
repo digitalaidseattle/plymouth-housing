@@ -163,6 +163,10 @@ class BasePage:
             lambda d: len(d.find_elements(*locator)) > 0
         )
 
+    # ---------------------------------------------------
+    # Autocomplete (STABLE)
+    # ---------------------------------------------------
+
     def select_from_autocomplete(
             self,
             input_locator,
@@ -175,7 +179,7 @@ class BasePage:
             EC.element_to_be_clickable(input_locator)
         )
 
-        # scroll + click (dropdown aç)
+        # scroll + click (open dropdown)
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
             input_el
@@ -183,12 +187,12 @@ class BasePage:
 
         input_el.click()
 
-        # 🔥 MUI dropdown açılması için küçük bekleme
+        # wait dropdown open (MUI)
         wait.until(
             lambda d: input_el.get_attribute("aria-expanded") == "true"
         )
 
-        # options bekle
+        # wait options
         options = wait.until(
             lambda d: [
                 el for el in d.find_elements(*options_locator)
@@ -196,31 +200,30 @@ class BasePage:
             ]
         )
 
+        # guard against empty list
         if not options:
             raise TimeoutException(
                 f"No visible options found for autocomplete {input_locator}"
             )
 
         first_option = options[0]
-
-        first_option = options[0]
         selected_text = first_option.text.strip()
 
-        # 🔥 garanti click
+        # click option (JS safer)
         self.driver.execute_script(
             "arguments[0].click();",
             first_option
         )
 
-        # blur (React commit)
+        # blur for React commit
         self.driver.execute_script("arguments[0].blur();", input_el)
 
-        # ✅ GERÇEK selection bekle
+        # verify selection
         wait.until(
             lambda d: input_el.get_attribute("value") == selected_text
         )
 
-        # dropdown kapandı mı
+        # wait dropdown closed
         wait.until(
             lambda d: input_el.get_attribute("aria-expanded") != "true"
         )

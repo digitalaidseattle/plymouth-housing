@@ -42,15 +42,25 @@ class HistoryPage(BasePage):
 
     def get_record_count_number(self):
         """
-        Extract numeric record count from text like 'You 10 records'
+        Extract numeric record count from text such as:
+        'You 10 records', '1,234 records', or 'Showing 1-20 of 130'
         """
         if not self.is_visible(self.locators.RECORD_COUNT_TEXT, timeout=5):
             return 0
 
         text = self.get_record_count_text()
 
-        match = re.search(r"\d+", text)
-        return int(match.group()) if match else 0
+        # Extract all numeric values (including formatted numbers with commas)
+        numbers = re.findall(r"\d[\d,]*", text)
+
+        if not numbers:
+            return 0
+
+        # Remove commas and convert to integers
+        parsed_numbers = [int(n.replace(",", "")) for n in numbers]
+
+        # Return the largest number (typically the total record count)
+        return max(parsed_numbers)
 
     # ---------- Card Retrieval ----------
 
@@ -80,10 +90,11 @@ class HistoryPage(BasePage):
 
     def wait_for_record_count_to_be(self, expected_count, timeout=20):
         """
-        Wait until record count equals expected value (strict)
+        Wait until record count reaches at least the expected value.
+        Final equality should be asserted in the test.
         """
         WebDriverWait(self.driver, timeout).until(
-            lambda _: self.get_record_count_number() == expected_count
+            lambda _: self.get_record_count_number() >= expected_count
         )
 
     # ---------- Misc ----------
@@ -99,5 +110,9 @@ class HistoryPage(BasePage):
     def debug_print_cards(self):
         cards = self.get_history_cards()
         print(f"[DEBUG] Total visible cards: {len(cards)}")
+
         for i, card in enumerate(cards):
-            print(f"[CARD {i}] {card.text.strip()}")
+            text = card.text.strip()
+            preview = text[:30] + "..." if len(text) > 30 else text
+
+            print(f"[CARD {i}] length={len(text)} preview='{preview}'")

@@ -71,8 +71,8 @@ class TestInventory:
         # Unit (dependent dropdown → MUST WAIT)
         checkout_page.select_first_unit_number()
 
-        # Name (AUTOCOMPLETE → MUST TRIGGER)
-        checkout_page.select_first_name()   # ✅ FIXED
+        # Name
+        checkout_page.wait_for_resident_autofill()
 
         # Continue (state-based safe)
         checkout_page.click_continue_button()

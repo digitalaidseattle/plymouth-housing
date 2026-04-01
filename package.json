@@ -19,7 +19,7 @@
     "@emotion/styled": "^11.11.0",
     "@microsoft/applicationinsights-web": "^3.3.11",
     "@microsoft/clarity": "^1.0.0",
-    "@mui/icons-material": "^7.1.0",
+    "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.1.0",
     "@mui/x-date-pickers": "^8.18.0",
     "dayjs": "^1.11.19",

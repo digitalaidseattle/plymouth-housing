@@ -196,6 +196,13 @@ class BasePage:
             ]
         )
 
+        if not options:
+            raise TimeoutException(
+                f"No visible options found for autocomplete {input_locator}"
+            )
+
+        first_option = options[0]
+
         first_option = options[0]
         selected_text = first_option.text.strip()
 

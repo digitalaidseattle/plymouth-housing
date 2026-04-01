@@ -28,9 +28,11 @@ class HistoryPage(BasePage):
             )
         )
 
-        #  stabilize (avoid UI flicker / async load issues)
         WebDriverWait(self.driver, 10).until(
-            lambda _: self.get_record_count_number() >= 0
+            lambda d: (
+                d.find_elements(*self.locators.RECORD_COUNT_TEXT)
+                or d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)
+            )
         )
 
     # ---------- Record Count ----------

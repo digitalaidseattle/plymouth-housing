@@ -24,8 +24,7 @@ def test_login_volunteer(driver, login_page):
     login_page.handle_stay_signed_in()
 
     # --- Pick Name (cold start safe inside click_person) ---
-    login_page.click_person()
-    login_page.select_first_option()
+    login_page.select_volunteer("John Doe 1234")
     login_page.click_continue_button()
 
     # --- PIN ---

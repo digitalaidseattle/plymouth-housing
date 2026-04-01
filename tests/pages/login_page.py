@@ -1,16 +1,20 @@
-from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
+from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 
-from tests.pages.base_page import BasePage
-from tests.utilities.locators import LoginPageLocators
 from selenium.common.exceptions import (
+    TimeoutException,
     NoSuchElementException,
     StaleElementReferenceException
 )
 
+from tests.pages.base_page import BasePage
+from tests.utilities.locators import LoginPageLocators
+
+
 class LoginPage(BasePage):
+
     def __init__(self, driver):
         super().__init__(driver)
         self.locators = LoginPageLocators
@@ -18,7 +22,7 @@ class LoginPage(BasePage):
         self.wait = WebDriverWait(
             driver,
             timeout=60,
-            poll_frequency=1,  # her 1 sn kontrol
+            poll_frequency=1,
             ignored_exceptions=[
                 NoSuchElementException,
                 StaleElementReferenceException
@@ -26,7 +30,7 @@ class LoginPage(BasePage):
         )
 
     # ---------------------------------------------------
-    # Basic Microsoft Login
+    # Microsoft Login
     # ---------------------------------------------------
 
     def enter_username(self, username):
@@ -39,16 +43,10 @@ class LoginPage(BasePage):
         self.click(self.locators.NEXT_BUTTON)
 
     def click_sign_in_button(self):
-        for _ in range(3):
-            try:
-                self.click(self.locators.SIGN_IN_BUTTON)
-                return
-            except StaleElementReferenceException:
-                continue
-        raise Exception("Failed to click the sign-in button due to stale element.")
+        self.click(self.locators.SIGN_IN_BUTTON)
 
     # ---------------------------------------------------
-    # Microsoft "Stay signed in?" (Optional)
+    # Stay Signed In
     # ---------------------------------------------------
 
     def handle_stay_signed_in(self):
@@ -59,68 +57,85 @@ class LoginPage(BasePage):
                 )
             )
 
-            WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.ID, "idSIButton9"))
-            ).click()
+            self.click((By.ID, "idSIButton9"))
 
         except TimeoutException:
             pass
 
     # ---------------------------------------------------
-    # Cold Start Handling
+    # Database Ready
     # ---------------------------------------------------
 
     def wait_for_database_ready(self):
-        """
-        Wait until database warmup popup is gone (if it appears).
-        """
+        print("Checking for database warmup popup...")
 
-        try:
-            print("Checking for database warmup popup...")
+        WebDriverWait(self.driver, 15).until(
+            lambda d: len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
+        )
 
-            # Popup ya hiç yok ya da kaybolmuş olmalı
-            self.wait.until(
-                lambda driver: len(driver.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
-            )
-
-            print("Database is ready ✅")
-
-        except Exception:
-            print("Database warmup wait failed ❌")
-            self.driver.save_screenshot("db_wait_fail.png")
-            raise
+        print("Database is ready ✅")
 
     def wait_for_volunteer_ready(self):
-        """
-        Wait until volunteer dropdown is rendered & clickable.
-        Only for volunteer flow.
-        """
         self.wait_for_database_ready()
-
-        self.wait.until(
-            EC.visibility_of_element_located(self.locators.USER_PERSON)
-        )
 
         self.wait.until(
             EC.element_to_be_clickable(self.locators.USER_PERSON)
         )
 
     # ---------------------------------------------------
-    # Volunteer Selection
+    #  FINAL AUTOCOMPLETE ENGINE (IMPORTANT)
     # ---------------------------------------------------
 
-    def click_person(self):
-        self.wait_for_volunteer_ready()
-        self.click(self.locators.USER_PERSON)
-
-    def select_first_option(self):
-        self.wait.until(
-            EC.visibility_of_element_located(self.locators.FIRST_OPTION)
+    def wait_for_full_app_ready(self):
+        WebDriverWait(self.driver, 60).until(
+            lambda d: (
+                    "Loading, please wait" not in d.page_source
+                    and len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
+            )
         )
-        self.click(self.locators.FIRST_OPTION)
+
+    def select_volunteer(self, name="John Doe 1234"):
+
+        input_el = self.wait.until(
+            EC.visibility_of_element_located(self.locators.USER_PERSON)
+        )
+
+        self.wait.until(lambda d: input_el.is_enabled())
+
+        input_el.click()
+        input_el.clear()
+        input_el.send_keys(name[:2])  #  trigger
+
+        options = self.wait.until(
+            lambda d: [
+                el for el in d.find_elements(*self.locators.NAME_OPTIONS)
+                if el.is_displayed() and el.text.strip()
+            ]
+        )
+
+        option = next(
+            el for el in options
+            if name.lower() in el.text.lower()
+        )
+
+        from selenium.webdriver.common.action_chains import ActionChains
+
+        ActionChains(self.driver) \
+            .move_to_element(option) \
+            .pause(0.2) \
+            .click() \
+            .perform()
+
+        #  VERIFY SELECTION
+        self.wait.until(
+            lambda d: name.lower() in input_el.get_attribute("value").lower()
+        )
 
     def click_continue_button(self):
-        self.click(self.locators.CONTINUE_BUTTON)
+        btn = self.wait.until(
+            EC.element_to_be_clickable(self.locators.CONTINUE_BUTTON)
+        )
+        btn.click()
 
     # ---------------------------------------------------
     # PIN
@@ -137,7 +152,7 @@ class LoginPage(BasePage):
     # ---------------------------------------------------
 
     def is_database_popup_visible(self):
-        try:
-            return self.wait_for_visibility(self.locators.DATABASE_POPUP_TEXT)
-        except TimeoutException:
-            return False
+        return self.is_visible(self.locators.DATABASE_POPUP_TEXT, timeout=3)
+
+    def click_person(self):
+        self.select_volunteer()

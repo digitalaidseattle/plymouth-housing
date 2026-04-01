@@ -17,7 +17,7 @@ const PinInput = styled(TextField)({
   height: '56px',
   '& input': {
     textAlign: 'center',
-    fontSize: '24px',
+    fontSize: '1.5rem',
     padding: '10px',
   },
 });

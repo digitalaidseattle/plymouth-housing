@@ -116,10 +116,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
           ),
         },
         inputLabel: { 
-          sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } 
+          sx: { typography: { xs: 'h4', md: 'h5', lg: 'body2' } } 
         },
         htmlInput: { 
-          sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } 
+          sx: { typography: { xs: 'h4', md: 'h5', lg: 'body2' } } 
         }
       }}
     />

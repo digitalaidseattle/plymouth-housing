@@ -18,13 +18,16 @@ export function useDateRangeFilter() {
   const [dateInput, setDateInput] = useState<DatePreset>('today');
   const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
 
-  const formattedDateRange = useMemo(
-    () => ({
-      startDate: dateRange.startDate.toLocaleDateString('en-CA'),
-      endDate: dateRange.endDate.toLocaleDateString('en-CA'),
-    }),
-    [dateRange],
-  );
+  const formattedDateRange = useMemo(() => {
+    const start = new Date(dateRange.startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(dateRange.endDate);
+    end.setHours(23, 59, 59, 999);
+    return {
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
+    };
+  }, [dateRange]);
 
   const dateString = formatFullDate(dateRange.startDate);
   const dateRangeString = formatDateRange(

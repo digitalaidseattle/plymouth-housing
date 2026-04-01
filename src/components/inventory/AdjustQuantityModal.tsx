@@ -14,8 +14,9 @@ import {
 import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
-import { getRole, UserContext } from '../contexts/UserContext.ts';
+import { UserContext } from '../contexts/UserContext';
+import { processInventoryResetQuantity } from '../../services/inventoryService';
+import { assertLoggedIn } from '../../utils/userUtils';
 import InfoIcon from '@mui/icons-material/Info';
 import DialogTemplate from '../DialogTemplate.tsx';
 
@@ -99,10 +100,6 @@ const AdjustQuantityModal = ({
       setErrorMessage('Invalid item');
       return;
     }
-    if (loggedInUserId === null) {
-      setErrorMessage('You must be signed in to update inventory.');
-      return;
-    }
     if (formData.newQuantity === null) {
       setErrorMessage('You must enter a number for the new quantity.');
       return;
@@ -122,36 +119,17 @@ const AdjustQuantityModal = ({
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_RESET_QUANTITY, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          user_id: loggedInUserId,
-          item_id: itemToEdit?.id,
-          new_quantity: formData.newQuantity,
-          additional_notes: JSON.stringify({
-            comments: formData.comments,
-            howYouKnow: formData.howYouKnow,
-          }),
-          new_transaction_id: transactionId,
-        }),
-      });
+      assertLoggedIn(loggedInUserId);
+      const resultValues = await processInventoryResetQuantity(
+        user,
+        loggedInUserId,
+        itemToEdit.id,
+        formData.newQuantity!,
+        JSON.stringify({ comments: formData.comments, howYouKnow: formData.howYouKnow }),
+        transactionId,
+      );
 
-      if (!response.ok) {
-        throw new Error(
-          `Server error: ${response.status} ${response.statusText}`,
-        );
-      }
-
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error('Invalid JSON response from server');
-      }
-
-      const result = data?.value?.[0];
+      const result = resultValues[0];
 
       if (!result) {
         throw new Error('Empty response from server.');

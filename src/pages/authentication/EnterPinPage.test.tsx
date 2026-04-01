@@ -57,20 +57,24 @@ describe('EnterPinPage Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
   });
 
-  test('shows snackbar warning when PIN is incomplete', async () => {
+  test('disables Continue button when PIN is incomplete', async () => {
     render(
       <UserContext.Provider value={createUserContextValue()}>
         <EnterPinPage />
       </UserContext.Provider>
     );
 
-    // With default PIN state (["", "", "", ""]), click Continue.
+    // With default PIN state (["", "", "", ""]), Continue button should be disabled
     const continueButton = screen.getByRole('button', { name: /Continue/i });
-    fireEvent.click(continueButton);
+    expect(continueButton).toBeDisabled();
 
-    // Expect a warning snackbar message about incomplete PIN
+    // Simulate entering a complete PIN via the mocked PinInput.
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '1234' } });
+
+    // After PIN is complete, button should be enabled
     await waitFor(() => {
-      expect(screen.getByText(/Please enter your PIN before continuing./i)).toBeInTheDocument();
+      expect(continueButton).not.toBeDisabled();
     });
   });
 
@@ -162,8 +166,13 @@ describe('EnterPinPage Component', () => {
   });
 
   test('tracks exception when verifyPin fails', async () => {
-    const networkError = new Error('Network error');
-    (global.fetch as any) = vi.fn().mockRejectedValueOnce(networkError);
+    // Mock fetch to reject with a 4xx error (won't retry - faster test)
+    (global.fetch as any) = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: 'Bad Request',
+      clone: () => ({ json: () => Promise.resolve({ error: 'Network error' }), text: () => Promise.resolve('Network error') }),
+    });
 
     render(
       <UserContext.Provider value={createUserContextValue()}>
@@ -200,11 +209,13 @@ describe('EnterPinPage Component', () => {
       .fn()
       .mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => ({ value: [{ IsValid: true }] }),
       })
       .mockResolvedValueOnce({
         ok: false,
-        status: 500,
+        status: 400,
+        statusText: 'Bad Request',
       });
 
     render(

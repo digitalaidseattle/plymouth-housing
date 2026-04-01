@@ -34,13 +34,20 @@ export const ENDPOINTS = {
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
   CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
+  RESIDENTS_BY_BUILDING: API_PREFIX + '/residents-by-building',
 } as const;
 
 export const SETTINGS = {
   itemsPerPage: 10,
+  checkout_item_limit: 10,
+  api_fetch_limit_items: 10000,
+  api_fetch_limit_units: 1000,
+  api_fetch_limit_residents: 10000,
   database_retry_attempts: 20,
   database_retry_delay: 5000,
+  slow_request_threshold: 1000,
   inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
+  cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
 };
 
 export const USER_ROLES = {
@@ -49,6 +56,42 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  admin: ['inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'people', 'history'],
-  volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'history'],
+  admin: [
+    'inventory',
+    'checkout',
+    'checkout-general',
+    'checkout-welcome-basket',
+    'people',
+    'residents',
+    'history',
+    'catalog',
+  ],
+  volunteer: [
+    'volunteer-home',
+    'inventory',
+    'checkout',
+    'checkout-general',
+    'checkout-welcome-basket',
+    'history',
+  ],
+} as const;
+
+export const CATEGORY_IDS = {
+  WELCOME_BASKET: 15,
+  APPLIANCE: 2,
+  HOME_GOODS: 1,
+} as const;
+
+export const WELCOME_BASKET_ITEMS = {
+  TWIN: 171,
+  FULL: 172,
+} as const;
+
+export const SPECIAL_ITEMS = {
+  APPLIANCE_MISC: 166,
+  RUG: 97,
+} as const;
+
+export const SPECIAL_UNITS = {
+  WELCOME: 'welcome',
 } as const;

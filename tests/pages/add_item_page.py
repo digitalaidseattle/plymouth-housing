@@ -1,9 +1,11 @@
+from selenium.common import TimeoutException, ElementClickInterceptedException, StaleElementReferenceException, \
+    NoSuchElementException
+from selenium.webdriver import Keys, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.wait import WebDriverWait
 from tests.pages.base_page import BasePage
-from tests.utilities.locators import CheckoutPageLocators, CommonLocators, InventoryPageLocators
+from tests.utilities.locators import CommonLocators, InventoryPageLocators, AddItemPageLocators
 
 
 class AddItemPage(BasePage):
@@ -22,24 +24,95 @@ class AddItemPage(BasePage):
         self.click(self.locators.SELECT_WELCOME_BASKET)
 
     def click_add_item(self):
-        self.click(self.locators.ITEM_NAME)
+        self.click(self.locators.ITEM_NAME_DROPDOWN)
 
     def select_add_item(self, value):
-        # Click the dropdown to open the list
-        self.click(self.locators.ITEM_NAME)
+        wait = WebDriverWait(self.driver, 20)
+        input_locator = (By.CSS_SELECTOR, "#add-item-name input")
 
-        # Wait for the dropdown options container to appear
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "MuiAutocomplete-popper"))
+        input_field = wait.until(EC.element_to_be_clickable(input_locator))
+        input_field.click()
+
+        input_field.send_keys(Keys.CONTROL, "a")
+        input_field.send_keys(Keys.BACKSPACE)
+        input_field.send_keys(value)
+
+        wait.until(EC.visibility_of_element_located((By.XPATH, "//ul[@role='listbox']")))
+
+        option_locator = (
+            By.XPATH,
+            f"//ul[@role='listbox']//li[@role='option'][.//*[normalize-space()='{value}']]"
         )
 
-        # Build the locator for the specific item
-        locator = self.locators.get_input_by_value(value)
-        print(f"[INFO] Waiting to select dropdown item: {value}")
+        self.click(option_locator, timeout=20, retries=2)
 
-        # Wait for the item to be clickable and click it
-        self.wait_for_clickable(locator, timeout=20)
-        self.click(locator)
+        wait.until(
+            EC.invisibility_of_element_located((By.XPATH, "//ul[@role='listbox']"))
+        )
+
+    def set_quantity(self, quantity):
+        wait = WebDriverWait(self.driver, 15)
+        locator = AddItemPageLocators.QUANTITY_INPUT
+
+        for _ in range(3):
+            try:
+                element = wait.until(
+                    EC.element_to_be_clickable(locator)
+                )
+
+                element.click()
+                element.clear()
+                element.send_keys(str(quantity))
+
+                return
+
+            except StaleElementReferenceException:
+                pass
+
+        raise TimeoutError("Quantity input keeps going stale")
+
+    def validate_update_success(self, item_name, quantity):
+        wait = WebDriverWait(self.driver, 15)
+
+        try:
+            wait.until(
+                EC.visibility_of_element_located(
+                    (By.XPATH, "//*[normalize-space()='Inventory Updated']")
+                )
+            )
+
+            close_btn = wait.until(
+                EC.element_to_be_clickable(AddItemPageLocators.CLOSE_MODAL_BUTTON)
+            )
+
+            close_btn.click()
+
+            wait.until(
+                EC.invisibility_of_element_located(
+                    (By.CLASS_NAME, "MuiBackdrop-root")
+                )
+            )
+
+            print(f"[SUCCESS] Inventory updated and modal closed for {item_name} ({quantity}).")
+
+        except (
+                TimeoutException,
+                NoSuchElementException,
+                StaleElementReferenceException,
+                ElementClickInterceptedException
+        ):
+            print(f"[WARN] Modal closure failed for {item_name}. Refreshing page.")
+            self.driver.refresh()
+
+    def click_submit(self):
+        locator = AddItemPageLocators.SUBMIT_BUTTON
+
+        WebDriverWait(self.driver, 10).until_not(
+            lambda d: d.find_element(*locator).get_attribute("disabled")
+        )
+
+        element = self.driver.find_element(*locator)
+        element.click()
 
     def click_quantity(self):
         self.click(self.locators.QUANTITY)

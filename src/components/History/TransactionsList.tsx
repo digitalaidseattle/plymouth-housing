@@ -1,14 +1,10 @@
 import React from 'react';
 import { Box, Stack } from '@mui/material';
-import { Building, User } from '../../types/interfaces';
-import { CheckoutTransaction, InventoryTransaction } from '../../types/history';
+import { Building, User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
 import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';
-import {
-  createHowLongAgoString,
-  calculateTimeDifference,
-} from './historyUtils';
+import { formatTransactionDate } from './historyUtils';
 
 interface TransactionsListProps {
   transactionsByUser: Array<{
@@ -19,7 +15,6 @@ interface TransactionsListProps {
   buildings: Building[] | null;
   loggedInUserId: number | null;
   historyType: 'checkout' | 'inventory';
-  userHistory: CheckoutTransaction[] | InventoryTransaction[] | null;
 }
 
 const TransactionsList: React.FC<TransactionsListProps> = ({
@@ -28,9 +23,8 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   buildings,
   loggedInUserId,
   historyType,
-  userHistory,
 }) => {
-  if (userHistory && userHistory.length === 0) {
+  if (transactionsByUser.length === 0) {
     return (
       <p>
         No transactions found for this date. Try selecting a different date
@@ -67,31 +61,17 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
           >
             {user.transactions.map(
               (t: CheckoutTransaction | InventoryTransaction) => {
-                const { minutes, hours, days } = calculateTimeDifference(
-                  t.transaction_date,
-                );
-                const howLongAgoString = createHowLongAgoString(
-                  minutes,
-                  hours,
-                  days,
-                );
+                const howLongAgoString = formatTransactionDate(t.transaction_date);
                 const checkoutTransaction = t as CheckoutTransaction;
                 if (
                   historyType === 'checkout' &&
                   checkoutTransaction.item_type === 'general'
                 ) {
-                  const quantity = checkoutTransaction.items.reduce(
-                    (acc, item) => {
-                      return acc + item.quantity;
-                    },
-                    0,
-                  );
                   return (
                     <GeneralCheckoutCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
                       buildings={buildings}
-                      quantity={quantity}
                       howLongAgoString={howLongAgoString}
                     />
                   );

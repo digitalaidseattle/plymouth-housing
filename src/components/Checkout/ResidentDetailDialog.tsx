@@ -1,7 +1,13 @@
 import React, { FormEvent, useState, useContext } from 'react';
 import { Box, FormControl, TextField, Typography } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
-import { Building, ResidentInfo, Unit, ResidentNameOption } from '../../types/interfaces';
+import {
+  Building,
+  ResidentInfo,
+  Unit,
+  ResidentNameOption,
+  ResidentFormError,
+} from '../../types/interfaces';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -33,9 +39,19 @@ const ResidentDetailDialog = ({
     residentInfo.building,
   );
   const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
-  const [showError, setShowError] = useState<boolean>(false);
+  const [formError, setFormError] = useState<ResidentFormError>({
+    buildingError: false,
+    unitError: false,
+    nameError: false,
+  });
 
-  const filter = createFilterOptions<ResidentNameOption>();
+  const residentNameFilter = createFilterOptions<ResidentNameOption>({
+    matchFrom: 'start',
+  });
+
+  const unitNumberFilter = createFilterOptions<Unit>({
+    matchFrom: 'start',
+  });
 
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
   const residentsHook = useResidents(user, selectedUnit);
@@ -66,7 +82,10 @@ const ResidentDetailDialog = ({
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return false;
     const now = new Date();
-    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
   }
 
   const fetchUnitNumbers = async (buildingId: number) => {
@@ -85,8 +104,7 @@ const ResidentDetailDialog = ({
       residentsHook.nameInput,
       selectedBuilding,
       selectedUnit,
-      showError,
-      setShowError,
+      setFormError,
       residentsHook.currentLastVisitDate,
     );
   }
@@ -115,7 +133,14 @@ const ResidentDetailDialog = ({
             setSelectedBuilding={setSelectedBuilding}
             setSelectedUnit={setSelectedUnit}
             fetchUnitNumbers={fetchUnitNumbers}
-            error={showError && !selectedBuilding.id}
+            error={formError.buildingError}
+            resetError={() =>
+              setFormError({
+                buildingError: false,
+                unitError: false,
+                nameError: false,
+              })
+            }
             disabled={isWaiting}
           />
         </FormControl>
@@ -127,6 +152,7 @@ const ResidentDetailDialog = ({
             options={unitNumberValues}
             value={selectedUnit}
             disabled={isWaiting}
+            filterOptions={unitNumberFilter}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
               if (reason === 'clear') {
@@ -138,7 +164,11 @@ const ResidentDetailDialog = ({
               );
               if (matchingUnit) {
                 setSelectedUnit(matchingUnit);
-                setShowError(false);
+                setFormError({
+                  ...formError,
+                  unitError: false,
+                  nameError: false,
+                });
               } else {
                 setSelectedUnit({ id: 0, unit_number: newValue });
               }
@@ -148,20 +178,17 @@ const ResidentDetailDialog = ({
               return `${option.unit_number}`;
             }}
             renderInput={(params) => {
-              const getHelperText = () => {
-                if (!showError) return '';
-                if (selectedUnit.id === 0 && selectedUnit.unit_number) return 'Not a valid unit';
-                if (selectedUnit.id === 0) return 'Please select a unit from the list';
-                return '';
-              };
-
               return (
                 <TextField
                   {...params}
                   id={selectedUnit.unit_number}
                   label="Unit Number"
-                  error={showError}
-                  helperText={getHelperText()}
+                  error={formError.unitError}
+                  helperText={
+                    formError.unitError
+                      ? 'Please select a unit from the list'
+                      : ''
+                  }
                 />
               );
             }}
@@ -174,6 +201,9 @@ const ResidentDetailDialog = ({
             value={residentsHook.nameInput}
             disabled={isWaiting}
             onChange={(_event, newValue) => {
+              if (formError.nameError) {
+                setFormError({ ...formError, nameError: false });
+              }
               if (typeof newValue === 'string') {
                 residentsHook.setNameInput(newValue);
                 residentsHook.setCurrentLastVisitDate(null);
@@ -197,17 +227,19 @@ const ResidentDetailDialog = ({
               }
             }}
             onInputChange={(_event, newInputValue, reason) => {
+              if (formError.nameError) {
+                setFormError({ ...formError, nameError: false });
+              }
               if (reason === 'input') {
                 residentsHook.setNameInput(newInputValue);
                 residentsHook.setCurrentLastVisitDate(null);
               }
             }}
             filterOptions={(options, params) => {
-              const filtered = filter(options, params);
+              const filtered = residentNameFilter(options, params);
               return filtered;
             }}
             selectOnFocus
-            clearOnBlur
             handleHomeEndKeys
             id="resident-name-autocomplete"
             options={residentsHook.existingResidents}
@@ -235,10 +267,10 @@ const ResidentDetailDialog = ({
               <TextField
                 {...params}
                 label="Resident Name"
-                error={showError && !residentsHook.nameInput}
+                error={formError.nameError}
                 helperText={
-                  showError && !residentsHook.nameInput
-                    ? "Please enter the resident's name"
+                  formError.nameError
+                    ? 'Please enter the name of the resident'
                     : ''
                 }
               />
@@ -255,7 +287,8 @@ const ResidentDetailDialog = ({
             }
             sx={{ alignSelf: 'flex-start' }}
           >
-            last visit: {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
+            last visit:{' '}
+            {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
           </Typography>
         )}
         {apiError && <Typography color="error">{apiError}</Typography>}

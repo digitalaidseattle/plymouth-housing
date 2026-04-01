@@ -10,29 +10,27 @@ import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
-import * as HistoryAPICalls from '../../components/History/HistoryAPICalls';
-import * as CheckoutAPICalls from '../../components/Checkout/CheckoutAPICalls';
-import * as helpers from '../../components/utils/fetchCategorizedItems';
+import * as historyService from '../../services/historyService';
+import * as userService from '../../services/userService';
+import * as residentService from '../../services/residentService';
+import * as itemsService from '../../services/itemsService';
 import {
   TransactionType,
   CheckoutTransaction,
   InventoryTransaction,
-} from '../../types/history';
-import { Building } from '../../types/interfaces';
+  Building,
+} from '../../types/interfaces';
 
 // Mock modules
-vi.mock('../../components/History/HistoryAPICalls');
-vi.mock('../../components/Checkout/CheckoutAPICalls');
-vi.mock('../../components/utils/fetchCategorizedItems');
+vi.mock('../../services/historyService');
+vi.mock('../../services/userService');
+vi.mock('../../services/residentService');
+vi.mock('../../services/itemsService');
 vi.mock('../../components/CircularLoader', () => ({
   default: () => <div data-testid="circular-loader">Loading...</div>,
 }));
 vi.mock('../../components/History/CustomDateDialog', () => ({
-  default: ({
-    showDialog,
-    handleShowDialog,
-    handleSetDateRange,
-  }: any) =>
+  default: ({ showDialog, handleShowDialog, handleSetDateRange }: any) =>
     showDialog && (
       <div data-testid="custom-date-dialog">
         <button
@@ -66,9 +64,7 @@ vi.mock('../../components/History/WelcomeBasketCard', () => ({
 }));
 vi.mock('../../components/History/InventoryCard', () => ({
   default: ({ inventoryTransaction }: any) => (
-    <div
-      data-testid={`inventory-card-${inventoryTransaction.transaction_id}`}
-    >
+    <div data-testid={`inventory-card-${inventoryTransaction.transaction_id}`}>
       Inventory
     </div>
   ),
@@ -119,14 +115,9 @@ const mockCheckoutTransactions: CheckoutTransaction[] = [
     resident_name: 'Resident A',
     transaction_date: new Date().toISOString(),
     item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Test Item',
-        quantity: 2,
-        category_name: 'Food',
-      },
-    ],
+    total_quantity: 2,
+    welcome_basket_item_id: null,
+    welcome_basket_quantity: null,
   },
 ];
 
@@ -136,15 +127,9 @@ const mockInventoryTransactions: InventoryTransaction[] = [
     user_id: 1,
     transaction_date: new Date().toISOString(),
     transaction_type: TransactionType.InventoryAdd,
-    item_type: 'general',
-    items: [
-      {
-        item_id: 1,
-        item_name: 'Bread',
-        quantity: 10,
-        category_name: 'Food',
-      },
-    ],
+    item_name: 'Bread',
+    category_name: 'Food',
+    quantity: 10,
   },
 ];
 
@@ -170,30 +155,32 @@ describe('HistoryPage Component', () => {
 
     // Mock API calls with a slight delay to simulate real API behavior
     // This allows the component to show the loading state
-    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockImplementation(
+    vi.spyOn(historyService, 'getCheckoutHistory').mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => resolve(mockCheckoutTransactions), 50),
         ),
     );
-    vi.spyOn(HistoryAPICalls, 'getInventoryHistory').mockImplementation(
+    vi.spyOn(historyService, 'getInventoryHistory').mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => resolve(mockInventoryTransactions), 50),
         ),
     );
-    vi.spyOn(HistoryAPICalls, 'getUsers').mockImplementation(
+    vi.spyOn(userService, 'getUsers').mockImplementation(
       () =>
-        new Promise((resolve) => setTimeout(() => resolve(mockUserList), 50)),
+        new Promise((resolve) =>
+          setTimeout(() => resolve(mockUserList as any), 50),
+        ),
     );
-    vi.spyOn(CheckoutAPICalls, 'getBuildings').mockImplementation(
+    vi.spyOn(residentService, 'getBuildings').mockImplementation(
       () =>
         new Promise((resolve) => setTimeout(() => resolve(mockBuildings), 50)),
     );
-    vi.spyOn(helpers, 'default').mockImplementation(
+    vi.spyOn(itemsService, 'getCategorizedItems').mockImplementation(
       () =>
         new Promise((resolve) =>
-          setTimeout(() => resolve(mockCategorizedItems), 50),
+          setTimeout(() => resolve(mockCategorizedItems as any), 50),
         ),
     );
   });
@@ -242,13 +229,11 @@ describe('HistoryPage Component', () => {
     const checkoutButton = screen.getByRole('button', { name: /Check out/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
-    // Wait for initial data load to complete (including categorizedItems being used in API call)
     await waitFor(() => {
-      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
+      expect(historyService.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
         expect.any(String),
         expect.any(String),
-        mockCategorizedItems,
       );
     });
 
@@ -264,17 +249,15 @@ describe('HistoryPage Component', () => {
       expect(checkoutButton).not.toHaveClass('Mui-selected');
     });
 
-    // Verify API was called for inventory
-    expect(HistoryAPICalls.getInventoryHistory).toHaveBeenCalledWith(
+    expect(historyService.getInventoryHistory).toHaveBeenCalledWith(
       mockUser,
       expect.any(String),
       expect.any(String),
-      mockCategorizedItems,
     );
   });
 
   test('fetches and displays checkout transactions', async () => {
-    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
       mockCheckoutTransactions,
     );
 
@@ -285,11 +268,11 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
     });
 
     // Verify user list is fetched
-    expect(HistoryAPICalls.getUsers).toHaveBeenCalled();
+    expect(userService.getUsers).toHaveBeenCalled();
   });
 
   test('fetches buildings and categorized items on mount', async () => {
@@ -300,8 +283,8 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(CheckoutAPICalls.getBuildings).toHaveBeenCalled();
-      expect(helpers.default).toHaveBeenCalled();
+      expect(residentService.getBuildings).toHaveBeenCalled();
+      expect(itemsService.getCategorizedItems).toHaveBeenCalled();
     });
   });
 
@@ -319,7 +302,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles empty transaction history', async () => {
-    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue([]);
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue([]);
 
     render(
       <Wrapper>
@@ -348,7 +331,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(yesterdayOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -366,7 +349,7 @@ describe('HistoryPage Component', () => {
     fireEvent.click(thisWeekOption);
 
     await waitFor(() => {
-      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -418,7 +401,7 @@ describe('HistoryPage Component', () => {
   });
 
   test('handles API errors gracefully', async () => {
-    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockRejectedValue(
+    vi.spyOn(historyService, 'getCheckoutHistory').mockRejectedValue(
       new Error('API Error'),
     );
 
@@ -446,18 +429,13 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident B',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 1,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
       multiUserTransactions,
     );
 
@@ -468,7 +446,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
     });
   });
 
@@ -483,18 +461,13 @@ describe('HistoryPage Component', () => {
         resident_name: 'Resident A',
         transaction_date: new Date().toISOString(),
         item_type: 'general',
-        items: [
-          {
-            item_id: 1,
-            item_name: 'Test Item',
-            quantity: 2,
-            category_name: 'Food',
-          },
-        ],
+        total_quantity: 2,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
       },
     ];
 
-    vi.spyOn(HistoryAPICalls, 'getCheckoutHistory').mockResolvedValue(
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
       currentUserTransactions,
     );
 
@@ -518,12 +491,60 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalledWith(
+      expect(historyService.getCheckoutHistory).toHaveBeenCalledWith(
         mockUser,
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        mockCategorizedItems,
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       );
+    });
+  });
+
+  test('displays total record count after loading', async () => {
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
+      mockCheckoutTransactions,
+    );
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 1 record total/i)).toBeInTheDocument();
+    });
+  });
+
+  test('displays total record count across multiple users', async () => {
+    const multiUserTransactions: CheckoutTransaction[] = [
+      ...mockCheckoutTransactions,
+      {
+        transaction_id: '2',
+        user_id: 2,
+        building_id: 1,
+        unit_number: '102',
+        resident_id: 2,
+        resident_name: 'Resident B',
+        transaction_date: new Date().toISOString(),
+        item_type: 'general',
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
+      },
+    ];
+
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
+      multiUserTransactions,
+    );
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
     });
   });
 
@@ -535,11 +556,11 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(HistoryAPICalls.getCheckoutHistory).toHaveBeenCalled();
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
     });
 
-    const callCount = vi.mocked(HistoryAPICalls.getCheckoutHistory).mock
-      .calls.length;
+    const callCount = vi.mocked(historyService.getCheckoutHistory).mock.calls
+      .length;
 
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
     fireEvent.mouseDown(dateSelect);
@@ -549,7 +570,7 @@ describe('HistoryPage Component', () => {
 
     await waitFor(() => {
       expect(
-        vi.mocked(HistoryAPICalls.getCheckoutHistory).mock.calls.length,
+        vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
   });

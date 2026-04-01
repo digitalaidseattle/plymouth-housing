@@ -1,28 +1,42 @@
 import pytest
 from tests.pages.login_page import LoginPage
-from tests.utilities.fixtures import driver
-from tests.utilities.data import VOLUNTEER_PASSWORD
-from tests.utilities.data import VOLUNTEER_USERNAME
+from tests.pages.home_page import HomePage
+from tests.utilities.data import VOLUNTEER_PASSWORD, VOLUNTEER_USERNAME
 
-@pytest.fixture(scope="function")  # Changed scope for better isolation
+
+@pytest.fixture(scope="function")
 def login_page(driver):
     return LoginPage(driver)
 
+
+@pytest.mark.serial
+@pytest.mark.smoke
 def test_login_volunteer(driver, login_page):
+
+    # --- Microsoft Login ---
     login_page.enter_username(VOLUNTEER_USERNAME)
     login_page.click_next_button()
+
     login_page.enter_password(VOLUNTEER_PASSWORD)
     login_page.click_sign_in_button()
-    login_page.click_yes_button()
-    # login_page.wait_for_database()
+
+    # Optional Stay Signed In
+    login_page.handle_stay_signed_in()
+
+    # --- Pick Name (cold start safe inside click_person) ---
     login_page.click_person()
     login_page.select_first_option()
     login_page.click_continue_button()
+
+    # --- PIN ---
     login_page.enter_pin()
     login_page.click_continue_button()
 
-    assert login_page.get_title() == "Plymouth Housing"
+    # --- Verify Home Loaded ---
+    home_page = HomePage(driver)
+    home_page.wait_for_homepage_loaded()
 
-def test_logout_volunteer(driver,login_page):
+    actual_text = home_page.get_plymouth_housing_text()
 
-    assert login_page.is_database_popup_visible()  # Removed unnecessary driver argument
+    assert "Plymouth Housing" in actual_text.strip(), \
+        f"Expected 'Plymouth Housing' in header, but got '{actual_text}'"

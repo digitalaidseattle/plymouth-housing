@@ -12,8 +12,7 @@ import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
-import SpinUpDialog from './SpinUpDialog';
-import { fetchWithRetry } from '../../components/fetchWithRetry';
+import { apiRequest } from '../../services/apiRequest';
 import { ENDPOINTS, USER_ROLES } from '../../types/constants';
 import { trackException } from '../../utils/appInsights';
 
@@ -25,8 +24,6 @@ const PickYourNamePage: React.FC = () => {
     message: string;
     severity: 'success' | 'warning';
   }>({ open: false, message: '', severity: 'warning' });
-  const [retryCount, setRetryCount] = useState(0);
-  const [showSpinUpDialog, setShowSpinUpDialog] = useState(false);
 
   const navigate = useNavigate();
 
@@ -37,11 +34,9 @@ const PickYourNamePage: React.FC = () => {
       try {
         setIsLoading(true);
         const url = `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`
-        const data = await fetchWithRetry<User[]>({
-          url, 
+        const data = await apiRequest<User[]>({
+          url,
           role: USER_ROLES.VOLUNTEER,
-          setShowSpinUpDialog,
-          setRetryCount
         });
         setActiveVolunteers(data.value);
       } catch (error) {
@@ -61,7 +56,6 @@ const PickYourNamePage: React.FC = () => {
         });
       } finally {
         setIsLoading(false);
-        setShowSpinUpDialog(false);
       }
     };
     fetchVolunteers();
@@ -97,6 +91,9 @@ const PickYourNamePage: React.FC = () => {
     }
     setSnackbarState((prev) => ({ ...prev, open: false }));
   };
+
+  const isValidVolunteer = (volunteerId: number | null): boolean =>
+    volunteerId !== null && activeVolunteers.some((v) => v.id === volunteerId);
 
   return (
       <MinimalWrapper>
@@ -158,11 +155,8 @@ const PickYourNamePage: React.FC = () => {
                 fontSize: '16px',
                 backgroundColor: 'black',
                 color: 'white',
-                '&:hover': {
-                  backgroundColor: '#4f4f4f',
-                },
               }}
-              disabled={isLoading}
+              disabled={isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)}
             >
               Continue
             </Button>
@@ -176,7 +170,6 @@ const PickYourNamePage: React.FC = () => {
             {snackbarState.message}
           </SnackbarAlert>
         </CenteredLayout>
-        <SpinUpDialog open={showSpinUpDialog} retryCount={retryCount} />
       </MinimalWrapper>
   );
 };

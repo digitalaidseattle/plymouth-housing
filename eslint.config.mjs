@@ -21,12 +21,12 @@ export default [{
 {
     ignores: [
         "**/dist",
+        "**/coverage",
         "**/.eslintrc.cjs",
         "**/*.test.ts",
         "**/*.test.tsx",
-        "src/pages/dashboard",
-        "src/pages/components-overview",
         "src/components/@extended",
+        "venv/**",
     ],
 
 }, ...fixupConfigRules(compat.extends(

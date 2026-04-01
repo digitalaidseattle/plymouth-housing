@@ -1,10 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { ClientPrincipal, CategoryProps } from '../types/interfaces';
-import { CheckoutTransaction, InventoryTransaction } from '../types/history';
+import type { ClientPrincipal, CheckoutTransaction, InventoryTransaction } from '../types/interfaces';
 import {
   getCheckoutHistory,
   getInventoryHistory,
-} from '../components/History/HistoryAPICalls';
+} from '../services/historyService';
 import { processTransactionsByUser } from '../components/History/transactionProcessors';
 
 interface UseHistoryDataProps {
@@ -14,7 +13,6 @@ interface UseHistoryDataProps {
     endDate: string;
   };
   historyType: 'checkout' | 'inventory';
-  categorizedItems: CategoryProps[];
   loggedInUserId: number | null;
   onError: (message: string) => void;
 }
@@ -23,7 +21,6 @@ export function useHistoryData({
   user,
   formattedDateRange,
   historyType,
-  categorizedItems,
   loggedInUserId,
   onError,
 }: UseHistoryDataProps) {
@@ -44,13 +41,11 @@ export function useHistoryData({
                 user,
                 formattedDateRange.startDate,
                 formattedDateRange.endDate,
-                categorizedItems,
               )
             : await getInventoryHistory(
                 user,
                 formattedDateRange.startDate,
                 formattedDateRange.endDate,
-                categorizedItems,
               );
         if (mounted) setUserHistory(response);
       } catch (error) {
@@ -63,7 +58,7 @@ export function useHistoryData({
     return () => {
       mounted = false;
     };
-  }, [formattedDateRange, historyType, user, categorizedItems, onError]);
+  }, [formattedDateRange, historyType, user, onError]);
 
   const transactionsByUser = useMemo(
     () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),

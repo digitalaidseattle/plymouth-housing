@@ -7,14 +7,14 @@ import {
   ExclamationOutlined,
   FileOutlined,
   FileExclamationOutlined,
-  EyeInvisibleOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
-  GiftOutlined,
+  ClusterOutlined,
   ShoppingCartOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 
 const icons = {
@@ -25,14 +25,14 @@ const icons = {
   ExclamationOutlined,
   FileOutlined,
   FileExclamationOutlined,
-  EyeInvisibleOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
   UserOutlined,
   HomeOutlined,
-  GiftOutlined,
+  ClusterOutlined,
   ShoppingCartOutlined,
+  TeamOutlined,
 };
 
 const dashboard = {
@@ -59,7 +59,7 @@ const dashboard = {
       id: 'checkout',
       title: 'Checkout',
       type: 'collapse',
-      icon: icons.EyeInvisibleOutlined,
+      icon: icons.ShoppingCartOutlined,
       breadcrumbs: false,
       children: [
         {
@@ -67,7 +67,6 @@ const dashboard = {
           title: 'General',
           type: 'item',
           url: '/checkout',
-          icon: icons.ShoppingCartOutlined,
           state: { checkoutType: 'general' },
           breadcrumbs: false,
         },
@@ -76,7 +75,6 @@ const dashboard = {
           title: 'Welcome basket',
           type: 'item',
           url: '/checkout',
-          icon: icons.GiftOutlined,
           state: { checkoutType: 'welcomeBasket' },
           breadcrumbs: false,
         },
@@ -91,11 +89,27 @@ const dashboard = {
       breadcrumbs: false,
     },
     {
+      id: 'residents',
+      title: 'Residents',
+      type: 'admin',
+      url: '/residents',
+      icon: icons.TeamOutlined,
+      breadcrumbs: false,
+    },
+    {
       id: 'history',
       title: 'History',
       type: 'item',
       url: '/history',
       icon: icons.FileOutlined,
+      breadcrumbs: false,
+    },
+    {
+      id: 'catalog',
+      title: 'Catalog',
+      type: 'admin',
+      url: '/catalog',
+      icon: icons.ClusterOutlined,
       breadcrumbs: false,
     },
   ],

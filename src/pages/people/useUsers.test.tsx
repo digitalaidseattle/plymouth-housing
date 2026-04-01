@@ -116,6 +116,7 @@ describe('useUsers hook', () => {
         status: 400,
         statusText: 'Bad Request',
         json: async () => ({ error: { message: errorMsg } }),
+        clone: () => ({ json: async () => ({ error: { message: errorMsg } }), text: () => Promise.resolve('') }),
       });
 
     const { result } = renderHook(() => useUsers(), { wrapper });
@@ -125,7 +126,7 @@ describe('useUsers hook', () => {
       expect(result.current.originalData).toHaveLength(1);
     });
     await act(async () => {
-      await expect(result.current.updateUserStatus(1)).rejects.toThrow(`Error updating user: ${errorMsg}`);
+      await expect(result.current.updateUserStatus(1)).rejects.toThrow(errorMsg);
     });
   });
 

@@ -2,6 +2,7 @@ import React, { FormEvent, useState, useContext } from 'react';
 import { Box, FormControl, Typography } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
+import { SPECIAL_UNITS } from '../../types/constants';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
 import {
@@ -9,7 +10,7 @@ import {
   getResidents,
   addResident,
   findResident,
-} from './CheckoutAPICalls';
+} from '../../services/residentService';
 
 type WelcomeBasketBuildingDialogProps = {
   showDialog: boolean;
@@ -49,7 +50,7 @@ const WelcomeBasketBuildingDialog = ({
     try {
       const units = await getUnitNumbers(user, selectedBuilding.id);
       const welcomeUnit = units.find(
-        (u: Unit) => u.unit_number.toLowerCase() === 'welcome',
+        (u: Unit) => u.unit_number.trim().toLowerCase() === SPECIAL_UNITS.WELCOME,
       );
 
       if (!welcomeUnit) {
@@ -64,7 +65,7 @@ const WelcomeBasketBuildingDialog = ({
       // Fetch or create admin resident for the welcome unit
       const residentsResponse = await getResidents(user, welcomeUnit.id);
       const adminResident = residentsResponse.value.find(
-        (r: { name: string }) => r.name.toLowerCase() === 'admin',
+        (r) => r.name.toLowerCase() === 'admin',
       );
 
       let residentId: number;
@@ -132,6 +133,7 @@ const WelcomeBasketBuildingDialog = ({
             setSelectedUnit={() => {}} // No-op since we don't show unit selector
             fetchUnitNumbers={async () => {}} // No-op since we handle units in submit
             error={showError && !selectedBuilding.id}
+            resetError={() => setShowError(false)}
             disabled={isSubmitting}
           />
         </FormControl>

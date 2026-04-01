@@ -13,3 +13,4 @@ IF NOT EXISTS (SELECT 1 FROM TransactionTypes WHERE id = 4)
 INSERT INTO TransactionTypes (id, transaction_type) VALUES (4, 'CHECKOUT_EDIT');
 
 SET IDENTITY_INSERT TransactionTypes OFF;
+GO

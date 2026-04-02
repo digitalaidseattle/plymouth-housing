@@ -34,6 +34,7 @@ export const ENDPOINTS = {
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
   CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
+  RESIDENTS_BY_BUILDING: API_PREFIX + '/residents-by-building',
 } as const;
 
 export const SETTINGS = {
@@ -41,6 +42,7 @@ export const SETTINGS = {
   checkout_item_limit: 10,
   api_fetch_limit_items: 10000,
   api_fetch_limit_units: 1000,
+  api_fetch_limit_residents: 10000,
   database_retry_attempts: 20,
   database_retry_delay: 5000,
   slow_request_threshold: 1000,
@@ -54,8 +56,24 @@ export const USER_ROLES = {
 } as const;
 
 export const ROLE_PAGES = {
-  admin: ['inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'people', 'history', 'catalog'],
-  volunteer: ['volunteer-home', 'inventory', 'checkout', 'checkout-general', 'checkout-welcome-basket', 'history'],
+  admin: [
+    'inventory',
+    'checkout',
+    'checkout-general',
+    'checkout-welcome-basket',
+    'people',
+    'residents',
+    'history',
+    'catalog',
+  ],
+  volunteer: [
+    'volunteer-home',
+    'inventory',
+    'checkout',
+    'checkout-general',
+    'checkout-welcome-basket',
+    'history',
+  ],
 } as const;
 
 export const CATEGORY_IDS = {
@@ -72,4 +90,8 @@ export const WELCOME_BASKET_ITEMS = {
 export const SPECIAL_ITEMS = {
   APPLIANCE_MISC: 166,
   RUG: 97,
+} as const;
+
+export const SPECIAL_UNITS = {
+  WELCOME: 'welcome',
 } as const;

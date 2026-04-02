@@ -12,7 +12,7 @@ import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as historyService from '../../services/historyService';
 import * as userService from '../../services/userService';
-import * as checkoutService from '../../services/checkoutService';
+import * as residentService from '../../services/residentService';
 import * as itemsService from '../../services/itemsService';
 import {
   TransactionType,
@@ -24,7 +24,7 @@ import {
 // Mock modules
 vi.mock('../../services/historyService');
 vi.mock('../../services/userService');
-vi.mock('../../services/checkoutService');
+vi.mock('../../services/residentService');
 vi.mock('../../services/itemsService');
 vi.mock('../../components/CircularLoader', () => ({
   default: () => <div data-testid="circular-loader">Loading...</div>,
@@ -174,7 +174,7 @@ describe('HistoryPage Component', () => {
           setTimeout(() => resolve(mockUserList as any), 50),
         ),
     );
-    vi.spyOn(checkoutService, 'getBuildings').mockImplementation(
+    vi.spyOn(residentService, 'getBuildings').mockImplementation(
       () =>
         new Promise((resolve) => setTimeout(() => resolve(mockBuildings), 50)),
     );
@@ -284,7 +284,7 @@ describe('HistoryPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(checkoutService.getBuildings).toHaveBeenCalled();
+      expect(residentService.getBuildings).toHaveBeenCalled();
       expect(itemsService.getCategorizedItems).toHaveBeenCalled();
     });
   });

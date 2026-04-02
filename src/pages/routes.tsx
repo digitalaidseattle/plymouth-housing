@@ -10,6 +10,7 @@ import Inventory from './inventory';
 import Catalog from './catalog';
 import CheckoutPageContainer from './checkout/CheckoutPageContainer';
 import HistoryPage from './history';
+import ResidentsPage from './residents';
 import { RootRedirect } from './RootRedirect';
 
 const routes = [
@@ -83,6 +84,16 @@ const routes = [
           <RootRedirect source="catalog">
             <MainContainer title="Catalog">
               <Catalog />,
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'residents',
+        element: (
+          <RootRedirect source="residents">
+            <MainContainer title="Manage Residents">
+              <ResidentsPage />
             </MainContainer>
           </RootRedirect>
         ),

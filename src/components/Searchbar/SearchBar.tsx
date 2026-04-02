@@ -98,6 +98,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
       onChange={searchChangeHandler}
       slotProps={{
         input: {
+          sx: (theme) => ({
+            fontSize: {
+              xs: theme.typography.h4.fontSize,
+              md: theme.typography.h5.fontSize,
+              lg: theme.typography.body2.fontSize,
+            },
+          }),
           startAdornment: (
             <InputAdornment position="start">
               <Search />
@@ -123,15 +130,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
               lg: theme.typography.body2.fontSize,
             },
           })
-        },
-        htmlInput: {
-          sx: (theme) => ({
-            fontSize: {
-              xs: theme.typography.h4.fontSize,
-              md: theme.typography.h5.fontSize,
-              lg: theme.typography.body2.fontSize,
-            },
-          }),
         },
       }}
     />

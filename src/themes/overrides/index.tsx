@@ -28,7 +28,7 @@ export default function ComponentsOverrides(theme: Theme) {
       MuiCssBaseline: {
         styleOverrides: {
           html: {
-            fontSize: `${theme.typography.htmlFontSize}`,
+            fontSize: `${theme.typography.htmlFontSize}px`,
           },
         },
       },

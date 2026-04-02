@@ -2,7 +2,7 @@
 
 const config = {
   defaultPath: '/volunteer-home',
-  fontFamily: '"public sans", sans-serif',
+  fontFamily: '"Public Sans", sans-serif',
   i18n: 'en',
   miniDrawer: false,
   container: true,

@@ -1,7 +1,8 @@
 // ==============================|| DEFAULT THEME - TYPOGRAPHY  ||============================== //
 
 const Typography = (fontFamily: string) => ({
-  htmlFontSize: '18px',
+  htmlFontSize: 16,
+  fontSize: 16,
   fontFamily,
 
   fontWeightLight: 300,

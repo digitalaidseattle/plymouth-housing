@@ -24,6 +24,15 @@ import { Theme } from '@mui/material';
 
 export default function ComponentsOverrides(theme: Theme) {
   return merge(
+    {
+      MuiCssBaseline: {
+        styleOverrides: {
+          html: {
+            fontSize: `${theme.typography.htmlFontSize}`,
+          },
+        },
+      },
+    },
     Button(theme),
     Badge(theme),
     CardContent(),

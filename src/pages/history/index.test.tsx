@@ -118,6 +118,7 @@ const mockCheckoutTransactions: CheckoutTransaction[] = [
     total_quantity: 2,
     welcome_basket_item_id: null,
     welcome_basket_quantity: null,
+    is_edited: false,
   },
 ];
 
@@ -432,6 +433,7 @@ describe('HistoryPage Component', () => {
         total_quantity: 1,
         welcome_basket_item_id: null,
         welcome_basket_quantity: null,
+        is_edited: false,
       },
     ];
 
@@ -464,6 +466,7 @@ describe('HistoryPage Component', () => {
         total_quantity: 2,
         welcome_basket_item_id: null,
         welcome_basket_quantity: null,
+        is_edited: false,
       },
     ];
 
@@ -530,6 +533,7 @@ describe('HistoryPage Component', () => {
         total_quantity: 1,
         welcome_basket_item_id: null,
         welcome_basket_quantity: null,
+        is_edited: false,
       },
     ];
 

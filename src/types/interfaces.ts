@@ -181,10 +181,12 @@ export enum TransactionType {
   Checkout = 1,
   InventoryAdd = 2,
   InventoryReplaceValue = 3,
+  CheckoutEdit = 4,
 }
 
 export type CheckoutTransaction = {
   building_id: number;
+  is_edited: boolean;
   item_type: 'general' | 'welcome';
   resident_id: number;
   resident_name: string;
@@ -212,6 +214,31 @@ export type InventoryTransaction = {
 export type TransactionsByUser<T> = {
   user_id: number;
   transactions: T[];
+};
+
+export type CheckoutRow = {
+  user_id: number;
+  transaction_id: string;
+  transaction_type: number;
+  parent_transaction_id: string | null;
+  resident_id: number;
+  resident_name: string;
+  unit_number: string;
+  building_id: number;
+  transaction_date: string;
+  total_quantity: number;
+  welcome_basket_item_id: number | null;
+  welcome_basket_quantity: number | null;
+};
+
+export type InventoryRow = {
+  user_id: number;
+  transaction_id: string;
+  transaction_type: number;
+  transaction_date: string;
+  item_name: string;
+  category_name: string;
+  quantity: number;
 };
 
 // ─── Context Types ────────────────────────────────────────────────────────────

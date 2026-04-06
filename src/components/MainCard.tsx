@@ -76,7 +76,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
             m: 0,
             p: '16px !important',
             fontFamily: theme.typography.fontFamily,
-            fontSize: '0.75rem',
+            fontSize: theme.typography.caption.fontSize,
           },
           ...sx,
         }}

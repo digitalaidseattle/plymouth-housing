@@ -67,14 +67,14 @@ const AdditionalNotesDialog = ({
             {previousCheckouts && checkoutHistory &&
             <Stack gap="1rem">
                 <Box>
-                    <Typography sx={{ fontSize: '1.5rem', fontWeight: '600' }}>Check before adding item</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: '600' }}>Check before adding item</Typography>
                     <Typography>
                         Please check with a staff member before adding any items that have already been checked out.
                     </Typography>
                 </Box>
                 <Box>
                     <Stack direction="row" gap="1rem">
-                        <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>Previously checked out</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: '600' }}>Previously checked out</Typography>
                         <Typography>{applianceMiscCheckouts.length} items</Typography>
                     </Stack>
                     <Box sx={{ 
@@ -93,7 +93,7 @@ const AdditionalNotesDialog = ({
 
             <Stack gap="1rem">
                 <Box>
-                    <Typography sx={{ fontSize: '1.5rem', fontWeight: '600' }}>Enter {item && item.name} Details</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: '600' }}>Enter {item && item.name} Details</Typography>
                     <Typography>You can specify the appliance here.</Typography>
                 </Box>
                 

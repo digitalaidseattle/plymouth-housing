@@ -82,12 +82,12 @@ const AddItemModal = ({
     color: theme.palette.success.dark,
   });
 
-  const DialogTitle = styled('h1')({
-    fontSize: '1.25rem',
+  const DialogTitle = styled('h1')(({ theme }) => ({
+    fontSize: theme.typography.h5.fontSize,
     fontWeight: '600',
     textTransform: 'capitalize',
     margin: '0',
-  });
+  }));
 
   const handleInputChange = (field: string, value: string | number) => {
     if (field === 'type' && typeof value === 'string') {
@@ -240,7 +240,7 @@ const AddItemModal = ({
               >
                 <span>{option.name}</span>
                 {option.category && (
-                  <span style={{ fontSize: '0.8rem', color: 'gray' }}>
+                  <span style={{ fontSize: theme.typography.caption.fontSize, color: 'gray' }}>
                     {option.category}
                   </span>
                 )}

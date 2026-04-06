@@ -64,12 +64,12 @@ const AdjustQuantityModal = ({
     }
   }, [showDialog]);
 
-  const DialogTitle = styled('h1')({
-    fontSize: '1.25rem',
+  const DialogTitle = styled('h1')(({ theme }) => ({
+    fontSize: theme.typography.h5.fontSize,
     fontWeight: '600',
     textTransform: 'capitalize',
     margin: '0',
-  });
+  }));
 
   const handleInputChange = (field: string, value: string | number) => {
     const parsedValue =
@@ -185,17 +185,17 @@ const AdjustQuantityModal = ({
         <DialogTitle>Adjust {itemToEdit?.name} number</DialogTitle>
 
         <Box id="current-stock">
-          <Typography sx={{ fontSize: '1rem' }}>
+          <Typography variant="body2">
             Current stock: {itemToEdit?.quantity}
           </Typography>
         </Box>
 
         <Box id="add-item-quantity" sx={{ width: '100%' }}>
-          <Box sx={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <Typography>New Total Quantity</Typography>
             <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
               <IconButton aria-label="Information about new quantity input">
-                <InfoIcon sx={{ fontSize: 18 }} />
+                <InfoIcon sx={{ fontSize: 16 }} />
               </IconButton>
             </Tooltip>
           </Box>

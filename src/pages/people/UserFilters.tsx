@@ -115,7 +115,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
                 aria-label="Clear Role Filter"
                 onClick={clearRoleFilter}
                 size="small"
-                sx={{ padding: 0, color: 'black', ml: '6px' }}
+                sx={{ padding: 0, color: 'black', ml: 0.75 }}
               >
                 <ClearIcon sx={{ fontSize: 'large' }} />
               </IconButton>
@@ -123,7 +123,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
           ) : (
             <>
               <Typography variant="body2">Role</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 0.75 }} />
             </>
           )}
         </Button>

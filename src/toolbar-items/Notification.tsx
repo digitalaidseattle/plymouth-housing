@@ -41,7 +41,7 @@ const avatarSX = {
 };
 
 const actionSX = {
-  mt: '6px',
+  mt: 0.75,
   ml: 1,
   top: 'auto',
   right: 'auto',

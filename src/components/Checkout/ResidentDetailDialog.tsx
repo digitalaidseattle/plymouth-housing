@@ -122,8 +122,8 @@ const ResidentDetailDialog = ({
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem',
-          paddingY: '1rem',
+          gap: 3,
+          paddingY: 2,
         }}
       >
         <FormControl>

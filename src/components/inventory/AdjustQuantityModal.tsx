@@ -176,7 +176,7 @@ const AdjustQuantityModal = ({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
-          gap: '1rem',
+          gap: 2,
           width: '100%',
           margin: 'auto',
           height: '100%',
@@ -191,11 +191,11 @@ const AdjustQuantityModal = ({
         </Box>
 
         <Box id="add-item-quantity" sx={{ width: '100%' }}>
-          <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             <Typography>New Total Quantity</Typography>
             <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
               <IconButton aria-label="Information about new quantity input">
-                <InfoIcon sx={{ fontSize: 16 }} />
+                <InfoIcon sx={{ fontSize: '1rem' }} />
               </IconButton>
             </Tooltip>
           </Box>
@@ -203,8 +203,8 @@ const AdjustQuantityModal = ({
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
-              marginTop: '0.5rem',
+              gap: 2,
+              marginTop: 1,
             }}
           >
             <TextField
@@ -262,8 +262,8 @@ const AdjustQuantityModal = ({
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
-              marginTop: '0.5rem',
+              gap: 2,
+              marginTop: 1,
             }}
           >
             <TextField

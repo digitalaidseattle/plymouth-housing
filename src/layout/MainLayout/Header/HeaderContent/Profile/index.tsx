@@ -174,7 +174,7 @@ const Profile = () => {
                                 <UserOutlined
                                   style={{
                                     marginBottom: 0,
-                                    marginRight: '10px',
+                                    marginRight: '0.625rem',
                                   }}
                                 />
                               }
@@ -193,7 +193,7 @@ const Profile = () => {
                                 <SettingOutlined
                                   style={{
                                     marginBottom: 0,
-                                    marginRight: '10px',
+                                    marginRight: '0.625rem',
                                   }}
                                 />
                               }

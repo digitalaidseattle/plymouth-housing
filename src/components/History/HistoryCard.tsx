@@ -13,7 +13,7 @@ const HistoryCard = ({ transactionId, children }: HistoryCardProps) => {
       sx={{
         border: '1px lightgray solid',
         borderRadius: '10px',
-        paddingX: '1rem',
+        paddingX: 2,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',

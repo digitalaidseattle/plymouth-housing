@@ -240,7 +240,7 @@ const AddItemModal = ({
               >
                 <span>{option.name}</span>
                 {option.category && (
-                  <span style={{ fontSize: theme.typography.caption.fontSize, color: 'gray' }}>
+                  <span style={{ fontSize: theme.typography.body2.fontSize, color: 'gray' }}>
                     {option.category}
                   </span>
                 )}

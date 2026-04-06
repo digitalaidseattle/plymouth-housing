@@ -14,7 +14,7 @@ export default function ToggleButton(theme: Theme) {
           '&.toggle-primary': {
             padding: '1rem 0',
             borderRadius: '18px !important',
-            fontSize: '1.25rem',
+            fontSize: theme.typography.h5.fontSize,
             backgroundColor: theme.palette.grey[100],
             color: theme.palette.text.primary,
             minWidth: '120px',
@@ -61,7 +61,7 @@ export default function ToggleButton(theme: Theme) {
     MuiToggleButtonGroup: {
       styleOverrides: {
         root: {
-          gap: '1rem',
+          gap: theme.spacing(2),
           // Remove default grouped styling
           '& .MuiToggleButton-root': {
             marginLeft: '0 !important',

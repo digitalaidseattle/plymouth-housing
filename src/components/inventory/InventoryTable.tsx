@@ -48,7 +48,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Category</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Status</TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '12.5%', textAlign: 'center'  }}>Quantity</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', textAlign: 'right', paddingRight: '2rem' }}>Adjust</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', textAlign: 'right', pr: 4 }}>Adjust</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -120,8 +120,8 @@ const Catalog = () => {
       <MainCard>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabValue} onChange={handleTabChange}>
-            <Tab label="Items" sx={{ fontSize: '1.1rem' }} />
-            <Tab label="Categories" sx={{ fontSize: '1.1rem' }} />
+            <Tab label="Items" sx={{ typography: 'body1' }} />
+            <Tab label="Categories" sx={{ typography: 'body1' }} />
           </Tabs>
         </Box>
 

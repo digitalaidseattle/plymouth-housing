@@ -46,7 +46,7 @@ const CategorySection = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 1.875,
+          marginBottom: '15px',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -54,7 +54,7 @@ const CategorySection = ({
             sx={{
               typography: { xs: 'body2', md: 'h5' },
               marginY: '3%',
-              marginRight: 3.75,
+              marginRight: '30px',
             }}
             id={category.category}
           >
@@ -80,8 +80,8 @@ const CategorySection = ({
                 ? '#c62828'
                 : 'inherit',
             borderRadius: '20px',
-            paddingY: 0.5,
-            paddingX: 1.5,
+            paddingY: '4px',
+            paddingX: '12px',
           }}
         >
           {categoryCheckout?.categoryCount} of {category.checkout_limit}

@@ -21,7 +21,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
   }
 
   return (
-    <Box id="inventory-container" sx={{ marginTop: 1.25}}>
+    <Box id="inventory-container" sx={{ marginTop: '10px'}}>
       <TableContainer component={Paper}>
         <Table sx={{ tableLayout: 'fixed' }}>
           <TableHead>

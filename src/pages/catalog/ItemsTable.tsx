@@ -340,7 +340,7 @@ const ItemsTable = ({
         onClick={() => handleCellClick(item.id, field as string, value)}
         sx={{
           cursor: 'pointer',
-          padding: 1,
+          padding: '8px',
           borderRadius: '4px',
           '&:hover': {
             backgroundColor: 'action.hover',

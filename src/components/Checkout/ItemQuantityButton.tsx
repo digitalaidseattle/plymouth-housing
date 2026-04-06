@@ -71,7 +71,7 @@ const ItemQuantityButton = ({
           sx={{
             color: 'black',
             typography: 'body2',
-            paddingX: { xs: 1.25, md: 5 },
+            paddingX: { xs: '10px', md: '40px' },
           }}
           onClick={() => removeItemFromCart(item.id, categoryName)}
         >

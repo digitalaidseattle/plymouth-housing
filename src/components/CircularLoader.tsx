@@ -8,7 +8,7 @@ const LoaderWrapper = styled('div')(() => ({
   alignItems: 'center',
   justifyContent: 'center',
   width: '100%',
-  marginTop: 10,
+  marginTop: '5rem',
 }));
 
 // ==============================|| Loader ||============================== //

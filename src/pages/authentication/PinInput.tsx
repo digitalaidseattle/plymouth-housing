@@ -12,13 +12,13 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 
 const PinInput = styled(TextField)(({ theme }) => ({
   width: '50px',
-  margin: theme.spacing(0, 1),
+  margin: '0 8px',
   textAlign: 'center',
   height: '56px',
   '& input': {
     textAlign: 'center',
     fontSize: theme.typography.h4.fontSize,
-    padding: theme.spacing(1.25),
+    padding: '10px',
   },
 }));
 

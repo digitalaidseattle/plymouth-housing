@@ -78,7 +78,7 @@ const AddItemModal = ({
   const theme = useTheme();
 
   const ResultText = styled('span')({
-    marginLeft: 0.375,
+    marginLeft: '0.25rem',
     color: theme.palette.success.dark,
   });
 
@@ -86,7 +86,7 @@ const AddItemModal = ({
     fontSize: theme.typography.h5.fontSize,
     fontWeight: '600',
     textTransform: 'capitalize',
-    margin: 0,
+    margin: '0',
   }));
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -275,8 +275,8 @@ const AddItemModal = ({
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: 2,
-            marginTop: 1,
+            gap: '1rem',
+            marginTop: '0.5rem',
           }}
         >
           <IconButton
@@ -348,7 +348,7 @@ const AddItemModal = ({
   const ResultsContent = () => (
     <>
       <DialogTitle>Inventory Updated: {updateItem?.name}</DialogTitle>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <Box>
           Previous Stock: <ResultText>{updateItem?.quantity ?? 0}</ResultText>
         </Box>
@@ -376,7 +376,7 @@ const AddItemModal = ({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
-          gap: 2,
+          gap: '1rem',
           width: '100%',
           margin: 'auto',
           height: '100%',

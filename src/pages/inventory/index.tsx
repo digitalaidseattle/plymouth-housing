@@ -330,7 +330,7 @@ const Inventory = () => {
 
       {/* Pagination */}
       <Box
-        sx={{ display: 'flex', justifyContent: 'center', marginTop: 1.875 }}
+        sx={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}
       >
         <Pagination
           count={Math.ceil(displayData.length / itemsPerPage)}

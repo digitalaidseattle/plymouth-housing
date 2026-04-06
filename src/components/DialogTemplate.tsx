@@ -42,8 +42,8 @@ const DialogTemplate = ({
               width: { xs: '80vw', md: '50vw' },
               maxHeight: '90vh',
               borderRadius: '15px',
-              paddingY: title ? 3 : 0,
-              paddingX: 6,
+              paddingY: title ? '1.5rem' : '0rem',
+              paddingX: '3rem',
               position: 'relative'
             },
           }}
@@ -61,13 +61,13 @@ const DialogTemplate = ({
                 <Typography variant="h5" sx={{ textTransform: 'capitalize' }}>{title}</Typography>
             </DialogTitle>}
 
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 2}}>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem'}}>
             {children}
             </DialogContent>
 
-            <DialogActions sx={{ display: 'flex', gap: 2 }}>
+            <DialogActions sx={{ display: 'flex', gap: '1rem' }}>
                 {backButtonText && <Button onClick={handleShowDialog} sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
-                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '1 2.5' }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
+                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
             </DialogActions>
         </Dialog>
     );

@@ -16,7 +16,7 @@ type CustomDateDialogProps = {
 
 const PresetToggleButton = styled(ToggleButton)(({ theme }) => ({
   borderRadius: '20px',
-  padding: theme.spacing(1, 2),
+  padding: '0.5rem 1rem',
   border: '1px solid',
   borderColor: theme.palette.text.primary,
   textTransform: 'none',
@@ -121,7 +121,7 @@ const CustomDateDialog = ({
         value={activePreset}
         exclusive
         sx={{
-          gap: 1,
+          gap: '0.5rem',
           '& .MuiToggleButton-root': {
             borderRadius: '20px !important', // Override grouped styles
             marginLeft: '0 !important',

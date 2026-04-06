@@ -121,8 +121,8 @@ const WelcomeBasketBuildingDialog = ({
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 3,
-          paddingY: 2,
+          gap: '1.5rem',
+          paddingY: '1rem',
         }}
       >
         <FormControl>

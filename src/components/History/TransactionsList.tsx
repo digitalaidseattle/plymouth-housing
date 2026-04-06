@@ -34,10 +34,10 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   }
 
   return (
-    <Stack gap={4}>
+    <Stack gap="2rem">
       {transactionsByUser?.map((user) => (
         <Box key={user.user_id}>
-          <Stack direction="row" alignItems="center" gap={2}>
+          <Stack direction="row" alignItems="center" gap="1rem">
             <h2>
               {loggedInUserId === user.user_id
                 ? 'You'
@@ -56,7 +56,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                 lg: 'repeat(2, 1fr)',
                 xl: 'repeat(3, 1fr)',
               },
-              gap: 2,
+              gap: '1rem',
             }}
           >
             {user.transactions.map(

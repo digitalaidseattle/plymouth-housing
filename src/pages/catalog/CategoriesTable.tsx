@@ -186,7 +186,7 @@ const CategoriesTable = ({
         onClick={() => handleCellClick(category.id, field, value)}
         sx={{
           cursor: 'pointer',
-          padding: 1,
+          padding: '8px',
           borderRadius: '4px',
           '&:hover': {
             backgroundColor: 'action.hover',

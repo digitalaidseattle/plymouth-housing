@@ -1,13 +1,15 @@
 // ==============================|| OVERRIDES - CARD CONTENT ||============================== //
 
-export default function CardContent() {
+import { Theme } from '@mui/material';
+
+export default function CardContent(theme: Theme) {
   return {
     MuiCardContent: {
       styleOverrides: {
         root: {
-          padding: 20,
+          padding: theme.spacing(2.5),
           '&:last-child': {
-            paddingBottom: 20,
+            paddingBottom: theme.spacing(2.5),
           },
         },
       },

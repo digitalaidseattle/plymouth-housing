@@ -9,14 +9,14 @@ import { styled } from '@mui/material/styles';
 import LinearProgress from '@mui/material/LinearProgress';
 
 // loader style
-const LoaderWrapper = styled('div')(({ theme }) => ({
+const LoaderWrapper = styled('div')(() => ({
   position: 'fixed',
   top: 0,
   left: 0,
   zIndex: 2001,
   width: '100%',
   '& > * + *': {
-    marginTop: theme.spacing(2),
+    marginTop: 2,
   },
 }));
 

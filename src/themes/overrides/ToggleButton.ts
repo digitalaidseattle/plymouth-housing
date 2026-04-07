@@ -36,7 +36,7 @@ export default function ToggleButton(theme: Theme) {
           // Secondary style (for date picker preset buttons)
           '&.toggle-secondary': {
             borderRadius: '20px !important',
-            padding: '0.5rem 1rem',
+            padding: `${1} ${2}`,
             backgroundColor: 'transparent',
             border: `1px solid ${theme.palette.text.primary} !important`,
             color: theme.palette.text.primary,

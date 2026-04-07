@@ -6,7 +6,8 @@ const CheckedoutListItem = ({ itemName, timesCheckedOut }: { itemName: string, t
             display: 'flex', 
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '1rem 1.5rem',
+            p: 2, 
+            px: 1.5,
             borderBottom: '1px solid gray',
             '&:last-child': { borderBottom: 'none' }
             }}>

@@ -64,7 +64,7 @@ const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({
                 </>
               }
               label={`${percentage}%`}
-              sx={{ ml: 1.25, pl: 1 }}
+              sx={{ ml: 1, pl: 1 }}
               size="small"
             />
           </Grid>

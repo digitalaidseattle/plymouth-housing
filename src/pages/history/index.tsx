@@ -87,7 +87,7 @@ const HistoryPage: React.FC = () => {
           <ToggleButton
             value="checkout"
             sx={{
-              padding: '1rem 2rem',
+              padding: `${2} ${4}`,
               borderRadius: '18px',
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
@@ -112,7 +112,7 @@ const HistoryPage: React.FC = () => {
           <ToggleButton
             value="inventory"
             sx={{
-              padding: '1rem 2rem',
+              padding: `${2} ${4}`,
               borderRadius: '18px',
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',

@@ -38,6 +38,7 @@ export default function ThemeCustomization(props: { children: ReactNode }) {
         },
       },
       direction: 'ltr',
+      spacing: 8,
       mixins: {
         toolbar: {
           minHeight: 60,

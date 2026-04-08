@@ -16,24 +16,23 @@ class HistoryPage(BasePage):
     # ---------- Navigation ----------
 
     def open_history(self):
-        """
-        Click History menu and wait until History page fully loads.
-        """
+        print("Opening history page...")
+
+        # 1. Click (BasePage already handles everything)
         self.click(self.common_locators.HISTORY_MENU_BUTTON)
 
-        self.wait.until(
-            EC.text_to_be_present_in_element(
-                self.locators.HISTORY_HEADER,
-                "History"
+        # 2. Wait for header visibility (NOT text)
+        self.wait_for_visibility(self.locators.HISTORY_HEADER)
+
+        # 3. Wait for data OR empty state
+        self.get_wait(15).until(
+            lambda d: (
+                    len(d.find_elements(*self.locators.RECORD_COUNT_TEXT)) > 0
+                    or len(d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)) > 0
             )
         )
 
-        WebDriverWait(self.driver, 10).until(
-            lambda d: (
-                d.find_elements(*self.locators.RECORD_COUNT_TEXT)
-                or d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)
-            )
-        )
+        print("History page loaded")
 
     # ---------- Record Count ----------
 

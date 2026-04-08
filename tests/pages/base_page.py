@@ -175,24 +175,24 @@ class BasePage:
     ):
         wait = self.get_wait(timeout)
 
+        # 1. initial locate
         input_el = wait.until(
             EC.element_to_be_clickable(input_locator)
         )
 
-        # scroll + click (open dropdown)
+        # scroll + click
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
             input_el
         )
-
         input_el.click()
 
-        # wait dropdown open (MUI)
+        # 2. WAIT DROPDOWN OPEN (re-find!)
         wait.until(
-            lambda d: input_el.get_attribute("aria-expanded") == "true"
+            lambda d: d.find_element(*input_locator).get_attribute("aria-expanded") == "true"
         )
 
-        # wait options
+        # 3. wait options
         options = wait.until(
             lambda d: [
                 el for el in d.find_elements(*options_locator)
@@ -200,7 +200,6 @@ class BasePage:
             ]
         )
 
-        # guard against empty list
         if not options:
             raise TimeoutException(
                 f"No visible options found for autocomplete {input_locator}"
@@ -209,23 +208,28 @@ class BasePage:
         first_option = options[0]
         selected_text = first_option.text.strip()
 
-        # click option (JS safer)
+        # 4. click option
         self.driver.execute_script(
             "arguments[0].click();",
             first_option
         )
 
-        # blur for React commit
-        self.driver.execute_script("arguments[0].blur();", input_el)
-
-        # verify selection
-        wait.until(
-            lambda d: input_el.get_attribute("value") == selected_text
+        # 5. RE-FIND input after selection (CRITICAL)
+        input_el = wait.until(
+            EC.presence_of_element_located(input_locator)
         )
 
-        # wait dropdown closed
+        # blur
+        self.driver.execute_script("arguments[0].blur();", input_el)
+
+        # 6. verify value (re-find inside wait)
         wait.until(
-            lambda d: input_el.get_attribute("aria-expanded") != "true"
+            lambda d: d.find_element(*input_locator).get_attribute("value") == selected_text
+        )
+
+        # 7. wait dropdown closed (re-find again)
+        wait.until(
+            lambda d: d.find_element(*input_locator).get_attribute("aria-expanded") != "true"
         )
 
         return selected_text

@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -76,11 +78,26 @@ class LoginPage(BasePage):
         print("Database is ready")
 
     def wait_for_volunteer_ready(self):
-        self.wait_for_database_ready()
+        print("Waiting for volunteer field to be ready...")
 
-        self.wait.until(
-            EC.element_to_be_clickable(self.locators.USER_PERSON)
+        # 1. Ensure the input is visible
+        input_field = self.wait.until(
+            EC.visibility_of_element_located(LoginPageLocators.USER_PERSON)
         )
+
+        # 2. aria-expanded should be false → dropdown is closed and stable
+        self.wait.until(lambda d: input_field.get_attribute("aria-expanded") in ["false", None])
+
+        # 3. small stabilization delay (very important for your app)
+        time.sleep(1)
+
+        # 4. re-locate the element (React re-render fix)
+        input_field = self.driver.find_element(*LoginPageLocators.USER_PERSON)
+
+        # 5. use safe condition instead of clickable
+        self.wait.until(lambda d: input_field.is_displayed() and input_field.is_enabled())
+
+        print("Volunteer field is ready")
 
     # ---------------------------------------------------
     # Application Readiness
@@ -111,26 +128,31 @@ class LoginPage(BasePage):
         # Trigger dropdown
         input_el.send_keys(name[:2])
 
-        # Wait for the matching option (handles async loading and race conditions)
+        # Wait for the matching option
         option = self.wait.until(
             lambda d: next(
                 (
                     el for el in d.find_elements(*self.locators.NAME_OPTIONS)
                     if el.is_displayed()
-                    and el.text.strip()
-                    and name.lower() in el.text.lower()
+                       and el.text.strip()
+                       and name.lower() in el.text.lower()
                 ),
                 False
             )
         )
 
-        # Click using JavaScript for better stability
+        # Click option (JS safer)
         self.driver.execute_script("arguments[0].click();", option)
 
-        # Blur to ensure React state is committed
+        # RE-FIND input after selection (CRITICAL FIX)
+        input_el = self.wait.until(
+            EC.presence_of_element_located(self.locators.USER_PERSON)
+        )
+
+        # Blur fresh element
         self.driver.execute_script("arguments[0].blur();", input_el)
 
-        # Verify selection using fresh lookup (avoid stale element issues)
+        # Verify selection using fresh lookup (NO stale risk)
         self.wait.until(
             lambda d: name.lower() in d.find_element(
                 *self.locators.USER_PERSON

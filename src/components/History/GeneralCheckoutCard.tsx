@@ -4,6 +4,7 @@ import { CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import { useTheme } from '@mui/material';
 import { SETTINGS } from '../../types/constants';
+import { formatTransactionDate, formatEditDate } from './historyUtils';
 
 type GeneralCheckoutCardProps = {
   checkoutTransaction: CheckoutTransaction;
@@ -17,7 +18,9 @@ const GeneralCheckoutCard = ({
   onClick,
 }: GeneralCheckoutCardProps) => {
   const theme = useTheme();
-  const { total_quantity } = checkoutTransaction;
+  const { total_quantity, is_edited, corrections } = checkoutTransaction;
+
+  const latestEditDate = formatEditDate(corrections);
 
   return (
     <Box
@@ -26,35 +29,51 @@ const GeneralCheckoutCard = ({
         cursor: onClick ? 'pointer' : 'default',
       }}
     >
-      <HistoryCard
-        key={checkoutTransaction.transaction_id}
-        transactionId={checkoutTransaction.transaction_id}
-      >
-        <div>
-          <h3>{checkoutTransaction.resident_name}</h3>
-          <p>
-            {checkoutTransaction.building_code}
-            {' - '}
-            {checkoutTransaction.building_name}
-            {' - '}
-            {checkoutTransaction.unit_number}
-          </p>
-          <p>{howLongAgoString}</p>
-        </div>
-        <Chip
-          sx={{
-            color:
-              total_quantity > SETTINGS.checkout_item_limit
-                ? theme.palette.warning.dark
-                : theme.palette.success.dark,
-            backgroundColor:
-              total_quantity > SETTINGS.checkout_item_limit
-                ? theme.palette.warning.lighter
-                : theme.palette.success.lighter,
-          }}
-          label={`${total_quantity} / ${SETTINGS.checkout_item_limit}`}
-        />
-      </HistoryCard>
+      <Box sx={{ position: 'relative', width: '100%' }}>
+        <HistoryCard
+          key={checkoutTransaction.transaction_id}
+          transactionId={checkoutTransaction.transaction_id}
+        >
+          <div>
+            <h3>{checkoutTransaction.resident_name}</h3>
+            <p>
+              {checkoutTransaction.building_code}
+              {' - '}
+              {checkoutTransaction.building_name}
+              {' - '}
+              {checkoutTransaction.unit_number}
+            </p>
+            <p>{howLongAgoString}</p>
+            {is_edited && latestEditDate && <p>{latestEditDate}</p>}
+          </div>
+          <Chip
+            sx={{
+              color:
+                total_quantity > SETTINGS.checkout_item_limit
+                  ? theme.palette.warning.dark
+                  : theme.palette.success.dark,
+              backgroundColor:
+                total_quantity > SETTINGS.checkout_item_limit
+                  ? theme.palette.warning.lighter
+                  : theme.palette.success.lighter,
+            }}
+            label={`${total_quantity} / ${SETTINGS.checkout_item_limit}`}
+          />
+        </HistoryCard>
+        {is_edited && (
+          <Chip
+            label="Modified"
+            size="small"
+            variant="outlined"
+            color="info"
+            sx={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+            }}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

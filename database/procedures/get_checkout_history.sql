@@ -25,7 +25,7 @@ BEGIN
         Buildings.code AS building_code,
         Buildings.name AS building_name,
         Transactions.transaction_date,
-        SUM(ti.quantity) AS total_quantity,
+        SUM(ISNULL(ti.quantity, 0)) AS total_quantity,
         -- Item IDs 171 (Twin-size Sheet Set) and 172 (Full-size Sheet Set) identify welcome basket transactions
         MAX(CASE WHEN ti.item_id IN (171, 172) THEN ti.item_id ELSE NULL END) AS welcome_basket_item_id,
         MAX(CASE WHEN ti.item_id IN (171, 172) THEN ti.quantity ELSE NULL END) AS welcome_basket_quantity
@@ -33,7 +33,7 @@ BEGIN
     INNER JOIN Residents ON Transactions.resident_id = Residents.id
     INNER JOIN Units ON Residents.unit_id = Units.id
     INNER JOIN Buildings ON Units.building_id = Buildings.id
-    INNER JOIN TransactionItems ti ON ti.transaction_id = Transactions.id
+    LEFT JOIN TransactionItems ti ON ti.transaction_id = Transactions.id
     WHERE [transaction_date] >= @start_date
         AND [transaction_date] <= @end_date
         AND [transaction_type] IN (SELECT id FROM TransactionTypes WHERE transaction_type IN ('CHECKOUT', 'CHECKOUT_EDIT'))

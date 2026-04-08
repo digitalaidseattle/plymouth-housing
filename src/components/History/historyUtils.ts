@@ -1,4 +1,4 @@
-import { Building } from '../../types/interfaces';
+import { Building, CheckoutRow } from '../../types/interfaces';
 
 const DATE_FORMATS = {
   DATE_ONLY: {
@@ -56,6 +56,14 @@ export function formatDateRange(startDate: Date, endDate: Date): string {
 
 export function formatFullDate(date: Date): string {
   return date.toLocaleString('en-us', DATE_FORMATS.FULL_DATE);
+}
+
+export function formatEditDate(corrections?: CheckoutRow[]): string | null {
+  if (!corrections?.length) return null;
+  const timeLabel = formatTransactionDate(corrections[corrections.length - 1].transaction_date).replace('Created ', '');
+  return corrections.length === 1
+    ? `Modified ${timeLabel}`
+    : `Modified ${corrections.length} times, last edit: ${timeLabel}`;
 }
 
 export function findBuildingById(

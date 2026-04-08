@@ -108,11 +108,18 @@ class LoginPage(BasePage):
     # ---------------------------------------------------
 
     def wait_for_full_app_ready(self):
-        WebDriverWait(self.driver, 60).until(
+        wait = WebDriverWait(self.driver, 60)
+
+        # 1. DB popup gone (negative signal)
+        wait.until(
+            lambda d: len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
+        )
+
+        # 2. App UI ready (positive signal)  CRITICAL
+        wait.until(
             lambda d: (
-                "Loading, please wait" not in d.page_source
-                and len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
-            )
+                          el := d.find_element(*self.locators.USER_PERSON)
+                      ).is_displayed() and el.is_enabled()
         )
 
     # ---------------------------------------------------

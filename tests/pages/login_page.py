@@ -98,7 +98,7 @@ class LoginPage(BasePage):
         self.wait.until(
             lambda d: (
                           el := d.find_element(*LoginPageLocators.USER_PERSON)
-                      ).is_displayed() and el.is_enabled()
+                      ).get_attribute("aria-expanded") in ["false", None]
         )
 
         print("Volunteer field is ready")

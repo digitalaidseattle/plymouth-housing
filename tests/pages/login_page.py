@@ -95,7 +95,11 @@ class LoginPage(BasePage):
         input_field = self.driver.find_element(*LoginPageLocators.USER_PERSON)
 
         # 5. use safe condition instead of clickable
-        self.wait.until(lambda d: input_field.is_displayed() and input_field.is_enabled())
+        self.wait.until(
+            lambda d: (
+                          el := d.find_element(*LoginPageLocators.USER_PERSON)
+                      ).is_displayed() and el.is_enabled()
+        )
 
         print("Volunteer field is ready")
 

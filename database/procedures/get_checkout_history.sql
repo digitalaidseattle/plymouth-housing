@@ -22,6 +22,8 @@ BEGIN
         Residents.name AS resident_name,
         Units.unit_number,
         Buildings.id AS building_id,
+        Buildings.code AS building_code,
+        Buildings.name AS building_name,
         Transactions.transaction_date,
         SUM(ti.quantity) AS total_quantity,
         -- Item IDs 171 (Twin-size Sheet Set) and 172 (Full-size Sheet Set) identify welcome basket transactions
@@ -44,6 +46,8 @@ BEGIN
         Residents.name,
         Units.unit_number,
         Buildings.id,
+        Buildings.code,
+        Buildings.name,
         Transactions.transaction_date
     ORDER BY Transactions.transaction_date DESC, Transactions.id;
 END;

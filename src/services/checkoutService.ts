@@ -8,21 +8,26 @@ export async function processWelcomeBasket(
   user: ClientPrincipal | null,
   loggedInUserId: number,
   sheetSetItem: CheckoutItemProp,
-  residentInfo: ResidentInfo
+  residentInfo: ResidentInfo,
+  originalTransactionId?: string | null
 ) {
   try {
+    const body: Record<string, unknown> = {
+      new_transaction_id: newTransactionID,
+      user_id: loggedInUserId,
+      mattress_size: sheetSetItem.id,
+      quantity: sheetSetItem.quantity,
+      resident_id: residentInfo.id,
+      message: '',
+    };
+    if (originalTransactionId) {
+      body.original_transaction_id = originalTransactionId;
+    }
     const result = await apiRequest({
       url: ENDPOINTS.CHECKOUT_WELCOME_BASKET,
       role: getRole(user),
       method: 'POST',
-      body: {
-        new_transaction_id: newTransactionID,
-        user_id: loggedInUserId,
-        mattress_size: sheetSetItem.id,
-        quantity: sheetSetItem.quantity,
-        resident_id: residentInfo.id,
-        message: '',
-      },
+      body,
     });
     return result;
   } catch (error) {
@@ -36,24 +41,29 @@ export async function processGeneralItems(
   user: ClientPrincipal | null,
   loggedInUserId: number,
   checkoutItems: CheckoutItemProp[],
-  residentInfo: ResidentInfo
+  residentInfo: ResidentInfo,
+  originalTransactionId?: string | null
 ) {
   try {
+    const body: Record<string, unknown> = {
+      new_transaction_id: newTransactionID,
+      user_id: loggedInUserId,
+      items: checkoutItems.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        additional_notes: item.additional_notes,
+      })),
+      resident_id: residentInfo.id,
+      message: '',
+    };
+    if (originalTransactionId) {
+      body.original_transaction_id = originalTransactionId;
+    }
     const result = await apiRequest({
       url: ENDPOINTS.CHECKOUT_GENERAL_ITEMS,
       role: getRole(user),
       method: 'POST',
-      body: {
-        new_transaction_id: newTransactionID,
-        user_id: loggedInUserId,
-        items: checkoutItems.map((item) => ({
-          id: item.id,
-          quantity: item.quantity,
-          additional_notes: item.additional_notes,
-        })),
-        resident_id: residentInfo.id,
-        message: '',
-      },
+      body,
     });
     return result;
   } catch (error) {

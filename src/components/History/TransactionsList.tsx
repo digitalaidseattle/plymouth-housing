@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Stack } from '@mui/material';
-import { Building, User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
+import { useNavigate } from 'react-router-dom';
+import { Building, User, CheckoutTransaction, InventoryTransaction, EditTransactionState } from '../../types/interfaces';
 import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';
@@ -24,6 +25,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   loggedInUserId,
   historyType,
 }) => {
+  const navigate = useNavigate();
   if (transactionsByUser.length === 0) {
     return (
       <p>
@@ -73,6 +75,14 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                       checkoutTransaction={checkoutTransaction}
                       buildings={buildings}
                       howLongAgoString={howLongAgoString}
+                      onClick={() =>
+                        navigate('/checkout', {
+                          state: {
+                            editTransaction: checkoutTransaction,
+                            correctionItems: checkoutTransaction.corrections ?? [],
+                          } satisfies EditTransactionState,
+                        })
+                      }
                     />
                   );
                 } else if (

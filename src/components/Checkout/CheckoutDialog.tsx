@@ -40,6 +40,7 @@ type CheckoutDialogProps = {
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
   onError: (message: string) => void;
+  originalTransactionId?: string | null;
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
@@ -57,6 +58,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   residentInfo,
   setResidentInfo,
   onError,
+  originalTransactionId,
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
@@ -140,6 +142,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           loggedInUserId,
           sheetSetItem,
           residentInfo,
+          originalTransactionId,
         );
       } else {
         data = await processGeneralItems(
@@ -148,6 +151,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           loggedInUserId,
           allItems,
           residentInfo,
+          originalTransactionId,
         );
       }
 

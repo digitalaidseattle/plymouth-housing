@@ -186,6 +186,9 @@ export enum TransactionType {
 
 export type CheckoutTransaction = {
   building_id: number;
+  building_code: string;
+  building_name: string;
+  corrections?: CheckoutRow[];
   is_edited: boolean;
   item_type: 'general' | 'welcome';
   resident_id: number;
@@ -216,6 +219,11 @@ export type TransactionsByUser<T> = {
   transactions: T[];
 };
 
+export interface EditTransactionState {
+  editTransaction: CheckoutTransaction;
+  correctionItems: CheckoutRow[];
+}
+
 export type CheckoutRow = {
   user_id: number;
   transaction_id: string;
@@ -225,6 +233,8 @@ export type CheckoutRow = {
   resident_name: string;
   unit_number: string;
   building_id: number;
+  building_code: string;
+  building_name: string;
   transaction_date: string;
   total_quantity: number;
   welcome_basket_item_id: number | null;

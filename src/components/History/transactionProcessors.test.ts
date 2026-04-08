@@ -11,6 +11,8 @@ const baseRow: CheckoutRow = {
   resident_name: 'Resident A',
   unit_number: '101',
   building_id: 1,
+  building_code: 'A',
+  building_name: 'Building A',
   transaction_date: '2025-01-01T00:00:00Z',
   total_quantity: 7,
   welcome_basket_item_id: null,

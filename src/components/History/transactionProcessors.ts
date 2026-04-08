@@ -55,12 +55,15 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
         resident_name: row.resident_name,
         unit_number: row.unit_number,
         building_id: row.building_id,
+        building_code: row.building_code,
+        building_name: row.building_name,
         transaction_date: row.transaction_date,
         total_quantity: row.total_quantity + deltaQuantity,
         welcome_basket_item_id: row.welcome_basket_item_id,
         welcome_basket_quantity: row.welcome_basket_quantity,
         item_type: row.welcome_basket_item_id != null ? 'welcome' : 'general',
         is_edited: edits.length > 0,
+        corrections: edits.length > 0 ? edits : undefined,
       };
     });
 }

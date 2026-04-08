@@ -1,6 +1,6 @@
-import { useState, useContext, useMemo } from 'react';
-import { Box, useTheme } from '@mui/material';
-import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo } from '../../types/interfaces';
+import { useState, useContext, useMemo, useEffect } from 'react';
+import { Box, useTheme, Chip } from '@mui/material';
+import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo, CheckoutTransaction } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getRole } from '../../utils/userUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -21,9 +21,13 @@ import { SPECIAL_ITEMS } from '../../types/constants';
 
 interface CheckoutPageProps {
   checkoutType?: CheckoutType;
+  editTransaction?: CheckoutTransaction;
 }
 
-const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' }) => {
+const CheckoutPage: React.FC<CheckoutPageProps> = ({
+  checkoutType = 'general',
+  editTransaction,
+}) => {
   const { user } = useContext(UserContext);
   const theme = useTheme();
   const navigate = useNavigate();
@@ -57,6 +61,27 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     lastVisitDate: null,
   });
 
+  const [originalTransactionId, setOriginalTransactionId] = useState<string | null>(null);
+  const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(!editTransaction);
+
+  // Initialize from edit transaction if present
+  useEffect(() => {
+    if (editTransaction) {
+      setOriginalTransactionId(editTransaction.transaction_id);
+      setResidentInfo({
+        id: editTransaction.resident_id,
+        name: editTransaction.resident_name,
+        unit: { id: 0, unit_number: editTransaction.unit_number },
+        building: {
+          id: editTransaction.building_id,
+          code: editTransaction.building_code,
+          name: editTransaction.building_name,
+        },
+        lastVisitDate: null,
+      });
+    }
+  }, [editTransaction]);
+
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
       // lastVisitDate is optional and excluded from validation, all other fields must have values
@@ -71,7 +96,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   });
 
   const [openSummary, setOpenSummary] = useState<boolean>(false);
-  const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
   const [showPastCheckoutDialog, setShowPastCheckoutDialog] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({
@@ -118,6 +142,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
 
   return (
     <>
+      {editTransaction && (
+        <Box sx={{ px: 2, py: 1 }}>
+          <Chip
+            label="Editing transaction"
+            size="small"
+            color="info"
+            variant="outlined"
+          />
+        </Box>
+      )}
       {showResidentDetailDialog && checkoutType === 'general' && (
         <ResidentDetailDialog
           showDialog={showResidentDetailDialog}
@@ -226,6 +260,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
           activeSection={activeSection}
+          originalTransactionId={originalTransactionId}
         />
         <SnackbarAlert
           open={snackbarState.open}

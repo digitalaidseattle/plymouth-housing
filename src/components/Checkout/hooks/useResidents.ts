@@ -5,9 +5,10 @@ import { getResidents, getLastResidentVisit } from '../../../services/residentSe
 export const useResidents = (
     user: ClientPrincipal | null,
     selectedUnit: Unit,
+    initialResidentName?: string,
 ) => {
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
-    const [nameInput, setNameInput] = useState<string>('');
+    const [nameInput, setNameInput] = useState<string>(initialResidentName ?? '');
     const [currentLastVisitDate, setCurrentLastVisitDate] = useState<string | null>(null);
     const [isLoadingResidents, setIsLoadingResidents] = useState(false);
     const [apiError, setApiError] = useState('');
@@ -43,7 +44,9 @@ export const useResidents = (
         const fetchResidents = async () => {
             if (!selectedUnit?.id) {
                 setExistingResidents([]);
-                setNameInput('');
+                if (!initialResidentName) {
+                    setNameInput('');
+                }
                 setCurrentLastVisitDate(null);
                 setIsLoadingResidents(false);
                 setApiError('');
@@ -62,9 +65,20 @@ export const useResidents = (
                     if (cancelled) return;
 
                     setExistingResidents(residentsWithDates);
-                    const lastResident = residentsWithDates[residentsWithDates.length - 1];
-                    setNameInput(lastResident.name);
-                    setCurrentLastVisitDate(lastResident.lastVisitDate || null);
+                    
+                    // If initialResidentName is provided, find and use that resident; otherwise use last
+                    let residentToUse = residentsWithDates[residentsWithDates.length - 1];
+                    if (initialResidentName) {
+                        const matchedResident = residentsWithDates.find(
+                            (r) => r.name.toLowerCase() === initialResidentName.toLowerCase()
+                        );
+                        if (matchedResident) {
+                            residentToUse = matchedResident;
+                        }
+                    }
+                    
+                    setNameInput(residentToUse.name);
+                    setCurrentLastVisitDate(residentToUse.lastVisitDate || null);
                 } else {
                     setExistingResidents([]);
                     setNameInput('');
@@ -90,7 +104,7 @@ export const useResidents = (
         };
         fetchResidents();
         return () => { cancelled = true; };
-    }, [user, selectedUnit]);
+    }, [user, selectedUnit, initialResidentName]);
 
     return {
         existingResidents,

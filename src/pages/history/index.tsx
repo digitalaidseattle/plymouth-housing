@@ -36,7 +36,6 @@ const HistoryPage: React.FC = () => {
   } = useDateRangeFilter();
   const {
     userList,
-    buildings,
     isLoading: isLoadingReferenceData,
   } = useReferenceData({ user, onError: showSnackbar });
 
@@ -192,7 +191,6 @@ const HistoryPage: React.FC = () => {
           <TransactionsList
             transactionsByUser={transactionsByUser}
             userList={userList}
-            buildings={buildings}
             loggedInUserId={loggedInUserId}
             historyType={historyType}
           />

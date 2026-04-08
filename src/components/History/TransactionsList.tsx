@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Building, User, CheckoutTransaction, InventoryTransaction, EditTransactionState } from '../../types/interfaces';
+import { User, CheckoutTransaction, InventoryTransaction, EditTransactionState } from '../../types/interfaces';
 import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';
@@ -13,7 +13,6 @@ interface TransactionsListProps {
     transactions: (CheckoutTransaction | InventoryTransaction)[];
   }>;
   userList: User[] | null;
-  buildings: Building[] | null;
   loggedInUserId: number | null;
   historyType: 'checkout' | 'inventory';
 }
@@ -21,11 +20,20 @@ interface TransactionsListProps {
 const TransactionsList: React.FC<TransactionsListProps> = ({
   transactionsByUser,
   userList,
-  buildings,
   loggedInUserId,
   historyType,
 }) => {
   const navigate = useNavigate();
+
+  const handleEditCheckout = (checkoutTransaction: CheckoutTransaction) => {
+    navigate('/checkout', {
+      state: {
+        editTransaction: checkoutTransaction,
+        correctionItems: checkoutTransaction.corrections ?? [],
+      } satisfies EditTransactionState,
+    });
+  };
+
   if (transactionsByUser.length === 0) {
     return (
       <p>
@@ -73,16 +81,8 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     <GeneralCheckoutCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
-                      buildings={buildings}
                       howLongAgoString={howLongAgoString}
-                      onClick={() =>
-                        navigate('/checkout', {
-                          state: {
-                            editTransaction: checkoutTransaction,
-                            correctionItems: checkoutTransaction.corrections ?? [],
-                          } satisfies EditTransactionState,
-                        })
-                      }
+                      onClick={() => handleEditCheckout(checkoutTransaction)}
                     />
                   );
                 } else if (
@@ -93,7 +93,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     <WelcomeBasketCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
-                      buildings={buildings}
                       howLongAgoString={howLongAgoString}
                     />
                   );

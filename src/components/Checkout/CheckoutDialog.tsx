@@ -14,6 +14,7 @@ import {
   CategoryProps,
   CheckoutItemProp,
   ResidentInfo,
+  TransactionItem,
 } from '../../types/interfaces';
 import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
@@ -41,6 +42,8 @@ type CheckoutDialogProps = {
   setResidentInfo: (residentInfo: ResidentInfo) => void;
   onError: (message: string) => void;
   originalTransactionId?: string | null;
+  isEditMode?: boolean;
+  originalTransactionItems?: TransactionItem[];
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
@@ -59,20 +62,22 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   setResidentInfo,
   onError,
   originalTransactionId,
+  isEditMode = false,
+  originalTransactionItems = [],
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
     CategoryProps[]
   >([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
-  const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
+  const [cartItems, setCartItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [categoryLimitErrors, setCategoryLimitErrors] = useState<
     CategoryProps[]
   >([]);
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
-  const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalItemLimitExceeded = totalItemCount > SETTINGS.checkout_item_limit;
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
   const [transactionId, setTransactionId] = useState<string | null>(null);
@@ -81,7 +86,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
       setStatusMessage('');
-      setAllItems(checkoutItems.flatMap((item) => item.items));
+      setCartItems(checkoutItems.flatMap((item) => item.items));
       setTransactionId(crypto.randomUUID());
 
       const errors: CategoryProps[] = [];
@@ -121,16 +126,55 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         throw new Error('Transaction ID not created.');
       }
 
-      // A checkout is treated as a welcome basket if the cart contains either sheet set.
-      // We find the sheet set explicitly here because allItems may contain all basket items
+      // In edit mode, compute deltas: (cart qty − previous qty) per item.
+      // Negatives are valid (item removed or reduced). Zeros are omitted.
+      const effectiveMap = new Map<number, { quantity: number; additional_notes: string }>();
+      originalTransactionItems.forEach((ei) => {
+        const prev = effectiveMap.get(ei.item_id);
+        effectiveMap.set(ei.item_id, {
+          quantity: (prev?.quantity ?? 0) + ei.quantity,
+          additional_notes: ei.additional_notes,
+        });
+      });
+
+      const itemsToSubmit: CheckoutItemProp[] = isEditMode
+        ? (() => {
+            const cartMap = new Map<number, CheckoutItemProp>();
+            cartItems.forEach((item) => cartMap.set(item.id, item));
+            const allItemIds = new Set([
+              ...cartItems.map((i) => i.id),
+              ...originalTransactionItems.map((ei) => ei.item_id),
+            ]);
+            const deltas: CheckoutItemProp[] = [];
+            allItemIds.forEach((itemId) => {
+              const cartItem = cartMap.get(itemId);
+              const cartQty = cartItem?.quantity ?? 0;
+              const effectiveQty = effectiveMap.get(itemId)?.quantity ?? 0;
+              const delta = cartQty - effectiveQty;
+              if (delta !== 0) {
+                deltas.push({
+                  id: itemId,
+                  name: cartItem?.name ?? '',
+                  description: cartItem?.description ?? '',
+                  quantity: delta,
+                  additional_notes:
+                    cartItem?.additional_notes ??
+                    effectiveMap.get(itemId)?.additional_notes,
+                });
+              }
+            });
+            return deltas;
+          })()
+        : cartItems;
+      // We find the sheet set explicitly here because cartItems may contain all basket items
       // when editing from history, so relying on array position would send the wrong item.
       const sheetSetIds: number[] = Object.values(WELCOME_BASKET_ITEMS);
-      const isWelcomeBasket = allItems.some((item) =>
+      const isWelcomeBasket = cartItems.some((item) =>
         sheetSetIds.includes(item.id),
       );
       let data = null;
       if (isWelcomeBasket) {
-        const sheetSetItem = allItems.find((item) =>
+        const sheetSetItem = cartItems.find((item) =>
           sheetSetIds.includes(item.id),
         );
         if (!sheetSetItem) {
@@ -149,7 +193,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           transactionId,
           user,
           loggedInUserId,
-          allItems,
+          itemsToSubmit,
           residentInfo,
           originalTransactionId,
         );
@@ -258,7 +302,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             message: error.message,
             stack: error.stack,
             transactionId: transactionId,
-            itemCount: allItems.length,
+            itemCount: cartItems.length,
             timestamp: new Date().toISOString(),
           });
         }

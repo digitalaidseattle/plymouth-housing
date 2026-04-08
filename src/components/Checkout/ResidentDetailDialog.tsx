@@ -54,7 +54,7 @@ const ResidentDetailDialog = ({
   });
 
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
-  const residentsHook = useResidents(user, selectedUnit);
+  const residentsHook = useResidents(user, selectedUnit, residentInfo.name);
   const submitHook = useResidentFormSubmit(user, (residentInfo) => {
     setResidentInfo(residentInfo);
     handleShowDialog();

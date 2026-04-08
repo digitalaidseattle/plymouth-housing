@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as historyService from '../../services/historyService';
@@ -137,19 +138,21 @@ const mockInventoryTransactions: InventoryTransaction[] = [
 ];
 
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <UserContext.Provider
-    value={{
-      user: mockUser,
-      setUser: vi.fn(),
-      loggedInUserId: 1,
-      setLoggedInUserId: vi.fn(),
-      activeVolunteers: [],
-      setActiveVolunteers: vi.fn(),
-      isLoading: false,
-    }}
-  >
-    {children}
-  </UserContext.Provider>
+  <MemoryRouter>
+    <UserContext.Provider
+      value={{
+        user: mockUser,
+        setUser: vi.fn(),
+        loggedInUserId: 1,
+        setLoggedInUserId: vi.fn(),
+        activeVolunteers: [],
+        setActiveVolunteers: vi.fn(),
+        isLoading: false,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  </MemoryRouter>
 );
 
 describe('HistoryPage Component', () => {

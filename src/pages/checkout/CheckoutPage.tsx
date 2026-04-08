@@ -1,7 +1,8 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
 import { Box, useTheme, Chip } from '@mui/material';
-import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo, CheckoutTransaction } from '../../types/interfaces';
+import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo, CheckoutTransaction, TransactionItem } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
+import { getTransaction } from '../../services/checkoutService';
 import { getRole } from '../../utils/userUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
@@ -53,34 +54,64 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const { activeSection, setActiveSection, addItemToCart, removeItemFromCart } =
     useCartOperations({ checkoutItems, setCheckoutItems });
 
-  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({
-    id: 0,
-    name: '',
-    unit: { id: 0, unit_number: '' },
-    building: { id: 0, code: '', name: '' },
-    lastVisitDate: null,
-  });
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>(() =>
+    editTransaction
+      ? {
+          id: editTransaction.resident_id,
+          name: editTransaction.resident_name,
+          unit: { id: 0, unit_number: editTransaction.unit_number },
+          building: {
+            id: editTransaction.building_id,
+            code: editTransaction.building_code,
+            name: editTransaction.building_name,
+          },
+          lastVisitDate: null,
+        }
+      : {
+          id: 0,
+          name: '',
+          unit: { id: 0, unit_number: '' },
+          building: { id: 0, code: '', name: '' },
+          lastVisitDate: null,
+        },
+  );
 
-  const [originalTransactionId, setOriginalTransactionId] = useState<string | null>(null);
+  const originalTransactionId = editTransaction?.transaction_id ?? null;
+  const [originalTransactionItems, setOriginalTransactionItems] = useState<TransactionItem[]>([]);
   const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(!editTransaction);
 
-  // Initialize from edit transaction if present
+  // Fetch full transaction details (items + headers) when editing a transaction
   useEffect(() => {
-    if (editTransaction) {
-      setOriginalTransactionId(editTransaction.transaction_id);
-      setResidentInfo({
-        id: editTransaction.resident_id,
-        name: editTransaction.resident_name,
-        unit: { id: 0, unit_number: editTransaction.unit_number },
-        building: {
-          id: editTransaction.building_id,
-          code: editTransaction.building_code,
-          name: editTransaction.building_name,
-        },
-        lastVisitDate: null,
-      });
-    }
-  }, [editTransaction]);
+    let mounted = true;
+    const fetchTransaction = async () => {
+      if (!editTransaction) return;
+      try {
+          const result = await getTransaction(user, editTransaction.transaction_id);
+          const detail = result?.value;
+          if (detail && detail.items && Array.isArray(detail.items)) {
+            const items: TransactionItem[] = detail.items;
+            if (mounted) {
+              setOriginalTransactionItems(items);
+              setResidentInfo((prev) => ({
+                id: detail.resident_id ?? prev.id,
+                name: detail.resident_name ?? prev.name,
+                unit: { id: prev.unit.id, unit_number: detail.unit_number ?? prev.unit.unit_number },
+                building: {
+                  id: detail.building_id ?? prev.building.id,
+                  code: detail.building_code ?? prev.building.code,
+                  name: detail.building_name ?? prev.building.name,
+                },
+                lastVisitDate: prev.lastVisitDate,
+              }));
+            }
+          }
+      } catch (err) {
+        showSnackbar('Failed to load transaction details', 'warning');
+      }
+    };
+    fetchTransaction();
+    return () => { mounted = false; };
+  }, [editTransaction, user]);
 
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
@@ -261,6 +292,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           setResidentInfo={setResidentInfo}
           activeSection={activeSection}
           originalTransactionId={originalTransactionId}
+          isEditMode={!!editTransaction}
+          originalTransactionItems={originalTransactionItems}
         />
         <SnackbarAlert
           open={snackbarState.open}

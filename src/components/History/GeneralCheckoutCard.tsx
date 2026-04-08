@@ -1,20 +1,18 @@
 import Chip from '@mui/material/Chip';
 import { Box } from '@mui/material';
-import { Building, CheckoutTransaction } from '../../types/interfaces';
+import { CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import { useTheme } from '@mui/material';
 import { SETTINGS } from '../../types/constants';
 
 type GeneralCheckoutCardProps = {
   checkoutTransaction: CheckoutTransaction;
-  buildings: Building[] | null;
   howLongAgoString: string;
   onClick?: () => void;
 };
 
 const GeneralCheckoutCard = ({
   checkoutTransaction,
-  buildings,
   howLongAgoString,
   onClick,
 }: GeneralCheckoutCardProps) => {
@@ -35,10 +33,9 @@ const GeneralCheckoutCard = ({
         <div>
           <h3>{checkoutTransaction.resident_name}</h3>
           <p>
-            {checkoutTransaction.building_code ?? ''}
+            {checkoutTransaction.building_code}
             {' - '}
-            {buildings?.find((b) => b.id === checkoutTransaction.building_id)
-              ?.name ?? ''}
+            {checkoutTransaction.building_name}
             {' - '}
             {checkoutTransaction.unit_number}
           </p>

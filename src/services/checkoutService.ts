@@ -1,5 +1,5 @@
 import { getRole } from '../utils/userUtils';
-import { CheckoutItemProp, ClientPrincipal, ResidentInfo } from '../types/interfaces';
+import { CheckoutItemProp, ClientPrincipal, ResidentInfo, Transaction, TransactionItem } from '../types/interfaces';
 import { ENDPOINTS } from '../types/constants';
 import { apiRequest } from './apiRequest';
 
@@ -89,6 +89,37 @@ export async function checkPastCheckout(user: ClientPrincipal | null, residentId
     return result;
   } catch (error) {
     console.error('Error checking for a past checkout:', error);
+    throw error;
+  }
+}
+
+type DabTransactionRow = Omit<Transaction, 'items'> & { items: string };
+
+export async function getTransaction(
+  user: ClientPrincipal | null,
+  id: string,
+): Promise<{ value: Transaction | null } | undefined> {
+  try {
+    const result = await apiRequest<DabTransactionRow[]>({
+      url: ENDPOINTS.GET_TRANSACTION,
+      role: getRole(user),
+      method: 'POST',
+      body: { id },
+    });
+
+    if (!result?.value?.length) {
+      return { value: null };
+    }
+
+    const row = result.value[0];
+    return {
+      value: {
+        ...row,
+        items: JSON.parse(row.items) as TransactionItem[],
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching transaction:', error);
     throw error;
   }
 }

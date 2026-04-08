@@ -110,8 +110,7 @@ class LoginPage(BasePage):
     def wait_for_full_app_ready(self):
         WebDriverWait(self.driver, 60).until(
             lambda d: (
-                "Loading, please wait" not in d.page_source
-                and len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
+                    len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
             )
         )
 

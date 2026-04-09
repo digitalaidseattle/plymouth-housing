@@ -58,13 +58,19 @@ const MainLayout: React.FC = () => {
         }
 
         if (userClaims?.userRoles?.includes('admin')) {
-          const createdOrUpdatedAdmin = await upsertAdminUser({
-            name: userClaims.userDetails ?? '',
-            email: userClaims.userId ?? '',
-            claims: userClaims,
-          });
-          // Now we have an User object with id, name, created_at, last_signed_in
-          setLoggedInUserId(createdOrUpdatedAdmin.id);
+          try {
+            const createdOrUpdatedAdmin = await upsertAdminUser({
+              name: userClaims.userDetails ?? '',
+              email: userClaims.userId ?? '',
+              claims: userClaims,
+            });
+            // Now we have an User object with id, name, created_at, last_signed_in
+            setLoggedInUserId(createdOrUpdatedAdmin.id);
+          } catch (error) {
+            console.error('Error in upsertAdminUser:', error);
+            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
+          }
         }
       } catch (error) {
         console.error('Error in fetchTokenAndVolunteers:', error);

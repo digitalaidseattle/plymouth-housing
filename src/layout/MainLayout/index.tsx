@@ -13,10 +13,12 @@ import Drawer from './Drawer';
 import Header from './Header';
 import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 import ScrollTop from '../../components/ScrollTop';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
 import { getAuthMe } from '../../services/authService';
 import { apiRequest } from '../../services/apiRequest';
@@ -30,6 +32,7 @@ const MainLayout: React.FC = () => {
     useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const navigate = useNavigate();
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
@@ -71,7 +74,11 @@ const MainLayout: React.FC = () => {
         }
       } catch (error) {
         console.error('Error in fetchTokenAndVolunteers:', error);
-        navigate('/');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
+        showSnackbar(`Authentication error: ${errorMessage}`, 'error');
+        setTimeout(() => {
+          navigate('/');
+        }, 3000);
       }
     };
     fetchTokenAndRole();
@@ -195,6 +202,13 @@ const MainLayout: React.FC = () => {
             <Outlet context={{ drawerOpen }} />
           </Box>
         </Box>
+        <SnackbarAlert
+          open={snackbarState.open}
+          onClose={handleClose}
+          severity={snackbarState.severity}
+        >
+          {snackbarState.message}
+        </SnackbarAlert>
       </ScrollTop>
     </DrawerOpenContext.Provider>
   );

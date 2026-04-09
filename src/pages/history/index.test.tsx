@@ -72,7 +72,7 @@ vi.mock('../../components/History/InventoryCard', () => ({
 
 // Mock user context values
 const mockUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Test Volunteer',
   userRoles: ['volunteer'],
   claims: [],

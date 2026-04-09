@@ -21,7 +21,7 @@ const originalData: InventoryItem[] = [
 
 const mockUser: ClientPrincipal = {
     userDetails: 'test-user',
-    userID: '123',
+    userId: '123',
     userRoles: ['admin']
 };
 

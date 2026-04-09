@@ -58,7 +58,7 @@ const MainLayout: React.FC = () => {
           try {
             const createdOrUpdatedAdmin = await upsertAdminUser({
               name: userClaims.userDetails ?? '',
-              email: userClaims.userID ?? '',
+              email: userClaims.userId ?? '',
               claims: userClaims,
             });
             // Now we have an User object with id, name, created_at, last_signed_in

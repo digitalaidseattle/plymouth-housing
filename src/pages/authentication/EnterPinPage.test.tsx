@@ -30,7 +30,7 @@ vi.mock('./PinInput', () => ({
 
 // Define a helper function to create the required UserContext value
 const createUserContextValue = (overrides = {}) => ({
-  user: { userID: "1", userDetails: "Test", userRoles: ["volunteer"], claims: [] },
+  user: { userId: "1", userDetails: "Test", userRoles: ["volunteer"], claims: [] },
   setUser: vi.fn(),
   loggedInUserId: 123,
   setLoggedInUserId: vi.fn(),

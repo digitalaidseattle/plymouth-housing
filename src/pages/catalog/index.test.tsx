@@ -6,10 +6,10 @@ import { UserContext } from '../../components/contexts/UserContext';
 import * as useCatalogModule from './useCatalog';
 
 const dummyUser = {
-  userID: "1",
-  userDetails: "Test Admin",
-  userRoles: ["admin"],
-  claims: []
+  userId: '1',
+  userDetails: 'Test Admin',
+  userRoles: ['admin'],
+  claims: [],
 };
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -21,7 +21,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       setLoggedInUserId: vi.fn(),
       activeVolunteers: [],
       setActiveVolunteers: vi.fn(),
-      isLoading: false
+      isLoading: false,
     }}
   >
     {children}
@@ -136,7 +136,9 @@ describe('Catalog Component', () => {
     render(<Catalog />, { wrapper });
 
     expect(screen.getByText('Test Item')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /add item/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /add item/i }),
+    ).toBeInTheDocument();
   });
 
   test('switches to Categories tab when clicked', () => {
@@ -165,7 +167,9 @@ describe('Catalog Component', () => {
     const categoriesTab = screen.getByText('Categories');
     fireEvent.click(categoriesTab);
 
-    expect(screen.getByRole('button', { name: /add category/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /add category/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Food')).toBeInTheDocument();
     expect(screen.getByText('Hygiene')).toBeInTheDocument();
   });
@@ -207,9 +211,7 @@ describe('Catalog Component', () => {
       },
     ];
 
-    const mockCategories = [
-      { id: 1, name: 'Food', item_limit: 3 },
-    ];
+    const mockCategories = [{ id: 1, name: 'Food', item_limit: 3 }];
 
     const mockUseCatalog = {
       items: mockItems,

@@ -1,7 +1,7 @@
 DROP VIEW IF EXISTS [dbo].[ResidentsByBuilding];  
 GO
 
-CREATE VIEW ResidentsByBuilding
+CREATE VIEW [dbo].[ResidentsByBuilding]
 AS
     SELECT
         r.id,

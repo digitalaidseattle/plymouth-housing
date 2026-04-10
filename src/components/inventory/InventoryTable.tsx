@@ -9,12 +9,30 @@ import SettingsIcon from '@mui/icons-material/Settings';
 interface InventoryTableProps {
   currentItems: InventoryItem[];
   sortDirection: 'asc' | 'desc' | 'original';
-  handleSort: () => void;
+  sortColumn: keyof InventoryItem | null;
+  handleSort: (column: keyof InventoryItem) => void;
   setAdjustModal: (b: boolean) => void;
   setItemToEdit: (item: InventoryItem) => void;
 }
 
-const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, handleSort, setAdjustModal, setItemToEdit }) => {
+const SortIcon: React.FC<{ column: keyof InventoryItem; sortColumn: keyof InventoryItem | null; sortDirection: string }> = ({ column, sortColumn, sortDirection }) => {
+  if (sortColumn !== column) return null;
+  if (sortDirection === 'asc') {
+    return <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />;
+  }
+  if (sortDirection === 'desc') {
+    return <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />;
+  }
+  return null;
+};
+
+const sortableHeaderSx = {
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  userSelect: 'none' as const,
+};
+
+const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, sortColumn, handleSort, setAdjustModal, setItemToEdit }) => {
 
   if (!currentItems?.length) {
     return <Box>No items to display</Box>;
@@ -28,26 +46,53 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
             <TableRow sx={{ height: '64px' }}>
               <TableCell
                 sx={{
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
+                  ...sortableHeaderSx,
                   display: 'flex',
                   alignItems: 'center',
                   width: '25%',
                 }}
-                onClick={handleSort}
+                onClick={() => handleSort('name')}
               >
                 Name
-                {sortDirection === 'asc' ? (
-                  <ArrowUpwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
-                ) : sortDirection === 'desc' ? (
-                  <ArrowDownwardIcon fontSize="small" sx={{ fontWeight: 'normal', ml: 0.5, color: 'gray' }} />
-                ) : null}
+                <SortIcon column="name" sortColumn={sortColumn} sortDirection={sortDirection} />
               </TableCell>
               <TableCell sx={{ fontWeight: 'bold', width: '25%' }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Type</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '12.5%' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '12.5%', textAlign: 'center'  }}>Quantity</TableCell>
+              <TableCell
+                sx={{ ...sortableHeaderSx, width: '12.5%' }}
+                onClick={() => handleSort('type')}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  Type
+                  <SortIcon column="type" sortColumn={sortColumn} sortDirection={sortDirection} />
+                </Box>
+              </TableCell>
+              <TableCell
+                sx={{ ...sortableHeaderSx, width: '12.5%' }}
+                onClick={() => handleSort('category')}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  Category
+                  <SortIcon column="category" sortColumn={sortColumn} sortDirection={sortDirection} />
+                </Box>
+              </TableCell>
+              <TableCell
+                sx={{ ...sortableHeaderSx, width: '12.5%' }}
+                onClick={() => handleSort('status')}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  Status
+                  <SortIcon column="status" sortColumn={sortColumn} sortDirection={sortDirection} />
+                </Box>
+              </TableCell>
+              <TableCell
+                sx={{ ...sortableHeaderSx, width: '12.5%', textAlign: 'center' }}
+                onClick={() => handleSort('quantity')}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  Quantity
+                  <SortIcon column="quantity" sortColumn={sortColumn} sortDirection={sortDirection} />
+                </Box>
+              </TableCell>
               <TableCell sx={{ fontWeight: 'bold', textAlign: 'right', paddingRight: '2rem' }}>Adjust</TableCell>
             </TableRow>
           </TableHead>
@@ -80,12 +125,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   <Chip
                     label={row.status}
                     sx={{
-                      backgroundColor: row.status === 'Out of Stock' ? '#FDECEA' 
-                        : row.status === 'Low Stock' ? '#FFF9C4' 
+                      backgroundColor: row.status === 'Out of Stock' ? '#FDECEA'
+                        : row.status === 'Low Stock' ? '#FFF9C4'
                         : row.status === 'Needs Review' ? '#fff5e8ff'
                         : '#E6F4EA',
-                      color: row.status === 'Out of Stock' ? '#D32F2F' 
-                        : row.status === 'Low Stock' ? '#6A4E23' 
+                      color: row.status === 'Out of Stock' ? '#D32F2F'
+                        : row.status === 'Low Stock' ? '#6A4E23'
                         : row.status === 'Needs Review' ? '#663C00'
                         : '#357A38',
                       borderRadius: '8px',
@@ -97,12 +142,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   {row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}
                 </TableCell>
                 <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
-                  <Button 
+                  <Button
                     aria-label="Override quantity"
                     onClick={()=>{
                       setItemToEdit(row)
                       setAdjustModal(true)
-                  }}>                  
+                  }}>
                     <SettingsIcon color="secondary"/>
                   </Button>
                 </TableCell>

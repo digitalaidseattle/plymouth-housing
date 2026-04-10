@@ -64,7 +64,7 @@ export type ResidentFormError = {
 
 export interface ClientPrincipal {
   userDetails: string;
-  userID: string;
+  userId: string;
   userRoles: string[];
 }
 

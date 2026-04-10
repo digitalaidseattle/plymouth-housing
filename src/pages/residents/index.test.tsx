@@ -23,7 +23,7 @@ import { useResidentsByBuilding } from './useResidentsByBuilding';
 const mockHook = vi.mocked(useResidentsByBuilding);
 
 const dummyUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Test',
   userRoles: ['admin'],
   claims: [],

@@ -4,7 +4,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const dummyUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Test Admin',
   userRoles: ['admin'],
   claims: [],

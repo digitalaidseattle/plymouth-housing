@@ -6,7 +6,7 @@
  */
 import React, { useContext, useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Box, Toolbar, useMediaQuery } from '@mui/material';
+import { Box, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import navigation from '../../menu-items';
 import Drawer from './Drawer';
@@ -187,11 +187,20 @@ const MainLayout: React.FC = () => {
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Box
             component="main"
-            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}
+            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 }, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
           >
             <Toolbar />
             <Breadcrumbs navigation={navigation} title />
-            <Outlet context={{ drawerOpen }} />
+            <Box sx={{ flexGrow: 1 }}>
+              <Outlet context={{ drawerOpen }} />
+            </Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textAlign: 'center', py: 2 }}
+            >
+              &copy; {new Date().getFullYear()} Digital Aid Seattle
+            </Typography>
           </Box>
         </Box>
       </ScrollTop>

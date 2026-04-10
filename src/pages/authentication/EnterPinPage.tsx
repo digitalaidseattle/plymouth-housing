@@ -4,15 +4,17 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { getRole, UserContext } from '../../components/contexts/UserContext';
+import { UserContext } from '../../components/contexts/UserContext';
+import { trackEvent, trackException } from '../../utils/appInsights';
+import { verifyPin as verifyPinService } from '../../services/authService';
+import { updateUser } from '../../services/userService';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
@@ -21,12 +23,26 @@ const EnterPinPage: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<
     'success' | 'warning'
   >('warning');
-  const { loggedInUserId, user } = useContext(UserContext);
+  const { loggedInUserId, user, activeVolunteers } = useContext(UserContext);
   const navigate = useNavigate();
 
-  if (!loggedInUserId) {
-    navigate('/pick-your-name');
-  }
+  const handlePinChange = useCallback((newPin: string[]) => {
+    setPin(newPin);
+  }, []);
+
+  const isPinComplete = pin.every((p) => p !== '');
+
+  useEffect(() => {
+    setPin(Array(4).fill('')); // Clear PIN on any loggedInUserId change
+    if (!loggedInUserId) {
+      navigate('/pick-your-name');
+    }
+  }, [loggedInUserId, navigate]);
+
+  const getVolunteerName = (id: number | null): string => {
+    if (!id) return 'Unknown';
+    return activeVolunteers.find((v) => v.id === id)?.name || 'Unknown';
+  };
 
   const handleTheSnackies = (
     message: string,
@@ -39,50 +55,10 @@ const EnterPinPage: React.FC = () => {
 
   const verifyPin = async (id: number, enteredPin: string) => {
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.VERIFY_PIN, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-          VolunteerId: id,
-          EnteredPin: enteredPin,
-          IsValid: null,
-          ErrorMessage: '',
-        }),
-      });
-
-      if (!response.ok) {
-        const errorContext = {
-          status: response.status,
-          statusText: response.statusText,
-          volunteerId: id,
-          timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent,
-          endpoint: ENDPOINTS.VERIFY_PIN,
-        };
-
-        console.error('PIN verification failed - Diagnostics:', errorContext);
-
-        // Check if this is an authentication/authorization error
-        if (response.status === 401 || response.status === 403) {
-          console.error(
-            'Authentication error detected - Azure AD token may have expired',
-          );
-          handleTheSnackies(
-            'Your session has expired. Please log out and log back in.',
-            'warning',
-          );
-          return null;
-        }
-        throw new Error(
-          `Failed to verify PIN (HTTP ${response.status}: ${response.statusText})`,
-        );
-      }
-
-      const data = await response.json();
+      const data = await verifyPinService(user, id, enteredPin);
 
       // Validate response structure
-      if (!data || !data.value || !Array.isArray(data.value) || data.value.length === 0) {
+      if (!data?.value || !Array.isArray(data.value) || data.value.length === 0) {
         console.error('Invalid response format from PIN verification API:', {
           hasData: !!data,
           hasValue: !!(data && data.value),
@@ -106,13 +82,35 @@ const EnterPinPage: React.FC = () => {
 
       return result;
     } catch (error) {
-      console.error('Error verifying PIN:', error);
-      console.error('Error details:', {
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        volunteerId: id,
-        timestamp: new Date().toISOString(),
-      });
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error verifying PIN');
 
+      // Check if this is an authentication/authorization error
+      if ((err as Error & { status?: number }).status === 401 || (err as Error & { status?: number }).status === 403) {
+        console.error('Authentication error detected - Azure AD token may have expired');
+        handleTheSnackies(
+          'Your session has expired. Please log out and log back in.',
+          'warning',
+        );
+        return null;
+      }
+
+      console.error('Error verifying PIN:', error);
+      trackException(err, {
+        component: 'EnterPinPage',
+        action: 'verifyPin',
+        volunteerId: id.toString(),
+      });
+      trackEvent('PIN_Submission', {
+        volunteerId: id.toString(),
+        volunteerName: getVolunteerName(id),
+        success: false,
+        errorMessage: err instanceof Error ? err.message : 'API error',
+        component: 'EnterPinPage',
+        action: 'pin_api_error',
+      });
       handleTheSnackies('Failed to verify PIN. Please try again.', 'warning');
       return null;
     }
@@ -120,18 +118,18 @@ const EnterPinPage: React.FC = () => {
 
   const updateLastSignedIn = async (id: number) => {
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(`${ENDPOINTS.USERS}/id/${id}`, {
-        method: 'PATCH',
-        headers: headers,
-        body: JSON.stringify({ last_signed_in: new Date().toISOString() }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update last signed in.');
-      }
+      await updateUser(user, id, { last_signed_in: new Date().toISOString() });
     } catch (error) {
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error updating last signed in');
       console.error('Error updating last signed in:', error);
+      trackException(err, {
+        component: 'EnterPinPage',
+        action: 'updateLastSignedIn',
+        volunteerId: id.toString(),
+      });
     }
   };
 
@@ -149,15 +147,29 @@ const EnterPinPage: React.FC = () => {
       }
 
       if (result?.IsValid) {
+        trackEvent('PIN_Submission', {
+          volunteerId: loggedInUserId?.toString() || 'unknown',
+          volunteerName: getVolunteerName(loggedInUserId),
+          success: true,
+          component: 'EnterPinPage',
+          action: 'pin_verified',
+        });
         handleTheSnackies('Login successful! Redirecting...', 'success');
         if (loggedInUserId !== null) {
           result = await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
         navigate('/volunteer-home');
       } else if (result) {
-        // API succeeded but PIN was incorrect
+        trackEvent('PIN_Submission', {
+          volunteerId: loggedInUserId?.toString() || 'unknown',
+          volunteerName: getVolunteerName(loggedInUserId),
+          success: false,
+          errorMessage: result.ErrorMessage || 'Incorrect PIN',
+          component: 'EnterPinPage',
+          action: 'pin_failed',
+        });
         handleTheSnackies(
-          result.ErrorMessage || 'Incorrect PIN. Please try again.',
+          `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
       }
@@ -171,10 +183,6 @@ const EnterPinPage: React.FC = () => {
     navigate('/pick-your-name');
   };
 
-  const handlePinChange = useCallback((newPin: string[]) => {
-    setPin(newPin);
-  }, []);
-
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
     reason?: string,
@@ -185,6 +193,10 @@ const EnterPinPage: React.FC = () => {
     setOpenSnackbar(false);
   };
 
+  if (!loggedInUserId) {
+    return null;
+  }
+
   return (
     <MinimalWrapper>
       <CenteredLayout>
@@ -193,12 +205,21 @@ const EnterPinPage: React.FC = () => {
             variant="h4"
             textAlign="left"
             sx={{
-              height: '50px',
+              lineHeight: '50px',
+            }}
+          >
+            Welcome, <span id="volunteer-name">{getVolunteerName(loggedInUserId)}!</span>
+          </Typography>
+
+          <Typography
+            variant="h4"
+            textAlign="left"
+            sx={{
               lineHeight: '50px',
               marginBottom: 2,
             }}
           >
-            Enter Your PIN.
+            Enter your PIN
           </Typography>
 
           <Typography
@@ -215,12 +236,17 @@ const EnterPinPage: React.FC = () => {
             {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>
           <Box sx={{ marginBottom: 6 }}>
-            <PinInput onPinChange={handlePinChange} />
+            <PinInput
+              key={loggedInUserId}
+              onPinChange={handlePinChange}
+              onSubmit={handleNextClick}
+            />
           </Box>
 
           <Button
             variant="contained"
             onClick={handleNextClick}
+            disabled={!isPinComplete}
             sx={{
               height: '45px',
               width: '100%',
@@ -228,9 +254,6 @@ const EnterPinPage: React.FC = () => {
               backgroundColor: 'black',
               color: 'white',
               marginTop: 2,
-              '&:hover': {
-                backgroundColor: '#4f4f4f',
-              },
             }}
           >
             Continue

@@ -14,8 +14,9 @@ import {
 import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants.ts';
-import { getRole, UserContext } from '../contexts/UserContext.ts';
+import { UserContext } from '../contexts/UserContext';
+import { processInventoryChange } from '../../services/inventoryService';
+import { assertLoggedIn } from '../../utils/userUtils';
 import { Add, Remove } from '@mui/icons-material';
 import DialogTemplate from '../DialogTemplate.tsx';
 
@@ -32,6 +33,7 @@ type AddItemModalProps = {
   originalData: InventoryItem[];
   showResults: boolean;
   setShowResults: (b: boolean) => void;
+  inventoryType?: 'General' | 'Welcome Basket';
 };
 
 const AddItemModal = ({
@@ -41,11 +43,12 @@ const AddItemModal = ({
   originalData,
   showResults,
   setShowResults,
+  inventoryType,
 }: AddItemModalProps) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [updateItem, setUpdateItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    type: '',
+    type: inventoryType || '',
     name: '',
     quantity: 0,
   });
@@ -59,6 +62,15 @@ const AddItemModal = ({
       setTransactionId(crypto.randomUUID());
     }
   }, [addModal]);
+
+  useEffect(() => {
+    if (addModal && inventoryType) {
+      const filteredItems = originalData.filter((item) =>
+        item.type.toLowerCase().includes(inventoryType.toLowerCase()),
+      );
+      setNameSearch(filteredItems);
+    }
+  }, [addModal, inventoryType, originalData]);
 
   const newTotalQuantity =
     Number(updateItem?.quantity || 0) + Number(formData.quantity || 0);
@@ -78,15 +90,18 @@ const AddItemModal = ({
   });
 
   const handleInputChange = (field: string, value: string | number) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [field]: field === 'quantity' ? Number(value) : value,
-    }));
     if (field === 'type' && typeof value === 'string') {
       const filteredItems = originalData.filter((item) =>
         item.type.toLowerCase().includes(value.toLowerCase()),
       );
       setNameSearch(filteredItems);
+      setUpdateItem(null);
+      setFormData((prev) => ({ ...prev, type: value, name: '' }));
+    } else {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [field]: field === 'quantity' ? Number(value) : value,
+      }));
     }
   };
 
@@ -106,7 +121,7 @@ const AddItemModal = ({
     handleAddClose();
     setFormData({
       name: '',
-      type: '',
+      type: inventoryType || '',
       quantity: 0,
     });
     setUpdateItem(null);
@@ -115,23 +130,23 @@ const AddItemModal = ({
   };
 
   const updateItemHandler = async () => {
-    if (
-      formData.type === '' ||
-      formData.name === '' ||
-      formData.quantity === 0 ||
-      !updateItem ||
-      !transactionId
-    ) {
-      setErrorMessage(
-        'Missing Information, Quantity cannot be 0, or Transaction ID not initialized',
-      );
+    if (formData.type === '') {
+      setErrorMessage('Please select an inventory type.');
+      return;
+    }
+    if (formData.name === '' || !updateItem) {
+      setErrorMessage('Please select an item.');
+      return;
+    }
+    if (formData.quantity === 0) {
+      setErrorMessage('"Quantity To Add/Remove" cannot be 0');
       return;
     }
     // regex test to check for only whole numbers, including negatives
     const rx = new RegExp(/^-?\d+$/);
     if (!rx.test(formData.quantity.toString())) {
       setErrorMessage('The quantity must be a non-decimal number.');
-      return false;
+      return;
     }
     if (!transactionId) {
       setErrorMessage('Transaction ID is missing. Please try again.');
@@ -140,31 +155,16 @@ const AddItemModal = ({
     setIsSubmitting(true);
     document.body.style.cursor = 'wait';
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.PROCESS_INVENTORY_CHANGE, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          user_id: loggedInUserId,
-          item: [{ id: updateItem.id, quantity: formData.quantity }],
-          new_transaction_id: transactionId,
-        }),
-      });
-      const result = await response.json();
-      if (!result) {
-        throw new Error('Response contained no data');
-      }
-      if (result.error) {
-        if (result.error.message) {
-          throw new Error(result.error.message);
-        } else {
-          throw new Error('An unknown error occurred');
-        }
-      }
+      assertLoggedIn(loggedInUserId);
+      const resultValues = await processInventoryChange(
+        user,
+        loggedInUserId,
+        [{ id: updateItem.id, quantity: formData.quantity }],
+        transactionId,
+      );
+      const resultData = resultValues[0];
 
-      const resultData = result?.value?.[0];
-
-      if (response.ok && resultData && resultData.Status === 'Success') {
+      if (resultData && resultData.Status === 'Success') {
         fetchData();
         setShowResults(true);
       } else if (
@@ -178,7 +178,7 @@ const AddItemModal = ({
           resetInputsHandler();
         }, 2000); // Give user time to see the error message
       } else {
-        throw new Error(resultData ? resultData.message : response.statusText);
+        throw new Error(resultData?.message || 'Unexpected response status');
       }
     } catch (error) {
       console.error('Error updating the database:', error);
@@ -199,20 +199,24 @@ const AddItemModal = ({
 
   const QuantityForm = () => (
     <>
-      <DialogTitle>Edit Item Quantity</DialogTitle>
+      <DialogTitle>
+        {inventoryType ? `Add Item - ${inventoryType}` : 'Edit Item Quantity'}
+      </DialogTitle>
 
       {/* Item Type */}
-      <Box id="add-item-type" sx={{ width: '100%' }}>
-        <Typography fontWeight="bold">Inventory Type</Typography>
-        <Select
-          value={formData.type}
-          onChange={(e) => handleInputChange('type', e.target.value)}
-          sx={{ width: '100%' }}
-        >
-          <MenuItem value={'General'}>General</MenuItem>
-          <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
-        </Select>
-      </Box>
+      {!inventoryType && (
+        <Box id="add-item-type" sx={{ width: '100%' }}>
+          <Typography fontWeight="bold">Inventory Type</Typography>
+          <Select
+            value={formData.type}
+            onChange={(e) => handleInputChange('type', e.target.value)}
+            sx={{ width: '100%' }}
+          >
+            <MenuItem value={'General'}>General</MenuItem>
+            <MenuItem value={'Welcome Basket'}>Welcome Basket</MenuItem>
+          </Select>
+        </Box>
+      )}
 
       {/* Item Name */}
       <Box id="add-item-name" sx={{ width: '100%' }}>
@@ -257,8 +261,16 @@ const AddItemModal = ({
         />
       </Box>
 
+      {updateItem && (
+        <Box id="current-value">
+          <Typography>
+            Current Quantity of this Item: {updateItem.quantity}
+          </Typography>
+        </Box>
+      )}
+
       <Box id="add-item-quantity">
-        <Typography fontWeight="bold">Quantity</Typography>
+        <Typography fontWeight="bold">Quantity To Add/Remove</Typography>
         <Box
           sx={{
             display: 'flex',

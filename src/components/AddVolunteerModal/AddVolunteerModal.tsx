@@ -1,8 +1,8 @@
 import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import { AddVolunteerModalProps } from '../../types/interfaces';
-import { ENDPOINTS, API_HEADERS } from '../../types/constants';
-import { getRole, UserContext } from '../contexts/UserContext';
+import { UserContext } from '../contexts/UserContext';
+import { createUser } from '../../services/userService';
 
 const AddVolunteerModal = ({
   addModal,
@@ -65,21 +65,10 @@ const AddVolunteerModal = ({
     }
 
     try {
-      const headers = { ...API_HEADERS, 'X-MS-API-ROLE': getRole(user) };
-      const response = await fetch(ENDPOINTS.USERS, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ ...formData, active: true, role: 'volunteer' }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData?.error?.message || response.statusText;
-        throw new Error(errorMessage);
-      } else {
-        setSuccessMessage('Volunteer added successfully.');
-        fetchData();
-        resetInputsHandler();
-      }
+      await createUser(user, { ...formData, active: true, role: 'volunteer' });
+      setSuccessMessage('Volunteer added successfully.');
+      fetchData();
+      resetInputsHandler();
     } catch (error) {
       console.error('Error posting to database:', error);
       setErrorMessage(`Failed to add volunteer: ${(error as Error).message}`);

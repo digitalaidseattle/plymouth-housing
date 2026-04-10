@@ -7,8 +7,11 @@ import Page404 from './error/404';
 import VolunteerHome from '../pages/VolunteerHome';
 import People from '../pages/people';
 import Inventory from './inventory';
-import CheckoutPage from './checkout/CheckoutPage';
-import { RootRedirect } from '../components/RootRedirect';
+import Catalog from './catalog';
+import CheckoutPageContainer from './checkout/CheckoutPageContainer';
+import HistoryPage from './history';
+import ResidentsPage from './residents';
+import { RootRedirect } from './RootRedirect';
 
 const routes = [
   {
@@ -20,7 +23,7 @@ const routes = [
         element: (
           <RootRedirect source="volunteer-home">
             <MainContainer title="Volunteer Home">
-              <VolunteerHome />,
+              <VolunteerHome />
             </MainContainer>
           </RootRedirect>
         ),
@@ -30,7 +33,7 @@ const routes = [
         element: (
           <RootRedirect source="inventory">
             <MainContainer title="Inventory">
-              <Inventory />,
+              <Inventory />
             </MainContainer>
           </RootRedirect>
         ),
@@ -40,7 +43,7 @@ const routes = [
         element: (
           <RootRedirect source="people">
             <MainContainer title="People">
-              <People />,
+              <People />
             </MainContainer>
           </RootRedirect>
         ),
@@ -50,7 +53,7 @@ const routes = [
         element: (
           <RootRedirect source="volunteer-home">
             <MainContainer title="Volunteer Home">
-              <VolunteerHome />,
+              <VolunteerHome />
             </MainContainer>
           </RootRedirect>
         ),
@@ -61,8 +64,36 @@ const routes = [
           // checkout card content is given a fixed height and scrollbar
           // to work with the sticky nav inside it
           <RootRedirect source="checkout">
-            <MainContainer title="Check out">
-              <CheckoutPage />,
+            <CheckoutPageContainer />
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'history',
+        element: (
+          <RootRedirect source="history">
+            <MainContainer title="History">
+              <HistoryPage />
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'catalog',
+        element: (
+          <RootRedirect source="catalog">
+            <MainContainer title="Catalog">
+              <Catalog />,
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'residents',
+        element: (
+          <RootRedirect source="residents">
+            <MainContainer title="Manage Residents">
+              <ResidentsPage />
             </MainContainer>
           </RootRedirect>
         ),

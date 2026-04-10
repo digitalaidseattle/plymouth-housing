@@ -139,4 +139,164 @@ describe('AddItemModal', () => {
             expect(mockHandleAddClose).toHaveBeenCalledTimes(1);
         }, { timeout: 3000 });
     });
+
+    it('should display "Add Item - General" title and hide type dropdown when inventoryType="General"', () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="General"
+                />
+            </UserContext.Provider>
+        );
+
+        expect(screen.getByText('Add Item - General')).toBeInTheDocument();
+        expect(screen.queryByText('Inventory Type')).not.toBeInTheDocument();
+    });
+
+    it('should display "Add Item - Welcome Basket" title and hide type dropdown when inventoryType="Welcome Basket"', () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="Welcome Basket"
+                />
+            </UserContext.Provider>
+        );
+
+        expect(screen.getByText('Add Item - Welcome Basket')).toBeInTheDocument();
+        expect(screen.queryByText('Inventory Type')).not.toBeInTheDocument();
+    });
+
+    it('should only show General items in autocomplete when inventoryType="General"', async () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="General"
+                />
+            </UserContext.Provider>
+        );
+
+        const autocomplete = screen.getByRole('combobox');
+        fireEvent.change(autocomplete, { target: { value: 'Item' } });
+
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: /Item 1/ })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: /Item 2/ })).not.toBeInTheDocument();
+        });
+    });
+
+    it('should only show Welcome Basket items in autocomplete when inventoryType="Welcome Basket"', async () => {
+        render(
+            <UserContext.Provider value={userContextValue}>
+                <AddItemModal
+                    addModal={true}
+                    handleAddClose={mockHandleAddClose}
+                    fetchData={mockFetchData}
+                    originalData={originalData}
+                    showResults={false}
+                    setShowResults={mockSetShowResults}
+                    inventoryType="Welcome Basket"
+                />
+            </UserContext.Provider>
+        );
+
+        const autocomplete = screen.getByRole('combobox');
+        fireEvent.change(autocomplete, { target: { value: 'Item' } });
+
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: /Item 2/ })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: /Item 1/ })).not.toBeInTheDocument();
+        });
+    });
+
+    it('should display "Edit Item Quantity" title and show type dropdown when no inventoryType is provided', () => {
+        renderComponent();
+
+        expect(screen.getByText('Edit Item Quantity')).toBeInTheDocument();
+        expect(screen.getByText('Inventory Type')).toBeInTheDocument();
+    });
+
+    it('should clear selected item when inventory type changes', async () => {
+        renderComponent();
+
+        // Select General type
+        const typeSelect = screen.getAllByRole('combobox')[0];
+        fireEvent.mouseDown(typeSelect);
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: 'General' }));
+        });
+
+        // Select Item 1 (a General item)
+        const autocomplete = screen.getAllByRole('combobox')[1];
+        fireEvent.change(autocomplete, { target: { value: 'Item 1' } });
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: /Item 1/ }));
+        });
+
+        // Verify Item 1 is selected
+        expect(screen.getByText(/Current Quantity of this Item: 10/)).toBeInTheDocument();
+
+        // Switch to Welcome Basket type
+        fireEvent.mouseDown(screen.getAllByRole('combobox')[0]);
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: 'Welcome Basket' }));
+        });
+
+        // Previously selected item should be cleared
+        expect(screen.queryByText(/Current Quantity of this Item/)).not.toBeInTheDocument();
+        expect(screen.getAllByRole('combobox')[1]).toHaveValue('');
+
+        // Only Welcome Basket items should be in the dropdown
+        const itemAutocomplete = screen.getAllByRole('combobox')[1];
+        fireEvent.change(itemAutocomplete, { target: { value: 'Item' } });
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: /Item 2/ })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: /Item 1/ })).not.toBeInTheDocument();
+        });
+    });
+
+    it('should show only the quantity error when quantity is 0, not the transaction ID error', async () => {
+        renderComponent();
+
+        // Select General type
+        const typeSelect = screen.getAllByRole('combobox')[0];
+        fireEvent.mouseDown(typeSelect);
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: 'General' }));
+        });
+
+        // Select an item
+        const autocomplete = screen.getAllByRole('combobox')[1];
+        fireEvent.change(autocomplete, { target: { value: 'Item 1' } });
+        await waitFor(() => {
+            fireEvent.click(screen.getByRole('option', { name: /Item 1/ }));
+        });
+
+        // Leave quantity at 0 and submit
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+        await waitFor(() => {
+            expect(screen.getByText('"Quantity To Add/Remove" cannot be 0')).toBeInTheDocument();
+        });
+
+        // Should NOT show transaction ID error
+        expect(screen.queryByText(/Transaction ID/i)).not.toBeInTheDocument();
+    });
 });

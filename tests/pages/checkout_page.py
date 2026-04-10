@@ -1,78 +1,106 @@
-import time
-
-from selenium.common import TimeoutException, NoSuchElementException, StaleElementReferenceException, \
-    InvalidSelectorException
-from selenium.webdriver import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
-
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import CheckoutPageLocators, CommonLocators
 
 
 class CheckOutPage(BasePage):
+
     def __init__(self, driver):
         super().__init__(driver)
         self.locators = CheckoutPageLocators
         self.common_locators = CommonLocators
 
-    def click_checkout(self):
-        self.safe_click(self.common_locators.CHECKOUT_BUTTON, label="Checkout")
+    # ---------------------------------------------------
+    # Navigation
+    # ---------------------------------------------------
 
-    def click_building_code(self):
-        self.click(self.locators.BUILDING_CODE)
+    def click_checkout(self, flow="general"):
+        self.click(self.common_locators.CHECKOUT_MENU_BUTTON)
 
-    def click_unit_number(self):
-        self.click(self.locators.UNIT_NUMBER)
+        if flow == "general":
+            self.click(self.common_locators.GENERAL_MENU_BUTTON)
+        elif flow == "welcome":
+            self.click(self.common_locators.WELCOME_MENU_BUTTON)
+        else:
+            raise ValueError("Invalid checkout flow")
 
-    def click_name_input(self):
-        self.click(self.locators.NAME_INPUT)
+        self.wait_for_visibility(self.locators.CHECKOUT_INFO_TEXT, timeout=15)
 
-    def click_continue_button(self):
-        self.click(self.locators.CONTINUE_BUTTON)
 
-    def select_first_unit_number(self):
-        self.click(self.locators.FIRST_LIST_ITEM)
+    # ---------------------------------------------------
+    # Dropdown Selections
+    # ---------------------------------------------------
 
     def select_first_building_option(self):
-        self.click(self.locators.FIRST_LIST_ITEM)
+        self.select_from_autocomplete(
+            self.locators.BUILDING_CODE,
+            self.locators.BUILDING_OPTIONS
+        )
+
+        # Ensure dependent dropdown is enabled
+        self.get_wait(20).until(
+            lambda d: d.find_element(*self.locators.UNIT_NUMBER).is_enabled()
+        )
+
+    def select_first_unit_number(self):
+        self.select_from_autocomplete(
+            self.locators.UNIT_NUMBER,
+            self.locators.UNIT_OPTIONS
+        )
+
+    # ---------------------------------------------------
+    # Actions
+    # ---------------------------------------------------
+
+    def click_continue_button(self, timeout=20):
+        wait = self.get_wait(timeout)
+
+        # Wait until button is enabled (fresh lookup to avoid stale element)
+        wait.until(
+            lambda d: "Mui-disabled" not in d.find_element(
+                *self.locators.CONTINUE_BUTTON
+            ).get_attribute("class")
+        )
+
+        # Re-fetch element after state change (React re-render safe)
+        continue_btn = wait.until(
+            EC.element_to_be_clickable(self.locators.CONTINUE_BUTTON)
+        )
+
+        # Scroll into view
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            continue_btn
+        )
+
+        # Hover (optional)
+        ActionChains(self.driver).move_to_element(continue_btn).perform()
+
+        # Click using JS for stability
+        self.driver.execute_script(
+            "arguments[0].click();",
+            continue_btn
+        )
+
+    def wait_for_resident_autofill(self, timeout=20):
+        wait = self.get_wait(timeout)
+
+        # Wait until resident field is auto-populated
+        wait.until(
+            lambda d: self.driver.find_element(
+                *self.locators.NAME_INPUT
+            ).get_attribute("value") not in ("", None)
+        )
 
     def add_item(self, item_name):
         locator = self.locators.get_add_button_locator(item_name)
-        try:
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(locator)).click()
-        except StaleElementReferenceException:
-            print(f"[RETRY] Stale element encountered for: {item_name}, refreshing locator.")
-            locator = self.locators.get_add_button_locator(item_name)  # Re-fetch
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(locator)).click()
-        except InvalidSelectorException as e:
-            raise Exception(f"[ERROR] Invalid XPath selector for item '{item_name}': {e}")
 
-    def items_added(self, item_name):
-        """
-        Returns the number of items with the specified name that have been added to the cart.
+        self.get_wait(15).until(
+            EC.visibility_of_element_located(locator)
+        )
 
-        Args:
-            item_name (str): The name of the item to search for.
-
-        Returns:
-            int: Number of matching items found.
-        """
-        try:
-            # Normalize item name for case-insensitive search
-            xpath = (
-                f"//tr[td[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), "
-                f"'{item_name.lower()}')]]"
-            )
-            elements = self.driver.find_elements(By.XPATH, xpath)
-            return len(elements)
-        except TimeoutException:
-            print(f"Timeout while searching for items: {item_name}")
-            return 0
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            return 0
+        self.click(locator)
 
     def click_proceed_to_checkout(self):
         self.click(self.locators.PROCEED_TO_CHECKOUT)
@@ -80,28 +108,53 @@ class CheckOutPage(BasePage):
     def click_confirm(self):
         self.click(self.locators.CONFIRM)
 
-    # def search_item(self, item_name):
-    #     search_field = self.driver.find_element(self.locators.SEARCH)
-    #     search_field.clear()
-    #     search_field.send_keys(item_name)
+    # ---------------------------------------------------
+    # Search
+    # ---------------------------------------------------
 
-    def wait_for_search_results(self, item_name):
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element((By.CSS_SELECTOR, '.search-results'), item_name)
+    def search_item(self, item_name, timeout=20):
+        wait = self.get_wait(timeout)
+
+        search_field = wait.until(
+            EC.visibility_of_element_located(self.locators.SEARCH)
         )
 
-    def search_item(self, item_name):
-        search_field = WebDriverWait(self.driver, 20).until(
+        wait.until(
             EC.element_to_be_clickable(self.locators.SEARCH)
         )
 
-        self.scroll_into_view(self.locators.SEARCH)
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            search_field
+        )
+
+        search_field.click()
         search_field.clear()
-        time.sleep(1)
+
+        # Ensure the input field is fully cleared before typing
+        wait.until(lambda d: search_field.get_attribute("value") == "")
+
+        # Ensure the field is ready for input
+        wait.until(lambda d: search_field.is_enabled())
+
         search_field.send_keys(item_name)
 
+    # ---------------------------------------------------
+    # FULL FLOW
+    # ---------------------------------------------------
 
+    def complete_checkout(self, item_name):
+        self.click_checkout()
 
+        self.select_first_building_option()
+        self.select_first_unit_number()
 
+        self.wait_for_resident_autofill()
 
+        self.click_continue_button()
 
+        self.search_item(item_name)
+        self.add_item(item_name)
+
+        self.click_proceed_to_checkout()
+        self.click_confirm()

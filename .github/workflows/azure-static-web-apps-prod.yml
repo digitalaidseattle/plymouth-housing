@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'package.json'
 
 jobs:
   sync-tag:
@@ -64,7 +62,7 @@ jobs:
     environment: production # this is a reference to the github environment and determines the env: location below
     steps:
       - name: Check out source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
@@ -88,6 +86,7 @@ jobs:
           ###### End of Repository/Build Configurations ######
         env:
           VITE_CLARITY_PROJECT_ID: ${{ secrets.VITE_CLARITY_PROJECT_ID }}
+          VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
 
       - name: Post URL
         run: |

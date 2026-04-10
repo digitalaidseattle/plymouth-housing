@@ -4,10 +4,17 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import EnterPinPage from './EnterPinPage';
 import { UserContext } from '../../components/contexts/UserContext';
 
-// Mock useNavigate and return a mock function
 const mockNavigate = vi.fn();
+const mockTrackException = vi.hoisted(() => vi.fn());
+const mockTrackEvent = vi.hoisted(() => vi.fn());
+
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+}));
+
+vi.mock('../../utils/appInsights', () => ({
+  trackException: mockTrackException,
+  trackEvent: mockTrackEvent,
 }));
 
 // Mock PinInput to simulate PIN entry.
@@ -37,6 +44,8 @@ describe('EnterPinPage Component', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockNavigate.mockReset();
+    mockTrackException.mockReset();
+    mockTrackEvent.mockReset();
   });
 
   test('redirects to /pick-your-name if loggedInUserId is null', () => {
@@ -48,20 +57,24 @@ describe('EnterPinPage Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
   });
 
-  test('shows snackbar warning when PIN is incomplete', async () => {
+  test('disables Continue button when PIN is incomplete', async () => {
     render(
       <UserContext.Provider value={createUserContextValue()}>
         <EnterPinPage />
       </UserContext.Provider>
     );
 
-    // With default PIN state (["", "", "", ""]), click Continue.
+    // With default PIN state (["", "", "", ""]), Continue button should be disabled
     const continueButton = screen.getByRole('button', { name: /Continue/i });
-    fireEvent.click(continueButton);
+    expect(continueButton).toBeDisabled();
 
-    // Expect a warning snackbar message about incomplete PIN
+    // Simulate entering a complete PIN via the mocked PinInput.
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '1234' } });
+
+    // After PIN is complete, button should be enabled
     await waitFor(() => {
-      expect(screen.getByText(/Please enter your PIN before continuing./i)).toBeInTheDocument();
+      expect(continueButton).not.toBeDisabled();
     });
   });
 
@@ -150,5 +163,82 @@ describe('EnterPinPage Component', () => {
     const backLink = screen.getByText(/Back to the name selection./i);
     fireEvent.click(backLink);
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
+  });
+
+  test('tracks exception when verifyPin fails', async () => {
+    // Mock fetch to reject with a 4xx error (won't retry - faster test)
+    (global.fetch as any) = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: 'Bad Request',
+      clone: () => ({ json: () => Promise.resolve({ error: 'Network error' }), text: () => Promise.resolve('Network error') }),
+    });
+
+    render(
+      <UserContext.Provider value={createUserContextValue()}>
+        <EnterPinPage />
+      </UserContext.Provider>
+    );
+
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '1234' } });
+
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    fireEvent.click(continueButton);
+
+    await waitFor(() => {
+      expect(mockTrackException).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          component: 'EnterPinPage',
+          action: 'verifyPin',
+          volunteerId: '123',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Failed to verify PIN. Please try again./i)
+      ).toBeInTheDocument();
+    });
+  });
+
+  test('tracks exception when updateLastSignedIn fails', async () => {
+    (global.fetch as any) = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ value: [{ IsValid: true }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+      });
+
+    render(
+      <UserContext.Provider value={createUserContextValue()}>
+        <EnterPinPage />
+      </UserContext.Provider>
+    );
+
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '1234' } });
+
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    fireEvent.click(continueButton);
+
+    await waitFor(() => {
+      expect(mockTrackException).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          component: 'EnterPinPage',
+          action: 'updateLastSignedIn',
+          volunteerId: '123',
+        })
+      );
+    });
   });
 });

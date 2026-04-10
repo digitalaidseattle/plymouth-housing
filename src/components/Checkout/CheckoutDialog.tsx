@@ -15,8 +15,9 @@ import {
   CheckoutItemProp,
   ResidentInfo,
 } from '../../types/interfaces';
+import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
-import { processGeneralItems, processWelcomeBasket } from './CheckoutAPICalls';
+import { processGeneralItems, processWelcomeBasket } from '../../services/checkoutService';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
@@ -24,7 +25,6 @@ type CheckoutDialogProps = {
   onClose: () => void;
   onSuccess: (errorMessage?: string) => void;
   checkoutItems: CategoryProps[];
-  welcomeBasketData: CategoryProps[];
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   addItemToCart: (
     item: CheckoutItemProp,
@@ -46,7 +46,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   open,
   onClose,
   checkoutItems,
-  welcomeBasketData,
   setCheckoutItems,
   removeItemFromCart,
   addItemToCart,
@@ -72,7 +71,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
   const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
-  const totalItemLimitExceeded = totalItemCount > 10;
+  const totalItemLimitExceeded = totalItemCount > SETTINGS.checkout_item_limit;
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
@@ -120,19 +119,26 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         throw new Error('Transaction ID not created.');
       }
 
-      const welcomeBasketItemIds = welcomeBasketData.flatMap((basket) =>
-        basket.items.map((item) => item.id),
-      );
+      // A checkout is treated as a welcome basket if the cart contains either sheet set.
+      // We find the sheet set explicitly here because allItems may contain all basket items
+      // when editing from history, so relying on array position would send the wrong item.
+      const sheetSetIds: number[] = Object.values(WELCOME_BASKET_ITEMS);
       const isWelcomeBasket = allItems.some((item) =>
-        welcomeBasketItemIds.includes(item.id),
+        sheetSetIds.includes(item.id),
       );
       let data = null;
       if (isWelcomeBasket) {
+        const sheetSetItem = allItems.find((item) =>
+          sheetSetIds.includes(item.id),
+        );
+        if (!sheetSetItem) {
+          throw new Error('Please select a sheet set to continue.');
+        }
         data = await processWelcomeBasket(
           transactionId,
           user,
           loggedInUserId,
-          allItems,
+          sheetSetItem,
           residentInfo,
         );
       } else {
@@ -145,22 +151,24 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         );
       }
 
-      if (data.error) {
-        const errorMessage =
-          data.error.message || 'An unexpected error occurred during checkout';
-        throw new Error(errorMessage);
-      }
-
       // Validate response structure
-      if (!data.value || !Array.isArray(data.value) || data.value.length === 0) {
-        throw new Error('Invalid response format from server (missing result data)');
+      if (
+        !data.value ||
+        !Array.isArray(data.value) ||
+        data.value.length === 0
+      ) {
+        throw new Error(
+          'Invalid response format from server (missing result data)',
+        );
       }
 
       const result = data.value[0];
 
       // Validate result has required fields
       if (!result || typeof result !== 'object') {
-        throw new Error('Invalid response format from server (malformed result)');
+        throw new Error(
+          'Invalid response format from server (malformed result)',
+        );
       }
 
       if (result.Status === 'Success') {
@@ -171,17 +179,35 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           unit: { id: 0, unit_number: '' },
           building: { id: 0, code: '', name: '' },
         });
+        setCheckoutItems([]);
         fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
+      } else if (result.Status === 'Error' && result.ErrorCode === 'DUPLICATE_TRANSACTION') {
+        // Handle duplicate transaction - clear the cart and show success
+        setActiveSection('');
+        setResidentInfo({
+          id: 0,
+          name: '',
+          unit: { id: 0, unit_number: '' },
+          building: { id: 0, code: '', name: '' },
+        });
+        setCheckoutItems([]);
+        fetchData();
+        onClose();
+        onSuccess('This transaction has already been submitted.');
+        return;
       } else if (result.Status === 'Error') {
         const errorMessage =
-          result.message || 'Checkout failed (server returned error with no message)';
+          result.message ||
+          'Checkout failed (server returned error with no message)';
         throw new Error(errorMessage);
       } else {
         // Unexpected status value
-        throw new Error(`Unexpected response status: ${result.Status || 'undefined'}`);
+        throw new Error(
+          `Unexpected response status: ${result.Status || 'undefined'}`,
+        );
       }
     } catch (error) {
       let userFriendlyMessage = 'Checkout failed. Please try again.';
@@ -190,11 +216,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
 
-        if (errorMessage.includes('transaction already exists')) {
-          setCheckoutItems([]);
-          onSuccess(error.message);
-          return;
-        } else if (errorMessage.includes('cannot read properties of undefined')) {
+        if (errorMessage.includes('cannot read properties of undefined')) {
           errorCode = 'UNDEFINED_PROPERTY';
           userFriendlyMessage =
             'There was a connection issue with the checkout system. Please try again in a moment.';
@@ -268,8 +290,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             {totalItemLimitExceeded && categoryLimitExceeded
               ? 'Over the usual limits'
               : totalItemLimitExceeded
-              ? 'Over the usual total limit'
-              : 'Over the usual category limit'}
+                ? 'Over the usual total limit'
+                : 'Over the usual category limit'}
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -342,13 +364,16 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           }}
         >
           <Typography>
-            <strong>Building code: </strong>{selectedBuildingCode}
+            <strong>Building code: </strong>
+            {selectedBuildingCode}
           </Typography>
           <Typography>
-            <strong>Unit number: </strong>{residentInfo.unit.unit_number}
+            <strong>Unit number: </strong>
+            {residentInfo.unit.unit_number}
           </Typography>
           <Typography>
-            <strong>Resident name: </strong>{residentInfo.name}
+            <strong>Resident name: </strong>
+            {residentInfo.name}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -455,52 +480,54 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   };
 
   return (
-    <Dialog
-      sx={{
-        '& .MuiDialog-paper': {
-          width: { xs: '80vw', md: '65vw' },
-          maxHeight: '80vh',
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          borderRadius: '15px',
-        },
-      }}
-      onClose={onClose}
-      aria-labelledby="customized-dialog-title"
-      open={open}
-    >
-      <Box
+    <>
+      <Dialog
         sx={{
-          width: { xs: '90%', s: '80%', md: '70%' },
-          paddingTop: '20px',
-          height: '100%',
-          position: 'relative',
+          '& .MuiDialog-paper': {
+            width: { xs: '80vw', md: '65vw' },
+            maxHeight: '80vh',
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+            borderRadius: '15px',
+          },
         }}
+        onClose={onClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
       >
-        {isProcessing && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.7)',
-              zIndex: 1,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
+        <Box
+          sx={{
+            width: { xs: '90%', sm: '80%', md: '70%' },
+            paddingTop: '20px',
+            height: '100%',
+            position: 'relative',
+          }}
+        >
+          {isProcessing && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                zIndex: 1,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
 
-        {showLimitConfirmation
-          ? overLimitConfirmationContent()
-          : checkoutSummaryContent()}
-      </Box>
-    </Dialog>
+          {showLimitConfirmation
+            ? overLimitConfirmationContent()
+            : checkoutSummaryContent()}
+        </Box>
+      </Dialog>
+    </>
   );
 };

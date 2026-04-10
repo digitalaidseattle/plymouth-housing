@@ -6,49 +6,14 @@ CREATE PROCEDURE ProcessCheckout
     @items NVARCHAR(MAX),
     @message NVARCHAR(MAX) = NULL OUTPUT,
     @resident_id INT,
-    @new_transaction_id UNIQUEIDENTIFIER
+    @new_transaction_id UNIQUEIDENTIFIER,
+    @original_transaction_id UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
     print @user_id
     print @items
-
-    -- Check if the transaction ID already exists
-    IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
-    BEGIN
-        DECLARE @error_message NVARCHAR(MAX);
-        DECLARE @resident_name NVARCHAR(255);
-        DECLARE @unit_number NVARCHAR(50);
-        DECLARE @building_code NVARCHAR(50);
-        DECLARE @transaction_date DATETIME;
-
-        -- Get transaction details for error message
-        SELECT
-            @resident_name = r.name,
-            @unit_number = u.unit_number,
-            @building_code = b.code,
-            @transaction_date = t.transaction_date
-        FROM Transactions t
-        LEFT JOIN Residents r ON t.resident_id = r.id
-        LEFT JOIN Units u ON r.unit_id = u.id
-        LEFT JOIN Buildings b ON u.building_id = b.id
-        WHERE t.id = @new_transaction_id;
-
-        SET @error_message = CONCAT(
-            'Transaction already exists. ',
-            'Resident: ', ISNULL(@resident_name, 'Unknown'),
-            ', Building: ', ISNULL(@building_code, 'Unknown'),
-            ', Unit: ', ISNULL(@unit_number, 'Unknown'),
-            ', Date: ', ISNULL(CONVERT(NVARCHAR, @transaction_date, 120), 'Unknown'),
-            ', ID: ', CAST(@new_transaction_id AS NVARCHAR(36))
-        );
-
-        SELECT
-            'Error' AS Status,
-            @error_message AS message;
-        RETURN;
-    END
 
     -- Validate JSON
     IF ISJSON(@items) = 0
@@ -111,8 +76,19 @@ BEGIN
     -- END CATCH
     
     BEGIN TRANSACTION
-    
+
     BEGIN TRY
+        -- Check if the transaction ID already exists
+        IF EXISTS (SELECT 1 FROM Transactions WHERE id = @new_transaction_id)
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT
+                'Error' AS Status,
+                'DUPLICATE_TRANSACTION' AS ErrorCode,
+                'Transaction with this ID already exists.' AS message;
+            RETURN;
+        END
+
         -- Update inventory
         UPDATE i
         SET i.quantity = i.quantity - ci.Quantity
@@ -123,7 +99,8 @@ BEGIN
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
         DECLARE @CurrentAdditionalNotes NVARCHAR(255)
-        
+        DECLARE @transaction_type INT = CASE WHEN @original_transaction_id IS NOT NULL THEN 4 ELSE 1 END
+
         DECLARE item_cursor CURSOR FOR
         SELECT ItemId, Quantity, AdditionalNotes FROM @CartItems
 
@@ -132,9 +109,10 @@ BEGIN
 
         EXEC LogTransaction
             @user_id = @user_id,
-            @transaction_type = 1,
+            @transaction_type = @transaction_type,
             @resident_id = @resident_id,
-            @new_transaction_id = @new_transaction_id;
+            @new_transaction_id = @new_transaction_id,
+            @parent_transaction_id = @original_transaction_id;
 
         WHILE @@FETCH_STATUS = 0
         BEGIN

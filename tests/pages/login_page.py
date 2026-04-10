@@ -17,6 +17,8 @@ from tests.utilities.locators import LoginPageLocators
 
 class LoginPage(BasePage):
 
+    LOGIN_WAIT_TIMEOUT = 240
+
     def __init__(self, driver):
         super().__init__(driver)
         self.locators = LoginPageLocators
@@ -127,13 +129,13 @@ class LoginPage(BasePage):
     # ---------------------------------------------------
 
     def select_volunteer(self, name="John Doe 1234"):
-        input_el = self.wait.until(
-            EC.visibility_of_element_located(self.locators.USER_PERSON)
+        # Volunteer list fetch can be slow on cold container start
+        WebDriverWait(self.driver, LoginPage.LOGIN_WAIT_TIMEOUT, poll_frequency=1).until(
+            lambda d: d.find_element(*self.locators.USER_PERSON).is_enabled()
         )
 
-        # Volunteer list fetch can be slow on cold container start
-        WebDriverWait(self.driver, 120, poll_frequency=1).until(
-            lambda d: d.find_element(*self.locators.USER_PERSON).is_enabled()
+        input_el = self.wait.until(
+            EC.visibility_of_element_located(self.locators.USER_PERSON)
         )
 
         input_el.click()

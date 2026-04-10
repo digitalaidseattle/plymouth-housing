@@ -1,7 +1,5 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box, Button } from '@mui/material';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box, Button, TableSortLabel } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -15,21 +13,13 @@ interface InventoryTableProps {
   setItemToEdit: (item: InventoryItem) => void;
 }
 
-const SortIcon: React.FC<{ column: keyof InventoryItem; sortColumn: keyof InventoryItem | null; sortDirection: string }> = ({ column, sortColumn, sortDirection }) => {
-  if (sortColumn !== column) return null;
-  if (sortDirection === 'asc') {
-    return <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />;
-  }
-  if (sortDirection === 'desc') {
-    return <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5, color: 'gray' }} />;
-  }
-  return null;
-};
-
-const sortableHeaderSx = {
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  userSelect: 'none' as const,
+const getAriaSortValue = (
+  column: keyof InventoryItem,
+  sortColumn: keyof InventoryItem | null,
+  sortDirection: string,
+): 'ascending' | 'descending' | 'other' => {
+  if (sortColumn !== column || sortDirection === 'original') return 'other';
+  return sortDirection === 'asc' ? 'ascending' : 'descending';
 };
 
 const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, sortColumn, handleSort, setAdjustModal, setItemToEdit }) => {
@@ -38,61 +28,39 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
     return <Box>No items to display</Box>;
   }
 
+  const renderSortableHeader = (key: keyof InventoryItem, label: string, width: string, align?: 'center') => {
+    const isActive = sortColumn === key && sortDirection !== 'original';
+    return (
+      <TableCell
+        key={key}
+        sx={{ fontWeight: 'bold', width, textAlign: align }}
+        aria-sort={getAriaSortValue(key, sortColumn, sortDirection)}
+        sortDirection={isActive ? (sortDirection === 'asc' ? 'asc' : 'desc') : false}
+      >
+        <TableSortLabel
+          active={isActive}
+          direction={isActive ? (sortDirection === 'asc' ? 'asc' : 'desc') : 'asc'}
+          onClick={() => handleSort(key)}
+          sx={align === 'center' ? { display: 'flex', justifyContent: 'center' } : undefined}
+        >
+          {label}
+        </TableSortLabel>
+      </TableCell>
+    );
+  };
+
   return (
     <Box id="inventory-container" sx={{ marginTop: '10px'}}>
       <TableContainer component={Paper}>
         <Table sx={{ tableLayout: 'fixed' }}>
           <TableHead>
             <TableRow sx={{ height: '64px' }}>
-              <TableCell
-                sx={{
-                  ...sortableHeaderSx,
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '25%',
-                }}
-                onClick={() => handleSort('name')}
-              >
-                Name
-                <SortIcon column="name" sortColumn={sortColumn} sortDirection={sortDirection} />
-              </TableCell>
+              {renderSortableHeader('name', 'Name', '25%')}
               <TableCell sx={{ fontWeight: 'bold', width: '25%' }}>Description</TableCell>
-              <TableCell
-                sx={{ ...sortableHeaderSx, width: '12.5%' }}
-                onClick={() => handleSort('type')}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  Type
-                  <SortIcon column="type" sortColumn={sortColumn} sortDirection={sortDirection} />
-                </Box>
-              </TableCell>
-              <TableCell
-                sx={{ ...sortableHeaderSx, width: '12.5%' }}
-                onClick={() => handleSort('category')}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  Category
-                  <SortIcon column="category" sortColumn={sortColumn} sortDirection={sortDirection} />
-                </Box>
-              </TableCell>
-              <TableCell
-                sx={{ ...sortableHeaderSx, width: '12.5%' }}
-                onClick={() => handleSort('status')}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  Status
-                  <SortIcon column="status" sortColumn={sortColumn} sortDirection={sortDirection} />
-                </Box>
-              </TableCell>
-              <TableCell
-                sx={{ ...sortableHeaderSx, width: '12.5%', textAlign: 'center' }}
-                onClick={() => handleSort('quantity')}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  Quantity
-                  <SortIcon column="quantity" sortColumn={sortColumn} sortDirection={sortDirection} />
-                </Box>
-              </TableCell>
+              {renderSortableHeader('type', 'Type', '12.5%')}
+              {renderSortableHeader('category', 'Category', '12.5%')}
+              {renderSortableHeader('status', 'Status', '12.5%')}
+              {renderSortableHeader('quantity', 'Quantity', '12.5%', 'center')}
               <TableCell sx={{ fontWeight: 'bold', textAlign: 'right', paddingRight: '2rem' }}>Adjust</TableCell>
             </TableRow>
           </TableHead>

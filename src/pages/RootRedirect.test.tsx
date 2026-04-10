@@ -46,7 +46,7 @@ const GenericRedirectPage = ({ source }: { source: string }) => (
 const mockUserContextValue = (role: 'admin' | 'volunteer' | null | undefined, isLoading: boolean): UserContextType => ({
   user: role ? {
     userRoles: [role],
-    userID: 'test-user-id',
+    userId: 'test-user-id',
     userDetails: 'test-user-details'
   } : null,
   isLoading,

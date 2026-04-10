@@ -45,7 +45,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     const foundUser = userList?.find(
                       (v) => v.id === user.user_id,
                     );
-                    if (!foundUser) return '';
+                    if (!foundUser) return 'Unknown user';
                     return foundUser.role === 'admin'
                       ? `(Admin) ${foundUser.name}`
                       : foundUser.name;

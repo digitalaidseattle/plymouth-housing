@@ -10,7 +10,7 @@ class CommonLocators:
 
 class HistoryPageLocators:
     HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'records')]")
+    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
     HISTORY_CARDS = (By.XPATH,"//div[contains(@class,'MuiBox-root') and .//h3 and .//p[contains(text(),'Created')]]")
     NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
 

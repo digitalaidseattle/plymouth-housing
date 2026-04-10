@@ -131,7 +131,10 @@ class LoginPage(BasePage):
             EC.visibility_of_element_located(self.locators.USER_PERSON)
         )
 
-        self.wait.until(lambda d: input_el.is_enabled())
+        # Volunteer list fetch can be slow on cold container start
+        WebDriverWait(self.driver, 120, poll_frequency=1).until(
+            lambda d: d.find_element(*self.locators.USER_PERSON).is_enabled()
+        )
 
         input_el.click()
         input_el.clear()

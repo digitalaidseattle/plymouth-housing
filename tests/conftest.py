@@ -66,11 +66,8 @@ def login_with_volunteer(driver):
 
     login_page.handle_stay_signed_in()
 
-    #  DB + dropdown ready
     login_page.wait_for_volunteer_ready()
-    login_page.wait_for_full_app_ready()
 
-    # FIXED (NEW ENGINE)
     login_page.select_volunteer()
 
     login_page.click_continue_button()

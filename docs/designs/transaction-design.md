@@ -159,7 +159,7 @@ END;
 - **Request Body:**  
   ```json
   {
-    "userID": 123,
+    "userId": 123,
     "transactionGUID": "abc123",
     "totalAmount": 100.00,
     "transactionType": "Add",
@@ -175,13 +175,13 @@ END;
   ```
   
 **Get Transaction History**
-- **Endpoint:** GET /api/transactions?userID=123
+- **Endpoint:** GET /api/transactions?userId=123
 - **Response:**  
   ```json
   [
     {
       "transactionID": 789,
-      "userID": 123,
+      "userId": 123,
       "transactionGUID": "abc123",
       "totalAmount": 100.00,
       "transactionType": "Add",
@@ -198,7 +198,7 @@ END;
 - The backend returns the `transaction_id` for the front-end to confirm that transaction was successfully logged in the backend.
 
 #### When an admin views the Transaction History page:
-- Front-end sends a GET request to the `/api/transactions` endpoint with the `userID` parameter.
+- Front-end sends a GET request to the `/api/transactions` endpoint with the `userId` parameter.
 - The API retrieves all transactions associated with the `user_id` from the `Transactions` table.
 - The API returns the transaction history to the front-end for display.
 - The front-end groups the results by the TransactionGUID and renders the grouped data in a table with expandable rows for items details.

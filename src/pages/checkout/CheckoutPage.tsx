@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
-import { Box, useTheme, Chip } from '@mui/material';
+import { Box, useTheme, Chip, Button } from '@mui/material';
 import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo, CheckoutTransaction, TransactionItem } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getTransaction } from '../../services/checkoutService';
@@ -171,15 +171,30 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   const categories = checkoutType === 'general' ? filteredData : welcomeBasketData;
 
+  const handleDiscardEdits = () => {
+    navigate('/history');
+  };
+
   return (
     <>
       {editTransaction && (
         <Box sx={{ px: 2, py: 1 }}>
           <Chip
-            label="Editing transaction"
             size="small"
-            color="info"
             variant="outlined"
+            sx={{
+              color: theme.palette.text.secondary,
+              borderColor: theme.palette.grey[300],
+              backgroundColor: 'transparent',
+            }}
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box component="span">Editing transaction</Box>
+                <Button size="small" variant="text" color="primary" onClick={handleDiscardEdits}>
+                  Discard
+                </Button>
+              </Box>
+            }
           />
         </Box>
       )}
@@ -192,6 +207,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           setUnitNumberValues={setUnitNumberValues}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
+          isEditMode={!!editTransaction}
+          onDiscardEdits={handleDiscardEdits}
         />
       )}
       {showResidentDetailDialog && checkoutType === 'welcomeBasket' && (
@@ -200,6 +217,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           handleShowDialog={() => setShowResidentDetailDialog(!showResidentDetailDialog)}
           buildings={buildings}
           setResidentInfo={setResidentInfo}
+          isEditMode={!!editTransaction}
+          onDiscardEdits={handleDiscardEdits}
         />
       )}
       {showAdditionalNotesDialog && (

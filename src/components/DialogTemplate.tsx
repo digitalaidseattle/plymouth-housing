@@ -50,8 +50,8 @@ const DialogTemplate = ({
             open={showDialog}>
             <Box sx={{ 
                 position: 'absolute',
-                top: 2,
-                right: 2
+                top: theme.spacing(2),
+                right: theme.spacing(2)
             }}>
                 <Button onClick={handleShowDialog} disableRipple><Close/></Button>
             </Box>

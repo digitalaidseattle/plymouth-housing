@@ -7,7 +7,7 @@ const CheckedoutListItem = ({ itemName, timesCheckedOut }: { itemName: string, t
             justifyContent: 'space-between',
             alignItems: 'center',
             p: 2, 
-            px: 1.5,
+            px: 3,
             borderBottom: '1px solid gray',
             '&:last-child': { borderBottom: 'none' }
             }}>

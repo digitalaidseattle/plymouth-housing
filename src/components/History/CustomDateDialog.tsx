@@ -16,7 +16,7 @@ type CustomDateDialogProps = {
 
 const PresetToggleButton = styled(ToggleButton)(({ theme }) => ({
   borderRadius: '20px',
-  padding: 1, px: 1.5,
+  padding: theme.spacing(1, 2),
   border: '1px solid',
   borderColor: theme.palette.text.primary,
   textTransform: 'none',

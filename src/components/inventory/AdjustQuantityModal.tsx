@@ -195,7 +195,7 @@ const AdjustQuantityModal = ({
             <Typography>New Total Quantity</Typography>
             <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
               <IconButton aria-label="Information about new quantity input">
-                <InfoIcon sx={{ fontSize: 16 }} />
+                <InfoIcon sx={(theme) => ({ fontSize: theme.typography.body1.fontSize })} />
               </IconButton>
             </Tooltip>
           </Box>

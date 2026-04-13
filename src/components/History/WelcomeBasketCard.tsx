@@ -14,8 +14,12 @@ const WelcomeBasketCard = ({
   howLongAgoString,
 }: WelcomeBasketCardProps) => {
   const theme = useTheme();
-  const { welcome_basket_item_id, welcome_basket_quantity, is_edited, corrections } =
-    checkoutTransaction;
+  const {
+    welcome_basket_item_id,
+    welcome_basket_quantity,
+    is_edited,
+    corrections,
+  } = checkoutTransaction;
 
   const latestEditDate = formatEditDate(corrections);
 
@@ -64,11 +68,14 @@ const WelcomeBasketCard = ({
           label="Modified"
           size="small"
           variant="outlined"
-          color="info"
           sx={{
             position: 'absolute',
             top: 12,
             right: 12,
+            fontSize: '0.75rem',
+            color: theme.palette.text.secondary,
+            borderColor: theme.palette.grey[300],
+            backgroundColor: 'transparent',
           }}
         />
       )}

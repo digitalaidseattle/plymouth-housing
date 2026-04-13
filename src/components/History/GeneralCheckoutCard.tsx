@@ -65,11 +65,14 @@ const GeneralCheckoutCard = ({
             label="Modified"
             size="small"
             variant="outlined"
-            color="info"
             sx={{
               position: 'absolute',
               top: 12,
               right: 12,
+              fontSize: '0.75rem',
+              color: theme.palette.text.secondary,
+              borderColor: theme.palette.grey[300],
+              backgroundColor: 'transparent',
             }}
           />
         )}

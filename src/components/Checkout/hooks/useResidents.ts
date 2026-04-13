@@ -6,10 +6,12 @@ export const useResidents = (
     user: ClientPrincipal | null,
     selectedUnit: Unit,
     initialResidentName?: string,
+    initialLastVisitDate?: string | null,
+    isEditMode: boolean = false,
 ) => {
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [nameInput, setNameInput] = useState<string>(initialResidentName ?? '');
-    const [currentLastVisitDate, setCurrentLastVisitDate] = useState<string | null>(null);
+    const [currentLastVisitDate, setCurrentLastVisitDate] = useState<string | null>(initialLastVisitDate ?? null);
     const [isLoadingResidents, setIsLoadingResidents] = useState(false);
     const [apiError, setApiError] = useState('');
 
@@ -42,12 +44,14 @@ export const useResidents = (
         };
 
         const fetchResidents = async () => {
-            if (!selectedUnit?.id) {
+            if (isEditMode || !selectedUnit?.id) {
                 setExistingResidents([]);
-                if (!initialResidentName) {
+                if (!initialResidentName && !isEditMode) {
                     setNameInput('');
                 }
-                setCurrentLastVisitDate(null);
+                if (!isEditMode) {
+                    setCurrentLastVisitDate(null);
+                }
                 setIsLoadingResidents(false);
                 setApiError('');
                 return;
@@ -104,7 +108,7 @@ export const useResidents = (
         };
         fetchResidents();
         return () => { cancelled = true; };
-    }, [user, selectedUnit, initialResidentName]);
+    }, [user, selectedUnit, initialResidentName, initialLastVisitDate, isEditMode]);
 
     return {
         existingResidents,

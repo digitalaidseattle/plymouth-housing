@@ -3,6 +3,7 @@ import { Box, useTheme, Chip, Button } from '@mui/material';
 import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo, CheckoutTransaction, TransactionItem } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getTransaction } from '../../services/checkoutService';
+import { getLastResidentVisit } from '../../services/residentService';
 import { getRole } from '../../utils/userUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
@@ -86,8 +87,13 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     const fetchTransaction = async () => {
       if (!editTransaction) return;
       try {
-          const result = await getTransaction(user, editTransaction.transaction_id);
-          const detail = result?.value;
+          const [transactionResult, visitResult] = await Promise.all([
+            getTransaction(user, editTransaction.transaction_id),
+            getLastResidentVisit(user, editTransaction.resident_id),
+          ]);
+          const detail = transactionResult?.value;
+          const visits = visitResult?.value as Array<{ transaction_date: string }> | undefined;
+          const lastVisitDate = visits?.[0]?.transaction_date ?? null;
           if (detail && detail.items && Array.isArray(detail.items)) {
             const items: TransactionItem[] = detail.items;
             if (mounted) {
@@ -101,7 +107,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   code: detail.building_code ?? prev.building.code,
                   name: detail.building_name ?? prev.building.name,
                 },
-                lastVisitDate: prev.lastVisitDate,
+                lastVisitDate,
               }));
             }
           }
@@ -172,7 +178,19 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const categories = checkoutType === 'general' ? filteredData : welcomeBasketData;
 
   const handleDiscardEdits = () => {
-    navigate('/history');
+    const userRole = user ? getRole(user) : null;
+    const navigateState = {
+      state: {
+        checkoutSuccess: true,
+        message: 'Changes discarded',
+      },
+    };
+
+    if (userRole === 'volunteer') {
+      navigate('/volunteer-home', navigateState);
+    } else {
+      navigate('/inventory', navigateState);
+    }
   };
 
   return (

@@ -48,6 +48,20 @@ export function formatTransactionDate(timestamp: string): string {
   return `Created ${dateStr} at ${timeStr}`;
 }
 
+export function formatTransactionEditDate(
+  corrections?: CheckoutRow[],
+  editorName?: string,
+): string | null {
+  if (!corrections?.length) return null;
+  const last = corrections[corrections.length - 1];
+  const timeLabel = formatTransactionDate(last.transaction_date).replace('Created ', '');
+  const editorPart = editorName ? `,  by ${editorName}` : '';
+  const count = corrections.length;
+  return count === 1
+    ? `${timeLabel}${editorPart}`
+    : `Edited ${count} times, last edited: ${timeLabel}`;
+}
+
 export function formatDateRange(startDate: Date, endDate: Date): string {
   const startStr = startDate.toLocaleString('en-us', DATE_FORMATS.DATE_ONLY);
   const endStr = endDate.toLocaleString('en-us', DATE_FORMATS.RANGE_END);
@@ -56,14 +70,6 @@ export function formatDateRange(startDate: Date, endDate: Date): string {
 
 export function formatFullDate(date: Date): string {
   return date.toLocaleString('en-us', DATE_FORMATS.FULL_DATE);
-}
-
-export function formatEditDate(corrections?: CheckoutRow[]): string | null {
-  if (!corrections?.length) return null;
-  const timeLabel = formatTransactionDate(corrections[corrections.length - 1].transaction_date).replace('Created ', '');
-  return corrections.length === 1
-    ? `Modified ${timeLabel}`
-    : `Modified ${corrections.length} times, last edit: ${timeLabel}`;
 }
 
 export function findBuildingById(

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Stack } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { User, CheckoutTransaction, InventoryTransaction, EditTransactionState } from '../../types/interfaces';
+import { User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
 import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';
@@ -23,16 +22,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   loggedInUserId,
   historyType,
 }) => {
-  const navigate = useNavigate();
-
-  const handleEditCheckout = (checkoutTransaction: CheckoutTransaction) => {
-    navigate('/checkout', {
-      state: {
-        editTransaction: checkoutTransaction,
-        correctionItems: checkoutTransaction.corrections ?? [],
-      } satisfies EditTransactionState,
-    });
-  };
 
   if (transactionsByUser.length === 0) {
     return (
@@ -73,6 +62,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
               (t: CheckoutTransaction | InventoryTransaction) => {
                 const howLongAgoString = formatTransactionDate(t.transaction_date);
                 const checkoutTransaction = t as CheckoutTransaction;
+
                 if (
                   historyType === 'checkout' &&
                   checkoutTransaction.item_type === 'general'
@@ -82,7 +72,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
                       howLongAgoString={howLongAgoString}
-                      onClick={() => handleEditCheckout(checkoutTransaction)}
+                      userList={userList}
                     />
                   );
                 } else if (
@@ -94,6 +84,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
                       howLongAgoString={howLongAgoString}
+                      userList={userList}
                     />
                   );
                 } else if (historyType === 'inventory') {

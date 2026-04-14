@@ -1,3 +1,4 @@
+from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -33,16 +34,43 @@ class CheckOutPage(BasePage):
     # Dropdown Selections
     # ---------------------------------------------------
 
-    def select_first_building_option(self):
-        self.select_from_autocomplete(
-            self.locators.BUILDING_CODE,
-            self.locators.BUILDING_OPTIONS
-        )
+    from selenium.common.exceptions import TimeoutException
 
-        # Ensure dependent dropdown is enabled
-        self.get_wait(20).until(
-            lambda d: d.find_element(*self.locators.UNIT_NUMBER).is_enabled()
-        )
+    def select_first_building_option(self):
+
+        for attempt in range(2):  # 1 normal + 1 retry
+            try:
+                # open dropdown
+                self.click(self.locators.BUILDING_CODE)
+
+                options = self.get_wait(10).until(
+                    lambda d: [
+                        el for el in d.find_elements(*self.locators.BUILDING_OPTIONS)
+                        if el.is_displayed() and el.text.strip()
+                    ]
+                )
+
+                if options:
+                    self.driver.execute_script("arguments[0].click();", options[0])
+                    return
+
+            except TimeoutException:
+                print(f"⚠️ Building options not loaded (attempt {attempt + 1})")
+
+            #  fallback → refresh + retry
+            if attempt == 0:
+                print("🔄 Refreshing page and retrying...")
+                self.driver.refresh()
+
+                #  wait page ready after refresh
+                self.get_wait(10).until(
+                    lambda d: len(d.find_elements(
+                        By.XPATH, "//*[contains(text(),'Provide Details')]"
+                    )) > 0
+                )
+
+        # ❌ after retry → fail
+        raise Exception("❌ Building options could not be loaded after retry")
 
     def select_first_unit_number(self):
         self.select_from_autocomplete(
@@ -177,15 +205,15 @@ class CheckOutPage(BasePage):
         continue_btn = self.wait_for_clickable(self.locators.CONTINUE_BUTTON)
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
-        # 🔥 Step 4 → WAIT FOR LOADING TO FINISH
+        #  Step 4 → WAIT FOR LOADING TO FINISH
         self.get_wait(15).until(
             lambda d: "Loading" not in d.page_source
         )
 
-        # 🔥 Step 5 → SMALL BUFFER (React fix)
+        #  Step 5 → SMALL BUFFER (React fix)
         self.wait(1)
 
-        # 🔥 Step 6 → WAIT FOR PLUS BUTTON (REAL ELEMENT)
+        #  Step 6 → WAIT FOR PLUS BUTTON (REAL ELEMENT)
         self.get_wait(15).until(
             lambda d: len(d.find_elements(
                 By.XPATH,
@@ -230,13 +258,12 @@ class CheckOutPage(BasePage):
             try:
                 el = self.driver.find_element(*quantity_locator)
                 return int(el.text.strip())
-            except:
+            except (NoSuchElementException, ValueError):
                 return 0
 
         for _ in range(10):
 
             current = get_qty()
-
             print("🔥 Current qty:", current)
 
             if current == target:
@@ -247,24 +274,27 @@ class CheckOutPage(BasePage):
             else:
                 self.click_minus_button(item_name)
 
+            # small wait for UI update
             self.wait(0.5)
 
         raise AssertionError(f"❌ Quantity not set. Current: {get_qty()}")
 
+    def increase_quantity(self, item_name):
 
-    def increase_quantity(self):
+        quantity_locator = (
+            By.XPATH,
+            f"//div[contains(.,'{item_name}')]/ancestor::div[contains(@class,'MuiCard')]//p[@data-testid='test-id-quantity']"
+        )
 
-        quantity_locator = (By.XPATH, "//p[@data-testid='test-id-quantity']")
+        # click plus button
+        self.click_plus_button(item_name)
 
-        # click +
-        self.click_plus_button()
-
-        # quantity element oluşsun
+        # wait for quantity element to appear
         self.get_wait(10).until(
             lambda d: len(d.find_elements(*quantity_locator)) > 0
         )
 
-        # value değişene kadar bekle
+        # wait until value increases
         self.get_wait(10).until(
             lambda d: int(self.get_text(quantity_locator).strip()) >= 1
         )

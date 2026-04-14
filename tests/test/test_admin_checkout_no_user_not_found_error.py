@@ -1,4 +1,5 @@
 import pytest
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 
 
@@ -58,7 +59,7 @@ def test_admin_checkout_no_user_not_found_error(admin_home_page, checkout_page):
             )) > 0
         )
         success_visible = True
-    except:
+    except TimeoutException:
         print("⚠️ Success message not visible (non-blocking)")
 
-    print(f"ℹ️ Success toast visible: {success_visible}")
+    print(f"[INFO] Success toast visible: {success_visible}")

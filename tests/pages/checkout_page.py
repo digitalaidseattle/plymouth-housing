@@ -205,20 +205,19 @@ class CheckOutPage(BasePage):
         continue_btn = self.wait_for_clickable(self.locators.CONTINUE_BUTTON)
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
-        #  Step 4 → WAIT FOR LOADING TO FINISH
+        # Step 4 → WAIT FOR LOADING SPINNER TO DISAPPEAR
         self.get_wait(15).until(
-            lambda d: "Loading" not in d.page_source
+            EC.invisibility_of_element_located(self.locators.LOADING_SPINNER)
         )
 
-        #  Step 5 → SMALL BUFFER (React fix)
-        self.wait(1)
+        # Step 5 → WAIT FOR ITEM-SPECIFIC PLUS BUTTON
+        plus_locator = (
+            By.XPATH,
+            f"//p[@aria-label='{item}']/ancestor::div[contains(@class,'MuiCard')]//button[last()]"
+        )
 
-        #  Step 6 → WAIT FOR PLUS BUTTON (REAL ELEMENT)
         self.get_wait(15).until(
-            lambda d: len(d.find_elements(
-                By.XPATH,
-                "//button[contains(@class,'MuiIconButton')]"
-            )) > 0
+            EC.element_to_be_clickable(plus_locator)
         )
 
         # Step 7 → Over-limit test

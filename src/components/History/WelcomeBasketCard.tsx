@@ -1,8 +1,10 @@
 import { Chip, useTheme, Box } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CheckoutTransaction, User } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import TransactionDetails from './TransactionDetails';
+import { UserContext } from '../contexts/UserContext';
 import { WELCOME_BASKET_ITEMS } from '../../types/constants';
 import { formatTransactionEditDate } from './historyUtils';
 
@@ -18,6 +20,8 @@ const WelcomeBasketCard = ({
   userList,
 }: WelcomeBasketCardProps) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const [showDetails, setShowDetails] = useState(false);
   const {
     welcome_basket_item_id,
@@ -27,6 +31,28 @@ const WelcomeBasketCard = ({
   } = checkoutTransaction;
 
   const latestEditDate = formatTransactionEditDate(corrections);
+  const volunteerEditDate = corrections?.length
+    ? formatTransactionEditDate(corrections, undefined, false)
+    : null;
+  const displayEditDate = user?.userRoles?.includes('admin')
+    ? latestEditDate
+    : volunteerEditDate;
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+
+    if (user.userRoles.includes('admin')) {
+      setShowDetails(true);
+    } else {
+      navigate('/checkout', {
+        state: {
+          editTransaction: checkoutTransaction,
+          correctionItems: corrections,
+        },
+      });
+    }
+  };
 
   let welcomeBasketType: string;
   if (welcome_basket_item_id === WELCOME_BASKET_ITEMS.TWIN) {
@@ -44,7 +70,7 @@ const WelcomeBasketCard = ({
   return (
     <>
       <Box
-        onClick={() => setShowDetails(true)}
+        onClick={handleCardClick}
         sx={{ position: 'relative', width: '100%', cursor: 'pointer' }}
       >
         <HistoryCard transactionId={checkoutTransaction.transaction_id}>
@@ -56,7 +82,7 @@ const WelcomeBasketCard = ({
               {checkoutTransaction.building_name}
             </p>
             <p>{howLongAgoString}</p>
-            {is_edited && latestEditDate && <p>{latestEditDate}</p>}
+            {is_edited && displayEditDate && <p>{displayEditDate}</p>}
           </div>
           <Chip
             sx={{
@@ -92,8 +118,8 @@ const WelcomeBasketCard = ({
       <TransactionDetails
         checkoutTransaction={checkoutTransaction}
         userList={userList ?? null}
-        externalShowDialog={showDetails}
-        onDialogClose={() => setShowDetails(false)}
+        showDialog={showDetails}
+        onClose={() => setShowDetails(false)}
       />
     </>
   );

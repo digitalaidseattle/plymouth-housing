@@ -1,10 +1,11 @@
-import { useState, useContext, useMemo, useEffect } from 'react';
+import { useState, useContext, useMemo, useEffect, useRef } from 'react';
 import { Box, useTheme, Chip, Button } from '@mui/material';
 import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo, CheckoutTransaction, TransactionItem } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getTransaction } from '../../services/checkoutService';
 import { getLastResidentVisit } from '../../services/residentService';
 import { getRole } from '../../utils/userUtils';
+import { buildItemMap } from '../../utils/transactionUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import { useNavigate } from 'react-router-dom';
@@ -111,13 +112,87 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
               }));
             }
           }
-      } catch (err) {
+      } catch {
         showSnackbar('Failed to load transaction details', 'warning');
       }
     };
     fetchTransaction();
     return () => { mounted = false; };
-  }, [editTransaction, user]);
+  }, [editTransaction, user, showSnackbar]);
+
+  // Preload checked-out items into the checkout cart when editing an existing transaction.
+  // This waits until both transaction items and the categorized `data` are loaded, and
+  // will only populate the cart once to avoid overwriting user changes.
+  // Prioritizes effectiveItems (computed current state) over originalTransactionItems.
+  const hasPreloadedRef = useRef(false);
+  useEffect(() => {
+    if (!editTransaction) return;
+    if (hasPreloadedRef.current) return;
+    if (!data || data.length === 0) return;
+
+    const itemsToLoad = editTransaction?.effectiveItems?.length
+      ? editTransaction.effectiveItems
+      : originalTransactionItems;
+    if (!itemsToLoad || itemsToLoad.length === 0) return;
+
+    const emptyCart: CategoryProps[] = data.map((category: CategoryProps) => ({
+      ...category,
+      categoryCount: 0,
+      items: [],
+    }));
+    const currentCart = emptyCart;
+
+    itemsToLoad.forEach((item) => {
+      const { itemId, itemQuantity, itemNotes, itemDesc } = buildItemMap(item);
+      const sourceCategory = data.find((cat) => (cat.items || []).some((i) => i.id === itemId));
+      if (!sourceCategory) return;
+      const itemDetails = sourceCategory.items?.find((i) => i.id === itemId);
+      if (!itemDetails) return;
+
+      const categoryIndex = currentCart.findIndex(
+        (cat: CategoryProps) => cat.category === sourceCategory.category,
+      );
+      if (categoryIndex !== -1) {
+        const categoryData = currentCart[categoryIndex];
+        const categoryItems: CheckoutItemProp[] = [...categoryData.items];
+        categoryItems.push({
+          id: itemDetails.id,
+          name: itemDetails.name,
+          quantity: itemQuantity,
+          description: itemDesc || itemDetails.description || '',
+          additional_notes: itemNotes,
+        });
+        const newCategoryCount = categoryItems.reduce(
+          (acc, currentItem) => acc + currentItem.quantity,
+          0,
+        );
+        currentCart[categoryIndex] = {
+          ...categoryData,
+          items: categoryItems,
+          categoryCount: newCategoryCount,
+        };
+      }
+    });
+
+    setCheckoutItems(currentCart);
+    hasPreloadedRef.current = true;
+  }, [editTransaction, originalTransactionItems, data, setCheckoutItems]);
+
+  // Baseline for delta calculation in CheckoutDialog. Must match what the cart was preloaded
+  // with: effectiveItems (current state after all corrections) when available, otherwise the
+  // original transaction items from the DB.
+  const baselineItems = useMemo((): TransactionItem[] => {
+    if (editTransaction?.effectiveItems?.length) {
+      return editTransaction.effectiveItems.map((item) => ({
+        id: 0,
+        item_id: item.id,
+        quantity: item.quantity,
+        transaction_id: '',
+        additional_notes: item.additional_notes ?? '',
+      }));
+    }
+    return originalTransactionItems;
+  }, [editTransaction, originalTransactionItems]);
 
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
@@ -132,7 +207,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     onError: (msg) => showSnackbar(msg, 'error'),
   });
 
-  const [openSummary, setOpenSummary] = useState<boolean>(false);
+  const [openSummary, setOpenSummary] = useState<boolean>(!!editTransaction);
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
   const [showPastCheckoutDialog, setShowPastCheckoutDialog] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({
@@ -330,7 +405,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           activeSection={activeSection}
           originalTransactionId={originalTransactionId}
           isEditMode={!!editTransaction}
-          originalTransactionItems={originalTransactionItems}
+          originalTransactionItems={baselineItems}
         />
         <SnackbarAlert
           open={snackbarState.open}

@@ -61,7 +61,7 @@ const DialogTemplate = ({
                 <Typography sx={{ fontSize: '1.25rem', fontWeight: '600', textTransform: 'capitalize' }}>{title}</Typography>
             </DialogTitle>}
 
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem'}}>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem', overflowY: 'auto' }}>
             {children}
             </DialogContent>
 

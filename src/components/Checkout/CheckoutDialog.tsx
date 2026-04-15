@@ -57,7 +57,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   setActiveSection,
   fetchData,
   onSuccess,
-  activeSection,
   residentInfo,
   setResidentInfo,
   onError,
@@ -126,7 +125,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         throw new Error('Transaction ID not created.');
       }
 
-      // In edit mode, compute deltas: (cart qty − previous qty) per item.
+      // In edit mode, compute deltas: (cart qty − current state qty) per item.
+      // Current state = what was preloaded (effectiveItems after corrections, or original items if no corrections).
       // Negatives are valid (item removed or reduced). Zeros are omitted.
       const effectiveMap = new Map<number, { quantity: number; additional_notes: string }>();
       originalTransactionItems.forEach((ei) => {
@@ -484,7 +484,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   removeItemFromCart={removeItemFromCart}
                   removeButton={true}
                   disabled={false}
-                  activeSection={activeSection}
+                  activeSection=""
                 />
               );
             }

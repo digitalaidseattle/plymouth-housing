@@ -204,6 +204,7 @@ export type CheckoutTransaction = {
   building_code: string;
   building_name: string;
   corrections?: CheckoutRow[];
+  effectiveItems?: CheckoutItemProp[];
   is_edited: boolean;
   item_type: 'general' | 'welcome';
   resident_id: number;

@@ -51,15 +51,18 @@ export function formatTransactionDate(timestamp: string): string {
 export function formatTransactionEditDate(
   corrections?: CheckoutRow[],
   editorName?: string,
+  includeEditedLabel = true
 ): string | null {
   if (!corrections?.length) return null;
   const last = corrections[corrections.length - 1];
   const timeLabel = formatTransactionDate(last.transaction_date).replace('Created ', '');
   const editorPart = editorName ? `,  by ${editorName}` : '';
+  const editedPart = includeEditedLabel ? 'Edited ' : '';
   const count = corrections.length;
+  
   return count === 1
-    ? `${timeLabel}${editorPart}`
-    : `Edited ${count} times, last edited: ${timeLabel}`;
+    ? `${editedPart}${timeLabel}${editorPart}`
+    : `${editedPart}${count} times, last edited: ${timeLabel}`;
 }
 
 export function formatDateRange(startDate: Date, endDate: Date): string {

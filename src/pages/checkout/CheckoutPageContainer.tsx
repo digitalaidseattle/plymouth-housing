@@ -5,13 +5,16 @@ import { CheckoutType, CheckoutTransaction } from '../../types/interfaces';
 
 const CheckoutPageContainer = () => {
   const location = useLocation();
-  const state = location.state as { checkoutType?: CheckoutType; editTransaction?: CheckoutTransaction } | undefined;
+  const state = location.state as {
+    checkoutType?: CheckoutType;
+    editTransaction?: CheckoutTransaction;
+  } | undefined;
 
   const checkoutType = state?.checkoutType || 'general';
   const editTransaction = state?.editTransaction;
-  
+
   const baseTitle = `Check out - ${checkoutType === 'general' ? 'General' : 'Welcome Basket'}`;
-  const title = editTransaction ? `${baseTitle} (Editing)` : baseTitle;
+  const title = baseTitle;
 
   return (
     <MainContainer title={title}>

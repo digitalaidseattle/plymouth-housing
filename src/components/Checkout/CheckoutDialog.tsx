@@ -18,7 +18,10 @@ import {
 } from '../../types/interfaces';
 import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
-import { processGeneralItems, processWelcomeBasket } from '../../services/checkoutService';
+import {
+  processGeneralItems,
+  processWelcomeBasket,
+} from '../../services/checkoutService';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
@@ -44,6 +47,7 @@ type CheckoutDialogProps = {
   originalTransactionId?: string | null;
   isEditMode?: boolean;
   originalTransactionItems?: TransactionItem[];
+  onDiscardEdits?: () => void;
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
@@ -63,6 +67,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   originalTransactionId,
   isEditMode = false,
   originalTransactionItems = [],
+  onDiscardEdits,
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
@@ -76,7 +81,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   >([]);
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
-  const totalItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItemCount = cartItems.reduce(
+    (acc, item) => acc + item.quantity,
+    0,
+  );
   const totalItemLimitExceeded = totalItemCount > SETTINGS.checkout_item_limit;
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
   const [transactionId, setTransactionId] = useState<string | null>(null);
@@ -128,7 +136,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       // In edit mode, compute deltas: (cart qty − current state qty) per item.
       // Current state = what was preloaded (effectiveItems after corrections, or original items if no corrections).
       // Negatives are valid (item removed or reduced). Zeros are omitted.
-      const effectiveMap = new Map<number, { quantity: number; additional_notes: string }>();
+      const effectiveMap = new Map<
+        number,
+        { quantity: number; additional_notes: string }
+      >();
       originalTransactionItems.forEach((ei) => {
         const prev = effectiveMap.get(ei.item_id);
         effectiveMap.set(ei.item_id, {
@@ -166,6 +177,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             return deltas;
           })()
         : cartItems;
+
+      // In edit mode, if no changes were made, close without creating a transaction
+      if (isEditMode && itemsToSubmit.length === 0) {
+        onClose();
+        return;
+      }
       // We find the sheet set explicitly here because cartItems may contain all basket items
       // when editing from history, so relying on array position would send the wrong item.
       const sheetSetIds: number[] = Object.values(WELCOME_BASKET_ITEMS);
@@ -232,7 +249,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
-      } else if (result.Status === 'Error' && result.ErrorCode === 'DUPLICATE_TRANSACTION') {
+      } else if (
+        result.Status === 'Error' &&
+        result.ErrorCode === 'DUPLICATE_TRANSACTION'
+      ) {
         // Handle duplicate transaction - clear the cart and show success
         setActiveSection('');
         setResidentInfo({
@@ -401,7 +421,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           sx={{ padding: '20px 0px 0px 0px' }}
           id="customized-dialog-title"
         >
-          <Typography sx={{ fontSize: '1.5rem' }}>Checkout Summary</Typography>
+          <Typography sx={{ fontSize: '1.5rem' }}>
+            Checkout Summary{isEditMode && ' (Editing)'}
+          </Typography>
         </DialogTitle>
         <Box
           sx={{
@@ -499,29 +521,67 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           <Typography>{statusMessage}</Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
-          <Button
-            onClick={handleCancel}
-            sx={{
-              color: 'black',
-              textDecoration: 'underline',
-            }}
-          >
-            Return to Checkout Page
-          </Button>
-          <Button
-            onClick={() => handleConfirm()}
-            disabled={isProcessing}
-            sx={{
-              color: 'black',
-              backgroundColor: '#F2F2F2',
-              '&.Mui-disabled': {
-                backgroundColor: '#E0E0E0',
-                color: '#757575',
-              },
-            }}
-          >
-            {isProcessing ? 'Working...' : 'Confirm'}
-          </Button>
+          {isEditMode ? (
+            <>
+              <Button
+                onClick={onDiscardEdits}
+                sx={{
+                  color: 'black',
+                  textDecoration: 'underline',
+                }}
+              >
+                Discard
+              </Button>
+              <Button
+                onClick={handleCancel}
+                sx={{
+                  color: 'black',
+                }}
+              >
+                Add Item
+              </Button>
+              <Button
+                onClick={() => handleConfirm()}
+                disabled={isProcessing}
+                sx={{
+                  color: 'black',
+                  backgroundColor: '#F2F2F2',
+                  '&.Mui-disabled': {
+                    backgroundColor: '#E0E0E0',
+                    color: '#757575',
+                  },
+                }}
+              >
+                {isProcessing ? 'Working...' : 'Save Changes'}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={handleCancel}
+                sx={{
+                  color: 'black',
+                  textDecoration: 'underline',
+                }}
+              >
+                Return to Checkout Page
+              </Button>
+              <Button
+                onClick={() => handleConfirm()}
+                disabled={isProcessing}
+                sx={{
+                  color: 'black',
+                  backgroundColor: '#F2F2F2',
+                  '&.Mui-disabled': {
+                    backgroundColor: '#E0E0E0',
+                    color: '#757575',
+                  },
+                }}
+              >
+                {isProcessing ? 'Working...' : 'Confirm'}
+              </Button>
+            </>
+          )}
         </DialogActions>
       </>
     );

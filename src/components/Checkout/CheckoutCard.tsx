@@ -19,7 +19,7 @@ const CheckoutCard = ({
   categoryLimit,
   categoryName,
   activeSection,
-  checkoutHistory
+  checkoutHistory,
   }: CheckoutCardProps) => {
 
   const pastCheckout = checkoutHistory ? checkoutHistory.map(i => i.item_id).includes(item.id) : false;

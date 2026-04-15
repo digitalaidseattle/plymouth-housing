@@ -1,4 +1,4 @@
-import { Building, CheckoutRow } from '../../types/interfaces';
+import { CheckoutRow } from '../../types/interfaces';
 
 const DATE_FORMATS = {
   DATE_ONLY: {
@@ -19,7 +19,7 @@ const DATE_FORMATS = {
 };
 
 
-export function formatTransactionDate(timestamp: string): string {
+export function formatTransactionDate(timestamp: string, userName?: string): string {
   const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp);
   const dateCreated = new Date(hasTimezone ? timestamp : timestamp + 'Z');
   const now = new Date();
@@ -35,8 +35,10 @@ export function formatTransactionDate(timestamp: string): string {
     hour12: true,
   });
 
+  const userNamePart = userName ? `, by ${userName}` : '';
+
   if (isToday) {
-    return `Created today at ${timeStr}`;
+    return `Created today at ${timeStr}${userNamePart}`;
   }
 
   const dateStr = dateCreated.toLocaleString('en-us', {
@@ -45,7 +47,7 @@ export function formatTransactionDate(timestamp: string): string {
     year: 'numeric',
   });
 
-  return `Created ${dateStr} at ${timeStr}`;
+  return `Created ${dateStr} at ${timeStr}${userNamePart}`;
 }
 
 export function formatTransactionEditDate(
@@ -62,7 +64,7 @@ export function formatTransactionEditDate(
   
   return count === 1
     ? `${editedPart}${timeLabel}${editorPart}`
-    : `${editedPart}${count} times, last edited: ${timeLabel}`;
+    : `${editedPart}${count} times, last: ${timeLabel}`;
 }
 
 export function formatDateRange(startDate: Date, endDate: Date): string {
@@ -75,20 +77,6 @@ export function formatFullDate(date: Date): string {
   return date.toLocaleString('en-us', DATE_FORMATS.FULL_DATE);
 }
 
-export function findBuildingById(
-  buildingId: number,
-  buildings: Building[] | null,
-): Building | undefined {
-  return buildings?.find((b) => b.id === buildingId);
-}
-
-export function formatBuildingInfo(
-  buildingId: number,
-  buildings: Building[] | null,
-): string {
-  const building = findBuildingById(buildingId, buildings);
-  return building ? `${building.code} - ${building.name}` : '';
-}
 
 
 export function getPresetDateRange(preset: string): {

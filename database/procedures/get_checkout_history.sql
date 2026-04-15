@@ -25,7 +25,20 @@ BEGIN
         Buildings.code AS building_code,
         Buildings.name AS building_name,
         Transactions.transaction_date,
-        SUM(ISNULL(ti.quantity, 0)) AS total_quantity,
+        (
+            SELECT ISNULL(SUM(net_qty), 0)
+            FROM (
+                SELECT ti2.item_id, SUM(ISNULL(ti2.quantity, 0)) AS net_qty
+                FROM TransactionItems ti2
+                WHERE ti2.transaction_id = Transactions.id
+                  OR ti2.transaction_id IN (
+                      SELECT corrections.id FROM Transactions AS corrections
+                      WHERE corrections.parent_transaction_id = Transactions.id
+                  )
+                GROUP BY ti2.item_id
+                HAVING SUM(ISNULL(ti2.quantity, 0)) > 0
+            ) AS per_item_sums
+        ) AS total_quantity,
         -- Item IDs 171 (Twin-size Sheet Set) and 172 (Full-size Sheet Set) identify welcome basket transactions
         MAX(CASE WHEN ti.item_id IN (171, 172) THEN ti.item_id ELSE NULL END) AS welcome_basket_item_id,
         MAX(CASE WHEN ti.item_id IN (171, 172) THEN ti.quantity ELSE NULL END) AS welcome_basket_quantity

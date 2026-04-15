@@ -47,7 +47,6 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
     .filter((row) => row.transaction_type === TransactionType.Checkout)
     .map((row) => {
       const edits = editsByParent.get(row.transaction_id) ?? [];
-      const deltaQuantity = edits.reduce((sum, e) => sum + e.total_quantity, 0);
       return {
         user_id: row.user_id,
         transaction_id: row.transaction_id,
@@ -58,7 +57,7 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
         building_code: row.building_code,
         building_name: row.building_name,
         transaction_date: row.transaction_date,
-        total_quantity: row.total_quantity + deltaQuantity,
+        total_quantity: row.total_quantity,
         welcome_basket_item_id: row.welcome_basket_item_id,
         welcome_basket_quantity: row.welcome_basket_quantity,
         item_type: row.welcome_basket_item_id != null ? 'welcome' : 'general',

@@ -6,10 +6,8 @@ import {
   formatTransactionDate,
   formatDateRange,
   formatFullDate,
-  findBuildingById,
-  formatBuildingInfo,
+
 } from './historyUtils';
-import { Building } from '../../types/interfaces';
 
 afterAll(() => {
   process.env.TZ = savedTZ;
@@ -76,45 +74,6 @@ describe('formatFullDate', () => {
     const result = formatFullDate(date);
     expect(result).toMatch(/2025/);
     expect(result).toMatch(/Jan/);
-  });
-});
-
-describe('findBuildingById', () => {
-  const buildings: Building[] = [
-    { id: 1, code: 'A', name: 'Main St' },
-    { id: 2, code: 'B', name: 'Oak Ave' },
-  ];
-
-  test('returns matching building', () => {
-    expect(findBuildingById(1, buildings)).toEqual({
-      id: 1,
-      code: 'A',
-      name: 'Main St',
-    });
-  });
-
-  test('returns undefined for unknown id', () => {
-    expect(findBuildingById(99, buildings)).toBeUndefined();
-  });
-
-  test('returns undefined when buildings list is null', () => {
-    expect(findBuildingById(1, null)).toBeUndefined();
-  });
-});
-
-describe('formatBuildingInfo', () => {
-  const buildings: Building[] = [{ id: 1, code: 'A', name: 'Main St' }];
-
-  test('formats building as "CODE - Name"', () => {
-    expect(formatBuildingInfo(1, buildings)).toBe('A - Main St');
-  });
-
-  test('returns empty string for unknown building', () => {
-    expect(formatBuildingInfo(99, buildings)).toBe('');
-  });
-
-  test('returns empty string when buildings is null', () => {
-    expect(formatBuildingInfo(1, null)).toBe('');
   });
 });
 

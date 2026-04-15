@@ -1,4 +1,4 @@
-import { CheckoutItemProp, Transaction } from '../types/interfaces';
+import { CheckoutItemProp, CheckoutTransaction, Transaction, User } from '../types/interfaces';
 import { Palette } from '@mui/material';
 
 export const computeEffectiveItems = (
@@ -52,3 +52,21 @@ export const getItemQtyColor = (qty: number, palette: Palette) => ({
   bgColor: qty > 0 ? palette.success.lighter : palette.error.lighter,
   textColor: qty > 0 ? palette.success.dark : palette.error.dark,
 });
+
+export const getUserName = (userId: number, userList?: User[] | null): string => {
+  return userList?.find((u) => u.id === userId)?.name ?? `User ${userId}`;
+};
+
+export const getEffectiveItemCount = (checkoutTransaction: CheckoutTransaction): number => {
+  // For edited transactions, calculate effective total from effectiveItems
+  if (
+    checkoutTransaction.is_edited &&
+    checkoutTransaction.effectiveItems?.length
+  ) {
+    return checkoutTransaction.effectiveItems
+      .filter((item) => item.quantity > 0)
+      .reduce((sum, item) => sum + item.quantity, 0);
+  }
+  // Otherwise use the original total_quantity
+  return checkoutTransaction.total_quantity;
+};

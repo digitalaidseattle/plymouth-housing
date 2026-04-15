@@ -5,6 +5,7 @@ import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';
 import { formatTransactionDate } from './historyUtils';
+import { getUserName } from '../../utils/transactionUtils';
 
 interface TransactionsListProps {
   transactionsByUser: Array<{
@@ -40,7 +41,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
             <h2>
               {loggedInUserId === user.user_id
                 ? 'You'
-                : (userList?.find((v) => v.id === user.user_id)?.name ?? '')}
+                : getUserName(user.user_id, userList)}
             </h2>
             <span>
               {user.transactions.length}{' '}

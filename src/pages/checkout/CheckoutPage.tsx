@@ -130,9 +130,13 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     if (hasPreloadedRef.current) return;
     if (!data || data.length === 0) return;
 
-    const itemsToLoad = editTransaction?.effectiveItems?.length
-      ? editTransaction.effectiveItems
-      : originalTransactionItems;
+    // Filter to only include items with quantity > 0
+    const itemsToLoad = (editTransaction?.effectiveItems ?? originalTransactionItems).filter(
+      (item) => {
+        const { itemQuantity } = buildItemMap(item);
+        return itemQuantity > 0;
+      },
+    );
     if (!itemsToLoad || itemsToLoad.length === 0) return;
 
     const emptyCart: CategoryProps[] = data.map((category: CategoryProps) => ({
@@ -181,15 +185,19 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   // Baseline for delta calculation in CheckoutDialog. Must match what the cart was preloaded
   // with: effectiveItems (current state after all corrections) when available, otherwise the
   // original transaction items from the DB.
+  // Use != null so an empty array is treated as "effective state is 0 items" rather than
+  // falling through to originalTransactionItems (which would produce false deltas).
   const baselineItems = useMemo((): TransactionItem[] => {
-    if (editTransaction?.effectiveItems?.length) {
-      return editTransaction.effectiveItems.map((item) => ({
-        id: 0,
-        item_id: item.id,
-        quantity: item.quantity,
-        transaction_id: '',
-        additional_notes: item.additional_notes ?? '',
-      }));
+    if (editTransaction?.effectiveItems != null) {
+      return editTransaction.effectiveItems
+        .filter((item) => item.quantity > 0)
+        .map((item) => ({
+          id: 0,
+          item_id: item.id,
+          quantity: item.quantity,
+          transaction_id: '',
+          additional_notes: item.additional_notes ?? '',
+        }));
     }
     return originalTransactionItems;
   }, [editTransaction, originalTransactionItems]);
@@ -406,6 +414,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           originalTransactionId={originalTransactionId}
           isEditMode={!!editTransaction}
           originalTransactionItems={baselineItems}
+          onDiscardEdits={handleDiscardEdits}
         />
         <SnackbarAlert
           open={snackbarState.open}

@@ -9,6 +9,7 @@ import { useTheme } from '@mui/material';
 import { UserContext } from '../contexts/UserContext';
 import { SETTINGS } from '../../types/constants';
 import { formatTransactionEditDate } from './historyUtils';
+import { getEffectiveItemCount } from '../../utils/transactionUtils';
 
 type GeneralCheckoutCardProps = {
   checkoutTransaction: CheckoutTransaction;
@@ -25,7 +26,8 @@ const GeneralCheckoutCard = ({
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const [showDetails, setShowDetails] = useState(false);
-  const { total_quantity, is_edited, corrections } = checkoutTransaction;
+  const { is_edited, corrections } = checkoutTransaction;
+  const effectiveItemCount = getEffectiveItemCount(checkoutTransaction);
 
   const latestEditDate = formatTransactionEditDate(corrections);
   const volunteerEditDate = corrections?.length
@@ -79,15 +81,15 @@ const GeneralCheckoutCard = ({
             <Chip
               sx={{
                 color:
-                  total_quantity > SETTINGS.checkout_item_limit
+                  effectiveItemCount > SETTINGS.checkout_item_limit
                     ? theme.palette.warning.dark
                     : theme.palette.success.dark,
                 backgroundColor:
-                  total_quantity > SETTINGS.checkout_item_limit
+                  effectiveItemCount > SETTINGS.checkout_item_limit
                     ? theme.palette.warning.lighter
                     : theme.palette.success.lighter,
               }}
-              label={`${total_quantity} / ${SETTINGS.checkout_item_limit}`}
+              label={`${effectiveItemCount} / ${SETTINGS.checkout_item_limit}`}
             />
           </HistoryCard>
           {is_edited && (

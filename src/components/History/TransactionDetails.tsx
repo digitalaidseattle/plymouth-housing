@@ -31,6 +31,7 @@ import {
   formatTransactionEditDate,
   formatTransactionDate,
 } from './historyUtils';
+import { getUserName } from '../../utils/transactionUtils';
 import { signNumber } from '../../utils/textUtils';
 import {
   computeEffectiveItems,
@@ -299,9 +300,10 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                           {correctionTransactions.map((txn, idx) => {
                             const correction = corrections[idx];
                             if (!correction) return null;
-                            const editor =
-                              userList?.find((u) => u.id === correction.user_id)
-                                ?.name ?? `User ${correction.user_id}`;
+                            const editor = getUserName(
+                              correction.user_id,
+                              userList,
+                            );
 
                             return (
                               <Stack key={txn.transaction_id} gap={0.75}>
@@ -361,6 +363,9 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                           {formatTransactionDate(
                             mainTransaction?.transaction_date ||
                               checkoutTransaction.transaction_date,
+                            mainTransaction
+                              ? getUserName(mainTransaction.user_id, userList)
+                              : undefined,
                           ).replace('Created ', '')}
                         </Typography>
                         <Stack gap={0.5}>

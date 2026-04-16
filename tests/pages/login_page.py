@@ -16,6 +16,7 @@ from tests.utilities.locators import LoginPageLocators
 
 
 class LoginPage(BasePage):
+    LOGIN_WAIT_TIMEOUT = 240
 
     def __init__(self, driver):
         super().__init__(driver)
@@ -104,29 +105,14 @@ class LoginPage(BasePage):
         print("Volunteer field is ready")
 
     # ---------------------------------------------------
-    # Application Readiness
-    # ---------------------------------------------------
-
-    def wait_for_full_app_ready(self):
-        wait = WebDriverWait(self.driver, 60)
-
-        # 1. DB popup gone (negative signal)
-        wait.until(
-            lambda d: len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
-        )
-
-        # 2. App UI ready (positive signal)  CRITICAL
-        wait.until(
-            lambda d: (
-                          el := d.find_element(*self.locators.USER_PERSON)
-                      ).is_displayed() and el.is_enabled()
-        )
-
-    # ---------------------------------------------------
     # Volunteer Selection (Autocomplete)
     # ---------------------------------------------------
 
     def select_volunteer(self, name="John Doe 1234"):
+        # Volunteer list fetch can be slow on cold container start
+        WebDriverWait(self.driver, LoginPage.LOGIN_WAIT_TIMEOUT, poll_frequency=1).until(
+            lambda d: d.find_element(*self.locators.USER_PERSON).is_enabled()
+        )
         input_el = self.wait.until(
             EC.visibility_of_element_located(self.locators.USER_PERSON)
         )

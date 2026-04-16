@@ -21,14 +21,14 @@ def test_admin_checkout_no_user_not_found_error(admin_home_page, checkout_page):
     )
     checkout_page.driver.execute_script("arguments[0].click();", continue_btn)
 
-    # 🔥 CRITICAL → Wait until modal completely disappears
+    #  CRITICAL → Wait until modal completely disappears
     checkout_page.get_wait(10).until(
         lambda d: len(d.find_elements(
             By.XPATH, "//*[contains(text(),'Provide Details')]"
         )) == 0
     )
 
-    # 🔥 NEW → wait for real page ready
+    #  NEW → wait for real page ready
     checkout_page.get_wait(10).until(
         lambda d: len(d.find_elements(
             By.XPATH, "//input[contains(@placeholder,'Search')]"

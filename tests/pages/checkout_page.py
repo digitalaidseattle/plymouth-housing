@@ -238,6 +238,11 @@ class CheckOutPage(BasePage):
                 (By.XPATH, "//button[contains(text(),'Staff Said It Is Ok')]")
             )
             self.driver.execute_script("arguments[0].click();", ok_btn)
+            self.get_wait(10).until(
+                EC.invisibility_of_element_located(
+                    (By.XPATH, "//*[contains(text(),'Over the usual category limit')]")
+                )
+            )
 
         # Step 11 → Fix quantity
         self.set_quantity(5, item)

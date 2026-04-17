@@ -135,7 +135,7 @@ Follow git flow convention: `{name}/{ticket-number}-brief-description`
 - Component overrides in `src/themes/overrides/`
 - Support both light and dark modes
 - Use values from `src/themes/typography.ts` for all font styles; never hardcode font sizes, weights, or families
-- Use `theme.spacing()` for all spacing; avoid hardcoded `rem` or `px` values
+- Use the `sx` numeric shorthand for all spacing; use `theme.spacing()` directly when you need computed values. Avoid hardcoded `rem` or `px` values for spacing
 - Match icon sizes to existing project patterns; avoid arbitrary icon sizes
 
 ### Context Pattern

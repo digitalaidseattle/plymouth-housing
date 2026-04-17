@@ -34,12 +34,6 @@ import {
 } from '@ant-design/icons';
 
 // sx styles
-const avatarSX = {
-  width: 36,
-  height: 36,
-  fontSize: '1rem',
-};
-
 const actionSX = {
   mt: 1,
   ml: 1,
@@ -52,6 +46,11 @@ const actionSX = {
 
 const Notification = () => {
   const theme = useTheme();
+  const avatarSX = {
+    width: 36,
+    height: 36,
+    fontSize: theme.typography.body1.fontSize,
+  };
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);

@@ -70,8 +70,11 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item, level }) => {
   const itemIcon = React.useMemo(() => {
     if (!item.icon) return null;
     const Icon = item.icon;
-    return <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />;
-  }, [item.icon, drawerOpen]);
+    const fontSize = drawerOpen
+      ? theme.typography.body1.fontSize
+      : theme.typography.h6.fontSize;
+    return <Icon style={{ fontSize }} />;
+  }, [item.icon, drawerOpen, theme]);
 
   const isAnyChildSelected = item.children?.some(
     (child) => activeMenuItem === child.id,

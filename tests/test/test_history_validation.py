@@ -6,34 +6,48 @@ import pytest
 @pytest.mark.smoke
 def test_checkout_updates_history(home_page, checkout_page, history_page):
 
-    # Get initial history count
+    # ---------------------------------------------------
+    # Arrange
+    # ---------------------------------------------------
     history_page.open_history()
     initial_count = history_page.get_record_count_number()
 
-    # Perform checkout
+    # ---------------------------------------------------
+    # Act
+    # ---------------------------------------------------
     home_page.go_to_checkout_general()
 
-    checkout_page.click_building_code()
     checkout_page.select_first_building_option()
-    checkout_page.click_unit_number()
     checkout_page.select_first_unit_number()
-    checkout_page.click_name_input()
-    checkout_page.select_first_unit_number()
+    checkout_page.wait_for_resident_autofill()
+
     checkout_page.click_continue_button()
 
     checkout_page.search_item("Curtains")
     checkout_page.add_item("Curtains")
+
     checkout_page.click_proceed_to_checkout()
     checkout_page.click_confirm()
 
-    # Reopen and refresh History page to ensure UI state updates
+    # ---------------------------------------------------
+    # Assert (🔥 FIXED)
+    # ---------------------------------------------------
+
+    # 🔥 CRITICAL: force UI refresh
     history_page.open_history()
     history_page.driver.refresh()
 
-    history_page.wait_for_record_count_to_be(initial_count + 1)
+    # 🔥 ensure page ready
+    history_page.wait_for_page_ready()
 
-    # Validate increment
+    expected = initial_count + 1
+
+    # deterministic wait
+    history_page.wait_for_record_count_to_be(expected)
+
     new_count = history_page.get_record_count_number()
 
-    assert new_count > initial_count, \
-        f"History count did not increase. Initial: {initial_count}, New: {new_count}"
+    assert new_count == expected, (
+        f"History count did not increase correctly. "
+        f"Expected: {expected}, Actual: {new_count}"
+    )

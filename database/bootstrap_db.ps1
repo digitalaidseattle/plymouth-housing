@@ -22,6 +22,7 @@ try {
     Invoke-Scripts-In-Folder -Folder "./database/dependencies/"
     Invoke-Scripts-In-Folder -Folder "./database/types/"
     Invoke-Scripts-In-Folder -Folder "./database/procedures/"
+    Invoke-Scripts-In-Folder -Folder "./database/views/"
     Invoke-Scripts-In-Folder -Folder "./database/data_seed/"
     Invoke-Scripts-In-Folder -Folder "./database/data_test/"
     Write-Host "All done."

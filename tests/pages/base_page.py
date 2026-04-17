@@ -1,3 +1,5 @@
+import time
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,22 +14,38 @@ from tests.utilities.locators import CommonLocators, InventoryPageLocators
 
 
 class BasePage:
-
     DEFAULT_TIMEOUT = 20
 
     def __init__(self, driver):
         self.driver = driver
         self.common_locators = CommonLocators
         self.add_locators = InventoryPageLocators
-        self.wait = WebDriverWait(driver, self.DEFAULT_TIMEOUT)
+
+    def wait(self, seconds):
+        time.sleep(seconds)
+
+    # ---------------------------------------------------
+    # Wait Factory
+    # ---------------------------------------------------
+
+    def get_wait(self, timeout=None):
+        return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT)
+
+    # ---------------------------------------------------
+    # Page Ready (GLOBAL)
+    # ---------------------------------------------------
+
+    def wait_for_page_ready(self):
+        self.get_wait().until(
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
 
     # ---------------------------------------------------
     # Core Finders
     # ---------------------------------------------------
 
     def find(self, locator, timeout=None):
-        timeout = timeout or self.DEFAULT_TIMEOUT
-        return WebDriverWait(self.driver, timeout).until(
+        return self.get_wait(timeout).until(
             EC.presence_of_element_located(locator)
         )
 
@@ -35,23 +53,29 @@ class BasePage:
         return self.driver.find_elements(*locator)
 
     # ---------------------------------------------------
-    # Click (Retry + Scroll Safe)
+    # Visibility / Clickable Waits
+    # ---------------------------------------------------
+
+    def wait_for_visibility(self, locator, timeout=None):
+        return self.get_wait(timeout).until(
+            EC.visibility_of_element_located(locator)
+        )
+
+    def wait_for_clickable(self, locator, timeout=None):
+        return self.get_wait(timeout).until(
+            EC.element_to_be_clickable(locator)
+        )
+
+    # ---------------------------------------------------
+    # Click (RETRY + SCROLL + JS FALLBACK)
     # ---------------------------------------------------
 
     def click(self, locator, timeout=None, retries=3):
-        if retries < 1:
-            raise ValueError("retries must be >= 1")
-
         timeout = timeout or self.DEFAULT_TIMEOUT
-        last_exception = None
 
-        for _ in range(retries):
+        for attempt in range(retries):
             try:
-                element = WebDriverWait(
-                    self.driver,
-                    timeout,
-                    ignored_exceptions=(StaleElementReferenceException,),
-                ).until(EC.element_to_be_clickable(locator))
+                element = self.wait_for_visibility(locator, timeout)
 
                 self.driver.execute_script(
                     "arguments[0].scrollIntoView({block:'center'});", element
@@ -65,18 +89,17 @@ class BasePage:
                 return
 
             except (StaleElementReferenceException, TimeoutException) as err:
-                last_exception = err
-
-        raise last_exception or TimeoutException(
-            f"Failed to click element after {retries} retries: {locator}"
-        )
+                if attempt == retries - 1:
+                    raise TimeoutException(
+                        f"Failed to click {locator} after {retries} retries"
+                    ) from err
 
     # ---------------------------------------------------
     # Input
     # ---------------------------------------------------
 
-    def send_keys(self, locator, text):
-        element = self.find(locator)
+    def send_keys(self, locator, text, timeout=None):
+        element = self.wait_for_visibility(locator, timeout)
         element.clear()
         element.send_keys(text)
 
@@ -85,44 +108,21 @@ class BasePage:
     # ---------------------------------------------------
 
     def is_visible(self, locator, timeout=None):
-        timeout = timeout or self.DEFAULT_TIMEOUT
         try:
-            WebDriverWait(self.driver, timeout).until(
-                EC.visibility_of_element_located(locator)
-            )
+            self.wait_for_visibility(locator, timeout)
             return True
         except TimeoutException:
             return False
 
     def is_element_present(self, locator):
-        try:
-            self.driver.find_element(*locator)
-            return True
-        except NoSuchElementException:
-            return False
-
-    # ---------------------------------------------------
-    # Wait Helpers
-    # ---------------------------------------------------
-
-    def wait_for_clickable(self, locator, timeout=None):
-        timeout = timeout or self.DEFAULT_TIMEOUT
-        return WebDriverWait(self.driver, timeout).until(
-            EC.element_to_be_clickable(locator)
-        )
-
-    def wait_for_visibility(self, locator, timeout=None):
-        timeout = timeout or self.DEFAULT_TIMEOUT
-        return WebDriverWait(self.driver, timeout).until(
-            EC.visibility_of_element_located(locator)
-        )
+        return len(self.driver.find_elements(*locator)) > 0
 
     # ---------------------------------------------------
     # Text & Title
     # ---------------------------------------------------
 
     def get_text(self, locator, timeout=None):
-        element = self.find(locator, timeout)
+        element = self.wait_for_visibility(locator, timeout)
         return element.text.strip()
 
     def get_title(self):
@@ -158,27 +158,86 @@ class BasePage:
         self.click(self.add_locators.ADD_BUTTON)
 
     # ---------------------------------------------------
-    # Data Wait
+    # Data Wait (STATE-BASED)
     # ---------------------------------------------------
 
     def wait_for_data_load(self, value, timeout=30):
         locator = (By.XPATH, f"//*[contains(text(), '{value}')]")
-        WebDriverWait(self.driver, timeout).until(
-            EC.presence_of_element_located(locator)
+        self.get_wait(timeout).until(
+            lambda d: len(d.find_elements(*locator)) > 0
         )
 
     # ---------------------------------------------------
-    # Safe Click (Assertion Level)
+    # Autocomplete (STABLE)
     # ---------------------------------------------------
 
-    def safe_click(self, locator, label=None):
-        try:
-            element = self.wait_for_clickable(locator)
-            self.driver.execute_script(
-                "arguments[0].scrollIntoView({block:'center'});", element
+    def select_from_autocomplete(
+            self,
+            input_locator,
+            options_locator,
+            timeout=20
+    ):
+        wait = self.get_wait(timeout)
+
+        # 1. initial locate
+        input_el = wait.until(
+            EC.element_to_be_clickable(input_locator)
+        )
+
+        # scroll + click
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            input_el
+        )
+        input_el.click()
+
+        # 2. WAIT DROPDOWN OPEN (re-find!)
+        wait.until(
+            lambda d: d.find_element(*input_locator).get_attribute("aria-expanded") == "true"
+        )
+
+        # 3. wait options
+        options = wait.until(
+            lambda d: [
+                el for el in d.find_elements(*options_locator)
+                if el.is_displayed() and el.text.strip()
+            ]
+        )
+
+        if not options:
+            raise TimeoutException(
+                f"No visible options found for autocomplete {input_locator}"
             )
-            element.click()
-        except TimeoutException as err:
-            raise AssertionError(
-                f"[ERROR] Could not click on {label or locator}"
-            ) from err
+
+        first_option = options[0]
+        selected_text = first_option.text.strip()
+
+        # 4. click option
+        self.driver.execute_script(
+            "arguments[0].click();",
+            first_option
+        )
+
+        # 5. RE-FIND input after selection (CRITICAL)
+        input_el = wait.until(
+            EC.presence_of_element_located(input_locator)
+        )
+
+        # blur
+        self.driver.execute_script("arguments[0].blur();", input_el)
+
+        # 6. verify value (re-find inside wait)
+        wait.until(
+            lambda d: d.find_element(*input_locator).get_attribute("value") == selected_text
+        )
+
+        # 7. wait dropdown closed (re-find again)
+        wait.until(
+            lambda d: d.find_element(*input_locator).get_attribute("aria-expanded") != "true"
+        )
+
+        return selected_text
+
+    def wait_for_invisibility_of_element(self, locator, timeout=20):
+        wait = self.get_wait(timeout)
+        return wait.until(EC.invisibility_of_element_located(locator))

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { describe, test, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
 
 const savedTZ = process.env.TZ;

@@ -1,5 +1,3 @@
-import { CheckoutRow } from '../../types/interfaces';
-
 const DATE_FORMATS = {
   DATE_ONLY: {
     month: 'short' as const,
@@ -19,52 +17,40 @@ const DATE_FORMATS = {
 };
 
 
-export function formatTransactionDate(timestamp: string, userName?: string): string {
+export function formatTransactionDate(timestamp: string, userName?: string, action = 'Created'): string {
   const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp);
   const dateCreated = new Date(hasTimezone ? timestamp : timestamp + 'Z');
   const now = new Date();
+
+  const actionPart = action ? `${action} ` : '';
 
   const isToday =
     dateCreated.getFullYear() === now.getFullYear() &&
     dateCreated.getMonth() === now.getMonth() &&
     dateCreated.getDate() === now.getDate();
 
-  const timeStr = dateCreated.toLocaleString('en-us', {
+  let datePart = "";
+  if (isToday) {
+    datePart = 'today';
+  }
+  else {
+    datePart = dateCreated.toLocaleString('en-us', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  const timePart = dateCreated.toLocaleString('en-us', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
 
+
   const userNamePart = userName ? `, by ${userName}` : '';
 
-  if (isToday) {
-    return `Created today at ${timeStr}${userNamePart}`;
-  }
-
-  const dateStr = dateCreated.toLocaleString('en-us', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-  return `Created ${dateStr} at ${timeStr}${userNamePart}`;
-}
-
-export function formatTransactionEditDate(
-  corrections?: CheckoutRow[],
-  editorName?: string,
-  includeEditedLabel = true
-): string | null {
-  if (!corrections?.length) return null;
-  const last = corrections[corrections.length - 1];
-  const timeLabel = formatTransactionDate(last.transaction_date).replace('Created ', '');
-  const editorPart = editorName ? `,  by ${editorName}` : '';
-  const editedPart = includeEditedLabel ? 'Edited ' : '';
-  const count = corrections.length;
-  
-  return count === 1
-    ? `${editedPart}${timeLabel}${editorPart}`
-    : `${editedPart}${count} times, last: ${timeLabel}`;
+  return `${actionPart}${datePart} at ${timePart}${userNamePart}`;
 }
 
 export function formatDateRange(startDate: Date, endDate: Date): string {

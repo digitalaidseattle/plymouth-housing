@@ -1,8 +1,13 @@
 import { useState, useContext, useMemo, useEffect, useRef } from 'react';
 import { Box, useTheme, Chip, Button } from '@mui/material';
-import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo, CheckoutTransaction, TransactionItem } from '../../types/interfaces';
+import {
+  CategoryProps,
+  CheckoutItemProp,
+  CheckoutType,
+  ResidentInfo,
+  EditTransactionState,
+} from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
-import { getTransaction } from '../../services/checkoutService';
 import { getLastResidentVisit } from '../../services/residentService';
 import { getRole } from '../../utils/userUtils';
 import { buildItemMap } from '../../utils/transactionUtils';
@@ -24,18 +29,23 @@ import { SPECIAL_ITEMS } from '../../types/constants';
 
 interface CheckoutPageProps {
   checkoutType?: CheckoutType;
-  editTransaction?: CheckoutTransaction;
+  editTransaction?: EditTransactionState;
 }
 
 const CheckoutPage: React.FC<CheckoutPageProps> = ({
   checkoutType = 'general',
-  editTransaction,
+  editTransaction = null,
 }) => {
+  const checkoutTransaction = editTransaction?.originalTransaction ?? null;
   const { user } = useContext(UserContext);
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
+  const {
+    snackbarState,
+    showSnackbar,
+    handleClose: handleSnackbarClose,
+  } = useSnackbar();
 
   const {
     data,
@@ -56,16 +66,17 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const { activeSection, setActiveSection, addItemToCart, removeItemFromCart } =
     useCartOperations({ checkoutItems, setCheckoutItems });
 
+
   const [residentInfo, setResidentInfo] = useState<ResidentInfo>(() =>
-    editTransaction
+    checkoutTransaction
       ? {
-          id: editTransaction.resident_id,
-          name: editTransaction.resident_name,
-          unit: { id: 0, unit_number: editTransaction.unit_number },
+          id: checkoutTransaction.resident_id,
+          name: checkoutTransaction.resident_name,
+          unit: { id: 0, unit_number: checkoutTransaction.unit_number },
           building: {
-            id: editTransaction.building_id,
-            code: editTransaction.building_code,
-            name: editTransaction.building_name,
+            id: checkoutTransaction.building_id,
+            code: checkoutTransaction.building_code,
+            name: checkoutTransaction.building_name,
           },
           lastVisitDate: null,
         }
@@ -78,66 +89,49 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         },
   );
 
-  const originalTransactionId = editTransaction?.transaction_id ?? null;
-  const [originalTransactionItems, setOriginalTransactionItems] = useState<TransactionItem[]>([]);
-  const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(!editTransaction);
+  const [showResidentDetailDialog, setShowResidentDetailDialog] =
+    useState<boolean>(() => !editTransaction);
 
-  // Fetch full transaction details (items + headers) when editing a transaction
+  // Fetch last visit date when editing an existing transaction
   useEffect(() => {
+    if (!checkoutTransaction) return;
     let mounted = true;
-    const fetchTransaction = async () => {
-      if (!editTransaction) return;
+
+    (async () => {
       try {
-          const [transactionResult, visitResult] = await Promise.all([
-            getTransaction(user, editTransaction.transaction_id),
-            getLastResidentVisit(user, editTransaction.resident_id),
-          ]);
-          const detail = transactionResult?.value;
-          const visits = visitResult?.value as Array<{ transaction_date: string }> | undefined;
-          const lastVisitDate = visits?.[0]?.transaction_date ?? null;
-          if (detail && detail.items && Array.isArray(detail.items)) {
-            const items: TransactionItem[] = detail.items;
-            if (mounted) {
-              setOriginalTransactionItems(items);
-              setResidentInfo((prev) => ({
-                id: detail.resident_id ?? prev.id,
-                name: detail.resident_name ?? prev.name,
-                unit: { id: prev.unit.id, unit_number: detail.unit_number ?? prev.unit.unit_number },
-                building: {
-                  id: detail.building_id ?? prev.building.id,
-                  code: detail.building_code ?? prev.building.code,
-                  name: detail.building_name ?? prev.building.name,
-                },
-                lastVisitDate,
-              }));
-            }
-          }
+        const visitResult = await getLastResidentVisit(
+          user,
+          checkoutTransaction.resident_id,
+        );
+        const visits = visitResult?.value as
+          | Array<{ transaction_date: string }>
+          | undefined;
+        const lastVisitDate = visits?.[0]?.transaction_date ?? null;
+
+        if (mounted) {
+          setResidentInfo((prev) => ({ ...prev, lastVisitDate }));
+        }
       } catch {
-        showSnackbar('Failed to load transaction details', 'warning');
+        // lastVisitDate is optional, silently ignore
       }
+    })();
+
+    return () => {
+      mounted = false;
     };
-    fetchTransaction();
-    return () => { mounted = false; };
-  }, [editTransaction, user, showSnackbar]);
+  }, [checkoutTransaction, user]);
 
   // Preload checked-out items into the checkout cart when editing an existing transaction.
-  // This waits until both transaction items and the categorized `data` are loaded, and
-  // will only populate the cart once to avoid overwriting user changes.
-  // Prioritizes effectiveItems (computed current state) over originalTransactionItems.
   const hasPreloadedRef = useRef(false);
   useEffect(() => {
     if (!editTransaction) return;
     if (hasPreloadedRef.current) return;
     if (!data || data.length === 0) return;
 
-    // Filter to only include items with quantity > 0
-    const itemsToLoad = (editTransaction?.effectiveItems ?? originalTransactionItems).filter(
-      (item) => {
-        const { itemQuantity } = buildItemMap(item);
-        return itemQuantity > 0;
-      },
+    const itemsToLoad = editTransaction.effectiveItems.filter(
+      (item) => item.quantity > 0,
     );
-    if (!itemsToLoad || itemsToLoad.length === 0) return;
+    if (itemsToLoad.length === 0) return;
 
     const emptyCart: CategoryProps[] = data.map((category: CategoryProps) => ({
       ...category,
@@ -148,7 +142,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
     itemsToLoad.forEach((item) => {
       const { itemId, itemQuantity, itemNotes, itemDesc } = buildItemMap(item);
-      const sourceCategory = data.find((cat) => (cat.items || []).some((i) => i.id === itemId));
+      const sourceCategory = data.find((cat) =>
+        (cat.items || []).some((i) => i.id === itemId),
+      );
       if (!sourceCategory) return;
       const itemDetails = sourceCategory.items?.find((i) => i.id === itemId);
       if (!itemDetails) return;
@@ -180,32 +176,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
     setCheckoutItems(currentCart);
     hasPreloadedRef.current = true;
-  }, [editTransaction, originalTransactionItems, data, setCheckoutItems]);
-
-  // Baseline for delta calculation in CheckoutDialog. Must match what the cart was preloaded
-  // with: effectiveItems (current state after all corrections) when available, otherwise the
-  // original transaction items from the DB.
-  // Use != null so an empty array is treated as "effective state is 0 items" rather than
-  // falling through to originalTransactionItems (which would produce false deltas).
-  const baselineItems = useMemo((): TransactionItem[] => {
-    if (editTransaction?.effectiveItems != null) {
-      return editTransaction.effectiveItems
-        .filter((item) => item.quantity > 0)
-        .map((item) => ({
-          id: 0,
-          item_id: item.id,
-          quantity: item.quantity,
-          transaction_id: '',
-          additional_notes: item.additional_notes ?? '',
-        }));
-    }
-    return originalTransactionItems;
-  }, [editTransaction, originalTransactionItems]);
+  }, [editTransaction, data, setCheckoutItems]);
 
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
       // lastVisitDate is optional and excluded from validation, all other fields must have values
-      ([key, val]) => key !== 'lastVisitDate' && (val === null || val === undefined || val === ''),
+      ([key, val]) =>
+        key !== 'lastVisitDate' &&
+        (val === null || val === undefined || val === ''),
     ).length > 0;
 
   const { checkoutHistory } = useCheckoutHistory({
@@ -215,9 +193,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     onError: (msg) => showSnackbar(msg, 'error'),
   });
 
-  const [openSummary, setOpenSummary] = useState<boolean>(!!editTransaction);
-  const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
-  const [showPastCheckoutDialog, setShowPastCheckoutDialog] = useState<boolean>(false);
+  const [openSummary, setOpenSummary] = useState<boolean>(!!checkoutTransaction);
+  const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] =
+    useState<boolean>(false);
+  const [showPastCheckoutDialog, setShowPastCheckoutDialog] =
+    useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({
     id: 0,
     name: '',
@@ -258,7 +238,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     }
   };
 
-  const categories = checkoutType === 'general' ? filteredData : welcomeBasketData;
+  const categories =
+    checkoutType === 'general' ? filteredData : welcomeBasketData;
 
   const handleDiscardEdits = () => {
     const userRole = user ? getRole(user) : null;
@@ -278,7 +259,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   return (
     <>
-      {editTransaction && (
+      {checkoutTransaction && (
         <Box sx={{ px: 2, py: 1 }}>
           <Chip
             size="small"
@@ -291,7 +272,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box component="span">Editing transaction</Box>
-                <Button size="small" variant="text" color="primary" onClick={handleDiscardEdits}>
+                <Button
+                  size="small"
+                  variant="text"
+                  color="primary"
+                  onClick={handleDiscardEdits}
+                >
                   Discard
                 </Button>
               </Box>
@@ -302,32 +288,40 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       {showResidentDetailDialog && checkoutType === 'general' && (
         <ResidentDetailDialog
           showDialog={showResidentDetailDialog}
-          handleShowDialog={() => setShowResidentDetailDialog(!showResidentDetailDialog)}
+          handleShowDialog={() =>
+            setShowResidentDetailDialog(!showResidentDetailDialog)
+          }
           buildings={buildings}
           unitNumberValues={unitNumberValues}
           setUnitNumberValues={setUnitNumberValues}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
-          isEditMode={!!editTransaction}
+          isEditMode={!!checkoutTransaction}
           onDiscardEdits={handleDiscardEdits}
         />
       )}
       {showResidentDetailDialog && checkoutType === 'welcomeBasket' && (
         <WelcomeBasketBuildingDialog
           showDialog={showResidentDetailDialog}
-          handleShowDialog={() => setShowResidentDetailDialog(!showResidentDetailDialog)}
+          handleShowDialog={() =>
+            setShowResidentDetailDialog(!showResidentDetailDialog)
+          }
           buildings={buildings}
           setResidentInfo={setResidentInfo}
-          isEditMode={!!editTransaction}
+          isEditMode={!!checkoutTransaction}
           onDiscardEdits={handleDiscardEdits}
         />
       )}
       {showAdditionalNotesDialog && (
         <AdditionalNotesDialog
           showDialog={showAdditionalNotesDialog}
-          handleShowDialog={() => setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
+          handleShowDialog={() =>
+            setShowAdditionalNotesDialog(!showAdditionalNotesDialog)
+          }
           item={selectedItem}
-          addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')} // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
+          addItemToCart={(item) =>
+            addItemToCart(item, 1, 'Appliance', 'general')
+          } // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
           residentInfo={residentInfo}
           checkoutHistory={checkoutHistory}
         />
@@ -335,7 +329,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       {showPastCheckoutDialog && (
         <PastCheckoutDialog
           showDialog={showPastCheckoutDialog}
-          handleShowDialog={() => setShowPastCheckoutDialog(!showPastCheckoutDialog)}
+          handleShowDialog={() =>
+            setShowPastCheckoutDialog(!showPastCheckoutDialog)
+          }
           item={selectedItem}
           addItemToCart={(item) => {
             if (item.id === SPECIAL_ITEMS.RUG) {
@@ -411,9 +407,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
           activeSection={activeSection}
-          originalTransactionId={originalTransactionId}
-          isEditMode={!!editTransaction}
-          originalTransactionItems={baselineItems}
+          editTransaction={editTransaction ?? undefined}
           onDiscardEdits={handleDiscardEdits}
         />
         <SnackbarAlert

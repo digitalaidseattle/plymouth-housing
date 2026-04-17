@@ -1,7 +1,9 @@
 import { getRole } from '../utils/userUtils';
-import { CheckoutItemProp, ClientPrincipal, ResidentInfo, Transaction, TransactionItem } from '../types/interfaces';
+import { CheckoutItemProp, ClientPrincipal, ResidentInfo, TransactionItem, EditTransactionState, CheckoutTransaction } from '../types/interfaces';
 import { ENDPOINTS } from '../types/constants';
 import { apiRequest } from './apiRequest';
+import { getItems } from './itemsService';
+import { computeEffectiveItems } from '../utils/transactionUtils';
 
 export async function processWelcomeBasket(
   newTransactionID: string,
@@ -93,12 +95,12 @@ export async function checkPastCheckout(user: ClientPrincipal | null, residentId
   }
 }
 
-type DabTransactionRow = Omit<Transaction, 'items'> & { items: string };
+type DabTransactionRow = Omit<CheckoutTransaction, 'items'> & { items: string };
 
 export async function getTransaction(
   user: ClientPrincipal | null,
   id: string,
-): Promise<{ value: Transaction | null } | undefined> {
+): Promise<{ value: CheckoutTransaction | null } | undefined> {
   try {
     const result = await apiRequest<DabTransactionRow[]>({
       url: ENDPOINTS.GET_TRANSACTION,
@@ -122,4 +124,45 @@ export async function getTransaction(
     console.error('Error fetching transaction:', error);
     throw error;
   }
+}
+
+// Loads complete transaction data for editing: fetches original transaction details,
+// finds all correction transactions, and computes effective items
+export async function getEditTransactionData(
+  user: ClientPrincipal | null,
+  checkoutTransaction: CheckoutTransaction,
+): Promise<EditTransactionState> {
+  const data: EditTransactionState = {
+    originalTransaction: null,
+    correctionTransactions: [],
+    itemNames: new Map<number, string>(),
+    effectiveItems: [],
+  };
+
+  try {
+    const [transactionResult, itemsResult] = await Promise.all([
+      getTransaction(user, checkoutTransaction.transaction_id),
+      getItems(user),
+    ]);
+
+    data.originalTransaction = transactionResult?.value ?? null;
+    data.correctionTransactions = [];
+    const itemNames = new Map((itemsResult as unknown[]).map((i: unknown) => {
+      const item = i as { id: number; name: string };
+      return [item.id, item.name];
+    }));
+
+    data.itemNames = itemNames;
+
+    data.effectiveItems = computeEffectiveItems(
+      data.originalTransaction,
+      data.correctionTransactions,
+      data.itemNames,
+    );
+
+  } catch (error) {
+    console.error('Error loading transaction data:', error);
+  }
+
+  return data;
 }

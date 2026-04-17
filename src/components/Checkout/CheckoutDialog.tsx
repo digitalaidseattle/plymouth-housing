@@ -13,8 +13,8 @@ import {
 import {
   CategoryProps,
   CheckoutItemProp,
+  EditTransactionState,
   ResidentInfo,
-  TransactionItem,
 } from '../../types/interfaces';
 import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
@@ -44,9 +44,7 @@ type CheckoutDialogProps = {
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
   onError: (message: string) => void;
-  originalTransactionId?: string | null;
-  isEditMode?: boolean;
-  originalTransactionItems?: TransactionItem[];
+  editTransaction?: EditTransactionState;
   onDiscardEdits?: () => void;
 };
 
@@ -64,12 +62,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   residentInfo,
   setResidentInfo,
   onError,
-  originalTransactionId,
-  isEditMode = false,
-  originalTransactionItems = [],
+  editTransaction,
   onDiscardEdits,
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
+  const isEditMode = !!editTransaction;
+  const originalTransactionId =
+    editTransaction?.originalTransaction?.transaction_id ?? null;
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
     CategoryProps[]
   >([]);
@@ -89,19 +88,22 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
+  // Snapshot cart state once when dialog opens. checkoutItems is intentionally excluded
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
-      setStatusMessage('');
-      setCartItems(checkoutItems.flatMap((item) => item.items));
       setTransactionId(crypto.randomUUID());
+      setStatusMessage('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
-      const errors: CategoryProps[] = [];
-      checkoutItems.forEach((category) => {
-        if (category.categoryCount > category.checkout_limit) {
-          errors.push(category);
-        }
-      });
+  useEffect(() => {
+    if (open) {
+      setCartItems(checkoutItems.flatMap((item) => item.items));
+      const errors: CategoryProps[] = checkoutItems.filter(
+        (category) => category.categoryCount > category.checkout_limit,
+      );
       setCategoryLimitErrors(errors);
     }
   }, [open, checkoutItems]);
@@ -134,17 +136,15 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       }
 
       // In edit mode, compute deltas: (cart qty − current state qty) per item.
-      // Current state = what was preloaded (effectiveItems after corrections, or original items if no corrections).
-      // Negatives are valid (item removed or reduced). Zeros are omitted.
+      const effectiveItems = editTransaction?.effectiveItems ?? [];
       const effectiveMap = new Map<
         number,
         { quantity: number; additional_notes: string }
       >();
-      originalTransactionItems.forEach((ei) => {
-        const prev = effectiveMap.get(ei.item_id);
-        effectiveMap.set(ei.item_id, {
-          quantity: (prev?.quantity ?? 0) + ei.quantity,
-          additional_notes: ei.additional_notes,
+      effectiveItems.forEach((ei) => {
+        effectiveMap.set(ei.id, {
+          quantity: ei.quantity,
+          additional_notes: ei.additional_notes ?? '',
         });
       });
 
@@ -154,7 +154,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             cartItems.forEach((item) => cartMap.set(item.id, item));
             const allItemIds = new Set([
               ...cartItems.map((i) => i.id),
-              ...originalTransactionItems.map((ei) => ei.item_id),
+              ...effectiveItems.map((ei) => ei.id),
             ]);
             const deltas: CheckoutItemProp[] = [];
             allItemIds.forEach((itemId) => {

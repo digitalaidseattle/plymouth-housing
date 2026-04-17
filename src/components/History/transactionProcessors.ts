@@ -47,6 +47,8 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
     .filter((row) => row.transaction_type === TransactionType.Checkout)
     .map((row) => {
       const edits = editsByParent.get(row.transaction_id) ?? [];
+      const editsSum = edits.reduce((acc, e) => acc + (e.total_quantity ?? 0), 0);
+      const adjustedTotal = row.total_quantity + editsSum;
       return {
         user_id: row.user_id,
         transaction_id: row.transaction_id,
@@ -57,12 +59,11 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
         building_code: row.building_code,
         building_name: row.building_name,
         transaction_date: row.transaction_date,
-        total_quantity: row.total_quantity,
+        total_quantity: adjustedTotal,
         welcome_basket_item_id: row.welcome_basket_item_id,
         welcome_basket_quantity: row.welcome_basket_quantity,
         item_type: row.welcome_basket_item_id != null ? 'welcome' : 'general',
         is_edited: edits.length > 0,
-        corrections: edits.length > 0 ? edits : undefined,
       };
     });
 }

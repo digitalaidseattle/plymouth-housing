@@ -1,45 +1,34 @@
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Card,
   CardContent,
   Chip,
   CircularProgress,
-  Divider,
   Stack,
   Typography,
   useTheme,
 } from '@mui/material';
-import {
-  SyntheticEvent,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { SyntheticEvent, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTransaction } from '../../services/checkoutService';
-import { getItems } from '../../services/itemsService';
+import { getEditTransactionData } from '../../services/checkoutService';
 import {
   CheckoutTransaction,
-  EditTransactionState,
-  InventoryItem,
-  Transaction,
+  CheckoutItemProp,
   User,
+  EditTransactionState,
 } from '../../types/interfaces';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext';
+import { formatTransactionDate } from './historyUtils';
 import {
-  formatTransactionEditDate,
-  formatTransactionDate,
-} from './historyUtils';
-import { getUserName } from '../../utils/transactionUtils';
-import { signNumber } from '../../utils/textUtils';
-import {
-  computeEffectiveItems,
   getItemName,
   getItemQtyColor,
+  getUserName,
 } from '../../utils/transactionUtils';
-
-// TransactionItemCard
+import { signNumber } from '../../utils/textUtils';
 
 interface TransactionItemCardProps {
   itemName: string;
@@ -53,7 +42,6 @@ const TransactionItemCard: React.FC<TransactionItemCardProps> = ({
   includeSign = false,
 }) => {
   const theme = useTheme();
-
   return (
     <Stack
       direction="row"
@@ -84,8 +72,6 @@ const TransactionItemCard: React.FC<TransactionItemCardProps> = ({
   );
 };
 
-// TransactionDetails Dialog
-
 interface TransactionDetailsProps {
   checkoutTransaction: CheckoutTransaction;
   userList: User[] | null;
@@ -100,87 +86,44 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const { user } = useContext(UserContext);
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
 
   const [loading, setLoading] = useState(false);
-  const [mainTransaction, setMainTransaction] = useState<Transaction | null>(
-    null,
-  );
-  const [correctionTransactions, setCorrectionTransactions] = useState<
-    Transaction[]
-  >([]);
-  const [itemNames, setItemNames] = useState<Map<number, string>>(new Map());
-
-  const corrections = useMemo(
-    () => checkoutTransaction.corrections ?? [],
-    [checkoutTransaction.corrections],
-  );
+  const [editTransaction, setEditTransaction] =
+    useState<EditTransactionState | null>(null);
 
   useEffect(() => {
     if (!showDialog) return;
-
     (async () => {
       setLoading(true);
       try {
-        const [items, main, corrResults] = await Promise.all([
-          getItems(user),
-          getTransaction(user, checkoutTransaction.transaction_id),
-          corrections.length > 0
-            ? Promise.all(
-                corrections.map((c) => getTransaction(user, c.transaction_id)),
-              )
-            : Promise.resolve([]),
-        ]);
-
-        setItemNames(
-          new Map((items as InventoryItem[]).map((i) => [i.id, i.name])),
-        );
-        if (main?.value) setMainTransaction(main.value);
-        if (Array.isArray(corrResults)) {
-          setCorrectionTransactions(
-            corrResults.filter((r) => r?.value).map((r) => r!.value!),
-          );
-        }
+        const data = await getEditTransactionData(user, checkoutTransaction);
+        setEditTransaction(data);
       } catch (error) {
         console.error('Failed to load transaction details:', error);
       } finally {
         setLoading(false);
       }
     })();
-  }, [showDialog, checkoutTransaction.transaction_id, corrections, user]);
-
-  const handleClose = () => {
-    onClose();
-  };
-
-  const effectiveItems = useMemo(
-    () =>
-      computeEffectiveItems(mainTransaction, correctionTransactions, itemNames),
-    [mainTransaction, correctionTransactions, itemNames],
-  );
+  }, [showDialog, checkoutTransaction, user]);
 
   const handleEdit = (e: SyntheticEvent) => {
     e.preventDefault();
-    handleClose();
-
-    const editTransactionState: EditTransactionState = {
-      editTransaction: {
-        ...checkoutTransaction,
-        effectiveItems: effectiveItems,
-      },
-      correctionItems: corrections,
-    };
-
+    onClose();
     navigate('/checkout', {
-      state: editTransactionState,
+      state: { editTransaction },
     });
   };
+
+  const itemNames = editTransaction?.itemNames ?? new Map<number, string>();
+  const effectiveItems = editTransaction?.effectiveItems ?? [];
+  const originalItems = editTransaction?.originalTransaction?.items ?? [];
 
   return (
     <DialogTemplate
       showDialog={showDialog}
-      handleShowDialog={handleClose}
+      handleShowDialog={onClose}
       title="Transaction Details"
       {...(checkoutTransaction.item_type === 'general' && {
         handleSubmit: handleEdit,
@@ -198,13 +141,12 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
         >
           {/* Card 1: Resident Information */}
           <Card
-            elevation={1}
             sx={{
               backgroundColor: theme.palette.grey[50],
               border: `1px solid ${theme.palette.grey[200]}`,
             }}
           >
-            <CardContent sx={{ p: 2, '&:last-child': { p: 2 } }}>
+            <CardContent sx={{ p: 2 }}>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.primary, mb: 1 }}
@@ -215,18 +157,15 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                 variant="body2"
                 sx={{ color: theme.palette.text.primary }}
               >
-                {checkoutTransaction.building_code} -{' '}
-                {checkoutTransaction.building_name} -{' '}
-                {checkoutTransaction.unit_number}
+                {checkoutTransaction.building_code} - {checkoutTransaction.building_name} - {checkoutTransaction.unit_number}
               </Typography>
             </CardContent>
           </Card>
 
           <Stack gap={2} sx={{ overflowY: 'auto', flex: 1, minHeight: 0 }}>
-            {/* Card 2: Current Effective Items (only show if there are edits) */}
-            {corrections.length > 0 && (
+            {/* Card 2: Current Effective Items */}
+            {effectiveItems.length > 0 && (
               <Card
-                elevation={1}
                 sx={{
                   backgroundColor: theme.palette.grey[50],
                   border: `1px solid ${theme.palette.grey[200]}`,
@@ -248,7 +187,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                     <Chip
                       size="small"
                       label={effectiveItems.reduce(
-                        (sum, item) => sum + item.quantity,
+                        (sum, item: CheckoutItemProp) => sum + item.quantity,
                         0,
                       )}
                       sx={{
@@ -262,136 +201,77 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                     />
                   </Stack>
                   <Stack gap={0.75}>
-                    {effectiveItems.length > 0 ? (
-                      effectiveItems.map((item) => (
-                        <TransactionItemCard
-                          key={item.id}
-                          itemName={item.name}
-                          quantity={item.quantity}
-                        />
-                      ))
-                    ) : (
-                      <Typography
-                        variant="body2"
-                        sx={{ color: theme.palette.text.primary }}
-                      >
-                        None
-                      </Typography>
-                    )}
+                    {effectiveItems.map((item: CheckoutItemProp) => (
+                      <TransactionItemCard
+                        key={item.id}
+                        itemName={item.name}
+                        quantity={item.quantity}
+                      />
+                    ))}
                   </Stack>
                 </CardContent>
               </Card>
             )}
 
-            {/* Card 3: History Log (edits stack + original) */}
-            {(mainTransaction?.items?.length ?? 0) > 0 && (
-              <Card
+            {/* Card 3: History Log */}
+            {originalItems.length > 0 && (
+              <Accordion
+                defaultExpanded={effectiveItems.length === 0}
                 elevation={1}
                 sx={{
                   backgroundColor: theme.palette.grey[50],
                   border: `1px solid ${theme.palette.grey[200]}`,
+                  '&:before': { display: 'none' },
+                  borderRadius: 1,
                 }}
               >
-                <CardContent sx={{ p: 2, '&:last-child': { p: 2 } }}>
-                  <Stack gap={1.5}>
-                    <Stack gap={1.5}>
-                      {correctionTransactions.length > 0 && (
-                        <>
-                          {correctionTransactions.map((txn, idx) => {
-                            const correction = corrections[idx];
-                            if (!correction) return null;
-                            const editor = getUserName(
-                              correction.user_id,
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon fontSize="small" />}
+                  sx={{
+                    minHeight: 40,
+                    '& .MuiAccordionSummary-content': { my: 0.5 },
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{ color: theme.palette.text.secondary }}
+                  >
+                    History
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 2, pt: 0 }}>
+                  <Stack gap={0.75}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        fontWeight: 500,
+                      }}
+                    >
+                      {formatTransactionDate(
+                        editTransaction?.originalTransaction
+                          ?.transaction_date ||
+                          checkoutTransaction.transaction_date,
+                        editTransaction?.originalTransaction
+                          ? getUserName(
+                              editTransaction.originalTransaction.user_id,
                               userList,
-                            );
-
-                            return (
-                              <Stack key={txn.transaction_id} gap={0.75}>
-                                {idx > 0 && <Divider sx={{ my: 0.5 }} />}
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: theme.palette.text.secondary,
-                                    fontWeight: 500,
-                                  }}
-                                >
-                                  {formatTransactionEditDate(
-                                    [correction],
-                                    editor,
-                                    false,
-                                  )}
-                                </Typography>
-                                <Stack gap={0.5}>
-                                  {txn.items.length > 0 ? (
-                                    txn.items.map((item) => (
-                                      <TransactionItemCard
-                                        key={`${txn.transaction_id}-${item.id}`}
-                                        itemName={getItemName(
-                                          item.item_id,
-                                          itemNames,
-                                        )}
-                                        quantity={item.quantity}
-                                        includeSign
-                                      />
-                                    ))
-                                  ) : (
-                                    <Typography
-                                      variant="body2"
-                                      sx={{
-                                        color: theme.palette.text.secondary,
-                                      }}
-                                    >
-                                      No item details
-                                    </Typography>
-                                  )}
-                                </Stack>
-                              </Stack>
-                            );
-                          })}
-                          <Divider sx={{ my: 0.5 }} />
-                        </>
-                      )}
-
-                      <Stack gap={0.75}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {formatTransactionDate(
-                            mainTransaction?.transaction_date ||
-                              checkoutTransaction.transaction_date,
-                            mainTransaction
-                              ? getUserName(mainTransaction.user_id, userList)
-                              : undefined,
-                          ).replace('Created ', '')}
-                        </Typography>
-                        <Stack gap={0.5}>
-                          {mainTransaction?.items &&
-                          mainTransaction.items.length > 0 ? (
-                            mainTransaction.items.map((item) => (
-                              <TransactionItemCard
-                                key={item.id}
-                                itemName={getItemName(item.item_id, itemNames)}
-                                quantity={item.quantity}
-                              />
-                            ))
-                          ) : (
-                            <Typography
-                              variant="body2"
-                              sx={{ color: theme.palette.text.secondary }}
-                            >
-                              No item details
-                            </Typography>
-                          )}
-                        </Stack>
-                      </Stack>
+                            )
+                          : undefined,
+                      ).replace('Created ', '')}
+                    </Typography>
+                    <Stack gap={0.5}>
+                      {originalItems.map((item) => (
+                        <TransactionItemCard
+                          key={item.id}
+                          itemName={getItemName(item.item_id, itemNames)}
+                          quantity={item.quantity}
+                        />
+                      ))}
                     </Stack>
                   </Stack>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
             )}
           </Stack>
         </Stack>

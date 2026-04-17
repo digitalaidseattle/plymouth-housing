@@ -1,16 +1,16 @@
-import { CheckoutItemProp, CheckoutTransaction, Transaction, User } from '../types/interfaces';
+import { CheckoutItemProp, CheckoutTransaction, User } from '../types/interfaces';
 import { Palette } from '@mui/material';
 
 export const computeEffectiveItems = (
-  mainTransaction: Transaction | null,
-  correctionTransactions: Transaction[],
+  originalTransaction: CheckoutTransaction | null,
+  correctionTransactions: CheckoutTransaction[],
   itemNames: Map<number, string>,
 ): CheckoutItemProp[] => {
   const itemMap = new Map<number, number>();
 
-  // Start with main transaction quantities for all items
-  if (mainTransaction?.items) {
-    mainTransaction.items.forEach((item) => {
+  // Start with original transaction quantities for all items
+  if (originalTransaction?.items) {
+    originalTransaction.items.forEach((item) => {
       itemMap.set(item.item_id, item.quantity);
     });
   }
@@ -32,17 +32,12 @@ export const computeEffectiveItems = (
     }));
 };
 
-export const buildItemMap = (item: Record<string, unknown>) => {
-  const hasItemId = 'item_id' in item;
-  return {
-    itemId: hasItemId ? item.item_id : item.id,
-    itemQuantity: (item as unknown as { quantity: number }).quantity,
-    itemNotes: hasItemId
-      ? (item as unknown as { additional_notes?: string }).additional_notes
-      : undefined,
-    itemDesc: hasItemId ? '' : ((item as CheckoutItemProp).description ?? ''),
-  };
-};
+export const buildItemMap = (item: CheckoutItemProp) => ({
+  itemId: item.id,
+  itemQuantity: item.quantity,
+  itemNotes: item.additional_notes,
+  itemDesc: item.description ?? '',
+});
 
 export const getItemName = (itemId: number, itemNames: Map<number, string>): string =>
   itemNames.get(itemId) ?? `Item #${itemId}`;
@@ -57,16 +52,4 @@ export const getUserName = (userId: number, userList?: User[] | null): string =>
   return userList?.find((u) => u.id === userId)?.name ?? `User ${userId}`;
 };
 
-export const getEffectiveItemCount = (checkoutTransaction: CheckoutTransaction): number => {
-  // For edited transactions, calculate effective total from effectiveItems
-  if (
-    checkoutTransaction.is_edited &&
-    checkoutTransaction.effectiveItems?.length
-  ) {
-    return checkoutTransaction.effectiveItems
-      .filter((item) => item.quantity > 0)
-      .reduce((sum, item) => sum + item.quantity, 0);
-  }
-  // Otherwise use the original total_quantity
-  return checkoutTransaction.total_quantity;
-};
+

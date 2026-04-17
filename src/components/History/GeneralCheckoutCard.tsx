@@ -1,15 +1,12 @@
 import Chip from '@mui/material/Chip';
 import { Box, Stack } from '@mui/material';
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CheckoutTransaction, User } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import TransactionDetails from './TransactionDetails';
 import { useTheme } from '@mui/material';
 import { UserContext } from '../contexts/UserContext';
 import { SETTINGS } from '../../types/constants';
-import { formatTransactionEditDate } from './historyUtils';
-import { getEffectiveItemCount } from '../../utils/transactionUtils';
 
 type GeneralCheckoutCardProps = {
   checkoutTransaction: CheckoutTransaction;
@@ -23,34 +20,13 @@ const GeneralCheckoutCard = ({
   userList,
 }: GeneralCheckoutCardProps) => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const [showDetails, setShowDetails] = useState(false);
-  const { is_edited, corrections } = checkoutTransaction;
-  const effectiveItemCount = getEffectiveItemCount(checkoutTransaction);
-
-  const latestEditDate = formatTransactionEditDate(corrections);
-  const volunteerEditDate = corrections?.length
-    ? formatTransactionEditDate(corrections, undefined, false)
-    : null;
-  const displayEditDate = user?.userRoles?.includes('admin')
-    ? latestEditDate
-    : volunteerEditDate;
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) return;
-
-    if (user.userRoles.includes('admin')) {
-      setShowDetails(true);
-    } else {
-      navigate('/checkout', {
-        state: {
-          editTransaction: checkoutTransaction,
-          correctionItems: corrections,
-        },
-      });
-    }
+    setShowDetails(true);
   };
 
   return (
@@ -76,23 +52,16 @@ const GeneralCheckoutCard = ({
                 {checkoutTransaction.unit_number}
               </p>
               <p>{howLongAgoString}</p>
-              {is_edited && displayEditDate && <p>{displayEditDate}</p>}
             </div>
             <Chip
               sx={{
-                color:
-                  effectiveItemCount > SETTINGS.checkout_item_limit
-                    ? theme.palette.warning.dark
-                    : theme.palette.success.dark,
-                backgroundColor:
-                  effectiveItemCount > SETTINGS.checkout_item_limit
-                    ? theme.palette.warning.lighter
-                    : theme.palette.success.lighter,
+                color: theme.palette.success.dark,
+                backgroundColor: theme.palette.success.lighter,
               }}
-              label={`${effectiveItemCount} / ${SETTINGS.checkout_item_limit}`}
+              label={`${checkoutTransaction.total_quantity} / ${SETTINGS.checkout_item_limit}`}
             />
           </HistoryCard>
-          {is_edited && (
+          {checkoutTransaction.is_edited && (
             <Chip
               label="Edited"
               size="small"

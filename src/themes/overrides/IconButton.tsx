@@ -12,17 +12,17 @@ export default function IconButton(theme: Theme) {
         sizeLarge: {
           width: theme.spacing(5.5),
           height: theme.spacing(5.5),
-          fontSize: '1.25rem',
+          fontSize: theme.typography.h5.fontSize,
         },
         sizeMedium: {
           width: theme.spacing(4.5),
           height: theme.spacing(4.5),
-          fontSize: '1rem',
+          fontSize: theme.typography.body2.fontSize,
         },
         sizeSmall: {
           width: theme.spacing(3.75),
           height: theme.spacing(3.75),
-          fontSize: '0.75rem',
+          fontSize: theme.typography.caption.fontSize,
         },
       },
     },

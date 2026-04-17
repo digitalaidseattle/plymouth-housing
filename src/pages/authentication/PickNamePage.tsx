@@ -152,7 +152,6 @@ const PickYourNamePage: React.FC = () => {
               sx={{
                 height: '45px',
                 width: '100%',
-                fontSize: '16px',
                 backgroundColor: 'black',
                 color: 'white',
               }}

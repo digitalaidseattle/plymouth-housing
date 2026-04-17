@@ -157,7 +157,7 @@ Follow git flow convention: `{name}/{ticket-number}-brief-description`
 ## API Integration
 
 - API calls through Data API Builder (DAB)
-- Custom `fetchWithRetry` utility for resilient network requests
+- Custom `apiRequest` utility in `src/services/apiRequest.ts` for resilient network requests and retry/spin-up behavior
 - Environment variables for configuration (`.env.local`)
 
 ## Accessibility

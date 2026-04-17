@@ -7,20 +7,20 @@ import React, {
   useEffect,
 } from 'react';
 import { Box, TextField } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled } from '@mui/material/styles';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-const PinInput = styled(TextField)({
+const PinInput = styled(TextField)(({ theme }) => ({
   width: '50px',
   margin: '0 8px',
   textAlign: 'center',
   height: '56px',
   '& input': {
     textAlign: 'center',
-    fontSize: '24px',
+    fontSize: theme.typography.h4.fontSize,
     padding: '10px',
   },
-});
+}));
 
 const PinInputComponent: React.FC<{
   onPinChange: (pin: string[]) => void;

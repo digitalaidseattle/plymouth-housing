@@ -285,7 +285,7 @@ const Inventory = () => {
       {/* Negative item warning */}
       <Box
         id="negative-warning-container"
-        sx={{ display: 'flex', justifyContent: 'start', marginTop: '1rem' }}
+        sx={{ display: 'flex', justifyContent: 'start', mt: 2 }}
       >
         {negativeItemCount > 0 ? (
           <Alert severity="warning">

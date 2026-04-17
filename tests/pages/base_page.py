@@ -1,3 +1,4 @@
+import time
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -19,6 +20,9 @@ class BasePage:
         self.driver = driver
         self.common_locators = CommonLocators
         self.add_locators = InventoryPageLocators
+
+    def wait(self, seconds):
+        time.sleep(seconds)
 
     # ---------------------------------------------------
     # Wait Factory
@@ -233,3 +237,7 @@ class BasePage:
         )
 
         return selected_text
+
+    def wait_for_invisibility_of_element(self, locator, timeout=20):
+        wait = self.get_wait(timeout)
+        return wait.until(EC.invisibility_of_element_located(locator))

@@ -111,8 +111,7 @@ Only add comments if reading the code is insufficient.
 Follow git flow convention: `{name}/{ticket-number}-brief-description`
 
 ### Pull Requests
-- All code merges to `main` through PRs (require one approval)
-- Review existing PRs before starting new work
+- All code merges to `dev` through PRs (require one approval)
 - Treat documentation as code (same standards for Markdown)
 - **ALWAYS use the PR template** (`.github/pull_request_template.md`)
 - Review ALL commits from branch divergence using `git diff [base-branch]...HEAD` to write comprehensive summaries
@@ -165,7 +164,6 @@ Follow git flow convention: `{name}/{ticket-number}-brief-description`
 - Use semantic HTML
 - Include ARIA labels where needed
 - Keyboard navigation support
-- Test with screen readers when implementing new UI
 
 ## Common Pitfalls
 
@@ -173,20 +171,11 @@ Follow git flow convention: `{name}/{ticket-number}-brief-description`
 
 ## Development Workflow
 
-1. Set up database (see `docs/database-setup.md`) and DAB (see `docs/DAB-setup.md`)
-2. Create feature branch following naming convention
-3. Run dev servers (`npx swa start` and `dab start`)
-4. Write tests alongside features
-5. Run linter before committing
-6. Create PR and request review
-
-## Key Principles
-
-- Quality over quantity
-- Make everyone's voice heard
-- Spread expertise across team (no single points of failure)
-- All technical decisions documented via async design reviews in PRs
-- Respect work-life balance in volunteer context
+1. Create feature branch following naming convention
+2. Run dev servers (`npx swa start` and `dab start`)
+3. Write tests alongside features
+4. Run linter before committing
+5. Create PR and request review
 
 ## AI Coding Guidelines
 

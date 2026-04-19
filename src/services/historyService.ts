@@ -2,7 +2,9 @@ import { getRole } from '../utils/userUtils';
 import { ENDPOINTS } from '../types/constants';
 import {
   ClientPrincipal,
+  CheckoutRow,
   CheckoutTransaction,
+  InventoryRow,
   InventoryTransaction,
 } from '../types/interfaces';
 import {
@@ -10,29 +12,6 @@ import {
   mapInventoryRows,
 } from '../components/History/transactionProcessors';
 import { apiRequest } from './apiRequest';
-
-type CheckoutRow = {
-  user_id: number;
-  transaction_id: string;
-  resident_id: number;
-  resident_name: string;
-  unit_number: string;
-  building_id: number;
-  transaction_date: string;
-  total_quantity: number;
-  welcome_basket_item_id: number | null;
-  welcome_basket_quantity: number | null;
-};
-
-type InventoryRow = {
-  user_id: number;
-  transaction_id: string;
-  transaction_type: number;
-  transaction_date: string;
-  item_name: string;
-  category_name: string;
-  quantity: number;
-};
 
 export async function getCheckoutHistory(
   user: ClientPrincipal | null,

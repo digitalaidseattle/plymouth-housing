@@ -4,7 +4,7 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
@@ -26,9 +26,18 @@ const EnterPinPage: React.FC = () => {
   const { loggedInUserId, user, activeVolunteers } = useContext(UserContext);
   const navigate = useNavigate();
 
-  if (!loggedInUserId) {
-    navigate('/pick-your-name');
-  }
+  const handlePinChange = useCallback((newPin: string[]) => {
+    setPin(newPin);
+  }, []);
+
+  const isPinComplete = pin.every((p) => p !== '');
+
+  useEffect(() => {
+    setPin(Array(4).fill('')); // Clear PIN on any loggedInUserId change
+    if (!loggedInUserId) {
+      navigate('/pick-your-name');
+    }
+  }, [loggedInUserId, navigate]);
 
   const getVolunteerName = (id: number | null): string => {
     if (!id) return 'Unknown';
@@ -159,9 +168,8 @@ const EnterPinPage: React.FC = () => {
           component: 'EnterPinPage',
           action: 'pin_failed',
         });
-        // API succeeded but PIN was incorrect
         handleTheSnackies(
-          result.ErrorMessage || 'Incorrect PIN. Please try again.',
+          `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
       }
@@ -175,10 +183,6 @@ const EnterPinPage: React.FC = () => {
     navigate('/pick-your-name');
   };
 
-  const handlePinChange = useCallback((newPin: string[]) => {
-    setPin(newPin);
-  }, []);
-
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
     reason?: string,
@@ -189,6 +193,10 @@ const EnterPinPage: React.FC = () => {
     setOpenSnackbar(false);
   };
 
+  if (!loggedInUserId) {
+    return null;
+  }
+
   return (
     <MinimalWrapper>
       <CenteredLayout>
@@ -197,12 +205,21 @@ const EnterPinPage: React.FC = () => {
             variant="h4"
             textAlign="left"
             sx={{
-              height: '50px',
+              lineHeight: '50px',
+            }}
+          >
+            Welcome, <span id="volunteer-name">{getVolunteerName(loggedInUserId)}!</span>
+          </Typography>
+
+          <Typography
+            variant="h4"
+            textAlign="left"
+            sx={{
               lineHeight: '50px',
               marginBottom: 2,
             }}
           >
-            Enter Your PIN.
+            Enter your PIN
           </Typography>
 
           <Typography
@@ -219,22 +236,23 @@ const EnterPinPage: React.FC = () => {
             {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>
           <Box sx={{ marginBottom: 6 }}>
-            <PinInput onPinChange={handlePinChange} onSubmit={handleNextClick} />
+            <PinInput
+              key={loggedInUserId}
+              onPinChange={handlePinChange}
+              onSubmit={handleNextClick}
+            />
           </Box>
 
           <Button
             variant="contained"
             onClick={handleNextClick}
+            disabled={!isPinComplete}
             sx={{
               height: '45px',
               width: '100%',
-              fontSize: '16px',
               backgroundColor: 'black',
               color: 'white',
               marginTop: 2,
-              '&:hover': {
-                backgroundColor: '#4f4f4f',
-              },
             }}
           >
             Continue

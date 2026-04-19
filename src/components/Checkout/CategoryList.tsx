@@ -111,10 +111,10 @@ const CategoryList: React.FC<CategoryListProps> = ({
       {sectionType === 'welcomeBasket' && (
         <Typography
           id="Welcome Basket"
+          variant="h4"
           sx={{
             paddingLeft: '5%',
             paddingTop: '5%',
-            fontSize: '24px',
             fontWeight: 'bold',
           }}
         >

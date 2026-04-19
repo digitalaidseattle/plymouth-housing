@@ -1,7 +1,8 @@
 DROP TABLE IF EXISTS [dbo].[Residents];
 GO
 
-CREATE TABLE Residents (
+CREATE TABLE Residents
+(
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(255) NOT NULL,
     unit_id INT NOT NULL

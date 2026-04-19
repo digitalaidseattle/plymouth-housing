@@ -6,7 +6,8 @@ CREATE PROCEDURE ProcessCheckout
     @items NVARCHAR(MAX),
     @message NVARCHAR(MAX) = NULL OUTPUT,
     @resident_id INT,
-    @new_transaction_id UNIQUEIDENTIFIER
+    @new_transaction_id UNIQUEIDENTIFIER,
+    @original_transaction_id UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -98,7 +99,8 @@ BEGIN
         DECLARE @CurrentItemId INT
         DECLARE @CurrentQuantity INT
         DECLARE @CurrentAdditionalNotes NVARCHAR(255)
-        
+        DECLARE @transaction_type INT = CASE WHEN @original_transaction_id IS NOT NULL THEN 4 ELSE 1 END
+
         DECLARE item_cursor CURSOR FOR
         SELECT ItemId, Quantity, AdditionalNotes FROM @CartItems
 
@@ -107,9 +109,10 @@ BEGIN
 
         EXEC LogTransaction
             @user_id = @user_id,
-            @transaction_type = 1,
+            @transaction_type = @transaction_type,
             @resident_id = @resident_id,
-            @new_transaction_id = @new_transaction_id;
+            @new_transaction_id = @new_transaction_id,
+            @parent_transaction_id = @original_transaction_id;
 
         WHILE @@FETCH_STATUS = 0
         BEGIN

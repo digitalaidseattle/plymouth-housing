@@ -1,70 +1,91 @@
 // ==============================|| DEFAULT THEME - TYPOGRAPHY  ||============================== //
-// FIXME any?
+
 const Typography = (fontFamily: string) => ({
   htmlFontSize: 16,
+  fontSize: 16,
   fontFamily,
+
   fontWeightLight: 300,
   fontWeightRegular: 400,
   fontWeightMedium: 500,
-  fontWeightBold: 600,
+  fontWeightBold: 700,
+
   h1: {
-    fontWeight: 600,
-    fontSize: '2.375rem',
-    lineHeight: 1.21,
+    fontWeight: 500,
+    fontSize: '2.25rem',
+    lineHeight: 1.2,
+    letterSpacing: '-0.02em',
   },
   h2: {
-    fontWeight: 600,
-    fontSize: '1.875rem',
-    lineHeight: 1.27,
+    fontWeight: 500,
+    fontSize: '2rem',
+    lineHeight: 1.25,
+    letterSpacing: '-0.015em',
   },
   h3: {
     fontWeight: 600,
-    fontSize: '1.5rem',
-    lineHeight: 1.33,
+    fontSize: '1.75rem',
+    lineHeight: 1.3,
   },
   h4: {
+    fontWeight: 600,
+    fontSize: '1.5rem',
+    lineHeight: 1.35,
+  },
+  h5: {
     fontWeight: 600,
     fontSize: '1.25rem',
     lineHeight: 1.4,
   },
-  h5: {
-    fontWeight: 600,
-    fontSize: '1rem',
-    lineHeight: 1.5,
-  },
   h6: {
-    fontWeight: 400,
-    fontSize: '0.875rem',
-    lineHeight: 1.57,
+    fontWeight: 600,
+    fontSize: '1.125rem',
+    lineHeight: 1.45,
   },
-  caption: {
-    fontWeight: 400,
-    fontSize: '0.75rem',
-    lineHeight: 1.66,
-  },
+
   body1: {
-    fontSize: '0.875rem',
-    lineHeight: 1.57,
+    fontWeight: 400,
+    fontSize: '1.125rem',
+    lineHeight: 1.6,
   },
   body2: {
-    fontSize: '0.75rem',
-    lineHeight: 1.66,
+    fontWeight: 400,
+    fontSize: '1rem',
+    lineHeight: 1.6,
   },
+
   subtitle1: {
-    fontSize: '0.875rem',
-    fontWeight: 600,
-    lineHeight: 1.57,
+    fontWeight: 500,
+    fontSize: '1.125rem',
+    lineHeight: 1.5,
+    letterSpacing: '0.015em',
   },
   subtitle2: {
-    fontSize: '0.75rem',
     fontWeight: 500,
-    lineHeight: 1.66,
+    fontSize: '1rem',
+    lineHeight: 1.5,
+    letterSpacing: '0.015em',
   },
+
+  caption: {
+    fontWeight: 400,
+    fontSize: '1rem',
+    lineHeight: 1.45,
+  },
+
   overline: {
-    lineHeight: 1.66,
+    fontWeight: 600,
+    fontSize: '1rem',
+    lineHeight: 1.4,
+    letterSpacing: '0.09em',
+    textTransform: 'uppercase' as const,
   },
+
   button: {
-    textTransform: 'capitalize',
+    fontWeight: 600,
+    fontSize: '1rem',
+    lineHeight: 1.4,
+    textTransform: 'none' as const,
   },
 });
 

@@ -4,7 +4,7 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Box, Toolbar, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -33,6 +33,7 @@ const MainLayout: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(true);
   const navigate = useNavigate();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
+  const navigateTimeoutRef = useRef<number | null>(null);
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
@@ -68,20 +69,31 @@ const MainLayout: React.FC = () => {
             setLoggedInUserId(createdOrUpdatedAdmin.id);
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
-            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
-            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
+            const originalMessage =
+              error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(
+              `Failed to create/update admin account: ${originalMessage}`,
+            );
           }
         }
       } catch (error) {
         console.error('Error in fetchTokenAndVolunteers:', error);
         const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
         showSnackbar(`Authentication error: ${errorMessage}`, 'error');
-        setTimeout(() => {
+        navigateTimeoutRef.current = window.setTimeout(() => {
+          navigateTimeoutRef.current = null;
           navigate('/');
         }, 3000);
       }
     };
     fetchTokenAndRole();
+
+    return () => {
+      if (navigateTimeoutRef.current !== null) {
+        clearTimeout(navigateTimeoutRef.current);
+        navigateTimeoutRef.current = null;
+      }
+    };
 
     // The effect is intended to run only once on mount.
     /* eslint-disable-next-line react-hooks/exhaustive-deps */

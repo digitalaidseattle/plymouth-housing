@@ -92,6 +92,9 @@ const PickYourNamePage: React.FC = () => {
     setSnackbarState((prev) => ({ ...prev, open: false }));
   };
 
+  const isValidVolunteer = (volunteerId: number | null): boolean =>
+    volunteerId !== null && activeVolunteers.some((v) => v.id === volunteerId);
+
   return (
       <MinimalWrapper>
         <CenteredLayout>
@@ -149,14 +152,10 @@ const PickYourNamePage: React.FC = () => {
               sx={{
                 height: '45px',
                 width: '100%',
-                fontSize: '16px',
                 backgroundColor: 'black',
                 color: 'white',
-                '&:hover': {
-                  backgroundColor: '#4f4f4f',
-                },
               }}
-              disabled={isLoading}
+              disabled={isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)}
             >
               Continue
             </Button>

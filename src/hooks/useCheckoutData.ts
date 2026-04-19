@@ -7,7 +7,7 @@ import {
   ClientPrincipal,
   CheckoutType,
 } from '../types/interfaces';
-import { getBuildings } from '../services/checkoutService';
+import { getBuildings } from '../services/residentService';
 import { getCategorizedItems } from '../services/itemsService';
 import { CATEGORY_IDS, WELCOME_BASKET_ITEMS } from '../types/constants';
 

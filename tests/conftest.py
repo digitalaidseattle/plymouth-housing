@@ -1,12 +1,14 @@
 import os
 import pytest
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+
 from tests.pages.checkout_page import CheckOutPage
 from tests.pages.inventory_page import InventoryPage
 from tests.pages.home_page import HomePage
 from tests.pages.login_page import LoginPage
+from tests.pages.history_page import HistoryPage
+
 from tests.utilities.data import (
     URL,
     ADMIN_USERNAME,
@@ -15,7 +17,10 @@ from tests.utilities.data import (
     VOLUNTEER_PASSWORD,
 )
 
-# WebDriver Fixture
+# ---------------------------------------------------
+# WebDriver Fixture ( STABLE)
+# ---------------------------------------------------
+
 @pytest.fixture(scope="function")
 def driver():
     options = Options()
@@ -28,7 +33,8 @@ def driver():
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-notifications")
-        options.add_argument("--blink-settings=imagesEnabled=false")
+        options.add_argument("--disable-infobars")
+        options.add_argument("--disable-blink-features=AutomationControlled")
 
     options.page_load_strategy = "eager"
 
@@ -37,13 +43,17 @@ def driver():
     if os.getenv("CI") != "true":
         driver.maximize_window()
 
-    driver.wait = WebDriverWait(driver, 10)
     driver.get(URL)
 
     yield driver
+
     driver.quit()
 
-# Volunteer Login Fixture
+
+# ---------------------------------------------------
+# Volunteer Login Fixture (FIXED)
+# ---------------------------------------------------
+
 @pytest.fixture(scope="function")
 def login_with_volunteer(driver):
     login_page = LoginPage(driver)
@@ -53,18 +63,28 @@ def login_with_volunteer(driver):
 
     login_page.enter_password(VOLUNTEER_PASSWORD)
     login_page.click_sign_in_button()
-    login_page.click_yes_button()
 
-    login_page.click_person()
-    login_page.select_first_option()
+    login_page.handle_stay_signed_in()
+
+    login_page.wait_for_volunteer_ready()
+
+    login_page.select_volunteer()
+
     login_page.click_continue_button()
 
     login_page.enter_pin()
     login_page.click_continue_button()
 
-    return HomePage(driver)
+    home_page = HomePage(driver)
+    home_page.wait_for_homepage_loaded()
 
+    return home_page
+
+
+# ---------------------------------------------------
 # Admin Login Fixture
+# ---------------------------------------------------
+
 @pytest.fixture(scope="function")
 def admin_home_page(driver):
     login_page = LoginPage(driver)
@@ -74,15 +94,25 @@ def admin_home_page(driver):
 
     login_page.enter_password(ADMIN_PASSWORD)
     login_page.click_sign_in_button()
-    login_page.click_yes_button()
 
-    return HomePage(driver)
+    login_page.handle_stay_signed_in()
 
-from tests.pages.history_page import HistoryPage
+    login_page.wait_for_database_ready()
+
+    home_page = HomePage(driver)
+    home_page.wait_for_homepage_loaded()
+
+    return home_page
+
+
+# ---------------------------------------------------
+# Page Fixtures
+# ---------------------------------------------------
 
 @pytest.fixture(scope="function")
 def history_page(driver):
     return HistoryPage(driver)
+
 
 @pytest.fixture(scope="function")
 def checkout_page(driver):

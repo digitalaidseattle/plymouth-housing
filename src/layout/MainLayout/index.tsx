@@ -4,7 +4,7 @@
  *  @copyright 2024 Digital Aid Seattle
  *
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Box, Toolbar, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -13,10 +13,12 @@ import Drawer from './Drawer';
 import Header from './Header';
 import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 import ScrollTop from '../../components/ScrollTop';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
 import { getAuthMe } from '../../services/authService';
 import { apiRequest } from '../../services/apiRequest';
@@ -30,6 +32,8 @@ const MainLayout: React.FC = () => {
     useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const navigate = useNavigate();
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
+  const navigateTimeoutRef = useRef<number | null>(null);
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
@@ -58,22 +62,35 @@ const MainLayout: React.FC = () => {
           try {
             const createdOrUpdatedAdmin = await upsertAdminUser({
               name: userClaims.userDetails ?? '',
-              email: userClaims.userID ?? '',
+              email: userClaims.userId ?? '',
               claims: userClaims,
             });
             // Now we have an User object with id, name, created_at, last_signed_in
             setLoggedInUserId(createdOrUpdatedAdmin.id);
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
-            //TODO error handling
+            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
           }
         }
       } catch (error) {
         console.error('Error in fetchTokenAndVolunteers:', error);
-        navigate('/');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
+        showSnackbar(`Authentication error: ${errorMessage}`, 'error');
+        navigateTimeoutRef.current = window.setTimeout(() => {
+          navigateTimeoutRef.current = null;
+          navigate('/');
+        }, 3000);
       }
     };
     fetchTokenAndRole();
+
+    return () => {
+      if (navigateTimeoutRef.current !== null) {
+        clearTimeout(navigateTimeoutRef.current);
+        navigateTimeoutRef.current = null;
+      }
+    };
 
     // The effect is intended to run only once on mount.
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -194,6 +211,13 @@ const MainLayout: React.FC = () => {
             <Outlet context={{ drawerOpen }} />
           </Box>
         </Box>
+        <SnackbarAlert
+          open={snackbarState.open}
+          onClose={handleClose}
+          severity={snackbarState.severity}
+        >
+          {snackbarState.message}
+        </SnackbarAlert>
       </ScrollTop>
     </DrawerOpenContext.Provider>
   );

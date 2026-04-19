@@ -77,6 +77,7 @@ class InventoryPageLocators:
 
 
 class CheckoutPageLocators:
+    PLUS_BUTTON = (By.XPATH, "//button[@aria-label='Twin-size Sheet Set']")
     BUILDING_CODE = (By.ID, "select-building")
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
@@ -91,6 +92,18 @@ class CheckoutPageLocators:
     CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
 
     SEARCH = (By.XPATH, "//input[@type='search']")
+
+    # modal header
+    SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
+
+    # over limit warning
+    OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
+
+    # minus button
+    MINUS_BUTTON = (By.XPATH, "//button[.//text()='-']")
+
+    # loading
+    LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")
 
     CHECKOUT_INFO_TEXT = (
         By.XPATH,

@@ -26,7 +26,7 @@ const MainContainer: React.FC<MainContainerProp> = forwardRef(
       <Box 
         ref={ref}
         sx={{
-        padding: '1rem',
+        p: 2,
         minHeight: '100vh',
       }}>
         {title && (

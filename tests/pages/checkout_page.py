@@ -1,4 +1,6 @@
+from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import CheckoutPageLocators, CommonLocators
@@ -32,16 +34,43 @@ class CheckOutPage(BasePage):
     # Dropdown Selections
     # ---------------------------------------------------
 
-    def select_first_building_option(self):
-        self.select_from_autocomplete(
-            self.locators.BUILDING_CODE,
-            self.locators.BUILDING_OPTIONS
-        )
+    from selenium.common.exceptions import TimeoutException
 
-        # Ensure dependent dropdown is enabled
-        self.get_wait(20).until(
-            lambda d: d.find_element(*self.locators.UNIT_NUMBER).is_enabled()
-        )
+    def select_first_building_option(self):
+
+        for attempt in range(2):  # 1 normal + 1 retry
+            try:
+                # open dropdown
+                self.click(self.locators.BUILDING_CODE)
+
+                options = self.get_wait(10).until(
+                    lambda d: [
+                        el for el in d.find_elements(*self.locators.BUILDING_OPTIONS)
+                        if el.is_displayed() and el.text.strip()
+                    ]
+                )
+
+                if options:
+                    self.driver.execute_script("arguments[0].click();", options[0])
+                    return
+
+            except TimeoutException:
+                print(f"⚠️ Building options not loaded (attempt {attempt + 1})")
+
+            #  fallback → refresh + retry
+            if attempt == 0:
+                print("🔄 Refreshing page and retrying...")
+                self.driver.refresh()
+
+                #  wait page ready after refresh
+                self.get_wait(10).until(
+                    lambda d: len(d.find_elements(
+                        By.XPATH, "//*[contains(text(),'Provide Details')]"
+                    )) > 0
+                )
+
+        # ❌ after retry → fail
+        raise Exception("❌ Building options could not be loaded after retry")
 
     def select_first_unit_number(self):
         self.select_from_autocomplete(
@@ -158,3 +187,147 @@ class CheckOutPage(BasePage):
 
         self.click_proceed_to_checkout()
         self.click_confirm()
+
+    def complete_welcome_basket_checkout(self):
+
+        item = "Twin-size Sheet Set"
+
+        # Step 1
+        self.click_checkout("welcome")
+
+        # Step 2
+        self.select_from_autocomplete(
+            self.locators.BUILDING_CODE,
+            self.locators.BUILDING_OPTIONS
+        )
+
+        # Step 3 → Continue (JS click)
+        continue_btn = self.wait_for_clickable(self.locators.CONTINUE_BUTTON)
+        self.driver.execute_script("arguments[0].click();", continue_btn)
+
+        # Step 4 → WAIT FOR LOADING SPINNER TO DISAPPEAR
+        self.get_wait(15).until(
+            EC.invisibility_of_element_located(self.locators.LOADING_SPINNER)
+        )
+
+        # Step 5 → WAIT FOR ITEM-SPECIFIC PLUS BUTTON
+        plus_locator = (
+            By.XPATH,
+            f"//p[@aria-label='{item}']/ancestor::div[contains(@class,'MuiCard')]//button[last()]"
+        )
+
+        self.get_wait(15).until(
+            EC.element_to_be_clickable(plus_locator)
+        )
+
+        # Step 7 → Over-limit test
+        self.set_quantity(6, item)
+
+        # Step 8
+        proceed_btn = self.wait_for_clickable(self.locators.PROCEED_TO_CHECKOUT)
+        self.driver.execute_script("arguments[0].click();", proceed_btn)
+
+        # Step 9 → Summary
+        self.get_wait(15).until(
+            lambda d: d.find_elements(By.XPATH, "//*[contains(text(),'Checkout Summary')]")
+        )
+
+        # Step 10 → Handle over-limit popup
+        if self.is_visible((By.XPATH, "//*[contains(text(),'Over the usual category limit')]")):
+            ok_btn = self.wait_for_clickable(
+                (By.XPATH, "//button[contains(text(),'Staff Said It Is Ok')]")
+            )
+            self.driver.execute_script("arguments[0].click();", ok_btn)
+            self.get_wait(10).until(
+                EC.invisibility_of_element_located(
+                    (By.XPATH, "//*[contains(text(),'Over the usual category limit')]")
+                )
+            )
+
+        # Step 11 → Fix quantity
+        self.set_quantity(5, item)
+
+        # Step 12 → Confirm
+        confirm_btn = self.wait_for_clickable(self.locators.CONFIRM)
+        self.driver.execute_script("arguments[0].click();", confirm_btn)
+
+    def set_quantity(self, target, item_name):
+
+        quantity_locator = (
+            By.XPATH,
+            f"//div[contains(.,'{item_name}')]/ancestor::div[contains(@class,'MuiCard')]//p[@data-testid='test-id-quantity']"
+        )
+
+        def get_qty():
+            try:
+                el = self.driver.find_element(*quantity_locator)
+                return int(el.text.strip())
+            except (NoSuchElementException, ValueError):
+                return 0
+
+        for _ in range(10):
+
+            current = get_qty()
+            print("🔥 Current qty:", current)
+
+            if current == target:
+                return
+
+            if current < target:
+                self.click_plus_button(item_name)
+            else:
+                self.click_minus_button(item_name)
+
+            # small wait for UI update
+            self.wait(0.5)
+
+        raise AssertionError(f"❌ Quantity not set. Current: {get_qty()}")
+
+    def increase_quantity(self, item_name):
+
+        quantity_locator = (
+            By.XPATH,
+            f"//div[contains(.,'{item_name}')]/ancestor::div[contains(@class,'MuiCard')]//p[@data-testid='test-id-quantity']"
+        )
+
+        # click plus button
+        self.click_plus_button(item_name)
+
+        # wait for quantity element to appear
+        self.get_wait(10).until(
+            lambda d: len(d.find_elements(*quantity_locator)) > 0
+        )
+
+        # wait until value increases
+        self.get_wait(10).until(
+            lambda d: int(self.get_text(quantity_locator).strip()) >= 1
+        )
+
+    def click_plus_button(self, item_name):
+
+        locator = (
+            By.XPATH,
+            f"//p[@aria-label='{item_name}']/ancestor::div[contains(@class,'MuiCard')]//button[last()]"
+        )
+
+        btn = self.get_wait(15).until(lambda d: d.find_element(*locator))
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            btn
+        )
+
+        ActionChains(self.driver).move_to_element(btn).pause(0.2).perform()
+
+        self.driver.execute_script("arguments[0].click();", btn)
+
+    def click_minus_button(self, item_name):
+
+        locator = (
+            By.XPATH,
+            f"//div[contains(.,'{item_name}')]/ancestor::div[contains(@class,'MuiCard')]//button[1]"
+        )
+
+        btn = self.get_wait(10).until(lambda d: d.find_element(*locator))
+
+        self.driver.execute_script("arguments[0].click();", btn)

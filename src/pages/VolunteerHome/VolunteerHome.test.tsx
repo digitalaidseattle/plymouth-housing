@@ -47,7 +47,7 @@ vi.mock('../../components/SnackbarAlert.tsx', () => ({
 // Provide a user object that meets the requirements of UserContext
 // (Note: according to the type, userRoles and claims must be provided)
 const mockUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Test User',
   userRoles: ['admin'],
   claims: [],

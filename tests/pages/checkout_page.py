@@ -213,7 +213,8 @@ class CheckOutPage(BasePage):
         # Step 5 → WAIT FOR ITEM-SPECIFIC PLUS BUTTON
         plus_locator = (
             By.XPATH,
-            f"//p[@aria-label='{item}']/ancestor::div[contains(@class,'MuiCard')]//button[last()]"
+            f"//*[contains(@class,'MuiTypography-root') and normalize-space()='{item}']"
+            f"/ancestor::div[contains(@class,'MuiCard-root')]//button[last()]"
         )
 
         self.get_wait(15).until(
@@ -307,7 +308,8 @@ class CheckOutPage(BasePage):
 
         locator = (
             By.XPATH,
-            f"//p[@aria-label='{item_name}']/ancestor::div[contains(@class,'MuiCard')]//button[last()]"
+            f"//*[contains(@class,'MuiTypography-root') and normalize-space()='{item_name}']"
+            f"/ancestor::div[contains(@class,'MuiCard-root')]//button[last()]"
         )
 
         btn = self.get_wait(15).until(lambda d: d.find_element(*locator))

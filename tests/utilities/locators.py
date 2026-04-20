@@ -118,9 +118,9 @@ class CheckoutPageLocators:
     def get_add_button_locator(item_name):
         return (
             By.XPATH,
-            f"//p[@aria-label='{item_name}']"
-            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
-            f"/following-sibling::div//button"
+            f"//*[contains(@class,'MuiTypography-root') and normalize-space()='{item_name}']"
+            f"/ancestor::div[contains(@class,'MuiCard-root')]"
+            f"//button[last()]"
         )
 
 class AddItemPageLocators:

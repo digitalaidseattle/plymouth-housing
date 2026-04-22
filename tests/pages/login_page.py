@@ -24,7 +24,7 @@ class LoginPage(BasePage):
 
         self.wait = WebDriverWait(
             driver,
-            timeout=60,
+            timeout=120,  #  increased from 60 → 120 (cold start safe)
             poll_frequency=1,
             ignored_exceptions=[
                 NoSuchElementException,
@@ -59,7 +59,6 @@ class LoginPage(BasePage):
                     (By.XPATH, "//*[contains(text(),'Stay signed in')]")
                 )
             )
-
             self.click((By.ID, "idSIButton9"))
 
         except TimeoutException:
@@ -78,46 +77,22 @@ class LoginPage(BasePage):
 
         print("Database is ready")
 
-    def wait_for_volunteer_ready(self):
-        print("Waiting for volunteer field to be ready...")
-
-        # 1. Ensure the input is visible
-        input_field = self.wait.until(
-            EC.visibility_of_element_located(LoginPageLocators.USER_PERSON)
-        )
-
-        # 2. aria-expanded should be false → dropdown is closed and stable
-        self.wait.until(lambda d: input_field.get_attribute("aria-expanded") in ["false", None])
-
-        # 3. small stabilization delay (very important for your app)
-        time.sleep(1)
-
-        # 4. re-locate the element (React re-render fix)
-        input_field = self.driver.find_element(*LoginPageLocators.USER_PERSON)
-
-        # 5. use safe condition instead of clickable
-        self.wait.until(
-            lambda d: (
-                          el := d.find_element(*LoginPageLocators.USER_PERSON)
-                      ).get_attribute("aria-expanded") in ["false", None]
-        )
-
-        print("Volunteer field is ready")
-
     # ---------------------------------------------------
-    # Volunteer Selection (Autocomplete)
+    # Volunteer Selection (STABLE VERSION)
     # ---------------------------------------------------
 
     def select_volunteer(self, name="John Doe 1234"):
-        # Volunteer list fetch can be slow on cold container start
+        print("Waiting for volunteer field...")
+
+        #  cold start safe wait (API can be very slow)
         WebDriverWait(self.driver, LoginPage.LOGIN_WAIT_TIMEOUT, poll_frequency=1).until(
             lambda d: d.find_element(*self.locators.USER_PERSON).is_enabled()
         )
+
+        # Always re-locate (React safe)
         input_el = self.wait.until(
             EC.visibility_of_element_located(self.locators.USER_PERSON)
         )
-
-        self.wait.until(lambda d: input_el.is_enabled())
 
         input_el.click()
         input_el.clear()
@@ -125,36 +100,38 @@ class LoginPage(BasePage):
         # Trigger dropdown
         input_el.send_keys(name[:2])
 
-        # Wait for the matching option
+        # Wait for matching option
         option = self.wait.until(
             lambda d: next(
                 (
                     el for el in d.find_elements(*self.locators.NAME_OPTIONS)
                     if el.is_displayed()
-                       and el.text.strip()
-                       and name.lower() in el.text.lower()
+                    and el.text.strip()
+                    and name.lower() in el.text.lower()
                 ),
                 False
             )
         )
 
-        # Click option (JS safer)
+        # JS click (overlay safe)
         self.driver.execute_script("arguments[0].click();", option)
 
-        # RE-FIND input after selection (CRITICAL FIX)
+        #  Re-find after React update
         input_el = self.wait.until(
             EC.presence_of_element_located(self.locators.USER_PERSON)
         )
 
-        # Blur fresh element
+        # Blur to commit value
         self.driver.execute_script("arguments[0].blur();", input_el)
 
-        # Verify selection using fresh lookup (NO stale risk)
+        # Verify selection
         self.wait.until(
             lambda d: name.lower() in d.find_element(
                 *self.locators.USER_PERSON
             ).get_attribute("value").lower()
         )
+
+        print("Volunteer selected successfully")
 
     def click_continue_button(self):
         btn = self.wait.until(

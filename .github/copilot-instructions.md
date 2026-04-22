@@ -111,8 +111,7 @@ Only add comments if reading the code is insufficient.
 Follow git flow convention: `{name}/{ticket-number}-brief-description`
 
 ### Pull Requests
-- All code merges to `main` through PRs (require one approval)
-- Review existing PRs before starting new work
+- All code merges to `dev` through PRs (require one approval)
 - Treat documentation as code (same standards for Markdown)
 - **ALWAYS use the PR template** (`.github/pull_request_template.md`)
 - Review ALL commits from branch divergence using `git diff [base-branch]...HEAD` to write comprehensive summaries

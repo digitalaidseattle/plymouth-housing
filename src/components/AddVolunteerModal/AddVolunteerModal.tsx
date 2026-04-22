@@ -1,8 +1,13 @@
 import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
-import { AddVolunteerModalProps } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { createUser } from '../../services/userService';
+
+type AddVolunteerModalProps = {
+  addModal: boolean;
+  handleAddClose: () => void;
+  fetchData: () => void;
+};
 
 const AddVolunteerModal = ({
   addModal,

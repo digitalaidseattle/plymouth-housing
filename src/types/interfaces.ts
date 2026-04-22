@@ -78,12 +78,6 @@ export interface UserContextType {
   isLoading: boolean;
 }
 
-export type AddVolunteerModalProps = {
-  addModal: boolean;
-  handleAddClose: () => void;
-  fetchData: () => void;
-};
-
 // BaseUser defines the common properties shared by all user types.
 export type BaseUser = {
   id: number;

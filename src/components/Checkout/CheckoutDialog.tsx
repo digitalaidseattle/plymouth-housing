@@ -375,7 +375,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           sx={{ padding: '20px 0px 0px 0px', marginBottom: '1rem' }}
           id="customized-dialog-title"
         >
-          <Typography sx={{ fontSize: '1.5rem' }}>
+          <Typography variant="h4">
             {totalItemLimitExceeded && categoryLimitExceeded
               ? 'Over the usual limits'
               : totalItemLimitExceeded
@@ -442,9 +442,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           sx={{ padding: '20px 0px 0px 0px' }}
           id="customized-dialog-title"
         >
-          <Typography sx={{ fontSize: '1.5rem' }}>
-            Checkout Summary{isEditMode && ' (Editing)'}
-          </Typography>
+          <Typography variant="h4">Checkout Summary{isEditMode && ' (Editing)'}</Typography>
         </DialogTitle>
         <Box
           sx={{

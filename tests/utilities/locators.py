@@ -10,7 +10,7 @@ class CommonLocators:
 
 class HistoryPageLocators:
     HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'records')]")
+    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
     HISTORY_CARDS = (By.XPATH,"//div[contains(@class,'MuiBox-root') and .//h3 and .//p[contains(text(),'Created')]]")
     NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
 
@@ -45,7 +45,7 @@ class LoginPageLocators:
     USER_PERSON = (By.XPATH, "//*[@data-testid='volunteer-name-autocomplete']//input")
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"Continue")]')
     HOMEPAGE_TEXT = (By.XPATH, '//*[text()="Volunteer Home"]')
-    FIRST_OPTION = (By.XPATH, "//ul[contains(@class, 'MuiAutocomplete-listbox')]/li[1]")
+    NAME_OPTIONS = (By.XPATH, "//li[@role='option']")
     INPUT_FIELD_1 = (By.ID, "pin-input-0")
     INPUT_FIELD_2 = (By.ID, "pin-input-1")
     INPUT_FIELD_3 = (By.ID, "pin-input-2")
@@ -77,21 +77,51 @@ class InventoryPageLocators:
 
 
 class CheckoutPageLocators:
+    PLUS_BUTTON = (By.XPATH, "//button[@aria-label='Twin-size Sheet Set']")
     BUILDING_CODE = (By.ID, "select-building")
-    FIRST_LIST_ITEM = (By.CSS_SELECTOR, 'ul[role="listbox"] li[role="option"]')
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
+
+    BUILDING_OPTIONS = (By.XPATH, "//ul[@id='select-building-listbox' and not(contains(@style,'display: none'))]//li")
+    UNIT_OPTIONS = (By.XPATH, "//ul[@id='select-unit-number-listbox']//li")
+    NAME_OPTIONS = (By.XPATH, "//ul[@id='resident-name-autocomplete-listbox']//li")
+
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"continue")]')
-    TWIN_SIZE_BUTTON = (By.XPATH, '//*[text()="Twin-size Sheet Set"]/following::button[1]')
+
     PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(text(), "Proceed to Checkout")]')
     CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
-    SEARCH = (By.XPATH, "//input[@type='search' and @placeholder='Search...' and contains(@class, 'MuiInputBase-input')]")
-    CLEAR_ICON = (By.XPATH, '//div[contains(@class, "MuiInputAdornment-positionEnd")]//svg[contains(@class, "MuiSvgIcon-root")]')
-    CHECKOUT_INFO_TEXT = (By.XPATH, "//*[normalize-space()='Proceed to Checkout' or normalize-space()='Checkout']")
+
+    SEARCH = (By.XPATH, "//input[@type='search']")
+
+    # modal header
+    SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
+
+    # over limit warning
+    OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
+
+    # minus button
+    MINUS_BUTTON = (By.XPATH, "//button[.//text()='-']")
+
+    # loading
+    LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")
+
+    CHECKOUT_INFO_TEXT = (
+        By.XPATH,
+        "//*[normalize-space()='Proceed to Checkout' or normalize-space()='Checkout']"
+    )
+
+    # ---------------------------------------------------
+    # Dynamic Item Add Button
+    # ---------------------------------------------------
+
     @staticmethod
     def get_add_button_locator(item_name):
-        locator = f'''//p[@aria-label='{item_name}']/ancestor::div[contains(@class,"MuiCardContent-root")]/following-sibling::div//button[contains(@class,"MuiIconButton-root")]'''
-        return By.XPATH, locator
+        return (
+            By.XPATH,
+            f"//p[@aria-label='{item_name}']"
+            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
+            f"/following-sibling::div//button"
+        )
 
 class AddItemPageLocators:
     SUBMIT_BUTTON = (By.XPATH, "//button[text()='Submit' or contains(., 'Submit')]")

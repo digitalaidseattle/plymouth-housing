@@ -80,8 +80,8 @@ const CheckoutCard = ({
         {pastCheckout && item.id !== SPECIAL_ITEMS.APPLIANCE_MISC && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: '0.5rem' }} />}
         <Tooltip title={item.name} arrow>
           <Typography
+            variant={removeButton ? 'body2' : 'h5'}
             sx={{
-              fontSize: removeButton ? '14px' : '20px',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',

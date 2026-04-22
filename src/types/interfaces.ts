@@ -45,7 +45,7 @@ export type CheckoutCardProps = {
   disableAdd?: boolean;
   categoryLimit: number;
   categoryName: string;
-  activeSection?: string;
+  checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];
 };
 

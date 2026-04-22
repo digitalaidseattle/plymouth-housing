@@ -78,6 +78,41 @@ describe('formatFullDate', () => {
   });
 });
 
+describe('formatTransactionDate - userName and action params', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('appends ", by <name>" when userName is provided', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-10T09:00:00Z', 'Alice');
+    expect(result).toMatch(/, by Alice$/);
+  });
+
+  test('uses custom action prefix', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-15T14:00:00Z', undefined, 'Edited');
+    expect(result).toMatch(/^Edited today at /);
+  });
+
+  test('omits action prefix when action is empty string', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-15T14:00:00Z', undefined, '');
+    expect(result).toMatch(/^today at /);
+  });
+
+  test('combines custom action and userName', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-10T09:00:00Z', 'Bob', 'Updated');
+    expect(result).toMatch(/^Updated Jun 10, 2025 at /);
+    expect(result).toMatch(/, by Bob$/);
+  });
+});
+
 describe('formatTransactionDate - America/New_York timezone', () => {
   beforeAll(() => {
     process.env.TZ = 'America/New_York';

@@ -409,6 +409,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         <DialogActions sx={{ marginTop: 'auto' }}>
           <Button
             onClick={() => setShowLimitConfirmation(false)}
+            id="checkout-dialog-return-to-summary-btn"
             sx={{
               color: 'black',
               textDecoration: 'underline',
@@ -419,6 +420,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           <Button
             onClick={() => handleConfirm(true)}
             disabled={isProcessing}
+            id="checkout-dialog-override-confirm-btn"
             sx={{
               color: 'black',
               backgroundColor: '#F2F2F2',
@@ -544,6 +546,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             <>
               <Button
                 onClick={onCancelEdits}
+                id="checkout-dialog-cancel-edit-btn"
                 sx={{
                   color: 'black',
                   textDecoration: 'underline',
@@ -553,6 +556,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               </Button>
               <Button
                 onClick={handleCancel}
+                id="checkout-dialog-add-item-btn"
                 sx={{
                   color: 'black',
                 }}
@@ -562,6 +566,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               <Button
                 onClick={() => handleConfirm()}
                 disabled={isProcessing || !hasChanges}
+                id="checkout-dialog-save-btn"
                 sx={{
                   color: 'black',
                   backgroundColor: '#F2F2F2',
@@ -578,6 +583,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             <>
               <Button
                 onClick={handleCancel}
+                id="checkout-dialog-return-btn"
                 sx={{
                   color: 'black',
                   textDecoration: 'underline',
@@ -588,6 +594,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               <Button
                 onClick={() => handleConfirm()}
                 disabled={isProcessing}
+                id="checkout-dialog-confirm-btn"
                 sx={{
                   color: 'black',
                   backgroundColor: '#F2F2F2',

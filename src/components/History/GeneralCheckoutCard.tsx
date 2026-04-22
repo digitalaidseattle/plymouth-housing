@@ -33,6 +33,7 @@ const GeneralCheckoutCard = ({
     <>
       <Stack
         onClick={handleCardClick}
+        id={`checkout-card-${checkoutTransaction.transaction_id}`}
         sx={{
           cursor: 'pointer',
         }}
@@ -66,6 +67,7 @@ const GeneralCheckoutCard = ({
               label="Edited"
               size="small"
               variant="outlined"
+              id={`checkout-card-edited-badge-${checkoutTransaction.transaction_id}`}
               sx={{
                 position: 'absolute',
                 top: 12,

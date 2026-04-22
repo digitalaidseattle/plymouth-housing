@@ -139,7 +139,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
       })}
     >
       {loading ? (
-        <Stack alignItems="center" sx={{ py: 4 }}>
+        <Stack alignItems="center" id="transaction-details-loading" sx={{ py: 4 }}>
           <CircularProgress size={24} />
         </Stack>
       ) : (
@@ -254,6 +254,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
             {originalItems.length > 0 && (
               <Accordion
                 elevation={1}
+                id="transaction-details-history-accordion"
                 sx={{
                   backgroundColor: theme.palette.grey[50],
                   border: `1px solid ${theme.palette.grey[200]}`,

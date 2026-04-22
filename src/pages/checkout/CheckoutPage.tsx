@@ -275,6 +275,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   size="small"
                   variant="text"
                   color="primary"
+                  id="edit-mode-header-cancel-btn"
                   onClick={handleCancelEdits}
                 >
                   Cancel

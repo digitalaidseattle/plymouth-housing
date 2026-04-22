@@ -148,7 +148,7 @@ const WelcomeBasketBuildingDialog = ({
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box component="span">Editing transaction</Box>
-                <Button size="small" variant="text" color="primary" onClick={onCancelEdits}>
+                <Button size="small" variant="text" color="primary" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
                   Cancel
                 </Button>
               </Box>

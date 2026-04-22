@@ -5,8 +5,8 @@ import pytest
 @pytest.mark.smoke
 @pytest.mark.serial
 @pytest.mark.parametrize("item", [
-    "Twin-size sheet set",
-    "Full-size sheet set"])
+    "Twin-size",
+    "Full-size"])
 def test_welcome_basket_checkout(checkout_page, home_page, item):
     """
     Test: Welcome Basket Checkout Flow (End-to-End)

@@ -97,10 +97,11 @@ export async function checkPastCheckout(user: ClientPrincipal | null, residentId
 
 type DabTransactionRow = Omit<CheckoutTransaction, 'items'> & { items: string };
 
+// Fetches a transaction and all its corrections (children). Returns multiple rows:
 export async function getTransaction(
   user: ClientPrincipal | null,
   id: string,
-): Promise<{ value: CheckoutTransaction | null } | undefined> {
+): Promise<{ value: DabTransactionRow[] } | undefined> {
   try {
     const result = await apiRequest<DabTransactionRow[]>({
       url: ENDPOINTS.GET_TRANSACTION,
@@ -109,60 +110,58 @@ export async function getTransaction(
       body: { id },
     });
 
-    if (!result?.value?.length) {
-      return { value: null };
-    }
-
-    const row = result.value[0];
-    return {
-      value: {
-        ...row,
-        items: JSON.parse(row.items) as TransactionItem[],
-      },
-    };
+    return result;
   } catch (error) {
     console.error('Error fetching transaction:', error);
     throw error;
   }
 }
 
-// Loads complete transaction data for editing: fetches original transaction details,
-// finds all correction transactions, and computes effective items
 export async function getEditTransactionData(
   user: ClientPrincipal | null,
   checkoutTransaction: CheckoutTransaction,
 ): Promise<EditTransactionState> {
-  const data: EditTransactionState = {
+  const empty: EditTransactionState = {
     originalTransaction: null,
     correctionTransactions: [],
-    itemNames: new Map<number, string>(),
+    itemNames: new Map(),
     effectiveItems: [],
   };
 
   try {
-    const [transactionResult, itemsResult] = await Promise.all([
+    const [txResult, items] = await Promise.all([
       getTransaction(user, checkoutTransaction.transaction_id),
       getItems(user),
     ]);
 
-    data.originalTransaction = transactionResult?.value ?? null;
-    data.correctionTransactions = [];
-    const itemNames = new Map((itemsResult as unknown[]).map((i: unknown) => {
-      const item = i as { id: number; name: string };
-      return [item.id, item.name];
-    }));
+    const rows = txResult?.value ?? [];
+    if (rows.length === 0) return empty;
 
-    data.itemNames = itemNames;
+    const parseRow = (row: DabTransactionRow, isCorrection: boolean): CheckoutTransaction => {
+      const parsedItems = JSON.parse(row.items) as TransactionItem[];
+      return {
+        ...row,
+        items: parsedItems,
+        item_type: 'general',
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
+        total_quantity: parsedItems.reduce((sum, item) => sum + item.quantity, 0),
+        is_edited: isCorrection,
+      };
+    };
 
-    data.effectiveItems = computeEffectiveItems(
-      data.originalTransaction,
-      data.correctionTransactions,
-      data.itemNames,
-    );
+    const originalTransaction = parseRow(rows[0], false);
+    const correctionTransactions = rows.slice(1).map((row) => parseRow(row, true));
+    const itemNames = new Map(items.map((i) => [i.id, i.name]));
 
+    return {
+      originalTransaction,
+      correctionTransactions,
+      itemNames,
+      effectiveItems: computeEffectiveItems(originalTransaction, correctionTransactions, itemNames),
+    };
   } catch (error) {
     console.error('Error loading transaction data:', error);
+    return empty;
   }
-
-  return data;
 }

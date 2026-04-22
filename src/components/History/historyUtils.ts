@@ -16,7 +16,6 @@ const DATE_FORMATS = {
   },
 };
 
-
 export function formatTransactionDate(timestamp: string, userName?: string, action = 'Created'): string {
   const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp);
   const dateCreated = new Date(hasTimezone ? timestamp : timestamp + 'Z');
@@ -47,7 +46,6 @@ export function formatTransactionDate(timestamp: string, userName?: string, acti
     hour12: true,
   });
 
-
   const userNamePart = userName ? `, by ${userName}` : '';
 
   return `${actionPart}${datePart} at ${timePart}${userNamePart}`;
@@ -62,8 +60,6 @@ export function formatDateRange(startDate: Date, endDate: Date): string {
 export function formatFullDate(date: Date): string {
   return date.toLocaleString('en-us', DATE_FORMATS.FULL_DATE);
 }
-
-
 
 export function getPresetDateRange(preset: string): {
   startDate: Date;

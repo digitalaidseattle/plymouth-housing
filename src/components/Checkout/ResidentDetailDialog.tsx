@@ -24,7 +24,7 @@ type ResidentDetailDialogProps = {
   residentInfo: ResidentInfo;
   setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>;
   isEditMode?: boolean;
-  onDiscardEdits?: () => void;
+  onCancelEdits?: () => void;
 };
 
 const ResidentDetailDialog = ({
@@ -36,7 +36,7 @@ const ResidentDetailDialog = ({
   residentInfo,
   setResidentInfo,
   isEditMode = false,
-  onDiscardEdits,
+  onCancelEdits,
 }: ResidentDetailDialogProps) => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
@@ -149,8 +149,8 @@ const ResidentDetailDialog = ({
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box component="span">Editing transaction</Box>
-                <Button size="small" variant="text" color="primary" onClick={onDiscardEdits}>
-                  Discard
+                <Button size="small" variant="text" color="primary" onClick={onCancelEdits}>
+                  Cancel
                 </Button>
               </Box>
             }

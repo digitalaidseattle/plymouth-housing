@@ -133,12 +133,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     );
     if (itemsToLoad.length === 0) return;
 
-    const emptyCart: CategoryProps[] = data.map((category: CategoryProps) => ({
+    const cart: CategoryProps[] = data.map((category: CategoryProps) => ({
       ...category,
       categoryCount: 0,
       items: [],
     }));
-    const currentCart = emptyCart;
 
     itemsToLoad.forEach((item) => {
       const { itemId, itemQuantity, itemNotes, itemDesc } = buildItemMap(item);
@@ -149,11 +148,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const itemDetails = sourceCategory.items?.find((i) => i.id === itemId);
       if (!itemDetails) return;
 
-      const categoryIndex = currentCart.findIndex(
+      const categoryIndex = cart.findIndex(
         (cat: CategoryProps) => cat.category === sourceCategory.category,
       );
       if (categoryIndex !== -1) {
-        const categoryData = currentCart[categoryIndex];
+        const categoryData = cart[categoryIndex];
         const categoryItems: CheckoutItemProp[] = [...categoryData.items];
         categoryItems.push({
           id: itemDetails.id,
@@ -166,7 +165,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           (acc, currentItem) => acc + currentItem.quantity,
           0,
         );
-        currentCart[categoryIndex] = {
+        cart[categoryIndex] = {
           ...categoryData,
           items: categoryItems,
           categoryCount: newCategoryCount,
@@ -174,7 +173,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       }
     });
 
-    setCheckoutItems(currentCart);
+    setCheckoutItems(cart);
     hasPreloadedRef.current = true;
   }, [editTransaction, data, setCheckoutItems]);
 
@@ -241,12 +240,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const categories =
     checkoutType === 'general' ? filteredData : welcomeBasketData;
 
-  const handleDiscardEdits = () => {
+  const handleCancelEdits = () => {
     const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {
         checkoutSuccess: true,
-        message: 'Changes discarded',
+        message: 'Changes cancelled',
       },
     };
 
@@ -276,9 +275,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   size="small"
                   variant="text"
                   color="primary"
-                  onClick={handleDiscardEdits}
+                  onClick={handleCancelEdits}
                 >
-                  Discard
+                  Cancel
                 </Button>
               </Box>
             }
@@ -297,7 +296,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
           isEditMode={!!checkoutTransaction}
-          onDiscardEdits={handleDiscardEdits}
+          onCancelEdits={handleCancelEdits}
         />
       )}
       {showResidentDetailDialog && checkoutType === 'welcomeBasket' && (
@@ -309,7 +308,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           buildings={buildings}
           setResidentInfo={setResidentInfo}
           isEditMode={!!checkoutTransaction}
-          onDiscardEdits={handleDiscardEdits}
+          onCancelEdits={handleCancelEdits}
         />
       )}
       {showAdditionalNotesDialog && (
@@ -406,9 +405,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           fetchData={fetchData}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
-          activeSection={activeSection}
           editTransaction={editTransaction ?? undefined}
-          onDiscardEdits={handleDiscardEdits}
+          onCancelEdits={handleCancelEdits}
         />
         <SnackbarAlert
           open={snackbarState.open}

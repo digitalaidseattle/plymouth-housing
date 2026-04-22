@@ -40,12 +40,11 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
-  activeSection: string;
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
   onError: (message: string) => void;
   editTransaction?: EditTransactionState;
-  onDiscardEdits?: () => void;
+  onCancelEdits?: () => void;
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
@@ -63,7 +62,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   setResidentInfo,
   onError,
   editTransaction,
-  onDiscardEdits,
+  onCancelEdits,
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const isEditMode = !!editTransaction;
@@ -108,8 +107,30 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     }
   }, [open, checkoutItems]);
 
+  const computeDeltas = () => {
+    const cartMap = new Map<number, CheckoutItemProp>();
+    cartItems.forEach((item) => cartMap.set(item.id, item));
+    const effectiveMap = new Map<number, { quantity: number }>();
+    (editTransaction?.effectiveItems ?? []).forEach((ei) =>
+      effectiveMap.set(ei.id, { quantity: ei.quantity }),
+    );
+    const allIds = new Set([
+      ...cartItems.map((i) => i.id),
+      ...(editTransaction?.effectiveItems ?? []).map((ei) => ei.id),
+    ]);
+    return Array.from(allIds).filter(
+      (id) =>
+        (cartMap.get(id)?.quantity ?? 0) !==
+        (effectiveMap.get(id)?.quantity ?? 0),
+    ).length;
+  };
+
+  const hasChanges = isEditMode && computeDeltas() > 0;
+
   const handleCancel = () => {
-    setCheckoutItems(originalCheckoutItems);
+    if (!isEditMode) {
+      setCheckoutItems(originalCheckoutItems);
+    }
     setStatusMessage('');
     onClose();
   };
@@ -524,13 +545,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           {isEditMode ? (
             <>
               <Button
-                onClick={onDiscardEdits}
+                onClick={onCancelEdits}
                 sx={{
                   color: 'black',
                   textDecoration: 'underline',
                 }}
               >
-                Discard
+                Cancel
               </Button>
               <Button
                 onClick={handleCancel}
@@ -542,7 +563,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               </Button>
               <Button
                 onClick={() => handleConfirm()}
-                disabled={isProcessing}
+                disabled={isProcessing || !hasChanges}
                 sx={{
                   color: 'black',
                   backgroundColor: '#F2F2F2',
@@ -552,7 +573,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   },
                 }}
               >
-                {isProcessing ? 'Working...' : 'Save Changes'}
+                {isProcessing ? 'Working...' : hasChanges ? 'Save Changes' : 'No Changes'}
               </Button>
             </>
           ) : (

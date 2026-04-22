@@ -1,33 +1,20 @@
 import { Chip, useTheme, Box } from '@mui/material';
-import { useContext, useState } from 'react';
-import { CheckoutTransaction, User } from '../../types/interfaces';
+import { CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
-import TransactionDetails from './TransactionDetails';
-import { UserContext } from '../contexts/UserContext';
 import { WELCOME_BASKET_ITEMS } from '../../types/constants';
 
 type WelcomeBasketCardProps = {
   checkoutTransaction: CheckoutTransaction;
   howLongAgoString: string;
-  userList?: User[] | null;
 };
 
 const WelcomeBasketCard = ({
   checkoutTransaction,
   howLongAgoString,
-  userList,
 }: WelcomeBasketCardProps) => {
   const theme = useTheme();
-  const { user } = useContext(UserContext);
-  const [showDetails, setShowDetails] = useState(false);
   const { welcome_basket_item_id, welcome_basket_quantity, is_edited } =
     checkoutTransaction;
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!user) return;
-    setShowDetails(true);
-  };
 
   let welcomeBasketType: string;
   if (welcome_basket_item_id === WELCOME_BASKET_ITEMS.TWIN) {
@@ -44,10 +31,7 @@ const WelcomeBasketCard = ({
 
   return (
     <>
-      <Box
-        onClick={handleCardClick}
-        sx={{ position: 'relative', width: '100%', cursor: 'pointer' }}
-      >
+      <Box sx={{ position: 'relative', width: '100%' }}>
         <HistoryCard transactionId={checkoutTransaction.transaction_id}>
           <div>
             <h3>Welcome Basket: {welcomeBasketType}</h3>
@@ -57,7 +41,6 @@ const WelcomeBasketCard = ({
               {checkoutTransaction.building_name}
             </p>
             <p>{howLongAgoString}</p>
-
           </div>
           <Chip
             sx={{
@@ -90,12 +73,6 @@ const WelcomeBasketCard = ({
           />
         )}
       </Box>
-      <TransactionDetails
-        checkoutTransaction={checkoutTransaction}
-        userList={userList ?? null}
-        showDialog={showDetails}
-        onClose={() => setShowDetails(false)}
-      />
     </>
   );
 };

@@ -28,5 +28,6 @@ BEGIN
     LEFT JOIN Residents R ON T.resident_id = R.id
     LEFT JOIN Units U ON R.unit_id = U.id
     LEFT JOIN Buildings B ON U.building_id = B.id
-    WHERE T.id = @id;
+    WHERE T.id = @id OR T.parent_transaction_id = @id
+    ORDER BY CASE WHEN T.id = @id THEN 0 ELSE 1 END, T.transaction_date;
 END;

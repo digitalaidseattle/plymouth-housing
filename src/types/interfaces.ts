@@ -24,8 +24,6 @@ export type TransactionItem = {
   additional_notes: string;
 };
 
-
-
 export type CategoryProps = {
   id: number;
   category: string;
@@ -222,7 +220,6 @@ export interface EditTransactionState {
   effectiveItems: CheckoutItemProp[];
   itemNames: Map<number, string>;
 }
-
 
 export type TransactionsByUser<T> = {
   user_id: number;

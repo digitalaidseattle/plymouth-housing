@@ -23,7 +23,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   loggedInUserId,
   historyType,
 }) => {
-
   if (transactionsByUser.length === 0) {
     return (
       <p>
@@ -85,7 +84,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
                       howLongAgoString={howLongAgoString}
-                      userList={userList}
                     />
                   );
                 } else if (historyType === 'inventory') {

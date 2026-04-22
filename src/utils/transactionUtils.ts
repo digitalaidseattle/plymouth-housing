@@ -8,7 +8,6 @@ export const computeEffectiveItems = (
 ): CheckoutItemProp[] => {
   const itemMap = new Map<number, number>();
 
-  // Start with original transaction quantities for all items
   if (originalTransaction?.items) {
     originalTransaction.items.forEach((item) => {
       itemMap.set(item.item_id, item.quantity);
@@ -51,5 +50,4 @@ export const getItemQtyColor = (qty: number, palette: Palette) => ({
 export const getUserName = (userId: number, userList?: User[] | null): string => {
   return userList?.find((u) => u.id === userId)?.name ?? `User ${userId}`;
 };
-
 

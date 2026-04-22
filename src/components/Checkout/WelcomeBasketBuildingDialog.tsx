@@ -18,7 +18,7 @@ type WelcomeBasketBuildingDialogProps = {
   buildings: Building[];
   setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>;
   isEditMode?: boolean;
-  onDiscardEdits?: () => void;
+  onCancelEdits?: () => void;
 };
 
 const WelcomeBasketBuildingDialog = ({
@@ -27,7 +27,7 @@ const WelcomeBasketBuildingDialog = ({
   buildings,
   setResidentInfo,
   isEditMode = false,
-  onDiscardEdits,
+  onCancelEdits,
 }: WelcomeBasketBuildingDialogProps) => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
@@ -148,8 +148,8 @@ const WelcomeBasketBuildingDialog = ({
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box component="span">Editing transaction</Box>
-                <Button size="small" variant="text" color="primary" onClick={onDiscardEdits}>
-                  Discard
+                <Button size="small" variant="text" color="primary" onClick={onCancelEdits}>
+                  Cancel
                 </Button>
               </Box>
             }

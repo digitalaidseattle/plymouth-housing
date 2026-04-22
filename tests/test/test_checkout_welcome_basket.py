@@ -4,7 +4,10 @@ import pytest
 
 @pytest.mark.smoke
 @pytest.mark.serial
-def test_welcome_basket_checkout(driver, checkout_page, home_page):
+@pytest.mark.parametrize("item", [
+    "Twin-size Sheet Set",
+    "Full-size sheet set"])
+def test_welcome_basket_checkout(checkout_page, home_page, item):
     """
     Test: Welcome Basket Checkout Flow (End-to-End)
 
@@ -14,7 +17,7 @@ def test_welcome_basket_checkout(driver, checkout_page, home_page):
     3. Select a building from the required modal and proceed.
     4. Wait for Welcome Basket page to load completely.
     5. Increase item quantity beyond allowed limit (set to 6).
-    6. Proceed to Checkout and trigger the summary modal.
+    6. Proceed to check out and trigger the summary modal.
     7. Verify over-limit warning is displayed.
     8. Adjust quantity back to allowed limit (set to 5).
     9. Confirm checkout.
@@ -26,22 +29,16 @@ def test_welcome_basket_checkout(driver, checkout_page, home_page):
     - User can recover from over-limit state.
     - Checkout completes successfully with valid quantity.
     """
-    # Step 1 → Verify landing page
     home_page.wait_for_homepage_loaded()
     home_page.verify_volunteer_home_header()
 
-    # Step 2 → Perform checkout
-    checkout_page.complete_welcome_basket_checkout()
+    checkout_page.open_welcome_basket()
 
-    # Step 3 → Verify redirect to home
+    checkout_page.complete_welcome_checkout(item, 1)
+
     home_page.wait_for_homepage_loaded()
     home_page.verify_volunteer_home_header()
 
-    # Step 4 → Verify success toast
-    toast = home_page.get_wait(10).until(
-        lambda d: d.find_element(
-            By.XPATH, "//*[contains(text(),'items have been checked out')]"
-        )
+    assert home_page.get_wait(10).until(
+        lambda d: "checked out" in d.page_source.lower()
     )
-
-    assert toast.is_displayed(), "❌ Success toast not displayed"

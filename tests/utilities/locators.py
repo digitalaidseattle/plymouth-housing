@@ -77,7 +77,6 @@ class InventoryPageLocators:
 
 
 class CheckoutPageLocators:
-    PLUS_BUTTON = (By.XPATH, "//button[@aria-label='Twin-size Sheet Set']")
     BUILDING_CODE = (By.ID, "select-building")
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
@@ -99,9 +98,6 @@ class CheckoutPageLocators:
     # over limit warning
     OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
 
-    # minus button
-    MINUS_BUTTON = (By.XPATH, "//button[.//text()='-']")
-
     # loading
     LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")
 
@@ -118,9 +114,20 @@ class CheckoutPageLocators:
     def get_add_button_locator(item_name):
         return (
             By.XPATH,
-            f"//*[contains(@class,'MuiTypography-root') and normalize-space()='{item_name}']"
-            f"/ancestor::div[contains(@class,'MuiCard-root')]"
-            f"//button[last()]"
+            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
+            f"//div[contains(@class,'MuiCardActions-root')]"
+            f"//div[contains(@class,'MuiBox-root')]"
+            f"/button[last()]"
+        )
+
+    @staticmethod
+    def get_minus_button_locator(item_name):
+        return (
+            By.XPATH,
+            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
+            f"//div[contains(@class,'MuiCardActions-root')]"
+            f"//div[contains(@class,'MuiBox-root')]"
+            f"/button[1]"
         )
 
 class AddItemPageLocators:

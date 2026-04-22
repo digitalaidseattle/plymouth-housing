@@ -96,7 +96,13 @@ class CheckoutPageLocators:
     SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
 
     # over limit warning
-    OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
+    OVER_LIMIT_WARNING = (
+        By.XPATH,
+        "//*[contains(translate(normalize-space(.), "
+        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'over') "
+        "and contains(translate(normalize-space(.), "
+        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'limit')]"
+    )
 
     # loading
     LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")

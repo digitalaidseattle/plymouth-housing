@@ -183,14 +183,26 @@ class CheckOutPage(BasePage):
         wait = self.get_wait(20)
         locator = self.locators.PROCEED_TO_CHECKOUT
 
-        wait.until(lambda d: len(d.find_elements(*locator)) > 0)
+        def enabled_button(d):
+            btn = d.find_element(*locator)
+            classes = btn.get_attribute("class") or ""
+            aria_disabled = btn.get_attribute("aria-disabled")
 
-        btn = self.driver.find_element(*locator)
+            if (
+                    btn.is_displayed()
+                    and btn.is_enabled()
+                    and "Mui-disabled" not in classes
+                    and aria_disabled != "true"
+            ):
+                return btn
+
+            return False
+
+        btn = wait.until(enabled_button)
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});", btn
         )
-
         self.driver.execute_script("arguments[0].click();", btn)
 
     def click_confirm(self):
@@ -236,16 +248,24 @@ class CheckOutPage(BasePage):
         self.click_confirm()
 
     def handle_limit_popup(self):
-        """
-        Handles 'over the limit' popup safely (non-blocking).
-        """
+        try:
+            return_btn = (
+                By.XPATH,
+                "//button[contains(., 'Return to Checkout Summary')]"
+            )
 
-        if self.is_visible((By.XPATH, "//*[contains(text(),'over the limit')]")):
+            if self.is_visible(return_btn):
+                self.click(return_btn)
+                return
 
-            # Prefer clicking OK / Close if exists
-            if self.is_visible((By.XPATH, "//button[.//text()='OK' or .//text()='Ok' or .//text()='Close']")):
-                self.click((By.XPATH, "//button[.//text()='OK' or .//text()='Ok' or .//text()='Close']"))
+            ok_btn = (
+                By.XPATH,
+                "//button[contains(., 'Staff said it is ok')]"
+            )
 
-            # Fallback: sometimes only Confirm exists
-            elif self.is_visible((By.XPATH, "//button[contains(text(),'Confirm')]")):
-                self.click((By.XPATH, "//button[contains(text(),'Confirm')]"))
+            if self.is_visible(ok_btn):
+                self.click(ok_btn)
+
+        except Exception:
+            # popup yoksa devam et (non-blocking)
+            pass

@@ -26,9 +26,13 @@ def test_welcome_basket_over_limit(checkout_page, home_page, item):
     ), f"❌ Over limit warning not shown for {item}"
 
     # -------------------------
-    # Fix quantity
+    # Handle popup + ensure correct state
     # -------------------------
     checkout_page.handle_limit_popup()
+    checkout_page.get_wait(10).until(
+        lambda d: "welcome basket" in d.page_source.lower()
+    )
+
     checkout_page.decrease_quantity(1, item)
 
     # -------------------------

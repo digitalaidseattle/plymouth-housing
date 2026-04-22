@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import CheckoutPageLocators, CommonLocators
-
+from selenium.webdriver.common.keys import Keys
 
 class CheckOutPage(BasePage):
 
@@ -145,26 +145,25 @@ class CheckOutPage(BasePage):
     # ---------------------------------------------------
 
     def search_item(self, item_name):
-        wait = self.get_wait(20)
+        wait = self.get_wait(15)
 
-        field = wait.until(EC.presence_of_element_located(self.locators.SEARCH))
-        wait.until(EC.element_to_be_clickable(self.locators.SEARCH))
+        field = wait.until(EC.element_to_be_clickable(self.locators.SEARCH))
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
             field
         )
 
-        self.wait(0.5)
-
         field.click()
         field.clear()
 
+        # Ensure input is cleared
         wait.until(lambda d: field.get_attribute("value") == "")
 
-        field.send_keys(item_name)
+        #  CRITICAL: allow UI debounce/reset
+        self.wait(1)
 
-        from selenium.webdriver.common.keys import Keys
+        field.send_keys(item_name)
         field.send_keys(Keys.ENTER)
 
         wait.until(lambda d: item_name.lower() in d.page_source.lower())

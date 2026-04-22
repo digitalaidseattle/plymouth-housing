@@ -5,7 +5,7 @@ import pytest
 @pytest.mark.smoke
 @pytest.mark.serial
 @pytest.mark.parametrize("item", [
-    "Twin-size Sheet Set",
+    "Twin-size sheet set",
     "Full-size sheet set"])
 def test_welcome_basket_checkout(checkout_page, home_page, item):
     """

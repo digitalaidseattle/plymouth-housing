@@ -28,7 +28,7 @@ export function formatTransactionDate(timestamp: string, userName?: string, acti
     dateCreated.getMonth() === now.getMonth() &&
     dateCreated.getDate() === now.getDate();
 
-  let datePart = "";
+  let datePart = '';
   if (isToday) {
     datePart = 'today';
   }

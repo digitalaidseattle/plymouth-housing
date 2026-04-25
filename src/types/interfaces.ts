@@ -243,6 +243,21 @@ export type CheckoutRow = {
   welcome_basket_quantity: number | null;
 };
 
+export type TransactionHistoryRow = {
+  transaction_id: string;
+  user_id: number;
+  transaction_type: number;
+  parent_transaction_id: string | null;
+  resident_id: number;
+  resident_name: string;
+  unit_number: string;
+  building_id: number;
+  building_code: string;
+  building_name: string;
+  transaction_date: string;
+  items: string; // JSON string, parsed to TransactionItem[]
+};
+
 export type InventoryRow = {
   user_id: number;
   transaction_id: string;

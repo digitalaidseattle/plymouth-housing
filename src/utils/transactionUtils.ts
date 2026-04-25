@@ -1,4 +1,4 @@
-import { CheckoutItemProp, CheckoutTransaction, User } from '../types/interfaces';
+import { CheckoutItemProp, CheckoutTransaction, TransactionItem, User } from '../types/interfaces';
 import { Palette } from '@mui/material';
 
 export const computeEffectiveItems = (
@@ -6,28 +6,30 @@ export const computeEffectiveItems = (
   correctionTransactions: CheckoutTransaction[],
   itemNames: Map<number, string>,
 ): CheckoutItemProp[] => {
-  const itemMap = new Map<number, number>();
+  const itemStateMap = new Map<number, TransactionItem>();
 
-  if (originalTransaction?.items) {
-    originalTransaction.items.forEach((item) => {
-      itemMap.set(item.item_id, item.quantity);
+  // Corrections store delta quantities; accumulate original first, then each correction in order.
+  const accumulate = (transactionItems: TransactionItem[]) =>
+    transactionItems.forEach((item) => {
+      const currentItemsState = itemStateMap.get(item.item_id);
+      itemStateMap.set(item.item_id, {
+        ...item,
+        quantity: (currentItemsState?.quantity ?? 0) + item.quantity,
+        additional_notes: item.additional_notes || currentItemsState?.additional_notes || '',
+      });
     });
-  }
 
-  // Apply correction deltas (ProcessCheckout stores and applies delta quantities)
-  correctionTransactions.forEach((txn) => {
-    txn.items?.forEach((item) => {
-      itemMap.set(item.item_id, (itemMap.get(item.item_id) ?? 0) + item.quantity);
-    });
-  });
+  if (originalTransaction?.items) accumulate(originalTransaction.items);
+  correctionTransactions.forEach((t) => t.items && accumulate(t.items));
 
-  return Array.from(itemMap.entries())
-    .filter(([, quantity]) => quantity > 0)
-    .map(([itemId, quantity]) => ({
+  return Array.from(itemStateMap.entries())
+    .filter(([, item]) => item.quantity > 0)
+    .map(([itemId, { quantity, additional_notes }]) => ({
       id: itemId,
       name: itemNames.get(itemId) ?? `Item #${itemId}`,
       quantity,
       description: '',
+      additional_notes,
     }));
 };
 

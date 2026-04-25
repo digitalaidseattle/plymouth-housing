@@ -10,7 +10,6 @@ import {
 import { UserContext } from '../../components/contexts/UserContext';
 import { getLastResidentVisit } from '../../services/residentService';
 import { getRole } from '../../utils/userUtils';
-import { buildItemMap } from '../../utils/transactionUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +28,7 @@ import { SPECIAL_ITEMS } from '../../types/constants';
 
 interface CheckoutPageProps {
   checkoutType?: CheckoutType;
-  editTransaction?: EditTransactionState;
+  editTransaction?: EditTransactionState | null;
 }
 
 const CheckoutPage: React.FC<CheckoutPageProps> = ({
@@ -128,9 +127,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     if (hasPreloadedRef.current) return;
     if (!data || data.length === 0) return;
 
-    const itemsToLoad = editTransaction.effectiveItems.filter(
-      (item) => item.quantity > 0,
-    );
+    const itemsToLoad = editTransaction.effectiveItems;
     if (itemsToLoad.length === 0) return;
 
     const cart: CategoryProps[] = data.map((category: CategoryProps) => ({
@@ -140,12 +137,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     }));
 
     itemsToLoad.forEach((item) => {
-      const { itemId, itemQuantity, itemNotes, itemDesc } = buildItemMap(item);
       const sourceCategory = data.find((cat) =>
-        (cat.items || []).some((i) => i.id === itemId),
+        (cat.items || []).some((i) => i.id === item.id),
       );
       if (!sourceCategory) return;
-      const itemDetails = sourceCategory.items?.find((i) => i.id === itemId);
+      const itemDetails = sourceCategory.items?.find((i) => i.id === item.id);
       if (!itemDetails) return;
 
       const categoryIndex = cart.findIndex(
@@ -157,9 +153,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         categoryItems.push({
           id: itemDetails.id,
           name: itemDetails.name,
-          quantity: itemQuantity,
-          description: itemDesc || itemDetails.description || '',
-          additional_notes: itemNotes,
+          quantity: item.quantity,
+          description: item.description || itemDetails.description || '',
+          additional_notes: item.additional_notes,
         });
         const newCategoryCount = categoryItems.reduce(
           (acc, currentItem) => acc + currentItem.quantity,

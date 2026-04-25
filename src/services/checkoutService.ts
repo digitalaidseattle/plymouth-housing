@@ -1,5 +1,5 @@
 import { getRole } from '../utils/userUtils';
-import { CheckoutItemProp, ClientPrincipal, ResidentInfo, TransactionItem, EditTransactionState, CheckoutTransaction } from '../types/interfaces';
+import { CheckoutItemProp, ClientPrincipal, ResidentInfo, TransactionItem, EditTransactionState, CheckoutTransaction, TransactionHistoryRow } from '../types/interfaces';
 import { ENDPOINTS } from '../types/constants';
 import { apiRequest } from './apiRequest';
 import { getItems } from './itemsService';
@@ -95,15 +95,13 @@ export async function checkPastCheckout(user: ClientPrincipal | null, residentId
   }
 }
 
-type DabTransactionRow = Omit<CheckoutTransaction, 'items'> & { items: string };
-
 // Fetches a transaction and all its corrections (children). Returns multiple rows:
 export async function getTransaction(
   user: ClientPrincipal | null,
   id: string,
-): Promise<{ value: DabTransactionRow[] } | undefined> {
+): Promise<{ value: TransactionHistoryRow[] } | undefined> {
   try {
-    const result = await apiRequest<DabTransactionRow[]>({
+    const result = await apiRequest<TransactionHistoryRow[]>({
       url: ENDPOINTS.GET_TRANSACTION,
       role: getRole(user),
       method: 'POST',
@@ -137,7 +135,7 @@ export async function getEditTransactionData(
     const rows = txResult?.value ?? [];
     if (rows.length === 0) return empty;
 
-    const parseRow = (row: DabTransactionRow, isCorrection: boolean): CheckoutTransaction => {
+    const parseRow = (row: TransactionHistoryRow, isCorrection: boolean): CheckoutTransaction => {
       const parsedItems = JSON.parse(row.items) as TransactionItem[];
       return {
         ...row,

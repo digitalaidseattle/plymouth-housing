@@ -120,12 +120,26 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   const effectiveItems = editTransaction?.effectiveItems ?? [];
   const originalItems = editTransaction?.originalTransaction?.items ?? [];
 
-  const historyEntries: { tx: CheckoutTransaction; isCorrection: boolean }[] = editTransaction
-    ? ([{ tx: editTransaction.originalTransaction as CheckoutTransaction, isCorrection: false }, ...(editTransaction.correctionTransactions ?? []).map((t) => ({ tx: t, isCorrection: true }))])
-    : [{ tx: checkoutTransaction, isCorrection: false }];
+  const historyEntries: {
+    transcation: CheckoutTransaction;
+    isCorrection: boolean;
+  }[] = editTransaction?.originalTransaction
+    ? [
+        {
+          transcation: editTransaction.originalTransaction,
+          isCorrection: false,
+        },
+        ...(editTransaction.correctionTransactions ?? []).map((t) => ({
+          transcation: t,
+          isCorrection: true,
+        })),
+      ]
+    : [{ transcation: checkoutTransaction, isCorrection: false }];
 
   const sortedHistoryEntries = [...historyEntries].sort(
-    (a, b) => new Date(b.tx.transaction_date).getTime() - new Date(a.tx.transaction_date).getTime(),
+    (a, b) =>
+      new Date(b.transcation.transaction_date).getTime() -
+      new Date(a.transcation.transaction_date).getTime(),
   );
 
   return (
@@ -136,10 +150,15 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
       {...(checkoutTransaction.item_type === 'general' && {
         handleSubmit: handleEdit,
         submitButtonText: 'Edit',
+        isSubmitting: loading,
       })}
     >
       {loading ? (
-        <Stack alignItems="center" id="transaction-details-loading" sx={{ py: 4 }}>
+        <Stack
+          alignItems="center"
+          id="transaction-details-loading"
+          sx={{ py: 4 }}
+        >
           <CircularProgress size={24} />
         </Stack>
       ) : (
@@ -276,34 +295,51 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                     History
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails sx={{ p: 2, pt: 0, maxHeight: 240, overflowY: 'auto', pr: 1 }}>
+                <AccordionDetails
+                  sx={{ p: 2, pt: 0, maxHeight: 240, overflowY: 'auto', pr: 1 }}
+                >
                   <Stack gap={1}>
-                    {sortedHistoryEntries.map(({ tx: historyTransaction, isCorrection }, index) => (
-                      <Stack key={historyTransaction.transaction_id ?? index} gap={1}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            fontWeight: 500,
-                          }}
+                    {sortedHistoryEntries.map(
+                      (
+                        { transcation: historyTransaction, isCorrection },
+                        index,
+                      ) => (
+                        <Stack
+                          key={historyTransaction.transaction_id ?? index}
+                          gap={1}
                         >
-                          {formatTransactionDate(
-                            historyTransaction.transaction_date || checkoutTransaction.transaction_date,
-                            historyTransaction.user_id ? getUserName(historyTransaction.user_id, userList) : undefined,
-                          ).replace('Created ', '')}
-                        </Typography>
-                        <Stack gap={0.5}>
-                          {(historyTransaction.items ?? []).map((item) => (
-                            <TransactionItemCard
-                              key={item.id}
-                              itemName={getItemName(item.item_id, itemNames)}
-                              quantity={item.quantity}
-                              includeSign={isCorrection}
-                            />
-                          ))}
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: theme.palette.text.secondary,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {formatTransactionDate(
+                              historyTransaction.transaction_date ||
+                                checkoutTransaction.transaction_date,
+                              historyTransaction.user_id
+                                ? getUserName(
+                                    historyTransaction.user_id,
+                                    userList,
+                                  )
+                                : undefined,
+                              '',
+                            )}
+                          </Typography>
+                          <Stack gap={0.5}>
+                            {(historyTransaction.items ?? []).map((item) => (
+                              <TransactionItemCard
+                                key={item.id}
+                                itemName={getItemName(item.item_id, itemNames)}
+                                quantity={item.quantity}
+                                includeSign={isCorrection}
+                              />
+                            ))}
+                          </Stack>
                         </Stack>
-                      </Stack>
-                    ))}
+                      ),
+                    )}
                   </Stack>
                 </AccordionDetails>
               </Accordion>

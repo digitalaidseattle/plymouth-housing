@@ -29,13 +29,26 @@ const GeneralCheckoutCard = ({
     setShowDetails(true);
   };
 
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!user) return;
+      setShowDetails(true);
+    }
+  };
+
   return (
     <>
       <Stack
         onClick={handleCardClick}
+        onKeyDown={handleCardKeyDown}
+        role="button"
+        tabIndex={user ? 0 : -1}
+        aria-disabled={!user}
         id={`checkout-card-${checkoutTransaction.transaction_id}`}
         sx={{
-          cursor: 'pointer',
+          cursor: user ? 'pointer' : 'default',
         }}
       >
         <Box sx={{ position: 'relative', width: '100%' }}>

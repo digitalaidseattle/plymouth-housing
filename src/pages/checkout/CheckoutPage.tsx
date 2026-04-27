@@ -10,6 +10,7 @@ import {
 import { UserContext } from '../../components/contexts/UserContext';
 import { getLastResidentVisit } from '../../services/residentService';
 import { getRole } from '../../utils/userUtils';
+import { computeCartDeltas } from '../../utils/transactionUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import { useNavigate } from 'react-router-dom';
@@ -64,7 +65,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   const { activeSection, setActiveSection, addItemToCart, removeItemFromCart } =
     useCartOperations({ checkoutItems, setCheckoutItems });
-
 
   const [residentInfo, setResidentInfo] = useState<ResidentInfo>(() =>
     checkoutTransaction
@@ -188,7 +188,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     onError: (msg) => showSnackbar(msg, 'error'),
   });
 
-  const [openSummary, setOpenSummary] = useState<boolean>(!!checkoutTransaction);
+  const [openSummary, setOpenSummary] =
+    useState<boolean>(!!checkoutTransaction);
   const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] =
     useState<boolean>(false);
   const [showPastCheckoutDialog, setShowPastCheckoutDialog] =
@@ -237,10 +238,15 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     checkoutType === 'general' ? filteredData : welcomeBasketData;
 
   const handleCancelEdits = () => {
-    // Check if there are unsaved changes
-    const hasChanges = checkoutItems.some(
-      (category) => category.categoryCount > 0,
-    );
+    // Compare current cart against original effectiveItems
+    const hasChanges =
+      editTransaction && editTransaction.effectiveItems
+        ? computeCartDeltas(
+            checkoutItems.flatMap((cat) => cat.items),
+            editTransaction.effectiveItems,
+          ).length > 0
+        : // In new checkout, check if cart has any items
+          checkoutItems.some((category) => category.categoryCount > 0);
 
     if (hasChanges) {
       const confirmed = window.confirm(

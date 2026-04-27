@@ -22,6 +22,7 @@ import {
   processGeneralItems,
   processWelcomeBasket,
 } from '../../services/checkoutService';
+import { computeCartDeltas } from '../../utils/transactionUtils';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
@@ -107,25 +108,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     }
   }, [open, checkoutItems]);
 
-  const computeDeltas = () => {
-    const cartMap = new Map<number, CheckoutItemProp>();
-    cartItems.forEach((item) => cartMap.set(item.id, item));
-    const effectiveMap = new Map<number, { quantity: number }>();
-    (editTransaction?.effectiveItems ?? []).forEach((ei) =>
-      effectiveMap.set(ei.id, { quantity: ei.quantity }),
-    );
-    const allIds = new Set([
-      ...cartItems.map((i) => i.id),
-      ...(editTransaction?.effectiveItems ?? []).map((ei) => ei.id),
-    ]);
-    return Array.from(allIds).filter(
-      (id) =>
-        (cartMap.get(id)?.quantity ?? 0) !==
-        (effectiveMap.get(id)?.quantity ?? 0),
-    ).length;
-  };
+  const computeDeltas = () =>
+    computeCartDeltas(cartItems, editTransaction?.effectiveItems);
 
-  const hasChanges = isEditMode && computeDeltas() > 0;
+  const hasChanges = isEditMode && computeDeltas().length > 0;
 
   const handleCancel = () => {
     if (!isEditMode) {

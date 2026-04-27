@@ -1,12 +1,13 @@
 import { describe, test, expect } from 'vitest';
 import {
   computeEffectiveItems,
+  computeCartDeltas,
   buildItemMap,
   getItemName,
   getUserName,
   getItemQtyColor,
 } from './transactionUtils';
-import { CheckoutTransaction } from '../types/interfaces';
+import { CheckoutItemProp, CheckoutTransaction } from '../types/interfaces';
 
 const baseTransaction: CheckoutTransaction = {
   building_id: 1,
@@ -189,5 +190,70 @@ describe('getItemQtyColor', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getItemQtyColor(0, palette as any);
     expect(result.isPositive).toBe(false);
+  });
+});
+
+const makeCartItem = (id: number, quantity: number, name = `Item #${id}`): CheckoutItemProp => ({
+  id,
+  name,
+  quantity,
+  description: '',
+});
+
+describe('computeCartDeltas', () => {
+  test('returns empty array when effectiveItems is undefined', () => {
+    const cart = [makeCartItem(1, 2)];
+    expect(computeCartDeltas(cart, undefined)).toEqual([]);
+  });
+
+  test('returns empty array when cart and effective items are identical', () => {
+    const items = [makeCartItem(1, 2), makeCartItem(2, 3)];
+    expect(computeCartDeltas(items, items)).toEqual([]);
+  });
+
+  test('returns cart item when its quantity changed', () => {
+    const cartItem = makeCartItem(1, 5);
+    const effectiveItem = makeCartItem(1, 2);
+    const result = computeCartDeltas([cartItem], [effectiveItem]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBe(cartItem);
+  });
+
+  test('returns effective item when it was removed from cart (qty 0)', () => {
+    const effectiveItem = makeCartItem(1, 3);
+    const result = computeCartDeltas([], [effectiveItem]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBe(effectiveItem);
+  });
+
+  test('returns cart item when it is newly added (not in effective)', () => {
+    const newItem = makeCartItem(2, 1);
+    const effectiveItem = makeCartItem(1, 3);
+    const result = computeCartDeltas([makeCartItem(1, 3), newItem], [effectiveItem]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBe(newItem);
+  });
+
+  test('returns only changed items when multiple items are present', () => {
+    const unchanged = makeCartItem(1, 2);
+    const changed = makeCartItem(2, 5);
+    const effective = [makeCartItem(1, 2), makeCartItem(2, 3)];
+    const result = computeCartDeltas([unchanged, changed], effective);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBe(changed);
+  });
+
+  test('returns both added and removed items when cart diverges significantly', () => {
+    const addedItem = makeCartItem(2, 1);
+    const removedItem = makeCartItem(1, 3);
+    const result = computeCartDeltas([addedItem], [removedItem]);
+    const ids = result.map((i) => i.id);
+    expect(ids).toContain(1);
+    expect(ids).toContain(2);
+    expect(result).toHaveLength(2);
+  });
+
+  test('returns empty array when both cart and effective items are empty', () => {
+    expect(computeCartDeltas([], [])).toEqual([]);
   });
 });

@@ -33,6 +33,37 @@ export const computeEffectiveItems = (
     }));
 };
 
+
+/**
+ * Returns items whose quantity differs between the current cart and the effective items
+ */
+export const computeCartDeltas = (
+  currentCartItems: CheckoutItemProp[],
+  effectiveItems: CheckoutItemProp[] | undefined,
+): CheckoutItemProp[] => {
+  if (!effectiveItems) return [];
+
+  const cartMap = new Map<number, CheckoutItemProp>();
+  currentCartItems.forEach((item) => cartMap.set(item.id, item));
+
+  const effectiveMap = new Map<number, CheckoutItemProp>();
+  effectiveItems.forEach((ei) => effectiveMap.set(ei.id, ei));
+
+  const allIds = new Set([
+    ...currentCartItems.map((i) => i.id),
+    ...effectiveItems.map((ei) => ei.id),
+  ]);
+
+  return Array.from(allIds)
+    .filter(
+      (id) =>
+        (cartMap.get(id)?.quantity ?? 0) !==
+        (effectiveMap.get(id)?.quantity ?? 0),
+    )
+    .map((id) => cartMap.get(id) ?? (effectiveMap.get(id) as CheckoutItemProp));
+};
+
+
 export const buildItemMap = (item: CheckoutItemProp) => ({
   itemId: item.id,
   itemQuantity: item.quantity,
@@ -52,4 +83,3 @@ export const getItemQtyColor = (qty: number, palette: Palette) => ({
 export const getUserName = (userId: number, userList?: User[] | null): string => {
   return userList?.find((u) => u.id === userId)?.name ?? `User ${userId}`;
 };
-

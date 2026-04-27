@@ -96,6 +96,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   useEffect(() => {
     if (!showDialog) return;
     let mounted = true;
+    setEditTransaction(null);
     (async () => {
       setLoading(true);
       try {

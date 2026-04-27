@@ -19,7 +19,7 @@ def checkout_page(driver):
 class TestCheckout:
 
     @pytest.mark.parametrize("item", ["Curtains"])
-    def test_checkout(self, driver, checkout_page, home_page, item):
+    def test_checkout(self, checkout_page, home_page, item):
 
         # ---------------------------------------------------
         # Step 1: Verify landing
@@ -28,48 +28,40 @@ class TestCheckout:
         home_page.verify_volunteer_home_header()
 
         # ---------------------------------------------------
-        # Step 2: Go to checkout
+        # Step 2: Navigate to Checkout
         # ---------------------------------------------------
         home_page.go_to_checkout_general()
 
         # ---------------------------------------------------
-        # Step 3: Fill form (DEPENDENT DROPDOWNS)
+        # Step 3: Fill required form fields
         # ---------------------------------------------------
-
-        # Building
         checkout_page.select_first_building_option()
-
-        # Unit (must wait after building)
         checkout_page.select_first_unit_number()
-
         checkout_page.wait_for_resident_autofill()
 
         # ---------------------------------------------------
-        # Step 4: Continue (SAFE)
+        # Step 4: Continue to item selection
         # ---------------------------------------------------
-        continue_btn = checkout_page.wait_for_clickable(
-            checkout_page.locators.CONTINUE_BUTTON
-        )
-
-        assert continue_btn.is_enabled(), "❌ Continue button is still disabled"
-
-        continue_btn.click()
+        checkout_page.click_continue_button()
 
         # ---------------------------------------------------
-        # Step 5: Add item
+        # Step 5: Search and add item
         # ---------------------------------------------------
         checkout_page.search_item(item)
         checkout_page.add_item(item)
 
+        #  Assert item interaction happened (basic safety)
+        assert item.lower() in checkout_page.driver.page_source.lower(), \
+            f"❌ Item '{item}' not found after search"
+
+        # ---------------------------------------------------
+        # Step 6: Complete checkout
+        # ---------------------------------------------------
         checkout_page.click_proceed_to_checkout()
         checkout_page.click_confirm()
 
         # ---------------------------------------------------
-        # Step 6: Wait for navigation back
+        # Step 7: Verify redirect to home
         # ---------------------------------------------------
         home_page.wait_for_homepage_loaded()
-
-        # ---------------------------------------------------
-        # Final assertion
-        # ---------------------------------------------------
         home_page.verify_volunteer_home_header()

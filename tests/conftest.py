@@ -18,7 +18,7 @@ from tests.utilities.data import (
 )
 
 # ---------------------------------------------------
-# WebDriver Fixture ( STABLE)
+# WebDriver Fixture (STABLE)
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
@@ -51,7 +51,7 @@ def driver():
 
 
 # ---------------------------------------------------
-# Volunteer Login Fixture (FIXED)
+# Volunteer Login Fixture (FINAL)
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
@@ -66,7 +66,7 @@ def login_with_volunteer(driver):
 
     login_page.handle_stay_signed_in()
 
-    login_page.wait_for_volunteer_ready()
+    #  readiness handled inside select_volunteer()
 
     login_page.select_volunteer()
 

@@ -13,6 +13,9 @@ export async function processWelcomeBasket(
   residentInfo: ResidentInfo,
   originalTransactionId?: string | null
 ) {
+  if (originalTransactionId) {
+    throw new Error('Welcome Basket transactions cannot be edited');
+  }
   try {
     const body: Record<string, unknown> = {
       new_transaction_id: newTransactionID,
@@ -22,9 +25,6 @@ export async function processWelcomeBasket(
       resident_id: residentInfo.id,
       message: '',
     };
-    if (originalTransactionId) {
-      body.original_transaction_id = originalTransactionId;
-    }
     const result = await apiRequest({
       url: ENDPOINTS.CHECKOUT_WELCOME_BASKET,
       role: getRole(user),

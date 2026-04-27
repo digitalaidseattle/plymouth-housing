@@ -95,17 +95,21 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
 
   useEffect(() => {
     if (!showDialog) return;
+    let mounted = true;
     (async () => {
       setLoading(true);
       try {
         const data = await getEditTransactionData(user, checkoutTransaction);
-        setEditTransaction(data);
+        if (mounted) setEditTransaction(data);
       } catch (error) {
         console.error('Failed to load transaction details:', error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     })();
+    return () => {
+      mounted = false;
+    };
   }, [showDialog, checkoutTransaction, user]);
 
   const handleEdit = (e: SyntheticEvent) => {
@@ -147,7 +151,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
       showDialog={showDialog}
       handleShowDialog={onClose}
       title="Transaction Details"
-      {...(checkoutTransaction.item_type === 'general' && {
+      {...(checkoutTransaction.item_type === 'general' && editTransaction && {
         handleSubmit: handleEdit,
         submitButtonText: 'Edit',
         isSubmitting: loading,

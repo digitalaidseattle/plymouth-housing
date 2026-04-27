@@ -126,25 +126,25 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   const originalItems = editTransaction?.originalTransaction?.items ?? [];
 
   const historyEntries: {
-    transcation: CheckoutTransaction;
+    transaction: CheckoutTransaction;
     isCorrection: boolean;
   }[] = editTransaction?.originalTransaction
     ? [
         {
-          transcation: editTransaction.originalTransaction,
+          transaction: editTransaction.originalTransaction,
           isCorrection: false,
         },
         ...(editTransaction.correctionTransactions ?? []).map((t) => ({
-          transcation: t,
+          transaction: t,
           isCorrection: true,
         })),
       ]
-    : [{ transcation: checkoutTransaction, isCorrection: false }];
+    : [{ transaction: checkoutTransaction, isCorrection: false }];
 
   const sortedHistoryEntries = [...historyEntries].sort(
     (a, b) =>
-      new Date(b.transcation.transaction_date).getTime() -
-      new Date(a.transcation.transaction_date).getTime(),
+      new Date(b.transaction.transaction_date).getTime() -
+      new Date(a.transaction.transaction_date).getTime(),
   );
 
   return (
@@ -306,7 +306,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                   <Stack gap={1}>
                     {sortedHistoryEntries.map(
                       (
-                        { transcation: historyTransaction, isCorrection },
+                        { transaction: historyTransaction, isCorrection },
                         index,
                       ) => (
                         <Stack

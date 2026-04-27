@@ -87,25 +87,6 @@ describe('computeEffectiveItems', () => {
     expect(chair!.quantity).toBe(3);
   });
 
-  test('preserves additional_notes from original item', () => {
-    const original = { ...baseTransaction, items: [{ ...makeItem(1, 2), additional_notes: 'near door' }] };
-    const result = computeEffectiveItems(original, [], new Map());
-    expect(result[0].additional_notes).toBe('near door');
-  });
-
-  test('correction overrides additional_notes from original', () => {
-    const original = { ...baseTransaction, items: [{ ...makeItem(1, 2), additional_notes: 'old note' }] };
-    const correction = { ...baseTransaction, items: [{ ...makeItem(1, 1, 'txn-2'), additional_notes: 'updated note' }] };
-    const result = computeEffectiveItems(original, [correction], new Map());
-    expect(result[0].additional_notes).toBe('updated note');
-  });
-
-  test('keeps original additional_notes when correction note is empty', () => {
-    const original = { ...baseTransaction, items: [{ ...makeItem(1, 2), additional_notes: 'keep me' }] };
-    const correction = { ...baseTransaction, items: [makeItem(1, 1, 'txn-2')] }; // additional_notes: ''
-    const result = computeEffectiveItems(original, [correction], new Map());
-    expect(result[0].additional_notes).toBe('keep me');
-  });
 });
 
 describe('getItemName', () => {

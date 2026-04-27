@@ -258,7 +258,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {
-        checkoutSuccess: true,
+        checkoutSuccess: false,
         message: 'Changes cancelled',
       },
     };

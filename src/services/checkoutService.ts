@@ -160,6 +160,6 @@ export async function getEditTransactionData(
     };
   } catch (error) {
     console.error('Error loading transaction data:', error);
-    return empty;
+    throw error;
   }
 }

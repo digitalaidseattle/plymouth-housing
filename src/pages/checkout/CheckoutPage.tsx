@@ -237,6 +237,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     checkoutType === 'general' ? filteredData : welcomeBasketData;
 
   const handleCancelEdits = () => {
+    // Check if there are unsaved changes
+    const hasChanges = checkoutItems.some(
+      (category) => category.categoryCount > 0,
+    );
+
+    if (hasChanges) {
+      const confirmed = window.confirm(
+        'You have unsaved changes. Are you sure you want to discard them?',
+      );
+      if (!confirmed) return;
+    }
+
     const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {

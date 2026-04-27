@@ -15,7 +15,7 @@ export const computeEffectiveItems = (
       itemStateMap.set(item.item_id, {
         ...item,
         quantity: (currentItemsState?.quantity ?? 0) + item.quantity,
-        additional_notes: item.additional_notes !== undefined ? item.additional_notes : currentItemsState?.additional_notes || '',
+        additional_notes: item.additional_notes && item.additional_notes.trim() ? item.additional_notes : currentItemsState?.additional_notes || '',
       });
     });
 

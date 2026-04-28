@@ -174,7 +174,17 @@ class InventoryPage(BasePage):
 
     def set_new_quantity(self, value: str):
         locator = (By.XPATH, "//input[@type='number']")
-        self.send_keys(locator, value)
+
+        field = self.wait.until(
+            EC.element_to_be_clickable(locator)
+        )
+
+        #  clear safely (React/MUI friendly)
+        field.send_keys(Keys.CONTROL + "a")
+        field.send_keys(Keys.DELETE)
+
+        #  enter new value
+        field.send_keys(value)
 
     def select_reason(self, reason="Correction"):
         locator = (By.XPATH, f"//*[normalize-space()='{reason}']")

@@ -53,7 +53,10 @@ class LoginPage(BasePage):
         input_el.send_keys(username)
 
         # ensure value typed
-        self.wait.until(lambda d: input_el.get_attribute("value") != "")
+        self.wait.until(
+            lambda d: d.find_element(*self.locators.USERNAME_INPUT)
+                      .get_attribute("value") != ""
+        )
 
     def click_next_button(self):
         wait = WebDriverWait(self.driver, 20)
@@ -63,7 +66,9 @@ class LoginPage(BasePage):
         )
 
         # wait until enabled
-        wait.until(lambda d: button.is_enabled())
+        wait.until(
+            lambda d: d.find_element(*self.locators.NEXT_BUTTON).is_enabled()
+        )
 
         # JS click (Azure safe)
         self.driver.execute_script("arguments[0].click();", button)
@@ -84,7 +89,10 @@ class LoginPage(BasePage):
         input_el.clear()
         input_el.send_keys(password)
 
-        self.wait.until(lambda d: input_el.get_attribute("value") != "")
+        self.wait.until(
+            lambda d: d.find_element(*self.locators.PASSWORD_INPUT)
+                      .get_attribute("value") != ""
+        )
 
     def click_sign_in_button(self):
         wait = WebDriverWait(self.driver, 20)
@@ -93,7 +101,9 @@ class LoginPage(BasePage):
             EC.presence_of_element_located(self.locators.SIGN_IN_BUTTON)
         )
 
-        wait.until(lambda d: button.is_enabled())
+        wait.until(
+            lambda d: d.find_element(*self.locators.SIGN_IN_BUTTON).is_enabled()
+        )
 
         self.driver.execute_script("arguments[0].click();", button)
 
@@ -146,7 +156,8 @@ class LoginPage(BasePage):
 
         # dropdown opened
         self.wait.until(
-            lambda d: input_el.get_attribute("aria-expanded") == "true"
+            lambda d: d.find_element(*self.locators.USER_PERSON)
+                      .get_attribute("aria-expanded") == "true"
         )
 
         # options loaded

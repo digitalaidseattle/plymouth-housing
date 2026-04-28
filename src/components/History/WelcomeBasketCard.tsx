@@ -1,4 +1,4 @@
-import { Chip, useTheme, Box } from '@mui/material';
+import { Chip, useTheme } from '@mui/material';
 import { CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import { WELCOME_BASKET_ITEMS } from '../../types/constants';
@@ -13,8 +13,7 @@ const WelcomeBasketCard = ({
   howLongAgoString,
 }: WelcomeBasketCardProps) => {
   const theme = useTheme();
-  const { welcome_basket_item_id, welcome_basket_quantity, is_edited } =
-    checkoutTransaction;
+  const { welcome_basket_item_id, welcome_basket_quantity } = checkoutTransaction;
 
   let welcomeBasketType: string;
   if (welcome_basket_item_id === WELCOME_BASKET_ITEMS.TWIN) {
@@ -30,50 +29,30 @@ const WelcomeBasketCard = ({
   const numberOfBaskets = welcome_basket_quantity ?? 0;
 
   return (
-    <>
-      <Box sx={{ position: 'relative', width: '100%' }}>
-        <HistoryCard transactionId={checkoutTransaction.transaction_id}>
-          <div>
-            <h3>Welcome Basket: {welcomeBasketType}</h3>
-            <p>
-              {checkoutTransaction.building_code}
-              {' - '}
-              {checkoutTransaction.building_name}
-            </p>
-            <p>{howLongAgoString}</p>
-          </div>
-          <Chip
-            sx={{
-              color:
-                numberOfBaskets > 5
-                  ? theme.palette.warning.dark
-                  : theme.palette.success.dark,
-              backgroundColor:
-                numberOfBaskets > 5
-                  ? theme.palette.warning.lighter
-                  : theme.palette.success.lighter,
-            }}
-            label={`${Math.floor(numberOfBaskets)}x`}
-          />
-        </HistoryCard>
-        {is_edited && (
-          <Chip
-            label="Edited"
-            size="small"
-            variant="outlined"
-            sx={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              fontSize: '0.75rem',
-              color: theme.palette.text.secondary,
-              borderColor: theme.palette.grey[300],
-              backgroundColor: 'transparent',
-            }}
-          />
-        )}
-      </Box>
-    </>
+    <HistoryCard transactionId={checkoutTransaction.transaction_id}>
+      <div>
+        <h3>Welcome Basket: {welcomeBasketType}</h3>
+        <p>
+          {checkoutTransaction.building_code}
+          {' - '}
+          {checkoutTransaction.building_name}
+        </p>
+        <p>{howLongAgoString}</p>
+      </div>
+      <Chip
+        sx={{
+          color:
+            numberOfBaskets > 5
+              ? theme.palette.warning.dark
+              : theme.palette.success.dark,
+          backgroundColor:
+            numberOfBaskets > 5
+              ? theme.palette.warning.lighter
+              : theme.palette.success.lighter,
+        }}
+        label={`${Math.floor(numberOfBaskets)}x`}
+      />
+    </HistoryCard>
   );
 };
 

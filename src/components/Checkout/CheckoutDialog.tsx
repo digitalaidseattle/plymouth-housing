@@ -108,10 +108,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     }
   }, [open, checkoutItems]);
 
-  const computeDeltas = () =>
-    computeCartDeltas(cartItems, editTransaction?.effectiveItems);
-
-  const hasChanges = isEditMode && computeDeltas().length > 0;
+  const hasChanges = isEditMode && computeCartDeltas(cartItems, editTransaction?.effectiveItems).length > 0;
 
   const handleCancel = () => {
     if (!isEditMode) {
@@ -144,46 +141,29 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
       // In edit mode, compute deltas: (cart qty − current state qty) per item.
       const effectiveItems = editTransaction?.effectiveItems ?? [];
-      const effectiveMap = new Map<
-        number,
-        { quantity: number; additional_notes: string }
-      >();
-      effectiveItems.forEach((ei) => {
-        effectiveMap.set(ei.id, {
-          quantity: ei.quantity,
-          additional_notes: ei.additional_notes ?? '',
-        });
-      });
-
-      const itemsToSubmit: CheckoutItemProp[] = isEditMode
-        ? (() => {
-            const cartMap = new Map<number, CheckoutItemProp>();
-            cartItems.forEach((item) => cartMap.set(item.id, item));
-            const allItemIds = new Set([
-              ...cartItems.map((i) => i.id),
-              ...effectiveItems.map((ei) => ei.id),
-            ]);
-            const deltas: CheckoutItemProp[] = [];
-            allItemIds.forEach((itemId) => {
-              const cartItem = cartMap.get(itemId);
-              const cartQty = cartItem?.quantity ?? 0;
-              const effectiveQty = effectiveMap.get(itemId)?.quantity ?? 0;
-              const delta = cartQty - effectiveQty;
-              if (delta !== 0) {
-                deltas.push({
-                  id: itemId,
-                  name: cartItem?.name ?? '',
-                  description: cartItem?.description ?? '',
-                  quantity: delta,
-                  additional_notes:
-                    cartItem?.additional_notes ??
-                    effectiveMap.get(itemId)?.additional_notes,
-                });
-              }
+      const effectiveItemsMap = new Map(effectiveItems.map((ei) => [ei.id, ei]));
+      const cartMap = new Map(cartItems.map((item) => [item.id, item]));
+      let itemsToSubmit: CheckoutItemProp[];
+      if (isEditMode) {
+        const allItemIds = new Set([...cartMap.keys(), ...effectiveItemsMap.keys()]);
+        const deltas: CheckoutItemProp[] = [];
+        allItemIds.forEach((id) => {
+          const cartItem = cartMap.get(id);
+          const delta = (cartItem?.quantity ?? 0) - (effectiveItemsMap.get(id)?.quantity ?? 0);
+          if (delta !== 0) {
+            deltas.push({
+              id,
+              name: cartItem?.name ?? '',
+              description: cartItem?.description ?? '',
+              quantity: delta,
+              additional_notes: cartItem?.additional_notes ?? effectiveItemsMap.get(id)?.additional_notes,
             });
-            return deltas;
-          })()
-        : cartItems;
+          }
+        });
+        itemsToSubmit = deltas;
+      } else {
+        itemsToSubmit = cartItems;
+      }
 
       // In edit mode, if no changes were made, close without creating a transaction
       if (isEditMode && itemsToSubmit.length === 0) {
@@ -600,8 +580,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   };
 
   return (
-    <>
-      <Dialog
+    <Dialog
         sx={{
           '& .MuiDialog-paper': {
             width: { xs: '80vw', md: '65vw' },
@@ -647,7 +626,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             ? overLimitConfirmationContent()
             : checkoutSummaryContent()}
         </Box>
-      </Dialog>
-    </>
+    </Dialog>
   );
 };

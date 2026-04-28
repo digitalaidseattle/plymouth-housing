@@ -27,6 +27,7 @@ const Inventory = () => {
   const [sortDirection, setSortDirection] = useState<
     'asc' | 'desc' | 'original'
   >('original');
+  const [sortColumn, setSortColumn] = useState<keyof InventoryItem | null>(null);
   const [addModal, setAddModal] = useState(false);
   const [adjustModal, setAdjustModal] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
@@ -88,12 +89,18 @@ const Inventory = () => {
     setAnchors((prev) => ({ ...prev, [filter]: event.currentTarget }));
   };
 
-  const handleSort = () => {
-    if (sortDirection === 'asc') {
-      setSortDirection('desc');
-    } else if (sortDirection === 'desc') {
-      setSortDirection('original');
-    } else if (sortDirection === 'original') {
+  const handleSort = (column: keyof InventoryItem) => {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortDirection('original');
+        setSortColumn(null);
+      } else {
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(column);
       setSortDirection('asc');
     }
   };
@@ -177,15 +184,24 @@ const Inventory = () => {
       },
     );
 
-    if (sortDirection === 'asc') {
-      searchFiltered.sort((a, b) => a.name.localeCompare(b.name)); // Ascending A-Z
-    } else if (sortDirection === 'desc') {
-      searchFiltered.sort((a, b) => b.name.localeCompare(a.name)); // Descending Z-A
+    if (sortColumn && sortDirection !== 'original') {
+      searchFiltered.sort((a, b) => {
+        const aVal = a[sortColumn];
+        const bVal = b[sortColumn];
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+        const aStr = String(aVal);
+        const bStr = String(bVal);
+        return sortDirection === 'asc'
+          ? aStr.localeCompare(bStr)
+          : bStr.localeCompare(aStr);
+      });
     }
 
     setDisplayData(searchFiltered);
     setCurrentPage(1);
-  }, [filters, sortDirection, originalData]);
+  }, [filters, sortDirection, sortColumn, originalData]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -323,6 +339,7 @@ const Inventory = () => {
       <InventoryTable
         currentItems={currentItems}
         sortDirection={sortDirection}
+        sortColumn={sortColumn}
         handleSort={handleSort}
         setAdjustModal={setAdjustModal}
         setItemToEdit={setItemToEdit}

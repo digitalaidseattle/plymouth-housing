@@ -16,12 +16,13 @@ interface InventoryTableProps {
 
 const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, handleSort, setAdjustModal, setItemToEdit }) => {
 
+
   if (!currentItems?.length) {
     return <Box>No items to display</Box>;
   }
 
   return (
-    <Box id="inventory-container" sx={{ marginTop: '10px'}}>
+    <Box id="inventory-container" sx={{ mt: 2}}>
       <TableContainer component={Paper}>
         <Table sx={{ tableLayout: 'fixed' }}>
           <TableHead>

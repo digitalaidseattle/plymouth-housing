@@ -8,13 +8,13 @@ export default function TableCell(theme: Theme) {
       styleOverrides: {
         root: {
           fontSize: theme.typography.caption.fontSize,
-          padding: 12,
+          padding: theme.spacing(1.5),
           borderColor: theme.palette.divider,
         },
         head: {
           fontWeight: 600,
-          paddingTop: 20,
-          paddingBottom: 20,
+          paddingTop: theme.spacing(2.5),
+          paddingBottom: theme.spacing(2.5),
         },
       },
     },

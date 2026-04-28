@@ -1,6 +1,5 @@
 import time
 
-from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -24,7 +23,7 @@ class LoginPage(BasePage):
 
         self.wait = WebDriverWait(
             driver,
-            timeout=120,  #  increased from 60 → 120 (cold start safe)
+            timeout=120,
             poll_frequency=1,
             ignored_exceptions=[
                 NoSuchElementException,
@@ -33,20 +32,70 @@ class LoginPage(BasePage):
         )
 
     # ---------------------------------------------------
+    # Helpers
+    # ---------------------------------------------------
+
+    def wait_for_login_page(self):
+        WebDriverWait(self.driver, 20).until(
+            lambda d: "login.microsoftonline.com" in d.current_url.lower()
+        )
+
+    # ---------------------------------------------------
     # Microsoft Login
     # ---------------------------------------------------
 
     def enter_username(self, username):
-        self.send_keys(self.locators.USERNAME_INPUT, username)
+        input_el = self.wait.until(
+            EC.visibility_of_element_located(self.locators.USERNAME_INPUT)
+        )
 
-    def enter_password(self, password):
-        self.send_keys(self.locators.PASSWORD_INPUT, password)
+        input_el.clear()
+        input_el.send_keys(username)
+
+        # ensure value typed
+        self.wait.until(lambda d: input_el.get_attribute("value") != "")
 
     def click_next_button(self):
-        self.click(self.locators.NEXT_BUTTON)
+        wait = WebDriverWait(self.driver, 20)
+
+        button = wait.until(
+            EC.presence_of_element_located(self.locators.NEXT_BUTTON)
+        )
+
+        # wait until enabled
+        wait.until(lambda d: button.is_enabled())
+
+        # JS click (Azure safe)
+        self.driver.execute_script("arguments[0].click();", button)
+
+        # wait for next screen (password OR redirect)
+        WebDriverWait(self.driver, 20).until(
+            lambda d: (
+                len(d.find_elements(*self.locators.PASSWORD_INPUT)) > 0
+                or "login" not in d.current_url.lower()
+            )
+        )
+
+    def enter_password(self, password):
+        input_el = self.wait.until(
+            EC.visibility_of_element_located(self.locators.PASSWORD_INPUT)
+        )
+
+        input_el.clear()
+        input_el.send_keys(password)
+
+        self.wait.until(lambda d: input_el.get_attribute("value") != "")
 
     def click_sign_in_button(self):
-        self.click(self.locators.SIGN_IN_BUTTON)
+        wait = WebDriverWait(self.driver, 20)
+
+        button = wait.until(
+            EC.presence_of_element_located(self.locators.SIGN_IN_BUTTON)
+        )
+
+        wait.until(lambda d: button.is_enabled())
+
+        self.driver.execute_script("arguments[0].click();", button)
 
     # ---------------------------------------------------
     # Stay Signed In
@@ -59,7 +108,9 @@ class LoginPage(BasePage):
                     (By.XPATH, "//*[contains(text(),'Stay signed in')]")
                 )
             )
-            self.click((By.ID, "idSIButton9"))
+
+            btn = self.driver.find_element(By.ID, "idSIButton9")
+            self.driver.execute_script("arguments[0].click();", btn)
 
         except TimeoutException:
             pass
@@ -69,62 +120,63 @@ class LoginPage(BasePage):
     # ---------------------------------------------------
 
     def wait_for_database_ready(self):
-        print("Checking for database warmup popup...")
-
         WebDriverWait(self.driver, 15).until(
             lambda d: len(d.find_elements(*self.locators.DATABASE_POPUP_TEXT)) == 0
         )
 
-        print("Database is ready")
-
     # ---------------------------------------------------
-    # Volunteer Selection (STABLE VERSION)
+    # Volunteer Selection (FULLY STABLE)
     # ---------------------------------------------------
 
     def select_volunteer(self, name="John Doe 1234"):
         print("Waiting for volunteer field...")
 
-        #  cold start safe wait (API can be very slow)
-        WebDriverWait(self.driver, LoginPage.LOGIN_WAIT_TIMEOUT, poll_frequency=1).until(
-            lambda d: d.find_element(*self.locators.USER_PERSON).is_enabled()
+        input_el = WebDriverWait(self.driver, LoginPage.LOGIN_WAIT_TIMEOUT).until(
+            EC.presence_of_element_located(self.locators.USER_PERSON)
         )
 
-        # Always re-locate (React safe)
         input_el = self.wait.until(
-            EC.visibility_of_element_located(self.locators.USER_PERSON)
+            EC.element_to_be_clickable(self.locators.USER_PERSON)
         )
 
         input_el.click()
         input_el.clear()
 
-        # Trigger dropdown
-        input_el.send_keys(name[:2])
+        input_el.send_keys(name[:3])
 
-        # Wait for matching option
-        option = self.wait.until(
-            lambda d: next(
-                (
-                    el for el in d.find_elements(*self.locators.NAME_OPTIONS)
-                    if el.is_displayed()
-                    and el.text.strip()
-                    and name.lower() in el.text.lower()
-                ),
-                False
-            )
+        # dropdown opened
+        self.wait.until(
+            lambda d: input_el.get_attribute("aria-expanded") == "true"
         )
 
-        # JS click (overlay safe)
+        # options loaded
+        self.wait.until(
+            lambda d: len(d.find_elements(*self.locators.NAME_OPTIONS)) > 0
+        )
+
+        options = self.driver.find_elements(*self.locators.NAME_OPTIONS)
+
+        option = next(
+            (
+                el for el in options
+                if el.is_displayed()
+                and el.text.strip()
+                and name.lower() in el.text.lower()
+            ),
+            None
+        )
+
+        if not option:
+            raise Exception(f"Volunteer option not found: {name}")
+
         self.driver.execute_script("arguments[0].click();", option)
 
-        #  Re-find after React update
         input_el = self.wait.until(
             EC.presence_of_element_located(self.locators.USER_PERSON)
         )
 
-        # Blur to commit value
         self.driver.execute_script("arguments[0].blur();", input_el)
 
-        # Verify selection
         self.wait.until(
             lambda d: name.lower() in d.find_element(
                 *self.locators.USER_PERSON

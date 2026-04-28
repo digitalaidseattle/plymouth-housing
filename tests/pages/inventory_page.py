@@ -164,3 +164,69 @@ class InventoryPage(BasePage):
         )
 
         return self.driver.find_elements(By.XPATH, xpath)
+
+    def click_adjust(self, item_name: str):
+        locator = (
+            By.XPATH,
+            f"//td[normalize-space()='{item_name}']/following-sibling::td[last()]//button"
+        )
+        self.click(locator)
+
+    def set_new_quantity(self, value: str):
+        locator = (By.XPATH, "//input[@type='number']")
+        self.send_keys(locator, value)
+
+    def select_reason(self, reason="Correction"):
+        locator = (By.XPATH, f"//*[normalize-space()='{reason}']")
+        self.click(locator)
+
+    def enter_comment(self, text: str):
+        locator = (
+            By.XPATH,
+            "//input[@placeholder='Add a reason or comment']"
+        )
+        self.send_keys(locator, text)
+
+    def click_submit(self):
+        self.click((By.XPATH, "//button[normalize-space()='Submit']"))
+
+    def wait_for_adjust_complete(self, item, new_value):
+        wait = self.get_wait(15)
+
+        wait.until(
+            EC.invisibility_of_element_located(
+                (By.XPATH, "//div[@role='dialog']")
+            )
+        )
+
+        wait.until(
+            lambda d: self.get_inventory_quantity(item) == new_value
+        )
+
+    def wait_for_adjust_modal(self):
+        wait = self.get_wait(10)
+
+        field = wait.until(
+            EC.visibility_of_element_located(
+                (By.XPATH, "//input[@placeholder='Enter the updated quantity']")
+            )
+        )
+
+        wait.until(lambda d: field.is_enabled())
+
+    def wait_for_quantity_update(self, item, expected_value):
+        locator = (
+            By.XPATH,
+            f"//td[normalize-space()='{item}']/following-sibling::td[last()-1]"
+        )
+
+        wait = self.get_wait(10)
+
+        wait.until(lambda d: len(d.find_elements(*locator)) > 0)
+
+        def value_updated(d):
+            el = d.find_element(*locator)
+            text = el.text.strip()
+            return text.isdigit() and int(text) == expected_value
+
+        wait.until(value_updated)

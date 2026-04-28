@@ -7,7 +7,6 @@ export const useResidents = (
     selectedUnit: Unit,
     initialResidentName?: string,
     initialLastVisitDate?: string | null,
-    isEditMode: boolean = false,
 ) => {
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
     const [nameInput, setNameInput] = useState<string>(initialResidentName ?? '');
@@ -44,14 +43,10 @@ export const useResidents = (
         };
 
         const fetchResidents = async () => {
-            if (isEditMode || !selectedUnit?.id) {
+            if (!selectedUnit?.id) {
                 setExistingResidents([]);
-                if (!initialResidentName && !isEditMode) {
-                    setNameInput('');
-                }
-                if (!isEditMode) {
-                    setCurrentLastVisitDate(null);
-                }
+                if (!initialResidentName) setNameInput('');
+                setCurrentLastVisitDate(initialLastVisitDate ?? null);
                 setIsLoadingResidents(false);
                 setApiError('');
                 return;
@@ -108,7 +103,7 @@ export const useResidents = (
         };
         fetchResidents();
         return () => { cancelled = true; };
-    }, [user, selectedUnit, initialResidentName, initialLastVisitDate, isEditMode]);
+    }, [user, selectedUnit, initialResidentName, initialLastVisitDate]);
 
     return {
         existingResidents,

@@ -1,8 +1,16 @@
-import { useState, useContext, useMemo } from 'react';
-import { Box, useTheme } from '@mui/material';
-import { CategoryProps, CheckoutItemProp, CheckoutType, ResidentInfo } from '../../types/interfaces';
+import { useState, useContext, useMemo, useEffect, useRef } from 'react';
+import { Box, useTheme, Chip, Button } from '@mui/material';
+import {
+  CategoryProps,
+  CheckoutItemProp,
+  CheckoutType,
+  ResidentInfo,
+  EditTransactionState,
+} from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
+import { getLastResidentVisit } from '../../services/residentService';
 import { getRole } from '../../utils/userUtils';
+import { computeCartDeltas } from '../../utils/transactionUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import { useNavigate } from 'react-router-dom';
@@ -21,14 +29,23 @@ import { SPECIAL_ITEMS } from '../../types/constants';
 
 interface CheckoutPageProps {
   checkoutType?: CheckoutType;
+  editTransaction?: EditTransactionState | null;
 }
 
-const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' }) => {
+const CheckoutPage: React.FC<CheckoutPageProps> = ({
+  checkoutType = 'general',
+  editTransaction = null,
+}) => {
+  const checkoutTransaction = editTransaction?.originalTransaction ?? null;
   const { user } = useContext(UserContext);
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
+  const {
+    snackbarState,
+    showSnackbar,
+    handleClose: handleSnackbarClose,
+  } = useSnackbar();
 
   const {
     data,
@@ -49,18 +66,119 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
   const { activeSection, setActiveSection, addItemToCart, removeItemFromCart } =
     useCartOperations({ checkoutItems, setCheckoutItems });
 
-  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({
-    id: 0,
-    name: '',
-    unit: { id: 0, unit_number: '' },
-    building: { id: 0, code: '', name: '' },
-    lastVisitDate: null,
-  });
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>(() =>
+    checkoutTransaction
+      ? {
+          id: checkoutTransaction.resident_id,
+          name: checkoutTransaction.resident_name,
+          unit: { id: 0, unit_number: checkoutTransaction.unit_number },
+          building: {
+            id: checkoutTransaction.building_id,
+            code: checkoutTransaction.building_code,
+            name: checkoutTransaction.building_name,
+          },
+          lastVisitDate: null,
+        }
+      : {
+          id: 0,
+          name: '',
+          unit: { id: 0, unit_number: '' },
+          building: { id: 0, code: '', name: '' },
+          lastVisitDate: null,
+        },
+  );
+
+  const [showResidentDetailDialog, setShowResidentDetailDialog] =
+    useState<boolean>(() => !editTransaction);
+
+  // Fetch last visit date when editing an existing transaction
+  useEffect(() => {
+    if (!checkoutTransaction) return;
+    let mounted = true;
+
+    (async () => {
+      try {
+        const visitResult = await getLastResidentVisit(
+          user,
+          checkoutTransaction.resident_id,
+        );
+        const visits = visitResult?.value as
+          | Array<{ transaction_date: string }>
+          | undefined;
+        const lastVisitDate = visits?.[0]?.transaction_date ?? null;
+
+        if (mounted) {
+          setResidentInfo((prev) => ({ ...prev, lastVisitDate }));
+        }
+      } catch {
+        // lastVisitDate is optional, silently ignore
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [checkoutTransaction, user]);
+
+  // Preload checked-out items into the checkout cart when editing an existing transaction.
+  const hasPreloadedRef = useRef(false);
+  useEffect(() => {
+    if (!editTransaction) return;
+    if (hasPreloadedRef.current) return;
+    if (!data || data.length === 0) return;
+
+    const itemsToLoad = editTransaction.effectiveItems;
+    if (itemsToLoad.length === 0) return;
+
+    const cart: CategoryProps[] = data.map((category: CategoryProps) => ({
+      ...category,
+      categoryCount: 0,
+      items: [],
+    }));
+
+    itemsToLoad.forEach((item) => {
+      const sourceCategory = data.find((cat) =>
+        (cat.items || []).some((i) => i.id === item.id),
+      );
+      if (!sourceCategory) return;
+      const itemDetails = sourceCategory.items?.find((i) => i.id === item.id);
+      if (!itemDetails) return;
+
+      const categoryIndex = cart.findIndex(
+        (cat: CategoryProps) => cat.category === sourceCategory.category,
+      );
+      if (categoryIndex !== -1) {
+        const categoryData = cart[categoryIndex];
+        const categoryItems: CheckoutItemProp[] = [...categoryData.items];
+        categoryItems.push({
+          id: itemDetails.id,
+          name: itemDetails.name,
+          quantity: item.quantity,
+          description: item.description || itemDetails.description || '',
+          additional_notes: item.additional_notes,
+        });
+        const newCategoryCount = categoryItems.reduce(
+          (acc, currentItem) => acc + currentItem.quantity,
+          0,
+        );
+        cart[categoryIndex] = {
+          ...categoryData,
+          items: categoryItems,
+          categoryCount: newCategoryCount,
+        };
+      }
+    });
+
+    setCheckoutItems(cart);
+    hasPreloadedRef.current = true;
+  }, [editTransaction, data, setCheckoutItems]);
 
   const residentInfoIsMissing =
     Object.entries(residentInfo).filter(
       // lastVisitDate is optional and excluded from validation, all other fields must have values
-      ([key, val]) => key !== 'lastVisitDate' && (val === null || val === undefined || val === ''),
+      ([key, val]) =>
+        key !== 'lastVisitDate' &&
+        (val === null || val === undefined || val === ''),
     ).length > 0;
 
   const { checkoutHistory } = useCheckoutHistory({
@@ -70,10 +188,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     onError: (msg) => showSnackbar(msg, 'error'),
   });
 
-  const [openSummary, setOpenSummary] = useState<boolean>(false);
-  const [showResidentDetailDialog, setShowResidentDetailDialog] = useState<boolean>(true);
-  const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] = useState<boolean>(false);
-  const [showPastCheckoutDialog, setShowPastCheckoutDialog] = useState<boolean>(false);
+  const [openSummary, setOpenSummary] =
+    useState<boolean>(!!checkoutTransaction);
+  const [showAdditionalNotesDialog, setShowAdditionalNotesDialog] =
+    useState<boolean>(false);
+  const [showPastCheckoutDialog, setShowPastCheckoutDialog] =
+    useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<CheckoutItemProp>({
     id: 0,
     name: '',
@@ -114,35 +234,108 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
     }
   };
 
-  const categories = checkoutType === 'general' ? filteredData : welcomeBasketData;
+  const categories =
+    checkoutType === 'general' ? filteredData : welcomeBasketData;
+
+  const handleCancelEdits = () => {
+    // Compare current cart against original effectiveItems
+    const hasChanges =
+      editTransaction && editTransaction.effectiveItems
+        ? computeCartDeltas(
+            checkoutItems.flatMap((cat) => cat.items),
+            editTransaction.effectiveItems,
+          ).length > 0
+        : // In new checkout, check if cart has any items
+          checkoutItems.some((category) => category.categoryCount > 0);
+
+    if (hasChanges) {
+      const confirmed = window.confirm(
+        'You have unsaved changes. Are you sure you want to discard them?',
+      );
+      if (!confirmed) return;
+    }
+
+    const userRole = user ? getRole(user) : null;
+    const navigateState = {
+      state: {
+        checkoutSuccess: false,
+        message: 'Changes cancelled',
+      },
+    };
+
+    if (userRole === 'volunteer') {
+      navigate('/volunteer-home', navigateState);
+    } else {
+      navigate('/inventory', navigateState);
+    }
+  };
 
   return (
     <>
+      {checkoutTransaction && (
+        <Box sx={{ px: 2, py: 1 }}>
+          <Chip
+            size="small"
+            variant="outlined"
+            sx={{
+              color: theme.palette.text.secondary,
+              borderColor: theme.palette.grey[300],
+              backgroundColor: 'transparent',
+            }}
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box component="span">Editing transaction</Box>
+                <Button
+                  size="small"
+                  variant="text"
+                  color="primary"
+                  id="edit-mode-header-cancel-btn"
+                  onClick={handleCancelEdits}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            }
+          />
+        </Box>
+      )}
       {showResidentDetailDialog && checkoutType === 'general' && (
         <ResidentDetailDialog
           showDialog={showResidentDetailDialog}
-          handleShowDialog={() => setShowResidentDetailDialog(!showResidentDetailDialog)}
+          handleShowDialog={() =>
+            setShowResidentDetailDialog(!showResidentDetailDialog)
+          }
           buildings={buildings}
           unitNumberValues={unitNumberValues}
           setUnitNumberValues={setUnitNumberValues}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
+          isEditMode={!!checkoutTransaction}
+          onCancelEdits={handleCancelEdits}
         />
       )}
       {showResidentDetailDialog && checkoutType === 'welcomeBasket' && (
         <WelcomeBasketBuildingDialog
           showDialog={showResidentDetailDialog}
-          handleShowDialog={() => setShowResidentDetailDialog(!showResidentDetailDialog)}
+          handleShowDialog={() =>
+            setShowResidentDetailDialog(!showResidentDetailDialog)
+          }
           buildings={buildings}
           setResidentInfo={setResidentInfo}
+          isEditMode={!!checkoutTransaction}
+          onCancelEdits={handleCancelEdits}
         />
       )}
       {showAdditionalNotesDialog && (
         <AdditionalNotesDialog
           showDialog={showAdditionalNotesDialog}
-          handleShowDialog={() => setShowAdditionalNotesDialog(!showAdditionalNotesDialog)}
+          handleShowDialog={() =>
+            setShowAdditionalNotesDialog(!showAdditionalNotesDialog)
+          }
           item={selectedItem}
-          addItemToCart={(item) => addItemToCart(item, 1, 'Appliance', 'general')} // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
+          addItemToCart={(item) =>
+            addItemToCart(item, 1, 'Appliance', 'general')
+          } // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
           residentInfo={residentInfo}
           checkoutHistory={checkoutHistory}
         />
@@ -150,7 +343,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
       {showPastCheckoutDialog && (
         <PastCheckoutDialog
           showDialog={showPastCheckoutDialog}
-          handleShowDialog={() => setShowPastCheckoutDialog(!showPastCheckoutDialog)}
+          handleShowDialog={() =>
+            setShowPastCheckoutDialog(!showPastCheckoutDialog)
+          }
           item={selectedItem}
           addItemToCart={(item) => {
             if (item.id === SPECIAL_ITEMS.RUG) {
@@ -225,7 +420,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ checkoutType = 'general' })
           fetchData={fetchData}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}
-          activeSection={activeSection}
+          editTransaction={editTransaction ?? undefined}
+          onCancelEdits={handleCancelEdits}
         />
         <SnackbarAlert
           open={snackbarState.open}

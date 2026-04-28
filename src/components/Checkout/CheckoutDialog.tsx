@@ -13,11 +13,16 @@ import {
 import {
   CategoryProps,
   CheckoutItemProp,
+  EditTransactionState,
   ResidentInfo,
 } from '../../types/interfaces';
 import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
-import { processGeneralItems, processWelcomeBasket } from '../../services/checkoutService';
+import {
+  processGeneralItems,
+  processWelcomeBasket,
+} from '../../services/checkoutService';
+import { computeCartDeltas } from '../../utils/transactionUtils';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
@@ -36,10 +41,11 @@ type CheckoutDialogProps = {
   selectedBuildingCode: string;
   setActiveSection: (s: string) => void;
   fetchData: () => void;
-  activeSection: string;
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
   onError: (message: string) => void;
+  editTransaction?: EditTransactionState;
+  onCancelEdits?: () => void;
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
@@ -53,47 +59,61 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   setActiveSection,
   fetchData,
   onSuccess,
-  activeSection,
   residentInfo,
   setResidentInfo,
   onError,
+  editTransaction,
+  onCancelEdits,
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
+  const isEditMode = !!editTransaction;
+  const originalTransactionId =
+    editTransaction?.originalTransaction?.transaction_id ?? null;
   const [originalCheckoutItems, setOriginalCheckoutItems] = useState<
     CategoryProps[]
   >([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
-  const [allItems, setAllItems] = useState<CheckoutItemProp[]>([]);
+  const [cartItems, setCartItems] = useState<CheckoutItemProp[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [categoryLimitErrors, setCategoryLimitErrors] = useState<
     CategoryProps[]
   >([]);
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
-  const totalItemCount = allItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItemCount = cartItems.reduce(
+    (acc, item) => acc + item.quantity,
+    0,
+  );
   const totalItemLimitExceeded = totalItemCount > SETTINGS.checkout_item_limit;
   const categoryLimitExceeded = categoryLimitErrors.length > 0;
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
+  // Snapshot cart state once when dialog opens. checkoutItems is intentionally excluded
   useEffect(() => {
     if (open) {
       setOriginalCheckoutItems([...checkoutItems]);
-      setStatusMessage('');
-      setAllItems(checkoutItems.flatMap((item) => item.items));
       setTransactionId(crypto.randomUUID());
+      setStatusMessage('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
-      const errors: CategoryProps[] = [];
-      checkoutItems.forEach((category) => {
-        if (category.categoryCount > category.checkout_limit) {
-          errors.push(category);
-        }
-      });
+  useEffect(() => {
+    if (open) {
+      setCartItems(checkoutItems.flatMap((item) => item.items));
+      const errors: CategoryProps[] = checkoutItems.filter(
+        (category) => category.categoryCount > category.checkout_limit,
+      );
       setCategoryLimitErrors(errors);
     }
   }, [open, checkoutItems]);
 
+  const hasChanges = isEditMode && computeCartDeltas(cartItems, editTransaction?.effectiveItems).length > 0;
+
   const handleCancel = () => {
-    setCheckoutItems(originalCheckoutItems);
+    if (!isEditMode) {
+      setCheckoutItems(originalCheckoutItems);
+    }
     setStatusMessage('');
     onClose();
   };
@@ -119,16 +139,46 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         throw new Error('Transaction ID not created.');
       }
 
-      // A checkout is treated as a welcome basket if the cart contains either sheet set.
-      // We find the sheet set explicitly here because allItems may contain all basket items
+      // In edit mode, compute deltas: (cart qty − current state qty) per item.
+      const effectiveItems = editTransaction?.effectiveItems ?? [];
+      const effectiveItemsMap = new Map(effectiveItems.map((ei) => [ei.id, ei]));
+      const cartMap = new Map(cartItems.map((item) => [item.id, item]));
+      let itemsToSubmit: CheckoutItemProp[];
+      if (isEditMode) {
+        const allItemIds = new Set([...cartMap.keys(), ...effectiveItemsMap.keys()]);
+        const deltas: CheckoutItemProp[] = [];
+        allItemIds.forEach((id) => {
+          const cartItem = cartMap.get(id);
+          const delta = (cartItem?.quantity ?? 0) - (effectiveItemsMap.get(id)?.quantity ?? 0);
+          if (delta !== 0) {
+            deltas.push({
+              id,
+              name: cartItem?.name ?? '',
+              description: cartItem?.description ?? '',
+              quantity: delta,
+              additional_notes: cartItem?.additional_notes ?? effectiveItemsMap.get(id)?.additional_notes,
+            });
+          }
+        });
+        itemsToSubmit = deltas;
+      } else {
+        itemsToSubmit = cartItems;
+      }
+
+      // In edit mode, if no changes were made, close without creating a transaction
+      if (isEditMode && itemsToSubmit.length === 0) {
+        onClose();
+        return;
+      }
+      // We find the sheet set explicitly here because cartItems may contain all basket items
       // when editing from history, so relying on array position would send the wrong item.
       const sheetSetIds: number[] = Object.values(WELCOME_BASKET_ITEMS);
-      const isWelcomeBasket = allItems.some((item) =>
+      const isWelcomeBasket = cartItems.some((item) =>
         sheetSetIds.includes(item.id),
       );
       let data = null;
       if (isWelcomeBasket) {
-        const sheetSetItem = allItems.find((item) =>
+        const sheetSetItem = cartItems.find((item) =>
           sheetSetIds.includes(item.id),
         );
         if (!sheetSetItem) {
@@ -140,14 +190,16 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           loggedInUserId,
           sheetSetItem,
           residentInfo,
+          originalTransactionId,
         );
       } else {
         data = await processGeneralItems(
           transactionId,
           user,
           loggedInUserId,
-          allItems,
+          itemsToSubmit,
           residentInfo,
+          originalTransactionId,
         );
       }
 
@@ -184,7 +236,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
-      } else if (result.Status === 'Error' && result.ErrorCode === 'DUPLICATE_TRANSACTION') {
+      } else if (
+        result.Status === 'Error' &&
+        result.ErrorCode === 'DUPLICATE_TRANSACTION'
+      ) {
         // Handle duplicate transaction - clear the cart and show success
         setActiveSection('');
         setResidentInfo({
@@ -254,7 +309,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             message: error.message,
             stack: error.stack,
             transactionId: transactionId,
-            itemCount: allItems.length,
+            itemCount: cartItems.length,
             timestamp: new Date().toISOString(),
           });
         }
@@ -320,6 +375,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         <DialogActions sx={{ marginTop: 'auto' }}>
           <Button
             onClick={() => setShowLimitConfirmation(false)}
+            id="checkout-dialog-return-to-summary-btn"
             sx={{
               color: 'black',
               textDecoration: 'underline',
@@ -330,6 +386,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           <Button
             onClick={() => handleConfirm(true)}
             disabled={isProcessing}
+            id="checkout-dialog-override-confirm-btn"
             sx={{
               color: 'black',
               backgroundColor: '#F2F2F2',
@@ -353,7 +410,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           sx={{ padding: '20px 0px 0px 0px' }}
           id="customized-dialog-title"
         >
-          <Typography variant="h4">Checkout Summary</Typography>
+          <Typography variant="h4">Checkout Summary{isEditMode && ' (Editing)'}</Typography>
         </DialogTitle>
         <Box
           sx={{
@@ -436,7 +493,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   removeItemFromCart={removeItemFromCart}
                   removeButton={true}
                   disabled={false}
-                  activeSection={activeSection}
+                  activeSection=""
                 />
               );
             }
@@ -451,37 +508,79 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           <Typography>{statusMessage}</Typography>
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
-          <Button
-            onClick={handleCancel}
-            sx={{
-              color: 'black',
-              textDecoration: 'underline',
-            }}
-          >
-            Return to Checkout Page
-          </Button>
-          <Button
-            onClick={() => handleConfirm()}
-            disabled={isProcessing}
-            sx={{
-              color: 'black',
-              backgroundColor: '#F2F2F2',
-              '&.Mui-disabled': {
-                backgroundColor: '#E0E0E0',
-                color: '#757575',
-              },
-            }}
-          >
-            {isProcessing ? 'Working...' : 'Confirm'}
-          </Button>
+          {isEditMode ? (
+            <>
+              <Button
+                onClick={onCancelEdits}
+                id="checkout-dialog-cancel-edit-btn"
+                sx={{
+                  color: 'black',
+                  textDecoration: 'underline',
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCancel}
+                id="checkout-dialog-add-item-btn"
+                sx={{
+                  color: 'black',
+                }}
+              >
+                Add Item
+              </Button>
+              <Button
+                onClick={() => handleConfirm()}
+                disabled={isProcessing || !hasChanges}
+                id="checkout-dialog-save-btn"
+                sx={{
+                  color: 'black',
+                  backgroundColor: '#F2F2F2',
+                  '&.Mui-disabled': {
+                    backgroundColor: '#E0E0E0',
+                    color: '#757575',
+                  },
+                }}
+              >
+                {isProcessing ? 'Working...' : hasChanges ? 'Save Changes' : 'No Changes'}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={handleCancel}
+                id="checkout-dialog-return-btn"
+                sx={{
+                  color: 'black',
+                  textDecoration: 'underline',
+                }}
+              >
+                Return to Checkout Page
+              </Button>
+              <Button
+                onClick={() => handleConfirm()}
+                disabled={isProcessing}
+                id="checkout-dialog-confirm-btn"
+                sx={{
+                  color: 'black',
+                  backgroundColor: '#F2F2F2',
+                  '&.Mui-disabled': {
+                    backgroundColor: '#E0E0E0',
+                    color: '#757575',
+                  },
+                }}
+              >
+                {isProcessing ? 'Working...' : 'Confirm'}
+              </Button>
+            </>
+          )}
         </DialogActions>
       </>
     );
   };
 
   return (
-    <>
-      <Dialog
+    <Dialog
         sx={{
           '& .MuiDialog-paper': {
             width: { xs: '80vw', md: '65vw' },
@@ -527,7 +626,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             ? overLimitConfirmationContent()
             : checkoutSummaryContent()}
         </Box>
-      </Dialog>
-    </>
+    </Dialog>
   );
 };

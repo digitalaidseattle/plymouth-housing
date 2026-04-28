@@ -29,10 +29,7 @@ export function processTransactionsByUser(
   }));
 }
 
-// Maps raw checkout rows to CheckoutTransactions. CHECKOUT_EDIT (type=4) rows are
-// delta corrections to an original CHECKOUT (type=1): their quantities are summed
-// and applied to the original's total. Edit rows are excluded from the output;
-// originals with at least one edit are flagged with is_edited=true.
+// Maps raw checkout rows to CheckoutTransactions. CHECKOUT_EDIT (type=4) rows are filtered out
 export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
   const editsByParent = new Map<string, CheckoutRow[]>();
   for (const row of rows) {
@@ -47,7 +44,6 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
     .filter((row) => row.transaction_type === TransactionType.Checkout)
     .map((row) => {
       const edits = editsByParent.get(row.transaction_id) ?? [];
-      const deltaQuantity = edits.reduce((sum, e) => sum + e.total_quantity, 0);
       return {
         user_id: row.user_id,
         transaction_id: row.transaction_id,
@@ -55,8 +51,10 @@ export function mapCheckoutRows(rows: CheckoutRow[]): CheckoutTransaction[] {
         resident_name: row.resident_name,
         unit_number: row.unit_number,
         building_id: row.building_id,
+        building_code: row.building_code,
+        building_name: row.building_name,
         transaction_date: row.transaction_date,
-        total_quantity: row.total_quantity + deltaQuantity,
+        total_quantity: row.total_quantity,
         welcome_basket_item_id: row.welcome_basket_item_id,
         welcome_basket_quantity: row.welcome_basket_quantity,
         item_type: row.welcome_basket_item_id != null ? 'welcome' : 'general',

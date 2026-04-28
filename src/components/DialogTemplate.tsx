@@ -53,7 +53,7 @@ const DialogTemplate = ({
                 top: '1rem',
                 right: '1rem'
             }}>
-                <Button onClick={handleShowDialog} disableRipple><Close/></Button>
+                <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn"><Close/></Button>
             </Box>
 
             {title &&
@@ -61,13 +61,13 @@ const DialogTemplate = ({
                 <Typography variant="h5" sx={{ textTransform: 'capitalize' }}>{title}</Typography>
             </DialogTitle>}
 
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem'}}>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem', overflowY: 'auto' }}>
             {children}
             </DialogContent>
 
             <DialogActions sx={{ display: 'flex', gap: '1rem' }}>
-                {backButtonText && <Button onClick={handleShowDialog} sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
-                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
+                {backButtonText && <Button onClick={handleShowDialog} id="dialog-back-btn" sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
+                {submitButtonText && <Button id="dialog-submit-btn" sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
             </DialogActions>
         </Dialog>
     );

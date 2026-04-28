@@ -373,6 +373,26 @@
           "role": "volunteer"
         }
       ]
+    },
+    "GetTransaction": {
+      "source": {
+        "object": "dbo.GetTransaction",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/get-transaction"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
     }
   }
 }

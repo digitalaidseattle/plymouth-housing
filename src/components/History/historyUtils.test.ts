@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { describe, test, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
 
 const savedTZ = process.env.TZ;
@@ -6,10 +7,8 @@ import {
   formatTransactionDate,
   formatDateRange,
   formatFullDate,
-  findBuildingById,
-  formatBuildingInfo,
+
 } from './historyUtils';
-import { Building } from '../../types/interfaces';
 
 afterAll(() => {
   process.env.TZ = savedTZ;
@@ -79,42 +78,38 @@ describe('formatFullDate', () => {
   });
 });
 
-describe('findBuildingById', () => {
-  const buildings: Building[] = [
-    { id: 1, code: 'A', name: 'Main St' },
-    { id: 2, code: 'B', name: 'Oak Ave' },
-  ];
-
-  test('returns matching building', () => {
-    expect(findBuildingById(1, buildings)).toEqual({
-      id: 1,
-      code: 'A',
-      name: 'Main St',
-    });
+describe('formatTransactionDate - userName and action params', () => {
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
-  test('returns undefined for unknown id', () => {
-    expect(findBuildingById(99, buildings)).toBeUndefined();
+  test('appends ", by <name>" when userName is provided', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-10T09:00:00Z', 'Alice');
+    expect(result).toMatch(/, by Alice$/);
   });
 
-  test('returns undefined when buildings list is null', () => {
-    expect(findBuildingById(1, null)).toBeUndefined();
-  });
-});
-
-describe('formatBuildingInfo', () => {
-  const buildings: Building[] = [{ id: 1, code: 'A', name: 'Main St' }];
-
-  test('formats building as "CODE - Name"', () => {
-    expect(formatBuildingInfo(1, buildings)).toBe('A - Main St');
+  test('uses custom action prefix', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-15T14:00:00Z', undefined, 'Edited');
+    expect(result).toMatch(/^Edited today at /);
   });
 
-  test('returns empty string for unknown building', () => {
-    expect(formatBuildingInfo(99, buildings)).toBe('');
+  test('omits action prefix when action is empty string', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-15T14:00:00Z', undefined, '');
+    expect(result).toMatch(/^today at /);
   });
 
-  test('returns empty string when buildings is null', () => {
-    expect(formatBuildingInfo(1, null)).toBe('');
+  test('combines custom action and userName', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T14:00:00Z'));
+    const result = formatTransactionDate('2025-06-10T09:00:00Z', 'Bob', 'Updated');
+    expect(result).toMatch(/^Updated Jun 10, 2025 at /);
+    expect(result).toMatch(/, by Bob$/);
   });
 });
 

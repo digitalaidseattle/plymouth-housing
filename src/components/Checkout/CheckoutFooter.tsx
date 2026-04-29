@@ -46,11 +46,11 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode, r
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {residentInfoIsMissing ? (
-              <Typography sx={{ color: 'red', marginRight: '15px' }}>
+              <Typography sx={{ color: 'red', marginRight: 2 }}>
                 Fill out the missing resident info before continuing
               </Typography>
             ) : totalCategoryCount > 10 ? (
-              <Typography sx={{ color: 'red', marginRight: '15px' }}>
+              <Typography sx={{ color: 'red', marginRight: 2 }}>
                 Cart Exceeds 10 Items
               </Typography>
             ) : null}

@@ -57,11 +57,11 @@ const CheckoutCard = ({
         borderColor: removeButton ? '#D9D9D9' : null,
         borderWidth: removeButton ? '1px' : null,
         borderRadius: '15px',
-        paddingX: '10px',        
+        px: 1,
       }}
     >
       <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
-        {pastCheckout && item.id !== SPECIAL_ITEMS.APPLIANCE_MISC && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: '0.5rem' }} />}
+        {pastCheckout && item.id !== SPECIAL_ITEMS.APPLIANCE_MISC && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: 1 }} />}
         <Tooltip title={item.name} arrow>
           <Typography
             variant={removeButton ? 'body2' : 'h5'}

@@ -40,7 +40,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
       <Typography variant="body2">Filters</Typography>
 
       {/* Type Filter */}
-      <Box sx={{ px: '8px' }} id="type-button-container">
+      <Box sx={{ px: 1 }} id="type-button-container">
         <Button
           sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
           onClick={(event) => handleFilterClick('type', event)}
@@ -49,14 +49,14 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
             <>
               {filters.type}{' '}
               <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
+                sx={{ fontSize: 'large', ml: 1 }}
                 onClick={() => clearFilter('type')}
               />
             </>
           ) : (
             <>
               <Typography variant="body2">Type</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
             </>
           )}
         </Button>
@@ -75,7 +75,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
       </Box>
 
       {/* Category Filter */}
-      <Box sx={{ px: '8px' }} id="category-button-container">
+      <Box sx={{ px: 1 }} id="category-button-container">
         <Button
           sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
           onClick={(event) => handleFilterClick('category', event)}
@@ -85,14 +85,14 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
             <>
               {filters.category}{' '}
               <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
+                sx={{ fontSize: 'large', ml: 1 }}
                 onClick={() => clearFilter('category')}
               />
             </>
           ) : (
             <>
               <Typography variant="body2">Category</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
             </>
           )}
         </Button>
@@ -113,7 +113,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
       </Box>
 
       {/* Status Filter */}
-      <Box sx={{ px: '8px' }} id="status-button-container">
+      <Box sx={{ px: 1 }} id="status-button-container">
         <Button
           sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
           onClick={(event) => handleFilterClick('status', event)}
@@ -122,14 +122,14 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
             <>
               {filters.status}{' '}
               <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
+                sx={{ fontSize: 'large', ml: 1 }}
                 onClick={() => clearFilter('status')}
               />
             </>
           ) : (
             <>
               <Typography variant="body2">Status</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
             </>
           )}
         </Button>

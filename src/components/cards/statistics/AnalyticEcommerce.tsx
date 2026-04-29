@@ -43,6 +43,27 @@ const AnalyticEcommerce: React.FC<AnalyticEcommerceProps> = ({
         </Typography>
         <Grid container alignItems="center">
           <Grid>
+            <Chip
+              variant="outlined"
+              color={color}
+              icon={
+                <>
+                  {!isLoss && (
+                    <RiseOutlined
+                      style={{ fontSize: '0.75rem', color: 'inherit' }}
+                    />
+                  )}
+                  {isLoss && (
+                    <FallOutlined
+                      style={{ fontSize: '0.75rem', color: 'inherit' }}
+                    />
+                  )}
+                </>
+              }
+              label={`${percentage}%`}
+              sx={{ ml: 1, pl: 1 }}
+              size="small"
+            />
             <Typography variant="h4" color="inherit">
               {count}
             </Typography>

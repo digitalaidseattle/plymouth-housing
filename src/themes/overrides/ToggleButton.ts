@@ -12,9 +12,9 @@ export default function ToggleButton(theme: Theme) {
 
           // Primary style (for history page checkout/inventory toggle)
           '&.toggle-primary': {
-            padding: '1rem 0',
+            padding: theme.spacing(2, 0),
             borderRadius: '18px !important',
-            fontSize: '1.25rem',
+            fontSize: theme.typography.h5.fontSize,
             backgroundColor: theme.palette.grey[100],
             color: theme.palette.text.primary,
             minWidth: '120px',
@@ -36,7 +36,7 @@ export default function ToggleButton(theme: Theme) {
           // Secondary style (for date picker preset buttons)
           '&.toggle-secondary': {
             borderRadius: '20px !important',
-            padding: '0.5rem 1rem',
+            padding: theme.spacing(1, 2),
             backgroundColor: 'transparent',
             border: `1px solid ${theme.palette.text.primary} !important`,
             color: theme.palette.text.primary,
@@ -61,7 +61,7 @@ export default function ToggleButton(theme: Theme) {
     MuiToggleButtonGroup: {
       styleOverrides: {
         root: {
-          gap: '1rem',
+          gap: theme.spacing(2),
           // Remove default grouped styling
           '& .MuiToggleButton-root': {
             marginLeft: '0 !important',

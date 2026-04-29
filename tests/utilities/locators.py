@@ -10,7 +10,7 @@ class CommonLocators:
 
 class HistoryPageLocators:
     HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'records')]")
+    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
     HISTORY_CARDS = (By.XPATH,"//div[contains(@class,'MuiBox-root') and .//h3 and .//p[contains(text(),'Created')]]")
     NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
 
@@ -92,6 +92,21 @@ class CheckoutPageLocators:
 
     SEARCH = (By.XPATH, "//input[@type='search']")
 
+    # modal header
+    SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
+
+    # over limit warning
+    OVER_LIMIT_WARNING = (
+        By.XPATH,
+        "//*[contains(translate(normalize-space(.), "
+        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'over') "
+        "and contains(translate(normalize-space(.), "
+        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'limit')]"
+    )
+
+    # loading
+    LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")
+
     CHECKOUT_INFO_TEXT = (
         By.XPATH,
         "//*[normalize-space()='Proceed to Checkout' or normalize-space()='Checkout']"
@@ -105,9 +120,20 @@ class CheckoutPageLocators:
     def get_add_button_locator(item_name):
         return (
             By.XPATH,
-            f"//p[@aria-label='{item_name}']"
-            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
-            f"/following-sibling::div//button"
+            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
+            f"//div[contains(@class,'MuiCardActions-root')]"
+            f"//div[contains(@class,'MuiBox-root')]"
+            f"/button[last()]"
+        )
+
+    @staticmethod
+    def get_minus_button_locator(item_name):
+        return (
+            By.XPATH,
+            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
+            f"//div[contains(@class,'MuiCardActions-root')]"
+            f"//div[contains(@class,'MuiBox-root')]"
+            f"/button[1]"
         )
 
 class AddItemPageLocators:

@@ -29,7 +29,7 @@ vi.mock('./SpinUpDialog', () => ({
 }));
 
 const createUserContextValue = (overrides = {}) => ({
-  user: { userID: "1", userDetails: "Test User", userRoles: ["volunteer"], claims: [] },
+  user: { userId: "1", userDetails: "Test User", userRoles: ["volunteer"], claims: [] },
   loggedInUserId: null,
   setLoggedInUserId: vi.fn(),
   activeVolunteers: [],

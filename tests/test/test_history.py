@@ -1,5 +1,4 @@
 import pytest
-import re
 from selenium.webdriver.support.wait import WebDriverWait
 
 
@@ -8,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 # ---------------------------------------------------
 
 @pytest.mark.usefixtures("login_with_volunteer")
-@pytest.mark.smoke
+@pytest.mark.regression
 def test_checkout_increases_history_count(
         checkout_page,
         history_page):
@@ -47,6 +46,7 @@ def test_checkout_increases_history_count(
 # ---------------------------------------------------
 
 @pytest.mark.usefixtures("login_with_volunteer")
+@pytest.mark.regression
 @pytest.mark.serial
 def test_checkout_reflected_in_history(
         checkout_page,
@@ -100,15 +100,9 @@ def test_checkout_reflected_in_history(
 
     # ---------------------------------------------------
     # Assert 3: Recency (CI SAFE)
+    # formatTransactionDate always produces "Created today at HH:MM AM/PM"
+    # for same-day transactions — never relative "sec ago" / "min ago"
     # ---------------------------------------------------
-    recent_minutes = re.search(r"(\d+)\s*min ago", latest_text_lc)
-
-    is_recent = (
-        "sec ago" in latest_text_lc
-        or "just now" in latest_text_lc
-        or (recent_minutes and int(recent_minutes.group(1)) <= 5)  #  relaxed
-    )
-
-    assert is_recent, (
-        f"History entry not recent enough → {latest_text}"
+    assert "created today at" in latest_text_lc, (
+        f"History entry not from today → {latest_text}"
     )

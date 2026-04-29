@@ -42,32 +42,32 @@ const DialogTemplate = ({
               width: { xs: '80vw', md: '50vw' },
               maxHeight: '90vh',
               borderRadius: '15px',
-              paddingY: title ? '1.5rem' : '0rem',
-              paddingX: '3rem',
+              py: title ? 3 : 0,
+              px: 6,
               position: 'relative'
             },
           }}
             open={showDialog}>
             <Box sx={{ 
                 position: 'absolute',
-                top: '1rem',
-                right: '1rem'
+                top: theme.spacing(2),
+                right: theme.spacing(2)
             }}>
                 <Button onClick={handleShowDialog} disableRipple><Close/></Button>
             </Box>
 
             {title &&
             <DialogTitle>
-                <Typography sx={{ fontSize: '1.25rem', fontWeight: '600', textTransform: 'capitalize' }}>{title}</Typography>
+                <Typography variant="h5" sx={{ textTransform: 'capitalize' }}>{title}</Typography>
             </DialogTitle>}
 
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem'}}>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2}}>
             {children}
             </DialogContent>
 
-            <DialogActions sx={{ display: 'flex', gap: '1rem' }}>
+            <DialogActions sx={{ display: 'flex', gap: 2 }}>
                 {backButtonText && <Button onClick={handleShowDialog} sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
-                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
+                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, py: 1, px: 3 }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
             </DialogActions>
         </Dialog>
     );

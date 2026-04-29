@@ -7,14 +7,14 @@ export default function TableCell(theme: Theme) {
     MuiTableCell: {
       styleOverrides: {
         root: {
-          fontSize: '0.875rem',
-          padding: 12,
+          fontSize: theme.typography.caption.fontSize,
+          padding: theme.spacing(1.5),
           borderColor: theme.palette.divider,
         },
         head: {
           fontWeight: 600,
-          paddingTop: 20,
-          paddingBottom: 20,
+          paddingTop: theme.spacing(2.5),
+          paddingBottom: theme.spacing(2.5),
         },
       },
     },

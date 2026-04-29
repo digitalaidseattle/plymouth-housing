@@ -15,8 +15,8 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
-
+      uses: actions/checkout@v6
+    
     - name: Get package version
       id: package-version
       run: |
@@ -62,7 +62,7 @@ jobs:
     environment: production # this is a reference to the github environment and determines the env: location below
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
           lfs: false

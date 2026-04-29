@@ -2,6 +2,8 @@ import os
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from tests.pages.checkout_page import CheckOutPage
 from tests.pages.inventory_page import InventoryPage
@@ -18,7 +20,7 @@ from tests.utilities.data import (
 )
 
 # ---------------------------------------------------
-# WebDriver Fixture ( STABLE)
+# WebDriver Fixture (STABLE + FAST)
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
@@ -51,33 +53,39 @@ def driver():
 
 
 # ---------------------------------------------------
-# Volunteer Login Fixture (FIXED)
+# Volunteer Login Fixture (HARDENED)
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
 def login_with_volunteer(driver):
     login_page = LoginPage(driver)
 
+    # Username
     login_page.enter_username(VOLUNTEER_USERNAME)
     login_page.click_next_button()
 
+    #  WAIT PASSWORD PAGE (CRITICAL FIX)
+    WebDriverWait(driver, 20).until(
+        EC.visibility_of_element_located(login_page.locators.PASSWORD_INPUT)
+    )
+
+    # Password
     login_page.enter_password(VOLUNTEER_PASSWORD)
     login_page.click_sign_in_button()
 
+    # Stay signed in
     login_page.handle_stay_signed_in()
 
-    #  DB + dropdown ready
-    login_page.wait_for_volunteer_ready()
-    login_page.wait_for_full_app_ready()
-
-    # FIXED (NEW ENGINE)
-    login_page.select_volunteer()
+    # Volunteer select (stable now)
+    login_page.select_volunteer("John Doe 1234")
 
     login_page.click_continue_button()
 
+    # PIN
     login_page.enter_pin()
     login_page.click_continue_button()
 
+    # Final landing
     home_page = HomePage(driver)
     home_page.wait_for_homepage_loaded()
 
@@ -85,7 +93,7 @@ def login_with_volunteer(driver):
 
 
 # ---------------------------------------------------
-# Admin Login Fixture
+# Admin Login Fixture (STABLE)
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
@@ -94,6 +102,11 @@ def admin_home_page(driver):
 
     login_page.enter_username(ADMIN_USERNAME)
     login_page.click_next_button()
+
+    #  WAIT PASSWORD PAGE
+    WebDriverWait(driver, 20).until(
+        EC.visibility_of_element_located(login_page.locators.PASSWORD_INPUT)
+    )
 
     login_page.enter_password(ADMIN_PASSWORD)
     login_page.click_sign_in_button()
@@ -130,3 +143,9 @@ def inventory_page(driver):
 @pytest.fixture(scope="function")
 def home_page(login_with_volunteer):
     return login_with_volunteer
+
+
+@pytest.fixture
+def add_item_page(driver):
+    from tests.pages.add_item_page import AddItemPage
+    return AddItemPage(driver)

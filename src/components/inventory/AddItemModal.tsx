@@ -82,12 +82,12 @@ const AddItemModal = ({
     color: theme.palette.success.dark,
   });
 
-  const DialogTitle = styled('h1')({
-    fontSize: '1.25rem',
+  const DialogTitle = styled('h1')(({ theme }) => ({
+    fontSize: theme.typography.h5.fontSize,
     fontWeight: '600',
     textTransform: 'capitalize',
     margin: '0',
-  });
+  }));
 
   const handleInputChange = (field: string, value: string | number) => {
     if (field === 'type' && typeof value === 'string') {
@@ -240,7 +240,7 @@ const AddItemModal = ({
               >
                 <span>{option.name}</span>
                 {option.category && (
-                  <span style={{ fontSize: '0.8rem', color: 'gray' }}>
+                  <span style={{ fontSize: theme.typography.body2.fontSize, color: 'gray' }}>
                     {option.category}
                   </span>
                 )}
@@ -275,8 +275,8 @@ const AddItemModal = ({
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
-            marginTop: '0.5rem',
+            gap: 2,
+            marginTop: 1,
           }}
         >
           <IconButton
@@ -318,7 +318,7 @@ const AddItemModal = ({
         sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
       >
         <Button
-          sx={{ mr: '20px', color: 'black' }}
+          sx={{ mr: 3, color: 'black' }}
           onClick={resetInputsHandler}
         >
           Cancel
@@ -348,8 +348,8 @@ const AddItemModal = ({
   const ResultsContent = () => (
     <>
       <DialogTitle>Inventory Updated: {updateItem?.name}</DialogTitle>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box> 
           Previous Stock: <ResultText>{updateItem?.quantity ?? 0}</ResultText>
         </Box>
         <Box>
@@ -376,7 +376,7 @@ const AddItemModal = ({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
-          gap: '1rem',
+          gap: 2,
           width: '100%',
           margin: 'auto',
           height: '100%',

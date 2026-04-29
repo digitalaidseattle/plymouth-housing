@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 // project import
+import config from '../config';
 import componentsOverride from './overrides';
 import Palette from './palette';
 import CustomShadows from './shadows';
@@ -22,7 +23,7 @@ export default function ThemeCustomization(props: { children: ReactNode }) {
   // const theme = Palette('light', 'default');
   const theme = Palette('light');
 
-  const themeTypography = Typography(`'Public Sans', sans-serif`);
+  const themeTypography = Typography(config.fontFamily);
   const themeCustomShadows = useMemo(() => CustomShadows(theme), [theme]);
 
   const themeOptions = useMemo(
@@ -37,6 +38,7 @@ export default function ThemeCustomization(props: { children: ReactNode }) {
         },
       },
       direction: 'ltr',
+      spacing: 8,
       mixins: {
         toolbar: {
           minHeight: 60,

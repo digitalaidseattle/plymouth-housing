@@ -55,7 +55,7 @@ const HistoryPage: React.FC = () => {
   const isLoading = isLoadingReferenceData || isLoadingHistory;
 
   return (
-    <Stack gap="2rem" sx={{ paddingY: 5 }}>
+    <Stack sx={{ gap: 4, paddingY: 5 }}>
       <SnackbarAlert
         open={snackbarState.open}
         onClose={handleClose}
@@ -76,7 +76,7 @@ const HistoryPage: React.FC = () => {
           exclusive
           onChange={(_, newType) => newType && setHistoryType(newType)}
           sx={{
-            gap: '1rem',
+            gap: 2,
             '& .MuiToggleButton-root': {
               border: 'none',
               borderRadius: '18px !important', // Override grouped styles
@@ -87,9 +87,10 @@ const HistoryPage: React.FC = () => {
           <ToggleButton
             value="checkout"
             sx={{
-              padding: '1rem 2rem',
+              py: 2,
+              px: 4,
               borderRadius: '18px',
-              fontSize: '1.25rem',
+              fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
               backgroundColor: 'grey.100',
@@ -112,9 +113,10 @@ const HistoryPage: React.FC = () => {
           <ToggleButton
             value="inventory"
             sx={{
-              padding: '1rem 2rem',
+              py: 2,
+              px: 4,
               borderRadius: '18px',
-              fontSize: '1.25rem',
+              fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
               backgroundColor: 'grey.100',

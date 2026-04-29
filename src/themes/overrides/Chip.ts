@@ -13,7 +13,7 @@ export default function Chip(theme: Theme) {
           },
         },
         sizeLarge: {
-          fontSize: '1rem',
+          fontSize: theme.typography.body2.fontSize,
           height: 40,
         },
         light: {

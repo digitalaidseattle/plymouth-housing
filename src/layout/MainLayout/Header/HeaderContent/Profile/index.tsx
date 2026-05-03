@@ -60,7 +60,7 @@ const Profile = () => {
   const iconBackColorOpen = 'grey.300';
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+    <Box sx={{ flexShrink: 0, ml: 1 }}>
       <ButtonBase
         sx={{
           p: 0.25,
@@ -116,7 +116,7 @@ const Profile = () => {
               >
                 <ClickAwayListener onClickAway={handleClose}>
                   <MainCard elevation={0} border={false} content={false}>
-                    <CardContent sx={{ px: 2.5, pt: 3 }}>
+                    <CardContent sx={{ px: 3, pt: 3 }}>
                       <Grid
                         container
                         justifyContent="space-between"

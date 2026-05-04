@@ -21,20 +21,20 @@ const MinimalWrapper = (props: { children: ReactNode }) => (
   <Box sx={{ minHeight: '100vh' }}>
     <Grid
       container
-      direction="column"
-      justifyContent="flex-end"
       sx={{
         minHeight: '100vh',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
       }}
     >
-      <Grid size={{ xs: 12 }}> 
+      <Grid size={{ xs: 12 }}>
         <Grid
           size={{ xs: 12 }}
           container
-          justifyContent="center"
-          alignItems="center"
           sx={{
             minHeight: { xs: 'calc(100vh - 134px)', md: 'calc(100vh - 112px)' },
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <Grid>{props.children}</Grid>

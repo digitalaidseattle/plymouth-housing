@@ -206,7 +206,7 @@ const AddItemModal = ({
       {/* Item Type */}
       {!inventoryType && (
         <Box id="add-item-type" sx={{ width: '100%' }}>
-          <Typography fontWeight="bold">Inventory Type</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>Inventory Type</Typography>
           <Select
             value={formData.type}
             onChange={(e) => handleInputChange('type', e.target.value)}
@@ -220,7 +220,7 @@ const AddItemModal = ({
 
       {/* Item Name */}
       <Box id="add-item-name" sx={{ width: '100%' }}>
-        <Typography fontWeight="bold">Item Name</Typography>
+        <Typography sx={{ fontWeight: 'bold' }}>Item Name</Typography>
         <Autocomplete
           onChange={(_, value) => onChangeHandler(value)}
           value={updateItem}
@@ -270,7 +270,7 @@ const AddItemModal = ({
       )}
 
       <Box id="add-item-quantity">
-        <Typography fontWeight="bold">Quantity To Add/Remove</Typography>
+        <Typography sx={{ fontWeight: 'bold' }}>Quantity To Add/Remove</Typography>
         <Box
           sx={{
             display: 'flex',

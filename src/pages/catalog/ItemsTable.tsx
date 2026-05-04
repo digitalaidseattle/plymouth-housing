@@ -500,7 +500,7 @@ const ItemsTable = ({
                       }))
                     }
                     disabled={isSaving}
-                    inputProps={{ min: 0 }}
+                    slotProps={{ htmlInput: { min: 0 } }}
                     sx={{ width: '70px' }}
                   />
                 </TableCell>

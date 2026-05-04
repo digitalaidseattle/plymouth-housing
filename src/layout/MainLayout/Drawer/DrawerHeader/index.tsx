@@ -12,13 +12,15 @@ const DrawerHeader = (props: { open: boolean }) => {
 
   return (
     <Box
-      display="flex"
-      alignItems="center"
-      justifyContent={props.open ? 'flex-start' : 'center'}
-      paddingLeft={props.open ? 3 : 0}
-      paddingTop={1}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: props.open ? 'flex-start' : 'center',
+        paddingLeft: props.open ? 3 : 0,
+        paddingTop: 1
+      }}
     >
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
         <Logo />
         <Typography variant="h5">{VITE_APPLICATION_NAME}</Typography>
       </Stack>

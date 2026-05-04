@@ -101,8 +101,8 @@ const PickYourNamePage: React.FC = () => {
           <Box sx={{ maxWidth: '250px', minWidth: '250px', width: '100%' }}>
             <Typography
               variant="h4"
-              textAlign="left"
               sx={{
+                textAlign: 'left',
                 height: '50px',
                 lineHeight: '50px',
                 marginBottom: 2,

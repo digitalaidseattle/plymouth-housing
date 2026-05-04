@@ -168,7 +168,7 @@ const CategoriesTable = ({
             onBlur={handleSave}
             autoFocus
             type={field === 'item_limit' ? 'number' : 'text'}
-            inputProps={field === 'item_limit' ? { min: 1 } : {}}
+            slotProps={{ htmlInput: field === 'item_limit' ? { min: 1 } : {} }}
             disabled={isSaving}
             sx={{ width: field === 'item_limit' ? '80px' : '200px' }}
           />
@@ -242,7 +242,7 @@ const CategoriesTable = ({
                       type="number"
                       value={newCategory.item_limit}
                       onChange={(e) => setNewCategory(prev => ({ ...prev, item_limit: e.target.value }))}
-                      inputProps={{ min: 1 }}
+                      slotProps={{ htmlInput: { min: 1 } }}
                       disabled={isSaving}
                       sx={{ width: '80px' }}
                     />

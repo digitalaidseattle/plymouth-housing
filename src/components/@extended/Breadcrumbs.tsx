@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-
-// material-ui
-import { Grid, Typography } from '@mui/material';
+import { Typography, Grid } from '@mui/material';
 import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
-
-// project imports
 import MainCard from '../MainCard';
 
-// ==============================|| BREADCRUMBS ||============================== //
 interface PROPS {
   navigation: any;
   title: boolean;
@@ -91,10 +86,8 @@ const Breadcrumbs: React.FC<PROPS> = ({ navigation, title, others }) => {
         >
           <Grid
             container
-            direction="column"
-            justifyContent="flex-start"
-            alignItems="flex-start"
             spacing={1}
+            sx={{ flexDirection: 'column' }}
           >
             <Grid>
               <MuiBreadcrumbs aria-label="breadcrumb">

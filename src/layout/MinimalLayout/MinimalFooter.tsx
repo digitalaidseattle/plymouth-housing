@@ -22,9 +22,11 @@ const MinimalFooter = () => {
     <Container maxWidth="xl">
       <Stack
         direction={matchDownSM ? 'column' : 'row'}
-        justifyContent={matchDownSM ? 'center' : 'space-between'}
         spacing={2}
-        textAlign={matchDownSM ? 'center' : 'inherit'}
+        sx={{
+          justifyContent: matchDownSM ? 'center' : 'space-between',
+          textAlign: matchDownSM ? 'center' : 'inherit',
+        }}
       >
         <Typography variant="subtitle2" color="secondary" component="span">
           &copy; {VITE_APPLICATION_NAME}&nbsp;
@@ -42,7 +44,7 @@ const MinimalFooter = () => {
         <Stack
           direction={matchDownSM ? 'column' : 'row'}
           spacing={matchDownSM ? 1 : 3}
-          textAlign={matchDownSM ? 'center' : 'inherit'}
+          sx={{ textAlign: matchDownSM ? 'center' : 'inherit' }}
         ></Stack>
       </Stack>
     </Container>

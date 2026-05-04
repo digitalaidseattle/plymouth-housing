@@ -96,7 +96,7 @@ const AddVolunteerModal = ({
 
         {/* Name Input */}
         <Box sx={{ mb: 2 }}>
-          <Typography fontWeight="bold">Name</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>Name</Typography>
           <TextField
             fullWidth
             value={formData.name}
@@ -107,7 +107,7 @@ const AddVolunteerModal = ({
 
         {/* Email Input */}
         <Box sx={{ mb: 2 }}>
-          <Typography fontWeight="bold">Email</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>Email</Typography>
           <TextField
             fullWidth
             value={formData.email}
@@ -119,14 +119,14 @@ const AddVolunteerModal = ({
 
         {/* PIN Input */}
         <Box sx={{ mb: 2 }}>
-          <Typography fontWeight="bold">PIN (4 digits)</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>PIN (4 digits)</Typography>
           <TextField
             fullWidth
             value={formData.PIN}
             onChange={(e) => handleInputChange('PIN', e.target.value)}
             type="text"
             placeholder="Enter 4-digit PIN"
-            inputProps={{ maxLength: 4, pattern: '\\d{4}' }}
+            slotProps={{ htmlInput: { maxLength: 4, pattern: '\\d{4}' } }}
           />
         </Box>
 

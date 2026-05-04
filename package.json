@@ -33,7 +33,7 @@
     "react-router-dom": "^7.12.0"
   },
   "devDependencies": {
-    "@azure/static-web-apps-cli": "^2.0.8",
+    "@azure/static-web-apps-cli": "^2.0.9",
     "@eslint/compat": "^2.0.2",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
@@ -45,7 +45,7 @@
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^8.59.1",
     "@typescript-eslint/parser": "^8.59.1",
-    "@vitejs/plugin-react-swc": "^4.0.1",
+    "@vitejs/plugin-react-swc": "^4.3.0",
     "@vitest/coverage-v8": "^4.1.5",
     "baseline-browser-mapping": "^2.10.8",
     "depcheck": "^1.4.7",

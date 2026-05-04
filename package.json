@@ -45,7 +45,7 @@
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^8.59.1",
     "@typescript-eslint/parser": "^8.59.1",
-    "@vitejs/plugin-react-swc": "^4.0.1",
+    "@vitejs/plugin-react-swc": "^4.3.0",
     "@vitest/coverage-v8": "^4.0.6",
     "baseline-browser-mapping": "^2.10.8",
     "depcheck": "^1.4.7",

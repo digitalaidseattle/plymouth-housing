@@ -46,7 +46,7 @@ const ItemQuantityButton = ({
           </IconButton>
           <Typography
             sx={{
-              fontSize: { xs: '14px', md: '20px' },
+              typography: { xs: 'body2', md: 'h5' },
               mx: { xs: '10px', md: '15px' },
             }}
             data-testid="test-id-quantity"
@@ -70,7 +70,7 @@ const ItemQuantityButton = ({
         <Button
           sx={{
             color: 'black',
-            fontSize: { xs: '14px', md: '16px' },
+            typography: 'body2',
             paddingX: { xs: '10px', md: '40px' },
           }}
           onClick={() => removeItemFromCart(item.id, categoryName)}

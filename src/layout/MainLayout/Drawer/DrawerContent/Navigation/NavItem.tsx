@@ -65,9 +65,10 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   const textColor = 'text.primary';
   const iconSelectedColor = 'primary.main';
   const Icon = item.icon;
-  const itemIcon = Icon && (
-    <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} />
-  );
+  const fontSize = drawerOpen
+    ? theme.typography.body1.fontSize
+    : theme.typography.h6.fontSize;
+  const itemIcon = Icon && <Icon style={{ fontSize }} />;
   const isSelected = activeMenuItem === item.id;
 
   return (

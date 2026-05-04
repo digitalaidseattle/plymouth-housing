@@ -22,6 +22,11 @@ ALTER TABLE dbo.Items
 ADD CONSTRAINT FK_Items_CategoryId
 FOREIGN KEY (category_id) REFERENCES dbo.Categories(id);
 
+-- Transactions -> Transactions (self-referencing for parent transactions)
+ALTER TABLE dbo.Transactions
+ADD CONSTRAINT FK_Transactions_ParentTransaction
+FOREIGN KEY (parent_transaction_id) REFERENCES dbo.Transactions(id);
+
 -- Transactions -> Users
 ALTER TABLE dbo.Transactions
 ADD CONSTRAINT FK_Transactions_UserId
@@ -41,3 +46,5 @@ FOREIGN KEY (resident_id) REFERENCES dbo.Residents(id);
 ALTER TABLE dbo.Residents
 ADD CONSTRAINT FK_Residents_UnitId
 FOREIGN KEY (unit_id) REFERENCES dbo.Units(id);
+
+

@@ -3,6 +3,6 @@ GO
 
 CREATE TABLE TransactionTypes (
     id INT IDENTITY(1,1) PRIMARY KEY,
-    transaction_type NVARCHAR(10) NOT NULL
+    transaction_type NVARCHAR(30) NOT NULL
 );
 GO

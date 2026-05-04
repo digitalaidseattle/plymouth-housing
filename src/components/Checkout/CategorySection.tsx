@@ -52,7 +52,7 @@ const CategorySection = ({
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
             sx={{
-              fontSize: { xs: '14px', md: '20px' },
+              typography: { xs: 'body2', md: 'h5' },
               marginY: '3%',
               marginRight: '30px',
             }}
@@ -62,7 +62,7 @@ const CategorySection = ({
           </Typography>
           {removeButton ? null : (
             <Typography
-              sx={{ fontSize: { xs: '12px', md: '16px' }, color: '#666666' }}
+              sx={{ typography: 'body2', color: '#666666' }}
             >
               {category.items.length} items
             </Typography>
@@ -70,7 +70,7 @@ const CategorySection = ({
         </Box>
         <Typography
           sx={{
-            fontSize: { xs: '12px', md: '16px' },
+            typography: 'body2',
             backgroundColor:
               categoryCheckout?.categoryCount > category.checkout_limit
                 ? '#ffebee'

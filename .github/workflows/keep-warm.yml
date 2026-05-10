@@ -1,0 +1,47 @@
+name: Keep Database and DAB Warm
+
+on:
+  schedule:
+    # Run every 10 minutes during business hours (9 AM - 5 PM Pacific, Mon-Fri)
+    # Times are in UTC, so 9 AM Pacific = 5 PM UTC (accounting for PST/PDT variations)
+    - cron: '*/10 17-1 * * 1-5'  # Every 10 min, 5 PM-1 AM UTC (9 AM-5 PM Pacific), Mon-Fri
+  workflow_dispatch:  # Allow manual trigger for testing
+
+permissions:
+  contents: read
+
+jobs:
+  warm-up:
+    runs-on: ubuntu-latest
+
+    env:
+      CI: "true"
+      URL: ${{ secrets.URL }}
+      VOLUNTEER_USERNAME: ${{ secrets.VOLUNTEER_USERNAME }}
+      VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest~=8.3 selenium~=4.27 python-dotenv~=1.1
+
+      - name: Warm up application (login and fetch volunteers)
+        run: |
+          pytest tests/test/test_login_volunteer.py::test_login_volunteer -v --tb=short -x
+        continue-on-error: true
+
+      - name: Log result
+        if: always()
+        run: echo "Warm-up cycle completed"

@@ -1,0 +1,40 @@
+name: Warm Up Applications
+
+on:
+  schedule:
+    # Seattle time (America/Los_Angeles)
+    # Wednesdays & Thursdays | 1 PM – 5 PM
+
+    # PDT
+    - cron: "*/5 20-23 * * 3,4"
+    - cron: "*/5 0 * * 4,5"
+
+    # PST
+    - cron: "*/5 21-23 * * 3,4"
+    - cron: "*/5 0-1 * * 4,5"
+
+  workflow_dispatch:
+
+jobs:
+  warmup:
+    runs-on: ubuntu-latest
+
+    env:
+      PROD_URL: ${{ secrets.PROD_URL }}
+      STAGING_URL: ${{ secrets.URL }}
+
+    steps:
+      - name: Timestamp
+        run: date
+
+      - name: Warm Production API
+        continue-on-error: true
+        run: |
+          echo "Pinging production API..."
+          curl --max-time 30 -L -o /dev/null -s -w "Production HTTP Status: %{http_code}\n" $PROD_URL/api/items
+
+      - name: Warm Staging API
+        continue-on-error: true
+        run: |
+          echo "Pinging staging API..."
+          curl --max-time 30 -L -o /dev/null -s -w "Staging HTTP Status: %{http_code}\n" $STAGING_URL/api/items

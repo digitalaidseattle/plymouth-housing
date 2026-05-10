@@ -142,7 +142,7 @@ describe('AddVolunteerModal', () => {
   });
 
   test('shows generic fallback message for unexpected status codes', async () => {
-    mockErrorWithStatus('Failed to fetch data: I\'m a teapot', 418);
+    mockErrorWithStatus('Failed to fetch data: I\'m a teapot!!', 418);
     renderModal();
     fillFormAndSubmit();
 

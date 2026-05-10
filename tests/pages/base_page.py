@@ -213,14 +213,26 @@ class BasePage:
     # ---------------------------------------------------
 
     def wait_for_data_load(self, value, timeout=30):
+
+        def _xpath_literal(s):
+            if "'" not in s:
+                return f"'{s}'"
+
+            if '"' not in s:
+                return f'"{s}"'
+
+            # Mixed quotes -> use concat()
+            parts = s.split("'")
+            return "concat(" + ", \"'\", ".join(f"'{p}'" for p in parts) + ")"
+
         locator = (
             By.XPATH,
-            f"//*[contains(text(), '{value}')]"
+            f"//*[contains(text(), {_xpath_literal(value)})]",
         )
 
         self.get_wait(timeout).until(
             lambda d: (
-                len(d.find_elements(*locator)) > 0
+                    len(d.find_elements(*locator)) > 0
             )
         )
 
@@ -320,7 +332,7 @@ class BasePage:
                 first_option.text.strip()
             )
 
-        except StaleElementReferenceException:
+        except StaleElementReferenceException as err:
 
             options = visible_options(
                 self.driver
@@ -330,7 +342,7 @@ class BasePage:
                 raise TimeoutException(
                     "Autocomplete options "
                     "became stale"
-                )
+                ) from err
 
             first_option = options[0]
 

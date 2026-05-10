@@ -71,7 +71,28 @@ const AddVolunteerModal = ({
       resetInputsHandler();
     } catch (error) {
       console.error('Error posting to database:', error);
-      setErrorMessage(`Failed to add volunteer: ${(error as Error).message}`);
+      const status = (error as Error & { status?: number }).status;
+      if (status === 409) {
+        setErrorMessage(
+          'A volunteer with this name or email already exists. Please check the People page for the existing volunteer.',
+        );
+      } else if (status === 401 || status === 403) {
+        setErrorMessage(
+          'You do not have permission to add volunteers. Please log out and log back in, or contact an admin.',
+        );
+      } else if (status && status >= 500) {
+        setErrorMessage(
+          'The server is currently unavailable. Please wait a moment and try again.',
+        );
+      } else if (!status) {
+        setErrorMessage(
+          'Unable to connect to the server. Please check your internet connection and try again.',
+        );
+      } else {
+        setErrorMessage(
+          'Something went wrong while adding the volunteer. Please try again.',
+        );
+      }
     }
   };
 

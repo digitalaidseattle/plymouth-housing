@@ -9,7 +9,7 @@ import * as userService from '../../services/userService';
 vi.mock('../../services/userService');
 
 const mockUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Admin User',
   userRoles: ['admin'],
 };

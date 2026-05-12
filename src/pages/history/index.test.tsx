@@ -79,8 +79,9 @@ const mockUser = {
 };
 
 const mockUserList = [
-  { id: 1, name: 'John Doe' },
-  { id: 2, name: 'Jane Smith' },
+  { id: 1, name: 'John Doe', role: 'volunteer' },
+  { id: 2, name: 'Jane Smith', role: 'volunteer' },
+  { id: 3, name: 'Kirsten', role: 'admin' },
 ];
 
 const mockBuildings: Building[] = [
@@ -483,6 +484,39 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       // The component should display "You" instead of the user name for the current user
       expect(screen.queryByText('You')).toBeInTheDocument();
+    });
+  });
+
+  test('displays "(Admin)" prefix for admin user transactions', async () => {
+    const adminTransactions: CheckoutTransaction[] = [
+      {
+        transaction_id: '3',
+        user_id: 3,
+        building_id: 1,
+        unit_number: '101',
+        resident_id: 1,
+        resident_name: 'Resident A',
+        transaction_date: new Date().toISOString(),
+        item_type: 'general',
+        total_quantity: 2,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
+        is_edited: false,
+      },
+    ];
+
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
+      adminTransactions,
+    );
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('(Admin) Kirsten')).toBeInTheDocument();
     });
   });
 

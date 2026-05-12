@@ -394,9 +394,9 @@ class BasePage:
 
         wait.until(
             lambda d: (
-                d.find_element(*input_locator)
-                .get_attribute("aria-expanded")
-                != "true"
+                    d.find_element(*input_locator)
+                    .get_attribute("aria-expanded")
+                    == "false"
             )
         )
 

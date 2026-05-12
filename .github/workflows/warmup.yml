@@ -2,16 +2,11 @@ name: Warm Up Applications
 
 on:
   schedule:
-    # Seattle time (America/Los_Angeles)
-    # Wednesdays & Thursdays | 1 PM – 5 PM
+    # Seattle local time (~12 PM – 5 PM PT)
+    # GitHub Actions cron uses UTC
 
-    # PDT
-    - cron: "*/5 20-23 * * 3,4"
-    - cron: "*/5 0 * * 4,5"
-
-    # PST
-    - cron: "*/5 21-23 * * 3,4"
-    - cron: "*/5 0-1 * * 4,5"
+    - cron: "*/5 19-23 * * 3,4"
+    - cron: "0 0 * * 4,5"
 
   workflow_dispatch:
 
@@ -21,20 +16,46 @@ jobs:
 
     env:
       PROD_URL: ${{ secrets.PROD_URL }}
-      STAGING_URL: ${{ secrets.URL }}
+      STAGING_URL: ${{ secrets.STAGING_URL }}
 
     steps:
       - name: Timestamp
         run: date
 
+      - name: Validate required secrets
+        run: |
+          if [ -z "${PROD_URL}" ]; then
+            echo "PROD_URL secret is missing"
+            exit 1
+          fi
+
+          if [ -z "${STAGING_URL}" ]; then
+            echo "STAGING_URL secret is missing"
+            exit 1
+          fi
+
       - name: Warm Production API
         continue-on-error: true
         run: |
           echo "Pinging production API..."
-          curl --max-time 30 -L -o /dev/null -s -w "Production HTTP Status: %{http_code}\n" $PROD_URL/api/items
+
+          if curl --max-time 30 -L -o /dev/null \
+            -w "Production HTTP Status: %{http_code}\n" \
+            "$PROD_URL/api/items"; then
+            echo "Production warm-up succeeded"
+          else
+            echo "::warning::Production warm-up failed"
+          fi
 
       - name: Warm Staging API
         continue-on-error: true
         run: |
           echo "Pinging staging API..."
-          curl --max-time 30 -L -o /dev/null -s -w "Staging HTTP Status: %{http_code}\n" $STAGING_URL/api/items
+
+          if curl --max-time 30 -L -o /dev/null \
+            -w "Staging HTTP Status: %{http_code}\n" \
+            "$STAGING_URL/api/items"; then
+            echo "Staging warm-up succeeded"
+          else
+            echo "::warning::Staging warm-up failed"
+          fi

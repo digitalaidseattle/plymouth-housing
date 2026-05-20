@@ -17,7 +17,10 @@ import {
 } from '../../types/interfaces';
 import { WELCOME_BASKET_ITEMS, SETTINGS } from '../../types/constants';
 import { UserContext } from '../contexts/UserContext';
-import { processGeneralItems, processWelcomeBasket } from '../../services/checkoutService';
+import {
+  processGeneralItems,
+  processWelcomeBasket,
+} from '../../services/checkoutService';
 import CategorySection from './CategorySection';
 
 type CheckoutDialogProps = {
@@ -184,7 +187,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
-      } else if (result.Status === 'Error' && result.ErrorCode === 'DUPLICATE_TRANSACTION') {
+      } else if (
+        result.Status === 'Error' &&
+        result.ErrorCode === 'DUPLICATE_TRANSACTION'
+      ) {
         // Handle duplicate transaction - clear the cart and show success
         setActiveSection('');
         setResidentInfo({
@@ -285,6 +291,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         <DialogTitle
           sx={{ pt: 3, pb: 0, mb: 2 }}
           id="customized-dialog-title"
+          component="div"
         >
           <Typography variant="h4">
             {totalItemLimitExceeded && categoryLimitExceeded
@@ -352,6 +359,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         <DialogTitle
           sx={{ pt: 3 }}
           id="customized-dialog-title"
+          component="div"
         >
           <Typography variant="h4">Checkout Summary</Typography>
         </DialogTitle>

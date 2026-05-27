@@ -1,3 +1,9 @@
+/**
+ *  authService.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';

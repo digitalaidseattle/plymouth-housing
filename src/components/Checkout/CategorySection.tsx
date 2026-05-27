@@ -1,3 +1,9 @@
+/**
+ *  CategorySection.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import CheckoutCard from './CheckoutCard';
 
 import {

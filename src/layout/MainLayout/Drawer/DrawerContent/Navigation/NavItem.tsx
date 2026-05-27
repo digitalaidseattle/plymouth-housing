@@ -1,3 +1,9 @@
+/**
+ *  NavItem.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 

@@ -1,3 +1,9 @@
+/**
+ *  Logo.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { VITE_APPLICATION_NAME } from '../../types/constants';
 import logo from '/src/assets/images/ply_icon_white_goldbkgrnd.svg';
 

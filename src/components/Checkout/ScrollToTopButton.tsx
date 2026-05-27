@@ -1,3 +1,9 @@
+/**
+ *  ScrollToTopButton.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Box } from '@mui/material';
 import { KeyboardArrowUp } from '@mui/icons-material';

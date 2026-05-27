@@ -1,3 +1,9 @@
+/**
+ *  MainContainer.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ForwardedRef, ReactNode, forwardRef } from 'react';
 
 // material-ui

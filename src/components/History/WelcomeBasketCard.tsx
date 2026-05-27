@@ -1,3 +1,9 @@
+/**
+ *  WelcomeBasketCard.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Chip, useTheme } from '@mui/material';
 import { Building, CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';

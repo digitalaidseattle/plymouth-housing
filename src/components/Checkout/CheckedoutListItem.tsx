@@ -1,3 +1,9 @@
+/**
+ *  CheckedoutListItem.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Box, Chip, Typography } from "@mui/material"
 
 const CheckedoutListItem = ({ itemName, timesCheckedOut }: { itemName: string, timesCheckedOut: number }) => {

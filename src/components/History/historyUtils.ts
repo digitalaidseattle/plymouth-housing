@@ -1,3 +1,9 @@
+/**
+ *  historyUtils.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Building } from '../../types/interfaces';
 
 const DATE_FORMATS = {

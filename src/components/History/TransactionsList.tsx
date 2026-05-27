@@ -1,3 +1,9 @@
+/**
+ *  TransactionsList.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React from 'react';
 import { Box, Stack } from '@mui/material';
 import { Building, User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';

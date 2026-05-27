@@ -1,3 +1,9 @@
+/**
+ *  useCatalog.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { renderHook } from '@testing-library/react';
 import { useCatalog } from './useCatalog';
 import { UserContext } from '../../components/contexts/UserContext';

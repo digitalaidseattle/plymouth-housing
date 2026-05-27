@@ -1,3 +1,9 @@
+/**
+ *  PageHeading.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Typography } from "@mui/material";
 import { ReactNode } from "react";
 

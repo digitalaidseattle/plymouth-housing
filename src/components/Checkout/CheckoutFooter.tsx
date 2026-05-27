@@ -1,3 +1,9 @@
+/**
+ *  CheckoutFooter.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { CategoryProps } from '../../types/interfaces';
 import { Box, Button, Typography } from '@mui/material';
 import { DrawerOpenContext } from '../contexts/DrawerOpenContext';

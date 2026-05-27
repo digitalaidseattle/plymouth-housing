@@ -1,3 +1,9 @@
+/**
+ *  MobileSection.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useEffect, useRef, useState } from 'react';
 
 // material-ui

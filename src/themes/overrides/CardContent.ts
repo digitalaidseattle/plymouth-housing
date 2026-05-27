@@ -1,3 +1,9 @@
+/**
+ *  CardContent.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - CARD CONTENT ||============================== //
 
 import { Theme } from '@mui/material';

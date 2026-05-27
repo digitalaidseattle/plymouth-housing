@@ -1,3 +1,9 @@
+/**
+ *  historyUtils.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { describe, test, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
 
 const savedTZ = process.env.TZ;

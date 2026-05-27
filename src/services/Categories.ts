@@ -1,3 +1,9 @@
+/**
+ *  Categories.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ClientPrincipal, CategoryItem } from '../types/interfaces';
 import { ENDPOINTS, API_HEADERS } from '../types/constants';
 import { getRole } from '../utils/userUtils';

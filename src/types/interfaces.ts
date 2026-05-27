@@ -1,3 +1,9 @@
+/**
+ *  interfaces.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ─── Checkout / Cart ─────────────────────────────────────────────────────────
 
 export type CheckoutType = 'general' | 'welcomeBasket';

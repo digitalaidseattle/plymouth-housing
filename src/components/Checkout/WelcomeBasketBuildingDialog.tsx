@@ -1,3 +1,9 @@
+/**
+ *  WelcomeBasketBuildingDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { FormEvent, useState, useContext } from 'react';
 import { Box, FormControl, Typography } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';

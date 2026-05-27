@@ -1,3 +1,9 @@
+/**
+ *  AnimateButton.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // third-party
 // FIXME
 // import { motion } from 'framer-motion';

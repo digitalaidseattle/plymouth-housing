@@ -1,3 +1,9 @@
+/**
+ *  AdditionalNotesDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { SyntheticEvent, useState } from 'react';
 import {
   Typography,

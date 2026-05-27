@@ -1,3 +1,9 @@
+/**
+ *  constants.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 export const VITE_APPLICATION_NAME = 'Plymouth Housing';
 
 export const API_HEADERS = {

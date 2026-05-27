@@ -1,3 +1,9 @@
+/**
+ *  Notification.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState } from 'react';
 
 // material-ui

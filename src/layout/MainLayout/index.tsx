@@ -204,7 +204,7 @@ const MainLayout: React.FC = () => {
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Box
             component="main"
-            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}
+            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 }, minWidth: 0 }}
           >
             <Toolbar />
             <Breadcrumbs navigation={navigation} title />

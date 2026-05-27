@@ -49,6 +49,8 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         top: '3.5rem',
         zIndex: 2,
         p: 1,
+        width: '100%',
+        overflow: 'hidden',
         background: theme.palette.common.white,
       }}
     >

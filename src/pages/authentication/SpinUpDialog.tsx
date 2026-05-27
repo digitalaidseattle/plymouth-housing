@@ -1,3 +1,9 @@
+/**
+ *  SpinUpDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Dialog, DialogTitle, DialogContent, Box, CircularProgress, Typography } from "@mui/material";
 import { SETTINGS } from "../../types/constants";
 

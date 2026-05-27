@@ -1,3 +1,9 @@
+/**
+ *  AnalyticEcommerce.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { Box, Chip, Grid, Stack, Typography } from '@mui/material';
 

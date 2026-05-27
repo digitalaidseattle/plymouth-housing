@@ -1,3 +1,9 @@
+/**
+ *  residentService.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import {

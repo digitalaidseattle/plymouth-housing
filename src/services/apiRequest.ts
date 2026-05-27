@@ -1,3 +1,9 @@
+/**
+ *  apiRequest.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { API_HEADERS, SETTINGS } from '../types/constants';
 
 interface ApiResponse<T> {

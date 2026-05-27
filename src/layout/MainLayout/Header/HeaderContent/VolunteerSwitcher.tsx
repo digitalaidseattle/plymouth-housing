@@ -1,3 +1,9 @@
+/**
+ *  VolunteerSwitcher.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useState, useContext } from 'react';
 import { Menu, MenuItem, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';

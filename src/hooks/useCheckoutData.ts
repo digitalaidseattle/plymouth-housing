@@ -1,3 +1,9 @@
+/**
+ *  useCheckoutData.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   CategoryProps,

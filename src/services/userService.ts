@@ -1,3 +1,9 @@
+/**
+ *  userService.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal, User } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';

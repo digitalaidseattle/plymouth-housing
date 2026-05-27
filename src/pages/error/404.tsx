@@ -1,3 +1,9 @@
+/**
+ *  404.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Button, Grid, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router';
 import Logo from '../../components/Logo/Logo';

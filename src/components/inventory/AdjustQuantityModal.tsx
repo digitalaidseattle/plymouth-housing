@@ -1,3 +1,9 @@
+/**
+ *  AdjustQuantityModal.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Box,
   Typography,

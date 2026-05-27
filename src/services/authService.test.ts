@@ -1,3 +1,9 @@
+/**
+ *  authService.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { getAuthMe, verifyPin } from './authService';
 import { API_HEADERS, ENDPOINTS } from '../types/constants';

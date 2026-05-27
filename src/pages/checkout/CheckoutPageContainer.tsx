@@ -1,3 +1,9 @@
+/**
+ *  CheckoutPageContainer.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useLocation } from 'react-router-dom';
 import MainContainer from '../../components/MainContainer';
 import CheckoutPage from './CheckoutPage';

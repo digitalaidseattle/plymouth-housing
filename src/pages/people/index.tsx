@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useState, useEffect } from 'react';
 import { SETTINGS } from '../../types/constants';
 import { Box, Button, Pagination } from '@mui/material';

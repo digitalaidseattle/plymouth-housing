@@ -1,3 +1,9 @@
+/**
+ *  useDateRangeFilter.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useMemo, useCallback } from 'react';
 import { formatDateRange, formatFullDate } from '../components/History/historyUtils';
 

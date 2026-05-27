@@ -1,3 +1,9 @@
+/**
+ *  useHistoryData.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useEffect, useMemo } from 'react';
 import type { ClientPrincipal, CheckoutTransaction, InventoryTransaction } from '../types/interfaces';
 import {

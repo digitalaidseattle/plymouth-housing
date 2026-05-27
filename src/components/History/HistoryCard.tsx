@@ -1,3 +1,9 @@
+/**
+ *  HistoryCard.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Box } from '@mui/material';
 import { ReactNode } from 'react';
 

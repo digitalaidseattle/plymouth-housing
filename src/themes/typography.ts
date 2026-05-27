@@ -1,3 +1,9 @@
+/**
+ *  typography.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| DEFAULT THEME - TYPOGRAPHY  ||============================== //
 // FIXME any?
 const Typography = (fontFamily: string) => ({

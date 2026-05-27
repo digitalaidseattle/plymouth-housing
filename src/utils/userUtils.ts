@@ -1,3 +1,9 @@
+/**
+ *  userUtils.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ClientPrincipal } from '../types/interfaces';
 import { USER_ROLES } from '../types/constants';
 

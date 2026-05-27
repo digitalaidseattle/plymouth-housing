@@ -1,3 +1,9 @@
+/**
+ *  InputLabel.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - INPUT LABEL ||============================== //
 
 import { Theme } from '@mui/material';

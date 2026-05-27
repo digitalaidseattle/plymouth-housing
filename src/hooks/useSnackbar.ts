@@ -1,3 +1,9 @@
+/**
+ *  useSnackbar.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useCallback } from 'react';
 
 type SnackbarSeverity = 'success' | 'warning' | 'error';

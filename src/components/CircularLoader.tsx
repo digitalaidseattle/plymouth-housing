@@ -1,3 +1,9 @@
+/**
+ *  CircularLoader.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { styled } from '@mui/material/styles';
 import { CircularProgress } from '@mui/material';

@@ -1,3 +1,9 @@
+/**
+ *  CheckoutCard.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Card,
   CardContent,

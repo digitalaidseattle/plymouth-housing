@@ -1,3 +1,9 @@
+/**
+ *  MiniDrawerStyled.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { Theme, styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';

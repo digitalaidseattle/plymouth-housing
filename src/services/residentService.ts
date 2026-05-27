@@ -1,3 +1,9 @@
+/**
+ *  residentService.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { getRole } from '../utils/userUtils';
 import { Building, ClientPrincipal, Unit } from '../types/interfaces';
 import { ENDPOINTS, SETTINGS } from '../types/constants';

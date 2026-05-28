@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material/styles';
 
 // header style
 const headerSX = {
-  p: 2.5,
+  p: 3,
   '& .MuiCardHeader-action': { m: '0px auto', alignSelf: 'center' },
 };
 
@@ -74,7 +74,7 @@ const MainCard: React.FC<MainCardProp> = forwardRef(
           },
           '& pre': {
             m: 0,
-            p: '16px !important',
+            padding: `${theme.spacing(2)} !important`,
             fontFamily: theme.typography.fontFamily,
             fontSize: theme.typography.caption.fontSize,
           },

@@ -7,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 # ---------------------------------------------------
 
 @pytest.mark.usefixtures("login_with_volunteer")
-@pytest.mark.smoke
+@pytest.mark.regression
 def test_checkout_increases_history_count(
         checkout_page,
         history_page):
@@ -46,6 +46,7 @@ def test_checkout_increases_history_count(
 # ---------------------------------------------------
 
 @pytest.mark.usefixtures("login_with_volunteer")
+@pytest.mark.regression
 @pytest.mark.serial
 def test_checkout_reflected_in_history(
         checkout_page,

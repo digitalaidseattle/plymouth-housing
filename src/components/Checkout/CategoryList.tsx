@@ -77,8 +77,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
           display: 'flex',
           flexDirection: 'row',
           flexWrap: 'wrap',
-          paddingLeft: '5%',
-          paddingRight: '5%',
+          paddingLeft: 6,
+          paddingRight: 6,
           paddingY: '2.5%',
         }}
       >
@@ -113,8 +113,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
           id="Welcome Basket"
           variant="h4"
           sx={{
-            paddingLeft: '5%',
-            paddingTop: '5%',
+            paddingLeft: 6,
+            paddingTop: 6,
             fontWeight: 'bold',
           }}
         >

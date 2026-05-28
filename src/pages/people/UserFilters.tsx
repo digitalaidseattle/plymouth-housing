@@ -62,7 +62,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
       <Typography variant="body2">Filters</Typography>
-      <Box sx={{ px: '8px' }}>
+      <Box sx={{ px: 1 }}>
         <Button
           aria-label="Status Filter" 
           aria-haspopup="true" 
@@ -76,7 +76,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
                 aria-label="Clear Status Filter"
                 onClick={clearStatusFilter}
                 size="small"
-                sx={{ padding: 0, color: 'black', ml: '6px' }}
+                sx={{ padding: 0, color: 'black', ml: 1 }}
               >
                 <ClearIcon sx={{ fontSize: 'large' }} />
               </IconButton>
@@ -84,7 +84,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
           ) : (
             <>
               <Typography variant="body2">Status</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
             </>
           )}
         </Button>
@@ -101,7 +101,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
           </MenuItem>
         </Menu>
       </Box>
-      <Box sx={{ px: '8px' }}>
+      <Box sx={{ px: 1 }}>
         <Button
           aria-label="Role Filter"
           aria-haspopup="true"
@@ -115,7 +115,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
                 aria-label="Clear Role Filter"
                 onClick={clearRoleFilter}
                 size="small"
-                sx={{ padding: 0, color: 'black', ml: '6px' }}
+                sx={{ padding: 0, color: 'black', ml: 1 }}
               >
                 <ClearIcon sx={{ fontSize: 'large' }} />
               </IconButton>
@@ -123,7 +123,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
           ) : (
             <>
               <Typography variant="body2">Role</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
             </>
           )}
         </Button>

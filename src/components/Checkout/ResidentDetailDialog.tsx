@@ -40,6 +40,7 @@ const ResidentDetailDialog = ({
 }: ResidentDetailDialogProps) => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
+
   const [selectedBuilding, setSelectedBuilding] = useState<Building>(
     residentInfo.building,
   );
@@ -132,8 +133,8 @@ const ResidentDetailDialog = ({
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem',
-          paddingY: '1rem',
+          gap: 2,
+          py: 2,
         }}
       >
         {isEditMode && (

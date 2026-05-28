@@ -23,6 +23,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   loggedInUserId,
   historyType,
 }) => {
+
   if (transactionsByUser.length === 0) {
     return (
       <p>
@@ -33,14 +34,22 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   }
 
   return (
-    <Stack gap="2rem">
+    <Stack gap={4}>
       {transactionsByUser?.map((user) => (
         <Box key={user.user_id}>
-          <Stack direction="row" alignItems="center" gap="1rem">
+          <Stack direction="row" alignItems="center" gap={2}>
             <h2>
               {loggedInUserId === user.user_id
                 ? 'You'
-                : getUserName(user.user_id, userList)}
+                : (() => {
+                    const foundUser = userList?.find(
+                      (v) => v.id === user.user_id,
+                    );
+                    if (!foundUser) return 'Unknown user';
+                    return foundUser.role === 'admin'
+                      ? `(Admin) ${foundUser.name}`
+                      : foundUser.name;
+                  })()}
             </h2>
             <span>
               {user.transactions.length}{' '}
@@ -55,7 +64,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                 lg: 'repeat(2, 1fr)',
                 xl: 'repeat(3, 1fr)',
               },
-              gap: '1rem',
+              gap: 2,
             }}
           >
             {user.transactions.map(

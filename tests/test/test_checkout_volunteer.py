@@ -15,10 +15,13 @@ def checkout_page(driver):
 
 @pytest.mark.usefixtures("login_with_volunteer")
 @pytest.mark.serial
-@pytest.mark.smoke
+@pytest.mark.regression
 class TestCheckout:
 
-    @pytest.mark.parametrize("item", ["Curtains"])
+    @pytest.mark.parametrize("item", [
+        "Curtains",
+        "Baby Wipes"
+    ])
     def test_checkout(self, checkout_page, home_page, item):
 
         # ---------------------------------------------------

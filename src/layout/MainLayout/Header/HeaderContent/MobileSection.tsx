@@ -48,7 +48,7 @@ const MobileSection = () => {
 
   return (
     <>
-      <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+      <Box sx={{ flexShrink: 0, ml: 1 }}>
         <IconButton
           component="span"
           disableRipple

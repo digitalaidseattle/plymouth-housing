@@ -374,7 +374,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         sx={{
           backgroundColor: theme.palette.grey[100],
           borderRadius: '15px',
-          paddingBottom: '20px',
+          paddingBottom: 3,
           minHeight: '100vh',
         }}
       >

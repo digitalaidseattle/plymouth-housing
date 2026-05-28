@@ -31,6 +31,7 @@ const WelcomeBasketBuildingDialog = ({
 }: WelcomeBasketBuildingDialogProps) => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
+
   const [selectedBuilding, setSelectedBuilding] = useState<Building>({
     id: 0,
     code: '',
@@ -131,8 +132,8 @@ const WelcomeBasketBuildingDialog = ({
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem',
-          paddingY: '1rem',
+          gap: 2,
+          py: 2,
         }}
       >
         {isEditMode && (

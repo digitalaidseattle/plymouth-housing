@@ -338,8 +338,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     return (
       <>
         <DialogTitle
-          sx={{ padding: '20px 0px 0px 0px', marginBottom: '1rem' }}
+          sx={{ pt: 3, pb: 0, mb: 2 }}
           id="customized-dialog-title"
+          component="div"
         >
           <Typography variant="h4">
             {totalItemLimitExceeded && categoryLimitExceeded
@@ -351,13 +352,13 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         </DialogTitle>
         <DialogContent>
           {totalItemLimitExceeded && (
-            <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
               <Typography>Total Items:</Typography>
               <Typography>{totalItemCount} / 10</Typography>
             </Box>
           )}
           {categoryLimitExceeded && (
-            <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
               <Typography>Categories:</Typography>
               <Box>
                 {categoryLimitErrors.map((c) => (
@@ -368,7 +369,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               </Box>
             </Box>
           )}
-          <Typography sx={{ marginTop: '1rem' }}>
+          <Typography sx={{ mt: 2 }}>
             Please chat with a staff member before continuing.
           </Typography>
         </DialogContent>
@@ -407,8 +408,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     return (
       <>
         <DialogTitle
-          sx={{ padding: '20px 0px 0px 0px' }}
+          sx={{ pt: 3 }}
           id="customized-dialog-title"
+          component="div"
         >
           <Typography variant="h4">Checkout Summary{isEditMode && ' (Editing)'}</Typography>
         </DialogTitle>
@@ -416,8 +418,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            marginTop: '15px',
-            marginBottom: '30px',
+            mt: 2,
+            mb: 4,
           }}
         >
           <Typography>
@@ -459,7 +461,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             )}
           </Box>
 
-          <Alert severity="info" sx={{ marginY: '1rem' }}>
+          <Alert severity="info" sx={{ my: 2 }}>
             Usual limit for total and category items helps make sure everyone
             has enough. If a resident truly needs an extra, please chat with
             staff.
@@ -470,7 +472,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           sx={{
             flex: 1,
             overflowY: 'auto',
-            padding: '0 20px',
+            px: 3,
             height: '40vh',
             borderTop: 'none',
           }}
@@ -501,7 +503,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         </DialogContent>
         <DialogContent
           sx={{
-            padding: '10px',
+            p: 1,
             textAlign: 'center',
           }}
         >
@@ -598,7 +600,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         <Box
           sx={{
             width: { xs: '90%', sm: '80%', md: '70%' },
-            paddingTop: '20px',
+            pt: 3,
             height: '100%',
             position: 'relative',
           }}

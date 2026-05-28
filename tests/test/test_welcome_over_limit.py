@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 import pytest
 
 
-@pytest.mark.smoke
+@pytest.mark.regression
 @pytest.mark.serial
 @pytest.mark.parametrize("item", [
     "Twin-size",

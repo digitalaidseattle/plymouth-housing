@@ -1,5 +1,3 @@
-import { Building } from '../../types/interfaces';
-
 const DATE_FORMATS = {
   DATE_ONLY: {
     month: 'short' as const,
@@ -18,34 +16,39 @@ const DATE_FORMATS = {
   },
 };
 
-
-export function formatTransactionDate(timestamp: string): string {
+export function formatTransactionDate(timestamp: string, userName?: string, action = 'Created'): string {
   const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp);
   const dateCreated = new Date(hasTimezone ? timestamp : timestamp + 'Z');
   const now = new Date();
+
+  const actionPart = action ? `${action} ` : '';
 
   const isToday =
     dateCreated.getFullYear() === now.getFullYear() &&
     dateCreated.getMonth() === now.getMonth() &&
     dateCreated.getDate() === now.getDate();
 
-  const timeStr = dateCreated.toLocaleString('en-us', {
+  let datePart = '';
+  if (isToday) {
+    datePart = 'today';
+  }
+  else {
+    datePart = dateCreated.toLocaleString('en-us', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  const timePart = dateCreated.toLocaleString('en-us', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
 
-  if (isToday) {
-    return `Created today at ${timeStr}`;
-  }
+  const userNamePart = userName ? `, by ${userName}` : '';
 
-  const dateStr = dateCreated.toLocaleString('en-us', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-  return `Created ${dateStr} at ${timeStr}`;
+  return `${actionPart}${datePart} at ${timePart}${userNamePart}`;
 }
 
 export function formatDateRange(startDate: Date, endDate: Date): string {
@@ -57,22 +60,6 @@ export function formatDateRange(startDate: Date, endDate: Date): string {
 export function formatFullDate(date: Date): string {
   return date.toLocaleString('en-us', DATE_FORMATS.FULL_DATE);
 }
-
-export function findBuildingById(
-  buildingId: number,
-  buildings: Building[] | null,
-): Building | undefined {
-  return buildings?.find((b) => b.id === buildingId);
-}
-
-export function formatBuildingInfo(
-  buildingId: number,
-  buildings: Building[] | null,
-): string {
-  const building = findBuildingById(buildingId, buildings);
-  return building ? `${building.code} - ${building.name}` : '';
-}
-
 
 export function getPresetDateRange(preset: string): {
   startDate: Date;

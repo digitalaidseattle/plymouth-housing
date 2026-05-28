@@ -15,10 +15,39 @@ function Invoke-Scripts-In-Folder {
     }
 }
 
+function Invoke-SqlFileIfExists {
+    param([string]$FilePath)
+    if (Test-Path $FilePath) {
+        Write-Host "- running $FilePath" -ForegroundColor Blue
+        Invoke-Sqlcmd -InputFile $FilePath -ConnectionString $env:DATABASE_CONNECTION_STRING -ErrorAction Stop
+        Write-Host "    - done"
+    }
+    else {
+        Write-Host "- skipping $FilePath (not found)" -ForegroundColor Yellow
+    }
+}
+
 try {
-    # These have to be executed in order, hence you can't loop through them. 
+    # These have to be executed in order. Run cleanup first.
     Invoke-Scripts-In-Folder -Folder "./database/cleanup/"
-    Invoke-Scripts-In-Folder -Folder "./database/tables/"
+
+    # Run table creation in explicit order to respect FK dependencies.
+    Write-Host "Processing Tables in explicit order" -ForegroundColor Green
+    $tablesOrder = @(
+        "./database/tables/building.sql",
+        "./database/tables/unit.sql",
+        "./database/tables/residents.sql",
+        "./database/tables/user.sql",
+        "./database/tables/category.sql",
+        "./database/tables/inventory.sql",
+        "./database/tables/tracking.sql",
+        "./database/tables/transaction_type.sql",
+        "./database/tables/transaction.sql",
+        "./database/tables/transaction_item.sql"
+    )
+    foreach ($f in $tablesOrder) { Invoke-SqlFileIfExists $f }
+
+    # Now run dependency constraints and other artifacts
     Invoke-Scripts-In-Folder -Folder "./database/dependencies/"
     Invoke-Scripts-In-Folder -Folder "./database/types/"
     Invoke-Scripts-In-Folder -Folder "./database/procedures/"

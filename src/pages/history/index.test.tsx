@@ -502,6 +502,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '3',
         user_id: 3,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '101',
         resident_id: 1,
         resident_name: 'Resident A',

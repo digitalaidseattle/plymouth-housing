@@ -81,5 +81,12 @@ export const getItemQtyColor = (qty: number, palette: Palette) => ({
 });
 
 export const getUserName = (userId: number, userList?: User[] | null): string => {
-  return userList?.find((u) => u.id === userId)?.name ?? `User ${userId}`;
+  const foundUser = userList?.find((u) => u.id === userId);
+  
+  if (!foundUser) 
+    return `User ${userId}`;
+  
+  const title = foundUser.role === 'admin' ? '(Admin) ' : '';
+
+  return `${title}${foundUser.name}`;
 };

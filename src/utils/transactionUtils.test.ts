@@ -105,8 +105,12 @@ describe('getUserName', () => {
     { id: 2, name: 'Bob', active: true, created_at: '', last_signed_in: null, role: 'volunteer' as const, PIN: '1234' },
   ];
 
-  test('returns the user name when user is found', () => {
-    expect(getUserName(1, users)).toBe('Alice');
+  test('returns the user name with admin prefix for admin users', () => {
+    expect(getUserName(1, users)).toBe('(Admin) Alice');
+  });
+
+  test('returns the user name without prefix for non-admin users', () => {
+    expect(getUserName(2, users)).toBe('Bob');
   });
 
   test('returns "User N" fallback when user is not found', () => {

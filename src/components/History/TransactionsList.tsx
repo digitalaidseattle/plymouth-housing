@@ -41,15 +41,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
             <h2>
               {loggedInUserId === user.user_id
                 ? 'You'
-                : (() => {
-                    const foundUser = userList?.find(
-                      (v) => v.id === user.user_id,
-                    );
-                    if (!foundUser) return 'Unknown user';
-                    return foundUser.role === 'admin'
-                      ? `(Admin) ${foundUser.name}`
-                      : foundUser.name;
-                  })()}
+                : getUserName(user.user_id, userList)}
             </h2>
             <span>
               {user.transactions.length}{' '}

@@ -1,22 +1,19 @@
 import { Chip, useTheme } from '@mui/material';
-import { Building, CheckoutTransaction } from '../../types/interfaces';
+import { CheckoutTransaction } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 import { WELCOME_BASKET_ITEMS } from '../../types/constants';
 
 type WelcomeBasketCardProps = {
   checkoutTransaction: CheckoutTransaction;
-  buildings: Building[] | null;
   howLongAgoString: string;
 };
 
 const WelcomeBasketCard = ({
   checkoutTransaction,
-  buildings,
   howLongAgoString,
 }: WelcomeBasketCardProps) => {
   const theme = useTheme();
-  const { welcome_basket_item_id, welcome_basket_quantity } =
-    checkoutTransaction;
+  const { welcome_basket_item_id, welcome_basket_quantity } = checkoutTransaction;
 
   let welcomeBasketType: string;
   if (welcome_basket_item_id === WELCOME_BASKET_ITEMS.TWIN) {
@@ -36,11 +33,9 @@ const WelcomeBasketCard = ({
       <div>
         <h3>Welcome Basket: {welcomeBasketType}</h3>
         <p>
-          {buildings?.find((b) => b.id === checkoutTransaction.building_id)
-            ?.code ?? ''}
+          {checkoutTransaction.building_code}
           {' - '}
-          {buildings?.find((b) => b.id === checkoutTransaction.building_id)
-            ?.name ?? ''}
+          {checkoutTransaction.building_name}
         </p>
         <p>{howLongAgoString}</p>
       </div>

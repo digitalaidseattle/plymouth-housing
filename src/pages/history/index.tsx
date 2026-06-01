@@ -69,7 +69,7 @@ const HistoryPage: React.FC = () => {
         handleSetDateInput={() => {}}
       />
 
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <ToggleButtonGroup
           value={historyType}
           exclusive
@@ -164,7 +164,7 @@ const HistoryPage: React.FC = () => {
       </Stack>
 
       <Stack>
-        <Typography variant="h2" textTransform="capitalize">
+        <Typography variant="h2" sx={{ textTransform: 'capitalize' }}>
           {dateRange.isCustom ? dateRangeString : dateInput}
         </Typography>
         {dateInput === 'custom' ? (

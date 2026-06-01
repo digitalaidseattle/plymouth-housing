@@ -65,7 +65,7 @@ const AdditionalNotesDialog = ({
             submitButtonText='add to cart'
             backButtonText='cancel'>
             {previousCheckouts && checkoutHistory &&
-            <Stack gap={2}>
+            <Stack sx={{ gap: 2 }}>
                 <Box>
                     <Typography variant="h4" sx={{ fontWeight: '600' }}>Check before adding item</Typography>
                     <Typography>
@@ -73,7 +73,7 @@ const AdditionalNotesDialog = ({
                     </Typography>
                 </Box>
                 <Box>
-                    <Stack direction="row" gap={2}>
+                    <Stack direction="row" sx={{ gap: 2 }}>
                         <Typography variant="body2" sx={{ fontWeight: '600' }}>Previously checked out</Typography>
                         <Typography>{applianceMiscCheckouts.length} items</Typography>
                     </Stack>
@@ -91,7 +91,7 @@ const AdditionalNotesDialog = ({
             </Stack>
             }
 
-            <Stack gap={2}>
+            <Stack sx={{ gap: 2 }}>
                 <Box>
                     <Typography variant="h4" sx={{ fontWeight: '600' }}>Enter {item && item.name} Details</Typography>
                     <Typography>You can specify the appliance here.</Typography>

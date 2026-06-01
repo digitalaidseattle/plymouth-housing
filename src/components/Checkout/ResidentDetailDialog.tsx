@@ -184,7 +184,10 @@ const ResidentDetailDialog = ({
             value={selectedUnit}
             disabled={isWaiting || isEditMode}
             filterOptions={unitNumberFilter}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) => {
+              if (typeof value === 'string') return false;
+              return option.id === value.id;
+            }}
             onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
               if (reason === 'clear') {
                 setSelectedUnit({ id: 0, unit_number: '' });

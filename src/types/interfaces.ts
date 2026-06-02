@@ -186,17 +186,20 @@ export enum TransactionType {
 
 export type CheckoutTransaction = {
   building_id: number;
-  is_edited: boolean;
+  building_code: string;
+  building_name: string;
   item_type: 'general' | 'welcome';
   resident_id: number;
   resident_name: string;
-  total_quantity: number;
   transaction_date: string;
   transaction_id: string;
   unit_number: string;
   user_id: number;
   welcome_basket_item_id: number | null;
   welcome_basket_quantity: number | null;
+  total_quantity: number;
+  is_edited: boolean;
+  items?: TransactionItem[];
 };
 
 export type InventoryTransaction = {
@@ -210,6 +213,13 @@ export type InventoryTransaction = {
     | TransactionType.InventoryReplaceValue;
   user_id: number;
 };
+
+export interface EditTransactionState {
+  originalTransaction: CheckoutTransaction | null;
+  correctionTransactions: CheckoutTransaction[];
+  effectiveItems: CheckoutItemProp[];
+  itemNames: Map<number, string>;
+}
 
 export type TransactionsByUser<T> = {
   user_id: number;
@@ -225,10 +235,27 @@ export type CheckoutRow = {
   resident_name: string;
   unit_number: string;
   building_id: number;
+  building_code: string;
+  building_name: string;
   transaction_date: string;
   total_quantity: number;
   welcome_basket_item_id: number | null;
   welcome_basket_quantity: number | null;
+};
+
+export type TransactionHistoryRow = {
+  transaction_id: string;
+  user_id: number;
+  transaction_type: number;
+  parent_transaction_id: string | null;
+  resident_id: number;
+  resident_name: string;
+  unit_number: string;
+  building_id: number;
+  building_code: string;
+  building_name: string;
+  transaction_date: string;
+  items: string; // JSON string, parsed to TransactionItem[]
 };
 
 export type InventoryRow = {

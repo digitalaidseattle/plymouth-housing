@@ -8,7 +8,7 @@ import pytest
     "Twin-size",
     "Full-size"
 ])
-def test_welcome_basket_over_limit(checkout_page, home_page, item):
+def test_welcome_basket_over_limit(login_with_volunteer, checkout_page, home_page, item):
 
     home_page.wait_for_homepage_loaded()
     home_page.verify_volunteer_home_header()

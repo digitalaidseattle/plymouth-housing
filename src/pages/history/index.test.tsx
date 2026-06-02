@@ -205,7 +205,7 @@ describe('HistoryPage Component', () => {
 
     // Check for button group for checkout/inventory type selection
     expect(
-      screen.getByRole('button', { name: /Check out/i }),
+      screen.getByRole('button', { name: /Checkout/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Inventory/i }),
@@ -222,7 +222,7 @@ describe('HistoryPage Component', () => {
       </Wrapper>,
     );
 
-    const checkoutButton = screen.getByRole('button', { name: /Check out/i });
+    const checkoutButton = screen.getByRole('button', { name: /Checkout/i });
     expect(checkoutButton).toHaveClass('Mui-selected');
   });
 
@@ -233,7 +233,7 @@ describe('HistoryPage Component', () => {
       </Wrapper>,
     );
 
-    const checkoutButton = screen.getByRole('button', { name: /Check out/i });
+    const checkoutButton = screen.getByRole('button', { name: /Checkout/i });
     const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
 
     await waitFor(() => {

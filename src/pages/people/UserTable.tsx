@@ -194,7 +194,7 @@ const UserTable: React.FC<UserTableProps> = ({
           </IconButton>
 
           <Typography id="pin-modal-title" variant="h6" component="h2">
-            Pin code:
+            PIN Code
           </Typography>
           <Typography id="pin-modal-description" sx={{ mt: 2 }}>
             <strong>{selectedPin}</strong>

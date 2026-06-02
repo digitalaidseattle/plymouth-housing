@@ -130,11 +130,11 @@ const VolunteerHome: React.FC = () => {
 
       {/* Action Sections */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {/* Check out Section */}
+        {/* Checkout Section */}
         <Box data-testid="section-checkout">
           <SectionHeader
             icon={<ArrowUpwardIcon />}
-            title="Check out"
+            title="Checkout"
             subtitle="Give items to resident"
           />
           <Box sx={{ display: 'flex', gap: 4 }}>

@@ -386,7 +386,7 @@ const ItemsTable = ({
             onClick={() => setIsAdding(true)}
             disabled={isAdding}
           >
-            Add Item
+            Add item
           </Button>
         </Box>
       </Box>

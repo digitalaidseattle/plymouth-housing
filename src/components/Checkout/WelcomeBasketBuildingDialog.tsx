@@ -124,8 +124,8 @@ const WelcomeBasketBuildingDialog = ({
       showDialog={showDialog}
       handleShowDialog={handleShowDialog}
       handleSubmit={handleSubmit}
-      title="provide building code to continue"
-      submitButtonText="continue"
+      title="Provide building code to continue"
+      submitButtonText="Continue"
       isSubmitting={isSubmitting}
     >
       <Box

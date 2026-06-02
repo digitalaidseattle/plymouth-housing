@@ -84,7 +84,7 @@ describe('ResidentDetailDialog', () => {
     test('renders dialog when showDialog is true', () => {
       renderComponent();
       expect(
-        screen.getByText('provide details to continue'),
+        screen.getByText('Provide details to continue'),
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
       expect(screen.getByLabelText('Unit Number')).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('ResidentDetailDialog', () => {
     test('does not render dialog when showDialog is false', () => {
       renderComponent({ showDialog: false });
       expect(
-        screen.queryByText('provide details to continue'),
+        screen.queryByText('Provide details to continue'),
       ).not.toBeInTheDocument();
     });
 

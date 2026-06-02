@@ -183,7 +183,7 @@ const AdjustQuantityModal = ({
           height: '100%',
         }}
       >
-        <DialogTitle>Adjust {itemToEdit?.name} number</DialogTitle>
+        <DialogTitle>Adjust {itemToEdit?.name} quantity</DialogTitle>
 
         <Box id="current-stock">
           <Typography variant="body2">

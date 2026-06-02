@@ -72,7 +72,7 @@ const dashboard = {
         },
         {
           id: 'checkout-welcome-basket',
-          title: 'Welcome basket',
+          title: 'Welcome Basket',
           type: 'item',
           url: '/checkout',
           state: { checkoutType: 'welcomeBasket' },

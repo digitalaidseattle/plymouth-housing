@@ -125,8 +125,8 @@ const ResidentDetailDialog = ({
       showDialog={showDialog}
       handleShowDialog={handleShowDialog}
       handleSubmit={handleSubmit}
-      title="provide details to continue"
-      submitButtonText="continue"
+      title="Provide details to continue"
+      submitButtonText="Continue"
       isSubmitting={isWaiting}
     >
       <Box
@@ -318,7 +318,7 @@ const ResidentDetailDialog = ({
             }
             sx={{ alignSelf: 'flex-start' }}
           >
-            last visit:{' '}
+            Last visit:{' '}
             {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
           </Typography>
         )}

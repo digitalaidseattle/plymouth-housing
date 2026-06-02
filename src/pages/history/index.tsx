@@ -107,7 +107,7 @@ const HistoryPage: React.FC = () => {
               },
             }}
           >
-            Check out
+            Checkout
           </ToggleButton>
           <ToggleButton
             value="inventory"

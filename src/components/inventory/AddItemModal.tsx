@@ -347,7 +347,7 @@ const AddItemModal = ({
 
   const ResultsContent = () => (
     <>
-      <DialogTitle>Inventory Updated: {updateItem?.name}</DialogTitle>
+      <DialogTitle>Inventory updated: {updateItem?.name}</DialogTitle>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <Box> 
           Previous Stock: <ResultText>{updateItem?.quantity ?? 0}</ResultText>

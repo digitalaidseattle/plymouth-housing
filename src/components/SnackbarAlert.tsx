@@ -2,7 +2,7 @@
  * SnackbarAlert.tsx
  *
  * Display an alert
- * user sererity for "error", "warning", "info", "success"
+ * Use severity for "error", "warning", "info", "success"
  *
  *
  */

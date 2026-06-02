@@ -62,8 +62,8 @@ const AdditionalNotesDialog = ({
             showDialog={showDialog} 
             handleShowDialog={handleShowDialog}
             handleSubmit={handleSubmit}
-            submitButtonText='add to cart'
-            backButtonText='cancel'>
+            submitButtonText='Add to cart'
+            backButtonText='Cancel'>
             {previousCheckouts && checkoutHistory &&
             <Stack gap={2}>
                 <Box>

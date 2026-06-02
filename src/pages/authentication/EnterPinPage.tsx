@@ -231,7 +231,7 @@ const EnterPinPage: React.FC = () => {
               lineHeight: 1.5,
             }}
           >
-            <strong>Forget your pin?</strong> Contact IT department at{' '}
+            <strong>Forget your PIN?</strong> Contact IT department at{' '}
             {import.meta.env.VITE_ADMIN_PHONE_NUMBER} or{' '}
             {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>

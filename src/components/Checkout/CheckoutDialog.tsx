@@ -353,7 +353,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         <DialogContent>
           {totalItemLimitExceeded && (
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Typography>Total Items:</Typography>
+              <Typography>Total items:</Typography>
               <Typography>{totalItemCount} / 10</Typography>
             </Box>
           )}
@@ -382,7 +382,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               textDecoration: 'underline',
             }}
           >
-            Return to Checkout Summary
+            Return to checkout summary
           </Button>
           <Button
             onClick={() => handleConfirm(true)}
@@ -397,7 +397,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
               },
             }}
           >
-            {isProcessing ? 'Working...' : 'Staff said it is ok'}
+            {isProcessing ? 'Working...' : 'Staff said it is OK'}
           </Button>
         </DialogActions>
       </>
@@ -437,7 +437,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography>
-              <strong>Total Items: </strong>
+              <strong>Total items: </strong>
               {totalItemCount} / 10
             </Typography>
             {totalItemLimitExceeded && (
@@ -529,7 +529,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   color: 'black',
                 }}
               >
-                Add Item
+                Add item
               </Button>
               <Button
                 onClick={() => handleConfirm()}
@@ -544,7 +544,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   },
                 }}
               >
-                {isProcessing ? 'Working...' : hasChanges ? 'Save Changes' : 'No Changes'}
+                {isProcessing ? 'Working...' : hasChanges ? 'Save changes' : 'No changes'}
               </Button>
             </>
           ) : (
@@ -557,7 +557,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   textDecoration: 'underline',
                 }}
               >
-                Return to Checkout Page
+                Return to checkout page
               </Button>
               <Button
                 onClick={() => handleConfirm()}

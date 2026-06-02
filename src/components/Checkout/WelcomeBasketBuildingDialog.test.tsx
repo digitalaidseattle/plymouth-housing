@@ -24,7 +24,7 @@ describe('WelcomeBasketBuildingDialog', () => {
     id: 1,
     userDetails: 'Test User',
     userRoles: ['volunteer'],
-    userID: 'testuser',
+    userId: 'testuser',
   };
 
   const mockUserContext = {

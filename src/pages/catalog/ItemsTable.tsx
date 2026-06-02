@@ -69,6 +69,7 @@ const ItemsTable = ({
   onSuccess,
   onError,
 }: ItemsTableProps) => {
+
   const [editState, setEditState] = useState<EditState>({
     id: null,
     field: null,
@@ -346,7 +347,7 @@ const ItemsTable = ({
         onClick={() => handleCellClick(item.id, field as string, value)}
         sx={{
           cursor: 'pointer',
-          padding: '8px',
+          padding: 1,
           borderRadius: '4px',
           '&:hover': {
             backgroundColor: 'action.hover',

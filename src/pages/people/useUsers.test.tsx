@@ -11,7 +11,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Dummy user for context.
 const dummyUser = {
-  userID: "1",
+  userId: "1",
   userDetails: "Test User",
   userRoles: ["volunteer"],
   claims: []

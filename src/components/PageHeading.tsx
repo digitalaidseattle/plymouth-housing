@@ -13,9 +13,7 @@ export interface PageHeadingProps {
 
 const PageHeading = ({ title }: PageHeadingProps) => {
     return (
-        <Typography sx={{ 
-            variant: 'h3',
-            fontSize: '28px' }}>
+        <Typography variant="h3">
             {title}
         </Typography>
     )

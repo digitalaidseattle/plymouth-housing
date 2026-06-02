@@ -48,6 +48,7 @@ const CategoriesTable = ({
   onSuccess,
   onError,
 }: CategoriesTableProps) => {
+
   const [editState, setEditState] = useState<EditState>({
     id: null,
     field: null,
@@ -192,7 +193,7 @@ const CategoriesTable = ({
         onClick={() => handleCellClick(category.id, field, value)}
         sx={{
           cursor: 'pointer',
-          padding: '8px',
+          padding: 1,
           borderRadius: '4px',
           '&:hover': {
             backgroundColor: 'action.hover',

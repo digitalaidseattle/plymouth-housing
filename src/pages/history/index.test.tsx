@@ -14,6 +14,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as historyService from '../../services/historyService';
@@ -78,15 +79,16 @@ vi.mock('../../components/History/InventoryCard', () => ({
 
 // Mock user context values
 const mockUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Test Volunteer',
   userRoles: ['volunteer'],
   claims: [],
 };
 
 const mockUserList = [
-  { id: 1, name: 'John Doe' },
-  { id: 2, name: 'Jane Smith' },
+  { id: 1, name: 'John Doe', role: 'volunteer' },
+  { id: 2, name: 'Jane Smith', role: 'volunteer' },
+  { id: 3, name: 'Kirsten', role: 'admin' },
 ];
 
 const mockBuildings: Building[] = [
@@ -116,6 +118,8 @@ const mockCheckoutTransactions: CheckoutTransaction[] = [
     transaction_id: '1',
     user_id: 1,
     building_id: 1,
+    building_code: 'A',
+    building_name: 'Building A',
     unit_number: '101',
     resident_id: 1,
     resident_name: 'Resident A',
@@ -141,19 +145,21 @@ const mockInventoryTransactions: InventoryTransaction[] = [
 ];
 
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <UserContext.Provider
-    value={{
-      user: mockUser,
-      setUser: vi.fn(),
-      loggedInUserId: 1,
-      setLoggedInUserId: vi.fn(),
-      activeVolunteers: [],
-      setActiveVolunteers: vi.fn(),
-      isLoading: false,
-    }}
-  >
-    {children}
-  </UserContext.Provider>
+  <MemoryRouter>
+    <UserContext.Provider
+      value={{
+        user: mockUser,
+        setUser: vi.fn(),
+        loggedInUserId: 1,
+        setLoggedInUserId: vi.fn(),
+        activeVolunteers: [],
+        setActiveVolunteers: vi.fn(),
+        isLoading: false,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  </MemoryRouter>
 );
 
 describe('HistoryPage Component', () => {
@@ -431,6 +437,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '2',
         user_id: 2,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '102',
         resident_id: 2,
         resident_name: 'Resident B',
@@ -464,6 +472,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '1',
         user_id: 1,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '101',
         resident_id: 1,
         resident_name: 'Resident A',
@@ -489,6 +499,41 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       // The component should display "You" instead of the user name for the current user
       expect(screen.queryByText('You')).toBeInTheDocument();
+    });
+  });
+
+  test('displays "(Admin)" prefix for admin user transactions', async () => {
+    const adminTransactions: CheckoutTransaction[] = [
+      {
+        transaction_id: '3',
+        user_id: 3,
+        building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
+        unit_number: '101',
+        resident_id: 1,
+        resident_name: 'Resident A',
+        transaction_date: new Date().toISOString(),
+        item_type: 'general',
+        total_quantity: 2,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
+        is_edited: false,
+      },
+    ];
+
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
+      adminTransactions,
+    );
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('(Admin) Kirsten')).toBeInTheDocument();
     });
   });
 
@@ -531,6 +576,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '2',
         user_id: 2,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '102',
         resident_id: 2,
         resident_name: 'Resident B',

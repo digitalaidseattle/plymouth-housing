@@ -1,8 +1,13 @@
-from selenium.webdriver import ActionChains
+from selenium.common.exceptions import (
+    TimeoutException,
+    NoSuchElementException,
+    StaleElementReferenceException
+)
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import CheckoutPageLocators, CommonLocators
-
+from selenium.webdriver.common.keys import Keys
 
 class CheckOutPage(BasePage):
 
@@ -27,21 +32,82 @@ class CheckOutPage(BasePage):
 
         self.wait_for_visibility(self.locators.CHECKOUT_INFO_TEXT, timeout=15)
 
+    # ---------------------------------------------------
+    # Stable click helpers
+    # ---------------------------------------------------
+
+    def click_plus_button(self, item_name):
+        wait = self.get_wait(15)
+        locator = self.locators.get_add_button_locator(item_name)
+
+        for _ in range(3):
+            try:
+                btn = wait.until(lambda d: d.find_element(*locator))
+                self.driver.execute_script(
+                    "arguments[0].scrollIntoView({block:'center'});", btn
+                )
+                self.driver.execute_script("arguments[0].click();", btn)
+                return
+            except StaleElementReferenceException:
+                self.wait(0.5)
+
+        raise Exception(f"❌ Could not click plus button for {item_name}")
+
+    def click_minus_button(self, item_name):
+        wait = self.get_wait(15)
+        locator = self.locators.get_minus_button_locator(item_name)
+
+        for _ in range(3):
+            try:
+                btn = wait.until(lambda d: d.find_element(*locator))
+                self.driver.execute_script("arguments[0].click();", btn)
+                return
+            except StaleElementReferenceException:
+                self.wait(0.5)
+
+        raise Exception(f"❌ Could not click minus button for {item_name}")
 
     # ---------------------------------------------------
-    # Dropdown Selections
+    # Quantity (FINAL - deterministic)
+    # ---------------------------------------------------
+
+    def increase_quantity(self, amount, item_name):
+        for _ in range(amount):
+            self.click_plus_button(item_name)
+            self.wait(0.3)
+
+    def decrease_quantity(self, amount, item_name):
+        for _ in range(amount):
+            self.click_minus_button(item_name)
+            self.wait(0.3)
+
+    # ---------------------------------------------------
+    # Dropdowns
     # ---------------------------------------------------
 
     def select_first_building_option(self):
-        self.select_from_autocomplete(
-            self.locators.BUILDING_CODE,
-            self.locators.BUILDING_OPTIONS
-        )
+        for attempt in range(2):
+            try:
+                self.click(self.locators.BUILDING_CODE)
 
-        # Ensure dependent dropdown is enabled
-        self.get_wait(20).until(
-            lambda d: d.find_element(*self.locators.UNIT_NUMBER).is_enabled()
-        )
+                options = self.get_wait(10).until(
+                    lambda d: [
+                        el for el in d.find_elements(*self.locators.BUILDING_OPTIONS)
+                        if el.is_displayed() and el.text.strip()
+                    ]
+                )
+
+                if options:
+                    self.driver.execute_script("arguments[0].click();", options[0])
+                    return
+
+            except TimeoutException:
+                print(f"⚠️ Building load failed (attempt {attempt + 1})")
+
+            if attempt == 0:
+                self.driver.refresh()
+
+        raise Exception("❌ Building selection failed")
 
     def select_first_unit_number(self):
         self.select_from_autocomplete(
@@ -50,97 +116,101 @@ class CheckOutPage(BasePage):
         )
 
     # ---------------------------------------------------
-    # Actions
+    # Form actions
     # ---------------------------------------------------
 
-    def click_continue_button(self, timeout=20):
-        wait = self.get_wait(timeout)
+    def click_continue_button(self):
+        wait = self.get_wait(20)
 
-        # Wait until button is enabled (fresh lookup to avoid stale element)
         wait.until(
             lambda d: "Mui-disabled" not in d.find_element(
                 *self.locators.CONTINUE_BUTTON
             ).get_attribute("class")
         )
 
-        # Re-fetch element after state change (React re-render safe)
-        continue_btn = wait.until(
-            EC.element_to_be_clickable(self.locators.CONTINUE_BUTTON)
-        )
+        btn = wait.until(EC.element_to_be_clickable(self.locators.CONTINUE_BUTTON))
 
-        # Scroll into view
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block:'center'});",
-            continue_btn
-        )
+        self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
+        self.driver.execute_script("arguments[0].click();", btn)
 
-        # Hover (optional)
-        ActionChains(self.driver).move_to_element(continue_btn).perform()
-
-        # Click using JS for stability
-        self.driver.execute_script(
-            "arguments[0].click();",
-            continue_btn
-        )
-
-    def wait_for_resident_autofill(self, timeout=20):
-        wait = self.get_wait(timeout)
-
-        # Wait until resident field is auto-populated
-        wait.until(
+    def wait_for_resident_autofill(self):
+        self.get_wait(15).until(
             lambda d: self.driver.find_element(
                 *self.locators.NAME_INPUT
             ).get_attribute("value") not in ("", None)
         )
 
-    def add_item(self, item_name):
-        locator = self.locators.get_add_button_locator(item_name)
-
-        self.get_wait(15).until(
-            EC.visibility_of_element_located(locator)
-        )
-
-        self.click(locator)
-
-    def click_proceed_to_checkout(self):
-        self.click(self.locators.PROCEED_TO_CHECKOUT)
-
-    def click_confirm(self):
-        self.click(self.locators.CONFIRM)
-
     # ---------------------------------------------------
     # Search
     # ---------------------------------------------------
 
-    def search_item(self, item_name, timeout=20):
-        wait = self.get_wait(timeout)
+    def search_item(self, item_name):
+        wait = self.get_wait(15)
 
-        search_field = wait.until(
-            EC.visibility_of_element_located(self.locators.SEARCH)
-        )
-
-        wait.until(
-            EC.element_to_be_clickable(self.locators.SEARCH)
-        )
+        field = wait.until(EC.element_to_be_clickable(self.locators.SEARCH))
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
-            search_field
+            field
         )
 
-        search_field.click()
-        search_field.clear()
+        field.click()
+        field.clear()
 
-        # Ensure the input field is fully cleared before typing
-        wait.until(lambda d: search_field.get_attribute("value") == "")
+        # Ensure input is cleared
+        wait.until(lambda d: field.get_attribute("value") == "")
 
-        # Ensure the field is ready for input
-        wait.until(lambda d: search_field.is_enabled())
+        #  CRITICAL: allow UI debounce/reset
+        self.wait(1)
 
-        search_field.send_keys(item_name)
+        field.send_keys(item_name)
+        field.send_keys(Keys.ENTER)
+
+        wait.until(lambda d: item_name.lower() in d.page_source.lower())
 
     # ---------------------------------------------------
-    # FULL FLOW
+    # Item actions
+    # ---------------------------------------------------
+
+    def add_item(self, item_name, quantity=1):
+        self.increase_quantity(quantity, item_name)
+
+    # ---------------------------------------------------
+    # Button actions
+    # ---------------------------------------------------
+
+    def click_proceed_to_checkout(self):
+        wait = self.get_wait(20)
+        locator = self.locators.PROCEED_TO_CHECKOUT
+
+        def enabled_button(d):
+            btn = d.find_element(*locator)
+            classes = btn.get_attribute("class") or ""
+            aria_disabled = btn.get_attribute("aria-disabled")
+
+            if (
+                    btn.is_displayed()
+                    and btn.is_enabled()
+                    and "Mui-disabled" not in classes
+                    and aria_disabled != "true"
+            ):
+                return btn
+
+            return False
+
+        btn = wait.until(enabled_button)
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});", btn
+        )
+        self.driver.execute_script("arguments[0].click();", btn)
+
+    def click_confirm(self):
+        btn = self.wait_for_clickable(self.locators.CONFIRM)
+        self.driver.execute_script("arguments[0].click();", btn)
+
+    # ---------------------------------------------------
+    # FLOWS
     # ---------------------------------------------------
 
     def complete_checkout(self, item_name):
@@ -150,7 +220,6 @@ class CheckOutPage(BasePage):
         self.select_first_unit_number()
 
         self.wait_for_resident_autofill()
-
         self.click_continue_button()
 
         self.search_item(item_name)
@@ -158,3 +227,45 @@ class CheckOutPage(BasePage):
 
         self.click_proceed_to_checkout()
         self.click_confirm()
+
+    def open_welcome_basket(self):
+        self.click_checkout("welcome")
+
+        self.select_from_autocomplete(
+            self.locators.BUILDING_CODE,
+            self.locators.BUILDING_OPTIONS
+        )
+
+        self.click_continue_button()
+
+        self.get_wait(15).until(
+            lambda d: not d.find_elements(*self.locators.LOADING_SPINNER)
+        )
+
+    def complete_welcome_checkout(self, item_name, quantity=1):
+        self.add_item(item_name, quantity)
+        self.click_proceed_to_checkout()
+        self.click_confirm()
+
+    def handle_limit_popup(self):
+        try:
+            return_btn = (
+                By.XPATH,
+                "//button[contains(., 'Return to Checkout Summary')]"
+            )
+
+            if self.is_visible(return_btn):
+                self.click(return_btn)
+                return
+
+            ok_btn = (
+                By.XPATH,
+                "//button[contains(., 'Staff said it is ok')]"
+            )
+
+            if self.is_visible(ok_btn):
+                self.click(ok_btn)
+
+        except Exception:
+            # popup yoksa devam et (non-blocking)
+            pass

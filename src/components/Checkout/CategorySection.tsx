@@ -41,8 +41,8 @@ const CategorySection = ({
   return (
     <Box
       sx={{
-        paddingX: removeButton ? '0%' : '5%',
-        paddingBottom: '3%',
+        px: removeButton ? 0 : 5,
+        pb: 3,
         opacity: disabled ? 0.5 : 1,
         pointerEvents: disabled ? 'none' : 'auto',
       }}
@@ -52,15 +52,15 @@ const CategorySection = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '15px',
+          mb: 2,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
             sx={{
-              fontSize: { xs: '14px', md: '20px' },
-              marginY: '3%',
-              marginRight: '30px',
+              typography: { xs: 'body2', md: 'h5' },
+              my: 2,
+              mr: 4,
             }}
             id={category.category}
           >
@@ -68,7 +68,7 @@ const CategorySection = ({
           </Typography>
           {removeButton ? null : (
             <Typography
-              sx={{ fontSize: { xs: '12px', md: '16px' }, color: '#666666' }}
+              sx={{ typography: 'body2', color: '#666666' }}
             >
               {category.items.length} items
             </Typography>
@@ -76,7 +76,7 @@ const CategorySection = ({
         </Box>
         <Typography
           sx={{
-            fontSize: { xs: '12px', md: '16px' },
+            typography: 'body2',
             backgroundColor:
               categoryCheckout?.categoryCount > category.checkout_limit
                 ? '#ffebee'
@@ -86,8 +86,8 @@ const CategorySection = ({
                 ? '#c62828'
                 : 'inherit',
             borderRadius: '20px',
-            paddingY: '4px',
-            paddingX: '12px',
+            py: 0.5,
+            px: 1.5,
           }}
         >
           {categoryCheckout?.categoryCount} of {category.checkout_limit}

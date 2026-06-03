@@ -2,7 +2,6 @@ import {
   Dialog,
   DialogContent,
   Button,
-  Box,
   DialogTitle,
   Typography,
   DialogActions,
@@ -37,6 +36,7 @@ const DialogTemplate = ({
 
     return (
         <Dialog 
+        data-testid="dialog"
         sx={{
             '& .MuiDialog-paper': {
               width: { xs: '80vw', md: '50vw' },
@@ -48,26 +48,19 @@ const DialogTemplate = ({
             },
           }}
             open={showDialog}>
-            <Box sx={{ 
-                position: 'absolute',
-                top: theme.spacing(2),
-                right: theme.spacing(2)
-            }}>
-                <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn"><Close/></Button>
-            </Box>
-
             {title &&
-            <DialogTitle>
-                <Typography variant="h5" sx={{ textTransform: 'capitalize' }}>{title}</Typography>
+            <DialogTitle sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h5">{title}</Typography>
+                <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', px: 0 }}><Close/></Button>
             </DialogTitle>}
 
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2}}>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2, px: 0 }}>
             {children}
             </DialogContent>
 
-            <DialogActions sx={{ display: 'flex', gap: 2 }}>
-                {backButtonText && <Button onClick={handleShowDialog} sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
-                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, py: 1, px: 3 }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
+            <DialogActions sx={{ display: 'flex', gap: 1, px: 0 }}>
+                {backButtonText && <Button onClick={handleShowDialog} data-testid="dialog-back-btn" sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
+                {submitButtonText && <Button data-testid="dialog-submit-btn" sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, py: 1, px: 3 }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
             </DialogActions>
         </Dialog>
     );

@@ -287,13 +287,14 @@ const AdjustQuantityModal = ({
           sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
         >
           <Button
-            sx={{ mr: 3, color: 'black' }}
+            variant="text"
             onClick={resetInputsHandler}
           >
             Cancel
           </Button>
           <Button
-            sx={{ color: 'black' }}
+            variant="contained"
+            color="primary"
             onClick={updateItemHandler}
             disabled={isSubmitting}
           >

@@ -59,8 +59,8 @@ const DialogTemplate = ({
             </DialogContent>
 
             <DialogActions sx={{ display: 'flex', gap: 1, px: 0 }}>
-                {backButtonText && <Button onClick={handleShowDialog} data-testid="dialog-back-btn" sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
-                {submitButtonText && <Button data-testid="dialog-submit-btn" sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, py: 1, px: 3 }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
+                {backButtonText && <Button variant="text" onClick={handleShowDialog} data-testid="dialog-back-btn">{backButtonText}</Button>}
+                {submitButtonText && <Button variant="contained" color="primary" data-testid="dialog-submit-btn" sx={{ py: 1, px: 3 }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
             </DialogActions>
         </Dialog>
     );

@@ -245,15 +245,9 @@ const EnterPinPage: React.FC = () => {
 
           <Button
             variant="contained"
+            color="primary"
             onClick={handleNextClick}
             disabled={!isPinComplete}
-            sx={{
-              height: '45px',
-              width: '100%',
-              backgroundColor: 'black',
-              color: 'white',
-              marginTop: 2,
-            }}
           >
             Continue
           </Button>

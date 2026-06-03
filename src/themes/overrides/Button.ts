@@ -13,14 +13,29 @@ export default function Button(theme: Theme) {
     MuiButton: {
       defaultProps: {
         disableElevation: true,
-        disableRipple: true,
+        disableRipple: false,
       },
       styleOverrides: {
         root: {
           fontWeight: 400,
         },
         contained: {
-          ...disabledStyle,
+          backgroundColor: theme.palette.grey[100],
+          color: theme.palette.common.black,
+          '&:hover': {
+            backgroundColor: theme.palette.grey[200],
+          },
+          '&.Mui-disabled': {
+            backgroundColor: theme.palette.grey[200],
+            color: theme.palette.text.disabled,
+          },
+        },
+        text: {
+          color: theme.palette.common.black,
+          textDecoration: 'underline',
+          '&:hover': {
+            backgroundColor: 'transparent',
+          },
         },
         outlined: {
           ...disabledStyle,

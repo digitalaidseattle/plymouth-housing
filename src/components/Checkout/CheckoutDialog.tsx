@@ -375,27 +375,18 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         </DialogContent>
         <DialogActions sx={{ marginTop: 'auto' }}>
           <Button
+            variant="text"
             onClick={() => setShowLimitConfirmation(false)}
             id="checkout-dialog-return-to-summary-btn"
-            sx={{
-              color: 'black',
-              textDecoration: 'underline',
-            }}
           >
             Return to checkout summary
           </Button>
           <Button
+            variant="contained"
+            color="primary"
             onClick={() => handleConfirm(true)}
             disabled={isProcessing}
             id="checkout-dialog-override-confirm-btn"
-            sx={{
-              color: 'black',
-              backgroundColor: '#F2F2F2',
-              '&.Mui-disabled': {
-                backgroundColor: '#E0E0E0',
-                color: '#757575',
-              },
-            }}
           >
             {isProcessing ? 'Working...' : 'Staff said it is OK'}
           </Button>
@@ -513,36 +504,25 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           {isEditMode ? (
             <>
               <Button
+                variant="text"
                 onClick={onCancelEdits}
                 id="checkout-dialog-cancel-edit-btn"
-                sx={{
-                  color: 'black',
-                  textDecoration: 'underline',
-                }}
               >
                 Cancel
               </Button>
               <Button
+                variant="text"
                 onClick={handleCancel}
                 id="checkout-dialog-add-item-btn"
-                sx={{
-                  color: 'black',
-                }}
               >
                 Add item
               </Button>
               <Button
+                variant="contained"
+                color="primary"
                 onClick={() => handleConfirm()}
                 disabled={isProcessing || !hasChanges}
                 id="checkout-dialog-save-btn"
-                sx={{
-                  color: 'black',
-                  backgroundColor: '#F2F2F2',
-                  '&.Mui-disabled': {
-                    backgroundColor: '#E0E0E0',
-                    color: '#757575',
-                  },
-                }}
               >
                 {isProcessing ? 'Working...' : hasChanges ? 'Save changes' : 'No changes'}
               </Button>
@@ -550,27 +530,18 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           ) : (
             <>
               <Button
+                variant="text"
                 onClick={handleCancel}
                 id="checkout-dialog-return-btn"
-                sx={{
-                  color: 'black',
-                  textDecoration: 'underline',
-                }}
               >
                 Return to checkout page
               </Button>
               <Button
+                variant="contained"
+                color="primary"
                 onClick={() => handleConfirm()}
                 disabled={isProcessing}
                 id="checkout-dialog-confirm-btn"
-                sx={{
-                  color: 'black',
-                  backgroundColor: '#F2F2F2',
-                  '&.Mui-disabled': {
-                    backgroundColor: '#E0E0E0',
-                    color: '#757575',
-                  },
-                }}
               >
                 {isProcessing ? 'Working...' : 'Confirm'}
               </Button>

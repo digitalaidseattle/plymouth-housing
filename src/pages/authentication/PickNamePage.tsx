@@ -148,13 +148,8 @@ const PickYourNamePage: React.FC = () => {
 
             <Button
               variant="contained"
+              color="primary"
               onClick={handleNextClick}
-              sx={{
-                height: '45px',
-                width: '100%',
-                backgroundColor: 'black',
-                color: 'white',
-              }}
               disabled={isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)}
             >
               Continue

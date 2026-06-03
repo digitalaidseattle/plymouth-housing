@@ -382,6 +382,7 @@ const ItemsTable = ({
           />
           <Button
             variant="contained"
+            color="primary"
             startIcon={<Add />}
             onClick={() => setIsAdding(true)}
             disabled={isAdding}

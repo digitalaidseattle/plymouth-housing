@@ -168,7 +168,7 @@ const AddVolunteerModal = ({
           id="modal-buttons"
           sx={{ display: 'flex', justifyContent: 'flex-end' }}
         >
-          <Button onClick={resetInputsHandler} sx={{ mr: 2 }}>
+          <Button variant="text" onClick={resetInputsHandler}>
             Cancel
           </Button>
           <Button

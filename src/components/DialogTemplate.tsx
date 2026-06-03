@@ -22,7 +22,7 @@ type DialogTemplateProps = {
   isSubmitting?: boolean;
 };
 
-const DialogTemplate = ({
+const DialogTemplate: React.FC<DialogTemplateProps> = ({
   showDialog,
   handleShowDialog,
   handleSubmit,
@@ -31,7 +31,7 @@ const DialogTemplate = ({
   backButtonText,
   children,
   isSubmitting,
-}: DialogTemplateProps) => {
+}) => {
   const theme = useTheme();
 
   return (
@@ -55,7 +55,12 @@ const DialogTemplate = ({
           right: theme.spacing(2),
         }}
       >
-        <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn">
+        <Button
+          onClick={handleShowDialog}
+          disableRipple
+          id="dialog-close-btn"
+          aria-label="Close dialog"
+        >
           <Close />
         </Button>
       </Box>

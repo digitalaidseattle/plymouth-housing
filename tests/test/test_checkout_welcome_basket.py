@@ -7,7 +7,7 @@ import pytest
 @pytest.mark.parametrize("item", [
     "Twin-size",
     "Full-size"])
-def test_welcome_basket_checkout(checkout_page, home_page, item):
+def test_welcome_basket_checkout(login_with_volunteer, checkout_page, home_page, item):
     """
     Test: Welcome Basket Checkout Flow (End-to-End)
 

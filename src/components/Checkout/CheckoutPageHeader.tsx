@@ -40,7 +40,7 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
       : 'Missing Resident Info'
     : checkoutType === 'welcomeBasket'
       ? `${residentInfo.building.code}`
-      : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`;
+      : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (Last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`;
 
   return (
     <Box

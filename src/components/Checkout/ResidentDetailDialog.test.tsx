@@ -902,7 +902,7 @@ describe('ResidentDetailDialog', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/last visit: 1\/15\/2025/i),
+          screen.getByText(/Last visit: 1\/15\/2025/i),
         ).toBeInTheDocument();
       });
     });
@@ -930,7 +930,7 @@ describe('ResidentDetailDialog', () => {
       fireEvent.change(unitInput, { target: { value: '101' } });
 
       await waitFor(() => {
-        expect(screen.getByText(/last visit: none/i)).toBeInTheDocument();
+        expect(screen.getByText(/Last visit: none/i)).toBeInTheDocument();
       });
     });
 
@@ -965,7 +965,7 @@ describe('ResidentDetailDialog', () => {
 
       // Wait for residents to load - should show Jane's date (last resident)
       await waitFor(() => {
-        expect(screen.getByText(/last visit: 2\/1\/2025/i)).toBeInTheDocument();
+        expect(screen.getByText(/Last visit: 2\/1\/2025/i)).toBeInTheDocument();
       });
 
       // Open autocomplete and select John
@@ -982,7 +982,7 @@ describe('ResidentDetailDialog', () => {
       // Should now show John's date
       await waitFor(() => {
         expect(
-          screen.getByText(/last visit: 1\/15\/2025/i),
+          screen.getByText(/Last visit: 1\/15\/2025/i),
         ).toBeInTheDocument();
       });
     });
@@ -1011,7 +1011,7 @@ describe('ResidentDetailDialog', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/last visit: 1\/15\/2025/i),
+          screen.getByText(/Last visit: 1\/15\/2025/i),
         ).toBeInTheDocument();
       });
 
@@ -1027,7 +1027,7 @@ describe('ResidentDetailDialog', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText(/last visit: 1\/15\/2025/i),
+          screen.queryByText(/Last visit: 1\/15\/2025/i),
         ).not.toBeInTheDocument();
       });
     });
@@ -1056,7 +1056,7 @@ describe('ResidentDetailDialog', () => {
 
       await waitFor(() => {
         expect(screen.getByLabelText('Resident Name')).toHaveValue('John Doe');
-        expect(screen.getByText(/last visit: none/i)).toBeInTheDocument();
+        expect(screen.getByText(/Last visit: none/i)).toBeInTheDocument();
       });
     });
 

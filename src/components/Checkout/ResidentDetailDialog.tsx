@@ -318,7 +318,7 @@ const ResidentDetailDialog = ({
             }
             sx={{ alignSelf: 'flex-start' }}
           >
-            last visit:{' '}
+            Last visit:{' '}
             {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
           </Typography>
         )}

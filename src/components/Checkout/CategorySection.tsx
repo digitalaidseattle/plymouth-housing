@@ -35,8 +35,8 @@ const CategorySection = ({
   return (
     <Box
       sx={{
-        px: removeButton ? 0 : 5,
-        pb: 3,
+        px: removeButton ? 0 : 4,
+        pb: 2,
         opacity: disabled ? 0.5 : 1,
         pointerEvents: disabled ? 'none' : 'auto',
       }}
@@ -46,15 +46,15 @@ const CategorySection = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 2,
+          mb: 1,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
             sx={{
               typography: { xs: 'body2', md: 'h5' },
-              my: 2,
-              mr: 4,
+              my: 1,
+              mr: 2,
             }}
             id={category.category}
           >
@@ -62,7 +62,7 @@ const CategorySection = ({
           </Typography>
           {removeButton ? null : (
             <Typography
-              sx={{ typography: 'body2', color: '#666666' }}
+              sx={{ typography: 'body2', color: '#666666', my: 1 }}
             >
               {category.items.length} items
             </Typography>
@@ -71,6 +71,7 @@ const CategorySection = ({
         <Typography
           sx={{
             typography: 'body2',
+            my: 1,
             backgroundColor:
               categoryCheckout?.categoryCount > category.checkout_limit
                 ? '#ffebee'
@@ -91,7 +92,7 @@ const CategorySection = ({
       </Box>
       <Grid
         container
-        spacing={2}
+        spacing={1}
         sx={{
           display: 'flex',
           flexDirection: 'row',

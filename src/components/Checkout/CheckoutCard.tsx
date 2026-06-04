@@ -19,19 +19,20 @@ const CheckoutCard = ({
   categoryLimit,
   categoryName,
   activeSection,
-  checkoutHistory
-  }: CheckoutCardProps) => {
-
-  const pastCheckout = checkoutHistory ? checkoutHistory.map(i => i.item_id).includes(item.id) : false;
+  checkoutHistory,
+}: CheckoutCardProps) => {
+  const pastCheckout = checkoutHistory
+    ? checkoutHistory.map((i) => i.item_id).includes(item.id)
+    : false;
 
   const timesCheckedOut = () => {
-     if (!checkoutHistory || !pastCheckout) return 0;
-    const indexOfItem = checkoutHistory.map(i => i.item_id).indexOf(item.id);
+    if (!checkoutHistory || !pastCheckout) return 0;
+    const indexOfItem = checkoutHistory.map((i) => i.item_id).indexOf(item.id);
     if (indexOfItem !== -1) {
-      return checkoutHistory[indexOfItem].timesCheckedOut
+      return checkoutHistory[indexOfItem].timesCheckedOut;
     }
     return 0;
-  }
+  };
 
   // Derive disableAdd directly from props - no need for state or effects
   const disableAdd = (() => {
@@ -69,32 +70,43 @@ const CheckoutCard = ({
         alignItems: 'center',
         width: '100%',
         height: '100%',
-        minHeight: '10vh',
+        minHeight: '8vh',
         borderColor: removeButton ? '#D9D9D9' : null,
         borderWidth: removeButton ? '1px' : null,
-        borderRadius: '15px',
-        px: 1,
+        borderRadius: '12px',
+        px: 0.5,
       }}
     >
-      <CardContent sx={{ flex: '1', overflow: 'hidden' }}>
-        {pastCheckout && item.id !== SPECIAL_ITEMS.APPLIANCE_MISC && <Chip label={`Checked out ${timesCheckedOut()}x`} sx={{ background: 'rgb(216, 241, 205)', marginBottom: 1 }} />}
+      <CardContent sx={{ flex: '1', overflow: 'visible', py: 2, px: 2 }}>
+        {pastCheckout && item.id !== SPECIAL_ITEMS.APPLIANCE_MISC && (
+          <Chip
+            label={`Checked out ${timesCheckedOut()}x`}
+            sx={{ background: 'rgb(216, 241, 205)', marginBottom: 0.5 }}
+          />
+        )}
         <Tooltip title={item.name} arrow>
           <Typography
             variant={removeButton ? 'body2' : 'h5'}
             sx={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
+              whiteSpace: 'normal',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word',
             }}
           >
             {item.name}
           </Typography>
         </Tooltip>
-        {item.id === SPECIAL_ITEMS.APPLIANCE_MISC && item.additional_notes && removeButton ? <Typography>{item.additional_notes}</Typography>
-        : item.description ? <Typography>{item.description}</Typography>
-        : <></>}
+        {item.id === SPECIAL_ITEMS.APPLIANCE_MISC &&
+        item.additional_notes &&
+        removeButton ? (
+          <Typography>{item.additional_notes}</Typography>
+        ) : item.description ? (
+          <Typography>{item.description}</Typography>
+        ) : (
+          <></>
+        )}
       </CardContent>
-      <CardActions sx={{ overflow: 'hidden' }}>
+      <CardActions sx={{ overflow: 'hidden', p: 0.5 }}>
         <ItemQuantityButton
           item={item}
           categoryCheckout={categoryCheckout}

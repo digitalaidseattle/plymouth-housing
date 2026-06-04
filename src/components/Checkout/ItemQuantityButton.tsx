@@ -47,7 +47,7 @@ const ItemQuantityButton = ({
           <Typography
             sx={{
               typography: { xs: 'body2', md: 'h5' },
-              mx: { xs: '10px', md: '15px' },
+              mx: { xs: 1, md: 2 },
             }}
             data-testid="test-id-quantity"
           >
@@ -71,7 +71,7 @@ const ItemQuantityButton = ({
           sx={{
             color: 'black',
             typography: 'body2',
-            px: { xs: 1, md: 5 },
+            px: { xs: 1, md: 3 },
           }}
           onClick={() => removeItemFromCart(item.id, categoryName)}
         >

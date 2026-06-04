@@ -35,6 +35,7 @@ export default function Button(theme: Theme) {
           textDecoration: 'underline',
           '&:hover': {
             backgroundColor: 'transparent',
+            textDecoration: 'underline',
           },
         },
         outlined: {

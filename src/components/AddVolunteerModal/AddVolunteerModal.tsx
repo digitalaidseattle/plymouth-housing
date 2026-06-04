@@ -1,3 +1,9 @@
+/**
+ *  AddVolunteerModal.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import { AddVolunteerModalProps } from '../../types/interfaces';

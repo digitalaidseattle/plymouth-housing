@@ -1,3 +1,9 @@
+/**
+ *  CenteredLayout.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CenteredLayout from './CenteredLayout';

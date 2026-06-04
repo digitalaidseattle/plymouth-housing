@@ -1,3 +1,9 @@
+/**
+ *  NavGroup.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Box, List, Typography } from '@mui/material';
 import { useContext } from 'react';
 import { DrawerOpenContext } from '../../../../../components/contexts/DrawerOpenContext';

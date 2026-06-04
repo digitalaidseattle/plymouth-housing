@@ -1,3 +1,9 @@
+/**
+ *  ToggleButton.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - TOGGLE BUTTON ||============================== //
 
 import { Theme } from '@mui/material';

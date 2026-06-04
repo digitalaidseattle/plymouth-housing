@@ -1,3 +1,9 @@
+/**
+ *  itemsService.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   CategoryItem,
   CategoryProps,

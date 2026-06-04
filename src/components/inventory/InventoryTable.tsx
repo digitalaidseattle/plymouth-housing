@@ -1,3 +1,9 @@
+/**
+ *  InventoryTable.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box, Button, TableSortLabel } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';

@@ -1,3 +1,9 @@
+/**
+ *  useUsers.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { User } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';

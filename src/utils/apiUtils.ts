@@ -1,4 +1,10 @@
 /**
+ *  apiUtils.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+/**
  * Extracts a human-readable error message from a failed Response.
  * Tries to parse the JSON body first (DAB returns error details there),
  * then falls back to statusText, status code, or a generic message.

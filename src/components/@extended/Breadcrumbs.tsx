@@ -1,3 +1,9 @@
+/**
+ *  Breadcrumbs.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 

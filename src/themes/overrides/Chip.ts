@@ -1,3 +1,9 @@
+/**
+ *  Chip.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - CHIP ||============================== //
 
 import { Theme } from '@mui/material';

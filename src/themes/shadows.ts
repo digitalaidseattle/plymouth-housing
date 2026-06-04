@@ -1,3 +1,9 @@
+/**
+ *  shadows.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { Theme, alpha } from '@mui/material/styles';
 

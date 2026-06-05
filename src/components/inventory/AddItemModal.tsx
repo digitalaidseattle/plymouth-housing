@@ -139,7 +139,7 @@ const AddItemModal = ({
       return;
     }
     if (formData.quantity === 0) {
-      setErrorMessage('"Quantity To Add/Remove" cannot be 0');
+      setErrorMessage('"Quantity to add/remove" cannot be 0');
       return;
     }
     // regex test to check for only whole numbers, including negatives
@@ -270,7 +270,7 @@ const AddItemModal = ({
       )}
 
       <Box id="add-item-quantity">
-        <Typography fontWeight="bold">Quantity To Add/Remove</Typography>
+        <Typography fontWeight="bold">Quantity to add/remove</Typography>
         <Box
           sx={{
             display: 'flex',
@@ -282,8 +282,8 @@ const AddItemModal = ({
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8',
-              width: { xs: '40px', lg: '30px' },
-              height: { xs: '40px', lg: '30px' },
+              width: { xs: '48px', lg: '40px' },
+              height: { xs: '48px', lg: '40px' },
             }}
             onClick={() =>
               handleInputChange('quantity', Number(formData.quantity) - 1)
@@ -292,7 +292,8 @@ const AddItemModal = ({
             <Remove sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
           <TextField
-            sx={{ textAlign: 'center', width: '5rem' }}
+            sx={{ textAlign: 'center', width: '4rem' }}
+            size="small"
             value={formData.quantity}
             type="number"
             onChange={(e) => handleInputChange('quantity', e.target.value)}
@@ -301,8 +302,8 @@ const AddItemModal = ({
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8',
-              width: { xs: '40px', lg: '30px' },
-              height: { xs: '40px', lg: '30px' },
+              width: { xs: '48px', lg: '40px' },
+              height: { xs: '48px', lg: '40px' },
             }}
             onClick={() =>
               handleInputChange('quantity', Number(formData.quantity) + 1)

@@ -293,7 +293,7 @@ describe('AddItemModal', () => {
         fireEvent.click(screen.getByRole('button', { name: /submit/i }));
 
         await waitFor(() => {
-            expect(screen.getByText('"Quantity To Add/Remove" cannot be 0')).toBeInTheDocument();
+            expect(screen.getByText('"Quantity to add/remove" cannot be 0')).toBeInTheDocument();
         });
 
         // Should NOT show transaction ID error

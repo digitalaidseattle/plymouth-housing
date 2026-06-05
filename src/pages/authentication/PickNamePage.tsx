@@ -98,7 +98,7 @@ const PickYourNamePage: React.FC = () => {
   return (
       <MinimalWrapper>
         <CenteredLayout>
-          <Box sx={{ maxWidth: '250px', minWidth: '250px', width: '100%' }}>
+          <Box sx={{ maxWidth: '340px', minWidth: '340px', width: '100%' }}>
             <Typography
               variant="h4"
               textAlign="left"
@@ -140,7 +140,7 @@ const PickYourNamePage: React.FC = () => {
               )}
               sx={{
                 width: '100%',
-                marginBottom: 8,
+                marginBottom: 4,
                 '& .MuiAutocomplete-inputRoot': { height: '56px' },
               }}
               disabled={isLoading}
@@ -149,8 +149,10 @@ const PickYourNamePage: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
+              fullWidth
               onClick={handleNextClick}
               disabled={isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)}
+              sx={{ height: '56px' }}
             >
               Continue
             </Button>

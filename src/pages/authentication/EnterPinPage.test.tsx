@@ -160,7 +160,7 @@ describe('EnterPinPage Component', () => {
     );
 
     // Click the back link text.
-    const backLink = screen.getByText(/Back to the name selection./i);
+    const backLink = screen.getByText(/Back to the name selection/i);
     fireEvent.click(backLink);
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
   });

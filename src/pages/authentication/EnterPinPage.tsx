@@ -172,6 +172,7 @@ const EnterPinPage: React.FC = () => {
           `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
+        document.getElementById('pin-input-3')?.focus();
       }
       // If result is null, verifyPin() already displayed an error message, so don't show another
     } else {
@@ -200,7 +201,7 @@ const EnterPinPage: React.FC = () => {
   return (
     <MinimalWrapper>
       <CenteredLayout>
-        <Box sx={{ maxWidth: '250px', minWidth: '250px', width: '100%' }}>
+        <Box sx={{ maxWidth: '340px', minWidth: '340px', width: '100%' }}>
           <Typography
             variant="h4"
             textAlign="left"
@@ -235,7 +236,7 @@ const EnterPinPage: React.FC = () => {
             {import.meta.env.VITE_ADMIN_PHONE_NUMBER} or{' '}
             {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>
-          <Box sx={{ marginBottom: 6 }}>
+          <Box sx={{ marginBottom: 4 }}>
             <PinInput
               key={loggedInUserId}
               onPinChange={handlePinChange}
@@ -246,8 +247,10 @@ const EnterPinPage: React.FC = () => {
           <Button
             variant="contained"
             color="primary"
+            fullWidth
             onClick={handleNextClick}
             disabled={!isPinComplete}
+            sx={{ height: '56px' }}
           >
             Continue
           </Button>
@@ -261,7 +264,7 @@ const EnterPinPage: React.FC = () => {
               textDecoration: 'underline',
             }}
           >
-            Back to the name selection.
+            Back to the name selection
           </Typography>
         </Box>
         <SnackbarAlert

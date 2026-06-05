@@ -106,7 +106,12 @@ const Profile = () => {
                         onClick={handleLogout}
                         color="secondary"
                         variant="text"
-                        sx={{ textTransform: 'none' }}
+                        sx={{
+                          textTransform: 'none',
+                          textDecoration: 'none',
+                          '&:hover': { textDecoration: 'none' },
+                          '& .MuiButton-startIcon': { color: theme.palette.grey[500] },
+                        }}
                       >
                         Log out
                       </Button>

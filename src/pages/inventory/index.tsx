@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-import { Alert, Box, Button, Pagination } from '@mui/material';
+import { Alert, Box, Button, Pagination, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
@@ -296,17 +296,6 @@ const Inventory = () => {
           <></>
         )}
       </Box>
-      {/* Add button */}
-      <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          sx={{ bgcolor: '#F5F5F5', color: 'black' }}
-          onClick={handleAddOpen}
-        >
-          <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
-        </Button>
-      </Box>
-
       <AddItemModal
         addModal={addModal}
         handleAddClose={handleAddClose}
@@ -324,16 +313,24 @@ const Inventory = () => {
         handleSnackbar={setSnackbarState}
       />
 
-      {/* Inventory Filter */}
-      <InventoryFilter
-        filters={filters}
-        anchors={anchors}
-        categoryData={categoryData}
-        handleFilterClick={handleFilterClick}
-        handleMenuClick={handleMenuClick}
-        clearFilter={clearFilter}
-        handleSearch={handleSearch}
-      />
+      {/* Toolbar: filters + add */}
+      <Stack direction="row" alignItems="center" spacing={2} width="100%">
+        <Box sx={{ flexGrow: 1 }}>
+          <InventoryFilter
+            filters={filters}
+            anchors={anchors}
+            categoryData={categoryData}
+            handleFilterClick={handleFilterClick}
+            handleMenuClick={handleMenuClick}
+            clearFilter={clearFilter}
+            handleSearch={handleSearch}
+          />
+        </Box>
+        <Button variant="contained" sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
+          <AddIcon fontSize="small" sx={{ color: 'black' }} />
+          Add
+        </Button>
+      </Stack>
 
       {/* Inventory Table */}
       <InventoryTable

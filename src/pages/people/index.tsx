@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SETTINGS } from '../../types/constants';
-import { Box, Button, Pagination } from '@mui/material';
+import { Box, Button, Pagination, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UserFilters from './UserFilters';
 import UserTable from './UserTable';
@@ -125,17 +125,6 @@ const UserPage = () => {
 
   return (
     <Box>
-      {/* Add Button */}
-      <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          sx={{ bgcolor: '#F5F5F5', color: 'black' }}
-          onClick={openAddModal}
-        >
-          <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
-        </Button>
-      </Box>
-
       {/* Add Volunteer Modal */}
       <AddVolunteerModal
         addModal={addModalOpen}
@@ -143,15 +132,23 @@ const UserPage = () => {
         fetchData={refetch}
       />
 
-      {/* Filters */}
-      <UserFilters
-        search={search}
-        onSearchChange={handleSearchChange}
-        statusFilter={statusFilter}
-        roleFilter={roleFilter}
-        onStatusFilterChange={setStatusFilter}
-        onRoleFilterChange={setRoleFilter}
-      />
+      {/* Toolbar: filters + add */}
+      <Stack direction="row" alignItems="center" spacing={2} width="100%">
+        <Box sx={{ flexGrow: 1 }}>
+          <UserFilters
+            search={search}
+            onSearchChange={handleSearchChange}
+            statusFilter={statusFilter}
+            roleFilter={roleFilter}
+            onStatusFilterChange={setStatusFilter}
+            onRoleFilterChange={setRoleFilter}
+          />
+        </Box>
+        <Button variant="contained" sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={openAddModal}>
+          <AddIcon fontSize="small" sx={{ color: 'black' }} />
+          Add
+        </Button>
+      </Stack>
 
       {/* Users Table */}
       <UserTable

@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { Box, Button, useTheme } from '@mui/material';
+import { Box, Button, Stack, useTheme } from '@mui/material';
 import {
   CategoryProps,
   CheckoutType,
@@ -48,20 +48,14 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         position: 'sticky',
         top: '3.5rem',
         zIndex: 2,
-        p: 1,
+        py: 1,
+        mb: 2,
         width: '100%',
         overflow: 'hidden',
         background: theme.palette.common.white,
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'end',
-          p: 1,
-        }}
-      >
+      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
         <Button
           variant="outlined"
           color={residentInfoIsMissing ? 'error' : 'primary'}
@@ -76,19 +70,21 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
             setSearchActive={setSearchActive}
           />
         )}
-      </Box>
-      {!searchActive && checkoutType === 'general' && (
-        <Navbar
-          key={checkoutType}
-          filteredData={navbarData}
-          scrollToCategory={(id) => {
-            const element = document.getElementById(id);
-            if (element) {
-              element.style.scrollMarginTop = '200px';
-              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }}
-        />
+      </Stack>
+      {!searchActive && (
+        <Box sx={{ my: 2 }}>
+          <Navbar
+            key={checkoutType}
+            filteredData={navbarData}
+            scrollToCategory={(id) => {
+              const element = document.getElementById(id);
+              if (element) {
+                element.style.scrollMarginTop = '200px';
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+          />
+        </Box>
       )}
     </Box>
   );

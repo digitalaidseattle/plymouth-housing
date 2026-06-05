@@ -5,7 +5,6 @@ import {
   DialogTitle,
   Typography,
   DialogActions,
-  useTheme,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { ReactNode, SyntheticEvent } from 'react';
@@ -31,8 +30,6 @@ const DialogTemplate = ({
     children,
     isSubmitting,
     }: DialogTemplateProps) => {
-
-    const theme = useTheme();
 
     return (
         <Dialog 

@@ -8,6 +8,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -106,7 +107,7 @@ const ResidentsPage = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 3, mb: 3 }}>
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mt: 3, mb: 3 }}>
         <FormControl sx={{ minWidth: 240 }}>
           <InputLabel id="building-select-label">Building</InputLabel>
           <Select
@@ -142,7 +143,7 @@ const ResidentsPage = () => {
           )}
           sx={{ flexGrow: 1 }}
         />
-      </Box>
+      </Stack>
 
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>

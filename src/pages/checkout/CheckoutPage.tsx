@@ -11,6 +11,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { getLastResidentVisit } from '../../services/residentService';
 import { getRole } from '../../utils/userUtils';
 import { computeCartDeltas } from '../../utils/transactionUtils';
+import { withCount } from '../../utils/textUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import { useNavigate } from 'react-router-dom';
@@ -221,9 +222,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         checkoutSuccess: !isError,
         message: isError
           ? errorMessage
-          : `${numberOfItems} ${
-              numberOfItems === 1 ? 'item has been' : 'items have been'
-            } checked out`,
+          : `${withCount(numberOfItems, 'item')} ${
+              numberOfItems === 1 ? 'has' : 'have'
+            } been checked out`,
       },
     };
 

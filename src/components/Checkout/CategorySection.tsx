@@ -6,6 +6,7 @@ import {
   CheckoutItemProp,
 } from '../../types/interfaces';
 import { Box, Grid, Typography } from '@mui/material';
+import { withCount } from '../../utils/textUtils';
 
 type CategorySectionProps = {
   category: CategoryProps;
@@ -64,7 +65,7 @@ const CategorySection = ({
             <Typography
               sx={{ typography: 'body2', color: '#666666', my: 1 }}
             >
-              {category.items.length} items
+              {withCount(category.items.length, 'item')}
             </Typography>
           )}
         </Box>

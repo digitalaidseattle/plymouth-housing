@@ -19,6 +19,7 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
 import { useReferenceData } from '../../hooks/useReferenceData';
 import { useHistoryData } from '../../hooks/useHistoryData';
+import { withCount } from '../../utils/textUtils';
 
 const HistoryPage: React.FC = () => {
   const { user, loggedInUserId } = useContext(UserContext);
@@ -181,7 +182,7 @@ const HistoryPage: React.FC = () => {
           );
           return (
             <Typography variant="body1">
-              Showing {totalRecords} {totalRecords === 1 ? 'record' : 'records'} total
+              Showing {withCount(totalRecords, 'record')} total
             </Typography>
           );
         })()}

@@ -1,3 +1,9 @@
+/**
+ *  themeCustomization.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ReactNode, useMemo } from 'react';
 
 // material-ui

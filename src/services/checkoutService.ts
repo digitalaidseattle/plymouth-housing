@@ -1,3 +1,9 @@
+/**
+ *  checkoutService.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { getRole } from '../utils/userUtils';
 import { CheckoutItemProp, ClientPrincipal, ResidentInfo, TransactionItem, EditTransactionState, CheckoutTransaction, TransactionHistoryRow } from '../types/interfaces';
 import { ENDPOINTS } from '../types/constants';

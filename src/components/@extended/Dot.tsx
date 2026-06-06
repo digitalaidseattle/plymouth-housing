@@ -1,3 +1,9 @@
+/**
+ *  Dot.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';

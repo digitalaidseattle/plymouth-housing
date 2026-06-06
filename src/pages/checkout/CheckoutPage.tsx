@@ -1,3 +1,9 @@
+/**
+ *  CheckoutPage.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useContext, useMemo, useEffect, useRef } from 'react';
 import { Box, useTheme, Chip, Button } from '@mui/material';
 import {

@@ -1,3 +1,9 @@
+/**
+ *  InventoryFilter.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React from 'react';
 import { Box, Button, Menu, MenuItem, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

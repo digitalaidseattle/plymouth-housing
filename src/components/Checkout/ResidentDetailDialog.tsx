@@ -1,3 +1,9 @@
+/**
+ *  ResidentDetailDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { FormEvent, useState, useContext } from 'react';
 import { Box, FormControl, TextField, Typography, Chip, Button, useTheme } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';

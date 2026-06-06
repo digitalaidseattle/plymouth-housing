@@ -1,3 +1,9 @@
+/**
+ *  InventoryCard.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { InventoryTransaction, TransactionType } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
 

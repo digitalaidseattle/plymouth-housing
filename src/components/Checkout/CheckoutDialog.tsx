@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -79,11 +79,15 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     CategoryProps[]
   >([]);
   const [statusMessage, setStatusMessage] = useState<string>('');
-  const [cartItems, setCartItems] = useState<CheckoutItemProp[]>([]);
+  const cartItems = useMemo(
+    () => checkoutItems.flatMap((item) => item.items),
+    [checkoutItems],
+  );
   const [isProcessing, setIsProcessing] = useState(false);
-  const [categoryLimitErrors, setCategoryLimitErrors] = useState<
-    CategoryProps[]
-  >([]);
+  const categoryLimitErrors = useMemo(
+    () => checkoutItems.filter((c) => c.categoryCount > c.checkout_limit),
+    [checkoutItems],
+  );
   const [showLimitConfirmation, setShowLimitConfirmation] = useState(false);
 
   const totalItemCount = cartItems.reduce(
@@ -97,22 +101,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   // Snapshot cart state once when dialog opens. checkoutItems is intentionally excluded
   useEffect(() => {
     if (open) {
-      setOriginalCheckoutItems([...checkoutItems]);
+      setOriginalCheckoutItems([...checkoutItems]); // eslint-disable-line react-hooks/set-state-in-effect
       setTransactionId(crypto.randomUUID());
       setStatusMessage('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
-
-  useEffect(() => {
-    if (open) {
-      setCartItems(checkoutItems.flatMap((item) => item.items));
-      const errors: CategoryProps[] = checkoutItems.filter(
-        (category) => category.categoryCount > category.checkout_limit,
-      );
-      setCategoryLimitErrors(errors);
-    }
-  }, [open, checkoutItems]);
 
   const hasChanges = isEditMode && computeCartDeltas(cartItems, editTransaction?.effectiveItems).length > 0;
 

@@ -46,6 +46,13 @@ type AdjustQuantityModalProps = {
   >;
 };
 
+const DialogTitle = styled('h1')(({ theme }) => ({
+  fontSize: theme.typography.h5.fontSize,
+  fontWeight: '600',
+  textTransform: 'capitalize',
+  margin: '0',
+}));
+
 const AdjustQuantityModal = ({
   showDialog,
   handleClose,
@@ -67,16 +74,9 @@ const AdjustQuantityModal = ({
   // Generate a new transaction ID when the dialog opens
   useEffect(() => {
     if (showDialog) {
-      setTransactionId(crypto.randomUUID());
+      setTransactionId(crypto.randomUUID()); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [showDialog]);
-
-  const DialogTitle = styled('h1')(({ theme }) => ({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-    margin: '0',
-  }));
 
   const handleInputChange = (field: string, value: string | number) => {
     const parsedValue =

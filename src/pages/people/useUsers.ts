@@ -29,7 +29,7 @@ const useUsers = () => {
   }, [user]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(); // eslint-disable-line react-hooks/set-state-in-effect
   }, [user, fetchData]);
 
   const updateUserStatus = async (userId: number) => {

@@ -30,7 +30,7 @@ const MainLayout: React.FC = () => {
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(!matchDownLG);
   const navigate = useNavigate();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const navigateTimeoutRef = useRef<number | null>(null);
@@ -44,57 +44,6 @@ const MainLayout: React.FC = () => {
     },
     timeout: SETTINGS.inactivity_timeout,
   });
-
-  useEffect(() => {
-    const fetchTokenAndRole = async () => {
-      try {
-        const payload = await getAuthMe();
-        const { clientPrincipal } = payload;
-        const userClaims = clientPrincipal;
-        setUser(userClaims || null);
-
-        if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
-          navigate('/pick-your-name');
-          return;
-        }
-
-        if (userClaims?.userRoles?.includes('admin')) {
-          try {
-            const createdOrUpdatedAdmin = await upsertAdminUser({
-              name: userClaims.userDetails ?? '',
-              email: userClaims.userId ?? '',
-              claims: userClaims,
-            });
-            // Now we have an User object with id, name, created_at, last_signed_in
-            setLoggedInUserId(createdOrUpdatedAdmin.id);
-          } catch (error) {
-            console.error('Error in upsertAdminUser:', error);
-            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
-            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
-          }
-        }
-      } catch (error) {
-        console.error('Error in fetchTokenAndVolunteers:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
-        showSnackbar(`Authentication error: ${errorMessage}`, 'error');
-        navigateTimeoutRef.current = window.setTimeout(() => {
-          navigateTimeoutRef.current = null;
-          navigate('/');
-        }, 3000);
-      }
-    };
-    fetchTokenAndRole();
-
-    return () => {
-      if (navigateTimeoutRef.current !== null) {
-        clearTimeout(navigateTimeoutRef.current);
-        navigateTimeoutRef.current = null;
-      }
-    };
-
-    // The effect is intended to run only once on mount.
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, []);
 
   /**
    * Create or update an Admin entry in the "Users" table:
@@ -182,13 +131,64 @@ const MainLayout: React.FC = () => {
     return promise;
   };
 
+  useEffect(() => {
+    const fetchTokenAndRole = async () => {
+      try {
+        const payload = await getAuthMe();
+        const { clientPrincipal } = payload;
+        const userClaims = clientPrincipal;
+        setUser(userClaims || null);
+
+        if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
+          navigate('/pick-your-name');
+          return;
+        }
+
+        if (userClaims?.userRoles?.includes('admin')) {
+          try {
+            const createdOrUpdatedAdmin = await upsertAdminUser({
+              name: userClaims.userDetails ?? '',
+              email: userClaims.userId ?? '',
+              claims: userClaims,
+            });
+            // Now we have an User object with id, name, created_at, last_signed_in
+            setLoggedInUserId(createdOrUpdatedAdmin.id);
+          } catch (error) {
+            console.error('Error in upsertAdminUser:', error);
+            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchTokenAndVolunteers:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
+        showSnackbar(`Authentication error: ${errorMessage}`, 'error');
+        navigateTimeoutRef.current = window.setTimeout(() => {
+          navigateTimeoutRef.current = null;
+          navigate('/');
+        }, 3000);
+      }
+    };
+    fetchTokenAndRole();
+
+    return () => {
+      if (navigateTimeoutRef.current !== null) {
+        clearTimeout(navigateTimeoutRef.current);
+        navigateTimeoutRef.current = null;
+      }
+    };
+
+    // The effect is intended to run only once on mount.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
+
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
 
   // set media wise responsive drawer
   useEffect(() => {
-    setDrawerOpen(!matchDownLG);
+    setDrawerOpen(!matchDownLG); // eslint-disable-line react-hooks/set-state-in-effect
   }, [matchDownLG]);
 
   return (

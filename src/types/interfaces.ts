@@ -53,6 +53,9 @@ export type CheckoutCardProps = {
   categoryName: string;
   checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];
+  // Name of the welcome-basket item currently in the cart (across all categories),
+  // derived by the parent. Used to lock the page to a single basket type.
+  selectedWelcomeItemName?: string;
 };
 
 export type ShoppingCart = {

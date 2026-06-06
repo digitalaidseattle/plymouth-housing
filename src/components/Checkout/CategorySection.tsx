@@ -26,6 +26,7 @@ type CategorySectionProps = {
   removeButton: boolean;
   checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];
+  selectedWelcomeItemName?: string;
 };
 
 const CategorySection = ({
@@ -36,6 +37,7 @@ const CategorySection = ({
   removeButton,
   checkoutType,
   checkoutHistory,
+  selectedWelcomeItemName,
 }: CategorySectionProps) => {
   return (
     <Box
@@ -120,6 +122,7 @@ const CategorySection = ({
               categoryName={category.category}
               checkoutType={checkoutType}
               checkoutHistory={checkoutHistory}
+              selectedWelcomeItemName={selectedWelcomeItemName}
             />
           </Grid>
         ))}

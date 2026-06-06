@@ -42,6 +42,15 @@ const CategoryList: React.FC<CategoryListProps> = ({
   onApplianceMiscClick,
   onPastCheckoutClick,
 }) => {
+  // Welcome Basket is limited to a single basket type. Derive the name of the
+  // basket item currently in the cart (across ALL categories) so every card can
+  // disable the other options. Empty string means nothing is selected yet.
+  const selectedWelcomeItemName: string = (() => {
+    if (sectionType !== 'welcomeBasket') return '';
+    const cartItems = checkoutItems.flatMap((category) => category.items);
+    return cartItems[0]?.name ?? '';
+  })();
+
   const getMatchingCategory = (categoryName: string): CategoryProps =>
     checkoutItems.find((cat) => cat.category === categoryName) || {
       id: 0,
@@ -101,6 +110,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
                 categoryLimit={section.checkout_limit}
                 categoryName={section.category}
                 checkoutHistory={checkoutHistory}
+                selectedWelcomeItemName={selectedWelcomeItemName}
               />
             </Grid>
           ));
@@ -136,6 +146,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
           removeButton={false}
           checkoutType={sectionType}
           checkoutHistory={checkoutHistory}
+          selectedWelcomeItemName={selectedWelcomeItemName}
         />
       ))}
     </Box>

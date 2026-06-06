@@ -29,7 +29,7 @@ The deployment of this inventory management system is set to significantly enhan
 
 - [**Visual Studio Code**](https://code.visualstudio.com/download)
 
-- [**Node.js and npm**](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [**Node.js and npm**](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (v22 or later)
 
 - [**.NET 8 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) - Required for Data API Builder
 

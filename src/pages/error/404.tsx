@@ -22,12 +22,10 @@ const Page404: React.FC = () => {
       <Grid
         container
         spacing={0}
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
+        sx={{ flexDirection: 'column' }}
       >
         <Grid size={{ xs: 3 }}>
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Logo />
             <Typography variant="h5">{VITE_APPLICATION_NAME}</Typography>
           </Stack>
@@ -37,8 +35,7 @@ const Page404: React.FC = () => {
             <Grid size={{ xs: 12 }}>
               <Stack
                 direction="row"
-                justifyContent="space-between"
-                alignItems="baseline"
+                sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}
               >
                 <Typography variant="h3">Page Not Found</Typography>
               </Stack>
@@ -46,8 +43,7 @@ const Page404: React.FC = () => {
             <Grid size={{ xs: 12 }}>
               <Stack
                 direction="row"
-                justifyContent="center"
-                alignItems="baseline"
+                sx={{ justifyContent: 'center', alignItems: 'baseline' }}
               >
                 <Button
                   size="large"

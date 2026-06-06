@@ -53,8 +53,10 @@ const VolunteerSwitcher: React.FC = () => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'user-button',
+        slotProps={{
+          list: {
+            'aria-labelledby': 'user-button',
+          },
         }}
       >
         {activeVolunteers

@@ -45,9 +45,7 @@ const TransactionItemCard: React.FC<TransactionItemCardProps> = ({
   return (
     <Stack
       direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      sx={{ gap: 1 }}
+      sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1 }}
     >
       <Typography variant="body2" sx={{ color: theme.palette.text.primary }}>
         {itemName}
@@ -160,16 +158,14 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
     >
       {loading ? (
         <Stack
-          alignItems="center"
           id="transaction-details-loading"
-          sx={{ py: 4 }}
+          sx={{ alignItems: 'center', py: 4 }}
         >
           <CircularProgress size={24} />
         </Stack>
       ) : (
         <Stack
-          gap={2}
-          sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+          sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 2 }}
         >
           {/* Card 1: Resident Information */}
           <Card
@@ -196,7 +192,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
             </CardContent>
           </Card>
 
-          <Stack gap={2} sx={{ overflowY: 'auto', flex: 1, minHeight: 0 }}>
+          <Stack sx={{ overflowY: 'auto', flex: 1, minHeight: 0, gap: 2 }}>
             {/* Card 2: Current Effective Items */}
             <Card
               sx={{
@@ -207,9 +203,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
               <CardContent sx={{ p: 2 }}>
                 <Stack
                   direction="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  sx={{ mb: 1.5 }}
+                  sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}
                 >
                   <Typography
                     variant="caption"
@@ -236,7 +230,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
 
                 {(editTransaction?.correctionTransactions?.length ?? 0) > 0 ? (
                   effectiveItems.length > 0 ? (
-                    <Stack gap={0.75}>
+                    <Stack sx={{ gap: 0.75 }}>
                       {effectiveItems.map((item: CheckoutItemProp) => (
                         <TransactionItemCard
                           key={item.id}
@@ -254,7 +248,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                     </Typography>
                   )
                 ) : originalItems.length > 0 ? (
-                  <Stack gap={0.75}>
+                  <Stack sx={{ gap: 0.75 }}>
                     {originalItems.map((item) => (
                       <TransactionItemCard
                         key={item.id}
@@ -303,7 +297,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                 <AccordionDetails
                   sx={{ p: 2, pt: 0, maxHeight: 240, overflowY: 'auto', pr: 1 }}
                 >
-                  <Stack gap={1}>
+                  <Stack sx={{ gap: 1 }}>
                     {sortedHistoryEntries.map(
                       (
                         { transaction: historyTransaction, isCorrection },
@@ -311,7 +305,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                       ) => (
                         <Stack
                           key={historyTransaction.transaction_id ?? index}
-                          gap={1}
+                          sx={{ gap: 1 }}
                         >
                           <Typography
                             variant="caption"
@@ -332,7 +326,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                               '',
                             )}
                           </Typography>
-                          <Stack gap={0.5}>
+                          <Stack sx={{ gap: 0.5 }}>
                             {(historyTransaction.items ?? []).map((item) => (
                               <TransactionItemCard
                                 key={item.id}

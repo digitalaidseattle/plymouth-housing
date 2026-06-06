@@ -6,3 +6,4 @@ requests>=2.32.5
 pytest-html>=4.2.0
 webdriver-manager>=4.0.2
 pytest-xdist>=3.8.0
+pytest-bdd

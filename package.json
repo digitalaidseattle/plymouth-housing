@@ -49,7 +49,7 @@
     "@vitest/coverage-v8": "^4.1.5",
     "baseline-browser-mapping": "^2.10.8",
     "depcheck": "^1.4.7",
-    "eslint": "^9.37.0",
+    "eslint": "^10.4.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^17.3.0",

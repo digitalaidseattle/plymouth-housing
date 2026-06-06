@@ -1,5 +1,11 @@
+/**
+ *  ResidentDetailDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { FormEvent, useState, useContext } from 'react';
-import { Box, FormControl, TextField, Typography } from '@mui/material';
+import { Box, FormControl, TextField, Typography, Chip, Button, useTheme } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import {
   Building,
@@ -23,6 +29,8 @@ type ResidentDetailDialogProps = {
   setUnitNumberValues: React.Dispatch<React.SetStateAction<Unit[]>>;
   residentInfo: ResidentInfo;
   setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>;
+  isEditMode?: boolean;
+  onCancelEdits?: () => void;
 };
 
 const ResidentDetailDialog = ({
@@ -33,7 +41,10 @@ const ResidentDetailDialog = ({
   setUnitNumberValues,
   residentInfo,
   setResidentInfo,
+  isEditMode = false,
+  onCancelEdits,
 }: ResidentDetailDialogProps) => {
+  const theme = useTheme();
   const { user } = useContext(UserContext);
 
   const [selectedBuilding, setSelectedBuilding] = useState<Building>(
@@ -55,7 +66,7 @@ const ResidentDetailDialog = ({
   });
 
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
-  const residentsHook = useResidents(user, selectedUnit);
+  const residentsHook = useResidents(user, selectedUnit, residentInfo.name, residentInfo.lastVisitDate);
   const submitHook = useResidentFormSubmit(user, (residentInfo) => {
     setResidentInfo(residentInfo);
     handleShowDialog();
@@ -99,6 +110,11 @@ const ResidentDetailDialog = ({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (isEditMode) {
+      handleShowDialog();
+      return;
+    }
+
     unitNumbersHook.setApiError('');
     residentsHook.setApiError('');
     await submitHook.handleSubmit(
@@ -127,6 +143,26 @@ const ResidentDetailDialog = ({
           py: 2,
         }}
       >
+        {isEditMode && (
+          <Chip
+            size="small"
+            variant="outlined"
+            sx={{
+              alignSelf: 'flex-start',
+              color: theme.palette.text.secondary,
+              borderColor: theme.palette.grey[300],
+              backgroundColor: 'transparent',
+            }}
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box component="span">Editing transaction</Box>
+                <Button size="small" variant="text" color="primary" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
+                  Cancel
+                </Button>
+              </Box>
+            }
+          />
+        )}
         <FormControl>
           <BuildingCodeSelect
             buildings={buildings}
@@ -142,7 +178,7 @@ const ResidentDetailDialog = ({
                 nameError: false,
               })
             }
-            disabled={isWaiting}
+            disabled={isWaiting || isEditMode}
           />
         </FormControl>
 
@@ -152,9 +188,12 @@ const ResidentDetailDialog = ({
             data-testid="test-id-select-unit-number"
             options={unitNumberValues}
             value={selectedUnit}
-            disabled={isWaiting}
+            disabled={isWaiting || isEditMode}
             filterOptions={unitNumberFilter}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) => {
+              if (typeof value === 'string') return false;
+              return option.id === value.id;
+            }}
             onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
               if (reason === 'clear') {
                 setSelectedUnit({ id: 0, unit_number: '' });
@@ -200,7 +239,7 @@ const ResidentDetailDialog = ({
         <FormControl>
           <Autocomplete
             value={residentsHook.nameInput}
-            disabled={isWaiting}
+            disabled={isWaiting || isEditMode}
             onChange={(_event, newValue) => {
               if (formError.nameError) {
                 setFormError({ ...formError, nameError: false });

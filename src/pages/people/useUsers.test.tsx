@@ -1,3 +1,9 @@
+/**
+ *  useUsers.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { renderHook, act, waitFor } from '@testing-library/react';
 import useUsers from './useUsers';
 import { UserContext } from '../../components/contexts/UserContext';

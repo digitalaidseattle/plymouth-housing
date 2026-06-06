@@ -1,3 +1,9 @@
+/**
+ *  CategorySection.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import CheckoutCard from './CheckoutCard';
 
 import {
@@ -36,8 +42,6 @@ const CategorySection = ({
       sx={{
         px: removeButton ? 0 : 5,
         pb: 3,
-        opacity: disabled ? 0.5 : 1,
-        pointerEvents: disabled ? 'none' : 'auto',
       }}
     >
       <Box

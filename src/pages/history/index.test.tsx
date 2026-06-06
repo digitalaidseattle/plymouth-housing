@@ -1,3 +1,9 @@
+/**
+ *  index.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React from 'react';
 import {
   render,
@@ -8,6 +14,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import HistoryPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as historyService from '../../services/historyService';
@@ -111,6 +118,8 @@ const mockCheckoutTransactions: CheckoutTransaction[] = [
     transaction_id: '1',
     user_id: 1,
     building_id: 1,
+    building_code: 'A',
+    building_name: 'Building A',
     unit_number: '101',
     resident_id: 1,
     resident_name: 'Resident A',
@@ -136,19 +145,21 @@ const mockInventoryTransactions: InventoryTransaction[] = [
 ];
 
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <UserContext.Provider
-    value={{
-      user: mockUser,
-      setUser: vi.fn(),
-      loggedInUserId: 1,
-      setLoggedInUserId: vi.fn(),
-      activeVolunteers: [],
-      setActiveVolunteers: vi.fn(),
-      isLoading: false,
-    }}
-  >
-    {children}
-  </UserContext.Provider>
+  <MemoryRouter>
+    <UserContext.Provider
+      value={{
+        user: mockUser,
+        setUser: vi.fn(),
+        loggedInUserId: 1,
+        setLoggedInUserId: vi.fn(),
+        activeVolunteers: [],
+        setActiveVolunteers: vi.fn(),
+        isLoading: false,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  </MemoryRouter>
 );
 
 describe('HistoryPage Component', () => {
@@ -426,6 +437,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '2',
         user_id: 2,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '102',
         resident_id: 2,
         resident_name: 'Resident B',
@@ -459,6 +472,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '1',
         user_id: 1,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '101',
         resident_id: 1,
         resident_name: 'Resident A',
@@ -493,6 +508,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '3',
         user_id: 3,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '101',
         resident_id: 1,
         resident_name: 'Resident A',
@@ -559,6 +576,8 @@ describe('HistoryPage Component', () => {
         transaction_id: '2',
         user_id: 2,
         building_id: 1,
+        building_code: 'A',
+        building_name: 'Building A',
         unit_number: '102',
         resident_id: 2,
         resident_name: 'Resident B',

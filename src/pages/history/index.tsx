@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useState, useContext } from 'react';
 import {
   Button,
@@ -36,7 +42,6 @@ const HistoryPage: React.FC = () => {
   } = useDateRangeFilter();
   const {
     userList,
-    buildings,
     isLoading: isLoadingReferenceData,
   } = useReferenceData({ user, onError: showSnackbar });
 
@@ -70,7 +75,7 @@ const HistoryPage: React.FC = () => {
         handleSetDateInput={() => {}}
       />
 
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <ToggleButtonGroup
           value={historyType}
           exclusive
@@ -165,7 +170,7 @@ const HistoryPage: React.FC = () => {
       </Stack>
 
       <Stack>
-        <Typography variant="h2" textTransform="capitalize">
+        <Typography variant="h2" sx={{ textTransform: 'capitalize' }}>
           {dateRange.isCustom ? dateRangeString : dateInput}
         </Typography>
         {dateInput === 'custom' ? (
@@ -194,7 +199,6 @@ const HistoryPage: React.FC = () => {
           <TransactionsList
             transactionsByUser={transactionsByUser}
             userList={userList}
-            buildings={buildings}
             loggedInUserId={loggedInUserId}
             historyType={historyType}
           />

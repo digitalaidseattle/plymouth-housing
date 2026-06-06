@@ -1,3 +1,9 @@
+/**
+ *  DialogTemplate.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Dialog,
   DialogContent,
@@ -53,7 +59,7 @@ const DialogTemplate = ({
                 top: theme.spacing(2),
                 right: theme.spacing(2)
             }}>
-                <Button onClick={handleShowDialog} disableRipple><Close/></Button>
+                <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn"><Close/></Button>
             </Box>
 
             {title &&

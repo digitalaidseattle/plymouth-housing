@@ -1,3 +1,9 @@
+/**
+ *  config.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| THEME CONFIG  ||============================== //
 
 const config = {

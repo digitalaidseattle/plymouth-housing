@@ -1,3 +1,9 @@
+/**
+ *  useCartOperations.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { CategoryProps, CheckoutItemProp } from '../types/interfaces';
 
 interface UseCartOperationsProps {

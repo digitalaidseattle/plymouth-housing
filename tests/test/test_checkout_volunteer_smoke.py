@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.smoke
 @pytest.mark.serial
-def test_checkout_smoke(checkout_page, home_page):
+def test_checkout_smoke(login_with_volunteer, checkout_page, home_page):
 
     item = "Curtains"
 

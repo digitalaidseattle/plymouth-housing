@@ -7,7 +7,11 @@
 import { SyntheticEvent, useState } from 'react';
 import { Typography, Box, FormControl, Stack, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-import { CheckoutHistoryItem, CheckoutItemProp } from '../../types/interfaces';
+import {
+  CheckoutHistoryItem,
+  CheckoutItemProp,
+  ResidentInfo,
+} from '../../types/interfaces';
 import { SPECIAL_ITEMS } from '../../types/constants';
 import CheckedoutListItem from './CheckedoutListItem';
 import DialogTemplate from '../DialogTemplate';
@@ -16,6 +20,7 @@ type AdditionalNotesDialogProps = {
   showDialog: boolean;
   handleShowDialog: () => void;
   item: CheckoutItemProp;
+  residentInfo: ResidentInfo;
   addItemToCart: (item: CheckoutItemProp) => void;
   checkoutHistory: CheckoutHistoryItem[];
 };
@@ -92,9 +97,9 @@ const AdditionalNotesDialog = ({
                 overflowY: 'auto',
               }}
             >
-              {applianceMiscCheckouts.map((i) => (
+              {applianceMiscCheckouts.map((i, index) => (
                 <CheckedoutListItem
-                  key={i.additionalNotes}
+                  key={`${i.additionalNotes}-${index}`}
                   itemName={i.additionalNotes}
                   timesCheckedOut={i.timesCheckedOut}
                 />
@@ -146,6 +151,7 @@ const AdditionalNotesDialog = ({
             }}
             selectOnFocus
             handleHomeEndKeys
+            id="resident-name-autocomplete"
             options={autocompleteOptions}
             getOptionLabel={(option) => {
               if (typeof option === 'string') {

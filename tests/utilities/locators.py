@@ -118,9 +118,11 @@ class CheckoutPageLocators:
     def get_add_button_locator(item_name):
         return (
             By.XPATH,
-            f"//p[@aria-label='{item_name}']"
-            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
-            f"/following-sibling::div//button"
+            (
+                f"//*[normalize-space()='{item_name}' or @aria-label='{item_name}']"
+                "/ancestor::div[contains(@class,'MuiCard-root')][1]"
+                "//button[not(@disabled)][last()]"
+            )
         )
 
 class AddItemPageLocators:
@@ -128,3 +130,5 @@ class AddItemPageLocators:
     CLOSE_MODAL_BUTTON = (By.XPATH, "//button[@aria-label='close']")
     SUCCESS_MODAL_HEADER = (By.XPATH, "//h2[contains(text(), 'Inventory Updated')]")
     QUANTITY_INPUT = (By.NAME, "quantity")
+
+

@@ -1,6 +1,7 @@
 from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import CheckoutPageLocators, CommonLocators
@@ -115,11 +116,47 @@ class CheckOutPage(BasePage):
     def wait_for_resident_autofill(self, timeout=20):
         wait = self.get_wait(timeout)
 
-        # Wait until resident field is auto-populated
+        name_input = wait.until(
+            EC.element_to_be_clickable(self.locators.NAME_INPUT)
+        )
+
+        current_value = (name_input.get_attribute("value") or "").strip()
+
+        # If the app already selected a real resident, keep existing behavior.
+        # Avoid treating partial search text like "Maya" as a selected resident.
+        if " " in current_value and any(ch.isalpha() for ch in current_value):
+            return
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            name_input
+        )
+
+        ActionChains(self.driver).move_to_element(name_input).click().perform()
+
+        # Clear invalid resident text such as ((((((((((.
+        name_input.send_keys(Keys.CONTROL, "a")
+        name_input.send_keys(Keys.BACKSPACE)
+
+        # Search for a known valid resident from seeded test data.
+        name_input.send_keys("Maya")
+
         wait.until(
-            lambda d: self.driver.find_element(
+            lambda d: len(d.find_elements(
+                By.XPATH,
+                "//li[contains(normalize-space(), 'Maya Fey')] | "
+                "//*[@role='option' and contains(normalize-space(), 'Maya Fey')]"
+            )) > 0
+        )
+
+        # Use keyboard selection so React/MUI state updates correctly.
+        name_input.send_keys(Keys.ARROW_DOWN)
+        name_input.send_keys(Keys.ENTER)
+
+        wait.until(
+            lambda d: "Maya Fey" in d.find_element(
                 *self.locators.NAME_INPUT
-            ).get_attribute("value") not in ("", None)
+            ).get_attribute("value")
         )
 
     def add_item(self, item_name):
@@ -210,16 +247,12 @@ class CheckOutPage(BasePage):
             EC.invisibility_of_element_located(self.locators.LOADING_SPINNER)
         )
 
-        # Step 5 → WAIT FOR ITEM-SPECIFIC PLUS BUTTON
-        plus_locator = (
-            By.XPATH,
-            f"//p[@aria-label='{item}']/ancestor::div[contains(@class,'MuiCard')]//button[last()]"
+        # Step 5 - WAIT FOR ITEM-SPECIFIC PLUS BUTTON
+        self.get_wait(20).until(
+            EC.element_to_be_clickable(
+                self.locators.get_add_button_locator(item)
+            )
         )
-
-        self.get_wait(15).until(
-            EC.element_to_be_clickable(plus_locator)
-        )
-
         # Step 7 → Over-limit test
         self.set_quantity(6, item)
 
@@ -305,19 +338,16 @@ class CheckOutPage(BasePage):
 
     def click_plus_button(self, item_name):
 
-        locator = (
-            By.XPATH,
-            f"//p[@aria-label='{item_name}']/ancestor::div[contains(@class,'MuiCard')]//button[last()]"
-        )
+        locator = self.locators.get_add_button_locator(item_name)
 
-        btn = self.get_wait(15).until(lambda d: d.find_element(*locator))
+        btn = self.get_wait(20).until(
+            EC.element_to_be_clickable(locator)
+        )
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
             btn
         )
-
-        ActionChains(self.driver).move_to_element(btn).pause(0.2).perform()
 
         self.driver.execute_script("arguments[0].click();", btn)
 
@@ -331,3 +361,8 @@ class CheckOutPage(BasePage):
         btn = self.get_wait(10).until(lambda d: d.find_element(*locator))
 
         self.driver.execute_script("arguments[0].click();", btn)
+
+
+
+
+

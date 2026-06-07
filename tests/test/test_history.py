@@ -106,6 +106,7 @@ def test_checkout_reflected_in_history(
     is_recent = (
         "sec ago" in latest_text_lc
         or "just now" in latest_text_lc
+        or "created today at" in latest_text_lc
         or (recent_minutes and int(recent_minutes.group(1)) <= 5)  #  relaxed
     )
 

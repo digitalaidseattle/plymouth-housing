@@ -10,6 +10,7 @@ import {
   CategoryProps,
   CheckoutHistoryItem,
   CheckoutItemProp,
+  CheckoutType,
 } from '../../types/interfaces';
 import { Box, Grid, Typography } from '@mui/material';
 
@@ -23,9 +24,9 @@ type CategorySectionProps = {
   ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
-  disabled: boolean;
-  activeSection: string;
+  checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];
+  selectedWelcomeItemName?: string;
 };
 
 const CategorySection = ({
@@ -34,17 +35,15 @@ const CategorySection = ({
   addItemToCart,
   removeItemFromCart,
   removeButton,
-  disabled,
-  activeSection,
+  checkoutType,
   checkoutHistory,
+  selectedWelcomeItemName,
 }: CategorySectionProps) => {
   return (
     <Box
       sx={{
         px: removeButton ? 0 : 5,
         pb: 3,
-        opacity: disabled ? 0.5 : 1,
-        pointerEvents: disabled ? 'none' : 'auto',
       }}
     >
       <Box
@@ -121,8 +120,9 @@ const CategorySection = ({
               removeButton={removeButton}
               categoryLimit={category.checkout_limit}
               categoryName={category.category}
-              activeSection={activeSection}
+              checkoutType={checkoutType}
               checkoutHistory={checkoutHistory}
+              selectedWelcomeItemName={selectedWelcomeItemName}
             />
           </Grid>
         ))}

@@ -6,7 +6,7 @@ This project uses [Azure Static Web Apps](https://azure.microsoft.com/en-us/serv
 
 ## Prerequisites
 
-- **Node.js and npm** installed ([Download here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm))
+- **Node.js and npm** v22 or later installed ([Download here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm))
 - **Azure SWA CLI** - Installed automatically via npm dependencies
 - **Database and DAB running** - See [database-setup.md](database-setup.md) and [DAB-setup.md](DAB-setup.md)
 

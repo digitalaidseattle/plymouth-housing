@@ -4,7 +4,6 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
 import { CategoryProps, CheckoutItemProp } from '../types/interfaces';
 
 interface UseCartOperationsProps {
@@ -13,18 +12,11 @@ interface UseCartOperationsProps {
 }
 
 export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOperationsProps) {
-  // TODO(#445): activeSection locking was designed to prevent mixing general/welcomeBasket items.
-  // Now that the checkout page is split into separate pages, this is dead logic and can be removed.
-  const [activeSection, setActiveSection] = useState<string>('');
-
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
     category: string,
-    section: string,
   ) => {
-    if (activeSection && activeSection !== section) return;
-
     const updatedCheckoutItems = [...checkoutItems];
     const categoryIndex = updatedCheckoutItems.findIndex(
       (cat: CategoryProps) => cat.category === category,
@@ -48,7 +40,6 @@ export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOp
         }
       } else if (quantity > 0) {
         categoryItems.push({ ...item, quantity });
-        setActiveSection(section);
       }
 
       const newCategoryCount = categoryItems.reduce(
@@ -63,9 +54,6 @@ export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOp
     }
 
     setCheckoutItems(updatedCheckoutItems);
-
-    const isCartEmpty = updatedCheckoutItems.every((cat) => cat.items.length === 0);
-    if (isCartEmpty) setActiveSection('');
   };
 
   // Removes the item entirely from the cart regardless of its current quantity (a "delete row" action,
@@ -84,11 +72,8 @@ export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOp
       };
     });
 
-    const isCartEmpty = updatedCheckoutItems.every((category) => category.items.length === 0);
-    if (isCartEmpty) setActiveSection('');
-
     setCheckoutItems(updatedCheckoutItems);
   };
 
-  return { activeSection, setActiveSection, addItemToCart, removeItemFromCart };
+  return { addItemToCart, removeItemFromCart };
 }

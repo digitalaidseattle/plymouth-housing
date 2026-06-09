@@ -30,7 +30,7 @@ const MainLayout: React.FC = () => {
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(!matchDownLG);
   const navigate = useNavigate();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const navigateTimeoutRef = useRef<number | null>(null);
@@ -198,7 +198,7 @@ const MainLayout: React.FC = () => {
           sx={{ display: 'flex', width: '100%' }}
           onMouseMove={resetTimer}
           onClick={resetTimer}
-          onKeyPress={resetTimer}
+          onKeyDown={resetTimer}
         >
           <Header open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />

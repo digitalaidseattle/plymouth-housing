@@ -1,3 +1,9 @@
+/**
+ *  DialogTemplate.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Dialog,
   DialogContent,

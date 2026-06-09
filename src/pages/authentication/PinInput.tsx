@@ -1,3 +1,9 @@
+/**
+ *  PinInput.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, {
   useState,
   ChangeEvent,
@@ -110,17 +116,21 @@ const PinInputComponent: React.FC<{
 
   return (
     <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
     >
       <Box
         component="form"
         onSubmit={handleSubmit}
-        display="flex"
-        justifyContent="space-between"
-        width="100%"
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%'
+        }}
       >
         {pin.map((digit, index) => (
           <PinInput
@@ -130,10 +140,12 @@ const PinInputComponent: React.FC<{
             value={digit}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, index)}
             onKeyDown={(e: React.KeyboardEvent<HTMLDivElement | HTMLInputElement>) => handleKeyDown(e, index)}
-            inputProps={{
-              maxLength: 1,
-              autoComplete: 'off',
-              inputMode: 'numeric',
+            slotProps={{
+              htmlInput: {
+                maxLength: 1,
+                autoComplete: 'off',
+                inputMode: 'numeric',
+              }
             }}
             type={visibleIndex === index ? 'text' : 'password'}
             inputRef={(el: HTMLInputElement | null) => { pinRefs.current[index] = el; }}

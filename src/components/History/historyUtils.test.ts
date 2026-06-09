@@ -1,3 +1,9 @@
+/**
+ *  historyUtils.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 /// <reference types="node" />
 import { describe, test, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
 

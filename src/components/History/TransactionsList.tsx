@@ -1,3 +1,9 @@
+/**
+ *  TransactionsList.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React from 'react';
 import { Box, Stack } from '@mui/material';
 import { User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
@@ -34,10 +40,10 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   }
 
   return (
-    <Stack gap={4}>
+    <Stack sx={{ gap: 4 }}>
       {transactionsByUser?.map((user) => (
         <Box key={user.user_id}>
-          <Stack direction="row" alignItems="center" gap={2}>
+          <Stack direction="row" sx={{ alignItems: 'center', gap: 2 }}>
             <h2>
               {loggedInUserId === user.user_id
                 ? 'You'

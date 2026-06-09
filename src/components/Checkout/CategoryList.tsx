@@ -1,3 +1,9 @@
+/**
+ *  CategoryList.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Box, Grid, Typography } from '@mui/material';
 import {
   CategoryProps,
@@ -13,14 +19,12 @@ type CategoryListProps = {
   categories: CategoryProps[];
   checkoutItems: CategoryProps[];
   sectionType: CheckoutType;
-  activeSection: string;
   checkoutHistory: CheckoutHistoryItem[]; //list of tracked items only. Not the full history
   searchActive: boolean;
   addItemToCart: (
     item: CheckoutItemProp,
     quantity: number,
     category: string,
-    section: string,
   ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   onApplianceMiscClick: (item: CheckoutItemProp) => void;
@@ -31,7 +35,6 @@ const CategoryList: React.FC<CategoryListProps> = ({
   categories,
   checkoutItems,
   sectionType,
-  activeSection,
   checkoutHistory,
   searchActive,
   addItemToCart,
@@ -39,6 +42,15 @@ const CategoryList: React.FC<CategoryListProps> = ({
   onApplianceMiscClick,
   onPastCheckoutClick,
 }) => {
+  // Welcome Basket is limited to a single basket type. Derive the name of the
+  // basket item currently in the cart (across ALL categories) so every card can
+  // disable the other options. Empty string means nothing is selected yet.
+  const selectedWelcomeItemName: string = (() => {
+    if (sectionType !== 'welcomeBasket') return '';
+    const cartItems = checkoutItems.flatMap((category) => category.items);
+    return cartItems[0]?.name ?? '';
+  })();
+
   const getMatchingCategory = (categoryName: string): CategoryProps =>
     checkoutItems.find((cat) => cat.category === categoryName) || {
       id: 0,
@@ -65,7 +77,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         return;
       }
     }
-    addItemToCart(item, quantity, categoryName, sectionType);
+    addItemToCart(item, quantity, categoryName);
   };
 
   if (searchActive) {
@@ -92,12 +104,13 @@ const CategoryList: React.FC<CategoryListProps> = ({
                 addItemToCart={(item, quantity) =>
                   wrappedAddItemToCart(item, quantity, section.category)
                 }
-                activeSection={activeSection}
+                checkoutType={sectionType}
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 categoryLimit={section.checkout_limit}
                 categoryName={section.category}
                 checkoutHistory={checkoutHistory}
+                selectedWelcomeItemName={selectedWelcomeItemName}
               />
             </Grid>
           ));
@@ -131,9 +144,9 @@ const CategoryList: React.FC<CategoryListProps> = ({
           }
           removeItemFromCart={removeItemFromCart}
           removeButton={false}
-          disabled={activeSection !== '' && activeSection !== sectionType} // TODO(#445): always false now, remove with activeSection cleanup
-          activeSection={activeSection} // TODO(#445): remove with activeSection cleanup
+          checkoutType={sectionType}
           checkoutHistory={checkoutHistory}
+          selectedWelcomeItemName={selectedWelcomeItemName}
         />
       ))}
     </Box>

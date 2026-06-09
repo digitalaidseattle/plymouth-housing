@@ -1,3 +1,9 @@
+/**
+ *  useCatalog.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useCallback, useContext } from 'react';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminItem, CategoryItem } from '../../types/interfaces';

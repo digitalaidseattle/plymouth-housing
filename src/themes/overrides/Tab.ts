@@ -1,3 +1,9 @@
+/**
+ *  Tab.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - TAB ||============================== //
 
 import { Theme } from '@mui/material';

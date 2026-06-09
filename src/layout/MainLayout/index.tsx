@@ -198,7 +198,7 @@ const MainLayout: React.FC = () => {
           sx={{ display: 'flex', width: '100%' }}
           onMouseMove={resetTimer}
           onClick={resetTimer}
-          onKeyPress={resetTimer}
+          onKeyDown={resetTimer}
         >
           <Header open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />

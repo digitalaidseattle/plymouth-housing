@@ -63,7 +63,7 @@ const DialogTemplate = ({
             </Box>
 
             {title &&
-            <DialogTitle>
+            <DialogTitle component="div">
                 <Typography variant="h5" sx={{ textTransform: 'capitalize' }}>{title}</Typography>
             </DialogTitle>}
 

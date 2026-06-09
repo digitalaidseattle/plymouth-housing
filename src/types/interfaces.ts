@@ -51,8 +51,11 @@ export type CheckoutCardProps = {
   disableAdd?: boolean;
   categoryLimit: number;
   categoryName: string;
-  activeSection?: string;
+  checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];
+  // Name of the welcome-basket item currently in the cart (across all categories),
+  // derived by the parent. Used to lock the page to a single basket type.
+  selectedWelcomeItemName?: string;
 };
 
 export type ShoppingCart = {
@@ -83,12 +86,6 @@ export interface UserContextType {
   setActiveVolunteers: (activeVolunteers: User[]) => void;
   isLoading: boolean;
 }
-
-export type AddVolunteerModalProps = {
-  addModal: boolean;
-  handleAddClose: () => void;
-  fetchData: () => void;
-};
 
 // BaseUser defines the common properties shared by all user types.
 export type BaseUser = {

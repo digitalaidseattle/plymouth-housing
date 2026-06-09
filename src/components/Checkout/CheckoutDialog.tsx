@@ -41,11 +41,9 @@ type CheckoutDialogProps = {
     item: CheckoutItemProp,
     quantity: number,
     category: string,
-    active: string,
   ) => void;
   setCheckoutItems: (items: CategoryProps[]) => void;
   selectedBuildingCode: string;
-  setActiveSection: (s: string) => void;
   fetchData: () => void;
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
@@ -62,7 +60,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   removeItemFromCart,
   addItemToCart,
   selectedBuildingCode,
-  setActiveSection,
   fetchData,
   onSuccess,
   residentInfo,
@@ -224,7 +221,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       }
 
       if (result.Status === 'Success') {
-        setActiveSection('');
         setResidentInfo({
           id: 0,
           name: '',
@@ -241,7 +237,6 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         result.ErrorCode === 'DUPLICATE_TRANSACTION'
       ) {
         // Handle duplicate transaction - clear the cart and show success
-        setActiveSection('');
         setResidentInfo({
           id: 0,
           name: '',
@@ -485,17 +480,10 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   category={section}
                   categoryCheckout={section}
                   addItemToCart={(item, quantity) => {
-                    addItemToCart(
-                      item,
-                      quantity,
-                      section.category,
-                      section.category,
-                    );
+                    addItemToCart(item, quantity, section.category);
                   }}
                   removeItemFromCart={removeItemFromCart}
                   removeButton={true}
-                  disabled={false}
-                  activeSection=""
                 />
               );
             }

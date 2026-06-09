@@ -24,8 +24,9 @@ const CheckoutCard = ({
   removeButton,
   categoryLimit,
   categoryName,
-  activeSection,
-  checkoutHistory
+  checkoutType,
+  checkoutHistory,
+  selectedWelcomeItemName,
   }: CheckoutCardProps) => {
 
   const pastCheckout = checkoutHistory ? checkoutHistory.map(i => i.item_id).includes(item.id) : false;
@@ -39,30 +40,18 @@ const CheckoutCard = ({
     return 0;
   }
 
-  // Derive disableAdd directly from props - no need for state or effects
+  // On the Welcome Basket page, lock the checkout to a single basket type:
+  // once one basket item is in the cart (in ANY category), any item with a
+  // different name is disabled. selectedWelcomeItemName is derived by the parent
+  // from the full cart; fall back to this category's cart when it isn't provided.
   const disableAdd = (() => {
-    if (activeSection === '') {
-      return false;
-    }
-
-    if (activeSection === 'general') {
-      return categoryName === 'Welcome Basket';
-    }
-
-    if (activeSection === 'welcomeBasket') {
-      if (categoryName !== 'Welcome Basket') {
-        return true;
-      }
-
-      const itemName = categoryCheckout.items[0]?.name.toLowerCase() ?? '';
-      if (itemName === item.name.toLowerCase()) {
-        return pastCheckout;
-      } else {
-        return true;
-      }
-    }
-
-    return false;
+    if (checkoutType !== 'welcomeBasket') return false;
+    const selectedName = (
+      selectedWelcomeItemName ?? categoryCheckout.items[0]?.name ?? ''
+    ).toLowerCase();
+    if (selectedName === '') return false;
+    if (selectedName === item.name.toLowerCase()) return pastCheckout;
+    return true;
   })();
 
   return (

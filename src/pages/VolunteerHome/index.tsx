@@ -8,7 +8,9 @@ import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import { UserContext } from '../../components/contexts/UserContext';
 import { InventoryItem } from '../../types/interfaces.ts';
 import { getItems } from '../../services/itemsService';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import SnackbarAlert from '../../components/SnackbarAlert.tsx';
+
 
 const SectionHeader: React.FC<{
   icon: React.ReactNode;
@@ -61,23 +63,13 @@ const VolunteerHome: React.FC = () => {
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [showResults, setShowResults] = useState(false);
   const location = useLocation();
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({
-    open: location.state && location.state.message.length > 0,
-    message: location.state ? location.state.message : '',
-    severity: 'success',
-  });
+  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
 
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
+  React.useEffect(() => {
+  if (location.state?.message) {
+    showSnackbar(location.state.message, 'success');
+  }
+}, [location.state, showSnackbar]);
 
   const fetchData = useCallback(async () => {
     try {

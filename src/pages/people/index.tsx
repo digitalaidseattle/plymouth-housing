@@ -6,6 +6,7 @@ import UserFilters from './UserFilters';
 import UserTable from './UserTable';
 import AddVolunteerModal from '../../components/AddVolunteerModal/AddVolunteerModal';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import useUsers from './useUsers';
 
 const UserPage = () => {
@@ -18,11 +19,7 @@ const UserPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = SETTINGS.itemsPerPage;
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({ open: false, message: '', severity: 'warning' });
+  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
 
   const {
     originalData,
@@ -97,29 +94,13 @@ const UserPage = () => {
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
 
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
-
   // Handle status toggle
   const handleStatusToggle = async (userId: number) => {
     try {
       await updateUserStatus(userId);
-      setSnackbarState({
-        open: true,
-        message: 'User status updated successfully!',
-        severity: 'success',
-      });
+      showSnackbar('User status updated successfully!', 'success');
     } catch (error) {
-      setSnackbarState({
-        open: true,
-        message: 'Error updating user: ' + error,
-        severity: 'warning',
-      });
+      showSnackbar('Error updating user: ' + error, 'warning');
     }
   };
 

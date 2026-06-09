@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
+import type { AlertColor } from '@mui/material';
 
-type SnackbarSeverity = 'success' | 'warning' | 'error';
+type SnackbarSeverity = AlertColor;
 
 interface SnackbarState {
   open: boolean;

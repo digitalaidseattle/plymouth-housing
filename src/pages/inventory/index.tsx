@@ -17,6 +17,7 @@ import { getItems, getCategories } from '../../services/itemsService';
 import { SETTINGS } from '../../types/constants';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -43,16 +44,7 @@ const Inventory = () => {
     status: null as null | HTMLElement,
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [error, setError] = useState<string | null>(null);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({
-    open: location.state && location.state.message,
-    message: location.state ? location.state.message : '',
-    severity: 'success',
-  });
+  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
   const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
   const tableContainerRef = useRef<HTMLElement | null>(null);
   const [showResults, setShowResults] = useState(false);
@@ -129,6 +121,12 @@ const Inventory = () => {
     }));
   };
 
+  useEffect(() => {
+    if (location.state?.message) {
+      showSnackbar(location.state.message, 'success');
+    }
+  }, [location.state, showSnackbar]);
+
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
     value: number,
@@ -193,11 +191,11 @@ const Inventory = () => {
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
-      setError('Could not get inventory. \r\n' + error);
+      showSnackbar('Could not get inventory. \r\n' + error, 'warning');
       console.error('Could not get inventory:', error);
     }
     setIsLoading(false);
-  }, [user]);
+  }, [user, showSnackbar]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -242,23 +240,6 @@ const Inventory = () => {
     }, 0);
     return () => clearTimeout(handler);
   }, [sortDirection, handleFilter]);
-
-  useEffect(() => {
-    if (error) {
-      const handler = setTimeout(() => {
-        setSnackbarState({ open: true, message: error, severity: 'warning' });
-      }, 0);
-      return () => clearTimeout(handler);
-    }
-  }, [error]);
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
 
   if (isLoading) {
     return <p>Loading ...</p>;
@@ -305,7 +286,7 @@ const Inventory = () => {
         handleClose={() => setAdjustModal(false)}
         fetchData={fetchData}
         itemToEdit={itemToEdit}
-        handleSnackbar={setSnackbarState}
+        handleSnackbar={showSnackbar}
       />
 
       {/* Inventory Filter */}

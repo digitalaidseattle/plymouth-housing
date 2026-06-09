@@ -10,10 +10,12 @@
 import React from 'react';
 import { Snackbar, Alert } from '@mui/material';
 
+import type { AlertColor } from '@mui/material';
+
 interface SnackbarAlertProps {
   open: boolean;
   onClose: (event?: React.SyntheticEvent | Event, reason?: string) => void;
-  severity: 'error' | 'success' | 'info' | 'warning' | undefined;
+  severity: AlertColor | undefined;
   children: React.ReactNode;
 }
 

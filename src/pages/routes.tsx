@@ -42,7 +42,7 @@ const routes = [
         path: 'people',
         element: (
           <RootRedirect source="people">
-            <MainContainer title="People">
+            <MainContainer title="Manage People">
               <People />
             </MainContainer>
           </RootRedirect>

@@ -133,7 +133,7 @@ const UserPage = () => {
       />
 
       {/* Toolbar: filters + add */}
-      <Stack direction="row" alignItems="center" spacing={2} width="100%">
+      <Stack direction="row" alignItems="center" spacing={2} width="100%" sx={{ mt: 3, mb: 3 }}>
         <Box sx={{ flexGrow: 1 }}>
           <UserFilters
             search={search}

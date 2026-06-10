@@ -141,7 +141,7 @@ const ResidentsPage = () => {
               placeholder="Search resident by name…"
             />
           )}
-          sx={{ flexGrow: 1 }}
+          sx={{ flexGrow: 1, alignSelf: 'flex-end' }}
         />
       </Stack>
 

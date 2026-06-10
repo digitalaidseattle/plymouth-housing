@@ -70,7 +70,7 @@ const HistoryPage: React.FC = () => {
         handleSetDateInput={() => {}}
       />
 
-      <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">
+      <Stack direction="row" alignItems="center" width="100%" sx={{ gap: 3 }}>
         <ToggleButtonGroup
           value={historyType}
           exclusive
@@ -152,7 +152,11 @@ const HistoryPage: React.FC = () => {
                 handleDateSelection(value);
               }
             }}
-            sx={{ width: '10rem' }}
+            sx={{
+              width: '10rem',
+              borderRadius: '18px',
+              '& .MuiSelect-select': { py: 2 },
+            }}
           >
             <MenuItem value="today">Today</MenuItem>
             <MenuItem value="yesterday">Yesterday</MenuItem>

@@ -19,10 +19,14 @@ type TabPanelProps = {
 };
 
 const TabPanel = ({ children, value, index }: TabPanelProps) => {
+  if (value !== index) return null;
   return (
-    <div role="tabpanel" hidden={value !== index}>
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
-    </div>
+    <Box
+      role="tabpanel"
+      sx={{ pt: 2, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+    >
+      {children}
+    </Box>
   );
 };
 
@@ -116,8 +120,12 @@ const Catalog = () => {
   }
 
   return (
-    <Box>
-      <MainCard>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <MainCard
+        border={false}
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        contentSX={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabValue} onChange={handleTabChange}>
             <Tab label="Items" sx={{ typography: 'body1' }} />

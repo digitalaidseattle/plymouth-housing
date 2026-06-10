@@ -124,7 +124,7 @@ const UserPage = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {/* Add Volunteer Modal */}
       <AddVolunteerModal
         addModal={addModalOpen}
@@ -151,12 +151,14 @@ const UserPage = () => {
       </Stack>
 
       {/* Users Table */}
-      <UserTable
-        users={currentItems}
-        nameOrder={nameOrder}
-        onNameOrderToggle={handleNameOrderToggle}
-        onStatusToggle={handleStatusToggle}
-      />
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <UserTable
+          users={currentItems}
+          nameOrder={nameOrder}
+          onNameOrderToggle={handleNameOrderToggle}
+          onStatusToggle={handleStatusToggle}
+        />
+      </Box>
 
       {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>

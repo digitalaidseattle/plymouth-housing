@@ -45,13 +45,9 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
   return (
     <Box
       sx={{
-        position: 'sticky',
-        top: '3.5rem',
-        zIndex: 2,
         py: 1,
         mb: 2,
         width: '100%',
-        overflow: 'hidden',
         background: theme.palette.common.white,
       }}
     >

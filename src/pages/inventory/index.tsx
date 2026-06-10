@@ -3,7 +3,6 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useRef,
 } from 'react';
 import { Alert, Box, Button, Pagination, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -54,23 +53,13 @@ const Inventory = () => {
     message: location.state ? location.state.message : '',
     severity: 'success',
   });
-  const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
-  const tableContainerRef = useRef<HTMLElement | null>(null);
+  const itemsPerPage = SETTINGS.itemsPerPage;
   const [showResults, setShowResults] = useState(false);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const calculateItemsPerPage = () => {
-    if (tableContainerRef.current) {
-      const parentHeight =
-        tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
-      const tableHeight = (parentHeight * 80) / 100; // Calculates the table height in px as 80% of the parent height
-      const items = Math.floor(tableHeight / 64); // Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
-      setItemsPerPage(items > 0 ? items - 1 : 1); // Subtract 1 because of header row
-    }
-  };
 
   const handleAddOpen = () => {
     setAddModal(true);
@@ -232,16 +221,6 @@ const Inventory = () => {
     return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      calculateItemsPerPage();
-    }, 0);
-    window.addEventListener('resize', calculateItemsPerPage);
-    return () => {
-      clearTimeout(handler);
-      window.removeEventListener('resize', calculateItemsPerPage);
-    };
-  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -281,7 +260,7 @@ const Inventory = () => {
   }
 
   return (
-    <Box ref={tableContainerRef} sx={{ height: '100%' }}>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {/* Negative item warning */}
       <Box
         id="negative-warning-container"
@@ -333,14 +312,16 @@ const Inventory = () => {
       </Stack>
 
       {/* Inventory Table */}
-      <InventoryTable
-        currentItems={currentItems}
-        sortDirection={sortDirection}
-        sortColumn={sortColumn}
-        handleSort={handleSort}
-        setAdjustModal={setAdjustModal}
-        setItemToEdit={setItemToEdit}
-      />
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <InventoryTable
+          currentItems={currentItems}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
+          handleSort={handleSort}
+          setAdjustModal={setAdjustModal}
+          setItemToEdit={setItemToEdit}
+        />
+      </Box>
 
       {/* Pagination */}
       <Box

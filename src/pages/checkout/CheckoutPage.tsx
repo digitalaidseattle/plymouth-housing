@@ -272,7 +272,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   return (
-    <>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {checkoutTransaction && (
         <Box sx={{ px: 2, py: 1 }}>
           <Chip
@@ -373,10 +373,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
       <Box
         sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: 'auto',
           backgroundColor: theme.palette.grey[100],
           borderRadius: '15px',
-          paddingBottom: 3,
-          minHeight: '100vh',
+          pb: 3,
         }}
       >
         <CategoryList
@@ -397,8 +399,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             setShowPastCheckoutDialog(true);
           }}
         />
+      </Box>
 
-        <CheckoutFooter
+      <CheckoutFooter
           checkoutItems={checkoutItems}
           setOpenSummary={setOpenSummary}
           selectedBuildingCode={residentInfo.building.code}
@@ -431,8 +434,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         >
           {snackbarState.message}
         </SnackbarAlert>
-      </Box>
-    </>
+    </Box>
   );
 };
 

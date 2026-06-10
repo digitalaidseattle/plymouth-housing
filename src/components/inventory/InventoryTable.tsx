@@ -51,9 +51,9 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
   };
 
   return (
-    <Box id="inventory-container" sx={{ mt: 2}}>
-      <TableContainer component={Paper}>
-        <Table sx={{ tableLayout: 'fixed' }}>
+    <Box id="inventory-container" sx={{ mt: 2, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
           <TableHead>
             <TableRow sx={{ height: '64px' }}>
               {renderSortableHeader('name', 'Name', '25%')}

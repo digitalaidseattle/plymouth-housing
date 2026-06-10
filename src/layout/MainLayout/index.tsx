@@ -204,11 +204,22 @@ const MainLayout: React.FC = () => {
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Box
             component="main"
-            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 }, minWidth: 0 }}
+            sx={{
+              width: '100%',
+              flexGrow: 1,
+              minWidth: 0,
+              height: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              p: { xs: 2, sm: 3 },
+            }}
           >
             <Toolbar />
             <Breadcrumbs navigation={navigation} title />
-            <Outlet context={{ drawerOpen }} />
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+              <Outlet context={{ drawerOpen }} />
+            </Box>
           </Box>
         </Box>
         <SnackbarAlert

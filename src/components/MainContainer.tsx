@@ -23,11 +23,14 @@ const MainContainer: React.FC<MainContainerProp> = forwardRef(
   ) => {
 
     return (
-      <Box 
+      <Box
         ref={ref}
         sx={{
         p: 2,
-        minHeight: '100vh',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
       }}>
         {title && (
           <PageHeading

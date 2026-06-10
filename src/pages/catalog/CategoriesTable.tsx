@@ -200,7 +200,7 @@ const CategoriesTable = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4">Categories</Typography>
         <Button
@@ -210,12 +210,12 @@ const CategoriesTable = ({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          Add Category
+          Add category
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>

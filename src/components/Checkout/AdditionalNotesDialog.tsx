@@ -151,7 +151,7 @@ const AdditionalNotesDialog = ({
             }}
             selectOnFocus
             handleHomeEndKeys
-            id="resident-name-autocomplete"
+            id="appliance-misc-autocomplete"
             options={autocompleteOptions}
             getOptionLabel={(option) => {
               if (typeof option === 'string') {

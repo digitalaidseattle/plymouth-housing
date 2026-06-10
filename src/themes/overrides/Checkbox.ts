@@ -1,3 +1,9 @@
+/**
+ *  Checkbox.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - CHECKBOX ||============================== //
 
 import { Theme } from '@mui/material';

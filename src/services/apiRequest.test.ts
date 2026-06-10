@@ -1,3 +1,9 @@
+/**
+ *  apiRequest.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { apiRequest, setSpinUpCallbacks } from './apiRequest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SETTINGS } from '../types/constants';

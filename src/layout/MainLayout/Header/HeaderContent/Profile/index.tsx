@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useContext, useState } from 'react';
 import {
   Avatar,
@@ -60,7 +66,7 @@ const Profile = () => {
   const iconBackColorOpen = 'grey.300';
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+    <Box sx={{ flexShrink: 0, ml: 1 }}>
       <ButtonBase
         sx={{
           p: 0.25,
@@ -73,7 +79,7 @@ const Profile = () => {
         aria-haspopup="true"
         onClick={handleToggle}
       >
-        <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
+        <Stack direction="row" spacing={2} sx={{ p: 0.5, alignItems: 'center' }}>
           <Avatar
             alt="profile user"
             // src={avatar} //TODO add avatar
@@ -116,17 +122,16 @@ const Profile = () => {
               >
                 <ClickAwayListener onClickAway={handleClose}>
                   <MainCard elevation={0} border={false} content={false}>
-                    <CardContent sx={{ px: 2.5, pt: 3 }}>
+                    <CardContent sx={{ px: 3, pt: 3 }}>
                       <Grid
                         container
-                        justifyContent="space-between"
-                        alignItems="center"
+                        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
                       >
                         <Grid>
                           <Stack
                             direction="row"
                             spacing={1.25}
-                            alignItems="center"
+                            sx={{ alignItems: 'center' }}
                           >
                             <Avatar
                               alt="profile user"

@@ -1,10 +1,17 @@
+/**
+ *  TransactionsList.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React from 'react';
 import { Box, Stack } from '@mui/material';
-import { Building, User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
+import { User, CheckoutTransaction, InventoryTransaction } from '../../types/interfaces';
 import GeneralCheckoutCard from './GeneralCheckoutCard';
 import WelcomeBasketCard from './WelcomeBasketCard';
 import InventoryCard from './InventoryCard';
 import { formatTransactionDate } from './historyUtils';
+import { getUserName } from '../../utils/transactionUtils';
 
 interface TransactionsListProps {
   transactionsByUser: Array<{
@@ -12,7 +19,6 @@ interface TransactionsListProps {
     transactions: (CheckoutTransaction | InventoryTransaction)[];
   }>;
   userList: User[] | null;
-  buildings: Building[] | null;
   loggedInUserId: number | null;
   historyType: 'checkout' | 'inventory';
 }
@@ -20,10 +26,10 @@ interface TransactionsListProps {
 const TransactionsList: React.FC<TransactionsListProps> = ({
   transactionsByUser,
   userList,
-  buildings,
   loggedInUserId,
   historyType,
 }) => {
+
   if (transactionsByUser.length === 0) {
     return (
       <p>
@@ -34,14 +40,14 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   }
 
   return (
-    <Stack gap="2rem">
+    <Stack sx={{ gap: 4 }}>
       {transactionsByUser?.map((user) => (
         <Box key={user.user_id}>
-          <Stack direction="row" alignItems="center" gap="1rem">
+          <Stack direction="row" sx={{ alignItems: 'center', gap: 2 }}>
             <h2>
               {loggedInUserId === user.user_id
                 ? 'You'
-                : (userList?.find((v) => v.id === user.user_id)?.name ?? '')}
+                : getUserName(user.user_id, userList)}
             </h2>
             <span>
               {user.transactions.length}{' '}
@@ -56,13 +62,14 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                 lg: 'repeat(2, 1fr)',
                 xl: 'repeat(3, 1fr)',
               },
-              gap: '1rem',
+              gap: 2,
             }}
           >
             {user.transactions.map(
               (t: CheckoutTransaction | InventoryTransaction) => {
                 const howLongAgoString = formatTransactionDate(t.transaction_date);
                 const checkoutTransaction = t as CheckoutTransaction;
+
                 if (
                   historyType === 'checkout' &&
                   checkoutTransaction.item_type === 'general'
@@ -71,8 +78,8 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     <GeneralCheckoutCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
-                      buildings={buildings}
                       howLongAgoString={howLongAgoString}
+                      userList={userList}
                     />
                   );
                 } else if (
@@ -83,7 +90,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     <WelcomeBasketCard
                       key={t.transaction_id}
                       checkoutTransaction={checkoutTransaction}
-                      buildings={buildings}
                       howLongAgoString={howLongAgoString}
                     />
                   );

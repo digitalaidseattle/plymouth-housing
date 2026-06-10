@@ -1,3 +1,9 @@
+/**
+ *  ListItemIcon.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - LIST ITEM ICON ||============================== //
 
 export default function ListItemIcon() {

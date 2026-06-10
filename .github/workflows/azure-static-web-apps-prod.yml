@@ -49,7 +49,7 @@ jobs:
 
     - name: Create GitHub Release
       if: steps.check-tag.outputs.TAG_EXISTS == 'false'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ steps.package-version.outputs.PACKAGE_VERSION }}
         generate_release_notes: true

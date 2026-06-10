@@ -1,3 +1,9 @@
+/**
+ *  ItemsTable.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState } from 'react';
 import {
   Table,
@@ -63,6 +69,7 @@ const ItemsTable = ({
   onSuccess,
   onError,
 }: ItemsTableProps) => {
+
   const [editState, setEditState] = useState<EditState>({
     id: null,
     field: null,
@@ -340,7 +347,7 @@ const ItemsTable = ({
         onClick={() => handleCellClick(item.id, field as string, value)}
         sx={{
           cursor: 'pointer',
-          padding: '8px',
+          padding: 1,
           borderRadius: '4px',
           '&:hover': {
             backgroundColor: 'action.hover',
@@ -499,7 +506,7 @@ const ItemsTable = ({
                       }))
                     }
                     disabled={isSaving}
-                    inputProps={{ min: 0 }}
+                    slotProps={{ htmlInput: { min: 0 } }}
                     sx={{ width: '70px' }}
                   />
                 </TableCell>

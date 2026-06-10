@@ -1,3 +1,9 @@
+/**
+ *  SearchBar.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
 import { Search, Close } from '@mui/icons-material';

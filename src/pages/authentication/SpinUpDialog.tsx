@@ -1,3 +1,9 @@
+/**
+ *  SpinUpDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Dialog, DialogTitle, DialogContent, Box, CircularProgress, Typography } from "@mui/material";
 import { SETTINGS } from "../../types/constants";
 
@@ -7,7 +13,7 @@ interface SpinUpDialogProps {
 }
 
 const SpinUpDialog: React.FC<SpinUpDialogProps> = ({ open, retryCount }) => (
-  <Dialog open={open} disableEscapeKeyDown>
+  <Dialog open={open} onClose={(_, reason) => { if (reason === 'escapeKeyDown') return; }}>
     <DialogTitle>{retryCount === 0 ? 'Loading' : 'Database is starting up'}</DialogTitle>
     <DialogContent>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2 }}>

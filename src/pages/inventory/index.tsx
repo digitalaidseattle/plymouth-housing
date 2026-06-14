@@ -305,7 +305,7 @@ const Inventory = () => {
             handleSearch={handleSearch}
           />
         </Box>
-        <Button variant="contained" sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={handleAddOpen}>
+        <Button variant="contained" onClick={handleAddOpen}>
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
           Add
         </Button>

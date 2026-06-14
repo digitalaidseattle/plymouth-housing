@@ -144,7 +144,7 @@ const UserPage = () => {
             onRoleFilterChange={setRoleFilter}
           />
         </Box>
-        <Button variant="contained" sx={{ bgcolor: '#F5F5F5', color: 'black' }} onClick={openAddModal}>
+        <Button variant="contained" onClick={openAddModal}>
           <AddIcon fontSize="small" sx={{ color: 'black' }} />
           Add
         </Button>

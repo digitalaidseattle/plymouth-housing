@@ -142,7 +142,7 @@ const WelcomeBasketBuildingDialog = ({
               label={
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Box component="span">Editing transaction</Box>
-                  <Button size="small" variant="text" color="primary" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
+                  <Button size="small" variant="text" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
                     Cancel
                   </Button>
                 </Stack>

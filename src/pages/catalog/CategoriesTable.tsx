@@ -205,7 +205,6 @@ const CategoriesTable = ({
         <Typography variant="h4">Categories</Typography>
         <Button
           variant="contained"
-          color="primary"
           startIcon={<Add />}
           onClick={() => setIsAdding(true)}
           disabled={isAdding}

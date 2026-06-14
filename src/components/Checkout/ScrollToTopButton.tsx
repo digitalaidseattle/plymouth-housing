@@ -43,7 +43,6 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ showAfter = 300 }
       >
         <Button
           variant="contained"
-          color="primary"
           onClick={scrollToTop}
           sx={{ borderRadius: '50%', minWidth: '50px', height: '50px' }}
         >

@@ -1,14 +1,20 @@
+/**
+ *  CircularLoader.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { styled } from '@mui/material/styles';
 import { CircularProgress } from '@mui/material';
 
 // loader style
-const LoaderWrapper = styled('div')(() => ({
+const LoaderWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   width: '100%',
-  marginTop: '5rem',
+  marginTop: theme.spacing(10),
 }));
 
 // ==============================|| Loader ||============================== //

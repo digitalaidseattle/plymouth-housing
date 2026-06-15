@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // third-party
 import merge from 'lodash/merge';
 
@@ -35,7 +41,7 @@ export default function ComponentsOverrides(theme: Theme) {
     },
     Button(theme),
     Badge(theme),
-    CardContent(),
+    CardContent(theme),
     Checkbox(theme),
     Chip(theme),
     IconButton(theme),

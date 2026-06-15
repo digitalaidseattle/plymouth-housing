@@ -1,3 +1,9 @@
+/**
+ *  HistoryCard.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Box } from '@mui/material';
 import { ReactNode } from 'react';
 
@@ -13,7 +19,7 @@ const HistoryCard = ({ transactionId, children }: HistoryCardProps) => {
       sx={{
         border: '1px lightgray solid',
         borderRadius: '10px',
-        paddingX: '1rem',
+        px: 2,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',

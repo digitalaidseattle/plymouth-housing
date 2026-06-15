@@ -1,3 +1,9 @@
+/**
+ *  useResidents.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useEffect } from 'react';
 import { Unit, ClientPrincipal, ResidentNameOption } from '../../../types/interfaces';
 import { getResidents, getLastResidentVisit } from '../../../services/residentService';
@@ -5,10 +11,12 @@ import { getResidents, getLastResidentVisit } from '../../../services/residentSe
 export const useResidents = (
     user: ClientPrincipal | null,
     selectedUnit: Unit,
+    initialResidentName?: string,
+    initialLastVisitDate?: string | null,
 ) => {
     const [existingResidents, setExistingResidents] = useState<ResidentNameOption[]>([]);
-    const [nameInput, setNameInput] = useState<string>('');
-    const [currentLastVisitDate, setCurrentLastVisitDate] = useState<string | null>(null);
+    const [nameInput, setNameInput] = useState<string>(initialResidentName ?? '');
+    const [currentLastVisitDate, setCurrentLastVisitDate] = useState<string | null>(initialLastVisitDate ?? null);
     const [isLoadingResidents, setIsLoadingResidents] = useState(false);
     const [apiError, setApiError] = useState('');
 
@@ -43,8 +51,8 @@ export const useResidents = (
         const fetchResidents = async () => {
             if (!selectedUnit?.id) {
                 setExistingResidents([]);
-                setNameInput('');
-                setCurrentLastVisitDate(null);
+                if (!initialResidentName) setNameInput('');
+                setCurrentLastVisitDate(initialLastVisitDate ?? null);
                 setIsLoadingResidents(false);
                 setApiError('');
                 return;
@@ -62,9 +70,20 @@ export const useResidents = (
                     if (cancelled) return;
 
                     setExistingResidents(residentsWithDates);
-                    const lastResident = residentsWithDates[residentsWithDates.length - 1];
-                    setNameInput(lastResident.name);
-                    setCurrentLastVisitDate(lastResident.lastVisitDate || null);
+                    
+                    // If initialResidentName is provided, find and use that resident; otherwise use last
+                    let residentToUse = residentsWithDates[residentsWithDates.length - 1];
+                    if (initialResidentName) {
+                        const matchedResident = residentsWithDates.find(
+                            (r) => r.name.toLowerCase() === initialResidentName.toLowerCase()
+                        );
+                        if (matchedResident) {
+                            residentToUse = matchedResident;
+                        }
+                    }
+                    
+                    setNameInput(residentToUse.name);
+                    setCurrentLastVisitDate(residentToUse.lastVisitDate || null);
                 } else {
                     setExistingResidents([]);
                     setNameInput('');
@@ -90,7 +109,7 @@ export const useResidents = (
         };
         fetchResidents();
         return () => { cancelled = true; };
-    }, [user, selectedUnit]);
+    }, [user, selectedUnit, initialResidentName, initialLastVisitDate]);
 
     return {
         existingResidents,

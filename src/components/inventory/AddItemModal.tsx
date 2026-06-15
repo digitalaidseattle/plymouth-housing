@@ -1,3 +1,9 @@
+/**
+ *  AddItemModal.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Box,
   Typography,
@@ -206,7 +212,7 @@ const AddItemModal = ({
       {/* Item Type */}
       {!inventoryType && (
         <Box id="add-item-type" sx={{ width: '100%' }}>
-          <Typography fontWeight="bold">Inventory Type</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>Inventory Type</Typography>
           <Select
             value={formData.type}
             onChange={(e) => handleInputChange('type', e.target.value)}
@@ -220,7 +226,7 @@ const AddItemModal = ({
 
       {/* Item Name */}
       <Box id="add-item-name" sx={{ width: '100%' }}>
-        <Typography fontWeight="bold">Item Name</Typography>
+        <Typography sx={{ fontWeight: 'bold' }}>Item Name</Typography>
         <Autocomplete
           onChange={(_, value) => onChangeHandler(value)}
           value={updateItem}
@@ -270,13 +276,13 @@ const AddItemModal = ({
       )}
 
       <Box id="add-item-quantity">
-        <Typography fontWeight="bold">Quantity To Add/Remove</Typography>
+        <Typography sx={{ fontWeight: 'bold' }}>Quantity To Add/Remove</Typography>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
-            marginTop: '0.5rem',
+            gap: 2,
+            marginTop: 1,
           }}
         >
           <IconButton
@@ -318,7 +324,7 @@ const AddItemModal = ({
         sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
       >
         <Button
-          sx={{ mr: '20px', color: 'black' }}
+          sx={{ mr: 3, color: 'black' }}
           onClick={resetInputsHandler}
         >
           Cancel
@@ -348,8 +354,8 @@ const AddItemModal = ({
   const ResultsContent = () => (
     <>
       <DialogTitle>Inventory Updated: {updateItem?.name}</DialogTitle>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box> 
           Previous Stock: <ResultText>{updateItem?.quantity ?? 0}</ResultText>
         </Box>
         <Box>
@@ -376,7 +382,7 @@ const AddItemModal = ({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
-          gap: '1rem',
+          gap: 2,
           width: '100%',
           margin: 'auto',
           height: '100%',

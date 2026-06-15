@@ -1,3 +1,9 @@
+/**
+ *  routes.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import MainContainer from '../components/MainContainer';
 import MainLayout from '../layout/MainLayout';
 import MinimalLayout from '../layout/MinimalLayout';

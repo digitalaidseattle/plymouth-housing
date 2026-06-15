@@ -1,3 +1,9 @@
+/**
+ *  palette.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { presetPalettes } from '@ant-design/colors';
 import { PaletteMode, createTheme } from '@mui/material';

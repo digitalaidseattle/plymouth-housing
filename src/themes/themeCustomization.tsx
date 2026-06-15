@@ -1,3 +1,9 @@
+/**
+ *  themeCustomization.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ReactNode, useMemo } from 'react';
 
 // material-ui
@@ -38,6 +44,7 @@ export default function ThemeCustomization(props: { children: ReactNode }) {
         },
       },
       direction: 'ltr',
+      spacing: 8,
       mixins: {
         toolbar: {
           minHeight: 60,

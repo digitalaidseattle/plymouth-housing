@@ -1,3 +1,9 @@
+/**
+ *  AppBarStyled.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // material-ui
 import { styled } from '@mui/material';
 import AppBar from '@mui/material/AppBar';

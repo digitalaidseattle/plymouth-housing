@@ -1,3 +1,9 @@
+/**
+ *  MobileSection.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useEffect, useRef, useState } from 'react';
 
 // material-ui
@@ -48,7 +54,7 @@ const MobileSection = () => {
 
   return (
     <>
-      <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+      <Box sx={{ flexShrink: 0, ml: 1 }}>
         <IconButton
           component="span"
           disableRipple

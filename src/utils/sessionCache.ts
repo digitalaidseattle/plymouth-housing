@@ -1,3 +1,9 @@
+/**
+ *  sessionCache.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { SETTINGS } from '../types/constants';
 
 interface CacheEntry<T> {

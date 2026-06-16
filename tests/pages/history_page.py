@@ -56,6 +56,32 @@ class HistoryPage(BasePage):
         )
 
     # ---------------------------------------------------
+    # Safe logging helpers
+    # ---------------------------------------------------
+
+    def log_safe_card_found(self):
+        """
+        Do not print full card text.
+
+        History cards may contain resident names, building/unit information,
+        timestamps, and transaction details. Since this is a public/open-source
+        project, test logs should avoid exposing resident-related data.
+        """
+        print("[MATCHED CARD] Matching history card found")
+
+    def log_safe_quantity_found(self, quantity):
+        """
+        Log only the extracted quantity, not the full card text.
+        """
+        print(f"[MATCHED QUANTITY] Quantity found: {quantity}")
+
+    def log_safe_card_count(self, count):
+        """
+        Log only card count, not card contents.
+        """
+        print(f"[DEBUG] Visible history cards found: {count}")
+
+    # ---------------------------------------------------
     # Record Count
     # ---------------------------------------------------
 
@@ -73,10 +99,12 @@ class HistoryPage(BasePage):
         text = self.get_record_count_text()
 
         numbers = re.findall(r"\d[\d,]*", text)
+
         if not numbers:
             return 0
 
         parsed_numbers = [int(n.replace(",", "")) for n in numbers]
+
         return max(parsed_numbers)
 
     def get_record_count(self):
@@ -160,11 +188,13 @@ class HistoryPage(BasePage):
         cards = self.find_all(self.locators.HISTORY_CARDS)
         visible_cards = [card for card in cards if card.is_displayed()]
 
-        print(f"[DEBUG] Visible history cards found: {len(visible_cards)}")
+        self.log_safe_card_count(len(visible_cards))
+
         return visible_cards
 
     def get_latest_card(self):
         cards = self.get_history_cards()
+
         return cards[0] if cards else None
 
     def verify_latest_record_exists(self):
@@ -173,12 +203,14 @@ class HistoryPage(BasePage):
         assert cards, "No history records found"
 
         latest = cards[0]
+
         assert latest.is_displayed(), "Latest record is not visible"
 
         print("Latest history record is visible")
 
     def open_latest_transaction(self):
         cards = self.get_history_cards()
+
         assert cards, "No transactions found"
 
         card = cards[0]
@@ -186,6 +218,7 @@ class HistoryPage(BasePage):
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});", card
         )
+
         self.driver.execute_script("arguments[0].click();", card)
 
         self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
@@ -196,8 +229,8 @@ class HistoryPage(BasePage):
         """
         Find a visible history card by resident name and/or item name.
 
-        This is more stable than always using the first/latest card,
-        especially when test data contains multiple recent transactions.
+        Do not print the matched card text because it may contain resident
+        names, housing/building information, unit numbers, and timestamps.
         """
         cards = self.get_history_cards()
 
@@ -208,23 +241,26 @@ class HistoryPage(BasePage):
                 resident_name is None
                 or resident_name.lower() in text.lower()
             )
+
             item_matches = (
                 item_name is None
                 or item_name.lower() in text.lower()
             )
 
             if resident_matches and item_matches:
-                print(f"[MATCHED CARD TEXT]\n{text}")
+                self.log_safe_card_found()
                 return card
 
         raise AssertionError(
-            f"No history card found for resident='{resident_name}' "
-            f"and item='{item_name}'"
+            "No matching history card found"
         )
 
     def open_transaction_matching(self, resident_name=None, item_name=None):
         """
         Open a specific transaction card instead of blindly opening latest.
+
+        Do not log resident_name or item_name because these values may contain
+        sensitive resident-related data.
         """
         card = self.get_card_matching(
             resident_name=resident_name,
@@ -234,14 +270,12 @@ class HistoryPage(BasePage):
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});", card
         )
+
         self.driver.execute_script("arguments[0].click();", card)
 
         self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
 
-        print(
-            f"Transaction details opened for "
-            f"resident='{resident_name}', item='{item_name}'"
-        )
+        print("Transaction details opened for matching history card")
 
     # ---------------------------------------------------
     # Transaction Details Modal
@@ -255,6 +289,7 @@ class HistoryPage(BasePage):
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});", edit_btn
         )
+
         self.driver.execute_script("arguments[0].click();", edit_btn)
 
         print("Edit transaction button clicked")
@@ -263,6 +298,7 @@ class HistoryPage(BasePage):
         self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
 
         close_btn = self.wait_for_clickable(self.locators.DIALOG_CLOSE_BUTTON)
+
         self.driver.execute_script("arguments[0].click();", close_btn)
 
         print("Transaction details modal closed")
@@ -271,6 +307,7 @@ class HistoryPage(BasePage):
         self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
 
         accordion = self.wait_for_clickable(self.locators.HISTORY_ACCORDION)
+
         self.driver.execute_script("arguments[0].click();", accordion)
 
         print("History accordion expanded")
@@ -286,19 +323,20 @@ class HistoryPage(BasePage):
         match = re.search(r"(\d+)\s*/\s*\d+", text)
 
         if not match:
-            raise AssertionError(f"Quantity not found in text: {text}")
+            raise AssertionError("Quantity not found in history card text")
 
         return int(match.group(1))
 
     def get_latest_quantity(self):
         card = self.get_latest_card()
+
         assert card, "No latest transaction card found"
 
-        text = card.text
+        quantity = self.extract_quantity_from_text(card.text)
 
-        print(f"[DEBUG CARD TEXT]\n{text}")
+        self.log_safe_quantity_found(quantity)
 
-        return self.extract_quantity_from_text(text)
+        return quantity
 
     def wait_for_latest_quantity(self, expected_qty, timeout=15):
         """
@@ -334,17 +372,19 @@ class HistoryPage(BasePage):
     def get_quantity_from_card_matching(self, resident_name=None, item_name=None):
         """
         Get quantity from a specific history card matching resident/item.
+
+        Do not print full card text because it may contain resident-related data.
         """
         card = self.get_card_matching(
             resident_name=resident_name,
             item_name=item_name
         )
 
-        text = card.text
+        quantity = self.extract_quantity_from_text(card.text)
 
-        print(f"[MATCHED QUANTITY CARD TEXT]\n{text}")
+        self.log_safe_quantity_found(quantity)
 
-        return self.extract_quantity_from_text(text)
+        return quantity
 
     def wait_for_quantity_from_card_matching(
         self,
@@ -370,14 +410,11 @@ class HistoryPage(BasePage):
                     resident_name=resident_name,
                     item_name=item_name
                 )
+
                 last_qty = qty
 
                 if qty == expected_qty:
-                    print(
-                        f"Matched card quantity updated: "
-                        f"resident='{resident_name}', item='{item_name}', "
-                        f"quantity={expected_qty}"
-                    )
+                    print(f"Matched card quantity updated: {expected_qty}")
                     return qty
 
             except Exception as e:
@@ -392,7 +429,6 @@ class HistoryPage(BasePage):
 
         raise AssertionError(
             f"Updated quantity not reflected for matching history card. "
-            f"Resident: {resident_name}, Item: {item_name}, "
             f"Expected: {expected_qty}, Last seen: {last_qty}"
         )
 
@@ -411,10 +447,22 @@ class HistoryPage(BasePage):
     # ---------------------------------------------------
 
     def debug_print_cards(self):
+        """
+        Safe debug output only.
+
+        Do not print card text because history cards may contain resident names,
+        building/unit information, timestamps, and transaction details.
+        """
         cards = self.get_history_cards()
+
         print(f"[DEBUG] Total visible cards: {len(cards)}")
 
         for i, card in enumerate(cards):
-            text = card.text.strip()
-            preview = text[:80] + "..." if len(text) > 80 else text
-            print(f"[CARD {i}] length={len(text)} preview='{preview}'")
+            is_visible = card.is_displayed()
+            has_text = bool(card.text.strip())
+
+            print(
+                f"[CARD {i}] "
+                f"visible={is_visible}, "
+                f"has_text={has_text}"
+            )

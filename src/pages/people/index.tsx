@@ -145,7 +145,7 @@ const UserPage = () => {
           />
         </Box>
         <Button variant="contained" onClick={openAddModal}>
-          <AddIcon fontSize="small" sx={{ color: 'black' }} />
+          <AddIcon fontSize="small" />
           Add
         </Button>
       </Stack>

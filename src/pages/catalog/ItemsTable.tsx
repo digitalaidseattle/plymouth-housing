@@ -377,6 +377,7 @@ const ItemsTable = ({
           <SearchBar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
+            compact
             placeholder="Search items..."
             width="250px"
           />

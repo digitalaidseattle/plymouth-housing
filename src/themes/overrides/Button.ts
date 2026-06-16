@@ -1,4 +1,4 @@
-﻿// ==============================|| OVERRIDES - BUTTON ||============================== //
+// ==============================|| OVERRIDES - BUTTON ||============================== //
 
 import { Theme } from '@mui/material';
 
@@ -21,7 +21,7 @@ export default function Button(theme: Theme) {
         },
         containedPrimary: {
           backgroundColor: theme.palette.grey[700],
-          color: theme.palette.common.white,
+          color: theme.palette.grey[100],
         },
         contained: {
           backgroundColor: theme.palette.grey[100],

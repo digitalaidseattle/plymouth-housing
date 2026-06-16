@@ -144,6 +144,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
           <SearchBar
             searchValue={search}
             onSearchChange={onSearchChange}
+            compact
             placeholder="Search..."
             width="100%"
           />

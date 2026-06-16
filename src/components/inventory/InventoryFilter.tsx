@@ -153,6 +153,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
           <SearchBar
             searchValue={filters.search}
             onSearchChange={handleSearch}
+            compact
             placeholder="Search..."
             width="100%"
           />

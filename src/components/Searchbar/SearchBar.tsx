@@ -11,6 +11,7 @@ interface SearchBarProps {
   onSearchChange?: (value: string) => void;
   placeholder?: string;
   width?: string;
+  compact?: boolean;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -20,7 +21,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   searchValue, 
   onSearchChange,
   placeholder = 'Search...',
-  width = '30%'
+  width = '30%',
+  compact = false
 }) => {
   const [internalSearchTerm, setInternalSearchTerm] = useState<string>('');
   
@@ -99,7 +101,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       slotProps={{
         input: {
           sx: (theme) => ({
-            fontSize: {
+            fontSize: compact ? theme.typography.body2.fontSize : {
               xs: theme.typography.h4.fontSize,
               md: theme.typography.h5.fontSize,
               lg: theme.typography.body2.fontSize,
@@ -124,7 +126,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         },
         inputLabel: { 
           sx: (theme) => ({
-            fontSize: {
+            fontSize: compact ? theme.typography.body2.fontSize : {
               xs: theme.typography.h4.fontSize,
               md: theme.typography.h5.fontSize,
               lg: theme.typography.body2.fontSize,

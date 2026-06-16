@@ -1,4 +1,6 @@
 import pytest
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 # =====================================================
@@ -59,6 +61,55 @@ def get_matching_quantity(
     )
 
 
+def assert_quantity_does_not_change(
+    history_page,
+    selected_resident_name,
+    initial_qty,
+    timeout=8,
+    poll_interval=1
+):
+    """
+    Observe the matching history card for a short window and confirm
+    the quantity never changes after cancel.
+
+    This uses Selenium WebDriverWait polling instead of time.sleep().
+    The timeout is expected when the quantity stays unchanged for the
+    full observation window.
+    """
+
+    def quantity_still_unchanged(_driver):
+        history_page.open_history()
+
+        current_qty = get_matching_quantity(
+            history_page=history_page,
+            selected_resident_name=selected_resident_name
+        )
+
+        if current_qty != initial_qty:
+            raise AssertionError(
+                f"Quantity changed after cancel. "
+                f"Expected: {initial_qty}, got: {current_qty}"
+            )
+
+        # Keep polling until timeout.
+        # Timeout means quantity never changed, which is the expected result.
+        return False
+
+    try:
+        WebDriverWait(
+            history_page.driver,
+            timeout,
+            poll_frequency=poll_interval
+        ).until(quantity_still_unchanged)
+
+    except TimeoutException:
+        print(
+            f"Quantity stayed unchanged for {timeout}s after cancel: "
+            f"{initial_qty}"
+        )
+        return
+
+
 # =====================================================
 # SMOKE TEST
 # =====================================================
@@ -82,10 +133,10 @@ def test_edit_prefills_data(
         selected_resident_name=selected_resident_name
     )
 
-    page_text = driver.page_source
-
-    assert "Checkout Summary (Editing)" in page_text, \
+    assert checkout_page.is_editing_summary_visible(), \
         "Edit checkout summary should be visible"
+
+    page_text = driver.page_source
 
     assert ITEM_NAME in page_text, \
         f"Prefilled item should be visible in edit mode: {ITEM_NAME}"
@@ -194,6 +245,9 @@ def test_cancel_edit_discards_changes(
 ):
     """
     Cancel should discard changes.
+
+    The test observes the matching history card for a short window
+    after cancel to ensure the quantity never changes asynchronously.
     """
 
     selected_resident_name = create_editable_checkout(checkout_page)
@@ -218,15 +272,13 @@ def test_cancel_edit_discards_changes(
     checkout_page.increase_quantity(1, ITEM_NAME)
     checkout_page.click_cancel()
 
-    history_page.open_history()
-
-    final_qty = get_matching_quantity(
+    assert_quantity_does_not_change(
         history_page=history_page,
-        selected_resident_name=selected_resident_name
+        selected_resident_name=selected_resident_name,
+        initial_qty=initial_qty,
+        timeout=8,
+        poll_interval=1
     )
-
-    assert final_qty == initial_qty, \
-        "Changes should not persist after cancel"
 
 
 # -----------------------------------------------------

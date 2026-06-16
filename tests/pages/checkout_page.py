@@ -261,30 +261,77 @@ class CheckOutPage(BasePage):
 
     def click_confirm_if_present(self, timeout=5):
         """
-        Click confirm if the normal confirmation modal appears.
+        Click confirmation action if a confirmation modal appears.
 
-        Edit flow may either:
-        1. open the same confirm modal as checkout, or
-        2. save directly without showing confirm.
+        Supports different confirmation button labels such as:
+        Confirm, Complete, Save.
+
+        Does NOT handle edit Save Changes button.
+        Edit Save Changes is handled separately by click_edit_save_button().
         """
-        try:
-            btn = self.wait_for_clickable(self.locators.CONFIRM, timeout=timeout)
-            self.driver.execute_script(
-                "arguments[0].scrollIntoView({block:'center'});", btn
-            )
-            self.driver.execute_script("arguments[0].click();", btn)
-            print("Confirm button clicked")
-            return True
-        except Exception:
-            print("Confirm button not shown; continuing")
-            return False
+        confirm_locators = [
+            self.locators.CONFIRM,
+            (
+                By.XPATH,
+                "//*[@role='dialog']//button["
+                "normalize-space()='Confirm' "
+                "or normalize-space()='Complete' "
+                "or normalize-space()='Save'"
+                "]"
+            ),
+        ]
 
-    # ---------------------------------------------------
-    # Edit flow helpers
-    # ---------------------------------------------------
+        for locator in confirm_locators:
+            try:
+                btn = self.wait_for_clickable(locator, timeout=timeout)
+
+                button_id = btn.get_attribute("id") or ""
+
+                # Avoid accidentally clicking the edit modal Save Changes button.
+                if button_id == "checkout-dialog-save-btn":
+                    continue
+
+                self.driver.execute_script(
+                    "arguments[0].scrollIntoView({block:'center'});",
+                    btn
+                )
+
+                self.driver.execute_script("arguments[0].click();", btn)
+
+                print("Confirmation action button clicked")
+
+                return True
+
+            except Exception:
+                continue
+
+        print("Confirmation action button not shown; continuing")
+
+        return False
 
     def is_editing_summary_visible(self):
-        return "Checkout Summary (Editing)" in self.driver.page_source
+        """
+        Return True only when the visible edit checkout summary is present.
+
+        Avoids using page_source because hidden/stale DOM can make text-based
+        checks unreliable.
+        """
+        editing_summary_locator = (
+            By.XPATH,
+            "//*[normalize-space()='Checkout Summary (Editing)' "
+            "and not(ancestor-or-self::*[@aria-hidden='true'])]"
+        )
+
+        try:
+            element = self.wait_for_visibility(
+                editing_summary_locator,
+                timeout=5
+            )
+
+            return element.is_displayed()
+
+        except Exception:
+            return False
 
     def is_save_disabled(self):
         """

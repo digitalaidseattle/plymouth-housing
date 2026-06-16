@@ -56,13 +56,13 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
         <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
           <TableHead>
             <TableRow sx={{ height: '64px' }}>
-              {renderSortableHeader('name', 'Name', '25%')}
-              <TableCell sx={{ fontWeight: 'bold', width: '25%' }}>Description</TableCell>
+              {renderSortableHeader('name', 'Name', '20%')}
+              <TableCell sx={{ fontWeight: 'bold', width: '20%' }}>Description</TableCell>
               {renderSortableHeader('type', 'Type', '12.5%')}
               {renderSortableHeader('category', 'Category', '12.5%')}
               {renderSortableHeader('status', 'Status', '12.5%')}
               {renderSortableHeader('quantity', 'Quantity', '12.5%', 'center')}
-              <TableCell sx={{ fontWeight: 'bold', textAlign: 'right', paddingRight: '2rem' }}>Adjust</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', width: '10%', textAlign: 'right', paddingRight: '2rem' }}>Adjust</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

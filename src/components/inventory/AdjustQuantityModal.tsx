@@ -284,7 +284,7 @@ const AdjustQuantityModal = ({
 
         <Box
           id="modal-buttons"
-          sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
+          sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}
         >
           <Button
             variant="text"

@@ -3,6 +3,7 @@ import pytest
 import allure
 
 pytestmark = pytest.mark.bdd
+
 # ---------------------------------------------------
 # Feature binding
 # ---------------------------------------------------
@@ -27,7 +28,7 @@ SENSITIVE_KEYS = ["password", "token", "secret", "auth"]
 
 
 def sanitize(value):
-    """Prevent accidental leakage in logs"""
+    """Prevent accidental leakage in logs."""
     if not value:
         return value
 
@@ -64,7 +65,6 @@ def verify_home(home_page):
 
 @when(parsers.parse('the user completes checkout with "{item}"'))
 def complete_checkout_flow(home_page, history_page, checkout_page, context, item):
-
     safe_item = sanitize(item)
 
     with allure.step("Capture initial history record count"):
@@ -84,7 +84,7 @@ def complete_checkout_flow(home_page, history_page, checkout_page, context, item
 
 @then("the checkout should be successful")
 def verify_checkout_success(home_page):
-    with allure.step("Verify checkout success (user returned to home page)"):
+    with allure.step("Verify checkout success - user returned to home page"):
         home_page.wait_for_homepage_loaded()
 
 
@@ -98,17 +98,11 @@ def verify_item_in_history(history_page):
 @then("the history record count should increase")
 def verify_record_count_increase(history_page, context):
     with allure.step("Validate history record count increased"):
-
         before = context.get("before_count")
 
         assert before is not None, "Missing initial record count"
 
-        after = history_page.get_record_count()
-
-        assert after > before, (
-            f"Record count did not increase. "
-            f"Before: {before}, After: {after}"
-        )
+        history_page.verify_record_count_increased(before, timeout=30)
 
 
 @then("the user should be redirected to the home page")

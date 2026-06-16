@@ -9,10 +9,27 @@ class CommonLocators:
     HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
 class HistoryPageLocators:
-    HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
-    HISTORY_CARDS = (By.XPATH,"//div[.//p[contains(text(),'Created')] and .//text()[contains(.,'/')]]")
-    NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
+    HISTORY_HEADER = (By.XPATH, "//h6[normalize-space()='History']")
+    RECORD_COUNT_TEXT = (By.XPATH, "//span[contains(.,'record')]")
+    HISTORY_CARDS = (
+        By.XPATH,
+        "//div[@role='button' and starts-with(@id,'checkout-card-')]"
+    )
+    NO_TRANSACTIONS_MESSAGE = (
+        By.XPATH,
+        "//*[contains(text(),'No transactions found')]"
+    )
+
+    TRANSACTION_DETAILS_DIALOG = (
+        By.XPATH,
+        "//*[@role='dialog' and .//*[contains(text(), 'Transaction Details')]]"
+    )
+    EDIT_BUTTON = (
+        By.XPATH,
+        "//*[@role='dialog']//button[normalize-space()='Edit']"
+    )
+    DIALOG_CLOSE_BUTTON = (By.ID, "dialog-close-btn")
+    HISTORY_ACCORDION = (By.ID, "transaction-details-history-accordion")
 
 class HomePageLocators:
     # ---- Sections ----
@@ -80,6 +97,27 @@ class CheckoutPageLocators:
     BUILDING_CODE = (By.ID, "select-building")
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
+
+    # Edit / Checkout action buttons
+    SAVE_OR_PROCEED_BUTTON = (
+        By.XPATH,
+        "//button[contains(., 'Proceed') or contains(., 'Save') or contains(., 'Checkout')]"
+    )
+
+    CANCEL_BUTTON = (
+        By.XPATH,
+        "//button[normalize-space()='Cancel' or contains(., 'Cancel')]"
+    )
+
+    CONFIRM_BUTTON_FALLBACK = (
+        By.XPATH,
+        "//button[contains(., 'Confirm') or contains(., 'Complete') or contains(., 'Save')]"
+    )
+
+    CHECKOUT_EDITING_SUMMARY = (
+        By.XPATH,
+        "//*[contains(text(), 'Checkout Summary') and contains(text(), 'Editing')]"
+    )
 
     BUILDING_OPTIONS = (By.XPATH, "//ul[@id='select-building-listbox' and not(contains(@style,'display: none'))]//li")
     UNIT_OPTIONS = (By.XPATH, "//ul[@id='select-unit-number-listbox']//li")

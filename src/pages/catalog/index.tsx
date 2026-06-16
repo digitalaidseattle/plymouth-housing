@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, Alert, Tabs, Tab } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  Alert,
+  Tabs,
+  Tab,
+} from '@mui/material';
 import MainCard from '../../components/MainCard';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import { useCatalog } from './useCatalog';
 import ItemsTable from './ItemsTable';
 import CategoriesTable from './CategoriesTable';
-
-type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: 'success' | 'error' | 'warning' | 'info';
-};
 
 type TabPanelProps = {
   children?: React.ReactNode;
@@ -40,11 +42,7 @@ const Catalog = () => {
     clearError,
   } = useCatalog();
 
-  const [snackbar, setSnackbar] = useState<SnackbarState>({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -56,23 +54,11 @@ const Catalog = () => {
   }, [fetchData]);
 
   const handleSuccess = (message: string) => {
-    setSnackbar({
-      open: true,
-      message,
-      severity: 'success',
-    });
+    showSnackbar(message, 'success');
   };
 
   const handleError = (message: string) => {
-    setSnackbar({
-      open: true,
-      message,
-      severity: 'error',
-    });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    showSnackbar(message, 'error');
   };
 
   if (isLoading) {
@@ -148,11 +134,11 @@ const Catalog = () => {
       </MainCard>
 
       <SnackbarAlert
-        open={snackbar.open}
-        onClose={handleCloseSnackbar}
-        severity={snackbar.severity}
+        open={snackbarState.open}
+        onClose={handleClose}
+        severity={snackbarState.severity}
       >
-        {snackbar.message}
+        {snackbarState.message}
       </SnackbarAlert>
     </Box>
   );

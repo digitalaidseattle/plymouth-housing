@@ -98,6 +98,23 @@ class CheckoutPageLocators:
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
 
+    CHECKOUT_EDIT_SAVE_BUTTON = (By.ID, "checkout-dialog-save-btn")
+
+    CHECKOUT_EDITING_SUMMARY = (
+        By.XPATH,
+        "//*[contains(normalize-space(), 'Checkout Summary') "
+        "and not(ancestor-or-self::*[@aria-hidden='true'])]"
+    )
+
+    CONFIRM_BUTTON_FALLBACK = (
+        By.XPATH,
+        "//*[@role='dialog']//button["
+        "normalize-space()='Confirm' "
+        "or normalize-space()='Complete' "
+        "or normalize-space()='Save'"
+        "]"
+    )
+
     # Edit / Checkout action buttons
     SAVE_OR_PROCEED_BUTTON = (
         By.XPATH,

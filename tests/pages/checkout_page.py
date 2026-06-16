@@ -265,73 +265,51 @@ class CheckOutPage(BasePage):
 
         Supports different confirmation button labels such as:
         Confirm, Complete, Save.
-
-        Does NOT handle edit Save Changes button.
-        Edit Save Changes is handled separately by click_edit_save_button().
         """
-        confirm_locators = [
-            self.locators.CONFIRM,
-            (
-                By.XPATH,
-                "//*[@role='dialog']//button["
-                "normalize-space()='Confirm' "
-                "or normalize-space()='Complete' "
-                "or normalize-space()='Save'"
-                "]"
-            ),
-        ]
+        try:
+            btn = self.wait_for_clickable(
+                self.locators.CONFIRM_BUTTON_FALLBACK,
+                timeout=timeout
+            )
 
-        for locator in confirm_locators:
-            try:
-                btn = self.wait_for_clickable(locator, timeout=timeout)
+            button_id = btn.get_attribute("id") or ""
 
-                button_id = btn.get_attribute("id") or ""
+            # Avoid accidentally clicking the edit modal Save Changes button.
+            if button_id == "checkout-dialog-save-btn":
+                print("Edit Save Changes button detected; skipping confirm fallback")
+                return False
 
-                # Avoid accidentally clicking the edit modal Save Changes button.
-                if button_id == "checkout-dialog-save-btn":
-                    continue
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center'});", btn
+            )
 
-                self.driver.execute_script(
-                    "arguments[0].scrollIntoView({block:'center'});",
-                    btn
-                )
+            self.driver.execute_script("arguments[0].click();", btn)
 
-                self.driver.execute_script("arguments[0].click();", btn)
+            print("Confirmation action button clicked")
 
-                print("Confirmation action button clicked")
+            return True
 
-                return True
-
-            except Exception:
-                continue
-
-        print("Confirmation action button not shown; continuing")
-
-        return False
+        except Exception:
+            print("Confirmation action button not shown; continuing")
+            return False
 
     def is_editing_summary_visible(self):
         """
-        Return True only when the visible edit checkout summary is present.
+        Return True only when the edit checkout UI is visible.
 
-        Avoids using page_source because hidden/stale DOM can make text-based
-        checks unreliable.
+        Prefer the dedicated edit Save Changes button because it is stable
+        in edit mode. Fall back to the visible Checkout Summary heading.
         """
-        editing_summary_locator = (
-            By.XPATH,
-            "//*[normalize-space()='Checkout Summary (Editing)' "
-            "and not(ancestor-or-self::*[@aria-hidden='true'])]"
+        return (
+                self.is_visible(
+                    self.locators.CHECKOUT_EDIT_SAVE_BUTTON,
+                    timeout=3
+                )
+                or self.is_visible(
+            self.locators.CHECKOUT_EDITING_SUMMARY,
+            timeout=3
         )
-
-        try:
-            element = self.wait_for_visibility(
-                editing_summary_locator,
-                timeout=5
-            )
-
-            return element.is_displayed()
-
-        except Exception:
-            return False
+        )
 
     def is_save_disabled(self):
         """
@@ -361,13 +339,11 @@ class CheckOutPage(BasePage):
     def click_edit_save_button(self):
         """
         Click Save Changes button in edit checkout modal.
-
-        Edit flow uses a dedicated button:
-        id='checkout-dialog-save-btn'
         """
-        save_locator = (By.ID, "checkout-dialog-save-btn")
-
-        save_btn = self.wait_for_clickable(save_locator, timeout=15)
+        save_btn = self.wait_for_clickable(
+            self.locators.CHECKOUT_EDIT_SAVE_BUTTON,
+            timeout=15
+        )
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center', inline:'nearest'});",
@@ -420,7 +396,7 @@ class CheckOutPage(BasePage):
         a dedicated Save Changes button inside the modal.
         """
         try:
-            save_btn = self.driver.find_element(By.ID, "checkout-dialog-save-btn")
+            save_btn = self.driver.find_element(*self.locators.CHECKOUT_EDIT_SAVE_BUTTON)
 
             self.driver.execute_script(
                 "arguments[0].scrollIntoView({block:'center', inline:'nearest'});",

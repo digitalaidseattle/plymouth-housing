@@ -127,7 +127,7 @@ const PickYourNamePage: React.FC = () => {
               }}
             >
               <strong>Can't find your name?</strong> Let a staff member know or
-              contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
+              contact IT department at {import.meta.env.VITE_ADMIN_EMAIL}
             </Typography>
 
             <Autocomplete

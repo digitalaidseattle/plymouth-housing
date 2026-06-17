@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+﻿import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import { AddVolunteerModalProps } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
@@ -18,6 +18,7 @@ const AddVolunteerModal = ({
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prevFormData) => ({
@@ -64,6 +65,7 @@ const AddVolunteerModal = ({
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await createUser(user, { ...formData, active: true, role: 'volunteer' });
       setSuccessMessage('Volunteer added successfully.');
@@ -93,6 +95,8 @@ const AddVolunteerModal = ({
           'Something went wrong while adding the volunteer. Please try again.',
         );
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -175,6 +179,7 @@ const AddVolunteerModal = ({
             onClick={createVolunteerHandler}
             variant="contained"
             color="primary"
+            disabled={isSubmitting}
           >
             Add
           </Button>

@@ -55,10 +55,10 @@ const DialogTemplate = ({
             {children}
             </DialogContent>
 
-            <DialogActions sx={{ display: 'flex', gap: 1, px: 0 }}>
+            {(backButtonText || submitButtonText) && <DialogActions sx={{ display: 'flex', gap: 1, px: 0 }}>
                 {backButtonText && <Button variant="text" onClick={handleShowDialog} data-testid="dialog-back-btn">{backButtonText}</Button>}
                 {submitButtonText && <Button variant="contained" color="primary" data-testid="dialog-submit-btn" sx={{ py: 1, px: 3 }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
-            </DialogActions>
+            </DialogActions>}
         </Dialog>
     );
 }

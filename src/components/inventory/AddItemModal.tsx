@@ -316,7 +316,7 @@ const AddItemModal = ({
 
       <Box
         id="modal-buttons"
-        sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
+        sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}
       >
         <Button
           variant="text"
@@ -367,6 +367,11 @@ const AddItemModal = ({
           Please review and update it when possible.
         </Alert>
       )}
+      <Box sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}>
+        <Button variant="contained" color="primary" onClick={resetInputsHandler}>
+          Done
+        </Button>
+      </Box>
     </>
   );
 

@@ -35,8 +35,8 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   };
 
   // Clear the status filter value and prevent menu closure on ClearIcon click
-  const clearStatusFilter = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent the menu from closing when clicking on ClearIcon
+  const clearStatusFilter = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
     onStatusFilterChange(null);
   };
 
@@ -51,8 +51,8 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   };
 
   // Clear the role filter value and prevent menu closure on ClearIcon click
-  const clearRoleFilter = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent the menu from closing when clicking on ClearIcon
+  const clearRoleFilter = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
     onRoleFilterChange(null);
   };
 
@@ -76,8 +76,11 @@ const UserFilters: React.FC<UserFiltersProps> = ({
                 {statusFilter}
                 <Box
                   component="span"
+                  role="button"
+                  tabIndex={0}
                   aria-label="Clear Status Filter"
                   onClick={clearStatusFilter}
+                  onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') clearStatusFilter(e); }}
                   sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
                 >
                   <ClearIcon sx={{ fontSize: 'large' }} />
@@ -113,8 +116,11 @@ const UserFilters: React.FC<UserFiltersProps> = ({
                 {roleFilter}
                 <Box
                   component="span"
+                  role="button"
+                  tabIndex={0}
                   aria-label="Clear Role Filter"
                   onClick={clearRoleFilter}
+                  onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') clearRoleFilter(e); }}
                   sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
                 >
                   <ClearIcon sx={{ fontSize: 'large' }} />

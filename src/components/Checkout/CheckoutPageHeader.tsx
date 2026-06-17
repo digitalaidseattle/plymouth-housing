@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+﻿import { Dispatch, SetStateAction } from 'react';
 import { Box, Button, Stack, useTheme } from '@mui/material';
 import {
   CategoryProps,
@@ -49,6 +49,9 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         mb: 2,
         width: '100%',
         background: theme.palette.common.white,
+        position: 'sticky',
+        top: '3.5rem',
+        zIndex: 2,
       }}
     >
       <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
@@ -68,7 +71,7 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
           />
         )}
       </Stack>
-      {!searchActive && (
+      {!searchActive && checkoutType === 'general' && (
         <Box sx={{ my: 2 }}>
           <Navbar
             key={checkoutType}

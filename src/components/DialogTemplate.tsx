@@ -1,4 +1,4 @@
-﻿import {
+import {
   Dialog,
   DialogContent,
   Button,
@@ -21,7 +21,7 @@ type DialogTemplateProps = {
 }
 
 const DialogTemplate = ({
-    showDialog, 
+    showDialog,
     handleShowDialog,
     handleSubmit,
     title,
@@ -32,7 +32,7 @@ const DialogTemplate = ({
     }: DialogTemplateProps) => {
 
     return (
-        <Dialog 
+        <Dialog
         data-testid="dialog"
         sx={{
             '& .MuiDialog-paper': {
@@ -46,9 +46,9 @@ const DialogTemplate = ({
           }}
             open={showDialog}>
             {title &&
-            <DialogTitle sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h5" component="span">{title}</Typography>
-                <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', px: 0 }}><Close/></Button>
+            <DialogTitle sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                <Typography variant="h5" component="span" sx={{ flexGrow: 1, minWidth: 0 }}>{title}</Typography>
+                <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', p: 0, ml: 'auto', flexShrink: 0 }}><Close/></Button>
             </DialogTitle>}
 
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2, px: 0 }}>

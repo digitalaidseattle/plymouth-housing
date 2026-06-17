@@ -170,7 +170,7 @@ const AddVolunteerModal = ({
         {/* Buttons */}
         <Box
           id="modal-buttons"
-          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+          sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}
         >
           <Button variant="text" onClick={resetInputsHandler}>
             Cancel

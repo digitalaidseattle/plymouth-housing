@@ -231,8 +231,8 @@ const EnterPinPage: React.FC = () => {
               lineHeight: 1.5,
             }}
           >
-            <strong>Forget your pin?</strong> Let a staff member know. A PH
-            admin nearby can help.
+            <strong>Forget your pin?</strong> Let a staff member know or contact
+            IT department at {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>
           <Box sx={{ marginBottom: 6 }}>
             <PinInput

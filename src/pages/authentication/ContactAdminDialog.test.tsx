@@ -9,6 +9,13 @@ import '@testing-library/jest-dom';
 import { describe, test, expect, vi } from 'vitest';
 import ContactAdminDialog from './ContactAdminDialog';
 
+// Override environment variables for testing
+Object.defineProperty(import.meta, 'env', {
+  value: {
+    VITE_ADMIN_EMAIL: 'admin@example.com'
+  }
+});
+
 describe('ContactAdminDialog Component', () => {
   test('renders dialog with correct content when open is true', () => {
     const onClose = vi.fn();
@@ -20,7 +27,7 @@ describe('ContactAdminDialog Component', () => {
     // Check for the guidance text
     const content = screen.getByText(/Let a staff member know/i);
     expect(content).toBeInTheDocument();
-    expect(content.textContent).toMatch(/PH admin nearby can help/i);
+    expect(content.textContent).toMatch(/email/i);
 
     // Verify that the Close button is rendered
     expect(screen.getByRole('button', { name: /Close/i })).toBeInTheDocument();

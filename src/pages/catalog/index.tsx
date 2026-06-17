@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Alert, Tabs, Tab } from '@mui/material';
 import MainCard from '../../components/MainCard';
 import SnackbarAlert from '../../components/SnackbarAlert';
@@ -103,7 +103,7 @@ const Catalog = () => {
           action={
             <Typography
               component="span"
-              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+              sx={{ cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}
               onClick={() => {
                 clearError();
                 fetchData();
@@ -167,3 +167,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
+

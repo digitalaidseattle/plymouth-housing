@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  pages/authentication/EnterPinPage.tsx
  *
  *  @copyright 2024 Digital Aid Seattle
@@ -262,6 +262,7 @@ const EnterPinPage: React.FC = () => {
               textAlign: 'center',
               marginTop: 2,
               textDecoration: 'underline',
+              textUnderlineOffset: '3px',
             }}
           >
             Back to the name selection
@@ -280,3 +281,4 @@ const EnterPinPage: React.FC = () => {
 };
 
 export default EnterPinPage;
+

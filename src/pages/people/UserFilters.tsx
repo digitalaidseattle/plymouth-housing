@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import SearchBar from '../../components/Searchbar/SearchBar';
 import { Box, Button, IconButton, Stack, Typography, Menu, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -68,7 +68,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
             variant="contained"
             aria-label="Status Filter"
             aria-haspopup="true"
-            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px' }}
+            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
             onClick={handleStatusClick}
           >
             {statusFilter ? (
@@ -105,7 +105,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
             variant="contained"
             aria-label="Role Filter"
             aria-haspopup="true"
-            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px' }}
+            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
             onClick={handleRoleClick}
           >
             {roleFilter ? (

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import {
   Button,
   Stack,
@@ -93,18 +93,18 @@ const HistoryPage: React.FC = () => {
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
-              backgroundColor: 'grey.100',
+              backgroundColor: 'grey.200',
               color: 'text.primary',
               '&.Mui-selected': {
-                backgroundColor: 'primary.dark',
+                backgroundColor: 'grey.700',
                 color: 'common.white',
                 border: 'none',
                 '&:hover': {
-                  backgroundColor: 'primary.dark',
+                  backgroundColor: 'grey.700',
                 },
               },
               '&:hover': {
-                backgroundColor: 'grey.200',
+                backgroundColor: 'grey.300',
               },
             }}
           >
@@ -119,18 +119,18 @@ const HistoryPage: React.FC = () => {
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
-              backgroundColor: 'grey.100',
+              backgroundColor: 'grey.200',
               color: 'text.primary',
               '&.Mui-selected': {
-                backgroundColor: 'primary.dark',
+                backgroundColor: 'grey.700',
                 color: 'common.white',
                 border: 'none',
                 '&:hover': {
-                  backgroundColor: 'primary.dark',
+                  backgroundColor: 'grey.700',
                 },
               },
               '&:hover': {
-                backgroundColor: 'grey.200',
+                backgroundColor: 'grey.300',
               },
             }}
           >

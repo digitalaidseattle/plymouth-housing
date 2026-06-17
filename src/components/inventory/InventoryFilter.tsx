@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import SearchBar from '../Searchbar/SearchBar.tsx';
 import { Box, Button, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -43,7 +43,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
         <div id="type-button-container">
         <Button
           variant="contained"
-          sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px' }}
+          sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
           onClick={(event) => handleFilterClick('type', event)}
         >
           {filters.type ? (
@@ -79,7 +79,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
         <div id="category-button-container">
         <Button
           variant="contained"
-          sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px' }}
+          sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
           onClick={(event) => handleFilterClick('category', event)}
         >
           {' '}
@@ -118,7 +118,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
         <div id="status-button-container">
           <Button
             variant="contained"
-            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px' }}
+            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
             onClick={(event) => handleFilterClick('status', event)}
           >
             {filters.status ? (

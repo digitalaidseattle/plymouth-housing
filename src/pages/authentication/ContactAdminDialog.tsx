@@ -28,8 +28,7 @@ const ContactAdminDialog: React.FC<ContactAdminDialogProps> = ({
       <DialogTitle>Forget your PIN?</DialogTitle>
       <DialogContent>
         <Typography>
-          Let a staff member know, or email {import.meta.env.VITE_ADMIN_EMAIL}{' '}
-          of a PH admin who can assist you.
+          Let a staff member know. A PH admin nearby can help.
         </Typography>
       </DialogContent>
       <DialogActions>

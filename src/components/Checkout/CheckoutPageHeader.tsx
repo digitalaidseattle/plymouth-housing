@@ -1,4 +1,10 @@
-﻿import { Dispatch, SetStateAction } from 'react';
+/**
+ *  CheckoutPageHeader.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+import { Dispatch, SetStateAction } from 'react';
 import { Box, Button, Stack, useTheme } from '@mui/material';
 import {
   CategoryProps,

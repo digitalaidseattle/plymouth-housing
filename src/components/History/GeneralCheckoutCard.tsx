@@ -1,3 +1,9 @@
+/**
+ *  GeneralCheckoutCard.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import Chip from '@mui/material/Chip';
 import { Box, Stack } from '@mui/material';
 import { useContext, useState } from 'react';

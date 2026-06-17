@@ -1,4 +1,10 @@
-﻿import React from 'react';
+/**
+ *  InventoryTable.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Box, Button, TableSortLabel } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InventoryItem } from '../../types/interfaces.ts';
@@ -22,27 +28,45 @@ const getAriaSortValue = (
   return sortDirection === 'asc' ? 'ascending' : 'descending';
 };
 
-const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirection, sortColumn, handleSort, setAdjustModal, setItemToEdit }) => {
-
-
+const InventoryTable: React.FC<InventoryTableProps> = ({
+  currentItems,
+  sortDirection,
+  sortColumn,
+  handleSort,
+  setAdjustModal,
+  setItemToEdit,
+}) => {
   if (!currentItems?.length) {
     return <Box>No items to display</Box>;
   }
 
-  const renderSortableHeader = (key: keyof InventoryItem, label: string, width: string, align?: 'center') => {
+  const renderSortableHeader = (
+    key: keyof InventoryItem,
+    label: string,
+    width: string,
+    align?: 'center',
+  ) => {
     const isActive = sortColumn === key && sortDirection !== 'original';
     return (
       <TableCell
         key={key}
         sx={{ fontWeight: 'bold', width, textAlign: align }}
         aria-sort={getAriaSortValue(key, sortColumn, sortDirection)}
-        sortDirection={isActive ? (sortDirection === 'asc' ? 'asc' : 'desc') : false}
+        sortDirection={
+          isActive ? (sortDirection === 'asc' ? 'asc' : 'desc') : false
+        }
       >
         <TableSortLabel
           active={isActive}
-          direction={isActive ? (sortDirection === 'asc' ? 'asc' : 'desc') : 'asc'}
+          direction={
+            isActive ? (sortDirection === 'asc' ? 'asc' : 'desc') : 'asc'
+          }
           onClick={() => handleSort(key)}
-          sx={align === 'center' ? { display: 'flex', justifyContent: 'center' } : undefined}
+          sx={
+            align === 'center'
+              ? { display: 'flex', justifyContent: 'center' }
+              : undefined
+          }
         >
           {label}
         </TableSortLabel>
@@ -71,8 +95,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                 key={index}
                 sx={{
                   height: '64px',
-                  boxShadow:
-                  '0px -1px 0px 0px rgb(212, 212, 212);',
+                  boxShadow: '0px -1px 0px 0px rgb(212, 212, 212);',
                 }}
               >
                 <TableCell sx={{ width: '16%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.name}</TableCell>
@@ -110,11 +133,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                 <TableCell sx={{ width: '10%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
                   <Button
                     aria-label="Override quantity"
-                    onClick={()=>{
-                      setItemToEdit(row)
-                      setAdjustModal(true)
-                  }}>
-                    <SettingsIcon color="secondary"/>
+                    onClick={() => {
+                      setItemToEdit(row);
+                      setAdjustModal(true);
+                    }}
+                  >
+                    <SettingsIcon color="secondary" />
                   </Button>
                 </TableCell>
               </TableRow>

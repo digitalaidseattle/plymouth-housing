@@ -1,3 +1,9 @@
+/**
+ *  CheckoutPage.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useContext, useMemo, useEffect, useRef } from 'react';
 import { Box, useTheme, Chip, Button } from '@mui/material';
 import {
@@ -64,7 +70,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     onError: (msg) => showSnackbar(msg, 'warning'),
   });
 
-  const { activeSection, setActiveSection, addItemToCart, removeItemFromCart } =
+  const { addItemToCart, removeItemFromCart } =
     useCartOperations({ checkoutItems, setCheckoutItems });
 
   const [residentInfo, setResidentInfo] = useState<ResidentInfo>(() =>
@@ -333,9 +339,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             setShowAdditionalNotesDialog(!showAdditionalNotesDialog)
           }
           item={selectedItem}
-          addItemToCart={(item) =>
-            addItemToCart(item, 1, 'Appliance', 'general')
-          } // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
+          addItemToCart={(item) => addItemToCart(item, 1, 'Appliance')} // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
           residentInfo={residentInfo}
           checkoutHistory={checkoutHistory}
         />
@@ -349,9 +353,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           item={selectedItem}
           addItemToCart={(item) => {
             if (item.id === SPECIAL_ITEMS.RUG) {
-              addItemToCart(item, 1, 'Home Goods', 'general'); // TODO: replace 'Home Goods' with CATEGORY_IDS.HOME_GOODS when addItemToCart is updated to use category IDs
+              addItemToCart(item, 1, 'Home Goods'); // TODO: replace 'Home Goods' with CATEGORY_IDS.HOME_GOODS when addItemToCart is updated to use category IDs
             } else {
-              addItemToCart(item, 1, 'Appliance', 'general'); // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
+              addItemToCart(item, 1, 'Appliance'); // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
             }
           }}
           residentInfo={residentInfo}
@@ -384,7 +388,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           categories={searchActive ? searchData : categories}
           checkoutItems={checkoutItems}
           sectionType={checkoutType}
-          activeSection={activeSection}
           checkoutHistory={checkoutHistory}
           searchActive={searchActive}
           addItemToCart={addItemToCart}
@@ -413,13 +416,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           onSuccess={handleCheckoutSuccess}
           onError={(msg) => showSnackbar(msg, 'warning')}
           checkoutItems={checkoutItems}
-          addItemToCart={(item, quantity, category) =>
-            addItemToCart(item, quantity, category, activeSection)
-          }
+          addItemToCart={addItemToCart}
           setCheckoutItems={setCheckoutItems}
           removeItemFromCart={removeItemFromCart}
           selectedBuildingCode={residentInfo.building.code}
-          setActiveSection={setActiveSection}
           fetchData={fetchData}
           residentInfo={residentInfo}
           setResidentInfo={setResidentInfo}

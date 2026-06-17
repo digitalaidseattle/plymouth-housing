@@ -1,4 +1,10 @@
 /**
+ *  useInactivityTimer.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+/**
  * A custom hook that manages user inactivity tracking and triggers a callback after a specified timeout.
  */
 

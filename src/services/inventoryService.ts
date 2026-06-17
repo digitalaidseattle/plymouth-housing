@@ -1,3 +1,9 @@
+/**
+ *  inventoryService.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { ENDPOINTS } from '../types/constants';
 import { ClientPrincipal, InventoryResult } from '../types/interfaces';
 import { getRole } from '../utils/userUtils';

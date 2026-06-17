@@ -1,4 +1,10 @@
-﻿import React from 'react';
+/**
+ *  UserFilters.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+import React from 'react';
 import SearchBar from '../../components/Searchbar/SearchBar';
 import { Box, Button, Stack, Typography, Menu, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

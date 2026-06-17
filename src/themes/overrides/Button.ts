@@ -1,3 +1,9 @@
+/**
+ *  Button.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - BUTTON ||============================== //
 
 import { Theme } from '@mui/material';

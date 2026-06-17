@@ -1,4 +1,10 @@
-﻿import { useEffect, useState } from 'react';
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Alert, Tabs, Tab } from '@mui/material';
 import MainCard from '../../components/MainCard';
 import SnackbarAlert from '../../components/SnackbarAlert';

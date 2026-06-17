@@ -1,4 +1,10 @@
 /**
+ *  SnackbarAlert.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+/**
  * SnackbarAlert.tsx
  *
  * Display an alert

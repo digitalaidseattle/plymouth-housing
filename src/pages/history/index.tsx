@@ -1,4 +1,10 @@
-﻿import React, { useState, useContext } from 'react';
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+import React, { useState, useContext } from 'react';
 import {
   Button,
   Stack,
@@ -169,7 +175,7 @@ const HistoryPage: React.FC = () => {
       </Stack>
 
       <Stack>
-        <Typography variant="h2" textTransform="capitalize">
+        <Typography variant="h2" sx={{ textTransform: 'capitalize' }}>
           {dateRange.isCustom ? dateRangeString : dateInput}
         </Typography>
         {dateInput === 'custom' ? (

@@ -1,3 +1,9 @@
+/**
+ *  Navbar.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { CategoryProps } from '../../types/interfaces'
 import { Box, Button } from '@mui/material';
 

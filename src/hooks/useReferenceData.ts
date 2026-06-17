@@ -1,3 +1,9 @@
+/**
+ *  useReferenceData.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useEffect } from 'react';
 import { Building, CategoryProps, User } from '../types/interfaces';
 import { getBuildings } from '../services/residentService';

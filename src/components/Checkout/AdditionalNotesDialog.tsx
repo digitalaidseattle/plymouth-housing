@@ -1,3 +1,9 @@
+/**
+ *  AdditionalNotesDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { SyntheticEvent, useState } from 'react';
 import {
   Typography,
@@ -66,7 +72,7 @@ const AdditionalNotesDialog = ({
             submitButtonText='Add to cart'
             backButtonText='Cancel'>
             {previousCheckouts && checkoutHistory &&
-            <Stack gap={2}>
+            <Stack sx={{ gap: 2 }}>
                 <Box>
                     <Typography variant="h4" sx={{ fontWeight: '600' }}>Check before adding item</Typography>
                     <Typography>
@@ -74,7 +80,7 @@ const AdditionalNotesDialog = ({
                     </Typography>
                 </Box>
                 <Box>
-                    <Stack direction="row" gap={2}>
+                    <Stack direction="row" sx={{ gap: 2 }}>
                         <Typography variant="body2" sx={{ fontWeight: '600' }}>Previously checked out</Typography>
                         <Typography>{withCount(applianceMiscCheckouts.length, 'item')}</Typography>
                     </Stack>
@@ -92,7 +98,7 @@ const AdditionalNotesDialog = ({
             </Stack>
             }
 
-            <Stack gap={2}>
+            <Stack sx={{ gap: 2 }}>
                 <Box>
                     <Typography variant="h4" sx={{ fontWeight: '600' }}>Enter {item && item.name} Details</Typography>
                     <Typography>You can specify the appliance here.</Typography>

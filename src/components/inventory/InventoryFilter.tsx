@@ -1,4 +1,10 @@
-﻿import React from 'react';
+/**
+ *  InventoryFilter.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+import React from 'react';
 import SearchBar from '../Searchbar/SearchBar.tsx';
 import { Box, Button, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

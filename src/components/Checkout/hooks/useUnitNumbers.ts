@@ -1,3 +1,9 @@
+/**
+ *  useUnitNumbers.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState } from 'react';
 import { Unit, ClientPrincipal } from '../../../types/interfaces';
 import { getUnitNumbers } from '../../../services/residentService';

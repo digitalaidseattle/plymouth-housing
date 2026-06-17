@@ -1,4 +1,10 @@
-﻿import React, { useState } from 'react';
+/**
+ *  UserTable.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,

@@ -1,3 +1,9 @@
+/**
+ *  historyUtils.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 const DATE_FORMATS = {
   DATE_ONLY: {
     month: 'short' as const,

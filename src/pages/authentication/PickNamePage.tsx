@@ -1,3 +1,9 @@
+/**
+ *  PickNamePage.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -101,8 +107,8 @@ const PickYourNamePage: React.FC = () => {
           <Box sx={{ maxWidth: '340px', minWidth: '340px', width: '100%' }}>
             <Typography
               variant="h4"
-              textAlign="left"
               sx={{
+                textAlign: 'left',
                 height: '50px',
                 lineHeight: '50px',
                 marginBottom: 2,

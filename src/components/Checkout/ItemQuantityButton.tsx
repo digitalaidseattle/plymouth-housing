@@ -1,3 +1,9 @@
+/**
+ *  ItemQuantityButton.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Remove, Add } from '@mui/icons-material';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import { CheckoutCardProps, CheckoutItemProp } from '../../types/interfaces';

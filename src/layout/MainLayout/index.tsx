@@ -1,12 +1,12 @@
 /**
  *  MainLayout/index.tsx
  *
- *  @copyright 2024 Digital Aid Seattle
+ *  @copyright 2026 Digital Aid Seattle
  *
  */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Box, Toolbar, useMediaQuery } from '@mui/material';
+import { Box, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import navigation from '../../menu-items';
 import Drawer from './Drawer';
@@ -30,7 +30,7 @@ const MainLayout: React.FC = () => {
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(!matchDownLG);
   const navigate = useNavigate();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const navigateTimeoutRef = useRef<number | null>(null);
@@ -198,7 +198,7 @@ const MainLayout: React.FC = () => {
           sx={{ display: 'flex', width: '100%' }}
           onMouseMove={resetTimer}
           onClick={resetTimer}
-          onKeyPress={resetTimer}
+          onKeyDown={resetTimer}
         >
           <Header open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
@@ -220,6 +220,13 @@ const MainLayout: React.FC = () => {
             <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
               <Outlet context={{ drawerOpen }} />
             </Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textAlign: 'center', py: 2 }}
+            >
+              &copy; {new Date().getFullYear()} Digital Aid Seattle
+            </Typography>
           </Box>
         </Box>
         <SnackbarAlert

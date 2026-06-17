@@ -1,3 +1,9 @@
+/**
+ *  transactionProcessors.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { describe, test, expect } from 'vitest';
 import { mapCheckoutRows, processTransactionsByUser } from './transactionProcessors';
 import { CheckoutRow, CheckoutTransaction, TransactionType } from '../../types/interfaces';

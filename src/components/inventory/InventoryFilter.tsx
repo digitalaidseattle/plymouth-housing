@@ -26,6 +26,8 @@ interface InventoryFilterProps {
 
 const statusOptions = ['Needs Review', 'Out of Stock', 'Low Stock', 'Normal Stock'];
 
+const filterButtonSx = { color: 'common.black', bgcolor: 'grey.300', minHeight: '30px', height: 'auto', '&:hover': { bgcolor: 'grey.400' } };
+
 const InventoryFilter: React.FC<InventoryFilterProps> = ({
   filters,
   anchors,
@@ -43,7 +45,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
         <div id="type-button-container">
         <Button
           variant="contained"
-          sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
+          sx={filterButtonSx}
           onClick={(event) => handleFilterClick('type', event)}
         >
           {filters.type ? (
@@ -79,7 +81,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
         <div id="category-button-container">
         <Button
           variant="contained"
-          sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
+          sx={filterButtonSx}
           onClick={(event) => handleFilterClick('category', event)}
         >
           {' '}
@@ -118,7 +120,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
         <div id="status-button-container">
           <Button
             variant="contained"
-            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
+            sx={filterButtonSx}
             onClick={(event) => handleFilterClick('status', event)}
           >
             {filters.status ? (

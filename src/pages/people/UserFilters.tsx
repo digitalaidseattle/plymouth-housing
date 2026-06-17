@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SearchBar from '../../components/Searchbar/SearchBar';
-import { Box, Button, IconButton, Stack, Typography, Menu, MenuItem } from '@mui/material';
+import { Box, Button, Stack, Typography, Menu, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 
@@ -74,14 +74,14 @@ const UserFilters: React.FC<UserFiltersProps> = ({
             {statusFilter ? (
               <>
                 {statusFilter}
-                <IconButton
+                <Box
+                  component="span"
                   aria-label="Clear Status Filter"
                   onClick={clearStatusFilter}
-                  size="small"
-                  sx={{ padding: 0, color: 'black', ml: 1 }}
+                  sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
                 >
                   <ClearIcon sx={{ fontSize: 'large' }} />
-                </IconButton>
+                </Box>
               </>
             ) : (
               <>
@@ -111,14 +111,14 @@ const UserFilters: React.FC<UserFiltersProps> = ({
             {roleFilter ? (
               <>
                 {roleFilter}
-                <IconButton
+                <Box
+                  component="span"
                   aria-label="Clear Role Filter"
                   onClick={clearRoleFilter}
-                  size="small"
-                  sx={{ padding: 0, color: 'black', ml: 1 }}
+                  sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
                 >
                   <ClearIcon sx={{ fontSize: 'large' }} />
-                </IconButton>
+                </Box>
               </>
             ) : (
               <>

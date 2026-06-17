@@ -1,4 +1,4 @@
-import {
+﻿import {
   Dialog,
   DialogContent,
   Button,
@@ -47,7 +47,7 @@ const DialogTemplate = ({
             open={showDialog}>
             {title &&
             <DialogTitle sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h5">{title}</Typography>
+                <Typography variant="h5" component="span">{title}</Typography>
                 <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', px: 0 }}><Close/></Button>
             </DialogTitle>}
 

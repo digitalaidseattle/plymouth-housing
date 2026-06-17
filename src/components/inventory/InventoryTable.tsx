@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Tooltip, Box, Button, TableSortLabel } from '@mui/material';
+﻿import React from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Box, Button, TableSortLabel } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -53,16 +53,16 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
   return (
     <Box id="inventory-container" sx={{ mt: 2, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-        <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
+        <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 1150, '& .MuiTableCell-root': { px: 1.5 } }}>
           <TableHead>
             <TableRow sx={{ height: '64px' }}>
-              {renderSortableHeader('name', 'Name', '20%')}
-              <TableCell sx={{ fontWeight: 'bold', width: '20%' }}>Description</TableCell>
-              {renderSortableHeader('type', 'Type', '12.5%')}
-              {renderSortableHeader('category', 'Category', '12.5%')}
-              {renderSortableHeader('status', 'Status', '12.5%')}
-              {renderSortableHeader('quantity', 'Quantity', '12.5%', 'center')}
-              <TableCell sx={{ fontWeight: 'bold', width: '10%', textAlign: 'right', paddingRight: '2rem' }}>Adjust</TableCell>
+              {renderSortableHeader('name', 'Name', '16%')}
+              <TableCell sx={{ fontWeight: 'bold', width: '30%' }}>Description</TableCell>
+              {renderSortableHeader('type', 'Type', '10%')}
+              {renderSortableHeader('category', 'Category', '12%')}
+              {renderSortableHeader('status', 'Status', '13%')}
+              {renderSortableHeader('quantity', 'Quantity', '9%', 'center')}
+              <TableCell sx={{ fontWeight: 'bold', width: '10%', textAlign: 'right' }}>Adjust</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -75,25 +75,16 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                   '0px -1px 0px 0px rgb(212, 212, 212);',
                 }}
               >
-                <TableCell sx={{
-                  width: '20%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{row.name}</TableCell>
-                <TableCell sx={{
-                  width: '30%',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  textOverflow: 'ellipsis'
-                }}>
-                  <Tooltip title={row.description} arrow>
-                    <span>{row.description}</span>
-                  </Tooltip>
-                </TableCell>
-
-                <TableCell sx={{ width: '12,5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{row.type}</TableCell>
-                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{row.category}</TableCell>
-                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                <TableCell sx={{ width: '16%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.name}</TableCell>
+                <TableCell sx={{ width: '30%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.description}</TableCell>
+                <TableCell sx={{ width: '10%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.type}</TableCell>
+                <TableCell sx={{ width: '12%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.category}</TableCell>
+                <TableCell sx={{ width: '13%' }}>
                   <Chip
                     label={row.status}
                     sx={{
+                      maxWidth: '100%',
+                      height: 'auto',
                       backgroundColor: row.status === 'Out of Stock' ? '#FDECEA'
                         : row.status === 'Low Stock' ? '#FFF9C4'
                         : row.status === 'Needs Review' ? '#fff5e8ff'
@@ -103,14 +94,20 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ currentItems, sortDirec
                         : row.status === 'Needs Review' ? '#663C00'
                         : '#357A38',
                       borderRadius: '8px',
-                      px: 1.5,
+                      '& .MuiChip-label': {
+                        px: 1,
+                        py: 0.5,
+                        whiteSpace: 'normal',
+                        overflowWrap: 'normal',
+                        textAlign: 'center',
+                      },
                     }}
                   />
                 </TableCell>
-                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'center' }}>
+                <TableCell sx={{ width: '9%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'center' }}>
                   {row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}
                 </TableCell>
-                <TableCell sx={{ width: '12.5%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
+                <TableCell sx={{ width: '10%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
                   <Button
                     aria-label="Override quantity"
                     onClick={()=>{

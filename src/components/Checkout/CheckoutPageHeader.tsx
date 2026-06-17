@@ -64,6 +64,7 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
             data={data}
             setSearchData={setSearchData}
             setSearchActive={setSearchActive}
+            compact
           />
         )}
       </Stack>

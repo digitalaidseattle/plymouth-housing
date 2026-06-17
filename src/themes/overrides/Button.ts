@@ -22,6 +22,9 @@ export default function Button(theme: Theme) {
         containedPrimary: {
           backgroundColor: theme.palette.grey[700],
           color: theme.palette.grey[100],
+          '&:hover': {
+            backgroundColor: theme.palette.grey[800],
+          },
         },
         contained: {
           backgroundColor: theme.palette.grey[100],
@@ -36,10 +39,8 @@ export default function Button(theme: Theme) {
         },
         text: {
           color: theme.palette.common.black,
-          textDecoration: 'underline',
           '&:hover': {
             backgroundColor: 'transparent',
-            textDecoration: 'underline',
           },
         },
         outlined: {

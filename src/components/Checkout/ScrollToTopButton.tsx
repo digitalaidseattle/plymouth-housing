@@ -50,6 +50,7 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ showAfter = 300 }
         <Button
           variant="contained"
           onClick={scrollToTop}
+          aria-label="Scroll to top"
           sx={{ borderRadius: '50%', minWidth: '50px', height: '50px', boxShadow: 3 }}
         >
           <KeyboardArrowUp />

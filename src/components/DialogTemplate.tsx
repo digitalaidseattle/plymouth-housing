@@ -54,7 +54,7 @@ const DialogTemplate = ({
             {title &&
             <DialogTitle sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
                 <Typography variant="h5" component="span" sx={{ flexGrow: 1, minWidth: 0 }}>{title}</Typography>
-                <Button onClick={handleShowDialog} disableRipple id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', p: 0, ml: 'auto', flexShrink: 0 }}><Close/></Button>
+                <Button onClick={handleShowDialog} disableRipple aria-label="Close dialog" id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', p: 0, ml: 'auto', flexShrink: 0 }}><Close/></Button>
             </DialogTitle>}
 
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2, px: 0 }}>

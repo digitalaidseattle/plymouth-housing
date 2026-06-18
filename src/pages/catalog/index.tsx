@@ -25,11 +25,14 @@ type TabPanelProps = {
 };
 
 const TabPanel = ({ children, value, index }: TabPanelProps) => {
-  if (value !== index) return null;
+  // Keep inactive panels mounted (display: none) so each table's search,
+  // pagination, and edit state survives tab switches.
+  const isActive = value === index;
   return (
     <Box
       role="tabpanel"
-      sx={{ pt: 2, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+      hidden={!isActive}
+      sx={{ pt: 2, flex: 1, minHeight: 0, flexDirection: 'column', display: isActive ? 'flex' : 'none' }}
     >
       {children}
     </Box>

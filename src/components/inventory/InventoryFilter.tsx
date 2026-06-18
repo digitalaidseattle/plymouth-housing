@@ -57,10 +57,17 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
           {filters.type ? (
             <>
               {filters.type}{' '}
-              <ClearIcon
-                sx={{ fontSize: 'large', ml: 1 }}
+              <Box
+                component="span"
+                role="button"
+                tabIndex={0}
+                aria-label="Clear Type Filter"
                 onClick={(e) => { e.stopPropagation(); clearFilter('type'); }}
-              />
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); clearFilter('type'); } }}
+                sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+              >
+                <ClearIcon sx={{ fontSize: 'large' }} />
+              </Box>
             </>
           ) : (
             <>
@@ -94,10 +101,17 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
           {filters.category ? (
             <>
               {filters.category}{' '}
-              <ClearIcon
-                sx={{ fontSize: 'large', ml: 1 }}
+              <Box
+                component="span"
+                role="button"
+                tabIndex={0}
+                aria-label="Clear Category Filter"
                 onClick={(e) => { e.stopPropagation(); clearFilter('category'); }}
-              />
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); clearFilter('category'); } }}
+                sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+              >
+                <ClearIcon sx={{ fontSize: 'large' }} />
+              </Box>
             </>
           ) : (
             <>
@@ -132,10 +146,17 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
             {filters.status ? (
               <>
                 {filters.status}{' '}
-                <ClearIcon
-                  sx={{ fontSize: 'large', ml: 1 }}
+                <Box
+                  component="span"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Clear Status Filter"
                   onClick={(e) => { e.stopPropagation(); clearFilter('status'); }}
-                />
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); clearFilter('status'); } }}
+                  sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+                >
+                  <ClearIcon sx={{ fontSize: 'large' }} />
+                </Box>
               </>
             ) : (
               <>

@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import Catalog from './index';
@@ -241,6 +241,7 @@ describe('Catalog Component', () => {
     const categoriesTab = screen.getByRole('tab', { name: 'Categories' });
     fireEvent.click(categoriesTab);
 
-    expect(screen.getByText('Food')).toBeInTheDocument();
+    const categoriesPanel = screen.getByRole('tabpanel');
+    expect(within(categoriesPanel).getByText('Food')).toBeInTheDocument();
   });
 });

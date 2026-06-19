@@ -170,7 +170,7 @@ describe('Catalog Component', () => {
 
     render(<Catalog />, { wrapper });
 
-    const categoriesTab = screen.getByText('Categories');
+    const categoriesTab = screen.getByRole('tab', { name: 'Categories' });
     fireEvent.click(categoriesTab);
 
     expect(
@@ -238,7 +238,7 @@ describe('Catalog Component', () => {
 
     expect(screen.getByText('Apples')).toBeInTheDocument();
 
-    const categoriesTab = screen.getByText('Categories');
+    const categoriesTab = screen.getByRole('tab', { name: 'Categories' });
     fireEvent.click(categoriesTab);
 
     expect(screen.getByText('Food')).toBeInTheDocument();

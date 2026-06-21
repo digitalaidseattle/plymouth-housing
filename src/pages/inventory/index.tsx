@@ -299,7 +299,7 @@ const Inventory = () => {
       />
 
       {/* Toolbar: filters + add */}
-      <Stack direction="row" alignItems="center" spacing={2} width="100%">
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', width: '100%' }}>
         <Box sx={{ flexGrow: 1 }}>
           <InventoryFilter
             filters={filters}

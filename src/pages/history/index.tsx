@@ -76,7 +76,7 @@ const HistoryPage: React.FC = () => {
         handleSetDateInput={() => {}}
       />
 
-      <Stack direction="row" alignItems="center" width="100%" sx={{ gap: 3 }}>
+      <Stack direction="row" sx={{ alignItems: 'center', width: '100%', gap: 3 }}>
         <ToggleButtonGroup
           value={historyType}
           exclusive

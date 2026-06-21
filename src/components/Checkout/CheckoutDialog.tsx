@@ -365,14 +365,14 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
         <Stack spacing={1} sx={{ px: 0 }}>
           {totalItemLimitExceeded && (
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
               <Typography>Total items:</Typography>
               <Typography>{totalItemCount} / 10</Typography>
             </Stack>
           )}
 
           {categoryLimitExceeded && (
-            <Stack direction="row" spacing={1} alignItems="flex-start">
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
               <Typography>Categories:</Typography>
               <Stack spacing={0.5}>
                 {categoryLimitErrors.map((c) => (
@@ -439,7 +439,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             {residentInfo.name}
           </Typography>
 
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Typography>
               <strong>Total items: </strong>
               {totalItemCount} / 10
@@ -449,7 +449,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             )}
           </Stack>
 
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Typography>
               <strong>Categories: </strong>
               {checkoutItems.reduce((acc, category) => {

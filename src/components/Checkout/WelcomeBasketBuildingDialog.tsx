@@ -146,7 +146,7 @@ const WelcomeBasketBuildingDialog = ({
                 backgroundColor: 'transparent',
               }}
               label={
-                <Stack direction="row" spacing={1} alignItems="center">
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   <Box component="span">Editing transaction</Box>
                   <Button size="small" variant="text" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
                     Cancel

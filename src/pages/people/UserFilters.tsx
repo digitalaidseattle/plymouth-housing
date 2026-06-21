@@ -66,7 +66,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   const roles = ['admin', 'volunteer'];
 
   return (
-    <Stack direction="row" alignItems="center" spacing={2}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
         <Typography variant="body2">Filters</Typography>
 
         <div>

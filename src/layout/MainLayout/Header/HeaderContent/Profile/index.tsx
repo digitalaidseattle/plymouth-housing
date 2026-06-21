@@ -67,7 +67,7 @@ const Profile = () => {
         aria-haspopup="true"
         onClick={handleToggle}
       >
-        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: 0.5 }}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', p: 0.5 }}>
           <Avatar alt="profile user" sx={{ width: 32, height: 32 }} />
           <Typography variant="subtitle1">{username}</Typography>
         </Stack>

@@ -44,7 +44,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
   handleSearch,
 }) => {
   return (
-    <Stack direction="row" alignItems="center" spacing={2}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
         <Typography variant="body2">Filters</Typography>
 
         {/* Type Filter */}

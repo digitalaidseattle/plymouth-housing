@@ -60,7 +60,7 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         zIndex: 2,
       }}
     >
-      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Button
           variant="outlined"
           color={residentInfoIsMissing ? 'error' : 'primary'}

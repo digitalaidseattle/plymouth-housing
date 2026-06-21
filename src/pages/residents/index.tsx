@@ -113,7 +113,7 @@ const ResidentsPage = () => {
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mt: 3, mb: 3 }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mt: 3, mb: 3 }}>
         <FormControl sx={{ minWidth: 240 }}>
           <InputLabel id="building-select-label">Building</InputLabel>
           <Select

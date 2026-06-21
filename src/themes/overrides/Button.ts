@@ -25,13 +25,6 @@ export default function Button(theme: Theme) {
         root: {
           fontWeight: 400,
         },
-        containedPrimary: {
-          backgroundColor: theme.palette.grey[700],
-          color: theme.palette.grey[100],
-          '&:hover': {
-            backgroundColor: theme.palette.grey[800],
-          },
-        },
         contained: {
           backgroundColor: theme.palette.grey[100],
           color: theme.palette.common.black,
@@ -53,6 +46,20 @@ export default function Button(theme: Theme) {
           ...disabledStyle,
         },
       },
+      // MUI v9 removed combined slots like `containedPrimary`; the contained +
+      // primary dark-gray style must now be expressed via the `variants` API.
+      variants: [
+        {
+          props: { variant: 'contained', color: 'primary' },
+          style: {
+            backgroundColor: theme.palette.grey[700],
+            color: theme.palette.grey[100],
+            '&:hover': {
+              backgroundColor: theme.palette.grey[800],
+            },
+          },
+        },
+      ],
     },
   };
 }

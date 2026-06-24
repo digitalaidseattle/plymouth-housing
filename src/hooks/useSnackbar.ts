@@ -5,14 +5,7 @@
  *
  */
 import { useState, useCallback } from 'react';
-
-type SnackbarSeverity = 'success' | 'warning' | 'error';
-
-interface SnackbarState {
-  open: boolean;
-  message: string;
-  severity: SnackbarSeverity;
-}
+import { SnackbarState } from '../types/interfaces';
 
 export function useSnackbar() {
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({
@@ -21,7 +14,7 @@ export function useSnackbar() {
     severity: 'warning',
   });
 
-  const showSnackbar = useCallback((message: string, severity: SnackbarSeverity = 'error') => {
+  const showSnackbar = useCallback((message: string, severity: SnackbarState['severity'] = 'error') => {
     setSnackbarState({ open: true, message, severity });
   }, []);
 

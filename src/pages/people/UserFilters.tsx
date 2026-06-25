@@ -74,7 +74,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
             variant="contained"
             aria-label="Status Filter"
             aria-haspopup="true"
-            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
+            sx={{ color: 'common.black', bgcolor: 'grey.300', minHeight: '30px', height: 'auto', '&:hover': { bgcolor: 'grey.400' } }}
             onClick={handleStatusClick}
           >
             {statusFilter ? (
@@ -114,7 +114,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
             variant="contained"
             aria-label="Role Filter"
             aria-haspopup="true"
-            sx={{ color: 'common.black', bgcolor: 'grey.300', height: '30px', '&:hover': { bgcolor: 'grey.400' } }}
+            sx={{ color: 'common.black', bgcolor: 'grey.300', minHeight: '30px', height: 'auto', '&:hover': { bgcolor: 'grey.400' } }}
             onClick={handleRoleClick}
           >
             {roleFilter ? (

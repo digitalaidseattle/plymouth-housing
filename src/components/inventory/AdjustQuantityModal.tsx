@@ -8,7 +8,6 @@ import {
   Box,
   Typography,
   TextField,
-  styled,
   IconButton,
   Tooltip,
   FormControl,
@@ -70,13 +69,6 @@ const AdjustQuantityModal = ({
       setTransactionId(crypto.randomUUID());
     }
   }, [showDialog]);
-
-  const DialogTitle = styled('h1')(({ theme }) => ({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-    margin: '0',
-  }));
 
   const handleInputChange = (field: string, value: string | number) => {
     const parsedValue =
@@ -177,6 +169,7 @@ const AdjustQuantityModal = ({
     <DialogTemplate
       showDialog={showDialog}
       handleShowDialog={resetInputsHandler}
+      title={`Adjust ${itemToEdit?.name ?? ''} quantity`}
     >
       <Box
         sx={{
@@ -189,8 +182,6 @@ const AdjustQuantityModal = ({
           height: '100%',
         }}
       >
-        <DialogTitle>Adjust {itemToEdit?.name} quantity</DialogTitle>
-
         <Box id="current-stock">
           <Typography variant="body2">
             Current stock: {itemToEdit?.quantity}

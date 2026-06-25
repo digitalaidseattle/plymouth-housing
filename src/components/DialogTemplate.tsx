@@ -11,6 +11,7 @@ import {
   DialogTitle,
   Typography,
   DialogActions,
+  Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { ReactNode, SyntheticEvent } from 'react';
@@ -37,6 +38,10 @@ const DialogTemplate = ({
     isSubmitting,
     }: DialogTemplateProps) => {
 
+    const closeButton = (
+        <Button onClick={handleShowDialog} disableRipple aria-label="Close dialog" id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', p: 0, ml: 'auto', flexShrink: 0 }}><Close/></Button>
+    );
+
     return (
         <Dialog
         data-testid="dialog"
@@ -51,11 +56,16 @@ const DialogTemplate = ({
             },
           }}
             open={showDialog}>
-            {title &&
+            {title ? (
             <DialogTitle sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
                 <Typography variant="h5" component="span" sx={{ flexGrow: 1, minWidth: 0 }}>{title}</Typography>
-                <Button onClick={handleShowDialog} disableRipple aria-label="Close dialog" id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', p: 0, ml: 'auto', flexShrink: 0 }}><Close/></Button>
-            </DialogTitle>}
+                {closeButton}
+            </DialogTitle>
+            ) : (
+            <Box sx={{ display: 'flex', pt: 2 }}>
+                {closeButton}
+            </Box>
+            )}
 
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2, px: 0 }}>
             {children}

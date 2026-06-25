@@ -88,13 +88,6 @@ const AddItemModal = ({
     color: theme.palette.success.dark,
   });
 
-  const DialogTitle = styled('h1')(({ theme }) => ({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-    margin: '0',
-  }));
-
   const handleInputChange = (field: string, value: string | number) => {
     if (field === 'type' && typeof value === 'string') {
       const filteredItems = originalData.filter((item) =>
@@ -205,10 +198,6 @@ const AddItemModal = ({
 
   const QuantityForm = () => (
     <>
-      <DialogTitle>
-        {inventoryType ? `Add Item - ${inventoryType}` : 'Edit Item Quantity'}
-      </DialogTitle>
-
       {/* Item Type */}
       {!inventoryType && (
         <Box id="add-item-type" sx={{ width: '100%' }}>
@@ -355,7 +344,6 @@ const AddItemModal = ({
 
   const ResultsContent = () => (
     <>
-      <DialogTitle>Inventory updated: {updateItem?.name}</DialogTitle>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <Box> 
           Previous Stock: <ResultText>{updateItem?.quantity ?? 0}</ResultText>
@@ -381,8 +369,19 @@ const AddItemModal = ({
     </>
   );
 
+  let dialogTitle = 'Edit Item Quantity';
+  if (showResults) {
+    dialogTitle = `Inventory updated: ${updateItem?.name ?? ''}`;
+  } else if (inventoryType) {
+    dialogTitle = `Add Item - ${inventoryType}`;
+  }
+
   return (
-    <DialogTemplate showDialog={addModal} handleShowDialog={resetInputsHandler}>
+    <DialogTemplate
+      showDialog={addModal}
+      handleShowDialog={resetInputsHandler}
+      title={dialogTitle}
+    >
       {/* Title Section */}
       <Box
         sx={{

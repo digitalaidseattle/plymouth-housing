@@ -69,6 +69,7 @@ const AdditionalNotesDialog = ({
             showDialog={showDialog} 
             handleShowDialog={handleShowDialog}
             handleSubmit={handleSubmit}
+            title="Provide appliance details to continue"
             submitButtonText='Add to cart'
             backButtonText='Cancel'>
             {previousCheckouts && checkoutHistory &&
@@ -100,7 +101,6 @@ const AdditionalNotesDialog = ({
 
             <Stack sx={{ gap: 2 }}>
                 <Box>
-                    <Typography variant="h4" sx={{ fontWeight: '600' }}>Enter {item && item.name} Details</Typography>
                     <Typography>You can specify the appliance here.</Typography>
                 </Box>
                 

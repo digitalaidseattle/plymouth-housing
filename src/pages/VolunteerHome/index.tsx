@@ -215,6 +215,3 @@ const VolunteerHome: React.FC = () => {
 };
 
 export default VolunteerHome;
-
-
-

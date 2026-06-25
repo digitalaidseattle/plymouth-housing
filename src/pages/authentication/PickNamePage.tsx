@@ -126,8 +126,7 @@ const PickYourNamePage: React.FC = () => {
                 lineHeight: 1.5,
               }}
             >
-              <strong>Can't find your name?</strong> Let a staff member know or
-              contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
+              <strong>Can't find your name?</strong> Let a staff member know.
             </Typography>
 
             <Autocomplete

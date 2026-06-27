@@ -1,3 +1,9 @@
+/**
+ *  IconButton.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - ICON BUTTON ||============================== //
 
 import { Theme } from '@mui/material';

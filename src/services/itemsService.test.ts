@@ -1,3 +1,9 @@
+/**
+ *  itemsService.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import {
   getCategorizedItems,

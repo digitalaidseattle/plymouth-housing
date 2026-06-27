@@ -1,9 +1,16 @@
+/**
+ *  CategorySection.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import CheckoutCard from './CheckoutCard';
 
 import {
   CategoryProps,
   CheckoutHistoryItem,
   CheckoutItemProp,
+  CheckoutType,
 } from '../../types/interfaces';
 import { Box, Grid, Typography } from '@mui/material';
 
@@ -17,9 +24,9 @@ type CategorySectionProps = {
   ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
-  disabled: boolean;
-  activeSection: string;
+  checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];
+  selectedWelcomeItemName?: string;
 };
 
 const CategorySection = ({
@@ -28,17 +35,15 @@ const CategorySection = ({
   addItemToCart,
   removeItemFromCart,
   removeButton,
-  disabled,
-  activeSection,
+  checkoutType,
   checkoutHistory,
+  selectedWelcomeItemName,
 }: CategorySectionProps) => {
   return (
     <Box
       sx={{
-        paddingX: removeButton ? '0%' : '5%',
-        paddingBottom: '3%',
-        opacity: disabled ? 0.5 : 1,
-        pointerEvents: disabled ? 'none' : 'auto',
+        px: removeButton ? 0 : 5,
+        pb: 3,
       }}
     >
       <Box
@@ -46,15 +51,15 @@ const CategorySection = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '15px',
+          mb: 2,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
             sx={{
               typography: { xs: 'body2', md: 'h5' },
-              marginY: '3%',
-              marginRight: '30px',
+              my: 2,
+              mr: 4,
             }}
             id={category.category}
           >
@@ -80,8 +85,8 @@ const CategorySection = ({
                 ? '#c62828'
                 : 'inherit',
             borderRadius: '20px',
-            paddingY: '4px',
-            paddingX: '12px',
+            py: 0.5,
+            px: 1.5,
           }}
         >
           {categoryCheckout?.categoryCount} of {category.checkout_limit}
@@ -115,8 +120,9 @@ const CategorySection = ({
               removeButton={removeButton}
               categoryLimit={category.checkout_limit}
               categoryName={category.category}
-              activeSection={activeSection}
+              checkoutType={checkoutType}
               checkoutHistory={checkoutHistory}
+              selectedWelcomeItemName={selectedWelcomeItemName}
             />
           </Grid>
         ))}

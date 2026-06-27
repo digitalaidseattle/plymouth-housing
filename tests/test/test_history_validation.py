@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.usefixtures("login_with_volunteer")
 @pytest.mark.serial
-@pytest.mark.smoke
+@pytest.mark.regression
 def test_checkout_updates_history(home_page, checkout_page, history_page):
 
     # ---------------------------------------------------
@@ -30,14 +30,14 @@ def test_checkout_updates_history(home_page, checkout_page, history_page):
     checkout_page.click_confirm()
 
     # ---------------------------------------------------
-    # Assert (🔥 FIXED)
+    # Assert ( FIXED)
     # ---------------------------------------------------
 
-    # 🔥 CRITICAL: force UI refresh
+    #  CRITICAL: force UI refresh
     history_page.open_history()
     history_page.driver.refresh()
 
-    # 🔥 ensure page ready
+    #  ensure page ready
     history_page.wait_for_page_ready()
 
     expected = initial_count + 1

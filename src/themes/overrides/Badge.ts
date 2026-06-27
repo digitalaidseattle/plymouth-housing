@@ -1,3 +1,9 @@
+/**
+ *  Badge.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - BADGE ||============================== //
 
 import { Theme } from '@mui/material';

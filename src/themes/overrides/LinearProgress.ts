@@ -1,3 +1,9 @@
+/**
+ *  LinearProgress.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - LINER PROGRESS ||============================== //
 
 export default function LinearProgress() {

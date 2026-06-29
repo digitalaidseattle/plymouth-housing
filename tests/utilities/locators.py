@@ -149,7 +149,7 @@ class CheckoutPageLocators:
 
     CONTINUE_BUTTON = (
         By.XPATH,
-        '//button[contains(text(),"continue")]'
+        '//button[contains(translate(normalize-space(.), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "continue")]'
     )
 
     PROCEED_TO_CHECKOUT = (
@@ -159,7 +159,7 @@ class CheckoutPageLocators:
 
     CONFIRM = (
         By.XPATH,
-        '//*[text()="Confirm"]'
+        "//button[normalize-space()='Confirm']"
     )
 
     SEARCH = (

@@ -29,6 +29,7 @@ class HistoryPage(BasePage):
             lambda d: (
                 len(d.find_elements(*self.locators.RECORD_COUNT_TEXT)) > 0
                 or len(d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)) > 0
+                or len(d.find_elements(*self.locators.HISTORY_CARDS)) > 0
             )
         )
 
@@ -52,6 +53,7 @@ class HistoryPage(BasePage):
             lambda d: (
                 len(d.find_elements(*self.locators.RECORD_COUNT_TEXT)) > 0
                 or len(d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)) > 0
+                or len(d.find_elements(*self.locators.HISTORY_CARDS)) > 0
             )
         )
 
@@ -82,7 +84,7 @@ class HistoryPage(BasePage):
         print(f"[DEBUG] Visible history cards found: {count}")
 
     # ---------------------------------------------------
-    # Record Count
+    # Record Count - Text Count
     # ---------------------------------------------------
 
     def get_record_count_text(self):
@@ -91,7 +93,7 @@ class HistoryPage(BasePage):
     def get_record_count_number(self):
         """
         Extract numeric record count from text such as:
-        'You 10 records', '1,234 records', or 'Showing 1-20 of 130'
+        'You 10 records', '1,234 records', or 'Showing 1-20 of 130'.
         """
         if not self.is_visible(self.locators.RECORD_COUNT_TEXT, timeout=5):
             return 0
@@ -108,15 +110,21 @@ class HistoryPage(BasePage):
         return max(parsed_numbers)
 
     def get_record_count(self):
+        """
+        Return the numeric record count from the History count text.
+
+        Keep this method text-count based because legacy history tests use
+        get_record_count_number() for the initial value and then call the
+        record-count wait methods.
+        """
         return self.get_record_count_number()
 
     def wait_for_record_count_to_increase(self, initial_count, timeout=30):
         """
-        Wait until the history record count increases.
+        Wait until the History record-count text increases.
 
-        This is safer for checkout tests because the History page may not
-        update immediately after checkout. It retries and refreshes the
-        History page before failing.
+        This intentionally uses get_record_count_number() so tests compare
+        text-count before and text-count after.
         """
         end_time = time.time() + timeout
         last_count = self.get_record_count_number()
@@ -143,7 +151,7 @@ class HistoryPage(BasePage):
 
     def wait_for_record_count_to_be(self, expected_count, timeout=30):
         """
-        Wait until the history record count is at least the expected count.
+        Wait until the History record-count text is at least the expected count.
         """
         end_time = time.time() + timeout
         last_count = self.get_record_count_number()
@@ -178,13 +186,75 @@ class HistoryPage(BasePage):
         print(f"Record count increased: {before_count} → {after}")
 
     # ---------------------------------------------------
+    # Record Count - Visible Card Count
+    # ---------------------------------------------------
+
+    def get_visible_record_count(self):
+        """
+        Return the number of visible history cards.
+
+        Use this for BDD checkout validation where the page may render the new
+        card before the record-count text updates.
+        """
+        return len(self.get_history_cards())
+
+    def wait_for_visible_record_count_to_increase(self, initial_count, timeout=30):
+        """
+        Wait until the visible History card count increases.
+
+        Use this only for tests that captured the initial value with
+        get_visible_record_count().
+        """
+        end_time = time.time() + timeout
+        last_count = self.get_visible_record_count()
+
+        while time.time() < end_time:
+            current_count = self.get_visible_record_count()
+
+            if current_count > initial_count:
+                print(
+                    f"Visible record count increased: "
+                    f"{initial_count} → {current_count}"
+                )
+                return current_count
+
+            last_count = current_count
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Visible record count did not increase. "
+            f"Before: {initial_count}, After: {last_count}"
+        )
+
+    def verify_visible_record_count_increased(self, before_count, timeout=30):
+        after = self.wait_for_visible_record_count_to_increase(
+            before_count,
+            timeout
+        )
+
+        assert after > before_count, (
+            f"Visible record count did not increase. "
+            f"Before: {before_count}, After: {after}"
+        )
+
+        print(f"Visible record count increased: {before_count} → {after}")
+
+    # ---------------------------------------------------
     # Cards
     # ---------------------------------------------------
 
     def get_history_cards(self):
-        if self.get_record_count_number() == 0:
-            return []
+        """
+        Return visible history cards.
 
+        Do not depend on the record-count text here. The count label can lag
+        behind the rendered cards, which makes checkout BDD tests flaky.
+        """
         cards = self.find_all(self.locators.HISTORY_CARDS)
         visible_cards = [card for card in cards if card.is_displayed()]
 

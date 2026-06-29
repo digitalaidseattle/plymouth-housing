@@ -81,31 +81,28 @@ const UserTable: React.FC<UserTableProps> = ({
     handleMenuClose();
   };
   return (
-    <TableContainer component={Paper}>
-      <Table>
+    <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+      <Table stickyHeader>
         <TableHead>
           <TableRow>
             <TableCell
-              sx={{
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-              }}
+              sx={{ fontWeight: 'bold', cursor: 'pointer' }}
               onClick={onNameOrderToggle}
             >
-              Name
-              {nameOrder === 'asc' ? (
-                <ArrowUpwardIcon
-                  fontSize="small"
-                  sx={{ ml: 0.5, color: 'gray' }}
-                />
-              ) : nameOrder === 'desc' ? (
-                <ArrowDownwardIcon
-                  fontSize="small"
-                  sx={{ ml: 0.5, color: 'gray' }}
-                />
-              ) : null}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                Name
+                {nameOrder === 'asc' ? (
+                  <ArrowUpwardIcon
+                    fontSize="small"
+                    sx={{ ml: 0.5, color: 'gray' }}
+                  />
+                ) : nameOrder === 'desc' ? (
+                  <ArrowDownwardIcon
+                    fontSize="small"
+                    sx={{ ml: 0.5, color: 'gray' }}
+                  />
+                ) : null}
+              </Box>
             </TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Role</TableCell>
             <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
@@ -182,7 +179,7 @@ const UserTable: React.FC<UserTableProps> = ({
             p: 4,
             outline: 'none',
             width: 300,
-            textAlign: 'center', // Center all text
+            textAlign: 'center',
           }}
         >
           {/* Close Button */}
@@ -200,7 +197,7 @@ const UserTable: React.FC<UserTableProps> = ({
           </IconButton>
 
           <Typography id="pin-modal-title" variant="h6" component="h2">
-            Pin code:
+            PIN Code
           </Typography>
           <Typography id="pin-modal-description" sx={{ mt: 2 }}>
             <strong>{selectedPin}</strong>

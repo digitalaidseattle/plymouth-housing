@@ -33,7 +33,7 @@ const ContactAdminDialog: React.FC<ContactAdminDialogProps> = ({
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button variant="text" onClick={onClose}>
           Close
         </Button>
       </DialogActions>

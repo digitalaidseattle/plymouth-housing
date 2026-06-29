@@ -15,6 +15,7 @@ import {
   Box,
   CircularProgress,
   Alert,
+  Stack,
 } from '@mui/material';
 import {
   CategoryProps,
@@ -111,7 +112,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
     }
   }, [open, checkoutItems]);
 
-  const hasChanges = isEditMode && computeCartDeltas(cartItems, editTransaction?.effectiveItems).length > 0;
+  const hasChanges =
+    isEditMode &&
+    computeCartDeltas(cartItems, editTransaction?.effectiveItems).length > 0;
 
   const handleCancel = () => {
     if (!isEditMode) {
@@ -144,22 +147,31 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
       // In edit mode, compute deltas: (cart qty − current state qty) per item.
       const effectiveItems = editTransaction?.effectiveItems ?? [];
-      const effectiveItemsMap = new Map(effectiveItems.map((ei) => [ei.id, ei]));
+      const effectiveItemsMap = new Map(
+        effectiveItems.map((ei) => [ei.id, ei]),
+      );
       const cartMap = new Map(cartItems.map((item) => [item.id, item]));
       let itemsToSubmit: CheckoutItemProp[];
       if (isEditMode) {
-        const allItemIds = new Set([...cartMap.keys(), ...effectiveItemsMap.keys()]);
+        const allItemIds = new Set([
+          ...cartMap.keys(),
+          ...effectiveItemsMap.keys(),
+        ]);
         const deltas: CheckoutItemProp[] = [];
         allItemIds.forEach((id) => {
           const cartItem = cartMap.get(id);
-          const delta = (cartItem?.quantity ?? 0) - (effectiveItemsMap.get(id)?.quantity ?? 0);
+          const delta =
+            (cartItem?.quantity ?? 0) -
+            (effectiveItemsMap.get(id)?.quantity ?? 0);
           if (delta !== 0) {
             deltas.push({
               id,
               name: cartItem?.name ?? '',
               description: cartItem?.description ?? '',
               quantity: delta,
-              additional_notes: cartItem?.additional_notes ?? effectiveItemsMap.get(id)?.additional_notes,
+              additional_notes:
+                cartItem?.additional_notes ??
+                effectiveItemsMap.get(id)?.additional_notes,
             });
           }
         });
@@ -337,13 +349,12 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
   const overLimitConfirmationContent = () => {
     return (
-      <>
-        <DialogTitle
-          sx={{ pt: 3, pb: 0, mb: 2 }}
-          id="customized-dialog-title"
-          component="div"
-        >
-          <Typography variant="h4">
+      <Stack
+        spacing={3}
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', pt: 1 }}
+      >
+        <DialogTitle sx={{ p: 0 }} id="customized-dialog-title" component="div">
+          <Typography variant="h4" sx={{ m: 0 }}>
             {totalItemLimitExceeded && categoryLimitExceeded
               ? 'Over the usual limits'
               : totalItemLimitExceeded
@@ -351,78 +362,70 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                 : 'Over the usual category limit'}
           </Typography>
         </DialogTitle>
-        <DialogContent>
+
+        <Stack spacing={1} sx={{ px: 0 }}>
           {totalItemLimitExceeded && (
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Typography>Total Items:</Typography>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <Typography>Total items:</Typography>
               <Typography>{totalItemCount} / 10</Typography>
-            </Box>
+            </Stack>
           )}
+
           {categoryLimitExceeded && (
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
               <Typography>Categories:</Typography>
-              <Box>
+              <Stack spacing={0.5}>
                 {categoryLimitErrors.map((c) => (
                   <Typography
                     key={c.id}
                   >{`${c.category}: ${c.categoryCount} / ${c.checkout_limit}`}</Typography>
                 ))}
-              </Box>
-            </Box>
+              </Stack>
+            </Stack>
           )}
-          <Typography sx={{ mt: 2 }}>
+
+          <Typography>
             Please chat with a staff member before continuing.
           </Typography>
-        </DialogContent>
-        <DialogActions sx={{ marginTop: 'auto' }}>
+        </Stack>
+
+        <DialogActions sx={{ marginTop: 'auto', px: 0 }}>
           <Button
+            variant="text"
             onClick={() => setShowLimitConfirmation(false)}
             id="checkout-dialog-return-to-summary-btn"
-            sx={{
-              color: 'black',
-              textDecoration: 'underline',
-            }}
           >
-            Return to Checkout Summary
+            Return to checkout summary
           </Button>
           <Button
+            variant="contained"
+            color="primary"
             onClick={() => handleConfirm(true)}
             disabled={isProcessing}
             id="checkout-dialog-override-confirm-btn"
-            sx={{
-              color: 'black',
-              backgroundColor: '#F2F2F2',
-              '&.Mui-disabled': {
-                backgroundColor: '#E0E0E0',
-                color: '#757575',
-              },
-            }}
           >
-            {isProcessing ? 'Working...' : 'Staff said it is ok'}
+            {isProcessing ? 'Working...' : 'Staff said it is OK'}
           </Button>
         </DialogActions>
-      </>
+      </Stack>
     );
   };
 
   const checkoutSummaryContent = () => {
     return (
-      <>
-        <DialogTitle
-          sx={{ pt: 3 }}
-          id="customized-dialog-title"
-          component="div"
-        >
-          <Typography variant="h4">Checkout Summary{isEditMode && ' (Editing)'}</Typography>
+      <Stack
+        spacing={1}
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', pt: 1 }}
+      >
+        {/* Dialog Title */}
+        <DialogTitle sx={{ p: 0 }} id="customized-dialog-title" component="div">
+          <Typography variant="h4" sx={{ m: 0 }}>
+            Checkout Summary{isEditMode && ' (Editing)'}
+          </Typography>
         </DialogTitle>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            mt: 2,
-            mb: 4,
-          }}
-        >
+
+        {/* Resident Information */}
+        <Stack>
           <Typography>
             <strong>Building code: </strong>
             {selectedBuildingCode}
@@ -436,17 +439,17 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             {residentInfo.name}
           </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Typography>
-              <strong>Total Items: </strong>
+              <strong>Total items: </strong>
               {totalItemCount} / 10
             </Typography>
             {totalItemLimitExceeded && (
               <Alert severity="warning">Over the usual limit</Alert>
             )}
-          </Box>
+          </Stack>
 
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Typography>
               <strong>Categories: </strong>
               {checkoutItems.reduce((acc, category) => {
@@ -460,21 +463,23 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                 limit
               </Alert>
             )}
-          </Box>
+          </Stack>
+        </Stack>
 
-          <Alert severity="info" sx={{ my: 2 }}>
-            Usual limit for total and category items helps make sure everyone
-            has enough. If a resident truly needs an extra, please chat with
-            staff.
-          </Alert>
-        </Box>
+        {/* Limit Information */}
+        <Alert severity="info">
+          Usual limit for total and category items helps make sure everyone has
+          enough. If a resident truly needs an extra, please chat with staff.
+        </Alert>
+
+        {/* Checkout Items */}
         <DialogContent
           dividers
           sx={{
             flex: 1,
             overflowY: 'auto',
-            px: 3,
-            height: '40vh',
+            px: 0,
+            height: '60vh',
             borderTop: 'none',
           }}
         >
@@ -495,133 +500,126 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
             }
           })}
         </DialogContent>
-        <DialogContent
-          sx={{
-            p: 1,
-            textAlign: 'center',
-          }}
-        >
-          <Typography>{statusMessage}</Typography>
-        </DialogContent>
-        <DialogActions sx={{ marginTop: 'auto' }}>
+
+        {/* Status Message */}
+        {statusMessage?.trim() ? (
+          <DialogContent
+            sx={{
+              p: 1,
+              textAlign: 'center',
+            }}
+          >
+            <Typography>{statusMessage}</Typography>
+          </DialogContent>
+        ) : null}
+
+        {/* Dialog Actions */}
+        <DialogActions sx={{ px: 0 }}>
           {isEditMode ? (
             <>
               <Button
+                variant="text"
                 onClick={onCancelEdits}
                 id="checkout-dialog-cancel-edit-btn"
-                sx={{
-                  color: 'black',
-                  textDecoration: 'underline',
-                }}
               >
                 Cancel
               </Button>
               <Button
+                variant="text"
                 onClick={handleCancel}
                 id="checkout-dialog-add-item-btn"
-                sx={{
-                  color: 'black',
-                }}
               >
-                Add Item
+                Add item
               </Button>
               <Button
+                variant="contained"
+                color="primary"
                 onClick={() => handleConfirm()}
                 disabled={isProcessing || !hasChanges}
                 id="checkout-dialog-save-btn"
-                sx={{
-                  color: 'black',
-                  backgroundColor: '#F2F2F2',
-                  '&.Mui-disabled': {
-                    backgroundColor: '#E0E0E0',
-                    color: '#757575',
-                  },
-                }}
               >
-                {isProcessing ? 'Working...' : hasChanges ? 'Save Changes' : 'No Changes'}
+                {isProcessing
+                  ? 'Working...'
+                  : hasChanges
+                    ? 'Save changes'
+                    : 'No changes'}
               </Button>
             </>
           ) : (
             <>
               <Button
+                variant="text"
                 onClick={handleCancel}
                 id="checkout-dialog-return-btn"
-                sx={{
-                  color: 'black',
-                  textDecoration: 'underline',
-                }}
               >
-                Return to Checkout Page
+                Return to checkout page
               </Button>
               <Button
+                variant="contained"
+                color="primary"
                 onClick={() => handleConfirm()}
                 disabled={isProcessing}
                 id="checkout-dialog-confirm-btn"
-                sx={{
-                  color: 'black',
-                  backgroundColor: '#F2F2F2',
-                  '&.Mui-disabled': {
-                    backgroundColor: '#E0E0E0',
-                    color: '#757575',
-                  },
-                }}
               >
                 {isProcessing ? 'Working...' : 'Confirm'}
               </Button>
             </>
           )}
         </DialogActions>
-      </>
+      </Stack>
     );
   };
 
   return (
     <Dialog
+      sx={{
+        '& .MuiDialog-paper': {
+          width: { xs: '80vw', md: '50vw' },
+          maxHeight: '90vh',
+          borderRadius: '15px',
+          py: 4,
+          px: 6,
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+        },
+      }}
+      onClose={onClose}
+      aria-labelledby="customized-dialog-title"
+      open={open}
+    >
+      <Box
         sx={{
-          '& .MuiDialog-paper': {
-            width: { xs: '80vw', md: '65vw' },
-            maxHeight: '80vh',
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'column',
-            borderRadius: '15px',
-          },
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          pt: 2,
         }}
-        onClose={onClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
       >
-        <Box
-          sx={{
-            width: { xs: '90%', sm: '80%', md: '70%' },
-            pt: 3,
-            height: '100%',
-            position: 'relative',
-          }}
-        >
-          {isProcessing && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                zIndex: 1,
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          )}
+        {isProcessing && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              zIndex: 1,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
 
-          {showLimitConfirmation
-            ? overLimitConfirmationContent()
-            : checkoutSummaryContent()}
-        </Box>
+        {showLimitConfirmation
+          ? overLimitConfirmationContent()
+          : checkoutSummaryContent()}
+      </Box>
     </Dialog>
   );
 };

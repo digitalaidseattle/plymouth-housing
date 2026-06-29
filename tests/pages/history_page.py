@@ -23,14 +23,13 @@ class HistoryPage(BasePage):
 
         self.click(self.common_locators.HISTORY_MENU_BUTTON)
 
-        # Header wait
         self.wait_for_visibility(self.locators.HISTORY_HEADER)
 
-        # Wait for either records OR empty state
         self.get_wait(15).until(
             lambda d: (
                 len(d.find_elements(*self.locators.RECORD_COUNT_TEXT)) > 0
                 or len(d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)) > 0
+                or len(d.find_elements(*self.locators.HISTORY_CARDS)) > 0
             )
         )
 
@@ -47,10 +46,45 @@ class HistoryPage(BasePage):
 
     def refresh_history(self):
         self.driver.refresh()
+
         self.wait_for_visibility(self.locators.HISTORY_HEADER)
 
+        self.get_wait(15).until(
+            lambda d: (
+                len(d.find_elements(*self.locators.RECORD_COUNT_TEXT)) > 0
+                or len(d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)) > 0
+                or len(d.find_elements(*self.locators.HISTORY_CARDS)) > 0
+            )
+        )
+
     # ---------------------------------------------------
-    # Record Count
+    # Safe logging helpers
+    # ---------------------------------------------------
+
+    def log_safe_card_found(self):
+        """
+        Do not print full card text.
+
+        History cards may contain resident names, building/unit information,
+        timestamps, and transaction details. Since this is a public/open-source
+        project, test logs should avoid exposing resident-related data.
+        """
+        print("[MATCHED CARD] Matching history card found")
+
+    def log_safe_quantity_found(self, quantity):
+        """
+        Log only the extracted quantity, not the full card text.
+        """
+        print(f"[MATCHED QUANTITY] Quantity found: {quantity}")
+
+    def log_safe_card_count(self, count):
+        """
+        Log only card count, not card contents.
+        """
+        print(f"[DEBUG] Visible history cards found: {count}")
+
+    # ---------------------------------------------------
+    # Record Count - Text Count
     # ---------------------------------------------------
 
     def get_record_count_text(self):
@@ -59,7 +93,7 @@ class HistoryPage(BasePage):
     def get_record_count_number(self):
         """
         Extract numeric record count from text such as:
-        'You 10 records', '1,234 records', or 'Showing 1-20 of 130'
+        'You 10 records', '1,234 records', or 'Showing 1-20 of 130'.
         """
         if not self.is_visible(self.locators.RECORD_COUNT_TEXT, timeout=5):
             return 0
@@ -67,31 +101,83 @@ class HistoryPage(BasePage):
         text = self.get_record_count_text()
 
         numbers = re.findall(r"\d[\d,]*", text)
+
         if not numbers:
             return 0
 
         parsed_numbers = [int(n.replace(",", "")) for n in numbers]
+
         return max(parsed_numbers)
 
-    # ✅ BDD-friendly alias (NEW)
     def get_record_count(self):
+        """
+        Return the numeric record count from the History count text.
+
+        Keep this method text-count based because legacy history tests use
+        get_record_count_number() for the initial value and then call the
+        record-count wait methods.
+        """
         return self.get_record_count_number()
 
-    def wait_for_record_count_to_increase(self, initial_count, timeout=20):
-        WebDriverWait(self.driver, timeout).until(
-            lambda _: self.get_record_count_number() > initial_count
+    def wait_for_record_count_to_increase(self, initial_count, timeout=30):
+        """
+        Wait until the History record-count text increases.
+
+        This intentionally uses get_record_count_number() so tests compare
+        text-count before and text-count after.
+        """
+        end_time = time.time() + timeout
+        last_count = self.get_record_count_number()
+
+        while time.time() < end_time:
+            current_count = self.get_record_count_number()
+
+            if current_count > initial_count:
+                print(f"Record count increased: {initial_count} → {current_count}")
+                return current_count
+
+            last_count = current_count
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Record count did not increase. "
+            f"Before: {initial_count}, After: {last_count}"
         )
 
-    def wait_for_record_count_to_be(self, expected_count, timeout=20):
-        WebDriverWait(self.driver, timeout).until(
-            lambda _: self.get_record_count_number() >= expected_count
+    def wait_for_record_count_to_be(self, expected_count, timeout=30):
+        """
+        Wait until the History record-count text is at least the expected count.
+        """
+        end_time = time.time() + timeout
+        last_count = self.get_record_count_number()
+
+        while time.time() < end_time:
+            current_count = self.get_record_count_number()
+
+            if current_count >= expected_count:
+                print(f"Record count reached expected value: {current_count}")
+                return current_count
+
+            last_count = current_count
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Record count did not reach expected value. "
+            f"Expected at least: {expected_count}, Actual: {last_count}"
         )
 
-    # ✅ Strong assertion (NEW - backward compatible)
-    def verify_record_count_increased(self, before_count, timeout=20):
-        self.wait_for_record_count_to_increase(before_count, timeout)
-
-        after = self.get_record_count_number()
+    def verify_record_count_increased(self, before_count, timeout=30):
+        after = self.wait_for_record_count_to_increase(before_count, timeout)
 
         assert after > before_count, (
             f"Record count did not increase. Before: {before_count}, After: {after}"
@@ -100,18 +186,85 @@ class HistoryPage(BasePage):
         print(f"Record count increased: {before_count} → {after}")
 
     # ---------------------------------------------------
+    # Record Count - Visible Card Count
+    # ---------------------------------------------------
+
+    def get_visible_record_count(self):
+        """
+        Return the number of visible history cards.
+
+        Use this for BDD checkout validation where the page may render the new
+        card before the record-count text updates.
+        """
+        return len(self.get_history_cards())
+
+    def wait_for_visible_record_count_to_increase(self, initial_count, timeout=30):
+        """
+        Wait until the visible History card count increases.
+
+        Use this only for tests that captured the initial value with
+        get_visible_record_count().
+        """
+        end_time = time.time() + timeout
+        last_count = self.get_visible_record_count()
+
+        while time.time() < end_time:
+            current_count = self.get_visible_record_count()
+
+            if current_count > initial_count:
+                print(
+                    f"Visible record count increased: "
+                    f"{initial_count} → {current_count}"
+                )
+                return current_count
+
+            last_count = current_count
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Visible record count did not increase. "
+            f"Before: {initial_count}, After: {last_count}"
+        )
+
+    def verify_visible_record_count_increased(self, before_count, timeout=30):
+        after = self.wait_for_visible_record_count_to_increase(
+            before_count,
+            timeout
+        )
+
+        assert after > before_count, (
+            f"Visible record count did not increase. "
+            f"Before: {before_count}, After: {after}"
+        )
+
+        print(f"Visible record count increased: {before_count} → {after}")
+
+    # ---------------------------------------------------
     # Cards
     # ---------------------------------------------------
 
     def get_history_cards(self):
-        if self.get_record_count_number() == 0:
-            return []
+        """
+        Return visible history cards.
 
+        Do not depend on the record-count text here. The count label can lag
+        behind the rendered cards, which makes checkout BDD tests flaky.
+        """
         cards = self.find_all(self.locators.HISTORY_CARDS)
-        return [card for card in cards if card.is_displayed()]
+        visible_cards = [card for card in cards if card.is_displayed()]
+
+        self.log_safe_card_count(len(visible_cards))
+
+        return visible_cards
 
     def get_latest_card(self):
         cards = self.get_history_cards()
+
         return cards[0] if cards else None
 
     def verify_latest_record_exists(self):
@@ -120,66 +273,233 @@ class HistoryPage(BasePage):
         assert cards, "No history records found"
 
         latest = cards[0]
+
         assert latest.is_displayed(), "Latest record is not visible"
 
         print("Latest history record is visible")
 
     def open_latest_transaction(self):
         cards = self.get_history_cards()
+
         assert cards, "No transactions found"
 
         card = cards[0]
 
-        # Scroll + click (stable)
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});", card
         )
+
         self.driver.execute_script("arguments[0].click();", card)
 
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        print("Latest transaction details opened")
+
+    def get_card_matching(self, resident_name=None, item_name=None):
+        """
+        Find a visible history card by resident name and/or item name.
+
+        Do not print the matched card text because it may contain resident
+        names, housing/building information, unit numbers, and timestamps.
+        """
+        cards = self.get_history_cards()
+
+        for card in cards:
+            text = card.text
+
+            resident_matches = (
+                resident_name is None
+                or resident_name.lower() in text.lower()
+            )
+
+            item_matches = (
+                item_name is None
+                or item_name.lower() in text.lower()
+            )
+
+            if resident_matches and item_matches:
+                self.log_safe_card_found()
+                return card
+
+        raise AssertionError(
+            "No matching history card found"
+        )
+
+    def open_transaction_matching(self, resident_name=None, item_name=None):
+        """
+        Open a specific transaction card instead of blindly opening latest.
+
+        Do not log resident_name or item_name because these values may contain
+        sensitive resident-related data.
+        """
+        card = self.get_card_matching(
+            resident_name=resident_name,
+            item_name=item_name
+        )
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});", card
+        )
+
+        self.driver.execute_script("arguments[0].click();", card)
+
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        print("Transaction details opened for matching history card")
+
     # ---------------------------------------------------
-    # Edit Flow
+    # Transaction Details Modal
     # ---------------------------------------------------
 
     def click_edit_transaction(self):
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
         edit_btn = self.wait_for_clickable(self.locators.EDIT_BUTTON)
-        self.safe_click(edit_btn)
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});", edit_btn
+        )
+
+        self.driver.execute_script("arguments[0].click();", edit_btn)
+
+        print("Edit transaction button clicked")
+
+    def close_transaction_details(self):
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        close_btn = self.wait_for_clickable(self.locators.DIALOG_CLOSE_BUTTON)
+
+        self.driver.execute_script("arguments[0].click();", close_btn)
+
+        print("Transaction details modal closed")
+
+    def expand_history_accordion(self):
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        accordion = self.wait_for_clickable(self.locators.HISTORY_ACCORDION)
+
+        self.driver.execute_script("arguments[0].click();", accordion)
+
+        print("History accordion expanded")
 
     # ---------------------------------------------------
     # Quantity Validation
     # ---------------------------------------------------
 
-    def get_latest_quantity(self):
-        card = self.get_latest_card()
-        assert card, "No latest transaction card found"
-
-        text = card.text
-
-        print(f"[DEBUG CARD TEXT]\n{text}")
-
+    def extract_quantity_from_text(self, text):
+        """
+        Extract quantity from text like '1 / 10' or '2 / 10'.
+        """
         match = re.search(r"(\d+)\s*/\s*\d+", text)
 
         if not match:
-            raise AssertionError(f"Quantity not found in card text: {text}")
+            raise AssertionError("Quantity not found in history card text")
 
         return int(match.group(1))
 
+    def get_latest_quantity(self):
+        card = self.get_latest_card()
+
+        assert card, "No latest transaction card found"
+
+        quantity = self.extract_quantity_from_text(card.text)
+
+        self.log_safe_quantity_found(quantity)
+
+        return quantity
+
     def wait_for_latest_quantity(self, expected_qty, timeout=15):
         """
-        CI-safe retry with optional refresh
+        Wait until latest history card shows the expected quantity.
+        Refreshes History while waiting to reduce flaky failures.
         """
+        last_qty = None
+
         for _ in range(timeout):
             try:
                 qty = self.get_latest_quantity()
+                last_qty = qty
+
                 if qty == expected_qty:
-                    return
-            except Exception:
-                pass
+                    print(f"Latest quantity matched expected value: {expected_qty}")
+                    return qty
+
+            except Exception as e:
+                print(f"[WARN] Latest quantity retry failed: {e}")
 
             time.sleep(1)
-            self.refresh_history()
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
 
         raise AssertionError(
-            f"Updated quantity not reflected in history. Expected: {expected_qty}"
+            f"Updated quantity not reflected in latest history card. "
+            f"Expected: {expected_qty}, Last seen: {last_qty}"
+        )
+
+    def get_quantity_from_card_matching(self, resident_name=None, item_name=None):
+        """
+        Get quantity from a specific history card matching resident/item.
+
+        Do not print full card text because it may contain resident-related data.
+        """
+        card = self.get_card_matching(
+            resident_name=resident_name,
+            item_name=item_name
+        )
+
+        quantity = self.extract_quantity_from_text(card.text)
+
+        self.log_safe_quantity_found(quantity)
+
+        return quantity
+
+    def wait_for_quantity_from_card_matching(
+        self,
+        resident_name=None,
+        item_name=None,
+        expected_qty=None,
+        timeout=30
+    ):
+        """
+        Wait until a matching history card shows the expected quantity.
+
+        Use this for edit-flow tests where relying on the first/latest card
+        can be flaky because multiple transactions may exist.
+        """
+        assert expected_qty is not None, "expected_qty is required"
+
+        end_time = time.time() + timeout
+        last_qty = None
+
+        while time.time() < end_time:
+            try:
+                qty = self.get_quantity_from_card_matching(
+                    resident_name=resident_name,
+                    item_name=item_name
+                )
+
+                last_qty = qty
+
+                if qty == expected_qty:
+                    print(f"Matched card quantity updated: {expected_qty}")
+                    return qty
+
+            except Exception as e:
+                print(f"[WARN] Matching card quantity retry failed: {e}")
+
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh failed: {e}")
+
+        raise AssertionError(
+            f"Updated quantity not reflected for matching history card. "
+            f"Expected: {expected_qty}, Last seen: {last_qty}"
         )
 
     # ---------------------------------------------------
@@ -197,10 +517,22 @@ class HistoryPage(BasePage):
     # ---------------------------------------------------
 
     def debug_print_cards(self):
+        """
+        Safe debug output only.
+
+        Do not print card text because history cards may contain resident names,
+        building/unit information, timestamps, and transaction details.
+        """
         cards = self.get_history_cards()
+
         print(f"[DEBUG] Total visible cards: {len(cards)}")
 
         for i, card in enumerate(cards):
-            text = card.text.strip()
-            preview = text[:40] + "..." if len(text) > 40 else text
-            print(f"[CARD {i}] length={len(text)} preview='{preview}'")
+            is_visible = card.is_displayed()
+            has_text = bool(card.text.strip())
+
+            print(
+                f"[CARD {i}] "
+                f"visible={is_visible}, "
+                f"has_text={has_text}"
+            )

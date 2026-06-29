@@ -1,13 +1,13 @@
 from selenium.common.exceptions import (
     TimeoutException,
-    NoSuchElementException,
-    StaleElementReferenceException
+    StaleElementReferenceException, NoAlertPresentException
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import CheckoutPageLocators, CommonLocators
 from selenium.webdriver.common.keys import Keys
+
 
 class CheckOutPage(BasePage):
 
@@ -60,6 +60,9 @@ class CheckOutPage(BasePage):
         for _ in range(3):
             try:
                 btn = wait.until(lambda d: d.find_element(*locator))
+                self.driver.execute_script(
+                    "arguments[0].scrollIntoView({block:'center'});", btn
+                )
                 self.driver.execute_script("arguments[0].click();", btn)
                 return
             except StaleElementReferenceException:
@@ -67,8 +70,23 @@ class CheckOutPage(BasePage):
 
         raise Exception(f"❌ Could not click minus button for {item_name}")
 
+    def click_button_if_present(self, locator, timeout=5):
+        """
+        Click a button/element only if it appears.
+        Returns True if clicked, False otherwise.
+        """
+        try:
+            btn = self.wait_for_clickable(locator, timeout=timeout)
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center'});", btn
+            )
+            self.driver.execute_script("arguments[0].click();", btn)
+            return True
+        except Exception:
+            return False
+
     # ---------------------------------------------------
-    # Quantity (FINAL - deterministic)
+    # Quantity
     # ---------------------------------------------------
 
     def increase_quantity(self, amount, item_name):
@@ -82,7 +100,7 @@ class CheckOutPage(BasePage):
             self.wait(0.3)
 
     # ---------------------------------------------------
-    # Dropdowns
+    # Dropdowns / Resident
     # ---------------------------------------------------
 
     def select_first_building_option(self):
@@ -115,6 +133,32 @@ class CheckOutPage(BasePage):
             self.locators.UNIT_OPTIONS
         )
 
+    def wait_for_resident_autofill(self):
+        self.get_wait(15).until(
+            lambda d: self.driver.find_element(
+                *self.locators.NAME_INPUT
+            ).get_attribute("value") not in ("", None)
+        )
+
+    def get_selected_resident_name(self):
+        """
+        Return the resident name currently selected/autofilled in checkout.
+
+        This allows tests to verify History against the actual resident used
+        during checkout instead of hardcoding a resident name.
+        """
+        field = self.wait_for_visibility(self.locators.NAME_INPUT, timeout=10)
+
+        value = field.get_attribute("value")
+
+        assert value, "Resident name was not selected or autofilled"
+
+        selected_resident_name = value.strip()
+
+        print(f"Selected resident name: {selected_resident_name}")
+
+        return selected_resident_name
+
     # ---------------------------------------------------
     # Form actions
     # ---------------------------------------------------
@@ -130,15 +174,10 @@ class CheckOutPage(BasePage):
 
         btn = wait.until(EC.element_to_be_clickable(self.locators.CONTINUE_BUTTON))
 
-        self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
-        self.driver.execute_script("arguments[0].click();", btn)
-
-    def wait_for_resident_autofill(self):
-        self.get_wait(15).until(
-            lambda d: self.driver.find_element(
-                *self.locators.NAME_INPUT
-            ).get_attribute("value") not in ("", None)
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});", btn
         )
+        self.driver.execute_script("arguments[0].click();", btn)
 
     # ---------------------------------------------------
     # Search
@@ -157,10 +196,8 @@ class CheckOutPage(BasePage):
         field.click()
         field.clear()
 
-        # Ensure input is cleared
         wait.until(lambda d: field.get_attribute("value") == "")
 
-        #  CRITICAL: allow UI debounce/reset
         self.wait(1)
 
         field.send_keys(item_name)
@@ -176,7 +213,7 @@ class CheckOutPage(BasePage):
         self.increase_quantity(quantity, item_name)
 
     # ---------------------------------------------------
-    # Button actions
+    # Normal checkout button actions
     # ---------------------------------------------------
 
     def click_proceed_to_checkout(self):
@@ -184,42 +221,218 @@ class CheckOutPage(BasePage):
         locator = self.locators.PROCEED_TO_CHECKOUT
 
         def enabled_button(d):
-            btn = d.find_element(*locator)
-            classes = btn.get_attribute("class") or ""
-            aria_disabled = btn.get_attribute("aria-disabled")
+            buttons = d.find_elements(*locator)
 
-            if (
+            for btn in buttons:
+                classes = btn.get_attribute("class") or ""
+                aria_disabled = btn.get_attribute("aria-disabled")
+
+                if (
                     btn.is_displayed()
                     and btn.is_enabled()
                     and "Mui-disabled" not in classes
                     and aria_disabled != "true"
-            ):
-                return btn
+                ):
+                    return btn
 
             return False
 
         btn = wait.until(enabled_button)
 
         self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center', inline:'nearest'});",
+            btn
+        )
+
+        self.wait(0.5)
+
+        self.driver.execute_script("arguments[0].click();", btn)
+
+        print("Proceed to Checkout button clicked")
+
+    def click_confirm(self):
+        btn = self.wait_for_clickable(self.locators.CONFIRM)
+        self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});", btn
         )
         self.driver.execute_script("arguments[0].click();", btn)
 
-    def click_confirm(self):
-        btn = self.wait_for_clickable(self.locators.CONFIRM)
-        self.driver.execute_script("arguments[0].click();", btn)
+        print("Confirm button clicked")
+
+    def click_confirm_if_present(self, timeout=5):
+        """
+        Click confirmation action if a confirmation modal appears.
+
+        Supports different confirmation button labels such as:
+        Confirm, Complete, Save.
+        """
+        try:
+            btn = self.wait_for_clickable(
+                self.locators.CONFIRM_BUTTON_FALLBACK,
+                timeout=timeout
+            )
+
+            button_id = btn.get_attribute("id") or ""
+
+            # Avoid accidentally clicking the edit modal Save Changes button.
+            if button_id == "checkout-dialog-save-btn":
+                print("Edit Save Changes button detected; skipping confirm fallback")
+                return False
+
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center'});", btn
+            )
+
+            self.driver.execute_script("arguments[0].click();", btn)
+
+            print("Confirmation action button clicked")
+
+            return True
+
+        except Exception:
+            print("Confirmation action button not shown; continuing")
+            return False
+
+    def is_editing_summary_visible(self):
+        """
+        Return True only when the edit checkout UI is visible.
+
+        Prefer the dedicated edit Save Changes button because it is stable
+        in edit mode. Fall back to the visible Checkout Summary heading.
+        """
+        return (
+                self.is_visible(
+                    self.locators.CHECKOUT_EDIT_SAVE_BUTTON,
+                    timeout=3
+                )
+                or self.is_visible(
+            self.locators.CHECKOUT_EDITING_SUMMARY,
+            timeout=3
+        )
+        )
+
+    def is_save_disabled(self):
+        """
+        Return True if the Save Changes button is disabled in edit mode.
+        """
+        save_locator = (By.ID, "checkout-dialog-save-btn")
+
+        try:
+            button = self.find(save_locator)
+
+            classes = button.get_attribute("class") or ""
+            disabled_attr = button.get_attribute("disabled")
+            aria_disabled = button.get_attribute("aria-disabled")
+
+            return (
+                disabled_attr is not None
+                or aria_disabled == "true"
+                or "Mui-disabled" in classes
+                or "disabled" in classes.lower()
+                or not button.is_enabled()
+            )
+
+        except Exception as e:
+            print(f"[WARN] Could not determine Save Changes disabled state: {e}")
+            return False
+
+    def click_edit_save_button(self):
+        """
+        Click Save Changes button in edit checkout modal.
+        """
+        save_btn = self.wait_for_clickable(
+            self.locators.CHECKOUT_EDIT_SAVE_BUTTON,
+            timeout=15
+        )
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center', inline:'nearest'});",
+            save_btn
+        )
+
+        self.wait(0.5)
+
+        self.driver.execute_script("arguments[0].click();", save_btn)
+
+        print("Save Changes button clicked")
+
+    def click_cancel(self):
+        """
+        Click Cancel in edit checkout flow and accept the unsaved changes alert
+        if it appears.
+        """
+        cancel_locator = (By.ID, "checkout-dialog-cancel-edit-btn")
+
+        cancel_btn = self.wait_for_clickable(cancel_locator, timeout=10)
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            cancel_btn
+        )
+
+        self.wait(0.3)
+
+        self.driver.execute_script("arguments[0].click();", cancel_btn)
+
+        print("Cancel button clicked")
+
+        try:
+            alert = self.get_wait(5).until(EC.alert_is_present())
+            alert_text = alert.text
+            print(f"Alert appeared after cancel: {alert_text}")
+            alert.accept()
+            print("Cancel alert accepted")
+        except TimeoutException:
+            print("No cancel alert appeared")
+        except NoAlertPresentException:
+            print("No cancel alert present")
+
+    def save_edit_changes(self):
+        """
+        Save edit changes from the edit checkout modal.
+
+        Important:
+        Do not use click_proceed_to_checkout() here because edit mode has
+        a dedicated Save Changes button inside the modal.
+        """
+        try:
+            save_btn = self.driver.find_element(*self.locators.CHECKOUT_EDIT_SAVE_BUTTON)
+
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center', inline:'nearest'});",
+                save_btn
+            )
+
+            self.wait(0.5)
+
+        except Exception as e:
+            print(f"[WARN] Could not scroll Save Changes button into view: {e}")
+
+        self.click_edit_save_button()
+
+        # Edit flow does not always show confirm modal.
+        self.click_confirm_if_present(timeout=3)
 
     # ---------------------------------------------------
     # FLOWS
     # ---------------------------------------------------
 
     def complete_checkout(self, item_name):
+        """
+        Complete a general checkout flow and return the selected resident name.
+
+        Returning the selected resident makes downstream tests more stable,
+        because they can assert against the exact resident used in the checkout.
+        """
         self.click_checkout()
 
         self.select_first_building_option()
         self.select_first_unit_number()
 
         self.wait_for_resident_autofill()
+
+        selected_resident_name = self.get_selected_resident_name()
+
         self.click_continue_button()
 
         self.search_item(item_name)
@@ -227,6 +440,8 @@ class CheckOutPage(BasePage):
 
         self.click_proceed_to_checkout()
         self.click_confirm()
+
+        return selected_resident_name
 
     def open_welcome_basket(self):
         self.click_checkout("welcome")
@@ -267,5 +482,4 @@ class CheckOutPage(BasePage):
                 self.click(ok_btn)
 
         except Exception:
-            # popup yoksa devam et (non-blocking)
             pass

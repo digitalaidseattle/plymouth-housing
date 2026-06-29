@@ -57,52 +57,30 @@ def test_checkout_reflected_in_history(
     # ---------------------------------------------------
     history_page.open_history()
 
-    previous_latest = history_page.get_latest_card()
-    previous_text = previous_latest.text.strip() if previous_latest else ""
+    before_count = history_page.get_record_count()
 
     # ---------------------------------------------------
     # Act
     # ---------------------------------------------------
-    checkout_page.complete_checkout("Curtains")
+    selected_resident_name = checkout_page.complete_checkout("Curtains")
 
     history_page.open_history()
 
-    #  wait until NEW card appears (robust)
-    def new_card_loaded(_):
-        card = history_page.get_latest_card()
-        return (
-            card is not None and
-            card.text.strip() != "" and
-            card.text.strip() != previous_text
-        )
-
-    WebDriverWait(history_page.driver, 20).until(new_card_loaded)
-
-    latest_card = history_page.get_latest_card()
-    latest_text = latest_card.text.strip()
-    latest_text_lc = latest_text.lower()
-
-    print(f"[LATEST CARD]\n{latest_text}")
-
     # ---------------------------------------------------
-    # Assert 1: Card changed
+    # Assert
     # ---------------------------------------------------
-    assert latest_text != previous_text, (
-        "Latest history card did not update after checkout"
+    history_page.verify_record_count_increased(
+        before_count=before_count,
+        timeout=30
     )
 
-    # ---------------------------------------------------
-    # Assert 2: Timestamp exists
-    # ---------------------------------------------------
-    assert "created" in latest_text_lc, (
-        f"Missing 'created' timestamp → {latest_text}"
+    matching_card = history_page.get_card_matching(
+        resident_name=selected_resident_name,
+        item_name=None
     )
 
-    # ---------------------------------------------------
-    # Assert 3: Recency (CI SAFE)
-    # formatTransactionDate always produces "Created today at HH:MM AM/PM"
-    # for same-day transactions — never relative "sec ago" / "min ago"
-    # ---------------------------------------------------
-    assert "created today at" in latest_text_lc, (
-        f"History entry not from today → {latest_text}"
-    )
+    assert matching_card is not None, \
+        f"History card should exist for resident: {selected_resident_name}"
+
+    assert matching_card.is_displayed(), \
+        f"History card should be visible for resident: {selected_resident_name}"

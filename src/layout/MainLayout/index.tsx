@@ -69,8 +69,11 @@ const MainLayout: React.FC = () => {
             setLoggedInUserId(createdOrUpdatedAdmin.id);
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
-            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
-            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
+            const originalMessage =
+              error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(
+              `Failed to create/update admin account: ${originalMessage}`,
+            );
           }
         }
       } catch (error) {

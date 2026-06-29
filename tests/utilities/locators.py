@@ -9,10 +9,27 @@ class CommonLocators:
     HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
 class HistoryPageLocators:
-    HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
-    HISTORY_CARDS = (By.XPATH,"//div[.//p[contains(text(),'Created')] and .//text()[contains(.,'/')]]")
-    NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
+    HISTORY_HEADER = (By.XPATH, "//h6[normalize-space()='History']")
+    RECORD_COUNT_TEXT = (By.XPATH, "//span[contains(.,'record')]")
+    HISTORY_CARDS = (
+        By.XPATH,
+        "//div[@role='button' and starts-with(@id,'checkout-card-')]"
+    )
+    NO_TRANSACTIONS_MESSAGE = (
+        By.XPATH,
+        "//*[contains(text(),'No transactions found')]"
+    )
+
+    TRANSACTION_DETAILS_DIALOG = (
+        By.XPATH,
+        "//*[@role='dialog' and .//*[contains(text(), 'Transaction Details')]]"
+    )
+    EDIT_BUTTON = (
+        By.XPATH,
+        "//*[@role='dialog']//button[normalize-space()='Edit']"
+    )
+    DIALOG_CLOSE_BUTTON = (By.ID, "dialog-close-btn")
+    HISTORY_ACCORDION = (By.ID, "transaction-details-history-accordion")
 
 class HomePageLocators:
     # ---- Sections ----
@@ -75,25 +92,86 @@ class InventoryPageLocators:
         locator = f'//*[text()="{item_name}"]/following-sibling::td[5]'
         return By.XPATH, locator
 
-
 class CheckoutPageLocators:
     BUILDING_CODE = (By.ID, "select-building")
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
 
-    BUILDING_OPTIONS = (By.XPATH, "//ul[@id='select-building-listbox' and not(contains(@style,'display: none'))]//li")
-    UNIT_OPTIONS = (By.XPATH, "//ul[@id='select-unit-number-listbox']//li")
-    NAME_OPTIONS = (By.XPATH, "//ul[@id='resident-name-autocomplete-listbox']//li")
+    # ---------------------------------------------------
+    # Edit / Checkout action buttons
+    # ---------------------------------------------------
 
-    CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"continue")]')
+    CHECKOUT_EDIT_SAVE_BUTTON = (
+        By.ID,
+        "checkout-dialog-save-btn"
+    )
 
-    PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(text(), "Proceed to Checkout")]')
-    CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
+    CHECKOUT_EDITING_SUMMARY = (
+        By.XPATH,
+        "//*[@role='dialog' and not(ancestor-or-self::*[@aria-hidden='true'])]"
+        "//*[contains(normalize-space(), 'Checkout Summary')]"
+    )
 
-    SEARCH = (By.XPATH, "//input[@type='search']")
+    CONFIRM_BUTTON_FALLBACK = (
+        By.XPATH,
+        "//*[@role='dialog' and not(ancestor-or-self::*[@aria-hidden='true'])]"
+        "//button["
+        "normalize-space()='Confirm' "
+        "or normalize-space()='Complete' "
+        "or normalize-space()='Save'"
+        "]"
+    )
+
+    SAVE_OR_PROCEED_BUTTON = (
+        By.XPATH,
+        "//button[contains(., 'Proceed') or contains(., 'Save') or contains(., 'Checkout')]"
+    )
+
+    CANCEL_BUTTON = (
+        By.XPATH,
+        "//button[normalize-space()='Cancel' or contains(., 'Cancel')]"
+    )
+
+    BUILDING_OPTIONS = (
+        By.XPATH,
+        "//ul[@id='select-building-listbox' and not(contains(@style,'display: none'))]//li"
+    )
+
+    UNIT_OPTIONS = (
+        By.XPATH,
+        "//ul[@id='select-unit-number-listbox']//li"
+    )
+
+    NAME_OPTIONS = (
+        By.XPATH,
+        "//ul[@id='resident-name-autocomplete-listbox']//li"
+    )
+
+    CONTINUE_BUTTON = (
+        By.XPATH,
+        '//button[contains(translate(normalize-space(.), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "continue")]'
+    )
+
+    PROCEED_TO_CHECKOUT = (
+        By.XPATH,
+        '//button[contains(text(), "Proceed to Checkout")]'
+    )
+
+    CONFIRM = (
+        By.XPATH,
+        "//button[normalize-space()='Confirm']"
+    )
+
+    SEARCH = (
+        By.XPATH,
+        "//input[@type='search']"
+    )
 
     # modal header
-    SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
+    SUMMARY_HEADER = (
+        By.XPATH,
+        "//h2[contains(text(),'Checkout Summary')]"
+    )
 
     # over limit warning
     OVER_LIMIT_WARNING = (
@@ -105,7 +183,10 @@ class CheckoutPageLocators:
     )
 
     # loading
-    LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")
+    LOADING_SPINNER = (
+        By.XPATH,
+        "//*[text()='Loading, please wait...']"
+    )
 
     CHECKOUT_INFO_TEXT = (
         By.XPATH,

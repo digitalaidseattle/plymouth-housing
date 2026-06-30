@@ -10,3 +10,5 @@ GO
 
 CREATE DATABASE [Inventory];
 GO
+
+

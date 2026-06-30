@@ -4,13 +4,13 @@
 # This script creates the Inventory database and applies the SQL scripts from the database folder.
 
 if (-not $env:DATABASE_CONNECTION_STRING) {
-    throw "Please set $env:DATABASE_CONNECTION_STRING before running this script."
+    throw 'Please set $env:DATABASE_CONNECTION_STRING before running this script.'
 }
 
 function Get-ConnectionStringForDatabase {
     param([string]$DatabaseName)
 
-    $builder = [System.Data.SqlClient.SqlConnectionStringBuilder]::new($env:DATABASE_CONNECTION_STRING)
+    $builder = [Microsoft.Data.SqlClient.SqlConnectionStringBuilder]::new($env:DATABASE_CONNECTION_STRING)
     $builder['Initial Catalog'] = $DatabaseName
     return $builder.ConnectionString
 }
@@ -32,7 +32,7 @@ function Invoke-SqlScriptFile {
     $scriptText = Get-Content -Path $FilePath -Raw
     $batches = $scriptText -split '(?mi)^\s*GO\s*$'
 
-    $connection = [System.Data.SqlClient.SqlConnection]::new($ConnectionString)
+    $connection = [Microsoft.Data.SqlClient.SqlConnection]::new($ConnectionString)
     $connection.Open()
 
     try {

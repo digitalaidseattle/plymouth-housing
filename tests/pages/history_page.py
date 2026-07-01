@@ -413,24 +413,25 @@ class HistoryPage(BasePage):
 
         return cards[0] if cards else None
 
-    def wait_for_latest_card_to_change(self, previous_text="", timeout=30):
+    def wait_for_latest_card_to_change(self, previous_id="", timeout=30):
         """
-        Wait until the latest card exists and is different from previous_text.
+        Wait until the latest history card exists and has a different card id.
 
-        This helps tests wait for the new checkout record instead of reading the
-        stale first card immediately after returning to History.
+        History card text can repeat across separate transactions, so this
+        compares the unique checkout-card-* id instead of card text.
         """
         end_time = time.time() + timeout
-        last_text = ""
+        last_id = ""
 
         while time.time() < end_time:
             card = self.get_latest_card()
 
             if card:
                 try:
-                    last_text = card.text.strip()
+                    current_id = (card.get_attribute("id") or "").strip()
+                    last_id = current_id
 
-                    if last_text and last_text != previous_text:
+                    if current_id and current_id != previous_id:
                         return card
 
                 except (
@@ -447,8 +448,8 @@ class HistoryPage(BasePage):
                 print(f"[WARN] History refresh retry failed: {e}")
 
         raise AssertionError(
-            "Latest history card did not update after checkout. "
-            f"Last seen text length: {len(last_text)}"
+            f"Latest history card id did not change. "
+            f"Previous id: {previous_id}, Last seen id: {last_id}"
         )
 
     def verify_latest_record_exists(self):

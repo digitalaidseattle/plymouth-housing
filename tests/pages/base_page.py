@@ -329,9 +329,8 @@ class BasePage:
                         expanded = current_input.get_attribute("aria-expanded")
 
                         return (
-                            value == selected_text
-                            or (value != "" and expanded == "false")
-                            or expanded == "false"
+                                value == selected_text
+                                or (value != "" and expanded == "false")
                         )
 
                     except (

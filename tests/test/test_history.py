@@ -1,6 +1,5 @@
 import pytest
 import re
-from selenium.webdriver.support.wait import WebDriverWait
 
 
 def _has_recent_history_timestamp(text):
@@ -85,7 +84,11 @@ def test_checkout_reflected_in_history(
     history_page.open_history()
 
     previous_latest = history_page.get_latest_card()
-    previous_text = previous_latest.text.strip() if previous_latest else ""
+    previous_id = (
+        previous_latest.get_attribute("id")
+        if previous_latest
+        else ""
+    )
 
     # ---------------------------------------------------
     # Act
@@ -94,26 +97,17 @@ def test_checkout_reflected_in_history(
 
     history_page.open_history()
 
-    # Wait until a new latest card appears.
-    def new_card_loaded(_):
-        card = history_page.get_latest_card()
-
-        if card is None:
-            return False
-
-        card_text = card.text.strip()
-
-        return (
-            card_text != ""
-            and card_text != previous_text
-        )
-
-    WebDriverWait(history_page.driver, 20).until(new_card_loaded)
-
-    latest_card = history_page.get_latest_card()
+    # Use the page helper instead of inline polling.
+    # The helper compares checkout-card-* ids, not card text, because separate
+    # transactions can render identical text.
+    latest_card = history_page.wait_for_latest_card_to_change(
+        previous_id=previous_id,
+        timeout=20
+    )
 
     assert latest_card is not None, "Latest history card was not found"
 
+    latest_id = latest_card.get_attribute("id")
     latest_text = latest_card.text.strip()
     latest_text_lc = latest_text.lower()
 
@@ -121,10 +115,10 @@ def test_checkout_reflected_in_history(
     print("[LATEST CARD] Latest history card loaded")
 
     # ---------------------------------------------------
-    # Assert 1: Card changed
+    # Assert 1: Card id changed
     # ---------------------------------------------------
-    assert latest_text != previous_text, (
-        "Latest history card did not update after checkout"
+    assert latest_id != previous_id, (
+        "Latest history card id did not update after checkout"
     )
 
     # ---------------------------------------------------

@@ -258,11 +258,23 @@ class CheckOutPage(BasePage):
     def wait_for_resident_autofill(self, timeout=20):
         wait = self.get_wait(timeout)
 
-        wait.until(
-            lambda d: self.driver.find_element(
-                *self.locators.NAME_INPUT
-            ).get_attribute("value") not in ("", None)
-        )
+        def has_plausible_resident_value(driver):
+            value = (
+                    driver.find_element(
+                        *self.locators.NAME_INPUT
+                    ).get_attribute("value") or ""
+            ).strip()
+
+            if not value:
+                return False
+
+            # Reject values like "(((((((" or "12345".
+            # Accept single-word residents like "Henry" and multi-word names.
+            has_letter = any(ch.isalpha() for ch in value)
+
+            return has_letter and len(value) >= 2
+
+        wait.until(has_plausible_resident_value)
 
     def add_item(self, item_name):
         """

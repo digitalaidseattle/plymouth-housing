@@ -9,27 +9,29 @@ class CommonLocators:
     HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
 class HistoryPageLocators:
-    HISTORY_HEADER = (By.XPATH, "//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH, "//span[contains(.,'record')]")
-    HISTORY_CARDS = (
+    HISTORY_HEADER = (
         By.XPATH,
-        "//div[@role='button' and starts-with(@id,'checkout-card-')]"
+        "//h6[normalize-space()='History']"
     )
+
+    # Match the actual top count label, not a broad parent/container.
+    RECORD_COUNT_TEXT = (
+        By.XPATH,
+        "//*[contains(normalize-space(text()),'Showing') "
+        "and contains(normalize-space(text()),'record')]"
+    )
+
+    # Screenshot-confirmed transaction card root:
+    # <div role="button" id="checkout-card-...">
+    HISTORY_CARDS = (
+        By.CSS_SELECTOR,
+        "div[role='button'][id^='checkout-card-']"
+    )
+
     NO_TRANSACTIONS_MESSAGE = (
         By.XPATH,
         "//*[contains(text(),'No transactions found')]"
     )
-
-    TRANSACTION_DETAILS_DIALOG = (
-        By.XPATH,
-        "//*[@role='dialog' and .//*[contains(text(), 'Transaction Details')]]"
-    )
-    EDIT_BUTTON = (
-        By.XPATH,
-        "//*[@role='dialog']//button[normalize-space()='Edit']"
-    )
-    DIALOG_CLOSE_BUTTON = (By.ID, "dialog-close-btn")
-    HISTORY_ACCORDION = (By.ID, "transaction-details-history-accordion")
 
 class HomePageLocators:
     # ---- Sections ----
@@ -92,101 +94,35 @@ class InventoryPageLocators:
         locator = f'//*[text()="{item_name}"]/following-sibling::td[5]'
         return By.XPATH, locator
 
+
 class CheckoutPageLocators:
+    PLUS_BUTTON = (By.XPATH, "//button[@aria-label='Twin-size Sheet Set']")
     BUILDING_CODE = (By.ID, "select-building")
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
 
-    # ---------------------------------------------------
-    # Edit / Checkout action buttons
-    # ---------------------------------------------------
+    BUILDING_OPTIONS = (By.XPATH, "//ul[@id='select-building-listbox' and not(contains(@style,'display: none'))]//li")
+    UNIT_OPTIONS = (By.XPATH, "//ul[@id='select-unit-number-listbox']//li")
+    NAME_OPTIONS = (By.XPATH, "//ul[@id='resident-name-autocomplete-listbox']//li")
 
-    CHECKOUT_EDIT_SAVE_BUTTON = (
-        By.ID,
-        "checkout-dialog-save-btn"
-    )
+    CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"continue")]')
 
-    CHECKOUT_EDITING_SUMMARY = (
-        By.XPATH,
-        "//*[@role='dialog' and not(ancestor-or-self::*[@aria-hidden='true'])]"
-        "//*[contains(normalize-space(), 'Checkout Summary')]"
-    )
+    PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(text(), "Proceed to Checkout")]')
+    CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
 
-    CONFIRM_BUTTON_FALLBACK = (
-        By.XPATH,
-        "//*[@role='dialog' and not(ancestor-or-self::*[@aria-hidden='true'])]"
-        "//button["
-        "normalize-space()='Confirm' "
-        "or normalize-space()='Complete' "
-        "or normalize-space()='Save'"
-        "]"
-    )
-
-    SAVE_OR_PROCEED_BUTTON = (
-        By.XPATH,
-        "//button[contains(., 'Proceed') or contains(., 'Save') or contains(., 'Checkout')]"
-    )
-
-    CANCEL_BUTTON = (
-        By.XPATH,
-        "//button[normalize-space()='Cancel' or contains(., 'Cancel')]"
-    )
-
-    BUILDING_OPTIONS = (
-        By.XPATH,
-        "//ul[@id='select-building-listbox' and not(contains(@style,'display: none'))]//li"
-    )
-
-    UNIT_OPTIONS = (
-        By.XPATH,
-        "//ul[@id='select-unit-number-listbox']//li"
-    )
-
-    NAME_OPTIONS = (
-        By.XPATH,
-        "//ul[@id='resident-name-autocomplete-listbox']//li"
-    )
-
-    CONTINUE_BUTTON = (
-        By.XPATH,
-        '//button[contains(translate(normalize-space(.), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "continue")]'
-    )
-
-    PROCEED_TO_CHECKOUT = (
-        By.XPATH,
-        '//button[contains(text(), "Proceed to Checkout")]'
-    )
-
-    CONFIRM = (
-        By.XPATH,
-        "//button[normalize-space()='Confirm']"
-    )
-
-    SEARCH = (
-        By.XPATH,
-        "//input[@type='search']"
-    )
+    SEARCH = (By.XPATH, "//input[@type='search']")
 
     # modal header
-    SUMMARY_HEADER = (
-        By.XPATH,
-        "//h2[contains(text(),'Checkout Summary')]"
-    )
+    SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
 
     # over limit warning
-    OVER_LIMIT_WARNING = (
-        By.XPATH,
-        "//*[contains(translate(normalize-space(.), "
-        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'over') "
-        "and contains(translate(normalize-space(.), "
-        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'limit')]"
-    )
+    OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
+
+    # minus button
+    MINUS_BUTTON = (By.XPATH, "//button[.//text()='-']")
 
     # loading
-    LOADING_SPINNER = (
-        By.XPATH,
-        "//*[text()='Loading, please wait...']"
-    )
+    LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")
 
     CHECKOUT_INFO_TEXT = (
         By.XPATH,
@@ -201,20 +137,9 @@ class CheckoutPageLocators:
     def get_add_button_locator(item_name):
         return (
             By.XPATH,
-            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
-            f"//div[contains(@class,'MuiCardActions-root')]"
-            f"//div[contains(@class,'MuiBox-root')]"
-            f"/button[last()]"
-        )
-
-    @staticmethod
-    def get_minus_button_locator(item_name):
-        return (
-            By.XPATH,
-            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
-            f"//div[contains(@class,'MuiCardActions-root')]"
-            f"//div[contains(@class,'MuiBox-root')]"
-            f"/button[1]"
+            f"//p[@aria-label='{item_name}']"
+            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
+            f"/following-sibling::div//button"
         )
 
 class AddItemPageLocators:

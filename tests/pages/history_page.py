@@ -1,5 +1,12 @@
 import re
 import time
+
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    StaleElementReferenceException,
+    TimeoutException,
+)
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from tests.pages.base_page import BasePage
@@ -8,11 +15,93 @@ from tests.utilities.locators import HistoryPageLocators, CommonLocators
 
 class HistoryPage(BasePage):
 
+    # Screenshot-confirmed history transaction card root:
+    # <div role="button" id="checkout-card-...">
+    SAFE_HISTORY_CARDS = (
+        By.CSS_SELECTOR,
+        "div[role='button'][id^='checkout-card-']"
+    )
+
+    SAFE_RECORD_COUNT_TEXT = (
+        By.XPATH,
+        "//*[contains(normalize-space(),'Showing') "
+        "and contains(normalize-space(),'record')]"
+    )
+
     def __init__(self, driver):
         super().__init__(driver)
         self.locators = HistoryPageLocators
         self.common_locators = CommonLocators
         self.wait = WebDriverWait(driver, 15)
+
+    # ---------------------------------------------------
+    # Internal safe element helpers
+    # ---------------------------------------------------
+
+    def _find_elements_safe(self, locator):
+        try:
+            return self.driver.find_elements(*locator)
+        except Exception:
+            return []
+
+    def _visible_elements(self, locator, require_text=False):
+        visible = []
+
+        for el in self._find_elements_safe(locator):
+            try:
+                if not el.is_displayed():
+                    continue
+
+                if require_text and not el.text.strip():
+                    continue
+
+                visible.append(el)
+
+            except (
+                StaleElementReferenceException,
+                NoSuchElementException,
+            ):
+                continue
+
+        return visible
+
+    def _visible_history_cards(self):
+        """
+        Return only real transaction cards.
+
+        Prefer the screenshot-confirmed checkout-card root locator because the
+        older MuiBox/MuiStack based locator can accidentally match a large page
+        container and make latest-card assertions read the whole page.
+        """
+        cards = self._visible_elements(
+            self.SAFE_HISTORY_CARDS,
+            require_text=True
+        )
+
+        if cards:
+            return cards
+
+        # Fallback for older builds only.
+        fallback_cards = self._visible_elements(
+            self.locators.HISTORY_CARDS,
+            require_text=True
+        )
+
+        return fallback_cards
+
+    def _history_content_loaded(self):
+        cards = self._visible_history_cards()
+
+        count_text_visible = bool(
+            self._visible_elements(self.SAFE_RECORD_COUNT_TEXT)
+            or self._visible_elements(self.locators.RECORD_COUNT_TEXT)
+        )
+
+        no_transactions_visible = bool(
+            self._visible_elements(self.locators.NO_TRANSACTIONS_MESSAGE)
+        )
+
+        return bool(cards or count_text_visible or no_transactions_visible)
 
     # ---------------------------------------------------
     # Navigation
@@ -26,11 +115,7 @@ class HistoryPage(BasePage):
         self.wait_for_visibility(self.locators.HISTORY_HEADER)
 
         self.get_wait(15).until(
-            lambda d: (
-                len(d.find_elements(*self.locators.RECORD_COUNT_TEXT)) > 0
-                or len(d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)) > 0
-                or len(d.find_elements(*self.locators.HISTORY_CARDS)) > 0
-            )
+            lambda d: self._history_content_loaded()
         )
 
         print("History page loaded")
@@ -50,11 +135,7 @@ class HistoryPage(BasePage):
         self.wait_for_visibility(self.locators.HISTORY_HEADER)
 
         self.get_wait(15).until(
-            lambda d: (
-                len(d.find_elements(*self.locators.RECORD_COUNT_TEXT)) > 0
-                or len(d.find_elements(*self.locators.NO_TRANSACTIONS_MESSAGE)) > 0
-                or len(d.find_elements(*self.locators.HISTORY_CARDS)) > 0
-            )
+            lambda d: self._history_content_loaded()
         )
 
     # ---------------------------------------------------
@@ -87,27 +168,74 @@ class HistoryPage(BasePage):
     # Record Count - Text Count
     # ---------------------------------------------------
 
+    def _get_body_text(self):
+        try:
+            return self.driver.execute_script(
+                "return document.body ? document.body.innerText : '';"
+            ) or ""
+        except Exception:
+            return ""
+
     def get_record_count_text(self):
-        return self.get_text(self.locators.RECORD_COUNT_TEXT)
+        """
+        Return only the History count label text.
+
+        Avoid broad element text because page-level containers can include the
+        footer year (for example 2026), which previously made the parser return
+        2026 instead of the actual history count.
+        """
+        body_text = self._get_body_text()
+
+        for line in body_text.splitlines():
+            line = line.strip()
+
+            if re.search(
+                r"\bShowing\s+\d[\d,]*\s+records?\s+total\b",
+                line,
+                re.IGNORECASE,
+            ):
+                return line
+
+        for line in body_text.splitlines():
+            line = line.strip()
+
+            if re.search(
+                r"\bYou\s+\d[\d,]*\s+records?\b",
+                line,
+                re.IGNORECASE,
+            ):
+                return line
+
+        return ""
 
     def get_record_count_number(self):
         """
-        Extract numeric record count from text such as:
-        'You 10 records', '1,234 records', or 'Showing 1-20 of 130'.
-        """
-        if not self.is_visible(self.locators.RECORD_COUNT_TEXT, timeout=5):
-            return 0
+        Extract the History count safely.
 
+        Prefer explicit History count labels. Fall back to visible card count so
+        tests are not blocked by count text lagging behind rendered cards.
+        """
         text = self.get_record_count_text()
 
-        numbers = re.findall(r"\d[\d,]*", text)
+        match = re.search(
+            r"\bShowing\s+(\d[\d,]*)\s+records?\s+total\b",
+            text,
+            re.IGNORECASE,
+        )
 
-        if not numbers:
-            return 0
+        if match:
+            return int(match.group(1).replace(",", ""))
 
-        parsed_numbers = [int(n.replace(",", "")) for n in numbers]
+        match = re.search(
+            r"\bYou\s+(\d[\d,]*)\s+records?\b",
+            text,
+            re.IGNORECASE,
+        )
 
-        return max(parsed_numbers)
+        if match:
+            return int(match.group(1).replace(",", ""))
+
+        return len(self._visible_history_cards())
 
     def get_record_count(self):
         """
@@ -121,16 +249,22 @@ class HistoryPage(BasePage):
 
     def wait_for_record_count_to_increase(self, initial_count, timeout=30):
         """
-        Wait until the History record-count text increases.
+        Wait until History count increases.
 
-        This intentionally uses get_record_count_number() so tests compare
-        text-count before and text-count after.
+        The app can render the new card before the count label updates, so this
+        checks both the parsed count label and the visible checkout-card count.
         """
         end_time = time.time() + timeout
-        last_count = self.get_record_count_number()
+        last_count = max(
+            self.get_record_count_number(),
+            self.get_visible_record_count(),
+        )
 
         while time.time() < end_time:
-            current_count = self.get_record_count_number()
+            current_count = max(
+                self.get_record_count_number(),
+                self.get_visible_record_count(),
+            )
 
             if current_count > initial_count:
                 print(f"Record count increased: {initial_count} → {current_count}")
@@ -151,13 +285,22 @@ class HistoryPage(BasePage):
 
     def wait_for_record_count_to_be(self, expected_count, timeout=30):
         """
-        Wait until the History record-count text is at least the expected count.
+        Wait until History count is at least expected_count.
+
+        Uses visible checkout-card count as a fallback because the text label can
+        lag behind the rendered cards.
         """
         end_time = time.time() + timeout
-        last_count = self.get_record_count_number()
+        last_count = max(
+            self.get_record_count_number(),
+            self.get_visible_record_count(),
+        )
 
         while time.time() < end_time:
-            current_count = self.get_record_count_number()
+            current_count = max(
+                self.get_record_count_number(),
+                self.get_visible_record_count(),
+            )
 
             if current_count >= expected_count:
                 print(f"Record count reached expected value: {current_count}")
@@ -254,18 +397,60 @@ class HistoryPage(BasePage):
 
         Do not depend on the record-count text here. The count label can lag
         behind the rendered cards, which makes checkout BDD tests flaky.
+
+        Important:
+        The card locator must target the real checkout-card root. Avoid broad
+        MuiBox-root containers because they can include the whole History page.
         """
-        cards = self.find_all(self.locators.HISTORY_CARDS)
-        visible_cards = [card for card in cards if card.is_displayed()]
+        cards = self._visible_history_cards()
 
-        self.log_safe_card_count(len(visible_cards))
+        self.log_safe_card_count(len(cards))
 
-        return visible_cards
+        return cards
 
     def get_latest_card(self):
         cards = self.get_history_cards()
 
         return cards[0] if cards else None
+
+    def wait_for_latest_card_to_change(self, previous_id="", timeout=30):
+        """
+        Wait until the latest history card exists and has a different card id.
+
+        History card text can repeat across separate transactions, so this
+        compares the unique checkout-card-* id instead of card text.
+        """
+        end_time = time.time() + timeout
+        last_id = ""
+
+        while time.time() < end_time:
+            card = self.get_latest_card()
+
+            if card:
+                try:
+                    current_id = (card.get_attribute("id") or "").strip()
+                    last_id = current_id
+
+                    if current_id and current_id != previous_id:
+                        return card
+
+                except (
+                    StaleElementReferenceException,
+                    NoSuchElementException,
+                ):
+                    pass
+
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Latest history card id did not change. "
+            f"Previous id: {previous_id}, Last seen id: {last_id}"
+        )
 
     def verify_latest_record_exists(self):
         cards = self.get_history_cards()
@@ -305,7 +490,13 @@ class HistoryPage(BasePage):
         cards = self.get_history_cards()
 
         for card in cards:
-            text = card.text
+            try:
+                text = card.text
+            except (
+                StaleElementReferenceException,
+                NoSuchElementException,
+            ):
+                continue
 
             resident_matches = (
                 resident_name is None
@@ -528,8 +719,15 @@ class HistoryPage(BasePage):
         print(f"[DEBUG] Total visible cards: {len(cards)}")
 
         for i, card in enumerate(cards):
-            is_visible = card.is_displayed()
-            has_text = bool(card.text.strip())
+            try:
+                is_visible = card.is_displayed()
+                has_text = bool(card.text.strip())
+            except (
+                StaleElementReferenceException,
+                NoSuchElementException,
+            ):
+                is_visible = False
+                has_text = False
 
             print(
                 f"[CARD {i}] "

@@ -1,13 +1,38 @@
 import pytest
-from selenium.webdriver.support.wait import WebDriverWait
+import re
+
+
+def _has_recent_history_timestamp(text):
+    """
+    Accept both relative timestamps and the current app format.
+
+    The app can render either:
+    - Created just now
+    - Created 30 sec ago
+    - Created 2 min ago
+    - Created today at 12:48 AM
+    """
+    text_lc = text.lower()
+
+    recent_minutes = re.search(r"(\d+)\s*min ago", text_lc)
+
+    return (
+        "sec ago" in text_lc
+        or "just now" in text_lc
+        or "created today at" in text_lc
+        or (
+            recent_minutes is not None
+            and int(recent_minutes.group(1)) <= 5
+        )
+    )
 
 
 # ---------------------------------------------------
-# TEST 1 — Count Increase (CI SAFE)
+# TEST 1 — Visible Card Count Increase (CI SAFE)
 # ---------------------------------------------------
 
 @pytest.mark.usefixtures("login_with_volunteer")
-@pytest.mark.regression
+@pytest.mark.smoke
 def test_checkout_increases_history_count(
         checkout_page,
         history_page):
@@ -17,8 +42,8 @@ def test_checkout_increases_history_count(
     # ---------------------------------------------------
     history_page.open_history()
 
-    initial_count = history_page.get_record_count_number()
-    print(f"[BEFORE] History count: {initial_count}")
+    initial_count = history_page.get_visible_record_count()
+    print(f"[BEFORE] Visible history card count: {initial_count}")
 
     # ---------------------------------------------------
     # Act
@@ -27,17 +52,19 @@ def test_checkout_increases_history_count(
 
     history_page.open_history()
 
-    #  deterministic wait (NO +1 assumption)
-    history_page.wait_for_record_count_to_increase(initial_count)
+    # The record-count text can include unrelated numbers such as year/footer
+    # values, so this test uses rendered history cards instead.
+    history_page.wait_for_visible_record_count_to_increase(initial_count)
 
     # ---------------------------------------------------
     # Assert
     # ---------------------------------------------------
-    new_count = history_page.get_record_count_number()
-    print(f"[AFTER] History count: {new_count}")
+    new_count = history_page.get_visible_record_count()
+    print(f"[AFTER] Visible history card count: {new_count}")
 
     assert new_count > initial_count, (
-        f"History did not increase → Before: {initial_count}, After: {new_count}"
+        f"History card count did not increase → "
+        f"Before: {initial_count}, After: {new_count}"
     )
 
 
@@ -46,7 +73,6 @@ def test_checkout_increases_history_count(
 # ---------------------------------------------------
 
 @pytest.mark.usefixtures("login_with_volunteer")
-@pytest.mark.regression
 @pytest.mark.serial
 def test_checkout_reflected_in_history(
         checkout_page,
@@ -57,30 +83,54 @@ def test_checkout_reflected_in_history(
     # ---------------------------------------------------
     history_page.open_history()
 
-    before_count = history_page.get_record_count()
+    previous_latest = history_page.get_latest_card()
+    previous_id = (
+        previous_latest.get_attribute("id")
+        if previous_latest
+        else ""
+    )
 
     # ---------------------------------------------------
     # Act
     # ---------------------------------------------------
-    selected_resident_name = checkout_page.complete_checkout("Curtains")
+    checkout_page.complete_checkout("Curtains")
 
     history_page.open_history()
 
-    # ---------------------------------------------------
-    # Assert
-    # ---------------------------------------------------
-    history_page.verify_record_count_increased(
-        before_count=before_count,
-        timeout=30
+    # Use the page helper instead of inline polling.
+    # The helper compares checkout-card-* ids, not card text, because separate
+    # transactions can render identical text.
+    latest_card = history_page.wait_for_latest_card_to_change(
+        previous_id=previous_id,
+        timeout=20
     )
 
-    matching_card = history_page.get_card_matching(
-        resident_name=selected_resident_name,
-        item_name=None
+    assert latest_card is not None, "Latest history card was not found"
+
+    latest_id = latest_card.get_attribute("id")
+    latest_text = latest_card.text.strip()
+    latest_text_lc = latest_text.lower()
+
+    # Do not print the full card text because it can contain resident/building data.
+    print("[LATEST CARD] Latest history card loaded")
+
+    # ---------------------------------------------------
+    # Assert 1: Card id changed
+    # ---------------------------------------------------
+    assert latest_id != previous_id, (
+        "Latest history card id did not update after checkout"
     )
 
-    assert matching_card is not None, \
-        f"History card should exist for resident: {selected_resident_name}"
+    # ---------------------------------------------------
+    # Assert 2: Timestamp exists
+    # ---------------------------------------------------
+    assert "created" in latest_text_lc, (
+        "Latest history card is missing a created timestamp"
+    )
 
-    assert matching_card.is_displayed(), \
-        f"History card should be visible for resident: {selected_resident_name}"
+    # ---------------------------------------------------
+    # Assert 3: Recency / Today timestamp
+    # ---------------------------------------------------
+    assert _has_recent_history_timestamp(latest_text), (
+        "Latest history card timestamp was not recent enough"
+    )

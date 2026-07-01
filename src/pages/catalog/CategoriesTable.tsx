@@ -1,3 +1,9 @@
+/**
+ *  CategoriesTable.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState } from 'react';
 import {
   Table,
@@ -42,6 +48,7 @@ const CategoriesTable = ({
   onSuccess,
   onError,
 }: CategoriesTableProps) => {
+
   const [editState, setEditState] = useState<EditState>({
     id: null,
     field: null,
@@ -167,7 +174,7 @@ const CategoriesTable = ({
             onBlur={handleSave}
             autoFocus
             type={field === 'item_limit' ? 'number' : 'text'}
-            inputProps={field === 'item_limit' ? { min: 1 } : {}}
+            slotProps={{ htmlInput: field === 'item_limit' ? { min: 1 } : {} }}
             disabled={isSaving}
             sx={{ width: field === 'item_limit' ? '80px' : '200px' }}
           />
@@ -186,7 +193,7 @@ const CategoriesTable = ({
         onClick={() => handleCellClick(category.id, field, value)}
         sx={{
           cursor: 'pointer',
-          padding: '8px',
+          padding: 1,
           borderRadius: '4px',
           '&:hover': {
             backgroundColor: 'action.hover',
@@ -199,7 +206,7 @@ const CategoriesTable = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4">Categories</Typography>
         <Button
@@ -208,12 +215,12 @@ const CategoriesTable = ({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          Add Category
+          Add category
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -241,7 +248,7 @@ const CategoriesTable = ({
                       type="number"
                       value={newCategory.item_limit}
                       onChange={(e) => setNewCategory(prev => ({ ...prev, item_limit: e.target.value }))}
-                      inputProps={{ min: 1 }}
+                      slotProps={{ htmlInput: { min: 1 } }}
                       disabled={isSaving}
                       sx={{ width: '80px' }}
                     />

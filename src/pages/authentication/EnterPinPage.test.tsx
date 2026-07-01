@@ -1,3 +1,9 @@
+/**
+ *  EnterPinPage.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
@@ -160,7 +166,7 @@ describe('EnterPinPage Component', () => {
     );
 
     // Click the back link text.
-    const backLink = screen.getByText(/Back to the name selection./i);
+    const backLink = screen.getByText(/Back to the name selection/i);
     fireEvent.click(backLink);
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
   });

@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // project import
 import {
   ChromeOutlined,
@@ -72,7 +78,7 @@ const dashboard = {
         },
         {
           id: 'checkout-welcome-basket',
-          title: 'Welcome basket',
+          title: 'Welcome Basket',
           type: 'item',
           url: '/checkout',
           state: { checkoutType: 'welcomeBasket' },

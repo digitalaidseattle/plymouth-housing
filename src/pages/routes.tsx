@@ -1,3 +1,9 @@
+/**
+ *  routes.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import MainContainer from '../components/MainContainer';
 import MainLayout from '../layout/MainLayout';
 import MinimalLayout from '../layout/MinimalLayout';
@@ -42,7 +48,7 @@ const routes = [
         path: 'people',
         element: (
           <RootRedirect source="people">
-            <MainContainer title="People">
+            <MainContainer title="Manage People">
               <People />
             </MainContainer>
           </RootRedirect>

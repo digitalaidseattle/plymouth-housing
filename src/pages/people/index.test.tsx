@@ -1,7 +1,14 @@
+/**
+ *  index.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi } from 'vitest';
 import UserPage from './index';
+import { SETTINGS } from '../../types/constants';
 
 describe('UserPage Component', () => {
   test('renders without crashing', () => {
@@ -213,7 +220,9 @@ describe('UserPage Additional Functional Tests', () => {
   });
 
   test('changes page when pagination is used', async () => {
-    const elevenUsers = Array.from({ length: 11 }, (_, i) => ({
+    // One more user than a single page holds, so a second page always exists.
+    const userCount = SETTINGS.itemsPerPage + 1;
+    const pagedUsers = Array.from({ length: userCount }, (_, i) => ({
       id: i + 1,
       name: `User ${i + 1}`,
       role: i % 2 === 0 ? 'admin' : 'volunteer',
@@ -225,8 +234,8 @@ describe('UserPage Additional Functional Tests', () => {
     vi.resetModules();
     vi.doMock('./useUsers', () => ({
       default: () => ({
-        originalData: elevenUsers,
-        filteredData: elevenUsers,
+        originalData: pagedUsers,
+        filteredData: pagedUsers,
         setFilteredData: vi.fn(),
         error: null,
         clearError: vi.fn(),
@@ -242,8 +251,8 @@ describe('UserPage Additional Functional Tests', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /go to page 2/i }));
     await waitFor(() => {
-      // page 2 should show users 11 and 1
-      expect(screen.getByText('User 11')).toBeInTheDocument();
+      // page 2 should show the overflow user, not the first-page users
+      expect(screen.getByText(`User ${userCount}`)).toBeInTheDocument();
       expect(screen.queryByText('User 1')).not.toBeInTheDocument();
     });
   });

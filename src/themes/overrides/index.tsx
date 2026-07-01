@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // third-party
 import merge from 'lodash/merge';
 
@@ -13,6 +19,7 @@ import LinearProgress from './LinearProgress';
 import Link from './Link';
 import ListItemIcon from './ListItemIcon';
 import OutlinedInput from './OutlinedInput';
+import Pagination from './Pagination';
 import Tab from './Tab';
 import TableCell from './TableCell';
 import Tabs from './Tabs';
@@ -35,7 +42,7 @@ export default function ComponentsOverrides(theme: Theme) {
     },
     Button(theme),
     Badge(theme),
-    CardContent(),
+    CardContent(theme),
     Checkbox(theme),
     Chip(theme),
     IconButton(theme),
@@ -44,6 +51,7 @@ export default function ComponentsOverrides(theme: Theme) {
     Link(),
     ListItemIcon(),
     OutlinedInput(theme),
+    Pagination(theme),
     Tab(theme),
     TableCell(theme),
     Tabs(),

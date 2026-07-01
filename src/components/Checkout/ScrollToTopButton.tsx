@@ -1,3 +1,9 @@
+/**
+ *  ScrollToTopButton.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Box } from '@mui/material';
 import { KeyboardArrowUp } from '@mui/icons-material';
@@ -43,9 +49,9 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ showAfter = 300 }
       >
         <Button
           variant="contained"
-          color="primary"
           onClick={scrollToTop}
-          sx={{ borderRadius: '50%', minWidth: '50px', height: '50px' }}
+          aria-label="Scroll to top"
+          sx={{ borderRadius: '50%', minWidth: '50px', height: '50px', boxShadow: 3 }}
         >
           <KeyboardArrowUp />
         </Button>

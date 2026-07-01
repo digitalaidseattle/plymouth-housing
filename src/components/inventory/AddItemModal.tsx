@@ -1,3 +1,9 @@
+/**
+ *  AddItemModal.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Box,
   Typography,
@@ -82,13 +88,6 @@ const AddItemModal = ({
     color: theme.palette.success.dark,
   });
 
-  const DialogTitle = styled('h1')(({ theme }) => ({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-    margin: '0',
-  }));
-
   const handleInputChange = (field: string, value: string | number) => {
     if (field === 'type' && typeof value === 'string') {
       const filteredItems = originalData.filter((item) =>
@@ -139,7 +138,7 @@ const AddItemModal = ({
       return;
     }
     if (formData.quantity === 0) {
-      setErrorMessage('"Quantity To Add/Remove" cannot be 0');
+      setErrorMessage('"Quantity to add/remove" cannot be 0');
       return;
     }
     // regex test to check for only whole numbers, including negatives
@@ -199,14 +198,10 @@ const AddItemModal = ({
 
   const QuantityForm = () => (
     <>
-      <DialogTitle>
-        {inventoryType ? `Add Item - ${inventoryType}` : 'Edit Item Quantity'}
-      </DialogTitle>
-
       {/* Item Type */}
       {!inventoryType && (
         <Box id="add-item-type" sx={{ width: '100%' }}>
-          <Typography fontWeight="bold">Inventory Type</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>Inventory Type</Typography>
           <Select
             value={formData.type}
             onChange={(e) => handleInputChange('type', e.target.value)}
@@ -220,7 +215,7 @@ const AddItemModal = ({
 
       {/* Item Name */}
       <Box id="add-item-name" sx={{ width: '100%' }}>
-        <Typography fontWeight="bold">Item Name</Typography>
+        <Typography sx={{ fontWeight: 'bold' }}>Item Name</Typography>
         <Autocomplete
           onChange={(_, value) => onChangeHandler(value)}
           value={updateItem}
@@ -270,20 +265,20 @@ const AddItemModal = ({
       )}
 
       <Box id="add-item-quantity">
-        <Typography fontWeight="bold">Quantity To Add/Remove</Typography>
+        <Typography sx={{ fontWeight: 'bold' }}>Quantity to add/remove</Typography>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
-            marginTop: '0.5rem',
+            gap: 2,
+            marginTop: 1,
           }}
         >
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8',
-              width: { xs: '40px', lg: '30px' },
-              height: { xs: '40px', lg: '30px' },
+              width: { xs: '48px', lg: '40px' },
+              height: { xs: '48px', lg: '40px' },
             }}
             onClick={() =>
               handleInputChange('quantity', Number(formData.quantity) - 1)
@@ -292,7 +287,8 @@ const AddItemModal = ({
             <Remove sx={{ fontSize: { xs: 'extra-large', lg: 'large' } }} />
           </IconButton>
           <TextField
-            sx={{ textAlign: 'center', width: '5rem' }}
+            sx={{ textAlign: 'center', width: '4rem' }}
+            size="small"
             value={formData.quantity}
             type="number"
             onChange={(e) => handleInputChange('quantity', e.target.value)}
@@ -301,8 +297,8 @@ const AddItemModal = ({
           <IconButton
             sx={{
               backgroundColor: '#E8E8E8',
-              width: { xs: '40px', lg: '30px' },
-              height: { xs: '40px', lg: '30px' },
+              width: { xs: '48px', lg: '40px' },
+              height: { xs: '48px', lg: '40px' },
             }}
             onClick={() =>
               handleInputChange('quantity', Number(formData.quantity) + 1)
@@ -315,16 +311,17 @@ const AddItemModal = ({
 
       <Box
         id="modal-buttons"
-        sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
+        sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}
       >
         <Button
-          sx={{ mr: '20px', color: 'black' }}
+          variant="text"
           onClick={resetInputsHandler}
         >
           Cancel
         </Button>
         <Button
-          sx={{ color: 'black' }}
+          variant="contained"
+          color="primary"
           onClick={updateItemHandler}
           disabled={isSubmitting}
         >
@@ -347,9 +344,8 @@ const AddItemModal = ({
 
   const ResultsContent = () => (
     <>
-      <DialogTitle>Inventory Updated: {updateItem?.name}</DialogTitle>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box> 
           Previous Stock: <ResultText>{updateItem?.quantity ?? 0}</ResultText>
         </Box>
         <Box>
@@ -365,18 +361,34 @@ const AddItemModal = ({
           Please review and update it when possible.
         </Alert>
       )}
+      <Box sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}>
+        <Button variant="contained" color="primary" onClick={resetInputsHandler}>
+          Done
+        </Button>
+      </Box>
     </>
   );
 
+  let dialogTitle = 'Edit Item Quantity';
+  if (showResults) {
+    dialogTitle = `Inventory updated: ${updateItem?.name ?? ''}`;
+  } else if (inventoryType) {
+    dialogTitle = `Add Item - ${inventoryType}`;
+  }
+
   return (
-    <DialogTemplate showDialog={addModal} handleShowDialog={resetInputsHandler}>
+    <DialogTemplate
+      showDialog={addModal}
+      handleShowDialog={resetInputsHandler}
+      title={dialogTitle}
+    >
       {/* Title Section */}
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
-          gap: '1rem',
+          gap: 2,
           width: '100%',
           margin: 'auto',
           height: '100%',

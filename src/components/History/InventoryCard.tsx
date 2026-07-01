@@ -1,5 +1,12 @@
+/**
+ *  InventoryCard.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { InventoryTransaction, TransactionType } from '../../types/interfaces';
 import HistoryCard from './HistoryCard';
+import { withCount } from '../../utils/textUtils';
 
 type InventoryCardProps = {
   inventoryTransaction: InventoryTransaction;
@@ -21,7 +28,7 @@ const InventoryCard = ({
       TransactionType.InventoryAdd ? (
         <p>
           {inventoryTransaction.quantity > 0 ? 'Added' : 'Removed'}{' '}
-          {Math.abs(inventoryTransaction.quantity)} items
+          {withCount(Math.abs(inventoryTransaction.quantity), 'item')}
         </p>
       ) : (
         <p>{'Replaced quantity: ' + inventoryTransaction.quantity}</p>

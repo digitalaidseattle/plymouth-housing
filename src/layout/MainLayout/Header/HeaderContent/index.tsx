@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useContext } from 'react';
 
 // material-ui
@@ -14,7 +20,7 @@ import { UserContext } from '../../../../components/contexts/UserContext';
 
 const HeaderContent = () => {
   const theme = useTheme();
-  const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
+  const matchesXs = useMediaQuery(theme.breakpoints.down('sm'));
   const { user } = useContext(UserContext);
   return (
     <>

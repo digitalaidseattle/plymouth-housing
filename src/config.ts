@@ -1,3 +1,9 @@
+/**
+ *  config.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| THEME CONFIG  ||============================== //
 
 const config = {
@@ -12,7 +18,7 @@ const config = {
 };
 
 export default config;
-export const drawerWidth = 260;
+export const drawerWidth = 275;
 
 export const twitterColor = '#1DA1F2';
 export const facebookColor = '#3b5998';

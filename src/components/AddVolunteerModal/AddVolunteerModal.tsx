@@ -1,8 +1,20 @@
+/**
+ *  AddVolunteerModal.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
+
 import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
-import { AddVolunteerModalProps } from '../../types/interfaces';
 import { UserContext } from '../contexts/UserContext';
 import { createUser } from '../../services/userService';
+
+type AddVolunteerModalProps = {
+  addModal: boolean;
+  handleAddClose: () => void;
+  fetchData: () => void;
+};
 
 const AddVolunteerModal = ({
   addModal,
@@ -18,6 +30,7 @@ const AddVolunteerModal = ({
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prevFormData) => ({
@@ -64,6 +77,7 @@ const AddVolunteerModal = ({
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await createUser(user, { ...formData, active: true, role: 'volunteer' });
       setSuccessMessage('Volunteer added successfully.');
@@ -71,7 +85,30 @@ const AddVolunteerModal = ({
       resetInputsHandler();
     } catch (error) {
       console.error('Error posting to database:', error);
-      setErrorMessage(`Failed to add volunteer: ${(error as Error).message}`);
+      const status = (error as Error & { status?: number }).status;
+      if (status === 409) {
+        setErrorMessage(
+          'A volunteer with this name or email already exists. Please check the People page for the existing volunteer.',
+        );
+      } else if (status === 401 || status === 403) {
+        setErrorMessage(
+          'You do not have permission to add volunteers. Please log out and log back in, or contact an admin.',
+        );
+      } else if (status && status >= 500) {
+        setErrorMessage(
+          'The server is currently unavailable. Please wait a moment and try again.',
+        );
+      } else if (!status) {
+        setErrorMessage(
+          'Unable to connect to the server. Please check your internet connection and try again.',
+        );
+      } else {
+        setErrorMessage(
+          'Something went wrong while adding the volunteer. Please try again.',
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,8 +120,9 @@ const AddVolunteerModal = ({
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '30%',
-          padding: 3,
+          width: { xs: '92%', sm: '80%', md: '50%', lg: '30%' },
+          maxWidth: 500,
+          padding: { xs: 3, sm: 4 },
           backgroundColor: 'white',
           borderRadius: '8px',
           boxShadow: 24,
@@ -96,7 +134,7 @@ const AddVolunteerModal = ({
 
         {/* Name Input */}
         <Box sx={{ mb: 2 }}>
-          <Typography fontWeight="bold">Name</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>Name</Typography>
           <TextField
             fullWidth
             value={formData.name}
@@ -107,7 +145,7 @@ const AddVolunteerModal = ({
 
         {/* Email Input */}
         <Box sx={{ mb: 2 }}>
-          <Typography fontWeight="bold">Email</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>Email</Typography>
           <TextField
             fullWidth
             value={formData.email}
@@ -119,14 +157,16 @@ const AddVolunteerModal = ({
 
         {/* PIN Input */}
         <Box sx={{ mb: 2 }}>
-          <Typography fontWeight="bold">PIN (4 digits)</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>PIN (4 digits)</Typography>
           <TextField
             fullWidth
             value={formData.PIN}
             onChange={(e) => handleInputChange('PIN', e.target.value)}
             type="text"
             placeholder="Enter 4-digit PIN"
-            inputProps={{ maxLength: 4, pattern: '\\d{4}' }}
+            slotProps={{
+              htmlInput: { maxLength: 4, pattern: '\\d{4}', inputMode: 'numeric' },
+            }}
           />
         </Box>
 
@@ -145,15 +185,16 @@ const AddVolunteerModal = ({
         {/* Buttons */}
         <Box
           id="modal-buttons"
-          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+          sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}
         >
-          <Button onClick={resetInputsHandler} sx={{ mr: 2 }}>
+          <Button variant="text" onClick={resetInputsHandler}>
             Cancel
           </Button>
           <Button
             onClick={createVolunteerHandler}
             variant="contained"
             color="primary"
+            disabled={isSubmitting}
           >
             Add
           </Button>

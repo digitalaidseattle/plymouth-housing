@@ -1,3 +1,9 @@
+/**
+ *  InputLabel.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| OVERRIDES - INPUT LABEL ||============================== //
 
 import { Theme } from '@mui/material';
@@ -10,15 +16,15 @@ export default function InputLabel(theme: Theme) {
           color: theme.palette.grey[600],
         },
         outlined: {
-          lineHeight: '0.8em',
+          lineHeight: '1em',
           '&.MuiInputLabel-sizeSmall': {
             lineHeight: '1em',
           },
           '&.MuiInputLabel-shrink': {
             background: theme.palette.background.paper,
-            padding: '0 8px',
-            marginLeft: -6,
-            lineHeight: '1.4375em',
+            padding: `0 ${theme.spacing(1)}`,
+            marginLeft: theme.spacing(-0.75),
+            lineHeight: '1em',
           },
         },
       },

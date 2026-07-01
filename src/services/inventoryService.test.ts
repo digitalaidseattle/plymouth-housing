@@ -1,3 +1,9 @@
+/**
+ *  inventoryService.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { processInventoryChange, processInventoryResetQuantity } from './inventoryService';
 import { API_HEADERS, ENDPOINTS } from '../types/constants';

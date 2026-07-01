@@ -1,3 +1,9 @@
+/**
+ *  UserTable.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi } from 'vitest';
@@ -69,7 +75,7 @@ describe('UserTable Component', () => {
     );
     fireEvent.click(screen.getByText('Show PIN'));
     await waitFor(() =>
-      expect(screen.getByText('Pin code:')).toBeInTheDocument()
+      expect(screen.getByText('PIN Code')).toBeInTheDocument()
     );
   });
 

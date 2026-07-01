@@ -9,10 +9,29 @@ class CommonLocators:
     HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
 class HistoryPageLocators:
-    HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
-    HISTORY_CARDS = (By.XPATH,"//div[contains(@class,'MuiBox-root') and .//h3 and .//p[contains(text(),'Created')]]")
-    NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
+    HISTORY_HEADER = (
+        By.XPATH,
+        "//h6[normalize-space()='History']"
+    )
+
+    # Match the actual top count label, not a broad parent/container.
+    RECORD_COUNT_TEXT = (
+        By.XPATH,
+        "//*[contains(normalize-space(text()),'Showing') "
+        "and contains(normalize-space(text()),'record')]"
+    )
+
+    # Screenshot-confirmed transaction card root:
+    # <div role="button" id="checkout-card-...">
+    HISTORY_CARDS = (
+        By.CSS_SELECTOR,
+        "div[role='button'][id^='checkout-card-']"
+    )
+
+    NO_TRANSACTIONS_MESSAGE = (
+        By.XPATH,
+        "//*[contains(text(),'No transactions found')]"
+    )
 
 class HomePageLocators:
     # ---- Sections ----
@@ -118,11 +137,9 @@ class CheckoutPageLocators:
     def get_add_button_locator(item_name):
         return (
             By.XPATH,
-            (
-                f"//*[normalize-space()='{item_name}' or @aria-label='{item_name}']"
-                "/ancestor::div[contains(@class,'MuiCard-root')][1]"
-                "//button[not(@disabled)][last()]"
-            )
+            f"//p[@aria-label='{item_name}']"
+            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
+            f"/following-sibling::div//button"
         )
 
 class AddItemPageLocators:
@@ -130,5 +147,3 @@ class AddItemPageLocators:
     CLOSE_MODAL_BUTTON = (By.XPATH, "//button[@aria-label='close']")
     SUCCESS_MODAL_HEADER = (By.XPATH, "//h2[contains(text(), 'Inventory Updated')]")
     QUANTITY_INPUT = (By.NAME, "quantity")
-
-

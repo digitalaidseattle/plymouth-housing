@@ -1,8 +1,13 @@
+/**
+ *  AdjustQuantityModal.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Box,
   Typography,
   TextField,
-  styled,
   IconButton,
   Tooltip,
   FormControl,
@@ -48,6 +53,7 @@ const AdjustQuantityModal = ({
   handleSnackbar,
 }: AdjustQuantityModalProps) => {
   const { user, loggedInUserId } = useContext(UserContext);
+
   const [formData, setFormData] = useState<FormData>({
     newQuantity: null,
     comments: '',
@@ -63,13 +69,6 @@ const AdjustQuantityModal = ({
       setTransactionId(crypto.randomUUID());
     }
   }, [showDialog]);
-
-  const DialogTitle = styled('h1')(({ theme }) => ({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-    margin: '0',
-  }));
 
   const handleInputChange = (field: string, value: string | number) => {
     const parsedValue =
@@ -170,20 +169,19 @@ const AdjustQuantityModal = ({
     <DialogTemplate
       showDialog={showDialog}
       handleShowDialog={resetInputsHandler}
+      title={`Adjust ${itemToEdit?.name ?? ''} quantity`}
     >
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
-          gap: '1rem',
+          gap: 2,
           width: '100%',
           margin: 'auto',
           height: '100%',
         }}
       >
-        <DialogTitle>Adjust {itemToEdit?.name} number</DialogTitle>
-
         <Box id="current-stock">
           <Typography variant="body2">
             Current stock: {itemToEdit?.quantity}
@@ -191,7 +189,7 @@ const AdjustQuantityModal = ({
         </Box>
 
         <Box id="add-item-quantity" sx={{ width: '100%' }}>
-          <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
             <Typography>New Total Quantity</Typography>
             <Tooltip title="Enter the updated number of items available. If the current stock is negative, don't worry, just input the correct new total. The system will automatically update the inventory.">
               <IconButton aria-label="Information about new quantity input">
@@ -203,8 +201,8 @@ const AdjustQuantityModal = ({
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
-              marginTop: '0.5rem',
+              gap: 2,
+              marginTop: 1,
             }}
           >
             <TextField
@@ -262,8 +260,8 @@ const AdjustQuantityModal = ({
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
-              marginTop: '0.5rem',
+              gap: 2,
+              marginTop: 1,
             }}
           >
             <TextField
@@ -283,16 +281,17 @@ const AdjustQuantityModal = ({
 
         <Box
           id="modal-buttons"
-          sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
+          sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}
         >
           <Button
-            sx={{ mr: '20px', color: 'black' }}
+            variant="text"
             onClick={resetInputsHandler}
           >
             Cancel
           </Button>
           <Button
-            sx={{ color: 'black' }}
+            variant="contained"
+            color="primary"
             onClick={updateItemHandler}
             disabled={isSubmitting}
           >

@@ -47,7 +47,7 @@
     "@typescript-eslint/parser": "^8.59.1",
     "@vitejs/plugin-react-swc": "^4.3.0",
     "@vitest/coverage-v8": "^4.1.5",
-    "baseline-browser-mapping": "^2.10.8",
+    "baseline-browser-mapping": "^2.10.40",
     "depcheck": "^1.4.7",
     "eslint": "^9.37.0",
     "eslint-plugin-react-hooks": "^7.0.1",

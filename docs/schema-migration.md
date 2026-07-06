@@ -52,7 +52,8 @@ applied to prod.
    `ALTER TABLE ...`. Add columns as `NULL` or with a default to avoid failing on existing rows.
 2. Update the matching `CREATE TABLE` in [`database/tables/`](../database/tables/) to mirror the
    altered table. Re-run any changed `procedures/`, `views/`, or `types/` files in the query editor.
-3. Ship the corresponding DAB + frontend changes to staging (see step 3) and smoke-test.
+3. Ship the corresponding DAB + frontend changes to staging (same DAB → frontend ordering as
+   [step 4](#4-ship-dab-then-frontend)) and smoke-test.
 
 ### 2. Soak on staging
 Leave the change on staging for **a few weeks** so the team exercises it and surfaces issues before

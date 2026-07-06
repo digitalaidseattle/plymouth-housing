@@ -188,7 +188,7 @@ const MainLayout: React.FC = () => {
 
   // set media wise responsive drawer
   useEffect(() => {
-    setDrawerOpen(!matchDownLG); // eslint-disable-line react-hooks/set-state-in-effect
+    setDrawerOpen(!matchDownLG);  
   }, [matchDownLG]);
 
   return (

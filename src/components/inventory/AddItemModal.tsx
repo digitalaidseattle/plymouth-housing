@@ -64,7 +64,7 @@ const AddItemModal = ({
 
   useEffect(() => {
     if (addModal) {
-      setTransactionId(crypto.randomUUID()); // eslint-disable-line react-hooks/set-state-in-effect
+      setTransactionId(crypto.randomUUID());  
     }
   }, [addModal]);
 

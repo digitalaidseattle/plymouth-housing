@@ -74,7 +74,7 @@ const AdjustQuantityModal = ({
   // Generate a new transaction ID when the dialog opens
   useEffect(() => {
     if (showDialog) {
-      setTransactionId(crypto.randomUUID()); // eslint-disable-line react-hooks/set-state-in-effect
+      setTransactionId(crypto.randomUUID());  
     }
   }, [showDialog]);
 

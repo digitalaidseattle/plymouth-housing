@@ -98,7 +98,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   // Snapshot cart state once when dialog opens. checkoutItems is intentionally excluded
   useEffect(() => {
     if (open) {
-      setOriginalCheckoutItems([...checkoutItems]); // eslint-disable-line react-hooks/set-state-in-effect
+      setOriginalCheckoutItems([...checkoutItems]);  
       setTransactionId(crypto.randomUUID());
       setStatusMessage('');
     }

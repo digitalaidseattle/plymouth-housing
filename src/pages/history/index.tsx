@@ -25,6 +25,7 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
 import { useReferenceData } from '../../hooks/useReferenceData';
 import { useHistoryData } from '../../hooks/useHistoryData';
+import { withCount } from '../../utils/textUtils';
 
 const HistoryPage: React.FC = () => {
   const { user, loggedInUserId } = useContext(UserContext);
@@ -75,7 +76,7 @@ const HistoryPage: React.FC = () => {
         handleSetDateInput={() => {}}
       />
 
-      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+      <Stack direction="row" sx={{ alignItems: 'center', width: '100%', gap: 3 }}>
         <ToggleButtonGroup
           value={historyType}
           exclusive
@@ -98,22 +99,22 @@ const HistoryPage: React.FC = () => {
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
-              backgroundColor: 'grey.100',
+              backgroundColor: 'grey.200',
               color: 'text.primary',
               '&.Mui-selected': {
-                backgroundColor: 'primary.dark',
+                backgroundColor: 'grey.700',
                 color: 'common.white',
                 border: 'none',
                 '&:hover': {
-                  backgroundColor: 'primary.dark',
+                  backgroundColor: 'grey.700',
                 },
               },
               '&:hover': {
-                backgroundColor: 'grey.200',
+                backgroundColor: 'grey.300',
               },
             }}
           >
-            Check out
+            Checkout
           </ToggleButton>
           <ToggleButton
             value="inventory"
@@ -124,18 +125,18 @@ const HistoryPage: React.FC = () => {
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
-              backgroundColor: 'grey.100',
+              backgroundColor: 'grey.200',
               color: 'text.primary',
               '&.Mui-selected': {
-                backgroundColor: 'primary.dark',
+                backgroundColor: 'grey.700',
                 color: 'common.white',
                 border: 'none',
                 '&:hover': {
-                  backgroundColor: 'primary.dark',
+                  backgroundColor: 'grey.700',
                 },
               },
               '&:hover': {
-                backgroundColor: 'grey.200',
+                backgroundColor: 'grey.300',
               },
             }}
           >
@@ -157,7 +158,11 @@ const HistoryPage: React.FC = () => {
                 handleDateSelection(value);
               }
             }}
-            sx={{ width: '10rem' }}
+            sx={{
+              width: '10rem',
+              borderRadius: '18px',
+              '& .MuiSelect-select': { py: 2 },
+            }}
           >
             <MenuItem value="today">Today</MenuItem>
             <MenuItem value="yesterday">Yesterday</MenuItem>
@@ -187,7 +192,7 @@ const HistoryPage: React.FC = () => {
           );
           return (
             <Typography variant="body1">
-              Showing {totalRecords} {totalRecords === 1 ? 'record' : 'records'} total
+              Showing {withCount(totalRecords, 'record')} total
             </Typography>
           );
         })()}

@@ -8,7 +8,6 @@ import {
   Box,
   Typography,
   TextField,
-  styled,
   IconButton,
   Tooltip,
   FormControl,
@@ -45,13 +44,6 @@ type AdjustQuantityModalProps = {
     }>
   >;
 };
-
-const DialogTitle = styled('h1')(({ theme }) => ({
-  fontSize: theme.typography.h5.fontSize,
-  fontWeight: '600',
-  textTransform: 'capitalize',
-  margin: '0',
-}));
 
 const AdjustQuantityModal = ({
   showDialog,
@@ -177,6 +169,7 @@ const AdjustQuantityModal = ({
     <DialogTemplate
       showDialog={showDialog}
       handleShowDialog={resetInputsHandler}
+      title={`Adjust ${itemToEdit?.name ?? ''} quantity`}
     >
       <Box
         sx={{
@@ -189,8 +182,6 @@ const AdjustQuantityModal = ({
           height: '100%',
         }}
       >
-        <DialogTitle>Adjust {itemToEdit?.name} number</DialogTitle>
-
         <Box id="current-stock">
           <Typography variant="body2">
             Current stock: {itemToEdit?.quantity}
@@ -290,16 +281,17 @@ const AdjustQuantityModal = ({
 
         <Box
           id="modal-buttons"
-          sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
+          sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}
         >
           <Button
-            sx={{ mr: 3, color: 'black' }}
+            variant="text"
             onClick={resetInputsHandler}
           >
             Cancel
           </Button>
           <Button
-            sx={{ color: 'black' }}
+            variant="contained"
+            color="primary"
             onClick={updateItemHandler}
             disabled={isSubmitting}
           >

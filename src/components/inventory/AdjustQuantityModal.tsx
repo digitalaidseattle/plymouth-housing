@@ -66,7 +66,7 @@ const AdjustQuantityModal = ({
   // Generate a new transaction ID when the dialog opens
   useEffect(() => {
     if (showDialog) {
-      setTransactionId(crypto.randomUUID());
+      setTransactionId(crypto.randomUUID());  
     }
   }, [showDialog]);
 

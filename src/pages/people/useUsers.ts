@@ -29,7 +29,7 @@ const useUsers = () => {
   }, [user]);
 
   useEffect(() => {
-    fetchData();
+    fetchData();  
   }, [user, fetchData]);
 
   const updateUserStatus = async (userId: number) => {

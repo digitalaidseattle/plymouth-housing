@@ -17,7 +17,7 @@ import {
   styled,
   Alert,
 } from '@mui/material';
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
 import SnackbarAlert from '../SnackbarAlert.tsx';
 import { UserContext } from '../contexts/UserContext';
@@ -59,24 +59,24 @@ const AddItemModal = ({
     quantity: 0,
   });
   const [errorMessage, setErrorMessage] = useState('');
-  const [nameSearch, setNameSearch] = useState<InventoryItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (addModal) {
-      setTransactionId(crypto.randomUUID());
+      setTransactionId(crypto.randomUUID());  
     }
   }, [addModal]);
 
-  useEffect(() => {
-    if (addModal && inventoryType) {
-      const filteredItems = originalData.filter((item) =>
-        item.type.toLowerCase().includes(inventoryType.toLowerCase()),
-      );
-      setNameSearch(filteredItems);
-    }
-  }, [addModal, inventoryType, originalData]);
+  const nameSearch = useMemo(
+    () =>
+      formData.type
+        ? originalData.filter((item) =>
+            item.type.toLowerCase().includes(formData.type.toLowerCase()),
+          )
+        : [],
+    [formData.type, originalData],
+  );
 
   const newTotalQuantity =
     Number(updateItem?.quantity || 0) + Number(formData.quantity || 0);
@@ -90,10 +90,6 @@ const AddItemModal = ({
 
   const handleInputChange = (field: string, value: string | number) => {
     if (field === 'type' && typeof value === 'string') {
-      const filteredItems = originalData.filter((item) =>
-        item.type.toLowerCase().includes(value.toLowerCase()),
-      );
-      setNameSearch(filteredItems);
       setUpdateItem(null);
       setFormData((prev) => ({ ...prev, type: value, name: '' }));
     } else {

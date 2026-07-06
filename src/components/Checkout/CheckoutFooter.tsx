@@ -57,7 +57,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode, r
               </Typography>
             ) : totalCategoryCount > 10 ? (
               <Typography sx={{ color: 'red', marginRight: 2 }}>
-                Cart Exceeds 10 Items
+                Cart exceeds 10 items
               </Typography>
             ) : null}
 
@@ -70,7 +70,7 @@ const CheckoutFooter = ({ checkoutItems, setOpenSummary, selectedBuildingCode, r
                 selectedBuildingCode.length === 0
               }
             >
-              Proceed to Checkout
+              Proceed to checkout
             </Button>
           </Box>
 

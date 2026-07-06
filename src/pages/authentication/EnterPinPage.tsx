@@ -172,6 +172,7 @@ const EnterPinPage: React.FC = () => {
           `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
+        document.getElementById('pin-input-3')?.focus();
       }
       // If result is null, verifyPin() already displayed an error message, so don't show another
     } else {
@@ -200,7 +201,7 @@ const EnterPinPage: React.FC = () => {
   return (
     <MinimalWrapper>
       <CenteredLayout>
-        <Box sx={{ maxWidth: '250px', minWidth: '250px', width: '100%' }}>
+        <Box sx={{ maxWidth: '340px', width: '100%' }}>
           <Typography
             variant="h4"
             sx={{
@@ -231,11 +232,10 @@ const EnterPinPage: React.FC = () => {
               lineHeight: 1.5,
             }}
           >
-            <strong>Forget your pin?</strong> Contact IT department at{' '}
-            {import.meta.env.VITE_ADMIN_PHONE_NUMBER} or{' '}
+            <strong>Forget your PIN?</strong> Let a staff member know or contact IT department at{' '}
             {import.meta.env.VITE_ADMIN_EMAIL}
           </Typography>
-          <Box sx={{ marginBottom: 6 }}>
+          <Box sx={{ marginBottom: 4 }}>
             <PinInput
               key={loggedInUserId}
               onPinChange={handlePinChange}
@@ -245,15 +245,11 @@ const EnterPinPage: React.FC = () => {
 
           <Button
             variant="contained"
+            color="primary"
+            fullWidth
             onClick={handleNextClick}
             disabled={!isPinComplete}
-            sx={{
-              height: '45px',
-              width: '100%',
-              backgroundColor: 'black',
-              color: 'white',
-              marginTop: 2,
-            }}
+            sx={{ height: '56px' }}
           >
             Continue
           </Button>
@@ -265,9 +261,10 @@ const EnterPinPage: React.FC = () => {
               textAlign: 'center',
               marginTop: 2,
               textDecoration: 'underline',
+              textUnderlineOffset: '3px',
             }}
           >
-            Back to the name selection.
+            Back to the name selection
           </Typography>
         </Box>
         <SnackbarAlert
@@ -283,3 +280,4 @@ const EnterPinPage: React.FC = () => {
 };
 
 export default EnterPinPage;
+

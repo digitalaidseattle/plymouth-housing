@@ -81,24 +81,51 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
   };
 
   return (
-    <Box id="inventory-container" sx={{ mt: 2, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-        <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 1150, '& .MuiTableCell-root': { px: 1.5 } }}>
+    <Box
+      id="inventory-container"
+      sx={{
+        mt: 2,
+        flex: 1,
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <TableContainer
+        component={Paper}
+        sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}
+      >
+        <Table
+          stickyHeader
+          sx={{
+            tableLayout: 'fixed',
+            minWidth: 1150,
+            '& .MuiTableCell-root': { px: 1.5 },
+          }}
+        >
           <TableHead>
             <TableRow sx={{ height: '64px' }}>
               {renderSortableHeader('name', 'Name', '16%')}
-              <TableCell sx={{ fontWeight: 'bold', width: '30%' }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', width: '30%' }}>
+                Description
+              </TableCell>
               {renderSortableHeader('type', 'Type', '10%')}
               {renderSortableHeader('category', 'Category', '12%')}
               {renderSortableHeader('status', 'Status', '13%')}
               {renderSortableHeader('quantity', 'Quantity', '9%', 'center')}
-              <TableCell sx={{ fontWeight: 'bold', width: '10%', textAlign: 'right' }}>Adjust</TableCell>
+              <TableCell
+                sx={{ fontWeight: 'bold', width: '10%', textAlign: 'right' }}
+              >
+                Adjust
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} align="center">No items to display</TableCell>
+                <TableCell colSpan={7} align="center">
+                  No items to display
+                </TableCell>
               </TableRow>
             ) : (
               paginatedItems.map((row, index) => (
@@ -109,24 +136,64 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                     boxShadow: '0px -1px 0px 0px rgb(212, 212, 212);',
                   }}
                 >
-                  <TableCell sx={{ width: '16%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.name}</TableCell>
-                  <TableCell sx={{ width: '30%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.description}</TableCell>
-                  <TableCell sx={{ width: '10%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.type}</TableCell>
-                  <TableCell sx={{ width: '12%', whiteSpace: 'normal', overflowWrap: 'normal' }}>{row.category}</TableCell>
+                  <TableCell
+                    sx={{
+                      width: '16%',
+                      whiteSpace: 'normal',
+                      overflowWrap: 'normal',
+                    }}
+                  >
+                    {row.name}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      width: '30%',
+                      whiteSpace: 'normal',
+                      overflowWrap: 'normal',
+                    }}
+                  >
+                    {row.description}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      width: '10%',
+                      whiteSpace: 'normal',
+                      overflowWrap: 'normal',
+                    }}
+                  >
+                    {row.type}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      width: '12%',
+                      whiteSpace: 'normal',
+                      overflowWrap: 'normal',
+                    }}
+                  >
+                    {row.category}
+                  </TableCell>
                   <TableCell sx={{ width: '13%' }}>
                     <Chip
                       label={row.status}
                       sx={{
                         maxWidth: '100%',
                         height: 'auto',
-                        backgroundColor: row.status === 'Out of Stock' ? '#FDECEA'
-                          : row.status === 'Low Stock' ? '#FFF9C4'
-                          : row.status === 'Needs Review' ? '#fff5e8ff'
-                          : '#E6F4EA',
-                        color: row.status === 'Out of Stock' ? '#D32F2F'
-                          : row.status === 'Low Stock' ? '#6A4E23'
-                          : row.status === 'Needs Review' ? '#663C00'
-                          : '#357A38',
+                        backgroundColor:
+                          row.status === 'Out of Stock'
+                            ? '#FDECEA'
+                            : row.status === 'Low Stock'
+                              ? '#FFF9C4'
+                              : row.status === 'Needs Review'
+                                ? '#fff5e8ff'
+                                : '#E6F4EA',
+                        color:
+                          row.status === 'Out of Stock'
+                            ? '#D32F2F'
+                            : row.status === 'Low Stock'
+                              ? '#6A4E23'
+                              : row.status === 'Needs Review'
+                                ? '#663C00'
+                                : '#357A38',
                         borderRadius: '8px',
                         '& .MuiChip-label': {
                           px: 1,
@@ -138,10 +205,30 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                       }}
                     />
                   </TableCell>
-                  <TableCell sx={{ width: '9%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'center' }}>
-                    {row.quantity >= 0 ? row.quantity : <WarningAmberIcon color="warning"/>}
+                  <TableCell
+                    sx={{
+                      width: '9%',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {row.quantity >= 0 ? (
+                      row.quantity
+                    ) : (
+                      <WarningAmberIcon color="warning" />
+                    )}
                   </TableCell>
-                  <TableCell sx={{ width: '10%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right' }}>
+                  <TableCell
+                    sx={{
+                      width: '10%',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      textAlign: 'right',
+                    }}
+                  >
                     <Button
                       aria-label="Override quantity"
                       onClick={() => {
@@ -159,17 +246,21 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
         </Table>
       </TableContainer>
       <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-        <Box sx={{ flex: 1 }} />
-        <Pagination
-          count={Math.ceil(items.length / rowsPerPage)}
-          page={page + 1}
-          onChange={(_, newPage) => setPage(newPage - 1)}
-        />
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
           <Typography variant="body2">Rows per page:</Typography>
           <Select
             variant="standard"
-            sx={{ '&::before': { borderBottom: 'none' }, '&:hover:not(.Mui-disabled)::before': { borderBottom: 'none' } }}
+            sx={{
+              '&::before': { borderBottom: 'none' },
+              '&:hover:not(.Mui-disabled)::before': { borderBottom: 'none' },
+            }}
             value={rowsPerPage}
             onChange={(e) => {
               setRowsPerPage(Number(e.target.value));
@@ -181,10 +272,18 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
             }}
           >
             {SETTINGS.rowsPerPageOptions.map((option) => (
-              <MenuItem key={option} value={option}>{option}</MenuItem>
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
             ))}
           </Select>
         </Box>
+
+        <Pagination
+          count={Math.ceil(items.length / rowsPerPage)}
+          page={page + 1}
+          onChange={(_, newPage) => setPage(newPage - 1)}
+        />
       </Box>
     </Box>
   );

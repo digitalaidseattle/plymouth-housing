@@ -94,7 +94,10 @@ const UserTable: React.FC<UserTableProps> = ({
   };
   return (
     <>
-      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+      <TableContainer
+        component={Paper}
+        sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}
+      >
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -151,7 +154,10 @@ const UserTable: React.FC<UserTableProps> = ({
                     : 'None'}
                 </TableCell>
                 <TableCell>
-                  <IconButton aria-label="more" onClick={(e) => handleMenuOpen(e, user)}>
+                  <IconButton
+                    aria-label="more"
+                    onClick={(e) => handleMenuOpen(e, user)}
+                  >
                     <MoreVertIcon />
                   </IconButton>
                 </TableCell>
@@ -169,8 +175,9 @@ const UserTable: React.FC<UserTableProps> = ({
           <MenuItem onClick={handleStatusToggle}>
             {selectedUser?.active ? 'Deactivate Role' : 'Activate Role'}
           </MenuItem>
-          {selectedUser?.role !== 'admin'&&(
-          <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>)}
+          {selectedUser?.role !== 'admin' && (
+            <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>
+          )}
         </Menu>
 
         {/* PIN Modal */}
@@ -227,17 +234,21 @@ const UserTable: React.FC<UserTableProps> = ({
         </SnackbarAlert>
       </TableContainer>
       <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-        <Box sx={{ flex: 1 }} />
-        <Pagination
-          count={Math.ceil(users.length / rowsPerPage)}
-          page={page + 1}
-          onChange={(_, newPage) => setPage(newPage - 1)}
-        />
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
           <Typography variant="body2">Rows per page:</Typography>
           <Select
             variant="standard"
-            sx={{ '&::before': { borderBottom: 'none' }, '&:hover:not(.Mui-disabled)::before': { borderBottom: 'none' } }}
+            sx={{
+              '&::before': { borderBottom: 'none' },
+              '&:hover:not(.Mui-disabled)::before': { borderBottom: 'none' },
+            }}
             value={rowsPerPage}
             onChange={(e) => {
               setRowsPerPage(Number(e.target.value));
@@ -249,10 +260,17 @@ const UserTable: React.FC<UserTableProps> = ({
             }}
           >
             {SETTINGS.rowsPerPageOptions.map((option) => (
-              <MenuItem key={option} value={option}>{option}</MenuItem>
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
             ))}
           </Select>
         </Box>
+        <Pagination
+          count={Math.ceil(users.length / rowsPerPage)}
+          page={page + 1}
+          onChange={(_, newPage) => setPage(newPage - 1)}
+        />
       </Box>
     </>
   );

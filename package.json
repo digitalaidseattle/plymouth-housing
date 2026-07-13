@@ -30,7 +30,7 @@
     "react": "^19.2.7",
     "react-dom": "^19.0.0",
     "react-router": "^7.16.0",
-    "react-router-dom": "^7.16.0"
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@azure/static-web-apps-cli": "^2.0.9",

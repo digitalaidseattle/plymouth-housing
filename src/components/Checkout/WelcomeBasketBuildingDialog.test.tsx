@@ -1,3 +1,9 @@
+/**
+ *  WelcomeBasketBuildingDialog.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
@@ -18,7 +24,7 @@ describe('WelcomeBasketBuildingDialog', () => {
     id: 1,
     userDetails: 'Test User',
     userRoles: ['volunteer'],
-    userID: 'testuser',
+    userId: 'testuser',
   };
 
   const mockUserContext = {
@@ -69,7 +75,7 @@ describe('WelcomeBasketBuildingDialog', () => {
     test('renders dialog when showDialog is true', () => {
       renderComponent();
       expect(
-        screen.getByText('provide building code to continue'),
+        screen.getByText('Provide building code to continue'),
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
     });
@@ -77,7 +83,7 @@ describe('WelcomeBasketBuildingDialog', () => {
     test('does not render dialog when showDialog is false', () => {
       renderComponent({ showDialog: false });
       expect(
-        screen.queryByText('provide building code to continue'),
+        screen.queryByText('Provide building code to continue'),
       ).not.toBeInTheDocument();
     });
 

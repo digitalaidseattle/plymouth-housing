@@ -1,3 +1,9 @@
+/**
+ *  EnterPinPage.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
@@ -30,7 +36,7 @@ vi.mock('./PinInput', () => ({
 
 // Define a helper function to create the required UserContext value
 const createUserContextValue = (overrides = {}) => ({
-  user: { userID: "1", userDetails: "Test", userRoles: ["volunteer"], claims: [] },
+  user: { userId: "1", userDetails: "Test", userRoles: ["volunteer"], claims: [] },
   setUser: vi.fn(),
   loggedInUserId: 123,
   setLoggedInUserId: vi.fn(),
@@ -160,7 +166,7 @@ describe('EnterPinPage Component', () => {
     );
 
     // Click the back link text.
-    const backLink = screen.getByText(/Back to the name selection./i);
+    const backLink = screen.getByText(/Back to the name selection/i);
     fireEvent.click(backLink);
     expect(mockNavigate).toHaveBeenCalledWith('/pick-your-name');
   });

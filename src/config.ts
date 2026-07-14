@@ -1,8 +1,14 @@
+/**
+ *  config.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 // ==============================|| THEME CONFIG  ||============================== //
 
 const config = {
   defaultPath: '/volunteer-home',
-  fontFamily: `'Public Sans', sans-serif`,
+  fontFamily: '"Public Sans", sans-serif',
   i18n: 'en',
   miniDrawer: false,
   container: true,
@@ -12,7 +18,7 @@ const config = {
 };
 
 export default config;
-export const drawerWidth = 260;
+export const drawerWidth = 275;
 
 export const twitterColor = '#1DA1F2';
 export const facebookColor = '#3b5998';

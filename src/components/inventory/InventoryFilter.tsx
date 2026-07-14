@@ -1,9 +1,15 @@
+/**
+ *  InventoryFilter.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React from 'react';
-import { Box, Button, Menu, MenuItem, Typography } from '@mui/material';
+import SearchBar from '../Searchbar/SearchBar.tsx';
+import { Box, Button, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
 import { CategoryItem } from '../../types/interfaces.ts';
-import SearchBar from '../Searchbar/SearchBar.tsx';
 
 interface InventoryFilterProps {
   filters: {
@@ -26,37 +32,47 @@ interface InventoryFilterProps {
 
 const statusOptions = ['Needs Review', 'Out of Stock', 'Low Stock', 'Normal Stock'];
 
-const InventoryFilter: React.FC<InventoryFilterProps> = ({ 
-  filters, 
-  anchors, 
-  categoryData, 
-  handleFilterClick, 
-  handleMenuClick, 
-  clearFilter, 
-  handleSearch 
+const filterButtonSx = { color: 'common.black', bgcolor: 'grey.300', minHeight: '30px', height: 'auto', '&:hover': { bgcolor: 'grey.400' } };
+
+const InventoryFilter: React.FC<InventoryFilterProps> = ({
+  filters,
+  anchors,
+  categoryData,
+  handleFilterClick,
+  handleMenuClick,
+  clearFilter,
+  handleSearch,
 }) => {
   return (
-    <Box id="filter-container" sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
-      <Typography variant="body2">Filters</Typography>
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        <Typography variant="body2">Filters</Typography>
 
-      {/* Type Filter */}
-      <Box sx={{ px: '8px' }} id="type-button-container">
+        {/* Type Filter */}
+        <div id="type-button-container">
         <Button
-          sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
+          variant="contained"
+          sx={filterButtonSx}
           onClick={(event) => handleFilterClick('type', event)}
         >
           {filters.type ? (
             <>
               {filters.type}{' '}
-              <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
-                onClick={() => clearFilter('type')}
-              />
+              <Box
+                component="span"
+                role="button"
+                tabIndex={0}
+                aria-label="Clear Type Filter"
+                onClick={(e) => { e.stopPropagation(); clearFilter('type'); }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); clearFilter('type'); } }}
+                sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+              >
+                <ClearIcon sx={{ fontSize: 'large' }} />
+              </Box>
             </>
           ) : (
             <>
               <Typography variant="body2">Type</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
             </>
           )}
         </Button>
@@ -72,27 +88,35 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
             Welcome Basket
           </MenuItem>
         </Menu>
-      </Box>
+        </div>
 
-      {/* Category Filter */}
-      <Box sx={{ px: '8px' }} id="category-button-container">
+        {/* Category Filter */}
+        <div id="category-button-container">
         <Button
-          sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
+          variant="contained"
+          sx={filterButtonSx}
           onClick={(event) => handleFilterClick('category', event)}
         >
           {' '}
           {filters.category ? (
             <>
               {filters.category}{' '}
-              <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
-                onClick={() => clearFilter('category')}
-              />
+              <Box
+                component="span"
+                role="button"
+                tabIndex={0}
+                aria-label="Clear Category Filter"
+                onClick={(e) => { e.stopPropagation(); clearFilter('category'); }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); clearFilter('category'); } }}
+                sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+              >
+                <ClearIcon sx={{ fontSize: 'large' }} />
+              </Box>
             </>
           ) : (
             <>
               <Typography variant="body2">Category</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
+              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
             </>
           )}
         </Button>
@@ -110,54 +134,60 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
             </MenuItem>
           ))}
         </Menu>
-      </Box>
+        </div>
 
-      {/* Status Filter */}
-      <Box sx={{ px: '8px' }} id="status-button-container">
-        <Button
-          sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-          onClick={(event) => handleFilterClick('status', event)}
-        >
-          {filters.status ? (
-            <>
-              {filters.status}{' '}
-              <ClearIcon
-                sx={{ fontSize: 'large', ml: '6px' }}
-                onClick={() => clearFilter('status')}
-              />
-            </>
-          ) : (
-            <>
-              <Typography variant="body2">Status</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: '6px' }} />
-            </>
-          )}
-        </Button>
-        <Menu
-          open={Boolean(anchors.status)}
-          onClose={() => handleMenuClick('status', '')}
-          anchorEl={anchors.status}
-        >
-          {statusOptions.map((status) => 
-            <MenuItem 
-              key={status}
-              onClick={() => handleMenuClick('status', status)}>
-              {status}
-            </MenuItem>
-          )}
-        </Menu>
-      </Box>
+        {/* Status Filter */}
+        <div id="status-button-container">
+          <Button
+            variant="contained"
+            sx={filterButtonSx}
+            onClick={(event) => handleFilterClick('status', event)}
+          >
+            {filters.status ? (
+              <>
+                {filters.status}{' '}
+                <Box
+                  component="span"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Clear Status Filter"
+                  onClick={(e) => { e.stopPropagation(); clearFilter('status'); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); clearFilter('status'); } }}
+                  sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+                >
+                  <ClearIcon sx={{ fontSize: 'large' }} />
+                </Box>
+              </>
+            ) : (
+              <>
+                <Typography variant="body2">Status</Typography>
+                <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
+              </>
+            )}
+          </Button>
+          <Menu
+            open={Boolean(anchors.status)}
+            onClose={() => handleMenuClick('status', '')}
+            anchorEl={anchors.status}
+          >
+            {statusOptions.map((status) => (
+              <MenuItem key={status} onClick={() => handleMenuClick('status', status)}>
+                {status}
+              </MenuItem>
+            ))}
+          </Menu>
+        </div>
 
-      {/* Search Filter */}
-      <Box id="search-container" sx={{ ml: 'auto' }}>
-        <SearchBar
-          searchValue={filters.search}
-          onSearchChange={handleSearch}
-          placeholder="Search..."
-          width="100%"
-        />
-      </Box>
-    </Box>
+        <Box sx={{ flexGrow: 1 }}>
+          <SearchBar
+            searchValue={filters.search}
+            onSearchChange={handleSearch}
+            compact
+            placeholder="Search..."
+            width="100%"
+          />
+        </Box>
+    </Stack>
   );
 };
 

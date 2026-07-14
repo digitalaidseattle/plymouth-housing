@@ -1,3 +1,9 @@
+/**
+ *  RootRedirect.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom';
@@ -46,7 +52,7 @@ const GenericRedirectPage = ({ source }: { source: string }) => (
 const mockUserContextValue = (role: 'admin' | 'volunteer' | null | undefined, isLoading: boolean): UserContextType => ({
   user: role ? {
     userRoles: [role],
-    userID: 'test-user-id',
+    userId: 'test-user-id',
     userDetails: 'test-user-details'
   } : null,
   isLoading,

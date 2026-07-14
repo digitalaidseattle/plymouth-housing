@@ -1,5 +1,11 @@
+/**
+ *  WelcomeBasketBuildingDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { FormEvent, useState, useContext } from 'react';
-import { Box, FormControl, Typography } from '@mui/material';
+import { Box, FormControl, Typography, Chip, Button, useTheme, Stack } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
 import { SPECIAL_UNITS } from '../../types/constants';
@@ -17,6 +23,8 @@ type WelcomeBasketBuildingDialogProps = {
   handleShowDialog: () => void;
   buildings: Building[];
   setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>;
+  isEditMode?: boolean;
+  onCancelEdits?: () => void;
 };
 
 const WelcomeBasketBuildingDialog = ({
@@ -24,8 +32,12 @@ const WelcomeBasketBuildingDialog = ({
   handleShowDialog,
   buildings,
   setResidentInfo,
+  isEditMode = false,
+  onCancelEdits,
 }: WelcomeBasketBuildingDialogProps) => {
+  const theme = useTheme();
   const { user } = useContext(UserContext);
+
   const [selectedBuilding, setSelectedBuilding] = useState<Building>({
     id: 0,
     code: '',
@@ -37,6 +49,11 @@ const WelcomeBasketBuildingDialog = ({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (isEditMode) {
+      handleShowDialog();
+      return;
+    }
+
     setApiError('');
 
     if (!selectedBuilding.id) {
@@ -113,32 +130,45 @@ const WelcomeBasketBuildingDialog = ({
       showDialog={showDialog}
       handleShowDialog={handleShowDialog}
       handleSubmit={handleSubmit}
-      title="provide building code to continue"
-      submitButtonText="continue"
+      title="Provide building code to continue"
+      submitButtonText="Continue"
       isSubmitting={isSubmitting}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-          paddingY: '1rem',
-        }}
-      >
-        <FormControl>
-          <BuildingCodeSelect
-            buildings={buildings}
-            selectedBuilding={selectedBuilding}
-            setSelectedBuilding={setSelectedBuilding}
-            setSelectedUnit={() => {}} // No-op since we don't show unit selector
-            fetchUnitNumbers={async () => {}} // No-op since we handle units in submit
-            error={showError && !selectedBuilding.id}
-            resetError={() => setShowError(false)}
-            disabled={isSubmitting}
-          />
-        </FormControl>
-        {apiError && <Typography color="error">{apiError}</Typography>}
-      </Box>
+        <Stack spacing={1} sx={{ py: 2 }}>
+          {isEditMode && (
+            <Chip
+              size="small"
+              variant="outlined"
+              sx={{
+                alignSelf: 'flex-start',
+                color: theme.palette.text.secondary,
+                borderColor: theme.palette.grey[300],
+                backgroundColor: 'transparent',
+              }}
+              label={
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                  <Box component="span">Editing transaction</Box>
+                  <Button size="small" variant="text" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
+                    Cancel
+                  </Button>
+                </Stack>
+              }
+            />
+          )}
+          <FormControl>
+            <BuildingCodeSelect
+              buildings={buildings}
+              selectedBuilding={selectedBuilding}
+              setSelectedBuilding={setSelectedBuilding}
+              setSelectedUnit={() => {}} // No-op since we don't show unit selector
+              fetchUnitNumbers={async () => {}} // No-op since we handle units in submit
+              error={showError && !selectedBuilding.id}
+              resetError={() => setShowError(false)}
+              disabled={isSubmitting || isEditMode}
+            />
+          </FormControl>
+          {apiError && <Typography color="error">{apiError}</Typography>}
+        </Stack>
     </DialogTemplate>
   );
 };

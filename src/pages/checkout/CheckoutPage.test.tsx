@@ -1,3 +1,9 @@
+/**
+ *  CheckoutPage.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import CheckoutPage from './CheckoutPage';
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
@@ -7,7 +13,7 @@ import { ENDPOINTS } from '../../types/constants';
 import { BrowserRouter } from 'react-router-dom';
 
 const mockUserContext = {
-  user: { id: 1, userDetails: 'Test User', userRoles: ['volunteer'], userID: "bob" },
+  user: { id: 1, userDetails: 'Test User', userRoles: ['volunteer'], userId: "bob" },
   setUser: vi.fn(),
   loggedInUserId: null,
   setLoggedInUserId: vi.fn(),

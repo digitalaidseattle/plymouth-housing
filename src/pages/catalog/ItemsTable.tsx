@@ -1,3 +1,9 @@
+/**
+ *  ItemsTable.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState } from 'react';
 import {
   Table,
@@ -63,6 +69,7 @@ const ItemsTable = ({
   onSuccess,
   onError,
 }: ItemsTableProps) => {
+
   const [editState, setEditState] = useState<EditState>({
     id: null,
     field: null,
@@ -340,7 +347,7 @@ const ItemsTable = ({
         onClick={() => handleCellClick(item.id, field as string, value)}
         sx={{
           cursor: 'pointer',
-          padding: '8px',
+          padding: 1,
           borderRadius: '4px',
           '&:hover': {
             backgroundColor: 'action.hover',
@@ -362,7 +369,7 @@ const ItemsTable = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box
         sx={{
           display: 'flex',
@@ -376,6 +383,7 @@ const ItemsTable = ({
           <SearchBar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
+            compact
             placeholder="Search items..."
             width="250px"
           />
@@ -385,13 +393,13 @@ const ItemsTable = ({
             onClick={() => setIsAdding(true)}
             disabled={isAdding}
           >
-            Add Item
+            Add item
           </Button>
         </Box>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -499,7 +507,7 @@ const ItemsTable = ({
                       }))
                     }
                     disabled={isSaving}
-                    inputProps={{ min: 0 }}
+                    slotProps={{ htmlInput: { min: 0 } }}
                     sx={{ width: '70px' }}
                   />
                 </TableCell>
@@ -577,19 +585,19 @@ const ItemsTable = ({
             )}
           </TableBody>
         </Table>
-        <TablePagination
-          component="div"
-          count={filteredItems.length}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-        />
       </TableContainer>
+      <TablePagination
+        component="div"
+        count={filteredItems.length}
+        page={page}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
+        rowsPerPageOptions={[10, 25, 50, 100]}
+      />
     </Box>
   );
 };

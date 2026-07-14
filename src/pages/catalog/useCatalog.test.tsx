@@ -1,10 +1,16 @@
+/**
+ *  useCatalog.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { renderHook } from '@testing-library/react';
 import { useCatalog } from './useCatalog';
 import { UserContext } from '../../components/contexts/UserContext';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const dummyUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Test Admin',
   userRoles: ['admin'],
   claims: [],

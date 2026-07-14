@@ -1,3 +1,9 @@
+/**
+ *  useResidentsByBuilding.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../components/contexts/UserContext';
 import { Unit } from '../../types/interfaces';
@@ -16,7 +22,7 @@ export function useResidentsByBuilding(buildingId: number | null) {
 
   useEffect(() => {
     if (buildingId === null) {
-      setData([]);
+      setData([]);  
       return;
     }
 

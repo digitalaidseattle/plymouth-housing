@@ -1,3 +1,9 @@
+/**
+ *  useResidentsByBuilding.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
@@ -7,7 +13,12 @@ import * as residentService from '../../services/residentService';
 
 vi.mock('../../services/residentService');
 
-const dummyUser = { userID: '1', userDetails: 'Test User', userRoles: ['admin'], claims: [] };
+const dummyUser = {
+  userId: '1',
+  userDetails: 'Test User',
+  userRoles: ['admin'],
+  claims: [],
+};
 
 const wrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(UserContext.Provider, {
@@ -24,9 +35,33 @@ const wrapper = ({ children }: { children: React.ReactNode }) =>
   });
 
 const mockRows = [
-  { id: 1, name: 'Alice', unit_id: 10, unit_number: '2',  building_id: 1, building_name: 'B', building_code: 'B1' },
-  { id: 2, name: 'Bob',   unit_id: 10, unit_number: '2',  building_id: 1, building_name: 'B', building_code: 'B1' },
-  { id: 3, name: 'Carol', unit_id: 20, unit_number: '10', building_id: 1, building_name: 'B', building_code: 'B1' },
+  {
+    id: 1,
+    name: 'Alice',
+    unit_id: 10,
+    unit_number: '2',
+    building_id: 1,
+    building_name: 'B',
+    building_code: 'B1',
+  },
+  {
+    id: 2,
+    name: 'Bob',
+    unit_id: 10,
+    unit_number: '2',
+    building_id: 1,
+    building_name: 'B',
+    building_code: 'B1',
+  },
+  {
+    id: 3,
+    name: 'Carol',
+    unit_id: 20,
+    unit_number: '10',
+    building_id: 1,
+    building_name: 'B',
+    building_code: 'B1',
+  },
 ];
 
 describe('useResidentsByBuilding', () => {
@@ -35,13 +70,17 @@ describe('useResidentsByBuilding', () => {
   });
 
   it('returns empty data when buildingId is null', () => {
-    const { result } = renderHook(() => useResidentsByBuilding(null), { wrapper });
+    const { result } = renderHook(() => useResidentsByBuilding(null), {
+      wrapper,
+    });
     expect(result.current.data).toEqual([]);
     expect(result.current.isLoading).toBe(false);
   });
 
   it('groups flat rows into units with residents', async () => {
-    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(mockRows);
+    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(
+      mockRows,
+    );
 
     const { result } = renderHook(() => useResidentsByBuilding(1), { wrapper });
 
@@ -54,7 +93,9 @@ describe('useResidentsByBuilding', () => {
   });
 
   it('sorts units numerically by unit_number', async () => {
-    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(mockRows);
+    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(
+      mockRows,
+    );
 
     const { result } = renderHook(() => useResidentsByBuilding(1), { wrapper });
 
@@ -67,7 +108,9 @@ describe('useResidentsByBuilding', () => {
   it('sets isLoading true while fetching', async () => {
     let resolve: (v: typeof mockRows) => void;
     vi.mocked(residentService.getResidentsByBuilding).mockReturnValue(
-      new Promise((r) => { resolve = r; }),
+      new Promise((r) => {
+        resolve = r;
+      }),
     );
 
     const { result } = renderHook(() => useResidentsByBuilding(1), { wrapper });
@@ -78,7 +121,9 @@ describe('useResidentsByBuilding', () => {
   });
 
   it('sets error when fetch fails', async () => {
-    vi.mocked(residentService.getResidentsByBuilding).mockRejectedValue(new Error('Network error'));
+    vi.mocked(residentService.getResidentsByBuilding).mockRejectedValue(
+      new Error('Network error'),
+    );
 
     const { result } = renderHook(() => useResidentsByBuilding(1), { wrapper });
 
@@ -89,18 +134,27 @@ describe('useResidentsByBuilding', () => {
   });
 
   it('refetches when buildingId changes', async () => {
-    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(mockRows);
+    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(
+      mockRows,
+    );
 
     const { rerender } = renderHook(({ id }) => useResidentsByBuilding(id), {
       wrapper,
       initialProps: { id: 1 as number | null },
     });
 
-    await waitFor(() => expect(residentService.getResidentsByBuilding).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(residentService.getResidentsByBuilding).toHaveBeenCalledTimes(1),
+    );
 
     rerender({ id: 2 });
 
-    await waitFor(() => expect(residentService.getResidentsByBuilding).toHaveBeenCalledTimes(2));
-    expect(residentService.getResidentsByBuilding).toHaveBeenLastCalledWith(dummyUser, 2);
+    await waitFor(() =>
+      expect(residentService.getResidentsByBuilding).toHaveBeenCalledTimes(2),
+    );
+    expect(residentService.getResidentsByBuilding).toHaveBeenLastCalledWith(
+      dummyUser,
+      2,
+    );
   });
 });

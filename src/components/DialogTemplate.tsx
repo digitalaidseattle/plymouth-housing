@@ -1,12 +1,17 @@
+/**
+ *  DialogTemplate.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import {
   Dialog,
   DialogContent,
   Button,
-  Box,
   DialogTitle,
   Typography,
   DialogActions,
-  useTheme,
+  Box,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { ReactNode, SyntheticEvent } from 'react';
@@ -23,7 +28,7 @@ type DialogTemplateProps = {
 }
 
 const DialogTemplate = ({
-    showDialog, 
+    showDialog,
     handleShowDialog,
     handleSubmit,
     title,
@@ -33,42 +38,43 @@ const DialogTemplate = ({
     isSubmitting,
     }: DialogTemplateProps) => {
 
-    const theme = useTheme();
+    const closeButton = (
+        <Button onClick={handleShowDialog} disableRipple aria-label="Close dialog" id="dialog-close-btn" data-testid="dialog-close-btn" sx={{ minWidth: 'auto', p: 0, ml: 'auto', flexShrink: 0 }}><Close/></Button>
+    );
 
     return (
-        <Dialog 
+        <Dialog
+        data-testid="dialog"
         sx={{
             '& .MuiDialog-paper': {
               width: { xs: '80vw', md: '50vw' },
               maxHeight: '90vh',
               borderRadius: '15px',
-              paddingY: title ? '1.5rem' : '0rem',
-              paddingX: '3rem',
+              py: title ? 3 : 0,
+              px: 6,
               position: 'relative'
             },
           }}
             open={showDialog}>
-            <Box sx={{ 
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem'
-            }}>
-                <Button onClick={handleShowDialog} disableRipple><Close/></Button>
+            {title ? (
+            <DialogTitle sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                <Typography variant="h5" component="span" sx={{ flexGrow: 1, minWidth: 0 }}>{title}</Typography>
+                {closeButton}
+            </DialogTitle>
+            ) : (
+            <Box sx={{ display: 'flex', pt: 2 }}>
+                {closeButton}
             </Box>
+            )}
 
-            {title &&
-            <DialogTitle>
-                <Typography sx={{ fontSize: '1.25rem', fontWeight: '600', textTransform: 'capitalize' }}>{title}</Typography>
-            </DialogTitle>}
-
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem'}}>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2, px: 0 }}>
             {children}
             </DialogContent>
 
-            <DialogActions sx={{ display: 'flex', gap: '1rem' }}>
-                {backButtonText && <Button onClick={handleShowDialog} sx={{ background: 'none', textDecoration: 'underline', color: theme.palette.text.primary }}>{backButtonText}</Button>}
-                {submitButtonText && <Button sx={{ background: theme.palette.grey[100], color: theme.palette.text.primary, padding: '0.5rem 1.25rem' }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
-            </DialogActions>
+            {(backButtonText || submitButtonText) && <DialogActions sx={{ display: 'flex', gap: 1, px: 0 }}>
+                {backButtonText && <Button variant="text" onClick={handleShowDialog} data-testid="dialog-back-btn">{backButtonText}</Button>}
+                {submitButtonText && <Button variant="contained" color="primary" data-testid="dialog-submit-btn" sx={{ py: 1, px: 3 }} onClick={handleSubmit} disabled={isSubmitting}>{submitButtonText}</Button>}
+            </DialogActions>}
         </Dialog>
     );
 }

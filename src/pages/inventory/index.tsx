@@ -1,11 +1,16 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, {
   useContext,
   useState,
   useEffect,
   useCallback,
-  useRef,
 } from 'react';
-import { Alert, Box, Button, Pagination } from '@mui/material';
+import { Alert, Box, Button, Pagination, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
@@ -28,6 +33,7 @@ const Inventory = () => {
   const [sortDirection, setSortDirection] = useState<
     'asc' | 'desc' | 'original'
   >('original');
+  const [sortColumn, setSortColumn] = useState<keyof InventoryItem | null>(null);
   const [addModal, setAddModal] = useState(false);
   const [adjustModal, setAdjustModal] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
@@ -53,15 +59,6 @@ const Inventory = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const calculateItemsPerPage = () => {
-    if (tableContainerRef.current) {
-      const parentHeight =
-        tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
-      const tableHeight = (parentHeight * 80) / 100; // Calculates the table height in px as 80% of the parent height
-      const items = Math.floor(tableHeight / 64); // Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
-      setItemsPerPage(items > 0 ? items - 1 : 1); // Subtract 1 because of header row
-    }
-  };
 
   const handleAddOpen = () => {
     setAddModal(true);
@@ -80,12 +77,18 @@ const Inventory = () => {
     setAnchors((prev) => ({ ...prev, [filter]: event.currentTarget }));
   };
 
-  const handleSort = () => {
-    if (sortDirection === 'asc') {
-      setSortDirection('desc');
-    } else if (sortDirection === 'desc') {
-      setSortDirection('original');
-    } else if (sortDirection === 'original') {
+  const handleSort = (column: keyof InventoryItem) => {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortDirection('original');
+        setSortColumn(null);
+      } else {
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(column);
       setSortDirection('asc');
     }
   };
@@ -175,15 +178,24 @@ const Inventory = () => {
       },
     );
 
-    if (sortDirection === 'asc') {
-      searchFiltered.sort((a, b) => a.name.localeCompare(b.name)); // Ascending A-Z
-    } else if (sortDirection === 'desc') {
-      searchFiltered.sort((a, b) => b.name.localeCompare(a.name)); // Descending Z-A
+    if (sortColumn && sortDirection !== 'original') {
+      searchFiltered.sort((a, b) => {
+        const aVal = a[sortColumn];
+        const bVal = b[sortColumn];
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+        const aStr = String(aVal);
+        const bStr = String(bVal);
+        return sortDirection === 'asc'
+          ? aStr.localeCompare(bStr)
+          : bStr.localeCompare(aStr);
+      });
     }
 
     setDisplayData(searchFiltered);
     setCurrentPage(1);
-  }, [filters, sortDirection, originalData]);
+  }, [filters, sortDirection, sortColumn, originalData]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -214,16 +226,6 @@ const Inventory = () => {
     return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      calculateItemsPerPage();
-    }, 0);
-    window.addEventListener('resize', calculateItemsPerPage);
-    return () => {
-      clearTimeout(handler);
-      window.removeEventListener('resize', calculateItemsPerPage);
-    };
-  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -246,11 +248,11 @@ const Inventory = () => {
   }
 
   return (
-    <Box ref={tableContainerRef} sx={{ height: '100%' }}>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {/* Negative item warning */}
       <Box
         id="negative-warning-container"
-        sx={{ display: 'flex', justifyContent: 'start', marginTop: '1rem' }}
+        sx={{ display: 'flex', justifyContent: 'start', mt: 2 }}
       >
         {negativeItemCount > 0 ? (
           <Alert severity="warning">
@@ -261,17 +263,6 @@ const Inventory = () => {
           <></>
         )}
       </Box>
-      {/* Add button */}
-      <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          sx={{ bgcolor: '#F5F5F5', color: 'black' }}
-          onClick={handleAddOpen}
-        >
-          <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
-        </Button>
-      </Box>
-
       <AddItemModal
         addModal={addModal}
         handleAddClose={handleAddClose}
@@ -289,29 +280,40 @@ const Inventory = () => {
         handleSnackbar={showSnackbar}
       />
 
-      {/* Inventory Filter */}
-      <InventoryFilter
-        filters={filters}
-        anchors={anchors}
-        categoryData={categoryData}
-        handleFilterClick={handleFilterClick}
-        handleMenuClick={handleMenuClick}
-        clearFilter={clearFilter}
-        handleSearch={handleSearch}
-      />
+      {/* Toolbar: filters + add */}
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', width: '100%' }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <InventoryFilter
+            filters={filters}
+            anchors={anchors}
+            categoryData={categoryData}
+            handleFilterClick={handleFilterClick}
+            handleMenuClick={handleMenuClick}
+            clearFilter={clearFilter}
+            handleSearch={handleSearch}
+          />
+        </Box>
+        <Button variant="contained" onClick={handleAddOpen}>
+          <AddIcon fontSize="small" />
+          Add
+        </Button>
+      </Stack>
 
       {/* Inventory Table */}
-      <InventoryTable
-        currentItems={currentItems}
-        sortDirection={sortDirection}
-        handleSort={handleSort}
-        setAdjustModal={setAdjustModal}
-        setItemToEdit={setItemToEdit}
-      />
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <InventoryTable
+          currentItems={currentItems}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
+          handleSort={handleSort}
+          setAdjustModal={setAdjustModal}
+          setItemToEdit={setItemToEdit}
+        />
+      </Box>
 
       {/* Pagination */}
       <Box
-        sx={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}
+        sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
       >
         <Pagination
           count={Math.ceil(displayData.length / itemsPerPage)}

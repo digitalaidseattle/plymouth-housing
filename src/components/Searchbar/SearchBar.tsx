@@ -1,3 +1,9 @@
+/**
+ *  SearchBar.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
 import { Search, Close } from '@mui/icons-material';
@@ -11,6 +17,7 @@ interface SearchBarProps {
   onSearchChange?: (value: string) => void;
   placeholder?: string;
   width?: string;
+  compact?: boolean;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -20,7 +27,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   searchValue, 
   onSearchChange,
   placeholder = 'Search...',
-  width = '30%'
+  width = '30%',
+  compact = false
 }) => {
   const [internalSearchTerm, setInternalSearchTerm] = useState<string>('');
   
@@ -98,6 +106,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
       onChange={searchChangeHandler}
       slotProps={{
         input: {
+          sx: (theme) => ({
+            fontSize: compact ? theme.typography.body2.fontSize : {
+              xs: theme.typography.h4.fontSize,
+              md: theme.typography.h5.fontSize,
+              lg: theme.typography.body2.fontSize,
+            },
+          }),
           startAdornment: (
             <InputAdornment position="start">
               <Search />
@@ -116,11 +131,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
           ),
         },
         inputLabel: { 
-          sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } 
+          sx: (theme) => ({
+            fontSize: compact ? theme.typography.body2.fontSize : {
+              xs: theme.typography.h4.fontSize,
+              md: theme.typography.h5.fontSize,
+              lg: theme.typography.body2.fontSize,
+            },
+          })
         },
-        htmlInput: { 
-          sx: { fontSize: { xs: '24px', md: '20px', lg: '16px'} } 
-        }
       }}
     />
   );

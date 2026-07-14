@@ -1,3 +1,9 @@
+/**
+ *  Notification.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState } from 'react';
 
 // material-ui
@@ -34,14 +40,8 @@ import {
 } from '@ant-design/icons';
 
 // sx styles
-const avatarSX = {
-  width: 36,
-  height: 36,
-  fontSize: '1rem',
-};
-
 const actionSX = {
-  mt: '6px',
+  mt: 1,
   ml: 1,
   top: 'auto',
   right: 'auto',
@@ -52,6 +52,11 @@ const actionSX = {
 
 const Notification = () => {
   const theme = useTheme();
+  const avatarSX = {
+    width: 36,
+    height: 36,
+    fontSize: theme.typography.body1.fontSize,
+  };
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -72,7 +77,7 @@ const Notification = () => {
   const iconBackColor = 'grey.100';
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+    <Box sx={{ flexShrink: 0, ml: 1 }}>
       <IconButton
         disableRipple
         color="secondary"

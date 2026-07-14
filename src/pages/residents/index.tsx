@@ -1,3 +1,9 @@
+/**
+ *  index.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { useState, useEffect, useContext } from 'react';
 import {
   Autocomplete,
@@ -8,6 +14,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -105,8 +112,8 @@ const ResidentsPage = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 3, mb: 3 }}>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mt: 3, mb: 3 }}>
         <FormControl sx={{ minWidth: 240 }}>
           <InputLabel id="building-select-label">Building</InputLabel>
           <Select
@@ -140,10 +147,11 @@ const ResidentsPage = () => {
               placeholder="Search resident by name…"
             />
           )}
-          sx={{ flexGrow: 1 }}
+          sx={{ flexGrow: 1, alignSelf: 'flex-end' }}
         />
-      </Box>
+      </Stack>
 
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
@@ -180,6 +188,7 @@ const ResidentsPage = () => {
           </TableBody>
         </Table>
       )}
+      </Box>
 
       {buildingsError && (
         <SnackbarAlert open severity="warning" onClose={() => setBuildingsError(null)}>

@@ -1,3 +1,9 @@
+/**
+ *  AddItemModal.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import AddItemModal from './AddItemModal';
@@ -21,7 +27,7 @@ const originalData: InventoryItem[] = [
 
 const mockUser: ClientPrincipal = {
     userDetails: 'test-user',
-    userID: '123',
+    userId: '123',
     userRoles: ['admin']
 };
 
@@ -293,7 +299,7 @@ describe('AddItemModal', () => {
         fireEvent.click(screen.getByRole('button', { name: /submit/i }));
 
         await waitFor(() => {
-            expect(screen.getByText('"Quantity To Add/Remove" cannot be 0')).toBeInTheDocument();
+            expect(screen.getByText('"Quantity to add/remove" cannot be 0')).toBeInTheDocument();
         });
 
         // Should NOT show transaction ID error

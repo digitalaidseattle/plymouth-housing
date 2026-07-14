@@ -1,3 +1,9 @@
+/**
+ *  PinInput.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import React, {
   useState,
   ChangeEvent,
@@ -7,20 +13,22 @@ import React, {
   useEffect,
 } from 'react';
 import { Box, TextField } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled } from '@mui/material/styles';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-const PinInput = styled(TextField)({
+const PinInput = styled(TextField)(({ theme }) => ({
   width: '50px',
-  margin: '0 8px',
+  margin: 0,
+  marginLeft: theme.spacing(1),
+  marginRight: theme.spacing(1),
   textAlign: 'center',
   height: '56px',
   '& input': {
     textAlign: 'center',
-    fontSize: '24px',
-    padding: '10px',
+    fontSize: theme.typography.h4.fontSize,
+    padding: `${theme.spacing(1.25)} ${theme.spacing(1)}`,
   },
-});
+}));
 
 const PinInputComponent: React.FC<{
   onPinChange: (pin: string[]) => void;
@@ -34,6 +42,10 @@ const PinInputComponent: React.FC<{
   useEffect(() => {
     onPinChange(pin);
   }, [pin, onPinChange]);
+
+  useEffect(() => {
+    pinRefs.current[0]?.focus();
+  }, []);
 
   const updatePin = useCallback((index: number, value: string) => {
     setPin((prevPin) => {
@@ -108,17 +120,21 @@ const PinInputComponent: React.FC<{
 
   return (
     <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
     >
       <Box
         component="form"
         onSubmit={handleSubmit}
-        display="flex"
-        justifyContent="space-between"
-        width="100%"
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%'
+        }}
       >
         {pin.map((digit, index) => (
           <PinInput
@@ -128,10 +144,12 @@ const PinInputComponent: React.FC<{
             value={digit}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, index)}
             onKeyDown={(e: React.KeyboardEvent<HTMLDivElement | HTMLInputElement>) => handleKeyDown(e, index)}
-            inputProps={{
-              maxLength: 1,
-              autoComplete: 'off',
-              inputMode: 'numeric',
+            slotProps={{
+              htmlInput: {
+                maxLength: 1,
+                autoComplete: 'off',
+                inputMode: 'numeric',
+              }
             }}
             type={visibleIndex === index ? 'text' : 'password'}
             inputRef={(el: HTMLInputElement | null) => { pinRefs.current[index] = el; }}

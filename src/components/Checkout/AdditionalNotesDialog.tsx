@@ -1,3 +1,9 @@
+/**
+ *  AdditionalNotesDialog.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { SyntheticEvent, useState } from 'react';
 import {
   Typography,
@@ -10,6 +16,7 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { CheckoutHistoryItem, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
 import { SPECIAL_ITEMS } from '../../types/constants';
 import CheckedoutListItem from './CheckedoutListItem';
+import { withCount } from '../../utils/textUtils';
 import DialogTemplate from '../DialogTemplate';
 
 type AdditionalNotesDialogProps = {
@@ -62,20 +69,21 @@ const AdditionalNotesDialog = ({
             showDialog={showDialog} 
             handleShowDialog={handleShowDialog}
             handleSubmit={handleSubmit}
-            submitButtonText='add to cart'
-            backButtonText='cancel'>
+            title="Provide appliance details to continue"
+            submitButtonText='Add to cart'
+            backButtonText='Cancel'>
             {previousCheckouts && checkoutHistory &&
-            <Stack gap="1rem">
+            <Stack sx={{ gap: 2 }}>
                 <Box>
-                    <Typography sx={{ fontSize: '1.5rem', fontWeight: '600' }}>Check before adding item</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: '600' }}>Check before adding item</Typography>
                     <Typography>
                         Please check with a staff member before adding any items that have already been checked out.
                     </Typography>
                 </Box>
                 <Box>
-                    <Stack direction="row" gap="1rem">
-                        <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>Previously checked out</Typography>
-                        <Typography>{applianceMiscCheckouts.length} items</Typography>
+                    <Stack direction="row" sx={{ gap: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: '600' }}>Previously checked out</Typography>
+                        <Typography>{withCount(applianceMiscCheckouts.length, 'item')}</Typography>
                     </Stack>
                     <Box sx={{ 
                         border: '1px solid gray',
@@ -91,9 +99,8 @@ const AdditionalNotesDialog = ({
             </Stack>
             }
 
-            <Stack gap="1rem">
+            <Stack sx={{ gap: 2 }}>
                 <Box>
-                    <Typography sx={{ fontSize: '1.5rem', fontWeight: '600' }}>Enter {item && item.name} Details</Typography>
                     <Typography>You can specify the appliance here.</Typography>
                 </Box>
                 

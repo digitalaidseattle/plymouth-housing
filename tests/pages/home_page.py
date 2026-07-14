@@ -12,28 +12,27 @@ class HomePage(BasePage):
         super().__init__(driver)
         self.locators = HomePageLocators
         self.common_locators = CommonLocators
-        self.wait = WebDriverWait(driver, 60)  # CI safe timeout
+        self.wait = WebDriverWait(driver, 30)  # CI safe timeout
 
     # ---------------------------------------------------
     # Page Load Guard (Admin + Volunteer Safe)
     # ---------------------------------------------------
 
     def wait_for_homepage_loaded(self):
-        """
-        Wait until either Volunteer or Admin homepage is rendered.
-        Cold-start & CI safe.
-        """
+        # DOM ready
+        self.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
+        # UI ready (role-based)
         self.wait.until(
             lambda d: (
-                d.find_elements(*self.locators.VOLUNTEER_HOME_HEADER)
-                or d.find_elements(*self.locators.PLYMOUTH_HOUSING_TEXT)
+                    len(d.find_elements(*self.locators.VOLUNTEER_HOME_HEADER)) > 0
+                    or len(d.find_elements(*self.locators.PLYMOUTH_HOUSING_TEXT)) > 0
             )
         )
 
-        # Sidebar must exist in both roles
+        # Sidebar ready
         self.wait.until(
-            EC.visibility_of_element_located(
+            EC.element_to_be_clickable(
                 self.common_locators.CHECKOUT_MENU_BUTTON
             )
         )
@@ -80,29 +79,28 @@ class HomePage(BasePage):
     # ---------------------------------------------------
 
     def get_email_id(self):
-        email_el = self.wait.until(
-            EC.visibility_of_element_located(self.locators.EMAIL_ID)
-        )
-
         self.wait.until(
-            lambda d: email_el.text and email_el.text.strip().lower() != "null"
+            lambda d: (
+                    d.find_element(*self.locators.EMAIL_ID).text.strip().lower() != "null"
+            )
         )
-
-        return email_el.text.strip()
+        return self.get_text(self.locators.EMAIL_ID).strip()
 
     # ---------------------------------------------------
     # Logout
     # ---------------------------------------------------
 
     def click_email_id(self):
-        self.wait.until(
-            EC.element_to_be_clickable(self.locators.EMAIL_ID)
-        ).click()
+        el = self.wait.until(
+            EC.visibility_of_element_located(self.locators.EMAIL_ID)
+        )
+        self.driver.execute_script("arguments[0].click();", el)
 
     def click_logout(self):
-        self.wait.until(
-            EC.element_to_be_clickable(self.locators.LOGOUT_BUTTON)
-        ).click()
+        el = self.wait.until(
+            EC.visibility_of_element_located(self.locators.LOGOUT_BUTTON)
+        )
+        self.driver.execute_script("arguments[0].click();", el)
 
     def logout(self):
         self.click_email_id()
@@ -114,13 +112,13 @@ class HomePage(BasePage):
 
     def go_to_checkout_general(self):
         self.wait.until(
-            EC.element_to_be_clickable(
+            EC.visibility_of_element_located(
                 self.common_locators.CHECKOUT_MENU_BUTTON
             )
         ).click()
 
         self.wait.until(
-            EC.element_to_be_clickable(
+            EC.visibility_of_element_located(
                 self.common_locators.GENERAL_MENU_BUTTON
             )
         ).click()

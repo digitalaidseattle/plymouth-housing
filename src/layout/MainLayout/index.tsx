@@ -1,22 +1,24 @@
 /**
  *  MainLayout/index.tsx
  *
- *  @copyright 2024 Digital Aid Seattle
+ *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Box, Toolbar, useMediaQuery } from '@mui/material';
+import { Box, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import navigation from '../../menu-items';
 import Drawer from './Drawer';
 import Header from './Header';
 import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 import ScrollTop from '../../components/ScrollTop';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import { DrawerOpenContext } from '../../components/contexts/DrawerOpenContext';
 import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
 import { getAuthMe } from '../../services/authService';
 import { apiRequest } from '../../services/apiRequest';
@@ -28,8 +30,10 @@ const MainLayout: React.FC = () => {
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(!matchDownLG);
   const navigate = useNavigate();
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
+  const navigateTimeoutRef = useRef<number | null>(null);
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
@@ -40,44 +44,6 @@ const MainLayout: React.FC = () => {
     },
     timeout: SETTINGS.inactivity_timeout,
   });
-
-  useEffect(() => {
-    const fetchTokenAndRole = async () => {
-      try {
-        const payload = await getAuthMe();
-        const { clientPrincipal } = payload;
-        const userClaims = clientPrincipal;
-        setUser(userClaims || null);
-
-        if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
-          navigate('/pick-your-name');
-          return;
-        }
-
-        if (userClaims?.userRoles?.includes('admin')) {
-          try {
-            const createdOrUpdatedAdmin = await upsertAdminUser({
-              name: userClaims.userDetails ?? '',
-              email: userClaims.userID ?? '',
-              claims: userClaims,
-            });
-            // Now we have an User object with id, name, created_at, last_signed_in
-            setLoggedInUserId(createdOrUpdatedAdmin.id);
-          } catch (error) {
-            console.error('Error in upsertAdminUser:', error);
-            //TODO error handling
-          }
-        }
-      } catch (error) {
-        console.error('Error in fetchTokenAndVolunteers:', error);
-        navigate('/');
-      }
-    };
-    fetchTokenAndRole();
-
-    // The effect is intended to run only once on mount.
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, []);
 
   /**
    * Create or update an Admin entry in the "Users" table:
@@ -165,13 +131,64 @@ const MainLayout: React.FC = () => {
     return promise;
   };
 
+  useEffect(() => {
+    const fetchTokenAndRole = async () => {
+      try {
+        const payload = await getAuthMe();
+        const { clientPrincipal } = payload;
+        const userClaims = clientPrincipal;
+        setUser(userClaims || null);
+
+        if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
+          navigate('/pick-your-name');
+          return;
+        }
+
+        if (userClaims?.userRoles?.includes('admin')) {
+          try {
+            const createdOrUpdatedAdmin = await upsertAdminUser({
+              name: userClaims.userDetails ?? '',
+              email: userClaims.userId ?? '',
+              claims: userClaims,
+            });
+            // Now we have an User object with id, name, created_at, last_signed_in
+            setLoggedInUserId(createdOrUpdatedAdmin.id);
+          } catch (error) {
+            console.error('Error in upsertAdminUser:', error);
+            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchTokenAndVolunteers:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
+        showSnackbar(`Authentication error: ${errorMessage}`, 'error');
+        navigateTimeoutRef.current = window.setTimeout(() => {
+          navigateTimeoutRef.current = null;
+          navigate('/');
+        }, 3000);
+      }
+    };
+    fetchTokenAndRole();
+
+    return () => {
+      if (navigateTimeoutRef.current !== null) {
+        clearTimeout(navigateTimeoutRef.current);
+        navigateTimeoutRef.current = null;
+      }
+    };
+
+    // The effect is intended to run only once on mount.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
+
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
 
   // set media wise responsive drawer
   useEffect(() => {
-    setDrawerOpen(!matchDownLG);
+    setDrawerOpen(!matchDownLG);  
   }, [matchDownLG]);
 
   return (
@@ -181,19 +198,44 @@ const MainLayout: React.FC = () => {
           sx={{ display: 'flex', width: '100%' }}
           onMouseMove={resetTimer}
           onClick={resetTimer}
-          onKeyPress={resetTimer}
+          onKeyDown={resetTimer}
         >
           <Header open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Box
             component="main"
-            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}
+            sx={{
+              width: '100%',
+              flexGrow: 1,
+              minWidth: 0,
+              height: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              p: { xs: 2, sm: 3 },
+            }}
           >
             <Toolbar />
             <Breadcrumbs navigation={navigation} title />
-            <Outlet context={{ drawerOpen }} />
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+              <Outlet context={{ drawerOpen }} />
+            </Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textAlign: 'center', py: 2 }}
+            >
+              &copy; {new Date().getFullYear()} Digital Aid Seattle
+            </Typography>
           </Box>
         </Box>
+        <SnackbarAlert
+          open={snackbarState.open}
+          onClose={handleClose}
+          severity={snackbarState.severity}
+        >
+          {snackbarState.message}
+        </SnackbarAlert>
       </ScrollTop>
     </DrawerOpenContext.Provider>
   );

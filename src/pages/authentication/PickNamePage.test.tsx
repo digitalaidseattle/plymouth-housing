@@ -1,3 +1,9 @@
+/**
+ *  PickNamePage.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
@@ -29,7 +35,7 @@ vi.mock('./SpinUpDialog', () => ({
 }));
 
 const createUserContextValue = (overrides = {}) => ({
-  user: { userID: "1", userDetails: "Test User", userRoles: ["volunteer"], claims: [] },
+  user: { userId: "1", userDetails: "Test User", userRoles: ["volunteer"], claims: [] },
   loggedInUserId: null,
   setLoggedInUserId: vi.fn(),
   activeVolunteers: [],
@@ -64,7 +70,7 @@ describe('PickNamePage Component', () => {
     });
 
     expect(screen.getByText(/Pick Your Name/i)).toBeInTheDocument();
-    expect(screen.getByText(/contact IT department/i)).toBeInTheDocument();
+    expect(screen.getByText(/Let a staff member know/i)).toBeInTheDocument();
   });
 
   test('navigates to /enter-your-pin when a name is selected and Continue is clicked', async () => {

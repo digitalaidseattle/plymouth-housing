@@ -1,12 +1,17 @@
+/**
+ *  ContactAdminDialog.test.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi } from 'vitest';
 import ContactAdminDialog from './ContactAdminDialog';
 
-// Override environment variables for testing (optional)
+// Override environment variables for testing
 Object.defineProperty(import.meta, 'env', {
   value: {
-    VITE_ADMIN_PHONE_NUMBER: '123-456-7890',
     VITE_ADMIN_EMAIL: 'admin@example.com'
   }
 });
@@ -19,10 +24,10 @@ describe('ContactAdminDialog Component', () => {
     // Verify that the dialog title is rendered
     expect(screen.getByText('Forget your PIN?')).toBeInTheDocument();
 
-    // Instead of verifying exact phone/email values, check for key phrases
-    const content = screen.getByText(/Please call the phone number/i);
+    // Check for the guidance text
+    const content = screen.getByText(/Let a staff member know/i);
     expect(content).toBeInTheDocument();
-    expect(content.textContent).toMatch(/or email/i);
+    expect(content.textContent).toMatch(/email/i);
 
     // Verify that the Close button is rendered
     expect(screen.getByRole('button', { name: /Close/i })).toBeInTheDocument();

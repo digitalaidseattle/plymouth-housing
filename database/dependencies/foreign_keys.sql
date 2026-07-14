@@ -25,7 +25,7 @@ FOREIGN KEY (category_id) REFERENCES dbo.Categories(id);
 -- Transactions -> Transactions (self-referencing for parent transactions)
 ALTER TABLE dbo.Transactions
 ADD CONSTRAINT FK_Transactions_ParentTransaction
-FOREIGN KEY (parent_transaction_id) REFERENCES dbo.Transactions(transaction_id);
+FOREIGN KEY (parent_transaction_id) REFERENCES dbo.Transactions(id);
 
 -- Transactions -> Users
 ALTER TABLE dbo.Transactions

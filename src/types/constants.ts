@@ -1,3 +1,9 @@
+/**
+ *  constants.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 export const VITE_APPLICATION_NAME = 'Plymouth Housing';
 
 export const API_HEADERS = {
@@ -31,6 +37,7 @@ export const ENDPOINTS = {
   GET_CHECKOUT_HISTORY: API_PREFIX + '/get-checkout-history',
   GET_INVENTORY_HISTORY: API_PREFIX + '/get-inventory-history',
   GET_LAST_RESIDENT_VISIT: API_PREFIX + '/get-last-resident-visit',
+  GET_TRANSACTION: API_PREFIX + '/get-transaction',
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
   CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
@@ -38,7 +45,7 @@ export const ENDPOINTS = {
 } as const;
 
 export const SETTINGS = {
-  itemsPerPage: 10,
+  itemsPerPage: 15,
   checkout_item_limit: 10,
   api_fetch_limit_items: 10000,
   api_fetch_limit_units: 1000,

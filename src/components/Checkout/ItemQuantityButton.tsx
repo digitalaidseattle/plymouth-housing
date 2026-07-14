@@ -1,3 +1,9 @@
+/**
+ *  ItemQuantityButton.tsx
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { Remove, Add } from '@mui/icons-material';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import { CheckoutCardProps, CheckoutItemProp } from '../../types/interfaces';
@@ -46,8 +52,8 @@ const ItemQuantityButton = ({
           </IconButton>
           <Typography
             sx={{
-              fontSize: { xs: '14px', md: '20px' },
-              mx: { xs: '10px', md: '15px' },
+              typography: { xs: 'body2', md: 'h5' },
+              mx: { xs: 1, md: 2 },
             }}
             data-testid="test-id-quantity"
           >
@@ -70,8 +76,8 @@ const ItemQuantityButton = ({
         <Button
           sx={{
             color: 'black',
-            fontSize: { xs: '14px', md: '16px' },
-            paddingX: { xs: '10px', md: '40px' },
+            typography: 'body2',
+            px: { xs: 1, md: 3 },
           }}
           onClick={() => removeItemFromCart(item.id, categoryName)}
         >

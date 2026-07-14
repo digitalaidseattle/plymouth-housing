@@ -48,5 +48,10 @@ export default [{
         "react-refresh/only-export-components": ["warn", {
             allowConstantExport: true,
         }],
+        // react-hooks 7.1.1 added this to the recommended preset. It flags guarded
+        // init/reset/fetch effects across the app that are working as intended;
+        // adopting it would mean refactoring checkout, auth, and inventory flows,
+        // which is out of scope for a dependency bump. Disabled deliberately.
+        "react-hooks/set-state-in-effect": "off",
     },
 }];

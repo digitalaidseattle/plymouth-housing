@@ -5,10 +5,10 @@
  *
  */
 import React from 'react';
-import { Box, Button, IconButton, Typography, Menu, MenuItem } from '@mui/material';
+import SearchBar from '../../components/Searchbar/SearchBar';
+import { Box, Button, Stack, Typography, Menu, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
-import SearchBar from '../../components/Searchbar/SearchBar';
 
 interface UserFiltersProps {
   search: string;
@@ -41,8 +41,8 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   };
 
   // Clear the status filter value and prevent menu closure on ClearIcon click
-  const clearStatusFilter = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent the menu from closing when clicking on ClearIcon
+  const clearStatusFilter = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
     onStatusFilterChange(null);
   };
 
@@ -57,8 +57,8 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   };
 
   // Clear the role filter value and prevent menu closure on ClearIcon click
-  const clearRoleFilter = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent the menu from closing when clicking on ClearIcon
+  const clearRoleFilter = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
     onRoleFilterChange(null);
   };
 
@@ -66,97 +66,102 @@ const UserFilters: React.FC<UserFiltersProps> = ({
   const roles = ['admin', 'volunteer'];
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', maxWidth: '90%' }}>
-      <Typography variant="body2">Filters</Typography>
-      <Box sx={{ px: 1 }}>
-        <Button
-          aria-label="Status Filter" 
-          aria-haspopup="true" 
-          sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-          onClick={handleStatusClick}
-        >
-          {statusFilter ? (
-            <>
-              {statusFilter}
-              <IconButton
-                aria-label="Clear Status Filter"
-                onClick={clearStatusFilter}
-                size="small"
-                sx={{ padding: 0, color: 'black', ml: 1 }}
-              >
-                <ClearIcon sx={{ fontSize: 'large' }} />
-              </IconButton>
-            </>
-          ) : (
-            <>
-              <Typography variant="body2">Status</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
-            </>
-          )}
-        </Button>
-        <Menu
-          open={Boolean(statusAnchorEl)}
-          onClose={handleStatusClose}
-          anchorEl={statusAnchorEl}
-        >
-          <MenuItem onClick={() => onStatusFilterChange('Active')}>
-            Active
-          </MenuItem>
-          <MenuItem onClick={() => onStatusFilterChange('Inactive')}>
-            Inactive
-          </MenuItem>
-        </Menu>
-      </Box>
-      <Box sx={{ px: 1 }}>
-        <Button
-          aria-label="Role Filter"
-          aria-haspopup="true"
-          sx={{ color: 'black', bgcolor: '#E0E0E0', height: '30px' }}
-          onClick={handleRoleClick}
-        >
-          {roleFilter ? (
-            <>
-              {roleFilter}
-              <IconButton
-                aria-label="Clear Role Filter"
-                onClick={clearRoleFilter}
-                size="small"
-                sx={{ padding: 0, color: 'black', ml: 1 }}
-              >
-                <ClearIcon sx={{ fontSize: 'large' }} />
-              </IconButton>
-            </>
-          ) : (
-            <>
-              <Typography variant="body2">Role</Typography>
-              <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
-            </>
-          )}
-        </Button>
-        <Menu
-          open={Boolean(roleAnchorEl)}
-          onClose={handleRoleClose}
-          anchorEl={roleAnchorEl}
-        >
-          {roles.map((role) => (
-            <MenuItem
-              key={role}
-              onClick={() => onRoleFilterChange(role)} // Dynamically handles role changes using an array
-            >
-              {role.charAt(0).toUpperCase() + role.slice(1)} {/* Capitalize the first letter of each role */}
-            </MenuItem>
-          ))}
-        </Menu>
-      </Box>
-      <Box sx={{ ml: 'auto' }}>
-        <SearchBar
-          searchValue={search}
-          onSearchChange={onSearchChange}
-          placeholder="Search..."
-          width="100%"
-        />
-      </Box>
-    </Box>
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        <Typography variant="body2">Filters</Typography>
+
+        <div>
+          <Button
+            variant="contained"
+            aria-label="Status Filter"
+            aria-haspopup="true"
+            sx={{ color: 'common.black', bgcolor: 'grey.300', minHeight: '30px', height: 'auto', '&:hover': { bgcolor: 'grey.400' } }}
+            onClick={handleStatusClick}
+          >
+            {statusFilter ? (
+              <>
+                {statusFilter}
+                <Box
+                  component="span"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Clear Status Filter"
+                  onClick={clearStatusFilter}
+                  onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') clearStatusFilter(e); }}
+                  sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+                >
+                  <ClearIcon sx={{ fontSize: 'large' }} />
+                </Box>
+              </>
+            ) : (
+              <>
+                <Typography variant="body2">Status</Typography>
+                <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
+              </>
+            )}
+          </Button>
+          <Menu
+            open={Boolean(statusAnchorEl)}
+            onClose={handleStatusClose}
+            anchorEl={statusAnchorEl}
+          >
+            <MenuItem onClick={() => onStatusFilterChange('Active')}>Active</MenuItem>
+            <MenuItem onClick={() => onStatusFilterChange('Inactive')}>Inactive</MenuItem>
+          </Menu>
+        </div>
+
+        <div>
+          <Button
+            variant="contained"
+            aria-label="Role Filter"
+            aria-haspopup="true"
+            sx={{ color: 'common.black', bgcolor: 'grey.300', minHeight: '30px', height: 'auto', '&:hover': { bgcolor: 'grey.400' } }}
+            onClick={handleRoleClick}
+          >
+            {roleFilter ? (
+              <>
+                {roleFilter}
+                <Box
+                  component="span"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Clear Role Filter"
+                  onClick={clearRoleFilter}
+                  onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') clearRoleFilter(e); }}
+                  sx={{ display: 'inline-flex', padding: 0, color: 'black', ml: 1, cursor: 'pointer' }}
+                >
+                  <ClearIcon sx={{ fontSize: 'large' }} />
+                </Box>
+              </>
+            ) : (
+              <>
+                <Typography variant="body2">Role</Typography>
+                <ExpandMoreIcon sx={{ fontSize: 'large', ml: 1 }} />
+              </>
+            )}
+          </Button>
+          <Menu
+            open={Boolean(roleAnchorEl)}
+            onClose={handleRoleClose}
+            anchorEl={roleAnchorEl}
+          >
+            {roles.map((role) => (
+              <MenuItem key={role} onClick={() => onRoleFilterChange(role)}>
+                {role.charAt(0).toUpperCase() + role.slice(1)}
+              </MenuItem>
+            ))}
+          </Menu>
+        </div>
+
+        <Box sx={{ flexGrow: 1 }}>
+          <SearchBar
+            searchValue={search}
+            onSearchChange={onSearchChange}
+            compact
+            placeholder="Search..."
+            width="100%"
+          />
+        </Box>
+    </Stack>
   );
 };
 

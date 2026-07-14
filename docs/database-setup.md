@@ -39,18 +39,25 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 
     ```$env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=master;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'```
 
-1. Use the `create_db.sql` script in VS Code:  
-   - Open the script and click the **play button** to execute.
-   - This will create the **inventory** database
+1. Run the bootstrap script:
 
-1.  Change the connection string to point to the inventory database instead of master:
+```powershell
+./database/bootstrap_db.ps1
+```
 
-    ```$env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'```
+1. The script will automatically:
+- Drop and recreate the **Inventory** database.
+- Create the schema.
+- Seed the database.
 
-1. Initialize the database:  
-   - Run the PowerShell script located at `./database/bootstrap_db.ps1`.  
+> **Warning**
+>
+> Both `bootstrap_db.ps1` and `create_db.sql` are **destructive**.
+>
+> They will drop and recreate the Inventory database, permanently deleting all existing data.
+>
+> Never run either script against staging or production unless you intentionally want to destroy and recreate the database.
 
-> **Warning:** Running `bootstrap_db.ps1` will wipe out all existing data in the database. Proceed with caution. Especially if you are pointing to staging or prod!
 
 ---
 

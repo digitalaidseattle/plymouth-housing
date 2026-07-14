@@ -106,7 +106,8 @@ const UserPage = () => {
       await updateUserStatus(userId);
       showSnackbar('User status updated successfully!', 'success');
     } catch (error) {
-      showSnackbar('Error updating user: ' + error, 'warning');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      showSnackbar(`Error updating user: ${errorMessage}`, 'warning');
     }
   };
 

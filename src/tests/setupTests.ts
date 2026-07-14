@@ -2,14 +2,12 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
 // Default global fetch mock to avoid network calls in tests.
-const defaultFetch = async (url: string, options?: any) => {
-  return {
-    ok: true,
+const defaultFetch: typeof fetch = async () =>
+  new Response(JSON.stringify({}), {
     status: 200,
     statusText: 'OK',
-    json: async () => ({}),
-  } as Response;
-};
+    headers: { 'Content-Type': 'application/json' },
+  });
 
 globalThis.fetch = vi
   .fn()

@@ -20,10 +20,17 @@ type TabPanelProps = {
 };
 
 const TabPanel = ({ children, value, index }: TabPanelProps) => {
+  // Keep inactive panels mounted (display: none) so each table's search,
+  // pagination, and edit state survives tab switches.
+  const isActive = value === index;
   return (
-    <div role="tabpanel" hidden={value !== index}>
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
-    </div>
+    <Box
+      role="tabpanel"
+      hidden={!isActive}
+      sx={{ pt: 2, flex: 1, minHeight: 0, flexDirection: 'column', display: isActive ? 'flex' : 'none' }}
+    >
+      {children}
+    </Box>
   );
 };
 
@@ -100,7 +107,7 @@ const Catalog = () => {
           action={
             <Typography
               component="span"
-              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+              sx={{ cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}
               onClick={() => {
                 clearError();
                 fetchData();
@@ -117,8 +124,12 @@ const Catalog = () => {
   }
 
   return (
-    <Box>
-      <MainCard>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <MainCard
+        border={false}
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        contentSX={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabValue} onChange={handleTabChange}>
             <Tab label="Items" sx={{ typography: 'body1' }} />
@@ -160,3 +171,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
+

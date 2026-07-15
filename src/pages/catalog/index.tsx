@@ -11,12 +11,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import { useCatalog } from './useCatalog';
 import ItemsTable from './ItemsTable';
 import CategoriesTable from './CategoriesTable';
-
-type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: 'success' | 'error' | 'warning' | 'info';
-};
+import { SnackbarState } from '../../types/interfaces';
 
 type TabPanelProps = {
   children?: React.ReactNode;

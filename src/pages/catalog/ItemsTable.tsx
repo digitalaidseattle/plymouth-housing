@@ -23,7 +23,7 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Check, Close, Add } from '@mui/icons-material';
-import { AdminItem, CategoryItem } from '../../types/interfaces';
+import { AdminItem, CategoryItem, EditState } from '../../types/interfaces';
 import SearchBar from '../../components/Searchbar/SearchBar';
 
 type ItemsTableProps = {
@@ -33,12 +33,6 @@ type ItemsTableProps = {
   onCreate: (item: Omit<AdminItem, 'id' | 'category_name'>) => Promise<boolean>;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
-};
-
-type EditState = {
-  id: number | null;
-  field: string | null;
-  value: string | number;
 };
 
 type NewItem = {

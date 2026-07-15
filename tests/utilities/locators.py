@@ -107,7 +107,7 @@ class CheckoutPageLocators:
 
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"continue")]')
 
-    PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(text(), "Proceed to Checkout")]')
+    PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "proceed to checkout")]')
     CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
 
     SEARCH = (By.XPATH, "//input[@type='search']")

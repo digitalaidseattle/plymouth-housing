@@ -128,9 +128,9 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedItems.map((row, index) => (
+              paginatedItems.map((row) => (
                 <TableRow
-                  key={index}
+                  key={row.id}
                   sx={{
                     height: '64px',
                     boxShadow: '0px -1px 0px 0px rgb(212, 212, 212);',
@@ -280,7 +280,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
         </Box>
 
         <Pagination
-          count={Math.ceil(items.length / rowsPerPage)}
+          count={Math.max(1, Math.ceil(items.length / rowsPerPage))}
           page={page + 1}
           onChange={(_, newPage) => setPage(newPage - 1)}
         />

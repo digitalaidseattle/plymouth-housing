@@ -75,7 +75,7 @@ describe('UserTable Component', () => {
     );
     fireEvent.click(screen.getByText('Show PIN'));
     await waitFor(() =>
-      expect(screen.getByText('Pin code:')).toBeInTheDocument()
+      expect(screen.getByText('PIN Code')).toBeInTheDocument()
     );
   });
 

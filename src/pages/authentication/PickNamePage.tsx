@@ -104,7 +104,7 @@ const PickYourNamePage: React.FC = () => {
   return (
       <MinimalWrapper>
         <CenteredLayout>
-          <Box sx={{ maxWidth: '250px', minWidth: '250px', width: '100%' }}>
+          <Box sx={{ maxWidth: '340px', width: '100%' }}>
             <Typography
               variant="h4"
               sx={{
@@ -126,8 +126,7 @@ const PickYourNamePage: React.FC = () => {
                 lineHeight: 1.5,
               }}
             >
-              <strong>Can't find your name?</strong> Let a staff member know or
-              contact IT department at {import.meta.env.VITE_ADMIN_PHONE_NUMBER}
+              <strong>Can't find your name?</strong> Let a staff member know.
             </Typography>
 
             <Autocomplete
@@ -146,7 +145,7 @@ const PickYourNamePage: React.FC = () => {
               )}
               sx={{
                 width: '100%',
-                marginBottom: 8,
+                marginBottom: 4,
                 '& .MuiAutocomplete-inputRoot': { height: '56px' },
               }}
               disabled={isLoading}
@@ -154,14 +153,11 @@ const PickYourNamePage: React.FC = () => {
 
             <Button
               variant="contained"
+              color="primary"
+              fullWidth
               onClick={handleNextClick}
-              sx={{
-                height: '45px',
-                width: '100%',
-                backgroundColor: 'black',
-                color: 'white',
-              }}
               disabled={isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)}
+              sx={{ height: '56px' }}
             >
               Continue
             </Button>

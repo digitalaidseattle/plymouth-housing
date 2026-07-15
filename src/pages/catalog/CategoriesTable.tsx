@@ -20,7 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Check, Close, Add } from '@mui/icons-material';
-import { CategoryItem } from '../../types/interfaces';
+import { CategoryItem, EditState } from '../../types/interfaces';
 
 type CategoriesTableProps = {
   categories: CategoryItem[];
@@ -28,12 +28,6 @@ type CategoriesTableProps = {
   onCreate: (category: Omit<CategoryItem, 'id'>) => Promise<boolean>;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
-};
-
-type EditState = {
-  id: number | null;
-  field: string | null;
-  value: string;
 };
 
 type NewCategory = {
@@ -85,13 +79,14 @@ const CategoriesTable = ({
     if (!category) return;
 
     // Validate
-    if (editState.field === 'name' && !editState.value.trim()) {
+    const strValue = String(editState.value);
+    if (editState.field === 'name' && !strValue.trim()) {
       onError('Category name cannot be empty');
       return;
     }
 
     if (editState.field === 'item_limit') {
-      const limit = parseInt(editState.value);
+      const limit = parseInt(strValue);
       if (isNaN(limit) || limit < 1) {
         onError('Item limit must be a positive number');
         return;
@@ -102,9 +97,9 @@ const CategoriesTable = ({
     try {
       const updates: Partial<CategoryItem> = {};
       if (editState.field === 'name') {
-        updates.name = editState.value.trim();
+        updates.name = strValue.trim();
       } else if (editState.field === 'item_limit') {
-        updates.item_limit = parseInt(editState.value);
+        updates.item_limit = parseInt(strValue);
       }
 
       await onUpdate(editState.id, updates);
@@ -206,7 +201,7 @@ const CategoriesTable = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4">Categories</Typography>
         <Button
@@ -215,12 +210,12 @@ const CategoriesTable = ({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          Add Category
+          Add category
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>

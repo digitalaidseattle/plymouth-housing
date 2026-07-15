@@ -105,7 +105,7 @@ class CheckoutPageLocators:
     UNIT_OPTIONS = (By.XPATH, "//ul[@id='select-unit-number-listbox']//li")
     NAME_OPTIONS = (By.XPATH, "//ul[@id='resident-name-autocomplete-listbox']//li")
 
-    CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"continue")]')
+    CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"Continue")]')
 
     PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "proceed to checkout")]')
     CONFIRM = (By.XPATH, '//*[text()="Confirm"]')

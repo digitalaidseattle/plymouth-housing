@@ -5,8 +5,7 @@
  *
  */
 import React, { useState, useEffect } from 'react';
-import { SETTINGS } from '../../types/constants';
-import { Box, Button, Pagination, Stack } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UserFilters from './UserFilters';
 import UserTable from './UserTable';
@@ -21,8 +20,6 @@ const UserPage = () => {
   const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>(
     'original',
   );
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = SETTINGS.itemsPerPage;
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -83,22 +80,9 @@ const UserPage = () => {
     );
   };
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setCurrentPage(value);
-  };
-
   const handleSearchChange = (value: string) => {
     setSearch(value);
   };
-
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
@@ -159,19 +143,10 @@ const UserPage = () => {
       {/* Users Table */}
       <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <UserTable
-          users={currentItems}
+          users={filteredData}
           nameOrder={nameOrder}
           onNameOrderToggle={handleNameOrderToggle}
           onStatusToggle={handleStatusToggle}
-        />
-      </Box>
-
-      {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
         />
       </Box>
 

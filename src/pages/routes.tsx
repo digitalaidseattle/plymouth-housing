@@ -89,7 +89,7 @@ const routes = [
         element: (
           <RootRedirect source="catalog">
             <MainContainer title="Catalog">
-              <Catalog />,
+              <Catalog />
             </MainContainer>
           </RootRedirect>
         ),

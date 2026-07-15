@@ -130,8 +130,8 @@ const UserTable: React.FC<UserTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedUsers.map((user, index) => (
-              <TableRow key={index}>
+            {paginatedUsers.map((user) => (
+              <TableRow key={user.id}>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.role}</TableCell>
                 <TableCell>
@@ -230,7 +230,7 @@ const UserTable: React.FC<UserTableProps> = ({
           onClose={() => setSnackbarOpen(false)}
           severity="warning"
         >
-          'PIN not available.'
+          PIN not available.
         </SnackbarAlert>
       </TableContainer>
       <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
@@ -267,7 +267,7 @@ const UserTable: React.FC<UserTableProps> = ({
           </Select>
         </Box>
         <Pagination
-          count={Math.ceil(users.length / rowsPerPage)}
+          count={Math.max(1, Math.ceil(users.length / rowsPerPage))}
           page={page + 1}
           onChange={(_, newPage) => setPage(newPage - 1)}
         />

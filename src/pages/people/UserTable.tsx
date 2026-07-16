@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -20,6 +20,8 @@ import {
   Modal,
   Box,
   Typography,
+  Pagination,
+  Select
 } from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -27,6 +29,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
 import { User } from '../../types/interfaces';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { SETTINGS } from '../../types/constants';
 
 interface UserTableProps {
   users: User[];
@@ -48,6 +51,15 @@ const UserTable: React.FC<UserTableProps> = ({
   const [openPinModal, setOpenPinModal] = useState(false);
   const [selectedPin, setSelectedPin] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(SETTINGS.itemsPerPage);
+
+  useEffect(() => {
+    setPage(0);
+  }, [users]);
+
+  const paginatedUsers = users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -81,138 +93,186 @@ const UserTable: React.FC<UserTableProps> = ({
     handleMenuClose();
   };
   return (
-    <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-      <Table stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell
-              sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-              onClick={onNameOrderToggle}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                Name
-                {nameOrder === 'asc' ? (
-                  <ArrowUpwardIcon
-                    fontSize="small"
-                    sx={{ ml: 0.5, color: 'gray' }}
-                  />
-                ) : nameOrder === 'desc' ? (
-                  <ArrowDownwardIcon
-                    fontSize="small"
-                    sx={{ ml: 0.5, color: 'gray' }}
-                  />
-                ) : null}
-              </Box>
-            </TableCell>
-            <TableCell sx={{ fontWeight: 'bold' }}>Role</TableCell>
-            <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-            <TableCell sx={{ fontWeight: 'bold' }}>Date Created</TableCell>
-            <TableCell sx={{ fontWeight: 'bold' }}>
-              Last Signed In Date
-            </TableCell>
-            <TableCell sx={{ fontWeight: 'bold' }}></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((user, index) => (
-            <TableRow key={index}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.role}</TableCell>
-              <TableCell>
-                <Chip
-                  label={user.active ? 'Active' : 'Inactive'}
-                  sx={{
-                    backgroundColor: user.active ? '#E6F4EA' : '#FDECEA',
-                    color: user.active ? '#357A38' : '#D32F2F',
-                    borderRadius: '8px',
-                    px: 1.5,
-                  }}
-                />
+    <>
+      <TableContainer
+        component={Paper}
+        sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}
+      >
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell
+                sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                onClick={onNameOrderToggle}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  Name
+                  {nameOrder === 'asc' ? (
+                    <ArrowUpwardIcon
+                      fontSize="small"
+                      sx={{ ml: 0.5, color: 'gray' }}
+                    />
+                  ) : nameOrder === 'desc' ? (
+                    <ArrowDownwardIcon
+                      fontSize="small"
+                      sx={{ ml: 0.5, color: 'gray' }}
+                    />
+                  ) : null}
+                </Box>
               </TableCell>
-              <TableCell>
-                {new Date(user.created_at).toLocaleDateString()}
+              <TableCell sx={{ fontWeight: 'bold' }}>Role</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Date Created</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>
+                Last Signed In Date
               </TableCell>
-              <TableCell>
-                {user.last_signed_in
-                  ? new Date(user.last_signed_in).toLocaleDateString()
-                  : 'None'}
-              </TableCell>
-              <TableCell>
-                <IconButton aria-label="more" onClick={(e) => handleMenuOpen(e, user)}>
-                  <MoreVertIcon />
-                </IconButton>
-              </TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}></TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {paginatedUsers.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={user.active ? 'Active' : 'Inactive'}
+                    sx={{
+                      backgroundColor: user.active ? '#E6F4EA' : '#FDECEA',
+                      color: user.active ? '#357A38' : '#D32F2F',
+                      borderRadius: '8px',
+                      px: 1.5,
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  {new Date(user.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  {user.last_signed_in
+                    ? new Date(user.last_signed_in).toLocaleDateString()
+                    : 'None'}
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    aria-label="more"
+                    onClick={(e) => handleMenuOpen(e, user)}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      {/* Menu for actions */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleStatusToggle}>
-          {selectedUser?.active ? 'Deactivate Role' : 'Activate Role'}
-        </MenuItem>
-        {selectedUser?.role !== 'admin'&&(
-        <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>)}
-      </Menu>
-
-      {/* PIN Modal */}
-      <Modal
-        open={openPinModal}
-        onClose={() => setOpenPinModal(false)}
-        aria-labelledby="pin-modal-title"
-        aria-describedby="pin-modal-description"
-      >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
-            borderRadius: '8px',
-            boxShadow: 24,
-            p: 4,
-            outline: 'none',
-            width: 300,
-            textAlign: 'center',
-          }}
+        {/* Menu for actions */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
         >
-          {/* Close Button */}
-          <IconButton
-            aria-label="close"
-            onClick={() => setOpenPinModal(false)}
+          <MenuItem onClick={handleStatusToggle}>
+            {selectedUser?.active ? 'Deactivate Role' : 'Activate Role'}
+          </MenuItem>
+          {selectedUser?.role !== 'admin' && (
+            <MenuItem onClick={handleShowPin}>Show PIN</MenuItem>
+          )}
+        </Menu>
+
+        {/* PIN Modal */}
+        <Modal
+          open={openPinModal}
+          onClose={() => setOpenPinModal(false)}
+          aria-labelledby="pin-modal-title"
+          aria-describedby="pin-modal-description"
+        >
+          <Box
             sx={{
               position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              bgcolor: 'background.paper',
+              borderRadius: '8px',
+              boxShadow: 24,
+              p: 4,
+              outline: 'none',
+              width: 300,
+              textAlign: 'center',
             }}
           >
-            <CloseIcon />
-          </IconButton>
+            {/* Close Button */}
+            <IconButton
+              aria-label="close"
+              onClick={() => setOpenPinModal(false)}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
 
-          <Typography id="pin-modal-title" variant="h6" component="h2">
-            PIN Code
-          </Typography>
-          <Typography id="pin-modal-description" sx={{ mt: 2 }}>
-            <strong>{selectedPin}</strong>
-          </Typography>
+            <Typography id="pin-modal-title" variant="h6" component="h2">
+              PIN Code
+            </Typography>
+            <Typography id="pin-modal-description" sx={{ mt: 2 }}>
+              <strong>{selectedPin}</strong>
+            </Typography>
+          </Box>
+        </Modal>
+
+        <SnackbarAlert
+          open={snackbarOpen}
+          onClose={() => setSnackbarOpen(false)}
+          severity="warning"
+        >
+          PIN not available.
+        </SnackbarAlert>
+      </TableContainer>
+      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
+          <Typography variant="body2">Rows per page:</Typography>
+          <Select
+            variant="standard"
+            sx={{
+              '&::before': { borderBottom: 'none' },
+              '&:hover:not(.Mui-disabled)::before': { borderBottom: 'none' },
+            }}
+            value={rowsPerPage}
+            onChange={(e) => {
+              setRowsPerPage(Number(e.target.value));
+              setPage(0);
+            }}
+            MenuProps={{
+              anchorOrigin: { vertical: 'top', horizontal: 'left' },
+              transformOrigin: { vertical: 'bottom', horizontal: 'left' },
+            }}
+          >
+            {SETTINGS.rowsPerPageOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
         </Box>
-      </Modal>
-
-      <SnackbarAlert
-        open={snackbarOpen}
-        onClose={() => setSnackbarOpen(false)}
-        severity="warning"
-      >
-        'PIN not available.'
-      </SnackbarAlert>
-    </TableContainer>
+        <Pagination
+          count={Math.max(1, Math.ceil(users.length / rowsPerPage))}
+          page={page + 1}
+          onChange={(_, newPage) => setPage(newPage - 1)}
+        />
+      </Box>
+    </>
   );
 };
 

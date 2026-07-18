@@ -14,6 +14,7 @@ import {
 } from '../../types/interfaces';
 import { SPECIAL_ITEMS } from '../../types/constants';
 import CheckedoutListItem from './CheckedoutListItem';
+import { withCount } from '../../utils/textUtils';
 import DialogTemplate from '../DialogTemplate';
 
 type AdditionalNotesDialogProps = {
@@ -63,51 +64,40 @@ const AdditionalNotesDialog = ({
     .map((i) => i.item_id)
     .includes(item.id);
 
-  return (
-    <DialogTemplate
-      showDialog={showDialog}
-      handleShowDialog={handleShowDialog}
-      handleSubmit={handleSubmit}
-      submitButtonText="add to cart"
-      backButtonText="cancel"
-    >
-      {previousCheckouts && checkoutHistory && (
-        <Stack sx={{ gap: 2 }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: '600' }}>
-              Check before adding item
-            </Typography>
-            <Typography>
-              Please check with a staff member before adding any items that have
-              already been checked out.
-            </Typography>
-          </Box>
-          <Box>
-            <Stack direction="row" sx={{ gap: 2 }}>
-              <Typography variant="body2" sx={{ fontWeight: '600' }}>
-                Previously checked out
-              </Typography>
-              <Typography>{applianceMiscCheckouts.length} items</Typography>
+    return (
+        <DialogTemplate 
+            showDialog={showDialog} 
+            handleShowDialog={handleShowDialog}
+            handleSubmit={handleSubmit}
+            title="Provide appliance details to continue"
+            submitButtonText='Add to cart'
+            backButtonText='Cancel'>
+            {previousCheckouts && checkoutHistory &&
+            <Stack sx={{ gap: 2 }}>
+                <Box>
+                    <Typography variant="h4" sx={{ fontWeight: '600' }}>Check before adding item</Typography>
+                    <Typography>
+                        Please check with a staff member before adding any items that have already been checked out.
+                    </Typography>
+                </Box>
+                <Box>
+                    <Stack direction="row" sx={{ gap: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: '600' }}>Previously checked out</Typography>
+                        <Typography>{applianceMiscCheckouts.length} items</Typography>
+                    </Stack>
+                    <Box sx={{ 
+                        border: '1px solid gray',
+                        borderRadius: '6px',
+                        maxHeight: '8rem',
+                        overflowY: 'auto'
+                    }}>
+                        {applianceMiscCheckouts.map(i => 
+                            <CheckedoutListItem key={i.additionalNotes} itemName={i.additionalNotes} timesCheckedOut={i.timesCheckedOut}/>)
+                        }
+                    </Box>
+                </Box>
             </Stack>
-            <Box
-              sx={{
-                border: '1px solid gray',
-                borderRadius: '6px',
-                maxHeight: '8rem',
-                overflowY: 'auto',
-              }}
-            >
-              {applianceMiscCheckouts.map((i, index) => (
-                <CheckedoutListItem
-                  key={`${i.additionalNotes}-${index}`}
-                  itemName={i.additionalNotes}
-                  timesCheckedOut={i.timesCheckedOut}
-                />
-              ))}
-            </Box>
-          </Box>
-        </Stack>
-      )}
+            }
 
       <Stack sx={{ gap: 2 }}>
         <Box>

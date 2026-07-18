@@ -23,7 +23,7 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Check, Close, Add } from '@mui/icons-material';
-import { AdminItem, CategoryItem } from '../../types/interfaces';
+import { AdminItem, CategoryItem, EditState } from '../../types/interfaces';
 import SearchBar from '../../components/Searchbar/SearchBar';
 
 type ItemsTableProps = {
@@ -33,12 +33,6 @@ type ItemsTableProps = {
   onCreate: (item: Omit<AdminItem, 'id' | 'category_name'>) => Promise<boolean>;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
-};
-
-type EditState = {
-  id: number | null;
-  field: string | null;
-  value: string | number;
 };
 
 type NewItem = {
@@ -369,7 +363,7 @@ const ItemsTable = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box
         sx={{
           display: 'flex',
@@ -383,6 +377,7 @@ const ItemsTable = ({
           <SearchBar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
+            compact
             placeholder="Search items..."
             width="250px"
           />
@@ -392,13 +387,13 @@ const ItemsTable = ({
             onClick={() => setIsAdding(true)}
             disabled={isAdding}
           >
-            Add Item
+            Add item
           </Button>
         </Box>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -584,19 +579,19 @@ const ItemsTable = ({
             )}
           </TableBody>
         </Table>
-        <TablePagination
-          component="div"
-          count={filteredItems.length}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-        />
       </TableContainer>
+      <TablePagination
+        component="div"
+        count={filteredItems.length}
+        page={page}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
+        rowsPerPageOptions={[10, 25, 50, 100]}
+      />
     </Box>
   );
 };

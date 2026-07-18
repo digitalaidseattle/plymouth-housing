@@ -22,7 +22,7 @@ export function useResidentsByBuilding(buildingId: number | null) {
 
   useEffect(() => {
     if (buildingId === null) {
-      setData([]);
+      setData([]);  
       return;
     }
 

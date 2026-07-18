@@ -126,7 +126,7 @@ const VolunteerHome: React.FC = () => {
   }
 
   return (
-    <Box sx={{ paddingX: 20, paddingY: 2, height: '75vh' }}>
+    <Box sx={{ paddingX: { xs: 2, sm: 4, md: 20 }, paddingY: 2, height: '75vh' }}>
       {/* Header */}
       <Box sx={{ paddingBottom: 2 }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
@@ -135,15 +135,15 @@ const VolunteerHome: React.FC = () => {
       </Box>
 
       {/* Action Sections */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {/* Check out Section */}
-        <Box data-testid="section-checkout">
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+        {/* Checkout Section */}
+        <Box data-testid="section-checkout" sx={{ flex: 1 }}>
           <SectionHeader
             icon={<ArrowUpwardIcon />}
-            title="Check out"
+            title="Checkout"
             subtitle="Give items to resident"
           />
-          <Box sx={{ display: 'flex', gap: 4 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
             <Button
               variant="outlined"
               onClick={() => handleCheckOutClick('general')}
@@ -162,13 +162,13 @@ const VolunteerHome: React.FC = () => {
         </Box>
 
         {/* Stock Section */}
-        <Box data-testid="section-stock">
+        <Box data-testid="section-stock" sx={{ flex: 1 }}>
           <SectionHeader
             icon={<ArrowDownwardIcon />}
             title="Stock"
             subtitle="Add donated or purchased items"
           />
-          <Box sx={{ display: 'flex', gap: 4 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
             <Button variant="outlined" onClick={handleAddOpen} sx={buttonSx}>
               <Typography variant="h5">General Inventory</Typography>
             </Button>

@@ -14,7 +14,6 @@ import {
 } from '../../types/interfaces';
 import { SPECIAL_ITEMS } from '../../types/constants';
 import CheckedoutListItem from './CheckedoutListItem';
-import { withCount } from '../../utils/textUtils';
 import DialogTemplate from '../DialogTemplate';
 
 type AdditionalNotesDialogProps = {

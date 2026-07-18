@@ -5,64 +5,63 @@
  *
  */
 import { SyntheticEvent, useState } from 'react';
+import { Typography, Box, FormControl, Stack, TextField } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import {
-  Typography,
-  Box,
-  FormControl,
-  Stack,
-  TextField
-} from '@mui/material';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import { CheckoutHistoryItem, CheckoutItemProp, ResidentInfo } from '../../types/interfaces';
+  CheckoutHistoryItem,
+  CheckoutItemProp,
+  ResidentInfo,
+} from '../../types/interfaces';
 import { SPECIAL_ITEMS } from '../../types/constants';
 import CheckedoutListItem from './CheckedoutListItem';
-import { withCount } from '../../utils/textUtils';
 import DialogTemplate from '../DialogTemplate';
 
 type AdditionalNotesDialogProps = {
-    showDialog: boolean,
-    handleShowDialog: () => void,
-    item: CheckoutItemProp,
-    residentInfo: ResidentInfo,
-    addItemToCart: (item: CheckoutItemProp) => void;
-    checkoutHistory: CheckoutHistoryItem[];
-}
+  showDialog: boolean;
+  handleShowDialog: () => void;
+  item: CheckoutItemProp;
+  residentInfo: ResidentInfo;
+  addItemToCart: (item: CheckoutItemProp) => void;
+  checkoutHistory: CheckoutHistoryItem[];
+};
 
 type AutocompleteOption = {
-    inputValue?: string;
-    name: string;
-}
+  inputValue?: string;
+  name: string;
+};
 
 const AdditionalNotesDialog = ({
-    showDialog, 
-    handleShowDialog, 
-    item,
-    addItemToCart,
-    checkoutHistory
-    }: AdditionalNotesDialogProps) => {
+  showDialog,
+  handleShowDialog,
+  item,
+  addItemToCart,
+  checkoutHistory,
+}: AdditionalNotesDialogProps) => {
+  const [additionalNotesInput, setAdditionalNotesInput] = useState<string>('');
+  const [showError, setShowError] = useState<boolean>(false);
 
-    const [additionalNotesInput, setAdditionalNotesInput] = useState<string>('')
-    const [showError, setShowError] = useState<boolean>(false);
-    
-    const applianceMiscCheckouts = checkoutHistory.filter(i => i.item_id === SPECIAL_ITEMS.APPLIANCE_MISC);
-    const autocompleteOptions: AutocompleteOption[] = applianceMiscCheckouts.map((appliance: CheckoutHistoryItem) => ({ name: appliance.additionalNotes }))
+  const applianceMiscCheckouts = checkoutHistory.filter(
+    (i) => i.item_id === SPECIAL_ITEMS.APPLIANCE_MISC,
+  );
+  const autocompleteOptions: AutocompleteOption[] = applianceMiscCheckouts.map(
+    (appliance: CheckoutHistoryItem) => ({ name: appliance.additionalNotes }),
+  );
 
-    const filter = createFilterOptions<AutocompleteOption>();
-    
-
-    function handleSubmit(e: SyntheticEvent) {
-        e.preventDefault();
-        // validate input, show error
-        if (!additionalNotesInput) {
-            setShowError(true);
-            return;
-        }
-        const updatedItem = {...item, additional_notes: additionalNotesInput}
-        addItemToCart(updatedItem);
-        handleShowDialog();
+  function handleSubmit(e: SyntheticEvent) {
+    e.preventDefault();
+    // validate input, show error
+    if (!additionalNotesInput) {
+      setShowError(true);
+      return;
     }
+    const updatedItem = { ...item, additional_notes: additionalNotesInput };
+    addItemToCart(updatedItem);
+    handleShowDialog();
+  }
 
-    const previousCheckouts = checkoutHistory.map(i => i.item_id).includes(item.id);
+  const previousCheckouts = checkoutHistory
+    .map((i) => i.item_id)
+    .includes(item.id);
 
     return (
         <DialogTemplate 
@@ -83,7 +82,7 @@ const AdditionalNotesDialog = ({
                 <Box>
                     <Stack direction="row" sx={{ gap: 2 }}>
                         <Typography variant="body2" sx={{ fontWeight: '600' }}>Previously checked out</Typography>
-                        <Typography>{withCount(applianceMiscCheckouts.length, 'item')}</Typography>
+                        <Typography>{applianceMiscCheckouts.length} items</Typography>
                     </Stack>
                     <Box sx={{ 
                         border: '1px solid gray',
@@ -99,72 +98,86 @@ const AdditionalNotesDialog = ({
             </Stack>
             }
 
-            <Stack sx={{ gap: 2 }}>
-                <Box>
-                    <Typography>You can specify the appliance here.</Typography>
-                </Box>
-                
-                <FormControl>
-                    <Autocomplete 
-                        value={additionalNotesInput}
-                        onChange={(_event, newValue) => {
-                                if (typeof newValue === 'string') {
-                                setAdditionalNotesInput(newValue);
-                            } else if (newValue && (newValue as AutocompleteOption).inputValue) {
-                                setAdditionalNotesInput((newValue as AutocompleteOption).inputValue!);
-                            } else if (newValue && (newValue as AutocompleteOption).name) {
-                                setAdditionalNotesInput((newValue as AutocompleteOption).name);
-                            } else {
-                                setAdditionalNotesInput('');
-                            }
-                        }}
-                        filterOptions={(options, params) => {
-                            const filtered = filter(options, params);
+      <Stack sx={{ gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: '600' }}>
+            Enter {item && item.name} Details
+          </Typography>
+          <Typography>You can specify the appliance here.</Typography>
+        </Box>
 
-                            const { inputValue } = params;
-                            const isExisting = options.some((option) => inputValue === option.name);
-                            if (inputValue !== '' && !isExisting) {
-                            filtered.push({
-                                inputValue,
-                                name: `Add "${inputValue}"`
-                            });
-                            }
-                            return filtered;
-                        }}
-                        selectOnFocus
-                        clearOnBlur 
-                        handleHomeEndKeys
-                        id="resident-name-autocomplete"
-                        options={autocompleteOptions}
-                        getOptionLabel={(option) => {
-                        if (typeof option === 'string') {
-                            return option;
-                        }
-                        if (option.inputValue) {
-                            return option.inputValue;
-                        }
-                        return option.name;
-                        }}
-                        renderOption={(props, option) => {
-                        const { key, ...optionProps } = props;
-                        return (
-                            <li key={key} {...optionProps}>
-                            {option.name}
-                            </li>
-                        );
-                        }}
-                        sx={{ width: 300 }}
-                        freeSolo
-                        renderInput={(params) => (
-                        <TextField {...params} label="Name of appliance" 
-                            error={showError && !additionalNotesInput} 
-                            helperText={showError && !additionalNotesInput ? "Please enter the name of the appliance" : ""}/>
-                        )}
-                    />
-                </FormControl>
-            </Stack>
-        </DialogTemplate>
-    );
-}
+        <FormControl>
+          <Autocomplete
+            value={additionalNotesInput}
+            inputValue={additionalNotesInput}
+            onChange={(_event, newValue) => {
+              if (typeof newValue === 'string') {
+                setAdditionalNotesInput(newValue);
+              } else if (
+                newValue &&
+                (newValue as AutocompleteOption).inputValue
+              ) {
+                setAdditionalNotesInput(
+                  (newValue as AutocompleteOption).inputValue!,
+                );
+              } else if (newValue && (newValue as AutocompleteOption).name) {
+                setAdditionalNotesInput((newValue as AutocompleteOption).name);
+              } else {
+                setAdditionalNotesInput('');
+              }
+            }}
+            onInputChange={(_event, newInputValue, reason) => {
+              if (reason === 'input') {
+                setAdditionalNotesInput(newInputValue);
+              }
+            }}
+            filterOptions={(options, params) => {
+              return options.filter((option) =>
+                option.name
+                  .toLowerCase()
+                  .includes(params.inputValue.toLowerCase()),
+              );
+            }}
+            selectOnFocus
+            handleHomeEndKeys
+            id="appliance-misc-autocomplete"
+            options={autocompleteOptions}
+            getOptionLabel={(option) => {
+              if (typeof option === 'string') {
+                return option;
+              }
+              if (option.inputValue) {
+                return option.inputValue;
+              }
+              return option.name;
+            }}
+            renderOption={(props, option) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li key={key} {...optionProps}>
+                  {option.name}
+                </li>
+              );
+            }}
+            sx={{ width: 300 }}
+            freeSolo
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Name of appliance"
+                error={showError && !additionalNotesInput}
+                helperText={
+                  showError && !additionalNotesInput
+                    ? 'Please enter the name of the appliance'
+                    : ''
+                }
+              />
+            )}
+          />
+        </FormControl>
+      </Stack>
+    </DialogTemplate>
+  );
+};
 
 export default AdditionalNotesDialog;

@@ -70,7 +70,7 @@ describe('PickNamePage Component', () => {
     });
 
     expect(screen.getByText(/Pick Your Name/i)).toBeInTheDocument();
-    expect(screen.getByText(/contact IT department/i)).toBeInTheDocument();
+    expect(screen.getByText(/Let a staff member know/i)).toBeInTheDocument();
   });
 
   test('navigates to /enter-your-pin when a name is selected and Continue is clicked', async () => {

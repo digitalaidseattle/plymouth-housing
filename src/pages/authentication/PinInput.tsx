@@ -43,6 +43,10 @@ const PinInputComponent: React.FC<{
     onPinChange(pin);
   }, [pin, onPinChange]);
 
+  useEffect(() => {
+    pinRefs.current[0]?.focus();
+  }, []);
+
   const updatePin = useCallback((index: number, value: string) => {
     setPin((prevPin) => {
       const newPin = [...prevPin];

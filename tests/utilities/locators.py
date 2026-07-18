@@ -9,10 +9,29 @@ class CommonLocators:
     HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
 class HistoryPageLocators:
-    HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
-    HISTORY_CARDS = (By.XPATH,"//div[.//p[contains(text(),'Created')] and .//text()[contains(.,'/')]]")
-    NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
+    HISTORY_HEADER = (
+        By.XPATH,
+        "//h6[normalize-space()='History']"
+    )
+
+    # Match the actual top count label, not a broad parent/container.
+    RECORD_COUNT_TEXT = (
+        By.XPATH,
+        "//*[contains(normalize-space(text()),'Showing') "
+        "and contains(normalize-space(text()),'record')]"
+    )
+
+    # Screenshot-confirmed transaction card root:
+    # <div role="button" id="checkout-card-...">
+    HISTORY_CARDS = (
+        By.CSS_SELECTOR,
+        "div[role='button'][id^='checkout-card-']"
+    )
+
+    NO_TRANSACTIONS_MESSAGE = (
+        By.XPATH,
+        "//*[contains(text(),'No transactions found')]"
+    )
 
 class HomePageLocators:
     # ---- Sections ----
@@ -77,6 +96,7 @@ class InventoryPageLocators:
 
 
 class CheckoutPageLocators:
+    PLUS_BUTTON = (By.XPATH, "//button[@aria-label='Twin-size Sheet Set']")
     BUILDING_CODE = (By.ID, "select-building")
     UNIT_NUMBER = (By.ID, "select-unit-number")
     NAME_INPUT = (By.ID, "resident-name-autocomplete")
@@ -85,9 +105,9 @@ class CheckoutPageLocators:
     UNIT_OPTIONS = (By.XPATH, "//ul[@id='select-unit-number-listbox']//li")
     NAME_OPTIONS = (By.XPATH, "//ul[@id='resident-name-autocomplete-listbox']//li")
 
-    CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"continue")]')
+    CONTINUE_BUTTON = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "continue")]')
 
-    PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(text(), "Proceed to Checkout")]')
+    PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "proceed to checkout")]')
     CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
 
     SEARCH = (By.XPATH, "//input[@type='search']")
@@ -96,13 +116,10 @@ class CheckoutPageLocators:
     SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
 
     # over limit warning
-    OVER_LIMIT_WARNING = (
-        By.XPATH,
-        "//*[contains(translate(normalize-space(.), "
-        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'over') "
-        "and contains(translate(normalize-space(.), "
-        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'limit')]"
-    )
+    OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
+
+    # minus button
+    MINUS_BUTTON = (By.XPATH, "//button[.//text()='-']")
 
     # loading
     LOADING_SPINNER = (By.XPATH, "//*[text()='Loading, please wait...']")
@@ -120,20 +137,9 @@ class CheckoutPageLocators:
     def get_add_button_locator(item_name):
         return (
             By.XPATH,
-            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
-            f"//div[contains(@class,'MuiCardActions-root')]"
-            f"//div[contains(@class,'MuiBox-root')]"
-            f"/button[last()]"
-        )
-
-    @staticmethod
-    def get_minus_button_locator(item_name):
-        return (
-            By.XPATH,
-            f"//div[contains(@class,'MuiCard-root')][.//*[contains(.,'{item_name}')]]"
-            f"//div[contains(@class,'MuiCardActions-root')]"
-            f"//div[contains(@class,'MuiBox-root')]"
-            f"/button[1]"
+            f"//p[@aria-label='{item_name}']"
+            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
+            f"/following-sibling::div//button"
         )
 
 class AddItemPageLocators:

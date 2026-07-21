@@ -87,6 +87,7 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
               data={data}
               setSearchData={setSearchData}
               setSearchActive={setSearchActive}
+              width="220px"
               compact
             />
           )}

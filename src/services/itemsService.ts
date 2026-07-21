@@ -16,10 +16,13 @@ import { getRole } from '../utils/userUtils';
 import { apiRequest } from './apiRequest';
 
 export async function getCategorizedItems(
-  user: ClientPrincipal | null
+  user: ClientPrincipal | null,
+  forceRefresh = false,
 ): Promise<CategoryProps[]> {
-  const cached = cacheGet<CategoryProps[]>('categorizedItems');
-  if (cached) return cached;
+  if (!forceRefresh) {
+    const cached = cacheGet<CategoryProps[]>('categorizedItems');
+    if (cached) return cached;
+  }
 
   try {
     const result = await apiRequest<CategoryProps[]>({

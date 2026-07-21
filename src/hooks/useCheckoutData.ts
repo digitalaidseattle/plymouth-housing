@@ -48,9 +48,9 @@ export function useCheckoutData({
   });
 
   // Returned so CheckoutDialog can refresh inventory after a successful checkout
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (forceRefresh = false) => {
     try {
-      const categorizedItems = await getCategorizedItems(user);
+      const categorizedItems = await getCategorizedItems(user, forceRefresh);
 
       setData(categorizedItems);
 

@@ -5,7 +5,16 @@
  *
  */
 import { Dispatch, SetStateAction } from 'react';
-import { Box, Button, Stack, useTheme } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  Stack,
+  Tooltip,
+  useTheme,
+} from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   CategoryProps,
   CheckoutType,
@@ -24,6 +33,8 @@ type CheckoutPageHeaderProps = {
   setSearchData: Dispatch<SetStateAction<CategoryProps[]>>;
   setSearchActive: Dispatch<SetStateAction<boolean>>;
   onResidentInfoClick: () => void;
+  onRefresh: () => void;
+  refreshing: boolean;
 };
 
 const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
@@ -36,6 +47,8 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
   setSearchData,
   setSearchActive,
   onResidentInfoClick,
+  onRefresh,
+  refreshing,
 }) => {
   const theme = useTheme();
 
@@ -68,14 +81,32 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         >
           {residentLabel}
         </Button>
-        {checkoutType === 'general' && (
-          <SearchBar
-            data={data}
-            setSearchData={setSearchData}
-            setSearchActive={setSearchActive}
-            compact
-          />
-        )}
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          {checkoutType === 'general' && (
+            <SearchBar
+              data={data}
+              setSearchData={setSearchData}
+              setSearchActive={setSearchActive}
+              compact
+            />
+          )}
+          <Tooltip title="Refresh inventory">
+            <span>
+              <IconButton
+                color="primary"
+                onClick={onRefresh}
+                disabled={refreshing}
+                aria-label="Refresh inventory"
+              >
+                {refreshing ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <RefreshIcon />
+                )}
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Stack>
       </Stack>
       {!searchActive && checkoutType === 'general' && (
         <Box sx={{ my: 2 }}>

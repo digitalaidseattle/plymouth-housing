@@ -210,6 +210,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   const [searchData, setSearchData] = useState<CategoryProps[]>([]);
   const [searchActive, setSearchActive] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  // Force a fresh inventory fetch, bypassing the sessionStorage cache. Used by the
+  // manual refresh button so volunteers can pull in admin changes made on other machines.
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchData(true);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const navbarData = useMemo(
     () => (checkoutType === 'general' ? filteredData : data),
@@ -372,6 +384,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         setSearchData={setSearchData}
         setSearchActive={setSearchActive}
         onResidentInfoClick={() => setShowResidentDetailDialog(true)}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
       />
 
       <Box

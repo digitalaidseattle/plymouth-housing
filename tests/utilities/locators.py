@@ -9,10 +9,26 @@ class CommonLocators:
     HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
 class HistoryPageLocators:
-    HISTORY_HEADER = (By.XPATH,"//h6[normalize-space()='History']")
-    RECORD_COUNT_TEXT = (By.XPATH,"//span[contains(.,'record')]")
-    HISTORY_CARDS = (By.XPATH,"//div[.//p[contains(text(),'Created')] and .//text()[contains(.,'/')]]")
-    NO_TRANSACTIONS_MESSAGE = (By.XPATH, "//*[contains(text(),'No transactions found')]")
+    HISTORY_HEADER = (
+        By.XPATH,
+        "//h6[normalize-space()='History']",
+    )
+
+    RECORD_COUNT_TEXT = (
+        By.XPATH,
+        "//p[contains(normalize-space(), 'records total')]",
+    )
+
+    HISTORY_CARDS = (
+        By.XPATH,
+        "//div[.//p[contains(text(),'Created')] "
+        "and .//text()[contains(.,'/')]]",
+    )
+
+    NO_TRANSACTIONS_MESSAGE = (
+        By.XPATH,
+        "//*[contains(text(),'No transactions found')]",
+    )
 
 class HomePageLocators:
     # ---- Sections ----
@@ -35,6 +51,10 @@ class HomePageLocators:
     VOLUNTEER_HOME_HEADER = (By.XPATH, "//*[normalize-space()='Volunteer Home']")
 
 class LoginPageLocators:
+    APP_LOGIN_BUTTON = (
+        By.CSS_SELECTOR,
+        'a[href*=".auth/login/aad"]',
+    )
     USERNAME_INPUT  = (By.NAME,  'loginfmt')
     NEXT_BUTTON     = (By.ID,    'idSIButton9')
     PASSWORD_INPUT  = (By.NAME,  'passwd')

@@ -2,62 +2,135 @@ name: E2E UI Tests
 
 on:
   workflow_run:
-    workflows: ["Azure Static Web Apps Staging"]
+    workflows:
+      - Azure Static Web Apps Staging
     types:
       - completed
     branches:
       - staging
+
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: e2e-staging-${{ github.event.workflow_run.head_sha || github.sha }}
+  cancel-in-progress: false
+
 jobs:
   e2e-tests:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    name: Run staging smoke tests
+
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'staging'
+      )
 
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     env:
       CI: "true"
-      URL: ${{ secrets.URL }}
+
+      URL: ${{ secrets.STAGING_URL }}
+
       ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+
       VOLUNTEER_USERNAME: ${{ secrets.VOLUNTEER_USERNAME }}
       VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
+      VOLUNTEER_DISPLAY_NAME: ${{ secrets.VOLUNTEER_DISPLAY_NAME }}
+      VOLUNTEER_PIN: ${{ secrets.VOLUNTEER_PIN }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout deployed staging commit
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: tests/requirements.txt
 
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
+      - name: Verify required staging secrets
+        shell: bash
+        run: |
+          missing=0
+
+          required_variables=(
+            URL
+            ADMIN_USERNAME
+            ADMIN_PASSWORD
+            VOLUNTEER_USERNAME
+            VOLUNTEER_PASSWORD
+            VOLUNTEER_DISPLAY_NAME
+            VOLUNTEER_PIN
+          )
+
+          for variable_name in "${required_variables[@]}"; do
+            if [ -z "${!variable_name:-}" ]; then
+              echo "::error::Required staging secret is unavailable: ${variable_name}"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Mask non-password sensitive values
+        shell: bash
+        run: |
+          echo "::add-mask::$ADMIN_USERNAME"
+          echo "::add-mask::$VOLUNTEER_USERNAME"
+          echo "::add-mask::$VOLUNTEER_DISPLAY_NAME"
+          echo "::add-mask::$VOLUNTEER_PIN"
+
       - name: Install dependencies
+        shell: bash
         run: |
           python -m pip install --upgrade pip
 
           if [ -f tests/requirements.txt ]; then
             echo "Installing dependencies from tests/requirements.txt"
-            pip install -r tests/requirements.txt
+            python -m pip install -r tests/requirements.txt
           else
-            echo "tests/requirements.txt not found, installing inline dependencies"
-            pip install \
-              pytest~=8.3 \
-              selenium~=4.27 \
-              python-dotenv~=1.1 \
-              allure-pytest~=2.14 \
-              requests~=2.32 \
-              pytest-html~=4.1 \
-              webdriver-manager~=4.0 \
-              pytest-xdist~=3.8
+            echo "tests/requirements.txt not found; installing fallback dependencies"
+
+            python -m pip install \
+              "pytest~=9.0" \
+              "selenium~=4.27" \
+              "python-dotenv~=1.1" \
+              "allure-pytest~=2.15" \
+              "requests~=2.32" \
+              "pytest-html~=4.2" \
+              "webdriver-manager~=4.0" \
+              "pytest-xdist~=3.8" \
+              "pytest-bdd~=8.1"
           fi
 
-      - name: Run smoke tests (headless)
+      - name: Collect tests
+        shell: bash
         run: |
-          pytest -m smoke --maxfail=1 --disable-warnings -q
+          python -m pytest --collect-only -q
+
+      - name: Run staging smoke tests
+        shell: bash
+        run: |
+          python -m pytest \
+            -m smoke \
+            --maxfail=1 \
+            --disable-warnings \
+            -q

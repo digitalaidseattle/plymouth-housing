@@ -143,7 +143,7 @@ const ResidentsPage = () => {
   };
 
   const handleEditSave = async () => {
-    if (editId === null) return;
+    if (editId === null || isSaving) return;
 
     if (!editValue.trim()) {
       setEditSnackbar({ open: true, message: 'Name cannot be empty.', severity: 'error' });
@@ -252,6 +252,7 @@ const ResidentsPage = () => {
                               onMouseDown={(e) => e.preventDefault()}
                               onClick={handleEditSave}
                               disabled={isSaving}
+                              aria-label="Save"
                             >
                               <CheckIcon fontSize="small" />
                             </IconButton>
@@ -260,6 +261,7 @@ const ResidentsPage = () => {
                               onMouseDown={(e) => e.preventDefault()}
                               onClick={handleEditCancel}
                               disabled={isSaving}
+                              aria-label="Cancel"
                             >
                               <CloseIcon fontSize="small" />
                             </IconButton>

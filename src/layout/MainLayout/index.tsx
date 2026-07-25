@@ -19,8 +19,9 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
 import { useSnackbar } from '../../hooks/useSnackbar';
-import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
+import { ENDPOINTS, ENVIRONMENT, SETTINGS, USER_ROLES } from '../../types/constants';
 import { getAuthMe } from '../../services/authService';
+import { trackEvent } from '../../utils/appInsights';
 import { apiRequest } from '../../services/apiRequest';
 
 const requestCache = new Map<string, Promise<AdminUser>>();
@@ -52,6 +53,25 @@ const MainLayout: React.FC = () => {
         const { clientPrincipal } = payload;
         const userClaims = clientPrincipal;
         setUser(userClaims || null);
+
+        // Guardrail: test-only accounts must never operate against production.
+        // This prevents the accidental "testing against prod" case by refusing
+        // the session and logging the account back out. It is not a security
+        // boundary (a direct API call bypasses it) — the real boundary is the
+        // absence of these accounts/data in the production database.
+        const isProduction = ENVIRONMENT === 'production';
+        const hasTestRole = userClaims?.userRoles?.includes(USER_ROLES.TEST);
+        if (isProduction && hasTestRole) {
+          trackEvent('TestAccountBlockedInProduction', {
+            environment: ENVIRONMENT,
+            userDetails: userClaims?.userDetails ?? '',
+            userRoles: (userClaims?.userRoles ?? []).join(','),
+          });
+          localStorage.clear();
+          window.location.href =
+            '/.auth/logout?post_logout_redirect_uri=/login.html';
+          return;
+        }
 
         if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
           navigate('/pick-your-name');

@@ -6,6 +6,11 @@
  */
 export const VITE_APPLICATION_NAME = 'Plymouth Housing';
 
+// Deployment environment, injected at build time per workflow (see the
+// azure-static-web-apps-*.yml build steps). Unset locally, so local dev and any
+// non-production build are treated as non-production and never blocked below.
+export const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT ?? 'development';
+
 export const API_HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',
@@ -60,6 +65,11 @@ export const SETTINGS = {
 export const USER_ROLES = {
   ADMIN: 'admin',
   VOLUNTEER: 'volunteer',
+  // Marks an account as test-only. Assigned to the accounts the E2E suite and
+  // manual testers use, in addition to their functional admin/volunteer role.
+  // The app refuses any account carrying this role when ENVIRONMENT is
+  // 'production' (see MainLayout).
+  TEST: 'test',
 } as const;
 
 export const ROLE_PAGES = {

@@ -141,6 +141,11 @@ VOLUNTEER_PASSWORD=volunteer_test_password
 ⚠️ **Do not commit real or production credentials**  
 Ensure `.env` is included in `.gitignore`.
 
+> **Point the suite at a non-production environment.** The accounts used here
+> carry the `test` role, which the app **blocks from logging into production**
+> (see [deployment-guide.md](deployment-guide.md#preventing-test-access-to-production)).
+> Set `URL` to dev/staging, not prod.
+
 ## Running Tests
 ### Run All Tests
 ```bash

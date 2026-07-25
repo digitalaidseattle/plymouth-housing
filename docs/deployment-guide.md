@@ -111,3 +111,34 @@ To promote staging to production:
 1. Bump the version in `package.json` on `staging`
 2. Open a PR from `staging` → `main` and merge it
 3. The workflow detects the new version tag and deploys automatically
+
+## Preventing test access to production
+
+Test accounts must never be able to log into production. The app enforces this
+at sign-in: any account that carries the `test` role is refused when the build's
+environment is `production` — the session is torn down (redirect to
+`/.auth/logout` → `login.html`) before any page renders, and a
+`TestAccountBlockedInProduction` event is sent to Application Insights. See the
+guard in [`src/layout/MainLayout/index.tsx`](../src/layout/MainLayout/index.tsx).
+
+> This is a guardrail against *accidental* testing against prod, not a security
+> boundary — a direct API call bypasses the frontend. The durable backstop is
+> keeping test accounts and test data out of the production database.
+
+Two pieces make it work:
+
+1. **Environment is injected at build time** via the `VITE_ENVIRONMENT` variable.
+   It is set in each deploy workflow's build step — `production` in
+   [azure-static-web-apps-prod.yml](../.github/workflows/azure-static-web-apps-prod.yml)
+   and `staging` in
+   [azure-static-web-apps-staging.yml](../.github/workflows/azure-static-web-apps-staging.yml).
+   It is a Vite build-time value (must be `VITE_`-prefixed); a SWA runtime
+   Application Setting does **not** reach the bundle. Unset locally, so local dev
+   is treated as non-production and never blocked.
+2. **The `test` role** must be assigned to every account used for automated or
+   manual testing (in addition to its functional `admin`/`volunteer` role). How
+   you assign it depends on the role model — see
+   [aad-swa-roles.md](research/aad-swa-roles.md).
+
+To test the guard locally, start the dev server with the variable set, e.g.
+`VITE_ENVIRONMENT=production swa start`, and sign in with a `test`-role user.

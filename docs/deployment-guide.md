@@ -117,9 +117,11 @@ To promote staging to production:
 Test accounts must never be able to log into production. The app enforces this
 at sign-in: any account that carries the `test` role is refused when the build's
 environment is `production` — the session is torn down (redirect to
-`/.auth/logout` → `login.html`) before any page renders, and a
-`TestAccountBlockedInProduction` event is sent to Application Insights. See the
-guard in [`src/layout/MainLayout/index.tsx`](../src/layout/MainLayout/index.tsx).
+`/.auth/logout` → `login.html`) and a `TestAccountBlockedInProduction` event is
+sent to Application Insights. In a production build the layout renders nothing
+until the guard has cleared the session, so a blocked account never mounts the
+app shell or any page behind it. See the guard in
+[`src/layout/MainLayout/index.tsx`](../src/layout/MainLayout/index.tsx).
 
 > This is a guardrail against *accidental* testing against prod, not a security
 > boundary — a direct API call bypasses the frontend. The durable backstop is

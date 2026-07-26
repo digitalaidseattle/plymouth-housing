@@ -35,6 +35,10 @@ const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const navigateTimeoutRef = useRef<number | null>(null);
+  // In production nothing is rendered until the test-account guard below has
+  // run, so a blocked session never mounts the app shell or any child route.
+  // Outside production there is nothing to decide, so rendering is not held up.
+  const [guardCleared, setGuardCleared] = useState(ENVIRONMENT !== 'production');
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
@@ -138,18 +142,22 @@ const MainLayout: React.FC = () => {
         const payload = await getAuthMe();
         const { clientPrincipal } = payload;
         const userClaims = clientPrincipal;
-        setUser(userClaims || null);
 
         // Guardrail: test-only accounts must never operate against production.
         // This prevents the accidental "testing against prod" case by refusing
-        // the session and logging the account back out. It is not a security
-        // boundary (a direct API call bypasses it) — the real boundary is the
-        // absence of these accounts/data in the production database.
+        // the session and logging the account back out. It runs before the user
+        // is stored and before `guardCleared` opens, so no protected UI mounts.
+        // It is not a security boundary (a direct API call bypasses it) — the
+        // real boundary is the absence of these accounts/data in the production
+        // database.
         const isProduction = ENVIRONMENT === 'production';
         const hasTestRole = userClaims?.userRoles?.includes(USER_ROLES.TEST);
         if (isProduction && hasTestRole) {
           trackEvent('TestAccountBlockedInProduction', {
             environment: ENVIRONMENT,
+            // Identifying the account is the point of the event — we need to
+            // know *which* test account hit production. Consistent with the
+            // PIN_Submission events, which already carry volunteer names.
             userDetails: userClaims?.userDetails ?? '',
             userRoles: (userClaims?.userRoles ?? []).join(','),
           });
@@ -158,6 +166,9 @@ const MainLayout: React.FC = () => {
             '/.auth/logout?post_logout_redirect_uri=/login.html';
           return;
         }
+
+        setUser(userClaims || null);
+        setGuardCleared(true);
 
         if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
           navigate('/pick-your-name');
@@ -181,6 +192,8 @@ const MainLayout: React.FC = () => {
         }
       } catch (error) {
         console.error('Error in fetchTokenAndVolunteers:', error);
+        // The guard could not reach a verdict; render so the error is visible.
+        setGuardCleared(true);
         const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
         showSnackbar(`Authentication error: ${errorMessage}`, 'error');
         navigateTimeoutRef.current = window.setTimeout(() => {
@@ -210,6 +223,12 @@ const MainLayout: React.FC = () => {
   useEffect(() => {
     setDrawerOpen(!matchDownLG);  
   }, [matchDownLG]);
+
+  // Hold the app shell (and every child route) until the guard has cleared the
+  // session. A blocked account stays here until the logout redirect takes over.
+  if (!guardCleared) {
+    return null;
+  }
 
   return (
     <DrawerOpenContext.Provider value={{ drawerOpen, setDrawerOpen }}>

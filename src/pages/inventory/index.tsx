@@ -10,7 +10,7 @@ import React, {
   useEffect,
   useCallback,
 } from 'react';
-import { Alert, Box, Button, Pagination, Stack } from '@mui/material';
+import { Alert, Box, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
@@ -19,7 +19,6 @@ import InventoryTable from '../../components/inventory/InventoryTable';
 import { UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { getItems, getCategories } from '../../services/itemsService';
-import { SETTINGS } from '../../types/constants';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
 import { useSnackbar } from '../../hooks/useSnackbar';
@@ -54,11 +53,6 @@ const Inventory = () => {
   const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
   const tableContainerRef = useRef<HTMLElement | null>(null);
   const [showResults, setShowResults] = useState(false);
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
-
 
   const handleAddOpen = () => {
     setAddModal(true);
@@ -194,7 +188,6 @@ const Inventory = () => {
     }
 
     setDisplayData(searchFiltered);
-    setCurrentPage(1);
   }, [filters, sortDirection, sortColumn, originalData]);
 
   const fetchData = useCallback(async () => {
@@ -231,17 +224,8 @@ const Inventory = () => {
     const handler = setTimeout(() => {
       handleFilter();
     }, 300); // Reduces calls to filter while typing in search
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [filters, handleFilter]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      handleFilter();
-    }, 0);
     return () => clearTimeout(handler);
-  }, [sortDirection, handleFilter]);
+  }, [handleFilter]);
 
   if (isLoading) {
     return <p>Loading ...</p>;
@@ -302,7 +286,7 @@ const Inventory = () => {
       {/* Inventory Table */}
       <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <InventoryTable
-          currentItems={currentItems}
+          items={displayData}
           sortDirection={sortDirection}
           sortColumn={sortColumn}
           handleSort={handleSort}
@@ -311,16 +295,6 @@ const Inventory = () => {
         />
       </Box>
 
-      {/* Pagination */}
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
-      >
-        <Pagination
-          count={Math.ceil(displayData.length / itemsPerPage)}
-          page={currentPage}
-          onChange={handlePageChange}
-        />
-      </Box>
       <SnackbarAlert
         open={snackbarState.open}
         onClose={handleSnackbarClose}

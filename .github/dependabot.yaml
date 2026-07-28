@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
+    # Bundle all surviving updates into a single PR per run to cut noise.
+    # Dependabot applies `ignore` first, then groups whatever remains.
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
     # Ignore patch updates (e.g., 1.0.0 -> 1.0.1)
     # This allows: major updates, minor updates, and security updates
     ignore:

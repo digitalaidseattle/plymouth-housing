@@ -9,6 +9,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from 'react';
 import { Alert, Box, Button, Pagination, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -58,6 +59,19 @@ const Inventory = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const calculateItemsPerPage = useCallback(() => {
+    const container = tableContainerRef.current?.parentElement;
+    if (!container) {
+      setItemsPerPage(SETTINGS.itemsPerPage);
+      return;
+    }
+
+    const parentHeight = container.clientHeight ?? 0;
+    const tableHeight = (parentHeight * 80) / 100;
+    const items = Math.floor(tableHeight / 64);
+    setItemsPerPage(items > 0 ? items - 1 : 1);
+  }, []);
 
 
   const handleAddOpen = () => {
@@ -226,6 +240,14 @@ const Inventory = () => {
     return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
+  useEffect(() => {
+    calculateItemsPerPage();
+    window.addEventListener('resize', calculateItemsPerPage);
+
+    return () => {
+      window.removeEventListener('resize', calculateItemsPerPage);
+    };
+  }, [calculateItemsPerPage]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -300,7 +322,10 @@ const Inventory = () => {
       </Stack>
 
       {/* Inventory Table */}
-      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <Box
+        ref={tableContainerRef}
+        sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+      >
         <InventoryTable
           currentItems={currentItems}
           sortDirection={sortDirection}

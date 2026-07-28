@@ -7,8 +7,7 @@ const defaultFetch: typeof fetch = async () =>
     status: 200,
     statusText: 'OK',
     headers: { 'Content-Type': 'application/json' },
-  });
-
+ });
 globalThis.fetch = vi
   .fn()
   .mockImplementation(defaultFetch) as unknown as typeof fetch;

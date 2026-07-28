@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import {
   Autocomplete,
   Box,
@@ -65,6 +65,7 @@ const ResidentsPage = () => {
     message: '',
     severity: 'success',
   });
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data, isLoading, error: residentsError, updateResidentName } =
     useResidentsByBuilding(selectedBuildingId);
@@ -125,6 +126,7 @@ const ResidentsPage = () => {
   };
 
   const handleEditClick = (resident: { id: number; name: string }) => {
+    if (isSaving) return;
     setEditId(resident.id);
     setEditValue(resident.name);
   };
@@ -241,7 +243,10 @@ const ResidentsPage = () => {
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
                               onKeyDown={handleEditKeyDown}
-                              onBlur={handleEditSave}
+                              onBlur={(e) => {
+                                if (e.relatedTarget === cancelButtonRef.current) return;
+                                handleEditSave();
+                              }}
                               autoFocus
                               disabled={isSaving}
                               slotProps={{ htmlInput: { maxLength: 255 } }}
@@ -257,6 +262,7 @@ const ResidentsPage = () => {
                               <CheckIcon fontSize="small" />
                             </IconButton>
                             <IconButton
+                              ref={cancelButtonRef}
                               size="large"
                               onMouseDown={(e) => e.preventDefault()}
                               onClick={handleEditCancel}

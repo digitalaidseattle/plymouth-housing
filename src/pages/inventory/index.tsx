@@ -9,7 +9,6 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useRef,
 } from 'react';
 import { Alert, Box, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -49,33 +48,8 @@ const Inventory = () => {
     category: null as null | HTMLElement,
     status: null as null | HTMLElement,
   });
-  const [currentPage, setCurrentPage] = useState(1);
   const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
-  const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
-  const tableContainerRef = useRef<HTMLElement | null>(null);
   const [showResults, setShowResults] = useState(false);
-
-<<<<<<< HEAD
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
-
-  const calculateItemsPerPage = useCallback(() => {
-    const container = tableContainerRef.current?.parentElement;
-    if (!container) {
-      setItemsPerPage(SETTINGS.itemsPerPage);
-      return;
-    }
-
-    const parentHeight = container.clientHeight ?? 0;
-    const tableHeight = (parentHeight * 80) / 100;
-    const items = Math.floor(tableHeight / 64);
-    setItemsPerPage(items > 0 ? items - 1 : 1);
-  }, []);
-
-
-=======
->>>>>>> bea254add6e2436490c1bc52ebf05ae41c48a0a1
   const handleAddOpen = () => {
     setAddModal(true);
     setShowResults(false);
@@ -145,13 +119,6 @@ const Inventory = () => {
       showSnackbar(location.state.message, 'success');
     }
   }, [location.state, showSnackbar]);
-
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setCurrentPage(value);
-  };
 
   const negativeItemCount = originalData.filter(
     (item) => item.quantity < 0,
@@ -242,15 +209,6 @@ const Inventory = () => {
   }, [user, fetchData, fetchCategories]);
 
   useEffect(() => {
-    calculateItemsPerPage();
-    window.addEventListener('resize', calculateItemsPerPage);
-
-    return () => {
-      window.removeEventListener('resize', calculateItemsPerPage);
-    };
-  }, [calculateItemsPerPage]);
-
-  useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();
     }, 300); // Reduces calls to filter while typing in search
@@ -315,7 +273,6 @@ const Inventory = () => {
 
       {/* Inventory Table */}
       <Box
-        ref={tableContainerRef}
         sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
       >
         <InventoryTable

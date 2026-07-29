@@ -279,3 +279,47 @@ export interface SpinUpContextType {
   setShowDialog: (show: boolean) => void;
   setRetryCount: (count: number) => void;
 }
+
+export interface DrawerOpenContextType {
+  drawerOpen: boolean;
+  setDrawerOpen: (open: boolean) => void;
+}
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+
+export interface ApiResponse<T> {
+  value: T;
+}
+
+export interface ApiConfig {
+  url: string;
+  role: string;
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  body?: object;
+}
+
+// ─── Date Range ───────────────────────────────────────────────────────────────
+
+export type DatePreset = 'today' | 'yesterday' | 'this week' | 'custom';
+
+export type DateRange = {
+  startDate: Date;
+  endDate: Date;
+  isCustom?: boolean;
+};
+
+// ─── Snackbar ─────────────────────────────────────────────────────────────────
+
+export type SnackbarState = {
+  open: boolean;
+  message: string;
+  severity: 'success' | 'error' | 'warning' | 'info';
+};
+
+// ─── Inline Table Editing ─────────────────────────────────────────────────────
+
+export type EditState = {
+  id: number | null;
+  field: string | null;
+  value: string | number;
+};

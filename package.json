@@ -29,11 +29,11 @@
     "lodash": "^4.18.1",
     "react": "^19.2.7",
     "react-dom": "^19.0.0",
-    "react-router": "^7.16.0",
+    "react-router": "^8.3.0",
     "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
-    "@azure/static-web-apps-cli": "^2.0.9",
+    "@azure/static-web-apps-cli": "^2.0.10",
     "@eslint/compat": "^2.0.2",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",

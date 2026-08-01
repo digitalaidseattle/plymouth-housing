@@ -16,13 +16,13 @@ jobs:
 
     env:
       PROD_URL: ${{ secrets.PROD_URL }}
-      STAGING_URL: ${{ secrets.STAGING_URL }}
+      STAGING_URL: ${{ vars.STAGING_URL }}
 
     steps:
       - name: Timestamp
         run: date
 
-      - name: Validate required secrets
+      - name: Validate required configuration
         run: |
           if [ -z "${PROD_URL}" ]; then
             echo "PROD_URL secret is missing"
@@ -30,7 +30,7 @@ jobs:
           fi
 
           if [ -z "${STAGING_URL}" ]; then
-            echo "STAGING_URL secret is missing"
+            echo "STAGING_URL variable is missing"
             exit 1
           fi
 

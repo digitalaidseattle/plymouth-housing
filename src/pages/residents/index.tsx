@@ -4,12 +4,13 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import {
   Autocomplete,
   Box,
   CircularProgress,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -24,8 +25,11 @@ import {
   Typography,
 } from '@mui/material';
 import { createFilterOptions } from '@mui/material/Autocomplete';
+import EditIcon from '@mui/icons-material/Edit';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import { UserContext } from '../../components/contexts/UserContext';
-import { Building } from '../../types/interfaces';
+import { Building, SnackbarState } from '../../types/interfaces';
 import { getBuildings, getAllResidents } from '../../services/residentService';
 import { useResidentsByBuilding } from './useResidentsByBuilding';
 import SnackbarAlert from '../../components/SnackbarAlert';
@@ -53,8 +57,18 @@ const ResidentsPage = () => {
   const [buildingsError, setBuildingsError] = useState<string | null>(null);
   const [allResidentsLoading, setAllResidentsLoading] = useState(false);
   const [allResidentsError, setAllResidentsError] = useState<string | null>(null);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [editSnackbar, setEditSnackbar] = useState<SnackbarState>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { data, isLoading, error: residentsError } = useResidentsByBuilding(selectedBuildingId);
+  const { data, isLoading, error: residentsError, updateResidentName } =
+    useResidentsByBuilding(selectedBuildingId);
 
   let visibleData = data;
   if (filteredUnitId !== null) {
@@ -108,6 +122,46 @@ const ResidentsPage = () => {
     } else if (reason === 'clear' || reason === 'reset') {
       setSearchInput('');
       setFilteredUnitId(null);
+    }
+  };
+
+  const handleEditClick = (resident: { id: number; name: string }) => {
+    if (isSaving) return;
+    setEditId(resident.id);
+    setEditValue(resident.name);
+  };
+
+  const handleEditCancel = () => {
+    setEditId(null);
+    setEditValue('');
+  };
+
+  const handleEditKeyDown = async (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      await handleEditSave();
+    } else if (e.key === 'Escape') {
+      handleEditCancel();
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (editId === null || isSaving) return;
+
+    if (!editValue.trim()) {
+      setEditSnackbar({ open: true, message: 'Name cannot be empty.', severity: 'error' });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await updateResidentName(editId, editValue.trim());
+      setEditSnackbar({ open: true, message: 'Resident name updated.', severity: 'success' });
+      setEditId(null);
+      setEditValue('');
+    } catch {
+      setEditSnackbar({ open: true, message: 'Failed to update resident name.', severity: 'error' });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -180,7 +234,58 @@ const ResidentsPage = () => {
                       —
                     </Typography>
                   ) : (
-                    residents.map((r) => r.name).join(', ')
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                      {residents.map((r) =>
+                        editId === r.id ? (
+                          <Box key={r.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <TextField
+                              size="small"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onKeyDown={handleEditKeyDown}
+                              onBlur={(e) => {
+                                if (e.relatedTarget === cancelButtonRef.current) return;
+                                handleEditSave();
+                              }}
+                              autoFocus
+                              disabled={isSaving}
+                              slotProps={{ htmlInput: { maxLength: 255 } }}
+                              sx={{ width: 180 }}
+                            />
+                            <IconButton
+                              size="large"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={handleEditSave}
+                              disabled={isSaving}
+                              aria-label="Save"
+                            >
+                              <CheckIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              ref={cancelButtonRef}
+                              size="large"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={handleEditCancel}
+                              disabled={isSaving}
+                              aria-label="Cancel"
+                            >
+                              <CloseIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        ) : (
+                          <Box key={r.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Typography variant="body2">{r.name}</Typography>
+                            <IconButton
+                              size="large"
+                              onClick={() => handleEditClick(r)}
+                              aria-label={`Edit ${r.name}`}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        ),
+                      )}
+                    </Box>
                   )}
                 </TableCell>
               </TableRow>
@@ -205,6 +310,13 @@ const ResidentsPage = () => {
           {allResidentsError}
         </SnackbarAlert>
       )}
+      <SnackbarAlert
+        open={editSnackbar.open}
+        severity={editSnackbar.severity}
+        onClose={() => setEditSnackbar((prev) => ({ ...prev, open: false }))}
+      >
+        {editSnackbar.message}
+      </SnackbarAlert>
     </Box>
   );
 };

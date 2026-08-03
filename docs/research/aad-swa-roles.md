@@ -17,7 +17,9 @@ The app has two custom roles, as defined in [login-design.md](../designs/login-d
 | `admin` | Full CRUD access; no PIN required; routed to admin dashboard |
 | `volunteer` | Limited API permissions; requires PIN verification after AAD login; routed to volunteer home |
 
-> **Important**: A user must have exactly one of these roles. Having both causes an error — see [swa-setup.md](../swa-setup.md).
+> **Important**: A user must have exactly one of `admin` or `volunteer`. Having both causes an error — see [swa-setup.md](../swa-setup.md).
+
+There is also an additive `test` role, **orthogonal** to the exactly-one rule above. Accounts used for automated or manual testing carry `test` alongside their functional `admin`/`volunteer` role. The app refuses any account with the `test` role when it runs in the `production` environment — this keeps test accounts from accidentally operating against prod. See [deployment-guide.md](../deployment-guide.md#preventing-test-access-to-production). If you adopt the group-based model below, create a third group (e.g. `plymouth-housing-test`) and map it to the `test` role.
 
 These roles currently flow into the DAB API layer via the `X-MS-API-ROLE` header on every REST request. DAB enforces permissions per role in `dab/dab-config.json`. See [authorization_roles.md](authorization_roles.md) for the prior investigation into this.
 

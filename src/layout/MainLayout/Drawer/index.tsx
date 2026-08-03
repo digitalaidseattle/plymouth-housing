@@ -58,6 +58,7 @@ const MainDrawer: React.FC<MainDrawerProps> = ({
           open={open}
           onClose={handleDrawerToggle}
           sx={{
+            display: { xs: 'block', lg: 'none' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,

@@ -85,15 +85,9 @@ const UserPage = () => {
   const closeAddModal = () => setAddModalOpen(false);
 
   // Handle status toggle
-  const handleStatusToggle = async (userId: number) => {
-    try {
-      await updateUserStatus(userId);
-      showSnackbar('User status updated successfully!', 'success');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setSnackbarMessage( Error updating user: ${error instanceof Error ? error.toString() : String(error)} );
-    }
-  };
+  const handleStatusToggle = async (userId: number) => { try 
+  { await updateUserStatus(userId); showSnackbar('User status updated successfully!', 'success'); } 
+    catch (error) { const message = error instanceof Error ? Error updating user: ${error.message} : Error updating user: ${String(error)}; console.error('handleStatusToggle error:', error); showSnackbar(message, 'error'); } };
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>

@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UserFilters from './UserFilters';

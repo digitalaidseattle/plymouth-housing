@@ -21,7 +21,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 import * as useCatalogModule from './useCatalog';
 
 const dummyUser = {
-  userID: '1',
+  userId: '1',
   userDetails: 'Test Admin',
   userRoles: ['admin'],
   claims: [],

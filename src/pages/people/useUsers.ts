@@ -50,8 +50,10 @@ const useUsers = () => {
       console.error('Error updating user:', err);
 
       // Normalize unknown to string - prefer the full Error.toString() when available
-      const originalText = err instanceof Error ? err.toString() : String(err);
-      throw new Error(`Error updating user: ${originalText}`);
+      const originalText = err instanceof Error ? err.toString() : `Error: ${String(err)}`;
+      const e = new Error(`Error updating user: ${originalText}`);
+      (e as any).original = err;
+      throw e;
     }
   };
 

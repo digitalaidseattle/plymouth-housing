@@ -91,7 +91,7 @@ const UserPage = () => {
       showSnackbar('User status updated successfully!', 'success');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      showSnackbar(`Error updating user: ${errorMessage}`, 'warning');
+      setSnackbarMessage( Error updating user: ${error instanceof Error ? error.toString() : String(error)} );
     }
   };
 

@@ -47,19 +47,44 @@ const dashboard = {
   children: [
     {
       id: 'volunteer-home',
-      title: 'Volunteer Home',
+      title: 'Home',
       type: 'item',
       url: '/volunteer-home',
       icon: icons.HomeOutlined,
       breadcrumbs: false,
     },
     {
+      id: 'admin-home',
+      title: 'Home',
+      type: 'item',
+      url: '/admin-home',
+      icon: icons.HomeOutlined,
+      breadcrumbs: false,
+    },
+    {
       id: 'inventory',
       title: 'Inventory',
-      type: 'item',
-      url: '/inventory',
+      type: 'collapse',
       icon: icons.FileExclamationOutlined,
       breadcrumbs: false,
+      children: [
+        {
+          id: 'inventory-general',
+          title: 'General',
+          type: 'item',
+          url: '/inventory',
+          state: { inventoryType: 'General' },
+          breadcrumbs: false,
+        },
+        {
+          id: 'inventory-welcome-basket',
+          title: 'Welcome Basket',
+          type: 'item',
+          url: '/inventory',
+          state: { inventoryType: 'Welcome Basket' },
+          breadcrumbs: false,
+        },
+      ],
     },
     {
       id: 'checkout',

@@ -11,6 +11,7 @@ import EnterPin from './authentication/EnterPinPage';
 import PickYourNamePage from './authentication/PickNamePage';
 import Page404 from './error/404';
 import VolunteerHome from '../pages/VolunteerHome';
+import AdminHome from '../pages/AdminHome';
 import People from '../pages/people';
 import Inventory from './inventory';
 import Catalog from './catalog';
@@ -28,7 +29,7 @@ const routes = [
         path: '',
         element: (
           <RootRedirect source="volunteer-home">
-            <MainContainer title="Volunteer Home">
+            <MainContainer title="Home">
               <VolunteerHome />
             </MainContainer>
           </RootRedirect>
@@ -58,8 +59,18 @@ const routes = [
         path: 'volunteer-home',
         element: (
           <RootRedirect source="volunteer-home">
-            <MainContainer title="Volunteer Home">
+            <MainContainer title="Home">
               <VolunteerHome />
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'admin-home',
+        element: (
+          <RootRedirect source="admin-home">
+            <MainContainer title="Home">
+              <AdminHome />
             </MainContainer>
           </RootRedirect>
         ),

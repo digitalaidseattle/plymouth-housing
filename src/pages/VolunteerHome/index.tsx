@@ -4,16 +4,14 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, Stack } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import AddItemModal from '../../components/inventory/AddItemModal.tsx';
-import { UserContext } from '../../components/contexts/UserContext';
-import { InventoryItem } from '../../types/interfaces.ts';
-import { getItems } from '../../services/itemsService';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import AddIcon from '@mui/icons-material/Add';
 import SnackbarAlert from '../../components/SnackbarAlert.tsx';
 
 const SectionHeader: React.FC<{
@@ -22,58 +20,39 @@ const SectionHeader: React.FC<{
   subtitle: string;
 }> = ({ icon, title, subtitle }) => {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        mb: 2,
-      }}
-    >
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
       {icon}
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Box>
         <Typography variant="h5">{title}</Typography>
         <Typography variant="body1" color="text.secondary">
           {subtitle}
         </Typography>
       </Box>
-    </Box>
+    </Stack>
   );
 };
 
+// Colour comes from the theme's MuiButton `contained` override. Fixed height,
+// not flex, so both cards stay level when one subtitle wraps to two lines.
 const buttonSx = {
-  flex: 1,
-  height: '120px',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#f5f5f5',
-  borderRadius: 5,
-  borderColor: '#f5f5f5',
-  color: 'black',
-  '&:hover': {
-    backgroundColor: '#e0e0e0',
-    borderColor: '#e0e0e0',
-  },
+  minHeight: 160,
+  flexDirection: 'column',
+  gap: 1,
+  borderRadius: 4,
 };
 
 const VolunteerHome: React.FC = () => {
-  const { user } = useContext(UserContext);
   const navigate = useNavigate();
-  const [addModal, setAddModal] = useState(false);
-  const [addWelcomeBasketModal, setAddWelcomeBasketModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
-  const [showResults, setShowResults] = useState(false);
   const location = useLocation();
+  // Success/cancel message from CheckoutPage; absent on a plain visit.
+  const navState = location.state as { message?: string } | null;
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'warning';
   }>({
-    open: location.state && location.state.message.length > 0,
-    message: location.state ? location.state.message : '',
+    open: Boolean(navState?.message),
+    message: navState?.message ?? '',
     severity: 'success',
   });
 
@@ -85,123 +64,83 @@ const VolunteerHome: React.FC = () => {
     setSnackbarState({ ...snackbarState, open: false });
   };
 
-  const fetchData = useCallback(async () => {
-    try {
-      const items = await getItems(user);
-      setOriginalData(items);
-    } catch (error) {
-      console.error('Error fetching inventory:', error); //TODO show more meaningful error to end user.
-    }
-    setIsLoading(false);
-  }, [user]);
-
-  const handleAddOpen = async () => {
-    await fetchData();
-    setAddModal(true);
-    setShowResults(false);
+  const handleCheckOutClick = () => {
+    navigate('/checkout', { state: { checkoutType: 'general' } });
   };
 
-  const handleAddClose = () => {
-    setAddModal(false);
+  const handleRestockClick = () => {
+    navigate('/inventory', {
+      state: { inventoryType: 'General', openAddModal: true },
+    });
   };
-
-  const handleAddWelcomeBasketOpen = async () => {
-    await fetchData();
-    setAddWelcomeBasketModal(true);
-    setShowResults(false);
-  };
-
-  const handleAddWelcomeBasketClose = () => {
-    setAddWelcomeBasketModal(false);
-  };
-
-  const handleCheckOutClick = (
-    checkoutType: 'general' | 'welcomeBasket' = 'general',
-  ) => {
-    navigate('/checkout', { state: { checkoutType } });
-  };
-
-  if (isLoading) {
-    return <p>Loading ...</p>;
-  }
 
   return (
-    <Box sx={{ paddingX: { xs: 2, sm: 4, md: 20 }, paddingY: 2, height: '75vh' }}>
-      {/* Header */}
-      <Box sx={{ paddingBottom: 2 }}>
-        <Typography variant="h4" sx={{ mb: 2 }}>
-          Thanks for being here! Let's make a difference.
-        </Typography>
+    <Box
+      sx={{
+        paddingX: { xs: 2, sm: 4, md: 20 },
+        paddingY: 2,
+        height: '75vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Typography variant="h4" sx={{ mb: 5 }}>
+        Thanks for being here! Let's make a difference.
+      </Typography>
+
+      {/* Centring sits here, not on the Stack, which needs alignItems:
+          'stretch' to keep the cards level. */}
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          spacing={6}
+          sx={{ width: '100%', alignItems: 'stretch' }}
+        >
+          {/* Checkout Section */}
+          <Stack
+            data-testid="section-checkout"
+            spacing={3}
+            sx={{ flex: 1, justifyContent: 'space-between' }}
+          >
+            <SectionHeader
+              icon={<ArrowUpwardIcon />}
+              title="Checkout"
+              subtitle="Give items to resident"
+            />
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleCheckOutClick}
+              sx={buttonSx}
+            >
+              <ShoppingCartOutlinedIcon />
+              <Typography variant="h5">Check out</Typography>
+            </Button>
+          </Stack>
+
+          {/* Inventory Section */}
+          <Stack
+            data-testid="section-inventory"
+            spacing={3}
+            sx={{ flex: 1, justifyContent: 'space-between' }}
+          >
+            <SectionHeader
+              icon={<ArrowDownwardIcon />}
+              title="Inventory"
+              subtitle="Add donated or purchased items"
+            />
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleRestockClick}
+              sx={buttonSx}
+            >
+              <AddIcon />
+              <Typography variant="h5">Add item</Typography>
+            </Button>
+          </Stack>
+        </Stack>
       </Box>
-
-      {/* Action Sections */}
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
-        {/* Checkout Section */}
-        <Box data-testid="section-checkout" sx={{ flex: 1 }}>
-          <SectionHeader
-            icon={<ArrowUpwardIcon />}
-            title="Checkout"
-            subtitle="Give items to resident"
-          />
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={() => handleCheckOutClick('general')}
-              sx={buttonSx}
-            >
-              <Typography variant="h5">General Inventory</Typography>
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => handleCheckOutClick('welcomeBasket')}
-              sx={buttonSx}
-            >
-              <Typography variant="h5">Welcome Basket</Typography>
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Stock Section */}
-        <Box data-testid="section-stock" sx={{ flex: 1 }}>
-          <SectionHeader
-            icon={<ArrowDownwardIcon />}
-            title="Stock"
-            subtitle="Add donated or purchased items"
-          />
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-            <Button variant="outlined" onClick={handleAddOpen} sx={buttonSx}>
-              <Typography variant="h5">General Inventory</Typography>
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={handleAddWelcomeBasketOpen}
-              sx={buttonSx}
-            >
-              <Typography variant="h5">Welcome Basket</Typography>
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-
-      <AddItemModal
-        addModal={addModal}
-        handleAddClose={handleAddClose}
-        fetchData={fetchData}
-        originalData={originalData}
-        showResults={showResults}
-        setShowResults={setShowResults}
-        inventoryType="General"
-      />
-
-      <AddItemModal
-        addModal={addWelcomeBasketModal}
-        handleAddClose={handleAddWelcomeBasketClose}
-        fetchData={fetchData}
-        originalData={originalData}
-        showResults={showResults}
-        setShowResults={setShowResults}
-        inventoryType="Welcome Basket"
-      />
 
       <SnackbarAlert
         open={snackbarState.open}

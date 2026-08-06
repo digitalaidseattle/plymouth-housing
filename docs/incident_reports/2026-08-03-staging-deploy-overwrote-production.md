@@ -31,8 +31,9 @@ The guard code was correct and deployed the whole time. The wrong *build* was on
 - **Telemetry attribution is suspect for the window.** The staging workflow injects
   `VITE_CLARITY_PROJECT_ID` and `VITE_APPINSIGHTS_CONNECTION_STRING` from the GitHub
   `staging` environment. If those secrets differ from the `production` ones, production
-  traffic from 2026-08-03 onward was reported to the staging Clarity/App Insights
-  resources. **Not yet verified** — requires comparing the two GitHub environments.
+  traffic from **2026-08-03 21:15 UTC** — when the overwrite completed — until the
+  production redeploy was reported to the staging Clarity/App Insights resources.
+  **Not yet verified** — requires comparing the two GitHub environments.
 - **No data loss or corruption.** Both builds talk to the same relative `/api` endpoint on
   the same Static Web App, so the database in use never changed.
 
@@ -98,7 +99,7 @@ live site.
 
 The action logs, on every run:
 
-```
+```text
 Unexpected input(s) 'deployment_environment', valid inputs are ['entryPoint', 'args',
 'action', 'app_location', 'azure_static_web_apps_api_token', ...]
 ```
@@ -192,7 +193,7 @@ accounts, until this reaches `main`.
 
 **Verification after merge** — the staging run must log:
 
-```
+```text
 Visit your site at: https://salmon-island-01be9bf1e-staging.westus2.5.azurestaticapps.net
 ```
 

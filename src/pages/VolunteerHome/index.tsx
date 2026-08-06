@@ -57,13 +57,13 @@ const VolunteerHome: React.FC = () => {
         {today}
       </Typography>
 
-      <Typography variant="h4" sx={{ mt: 1 }}>
+      <Typography variant="h4" sx={{ mt: 1, fontWeight: 400 }}>
         Thanks for being here!
         <br />
         Let's make a difference.
       </Typography>
 
-      <Typography variant="h6" sx={{ mt: 8, mb: 2 }}>
+      <Typography variant="h6" sx={{ mt: 12, mb: 2 }}>
         General Inventory
       </Typography>
 

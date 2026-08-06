@@ -103,11 +103,28 @@ Unexpected input(s) 'deployment_environment', valid inputs are ['entryPoint', 'a
 'action', 'app_location', 'azure_static_web_apps_api_token', ...]
 ```
 
-This warning is **cosmetic and misleading**. GitHub's ambiguous-ref resolution now resolves
-`Azure/static-web-apps-deploy@v1` to the 2021 *tag*, whose `action.yml` predates the input,
-rather than the branch head that declares it. Same Dockerfile, same entrypoint, same
-container digest — the action reads `INPUT_DEPLOYMENT_ENVIRONMENT` from the environment
-regardless of what `action.yml` advertises.
+This warning is **cosmetic and misleading**, and Microsoft has said so. In
+[Azure/static-web-apps Discussion #787](https://github.com/Azure/static-web-apps/discussions/787),
+Anthony Chu introduced the input on 2022-04-20 — *"so new that we haven't documented it
+yet!"* — and, asked directly about the warning, replied:
+
+> "Yes it understands the `deployment_environment` input but will generate a warning right
+> now. The warning should go away soon."
+
+A user confirmed the following day that deployments to `dev`, `test`, `uat` and `production`
+all worked despite it. Four years on, the warning still fires and the input still works: the
+action's `action.yml` does not declare it, while the entrypoint reads
+`INPUT_DEPLOYMENT_ENVIRONMENT` from the environment regardless.
+
+The usage is **officially documented** —
+[Create named preview environments in Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/named-environments)
+shows `deployment_environment` on `Azure/static-web-apps-deploy@v1`, with no mention of any
+warning. Stale warnings are a known pattern for this action; see
+[issue #952](https://github.com/Azure/static-web-apps/issues/952), where the same `@v1`
+action emits an obsolete `set-output` deprecation notice.
+
+There is no bug report or support incident tracking the warning. Nobody is going to fix it,
+so the only defence is knowing it is expected.
 
 CI logs prove the input was honoured despite the warning:
 

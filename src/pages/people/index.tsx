@@ -91,8 +91,11 @@ const handleStatusToggle = async (userId: number) => {
     showSnackbar('User status updated successfully!', 'success');
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    const displayMessage = message.startsWith('Error updating user:')
+      ? message
+      : `Error updating user: ${message}`;
     console.error('handleStatusToggle error:', err);
-    showSnackbar(message, 'error');
+    showSnackbar(displayMessage, 'error');
   }
 };
 

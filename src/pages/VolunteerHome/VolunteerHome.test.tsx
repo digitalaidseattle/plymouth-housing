@@ -72,20 +72,31 @@ describe('VolunteerHome Component', () => {
 
     expect(screen.getByText(/Thanks for being here!/i)).toBeInTheDocument();
 
+    const today = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    });
+    expect(screen.getByText(today)).toBeInTheDocument();
+    expect(screen.getByText('General Inventory')).toBeInTheDocument();
+
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(2);
 
     const checkoutSection = screen.getByTestId('section-checkout');
     const inventorySection = screen.getByTestId('section-inventory');
 
+    // Unanchored: each card's accessible name now also carries its subtitle.
     expect(
       within(checkoutSection).getByRole('button', {
-        name: /^Check out$/i,
+        name: /^Check out/i,
       }),
     ).toBeInTheDocument();
     expect(
-      within(inventorySection).getByRole('button', { name: /^Add item$/i }),
+      within(inventorySection).getByRole('button', { name: /^Add stock/i }),
     ).toBeInTheDocument();
+
+    expect(screen.getByText('Add items to inventory')).toBeInTheDocument();
   });
 
   test('does not offer a Welcome Basket action', () => {
@@ -108,7 +119,7 @@ describe('VolunteerHome Component', () => {
     const checkoutSection = screen.getByTestId('section-checkout');
     fireEvent.click(
       within(checkoutSection).getByRole('button', {
-        name: /^Check out$/i,
+        name: /^Check out/i,
       }),
     );
 
@@ -117,7 +128,7 @@ describe('VolunteerHome Component', () => {
     });
   });
 
-  test('navigates to inventory with the add modal open when Add item is clicked', () => {
+  test('navigates to inventory with the add modal open when Add stock is clicked', () => {
     render(
       <Wrapper>
         <VolunteerHome />
@@ -126,7 +137,7 @@ describe('VolunteerHome Component', () => {
 
     const inventorySection = screen.getByTestId('section-inventory');
     fireEvent.click(
-      within(inventorySection).getByRole('button', { name: /^Add item$/i }),
+      within(inventorySection).getByRole('button', { name: /^Add stock/i }),
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('/inventory', {

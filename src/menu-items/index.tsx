@@ -12,7 +12,6 @@ import {
   QuestionOutlined,
   ExclamationOutlined,
   FileOutlined,
-  FileExclamationOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
@@ -23,6 +22,8 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 
+import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
+
 const icons = {
   LoginOutlined,
   ProfileOutlined,
@@ -30,7 +31,6 @@ const icons = {
   QuestionOutlined,
   ExclamationOutlined,
   FileOutlined,
-  FileExclamationOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
@@ -39,6 +39,7 @@ const icons = {
   ClusterOutlined,
   ShoppingCartOutlined,
   TeamOutlined,
+  Inventory2Outlined,
 };
 
 const dashboard = {
@@ -65,7 +66,7 @@ const dashboard = {
       id: 'inventory',
       title: 'Inventory',
       type: 'collapse',
-      icon: icons.FileExclamationOutlined,
+      icon: icons.Inventory2Outlined,
       breadcrumbs: false,
       children: [
         {

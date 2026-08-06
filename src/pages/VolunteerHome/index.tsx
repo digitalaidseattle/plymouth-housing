@@ -7,43 +7,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { Box, Typography, Button, Stack } from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { Box, Typography, Stack } from '@mui/material';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import AddIcon from '@mui/icons-material/Add';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import SnackbarAlert from '../../components/SnackbarAlert.tsx';
-
-const SectionHeader: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-}> = ({ icon, title, subtitle }) => {
-  return (
-    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-      {icon}
-      <Box>
-        <Typography variant="h5">{title}</Typography>
-        <Typography variant="body1" color="text.secondary">
-          {subtitle}
-        </Typography>
-      </Box>
-    </Stack>
-  );
-};
-
-// Colour comes from the theme's MuiButton `contained` override. Fixed height,
-// not flex, so both cards stay level when one subtitle wraps to two lines.
-const buttonSx = {
-  minHeight: 160,
-  flexDirection: 'column',
-  gap: 1,
-  borderRadius: 4,
-};
+import ActionCard from './ActionCard.tsx';
 
 const VolunteerHome: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
   // Success/cancel message from CheckoutPage; absent on a plain visit.
   const navState = location.state as { message?: string } | null;
   const [snackbarState, setSnackbarState] = useState<{
@@ -75,72 +52,41 @@ const VolunteerHome: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        paddingX: { xs: 2, sm: 4, md: 20 },
-        paddingY: 2,
-        height: '75vh',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Typography variant="h4" sx={{ mb: 5 }}>
-        Thanks for being here! Let's make a difference.
+    <Box sx={{ paddingX: { xs: 2, sm: 4, md: 20 }, paddingY: 2 }}>
+      <Typography variant="body2" color="text.secondary">
+        {today}
       </Typography>
 
-      {/* Centring sits here, not on the Stack, which needs alignItems:
-          'stretch' to keep the cards level. */}
-      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-        <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          spacing={6}
-          sx={{ width: '100%', alignItems: 'stretch' }}
-        >
-          {/* Checkout Section */}
-          <Stack
-            data-testid="section-checkout"
-            spacing={3}
-            sx={{ flex: 1, justifyContent: 'space-between' }}
-          >
-            <SectionHeader
-              icon={<ArrowUpwardIcon />}
-              title="Checkout"
-              subtitle="Give items to resident"
-            />
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleCheckOutClick}
-              sx={buttonSx}
-            >
-              <ShoppingCartOutlinedIcon />
-              <Typography variant="h5">Check out</Typography>
-            </Button>
-          </Stack>
+      <Typography variant="h4" sx={{ mt: 1 }}>
+        Thanks for being here!
+        <br />
+        Let's make a difference.
+      </Typography>
 
-          {/* Inventory Section */}
-          <Stack
-            data-testid="section-inventory"
-            spacing={3}
-            sx={{ flex: 1, justifyContent: 'space-between' }}
-          >
-            <SectionHeader
-              icon={<ArrowDownwardIcon />}
-              title="Inventory"
-              subtitle="Add donated or purchased items"
-            />
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleRestockClick}
-              sx={buttonSx}
-            >
-              <AddIcon />
-              <Typography variant="h5">Add item</Typography>
-            </Button>
-          </Stack>
-        </Stack>
-      </Box>
+      <Typography variant="h6" sx={{ mt: 8, mb: 2 }}>
+        General Inventory
+      </Typography>
+
+      {/* Row from `sm` (768px) so the cards stay side by side on tablet portrait. */}
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+        {/* Test ids sit on the wrappers: `within()` excludes its own container. */}
+        <Box data-testid="section-checkout" sx={{ flex: 1, display: 'flex' }}>
+          <ActionCard
+            icon={<ShoppingCartOutlinedIcon />}
+            title="Check out"
+            subtitle="Give items to resident"
+            onClick={handleCheckOutClick}
+          />
+        </Box>
+        <Box data-testid="section-inventory" sx={{ flex: 1, display: 'flex' }}>
+          <ActionCard
+            icon={<Inventory2OutlinedIcon />}
+            title="Add stock"
+            subtitle="Add items to inventory"
+            onClick={handleRestockClick}
+          />
+        </Box>
+      </Stack>
 
       <SnackbarAlert
         open={snackbarState.open}

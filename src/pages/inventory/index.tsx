@@ -21,6 +21,7 @@ import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { getItems, getCategories } from '../../services/itemsService';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -53,17 +54,8 @@ const Inventory = () => {
     category: null as null | HTMLElement,
     status: null as null | HTMLElement,
   });
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({
-    open: Boolean(navState?.message),
-    message: navState?.message ?? '',
-    severity: 'success',
-  });
+  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
   const [showResults, setShowResults] = useState(false);
-
   const handleAddOpen = () => {
     setAddModal(true);
     setShowResults(false);
@@ -127,6 +119,12 @@ const Inventory = () => {
       search: value,
     }));
   };
+
+  useEffect(() => {
+    if (location.state?.message) {
+      showSnackbar(location.state.message, 'success');
+    }
+  }, [location.state, showSnackbar]);
 
   const negativeItemCount = originalData.filter(
     (item) => item.quantity < 0,
@@ -193,15 +191,11 @@ const Inventory = () => {
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
-      setSnackbarState({
-        open: true,
-        message: 'Could not get inventory. \r\n' + error,
-        severity: 'warning',
-      });
+      showSnackbar('Could not get inventory. \r\n' + error, 'warning');
       console.error('Could not get inventory:', error);
     }
     setIsLoading(false);
-  }, [user]);
+  }, [user, showSnackbar]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -239,14 +233,6 @@ const Inventory = () => {
     }, 300); // Reduces calls to filter while typing in search
     return () => clearTimeout(handler);
   }, [handleFilter]);
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
 
   // When the table is scoped to one inventory type, lock the Add dialog to it.
   const modalInventoryType =
@@ -290,7 +276,7 @@ const Inventory = () => {
         handleClose={() => setAdjustModal(false)}
         fetchData={fetchData}
         itemToEdit={itemToEdit}
-        handleSnackbar={setSnackbarState}
+        handleSnackbar={showSnackbar}
       />
 
       {/* Toolbar: filters + add */}

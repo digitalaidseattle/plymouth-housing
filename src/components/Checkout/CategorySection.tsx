@@ -13,6 +13,7 @@ import {
   CheckoutType,
 } from '../../types/interfaces';
 import { Box, Grid, Typography } from '@mui/material';
+import { withCount } from '../../utils/textUtils';
 
 type CategorySectionProps = {
   category: CategoryProps;
@@ -42,7 +43,7 @@ const CategorySection = ({
   return (
     <Box
       sx={{
-        px: removeButton ? 0 : 5,
+        px: removeButton ? 0 : 4,
         pb: 3,
       }}
     >
@@ -51,15 +52,15 @@ const CategorySection = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 2,
+          mb: 1,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
             sx={{
               typography: { xs: 'body2', md: 'h5' },
-              my: 2,
-              mr: 4,
+              my: 1,
+              mr: 2,
             }}
             id={category.category}
           >
@@ -67,15 +68,16 @@ const CategorySection = ({
           </Typography>
           {removeButton ? null : (
             <Typography
-              sx={{ typography: 'body2', color: '#666666' }}
+              sx={{ typography: 'body2', color: '#666666', my: 1 }}
             >
-              {category.items.length} items
+              {withCount(category.items.length, 'item')}
             </Typography>
           )}
         </Box>
         <Typography
           sx={{
             typography: 'body2',
+            my: 1,
             backgroundColor:
               categoryCheckout?.categoryCount > category.checkout_limit
                 ? '#ffebee'
@@ -96,7 +98,7 @@ const CategorySection = ({
       </Box>
       <Grid
         container
-        spacing={2}
+        spacing={1}
         sx={{
           display: 'flex',
           flexDirection: 'row',

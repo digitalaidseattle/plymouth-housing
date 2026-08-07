@@ -5,7 +5,7 @@
  *
  */
 import { Dispatch, SetStateAction } from 'react';
-import { Box, Button, useTheme } from '@mui/material';
+import { Box, Button, Stack, useTheme } from '@mui/material';
 import {
   CategoryProps,
   CheckoutType,
@@ -46,26 +46,21 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
       : 'Missing Resident Info'
     : checkoutType === 'welcomeBasket'
       ? `${residentInfo.building.code}`
-      : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`;
+      : `${residentInfo.building.code} - ${residentInfo.unit.unit_number} - ${residentInfo.name} (Last visit: ${residentInfo.lastVisitDate ? new Date(residentInfo.lastVisitDate).toLocaleDateString() : 'none'})`;
 
   return (
     <Box
       sx={{
+        py: 1,
+        mb: 2,
+        width: '100%',
+        background: theme.palette.common.white,
         position: 'sticky',
         top: '3.5rem',
         zIndex: 2,
-        p: 1,
-        background: theme.palette.common.white,
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'end',
-          p: 1,
-        }}
-      >
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Button
           variant="outlined"
           color={residentInfoIsMissing ? 'error' : 'primary'}
@@ -78,21 +73,24 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
             data={data}
             setSearchData={setSearchData}
             setSearchActive={setSearchActive}
+            compact
           />
         )}
-      </Box>
+      </Stack>
       {!searchActive && checkoutType === 'general' && (
-        <Navbar
-          key={checkoutType}
-          filteredData={navbarData}
-          scrollToCategory={(id) => {
-            const element = document.getElementById(id);
-            if (element) {
-              element.style.scrollMarginTop = '200px';
-              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }}
-        />
+        <Box sx={{ my: 2 }}>
+          <Navbar
+            key={checkoutType}
+            filteredData={navbarData}
+            scrollToCategory={(id) => {
+              const element = document.getElementById(id);
+              if (element) {
+                element.style.scrollMarginTop = '200px';
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+          />
+        </Box>
       )}
     </Box>
   );

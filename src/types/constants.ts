@@ -50,7 +50,8 @@ export const ENDPOINTS = {
 } as const;
 
 export const SETTINGS = {
-  itemsPerPage: 10,
+  itemsPerPage: 15,
+  rowsPerPageOptions: [10, 15, 25, 50, 100],
   checkout_item_limit: 10,
   api_fetch_limit_items: 10000,
   api_fetch_limit_units: 1000,

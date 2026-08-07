@@ -5,8 +5,7 @@
  *
  */
 import React, { useState, useEffect } from 'react';
-import { SETTINGS } from '../../types/constants';
-import { Box, Button, Pagination } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UserFilters from './UserFilters';
 import UserTable from './UserTable';
@@ -21,8 +20,6 @@ const UserPage = () => {
   const [nameOrder, setNameOrder] = useState<'asc' | 'desc' | 'original'>(
     'original',
   );
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = SETTINGS.itemsPerPage;
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
@@ -83,22 +80,9 @@ const UserPage = () => {
     );
   };
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setCurrentPage(value);
-  };
-
   const handleSearchChange = (value: string) => {
     setSearch(value);
   };
-
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
@@ -130,18 +114,7 @@ const UserPage = () => {
   };
 
   return (
-    <Box>
-      {/* Add Button */}
-      <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          sx={{ bgcolor: '#F5F5F5', color: 'black' }}
-          onClick={openAddModal}
-        >
-          <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
-        </Button>
-      </Box>
-
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {/* Add Volunteer Modal */}
       <AddVolunteerModal
         addModal={addModalOpen}
@@ -149,30 +122,31 @@ const UserPage = () => {
         fetchData={refetch}
       />
 
-      {/* Filters */}
-      <UserFilters
-        search={search}
-        onSearchChange={handleSearchChange}
-        statusFilter={statusFilter}
-        roleFilter={roleFilter}
-        onStatusFilterChange={setStatusFilter}
-        onRoleFilterChange={setRoleFilter}
-      />
+      {/* Toolbar: filters + add */}
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', width: '100%', mt: 3, mb: 3 }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <UserFilters
+            search={search}
+            onSearchChange={handleSearchChange}
+            statusFilter={statusFilter}
+            roleFilter={roleFilter}
+            onStatusFilterChange={setStatusFilter}
+            onRoleFilterChange={setRoleFilter}
+          />
+        </Box>
+        <Button variant="contained" onClick={openAddModal}>
+          <AddIcon fontSize="small" />
+          Add
+        </Button>
+      </Stack>
 
       {/* Users Table */}
-      <UserTable
-        users={currentItems}
-        nameOrder={nameOrder}
-        onNameOrderToggle={handleNameOrderToggle}
-        onStatusToggle={handleStatusToggle}
-      />
-
-      {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <UserTable
+          users={filteredData}
+          nameOrder={nameOrder}
+          onNameOrderToggle={handleNameOrderToggle}
+          onStatusToggle={handleStatusToggle}
         />
       </Box>
 

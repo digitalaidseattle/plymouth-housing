@@ -5,17 +5,7 @@
  *
  */
 import { API_HEADERS, SETTINGS } from '../types/constants';
-
-interface ApiResponse<T> {
-  value: T;
-}
-
-interface ApiConfig {
-  url: string;
-  role: string;
-  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-  body?: object;
-}
+import { ApiConfig, ApiResponse } from '../types/interfaces';
 
 // Global callbacks that can be set by SpinUpContext
 let globalSetShowSpinUpDialog: ((show: boolean) => void) | null = null;

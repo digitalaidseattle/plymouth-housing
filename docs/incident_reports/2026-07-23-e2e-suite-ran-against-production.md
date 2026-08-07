@@ -7,7 +7,7 @@
 | **Detected by** | UX designer, who noticed the transactions appearing in the app |
 | **Remediation** | Manual rollback of every transaction, over a weekend |
 | **Severity** | High — the production database was written to by an automated test run and required hand remediation |
-| **Status** | Preventive control shipped (v1.5.1), currently inert; see [2026-08-03](2026-08-03-staging-deploy-overwrote-production.md) |
+| **Status** | Preventive control shipped in v1.5.1, inert 2026-08-03 → 2026-08-07 (see [2026-08-03](2026-08-03-staging-deploy-overwrote-production.md)), **in effect since v1.5.2** |
 
 ---
 
@@ -101,11 +101,17 @@ sign-in guard in [`MainLayout/index.tsx`](../../src/layout/MainLayout/index.tsx)
 account carrying the `test` role is refused when `ENVIRONMENT === 'production'`, and a
 `TestAccountBlockedInProduction` event is sent to Application Insights.
 
-**The guard is currently inert.** On 2026-08-03 a staging deploy overwrote production with a
-`VITE_ENVIRONMENT=staging` build, so its environment check evaluates to `false` and test
-accounts are admitted again. Detail in
-[2026-08-03-staging-deploy-overwrote-production.md](2026-08-03-staging-deploy-overwrote-production.md);
-fix in PR #596. **Until that reaches `main`, the control described here is not in effect.**
+**The guard was inert for four days.** On 2026-08-03 a staging deploy overwrote production
+with a `VITE_ENVIRONMENT=staging` build, so its environment check evaluated to `false` and
+test accounts were admitted again — five days after this control shipped. It was restored
+on 2026-08-07 when v1.5.2 reached production and the bundle was rebuilt with
+`VITE_ENVIRONMENT=production`. Detail in
+[2026-08-03-staging-deploy-overwrote-production.md](2026-08-03-staging-deploy-overwrote-production.md).
+
+That episode is worth keeping attached to this one: the control described here has a
+dependency the report above did not originally state, which is that **the production
+bundle must actually have been built by the production workflow**. A correct guard, a
+correctly assigned role, and a misrouted deploy still add up to no protection.
 
 Note also that the guard blocks the browser session at sign-in, which is enough to stop a
 UI-driven suite, but it is explicitly not a security boundary and does not stop direct API
@@ -117,7 +123,7 @@ calls.
 
 | # | Action | Addresses | Status |
 |---|---|---|---|
-| 1 | Restore the guard by landing PR #596 through to `main` | Resolution | Open |
+| 1 | Restore the guard by landing PR #596 through to `main` | Resolution | **Done** — v1.5.2, PR #602, 2026-08-07 |
 | 2 | Make the test suite refuse to run against production — assert `URL` in `conftest.py` before any browser starts | Factors 1, 3 | Too brittle |
 | 3 | Confirm the `test` role is assigned to every test account on the production SWA, so the guard has something to match | Factor 2 | Confirmed |
 | 4 | Delete the now-unused `URL` / username / `STAGING_URL` **secrets** so the visible variables are the single source of truth | Factor 1 | Done |
@@ -137,5 +143,11 @@ These two reports concern the same control, from opposite ends:
 Together they make one point: a guardrail depending on a build-time value, on correct role
 assignment in Azure, and on a correctly targeted deploy has three ways to fail silently, and
 two of them have already happened. With the alternatives above ruled out as brittle or
-unaffordable, that single guard is the control we have — which makes item 1, and keeping the
-deploy pointed where it belongs, the things that matter most.
+unaffordable, that single guard is the control we have.
+
+As of v1.5.2 it is back in effect, so item 1 is closed — but closing it restored the
+*status quo*, it did not add protection. The guard has now been switched off once by
+accident, and nothing yet would tell us if it happened again; detection both times was a
+person noticing. Items 4, 5 and 6 of the [2026-08-03 report](2026-08-03-staging-deploy-overwrote-production.md#action-items)
+are what would change that, and they remain the highest-value work attached to either
+incident.

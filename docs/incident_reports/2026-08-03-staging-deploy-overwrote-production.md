@@ -5,9 +5,9 @@
 | **Date of incident** | 2026-08-03 21:15 UTC |
 | **Date detected** | 2026-08-05 |
 | **Detected by** | Manual login with a `test`-role account on production |
-| **Duration** | ~2 days (ongoing at time of writing, until v1.5.2 reaches production) |
+| **Duration** | 2026-08-03 21:15 UTC → 2026-08-07, when v1.5.2 reached production (~4 days) |
 | **Severity** | Medium as it played out — no data loss, no user-visible failure. Would have been High had `staging` carried a schema or DAB change; see [Near miss](#near-miss-the-frontend-moved-the-backend-did-not) |
-| **Status** | Fix open in PR #596 |
+| **Status** | Resolved. Fix shipped in v1.5.2 via PR #596 (→ `staging`) and PR #602 (`staging` → `main`). Verification and the remaining hardening items are tracked in [Action items](#action-items). |
 
 ---
 
@@ -26,8 +26,20 @@ The guard code was correct and deployed the whole time. The wrong *build* was on
 
 - **Test accounts could sign into production.** A volunteer test account (roles `volunteer`,
   `test`) logged in and reached the app normally.
-- **Production ran a staging build**, identical in source (the `staging` branch contained
-  the same commits) but differing in build-time configuration.
+- **Production ran a staging build** — differing from the released `main` build in both
+  source *and* build-time configuration. At the moment of the overwrite `staging` (`7ffb89e`)
+  was **107 commits and 3,744 changed lines ahead** of `main` (`33aa186`, v1.5.1): the
+  `dev` → `staging` merge of 2026-07-15 (`f97dafa`) had already brought in the button and
+  dialog standardization, the rows-per-page pagination work, the `src/types/` refactor and
+  the tablet/mobile layout fixes. All of it went live to real users on 2026-08-03, without
+  a release, and stayed there for four days.
+
+  > An earlier revision of this report described the two builds as "identical in source."
+  > That was wrong, and it understated the incident: this was not merely a
+  > mis-configured build of already-released code, it was an unreleased frontend
+  > promoted to production by accident. The severity call above stays at Medium only
+  > because the changes happened to be frontend-only and non-breaking — see
+  > [Near miss](#near-miss-the-frontend-moved-the-backend-did-not).
 - **Telemetry attribution is suspect for the window.** The staging workflow injects
   `VITE_CLARITY_PROJECT_ID` and `VITE_APPINSIGHTS_CONNECTION_STRING` from the GitHub
   `staging` environment. If those secrets differ from the `production` ones, production
@@ -43,8 +55,10 @@ remains keeping test accounts and test data out of the production database.
 
 ### Near miss: the frontend moved, the backend did not
 
-We got lucky on timing. The `staging` branch happened to carry no schema or DAB changes, so
-the staging frontend was compatible with production's backend and users saw nothing wrong.
+We got lucky on timing. Those 107 commits were entirely frontend — no `database/` or `dab/`
+files among the 88 changed — so the staging frontend stayed compatible with production's
+backend and users saw nothing wrong. The luck was in *what* had accumulated on `staging`,
+not in how much.
 
 Nothing about the deploy guaranteed that. The frontend and the backend are deployed by
 entirely separate mechanisms:
@@ -56,14 +70,16 @@ entirely separate mechanisms:
 - **Database schema** (`database/`) — applied by hand.
 
 So a staging→production overwrite ships an unreviewed frontend against the **production**
-database and the **production** DAB entity set. Had `staging` been even one schema change
-ahead — a new entity, a renamed column, a new stored procedure — the production frontend
-would have started calling endpoints that production's DAB does not expose, or columns that
-do not exist, and real users would have hit API errors on the affected pages. That is a
-user-visible outage, not a silent guardrail failure.
+database and the **production** DAB entity set. Had any of those 107 commits carried a
+schema change — a new entity, a renamed column, a new stored procedure — the production
+frontend would have started calling endpoints that production's DAB does not expose, or
+columns that do not exist, and real users would have hit API errors on the affected pages.
+That is a user-visible outage, not a silent guardrail failure.
 
-This is the true blast radius of the defect, and it is why item 4 below matters even though
-this particular occurrence was harmless.
+Note that the blast radius is set by how far `staging` has drifted, and the drift grows
+with every day `staging` waits to be promoted. On 2026-08-03 it had been accumulating for
+19 days. This is the true reach of the defect, and it is why item 4 below matters even
+though this particular occurrence was harmless.
 
 ---
 
@@ -76,6 +92,9 @@ this particular occurrence was harmless.
 | 2026-08-03 21:15 | Push to `staging` (PR #589) runs the staging workflow. With no target environment it uploads to the SWA's default environment — **production**. |
 | 2026-08-05 | A `test`-role account signs into production and is not blocked. Investigation begins. |
 | 2026-08-05 | Root cause confirmed from the live bundle and CI logs. Fix opened as PR #596. |
+| 2026-08-05 21:58 | PR #596 merges to `staging`: `deployment_environment` restored, version bumped to 1.5.2. Backported to `dev` as PR #600. |
+| 2026-08-07 | Promotion PR #602 (`staging` → `main`) opened. The merge conflicts in four files — see [Aftermath](#aftermath-the-hotfix-branches-had-diverged). |
+| 2026-08-07 | v1.5.2 deploys to production. The production bundle is rebuilt with `VITE_ENVIRONMENT=production`, re-arming the guard, and telemetry returns to the production resources. |
 
 ---
 
@@ -188,16 +207,45 @@ PR #596 (targeting `staging`):
    version has no matching tag, so without a bump no production build can replace the
    staging bundle currently live.
 
-Production continues to serve the staging bundle, and continues to admit `test`-role
-accounts, until this reaches `main`.
+PR #602 then promoted `staging` → `main` on 2026-08-07, which is what actually ended the
+incident: the production workflow saw an untagged version, rebuilt the bundle with
+`VITE_ENVIRONMENT=production`, and redeployed. That rebuild is the fix — the guard's input
+is baked in at build time, so nothing short of a production build could re-arm it.
 
-**Verification after merge** — the staging run must log:
+**Verification, every staging run from here on** — the run must log:
 
 ```text
 Visit your site at: https://salmon-island-01be9bf1e-staging.westus2.5.azurestaticapps.net
 ```
 
 A region-less hostname means the input did not take and production was overwritten again.
+This check is manual until action item 4 automates it.
+
+### Aftermath: the hotfix branches had diverged
+
+Promoting `staging` was not the clean merge [hotfix-handling.md](../hotfix-handling.md)
+describes. PR #602 conflicted in four files — the staging workflow, `MainLayout/index.tsx`,
+`package.json` and `package-lock.json`.
+
+The cause was that the July/August hotfixes were **re-applied** on parallel branches rather
+than backported by merging `main`. Each fix exists twice, as two commits with identical
+patch-ids and different hashes:
+
+| Change | on `main` | on `staging` |
+|---|---|---|
+| `fix: remove unsupported deployment_environment input` | `19b402d` | `0a07141` |
+| `update url to staging.` | `fbc9798` | `7ada2ab` |
+| `docs: document production test-account guard` | `4817f06` | `24b1533` |
+| `fix: gate rendering on the production test-account guard` | `3a7867d` | `084059e` |
+
+Git cannot tell that these are the same change, so it reported a conflict on every file
+they touched. Every conflict resolved to `staging`'s side, and the merged tree came out
+byte-identical to `origin/staging` — `main` contributed nothing that `staging` did not
+already have. The divergence was noise, but it was noise that had to be resolved by hand
+during an incident recovery, on the release that was fixing the incident.
+
+[hotfix-handling.md](../hotfix-handling.md) has been updated to require backporting by
+merging `main` rather than re-applying the change on a fresh branch.
 
 ---
 
@@ -205,15 +253,18 @@ A region-less hostname means the input did not take and production was overwritt
 
 | # | Action | Addresses | Status |
 |---|---|---|---|
-| 1 | Restore `deployment_environment` with an explanatory comment | Root cause | PR #596 |
-| 2 | Bump to 1.5.2 so production can be redeployed | Impact | PR #596 |
+| 1 | Restore `deployment_environment` with an explanatory comment | Root cause | **Done** — PR #596 |
+| 2 | Bump to 1.5.2 so production can be redeployed | Impact | **Done** — PR #596 |
 | 3 | Give staging its own SWA resource or its own deploy token, so targeting does not depend on an optional input | Factor 1 | Resource constraint |
 | 4 | Assert the deployed hostname in the workflow — fail the run if `static_web_app_url` is not the expected environment | Factor 2 | Open |
 | 5 | Add a telemetry initializer stamping `ENVIRONMENT` on all App Insights events, so "which build is live" is a query | Factor 5 | Open |
 | 6 | Have the guard cross-check `window.location.hostname` against the production host, not just the build-time constant, so a mismatched build fails closed | Factor 4 | Open |
 | 7 | Add a post-deploy smoke check that fetches the site and asserts the expected environment | Factor 3 | Open |
 | 8 | Verify whether production telemetry was routed to staging Clarity / App Insights during the window | Impact | Open |
-| 9 | Run CI on PRs targeting `staging` (the workflow currently runs only on push, so PR #596 merges unverified) | Process | Open |
+| 9 | Run CI on PRs targeting `staging` (the workflow currently runs only on push, so PR #596 merged unverified) | Process | Open |
+| 10 | Confirm from the v1.5.2 production run log that the deployed bundle reads `ENVIRONMENT = "production"` | Verification | Open |
+| 11 | Backport hotfixes by merging `main` instead of re-applying them, so `main` and `staging` stop diverging | [Aftermath](#aftermath-the-hotfix-branches-had-diverged) | **Done** — `hotfix-handling.md` updated |
+| 12 | Promote `staging` on a schedule rather than on demand, so the drift that sets the blast radius stays small | [Near miss](#near-miss-the-frontend-moved-the-backend-did-not) | Open |
 
 **"Resource constraint"** means accepted-and-not-planned: this is a volunteer project with
 limited people and limited Azure budget, and a second Static Web App resource is not
@@ -243,8 +294,19 @@ has to check its own work instead.
 
 **Automatic frontend deploys plus manual backend deploys means the two can desynchronise.**
 The blast radius of a misrouted frontend deploy is set by how far `staging` has drifted from
-production's schema and DAB config — which is a matter of timing, not of any control we
-have. This time the drift was zero. The next time it need not be.
+production's schema and DAB config. This time the drift was 107 commits of frontend-only
+work and the backend was untouched, so nothing broke. The next time it need not be.
+
+**A long-lived `staging` is a loaded gun pointed at production.** The 19 days `staging` sat
+un-promoted did not cause the misrouted deploy, but they decided what it cost. A branch
+that is one day ahead of production makes an accidental overwrite a non-event; one that is
+three weeks ahead makes it an unreviewed release. Promotion cadence is a safety control,
+not just a planning preference.
+
+**Re-applying a change is not backporting it.** Cherry-picking the same fix onto `main` and
+`staging` separately leaves Git with two unrelated commits and guarantees a conflict at the
+next promotion — which is how the release that *fixed* this incident ended up needing four
+manual conflict resolutions. Merge the branch that has the fix; do not retype it.
 
 **A guard is only as trustworthy as its inputs.** The guard logic was correct, tested, and
 deployed — and useless, because the one value it reads was set by a workflow that had no

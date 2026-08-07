@@ -7,7 +7,7 @@
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import VolunteerHome from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 
@@ -61,6 +61,12 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 describe('VolunteerHome Component', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 15, 12, 0, 0));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test('renders the header and exactly two action buttons', () => {
@@ -72,11 +78,7 @@ describe('VolunteerHome Component', () => {
 
     expect(screen.getByText(/Thanks for being here!/i)).toBeInTheDocument();
 
-    const today = new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    });
+    const today = 'Monday, June 15';
     expect(screen.getByText(today)).toBeInTheDocument();
     expect(screen.getByText('General Inventory')).toBeInTheDocument();
 

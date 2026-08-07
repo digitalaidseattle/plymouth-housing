@@ -131,4 +131,12 @@ describe('Inventory navigation state', () => {
       'type: unset',
     );
   });
+
+  test('shows the snackbar message carried in navigation state', async () => {
+    renderInventory({ message: 'Item checked out' });
+
+    await waitFor(() => {
+      expect(screen.getByText('Item checked out')).toBeInTheDocument();
+    });
+  });
 });

@@ -191,7 +191,8 @@ const Inventory = () => {
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
-      showSnackbar('Could not get inventory. \r\n' + error, 'warning');
+      const message = error instanceof Error ? error.message : String(error);
+      showSnackbar(`Could not get inventory: ${message}`, 'warning');
       console.error('Could not get inventory:', error);
     }
     setIsLoading(false);

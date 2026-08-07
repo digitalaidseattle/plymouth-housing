@@ -31,7 +31,7 @@ const HeaderContent = () => {
       {user?.userRoles?.includes('volunteer') && <VolunteerSwitcher />}
       {/* We hide the notification bell for now as it's for post-MVP*/}
       {/* {toolbarItems.items} */}
-      <Box sx={{ flexGrow: 1}}  />
+      <Box sx={{ flexGrow: 1 }} />
       <Button
         component={Link}
         to={getHomePath(user)}

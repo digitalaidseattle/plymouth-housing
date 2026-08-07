@@ -31,7 +31,10 @@ const VolunteerHome: React.FC = () => {
   // Success/cancel message from CheckoutPage; absent on a plain visit.
   useEffect(() => {
     if (location.state?.message) {
-      showSnackbar(location.state.message, 'success');
+      showSnackbar(
+        location.state.message,
+        location.state.checkoutSuccess ? 'success' : 'error',
+      );
     }
   }, [location.state, showSnackbar]);
 

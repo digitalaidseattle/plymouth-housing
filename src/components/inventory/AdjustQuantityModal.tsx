@@ -15,6 +15,7 @@ import {
   FormControlLabel,
   Radio,
   Button,
+  type AlertColor,
 } from '@mui/material';
 import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
@@ -36,13 +37,7 @@ type AdjustQuantityModalProps = {
   handleClose: () => void;
   fetchData: () => void;
   itemToEdit: InventoryItem | null;
-  handleSnackbar: React.Dispatch<
-    React.SetStateAction<{
-      open: boolean;
-      message: string;
-      severity: 'success' | 'warning';
-    }>
-  >;
+  handleSnackbar: (message: string, severity?: AlertColor) => void;
 };
 
 const AdjustQuantityModal = ({
@@ -136,11 +131,10 @@ const AdjustQuantityModal = ({
 
       if (result.Status === 'Success') {
         fetchData();
-        handleSnackbar({
-          open: true,
-          message: `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`,
-          severity: 'success',
-        });
+        handleSnackbar(
+          `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`,
+          'success',
+        );
         resetInputsHandler();
       } else if (
         result.Status === 'Error' &&

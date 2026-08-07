@@ -41,6 +41,8 @@ const renderWithRoles = (userRoles: string[]) =>
     </UserContext.Provider>,
   );
 
+// The concrete route matters: '/' renders Home but leaves the sidebar
+// unhighlighted, because NavItem matches on pathname.includes(item.url).
 describe('HeaderContent Home button', () => {
   test('points a volunteer at the volunteer home route', () => {
     renderWithRoles(['volunteer']);
@@ -57,17 +59,6 @@ describe('HeaderContent Home button', () => {
     expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute(
       'href',
       '/admin-home',
-    );
-  });
-
-  // '/' renders Home but leaves the sidebar unhighlighted, because NavItem
-  // matches on pathname.includes(item.url).
-  test('links to a concrete route rather than the root path', () => {
-    renderWithRoles(['volunteer']);
-
-    expect(screen.getByRole('link', { name: /home/i })).not.toHaveAttribute(
-      'href',
-      '/',
     );
   });
 });

@@ -25,7 +25,7 @@ import { useLocation } from 'react-router-dom';
 const Inventory = () => {
   const { user } = useContext(UserContext);
   const location = useLocation();
-  // Set by the Home page's Restock button and the Inventory sub-menu items.
+  // Set by the Home page's Add stock button and the Inventory sub-menu items.
   const navState = location.state as {
     inventoryType?: 'General' | 'Welcome Basket';
     openAddModal?: boolean;
@@ -53,7 +53,6 @@ const Inventory = () => {
     category: null as null | HTMLElement,
     status: null as null | HTMLElement,
   });
-  const [error, setError] = useState<string | null>(null);
   const [snackbarState, setSnackbarState] = useState<{
     open: boolean;
     message: string;
@@ -194,7 +193,11 @@ const Inventory = () => {
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
-      setError('Could not get inventory. \r\n' + error);
+      setSnackbarState({
+        open: true,
+        message: 'Could not get inventory. \r\n' + error,
+        severity: 'warning',
+      });
       console.error('Could not get inventory:', error);
     }
     setIsLoading(false);
@@ -220,8 +223,9 @@ const Inventory = () => {
   // /inventory is one route, so switching sub-items does not remount this
   // component and the useState initialisers above do not re-run.
   useEffect(() => {
-    if (navState?.inventoryType) {
-      setFilters((prev) => ({ ...prev, type: navState.inventoryType! }));
+    const inventoryType = navState?.inventoryType;
+    if (inventoryType) {
+      setFilters((prev) => ({ ...prev, type: inventoryType }));
     }
     if (navState?.openAddModal) {
       setAddModal(true);
@@ -229,22 +233,12 @@ const Inventory = () => {
     }
   }, [navState]);
 
-
   useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();
     }, 300); // Reduces calls to filter while typing in search
     return () => clearTimeout(handler);
   }, [handleFilter]);
-
-  useEffect(() => {
-    if (error) {
-      const handler = setTimeout(() => {
-        setSnackbarState({ open: true, message: error, severity: 'warning' });
-      }, 0);
-      return () => clearTimeout(handler);
-    }
-  }, [error]);
 
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
@@ -319,7 +313,9 @@ const Inventory = () => {
       </Stack>
 
       {/* Inventory Table */}
-      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+      >
         <InventoryTable
           items={displayData}
           sortDirection={sortDirection}

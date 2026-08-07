@@ -88,7 +88,7 @@ describe('Inventory navigation state', () => {
     navState.current = null;
   });
 
-  test('opens the add modal scoped to General when arriving from Restock', async () => {
+  test('opens the add modal scoped to General when arriving from Add stock', async () => {
     const { container } = renderInventory({
       inventoryType: 'General',
       openAddModal: true,

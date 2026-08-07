@@ -4,12 +4,13 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { Box, Typography, Stack } from '@mui/material';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import SnackbarAlert from '../../components/SnackbarAlert.tsx';
 import ActionCard from './ActionCard.tsx';
 
@@ -21,31 +22,24 @@ const VolunteerHome: React.FC = () => {
     month: 'long',
     day: 'numeric',
   });
-  // Success/cancel message from CheckoutPage; absent on a plain visit.
-  const navState = location.state as { message?: string } | null;
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({
-    open: Boolean(navState?.message),
-    message: navState?.message ?? '',
-    severity: 'success',
-  });
+  const {
+    snackbarState,
+    showSnackbar,
+    handleClose: handleSnackbarClose,
+  } = useSnackbar();
 
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
+  // Success/cancel message from CheckoutPage; absent on a plain visit.
+  useEffect(() => {
+    if (location.state?.message) {
+      showSnackbar(location.state.message, 'success');
+    }
+  }, [location.state, showSnackbar]);
 
   const handleCheckOutClick = () => {
     navigate('/checkout', { state: { checkoutType: 'general' } });
   };
 
-  const handleRestockClick = () => {
+  const handleAddStockClick = () => {
     navigate('/inventory', {
       state: { inventoryType: 'General', openAddModal: true },
     });
@@ -53,11 +47,11 @@ const VolunteerHome: React.FC = () => {
 
   return (
     <Box sx={{ paddingX: { xs: 2, sm: 4, md: 20 }, paddingY: 2 }}>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
         {today}
       </Typography>
 
-      <Typography variant="h4" sx={{ mt: 1, fontWeight: 400 }}>
+      <Typography variant="h4" sx={{ mt: 1, fontWeight: 'fontWeightRegular' }}>
         Thanks for being here!
         <br />
         Let's make a difference.
@@ -83,7 +77,7 @@ const VolunteerHome: React.FC = () => {
             icon={<Inventory2OutlinedIcon />}
             title="Add stock"
             subtitle="Add items to inventory"
-            onClick={handleRestockClick}
+            onClick={handleAddStockClick}
           />
         </Box>
       </Stack>

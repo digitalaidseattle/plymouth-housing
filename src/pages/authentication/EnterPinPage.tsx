@@ -160,7 +160,7 @@ const EnterPinPage: React.FC = () => {
         });
         showSnackMessage('Login successful! Redirecting...', 'success');
         if (loggedInUserId !== null) {
-          result = await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
+          await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
         navigate('/volunteer-home');
       } else if (result) {

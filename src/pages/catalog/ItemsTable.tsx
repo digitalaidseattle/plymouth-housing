@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -79,7 +79,6 @@ const ItemsTable = ({
   };
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   // Filter items by search
   const filteredItems = items.filter(
@@ -250,10 +249,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={(e) => {
-                if (e.relatedTarget === cancelButtonRef.current) return;
-                handleSave();
-              }}
+              onBlur={handleSave}
               autoFocus
               disabled={isSaving}
               sx={{ width: '140px' }}
@@ -271,7 +267,6 @@ const ItemsTable = ({
               <Check fontSize="small" />
             </IconButton>
             <IconButton
-              ref={cancelButtonRef}
               size="small"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleCancel}
@@ -293,10 +288,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={(e) => {
-                if (e.relatedTarget === cancelButtonRef.current) return;
-                handleSave();
-              }}
+              onBlur={handleSave}
               autoFocus
               disabled={isSaving}
               sx={{ width: '150px' }}
@@ -317,7 +309,6 @@ const ItemsTable = ({
               <Check fontSize="small" />
             </IconButton>
             <IconButton
-              ref={cancelButtonRef}
               size="small"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleCancel}
@@ -342,10 +333,7 @@ const ItemsTable = ({
               setEditState((prev) => ({ ...prev, value: e.target.value }))
             }
             onKeyDown={handleKeyDown}
-            onBlur={(e) => {
-              if (e.relatedTarget === cancelButtonRef.current) return;
-              handleSave();
-            }}
+            onBlur={handleSave}
             autoFocus
             type={isNumber ? 'number' : 'text'}
             disabled={isSaving}
@@ -367,7 +355,6 @@ const ItemsTable = ({
             <Check fontSize="small" />
           </IconButton>
           <IconButton
-            ref={cancelButtonRef}
             size="small"
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleCancel}

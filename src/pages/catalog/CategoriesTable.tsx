@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -54,7 +54,6 @@ const CategoriesTable = ({
     item_limit: '1',
   });
   const [isSaving, setIsSaving] = useState(false);
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleCellClick = (id: number, field: string, currentValue: string | number) => {
     if (isSaving) return;
@@ -168,10 +167,7 @@ const CategoriesTable = ({
             value={editState.value}
             onChange={(e) => setEditState(prev => ({ ...prev, value: e.target.value }))}
             onKeyDown={handleKeyDown}
-            onBlur={(e) => {
-              if (e.relatedTarget === cancelButtonRef.current) return;
-              handleSave();
-            }}
+            onBlur={handleSave}
             autoFocus
             type={field === 'item_limit' ? 'number' : 'text'}
             slotProps={{ htmlInput: field === 'item_limit' ? { min: 1 } : {} }}
@@ -188,7 +184,6 @@ const CategoriesTable = ({
             <Check fontSize="small" />
           </IconButton>
           <IconButton
-            ref={cancelButtonRef}
             size="small"
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleCancel}

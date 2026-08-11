@@ -32,6 +32,10 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 
 #### **Step 2: Install SQL Server Extension for VS Code**
 - Install the **SQL Server (mssql)** extension from Microsoft in VS Code.  
+- Install the PowerShell **SqlServer** module if it is not already available:
+  ```powershell
+  Install-Module SqlServer -Scope CurrentUser
+  ```
 
 #### **Step 3: Create and Bootstrap the Database**
 1.  Open a Powershell terminal in VS Code. Setting the $env variables and running the .ps1 script should happen in PowerShell. 

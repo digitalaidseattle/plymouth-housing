@@ -2,7 +2,7 @@
 # $env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=master;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'
 #
 # This script creates the Inventory database and applies the SQL scripts from the database folder.
-Import-Module SqlServer
+Import-Module SqlServer -ErrorAction Stop
 
 if (-not $env:DATABASE_CONNECTION_STRING) {
     throw 'Please set $env:DATABASE_CONNECTION_STRING before running this script.'
@@ -30,36 +30,7 @@ function Invoke-SqlScriptFile {
     }
 
     Write-Host "- running $FilePath" -ForegroundColor Blue
-    $scriptText = Get-Content -Path $FilePath -Raw
-    # Split SQL batches on GO statements.
-    # Note: This splitter only supports GO appearing by itself on a line.
-    # It does not support sqlcmd syntax such as:
-    #   GO 5
-    #   GO -- comment
-    # If future scripts require those features, use Invoke-Sqlcmd instead.
-    $batches = $scriptText -split '(?mi)^\s*GO\s*$'
-
-    $connection = [Microsoft.Data.SqlClient.SqlConnection]::new($ConnectionString)
-    $connection.Open()
-
-    try {
-        foreach ($batch in $batches) {
-            $trimmedBatch = $batch.Trim()
-            if ([string]::IsNullOrWhiteSpace($trimmedBatch)) {
-                continue
-            }
-
-            $command = $connection.CreateCommand()
-            $command.CommandText = $trimmedBatch
-            $command.CommandTimeout = 600
-            $command.ExecuteNonQuery() | Out-Null
-        }
-    }
-    finally {
-        $connection.Close()
-        $connection.Dispose()
-    }
-
+    Invoke-Sqlcmd -InputFile $FilePath -ConnectionString $ConnectionString -QueryTimeout 600 -Verbose -ErrorAction Stop
     Write-Host "    - done"
 }
 

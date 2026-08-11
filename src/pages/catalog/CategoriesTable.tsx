@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -54,6 +54,7 @@ const CategoriesTable = ({
     item_limit: '1',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleCellClick = (id: number, field: string, currentValue: string | number) => {
     if (isSaving) return;
@@ -118,6 +119,11 @@ const CategoriesTable = ({
     setEditState({ id: null, field: null, value: '' });
   };
 
+  const handleBlur = (e: React.FocusEvent) => {
+    if (e.relatedTarget === cancelButtonRef.current) return;
+    handleSave();
+  };
+
   const handleAddNew = async () => {
     if (!newCategory.name.trim()) {
       onError('Category name cannot be empty');
@@ -167,7 +173,7 @@ const CategoriesTable = ({
             value={editState.value}
             onChange={(e) => setEditState(prev => ({ ...prev, value: e.target.value }))}
             onKeyDown={handleKeyDown}
-            onBlur={handleSave}
+            onBlur={handleBlur}
             autoFocus
             type={field === 'item_limit' ? 'number' : 'text'}
             slotProps={{ htmlInput: field === 'item_limit' ? { min: 1 } : {} }}
@@ -184,6 +190,7 @@ const CategoriesTable = ({
             <Check fontSize="small" />
           </IconButton>
           <IconButton
+            ref={cancelButtonRef}
             size="small"
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleCancel}

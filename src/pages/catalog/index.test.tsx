@@ -7,6 +7,15 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('@mui/icons-material', () => ({
+  __esModule: true,
+  Check: () => null,
+  Close: () => null,
+  Add: () => null,
+  Search: () => null,
+}));
+
 import Catalog from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as useCatalogModule from './useCatalog';

@@ -307,7 +307,7 @@ describe('UserPage Additional Functional Tests', () => {
     const statusToggleItem = screen.getByText(/Deactivate Role|Activate Role/);
     fireEvent.click(statusToggleItem);
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Error updating user: Error: Test error');
+      expect(screen.getByRole('alert')).toHaveTextContent('Error updating user: Test error');
     });
   });
 });

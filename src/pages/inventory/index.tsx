@@ -21,6 +21,7 @@ import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { getItems, getCategories } from '../../services/itemsService';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
@@ -47,18 +48,8 @@ const Inventory = () => {
     category: null as null | HTMLElement,
     status: null as null | HTMLElement,
   });
-  const [error, setError] = useState<string | null>(null);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({
-    open: location.state && location.state.message,
-    message: location.state ? location.state.message : '',
-    severity: 'success',
-  });
+  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
   const [showResults, setShowResults] = useState(false);
-
   const handleAddOpen = () => {
     setAddModal(true);
     setShowResults(false);
@@ -122,6 +113,12 @@ const Inventory = () => {
       search: value,
     }));
   };
+
+  useEffect(() => {
+    if (location.state?.message) {
+      showSnackbar(location.state.message, 'success');
+    }
+  }, [location.state, showSnackbar]);
 
   const negativeItemCount = originalData.filter(
     (item) => item.quantity < 0,
@@ -188,11 +185,11 @@ const Inventory = () => {
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
-      setError('Could not get inventory. \r\n' + error);
+      showSnackbar('Could not get inventory. \r\n' + error, 'warning');
       console.error('Could not get inventory:', error);
     }
     setIsLoading(false);
-  }, [user]);
+  }, [user, showSnackbar]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -211,30 +208,12 @@ const Inventory = () => {
     return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
-
   useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();
     }, 300); // Reduces calls to filter while typing in search
     return () => clearTimeout(handler);
   }, [handleFilter]);
-
-  useEffect(() => {
-    if (error) {
-      const handler = setTimeout(() => {
-        setSnackbarState({ open: true, message: error, severity: 'warning' });
-      }, 0);
-      return () => clearTimeout(handler);
-    }
-  }, [error]);
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
 
   if (isLoading) {
     return <p>Loading ...</p>;
@@ -270,7 +249,7 @@ const Inventory = () => {
         handleClose={() => setAdjustModal(false)}
         fetchData={fetchData}
         itemToEdit={itemToEdit}
-        handleSnackbar={setSnackbarState}
+        handleSnackbar={showSnackbar}
       />
 
       {/* Toolbar: filters + add */}
@@ -293,7 +272,9 @@ const Inventory = () => {
       </Stack>
 
       {/* Inventory Table */}
-      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+      >
         <InventoryTable
           items={displayData}
           sortDirection={sortDirection}

@@ -34,17 +34,13 @@ export function formatTransactionDate(timestamp: string, userName?: string, acti
     dateCreated.getMonth() === now.getMonth() &&
     dateCreated.getDate() === now.getDate();
 
-  let datePart = '';
-  if (isToday) {
-    datePart = 'today';
-  }
-  else {
-    datePart = dateCreated.toLocaleString('en-us', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  }
+  const datePart = isToday
+    ? 'today'
+    : dateCreated.toLocaleString('en-us', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
 
   const timePart = dateCreated.toLocaleString('en-us', {
     hour: 'numeric',

@@ -187,7 +187,7 @@ const MainLayout: React.FC = () => {
           } catch (error) {
             console.error('Error in upsertAdminUser:', error);
             const originalMessage = error instanceof Error ? error.message : 'Unknown error';
-            throw new Error(`Failed to create/update admin account: ${originalMessage}`);
+            throw new Error(`Failed to create/update admin account: ${originalMessage}`, { cause: error });
           }
         }
       } catch (error) {

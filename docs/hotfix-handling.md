@@ -45,4 +45,22 @@ gh pr create --base staging --head main --title "chore: backport hotfix x.x.x to
 gh pr create --base dev --head staging --title "chore: backport hotfix x.x.x to dev"
 ```
 
-Both should be clean fast-forward merges. If either has conflicts, resolve them locally before pushing and request a review.
+> **Backport by merging `main`. Do not re-apply the fix on a fresh branch.**
+>
+> It is tempting, when the `main` → `staging` PR looks awkward, to just make the same edit
+> again on a branch off `staging`. Don't. Git has no way to know the two commits are the
+> same change, so it treats them as competing edits and every file they touch conflicts at
+> the *next* promotion — which is typically the release you least want to be resolving
+> conflicts in.
+>
+> This is not hypothetical. Four hotfixes in July/August 2026 were re-applied rather than
+> merged, and the resulting duplicate commits made the `staging` → `main` promotion of
+> v1.5.2 conflict in four files. See
+> [the 2026-08-03 incident report](incident_reports/2026-08-03-staging-deploy-overwrote-production.md#aftermath-the-hotfix-branches-had-diverged).
+
+If a backport PR does show conflicts, resolve them locally before pushing and request a
+review. Check first whether the conflict is a duplicated commit from an earlier re-applied
+hotfix — `git log --oneline main..staging` next to `git log --oneline staging..main` will
+show the same subject lines on both sides if so. In that case the resolution is almost
+always "take the branch that is ahead", and the merged tree should come out identical to
+it.

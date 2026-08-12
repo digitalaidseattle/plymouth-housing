@@ -104,6 +104,27 @@ Triggers on push to `dev` or on any PR targeting `dev`. Runs lint, unit tests, a
 - [azure-static-web-apps-staging.yml](../.github/workflows/azure-static-web-apps-staging.yml).
 Triggers on push to `staging`. Runs the same CI steps, then deploys to the staging environment. To promote dev to staging, open a PR from `dev` → `staging` and merge it.
 
+> **All three workflows deploy to the same Static Web App resource, using the same deploy
+> token.** Nothing about the branch a workflow runs on decides where the artifact lands.
+> What separates the environments is a single input:
+>
+> ```yaml
+> deployment_environment: 'staging'
+> ```
+>
+> Omit it and the deploy action uploads to the app's *default* environment, which is
+> **production** — silently, on a green run. This happened on 2026-08-03 and left a staging
+> build serving the live site for four days
+> ([incident report](incident_reports/2026-08-03-staging-deploy-overwrote-production.md)).
+>
+> The action also logs `Unexpected input(s) 'deployment_environment'` on every run. That
+> warning is **wrong** and must not be acted on — the input is honoured regardless. The
+> workflow carries a comment saying so; leave both in place.
+>
+> After any change to a deploy workflow, check the run log's `Visit your site at:` line and
+> confirm the hostname matches the environment you intended. A region-less hostname
+> (`salmon-island-01be9bf1e.5.azurestaticapps.net`) means production.
+
 - [azure-static-web-apps-prod.yml](../.github/workflows/azure-static-web-apps-prod.yml).
 Triggers on push to `main`. Reads the version from `package.json` and checks whether a matching git tag (e.g. `v1.2.3`) already exists. If the tag is new, it creates the tag, generates a GitHub Release, and deploys to production. If the tag already exists, the deploy is skipped entirely. This makes the workflow idempotent — pushing to `main` multiple times is safe.
 
@@ -111,3 +132,50 @@ To promote staging to production:
 1. Bump the version in `package.json` on `staging`
 2. Open a PR from `staging` → `main` and merge it
 3. The workflow detects the new version tag and deploys automatically
+
+The version bump in step 1 is not bookkeeping — it is what makes the deploy happen at all.
+Without it the tag already exists, the workflow skips, and `main` moves while production
+does not.
+
+If step 2 reports conflicts, `main` and `staging` have diverged, usually because a hotfix
+was re-applied on both instead of backported. See
+[hotfix-handling.md](hotfix-handling.md#4-merge-and-backport) — the fix is to open the PR
+from a branch off `staging` with `origin/main` merged into it, rather than resolving the
+conflicts in the GitHub web editor.
+
+Promote on a regular cadence rather than only when a release is needed. A `staging` branch
+that has drifted weeks ahead of production turns any misrouted deploy into an unreviewed
+release; the 2026-08-03 incident put 107 unreleased commits into production this way.
+
+## Preventing test access to production
+
+Test accounts must never be able to log into production. The app enforces this
+at sign-in: any account that carries the `test` role is refused when the build's
+environment is `production` — the session is torn down (redirect to
+`/.auth/logout` → `login.html`) and a `TestAccountBlockedInProduction` event is
+sent to Application Insights. In a production build the layout renders nothing
+until the guard has cleared the session, so a blocked account never mounts the
+app shell or any page behind it. See the guard in
+[`src/layout/MainLayout/index.tsx`](../src/layout/MainLayout/index.tsx).
+
+> This is a guardrail against *accidental* testing against prod, not a security
+> boundary — a direct API call bypasses the frontend. The durable backstop is
+> keeping test accounts and test data out of the production database.
+
+Two pieces make it work:
+
+1. **Environment is injected at build time** via the `VITE_ENVIRONMENT` variable.
+   It is set in each deploy workflow's build step — `production` in
+   [azure-static-web-apps-prod.yml](../.github/workflows/azure-static-web-apps-prod.yml)
+   and `staging` in
+   [azure-static-web-apps-staging.yml](../.github/workflows/azure-static-web-apps-staging.yml).
+   It is a Vite build-time value (must be `VITE_`-prefixed); a SWA runtime
+   Application Setting does **not** reach the bundle. Unset locally, so local dev
+   is treated as non-production and never blocked.
+2. **The `test` role** must be assigned to every account used for automated or
+   manual testing (in addition to its functional `admin`/`volunteer` role). How
+   you assign it depends on the role model — see
+   [aad-swa-roles.md](research/aad-swa-roles.md).
+
+To test the guard locally, start the dev server with the variable set, e.g.
+`VITE_ENVIRONMENT=production swa start`, and sign in with a `test`-role user.

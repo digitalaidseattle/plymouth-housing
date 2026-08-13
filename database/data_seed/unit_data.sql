@@ -1471,8 +1471,17 @@ INSERT INTO Units (building_id, unit_number) VALUES (16, '428');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '429');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '430');
 
+-- Voucher-program placeholder units (PIT-506). Voucher recipients are not
+-- tied to a specific unit, but Residents.unit_id is NOT NULL, so each voucher
+-- building gets one hidden placeholder unit that all voucher-recipient
+-- residents attach to. UI grays out the unit field and shows "N/A" for these
+-- buildings. Voucher programs do not receive welcome baskets, so no 'welcome'
+-- unit is seeded for them.
+INSERT INTO Units (building_id, unit_number) VALUES (17, 'voucher');
+INSERT INTO Units (building_id, unit_number) VALUES (18, 'voucher');
+
 DECLARE @building_id INT = 1;
-DECLARE @max_building_id INT = 16; 
+DECLARE @max_building_id INT = 16;
 
 WHILE @building_id <= @max_building_id
 BEGIN

@@ -14,6 +14,7 @@ import {
   ResidentNameOption,
   ResidentFormError,
 } from '../../types/interfaces';
+import { isVoucherBuilding } from '../../types/constants';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -108,6 +109,20 @@ const ResidentDetailDialog = ({
     setUnitNumberValues(unitNumbersHook.unitNumberValues);
   }, [unitNumbersHook.unitNumberValues, setUnitNumberValues]);
 
+  // PIT-506: voucher-program buildings (SPC/SSP) don't have a real unit — each
+  // seeds a single placeholder unit that all voucher residents attach to.
+  // Auto-select it so submission can proceed without a unit selection.
+  const isVoucher = isVoucherBuilding(selectedBuilding.code);
+  React.useEffect(() => {
+    if (
+      isVoucher &&
+      unitNumbersHook.unitNumberValues.length > 0 &&
+      !selectedUnit.id
+    ) {
+      setSelectedUnit(unitNumbersHook.unitNumberValues[0]);
+    }
+  }, [isVoucher, unitNumbersHook.unitNumberValues, selectedUnit.id]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (isEditMode) {
@@ -183,6 +198,16 @@ const ResidentDetailDialog = ({
         </FormControl>
 
         <FormControl>
+          {isVoucher ? (
+            <TextField
+              id="voucher-unit-number-placeholder"
+              data-testid="test-id-voucher-unit-placeholder"
+              label="Unit Number"
+              value="N/A"
+              disabled
+              helperText="Not applicable for voucher-program checkouts"
+            />
+          ) : (
           <Autocomplete
             id="select-unit-number"
             data-testid="test-id-select-unit-number"
@@ -234,6 +259,7 @@ const ResidentDetailDialog = ({
             }}
             freeSolo
           />
+          )}
         </FormControl>
 
         <FormControl>

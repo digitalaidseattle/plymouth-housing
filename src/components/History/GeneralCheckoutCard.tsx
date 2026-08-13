@@ -12,7 +12,7 @@ import HistoryCard from './HistoryCard';
 import TransactionDetails from './TransactionDetails';
 import { useTheme } from '@mui/material';
 import { UserContext } from '../contexts/UserContext';
-import { SETTINGS } from '../../types/constants';
+import { SETTINGS, isVoucherBuilding } from '../../types/constants';
 
 type GeneralCheckoutCardProps = {
   checkoutTransaction: CheckoutTransaction;
@@ -69,7 +69,9 @@ const GeneralCheckoutCard = ({
                 {' - '}
                 {checkoutTransaction.building_name}
                 {' - '}
-                {checkoutTransaction.unit_number}
+                {isVoucherBuilding(checkoutTransaction.building_code)
+                  ? 'N/A'
+                  : checkoutTransaction.unit_number}
               </p>
               <p>{howLongAgoString}</p>
             </div>

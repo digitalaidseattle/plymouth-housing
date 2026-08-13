@@ -26,6 +26,12 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 const Inventory = () => {
   const { user } = useContext(UserContext);
   const location = useLocation();
+  // Set by the Home page's Add stock button and the Inventory sub-menu items.
+  const navState = location.state as {
+    inventoryType?: 'General' | 'Welcome Basket';
+    openAddModal?: boolean;
+    message?: string;
+  } | null;
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
@@ -33,12 +39,12 @@ const Inventory = () => {
     'asc' | 'desc' | 'original'
   >('original');
   const [sortColumn, setSortColumn] = useState<keyof InventoryItem | null>(null);
-  const [addModal, setAddModal] = useState(false);
+  const [addModal, setAddModal] = useState(Boolean(navState?.openAddModal));
   const [adjustModal, setAdjustModal] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
-    type: '',
+    type: navState?.inventoryType ?? '',
     category: '',
     status: '',
     search: '',
@@ -185,7 +191,8 @@ const Inventory = () => {
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
-      showSnackbar('Could not get inventory. \r\n' + error, 'warning');
+      const message = error instanceof Error ? error.message : String(error);
+      showSnackbar(`Could not get inventory: ${message}`, 'warning');
       console.error('Could not get inventory:', error);
     }
     setIsLoading(false);
@@ -208,12 +215,31 @@ const Inventory = () => {
     return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
+  // /inventory is one route, so switching sub-items does not remount this
+  // component and the useState initialisers above do not re-run.
+  useEffect(() => {
+    const inventoryType = navState?.inventoryType;
+    if (inventoryType) {
+      setFilters((prev) => ({ ...prev, type: inventoryType }));
+    }
+    if (navState?.openAddModal) {
+      setAddModal(true);
+      setShowResults(false);
+    }
+  }, [navState]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();
     }, 300); // Reduces calls to filter while typing in search
     return () => clearTimeout(handler);
   }, [handleFilter]);
+
+  // When the table is scoped to one inventory type, lock the Add dialog to it.
+  const modalInventoryType =
+    filters.type === 'General' || filters.type === 'Welcome Basket'
+      ? filters.type
+      : undefined;
 
   if (isLoading) {
     return <p>Loading ...</p>;
@@ -236,12 +262,14 @@ const Inventory = () => {
         )}
       </Box>
       <AddItemModal
+        key={filters.type}
         addModal={addModal}
         handleAddClose={handleAddClose}
         fetchData={fetchData}
         originalData={originalData}
         showResults={showResults}
         setShowResults={setShowResults}
+        inventoryType={modalInventoryType}
       />
 
       <AdjustQuantityModal

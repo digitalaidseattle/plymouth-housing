@@ -5,7 +5,7 @@
  *
  */
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { RootRedirect } from './RootRedirect';
@@ -20,6 +20,12 @@ vi.mock('./error/404', () => ({
 const VolunteerHomePage = () => (
   <RootRedirect source="volunteer-home">
     <div>Volunteer Home Page</div>
+  </RootRedirect>
+);
+
+const AdminHomePage = () => (
+  <RootRedirect source="admin-home">
+    <div>Admin Home Page</div>
   </RootRedirect>
 );
 
@@ -75,6 +81,7 @@ const renderWithRouter = (contextValue: any, { route = '/' } = {}) => {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/volunteer-home" element={<VolunteerHomePage />} />
+          <Route path="/admin-home" element={<AdminHomePage />} />
           <Route path="/404" element={<div data-testid="page-404">404 Page</div>} />
           <Route path="/:source" element={<GenericRedirectPage source={route.slice(1)} />} />
         </Routes>
@@ -117,7 +124,19 @@ describe('RootRedirect', () => {
   it('admin redirects to the first permitted page if they access volunteer page', () => {
     const contextValue = mockUserContextValue('admin', false);
     renderWithRouter(contextValue, { route: '/volunteer-home' });
-    expect(screen.getByText('Inventory Page')).toBeInTheDocument();
+    expect(screen.getByText('Admin Home Page')).toBeInTheDocument();
+  });
+
+  it('volunteer redirects to the first permitted page if they access admin home', () => {
+    const contextValue = mockUserContextValue('volunteer', false);
+    renderWithRouter(contextValue, { route: '/admin-home' });
+    expect(screen.getByText('Volunteer Home Page')).toBeInTheDocument();
+  });
+
+  it('renders admin home for an admin', () => {
+    const contextValue = mockUserContextValue('admin', false);
+    renderWithRouter(contextValue, { route: '/admin-home' });
+    expect(screen.getByText('Admin Home Page')).toBeInTheDocument();
   });
 
   it('renders 404 for a non-existent page', () => {

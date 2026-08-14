@@ -1477,8 +1477,15 @@ INSERT INTO Units (building_id, unit_number) VALUES (16, '430');
 -- residents attach to. UI grays out the unit field and shows "N/A" for these
 -- buildings. Voucher programs do not receive welcome baskets, so no 'welcome'
 -- unit is seeded for them.
-INSERT INTO Units (building_id, unit_number) VALUES (17, 'voucher');
-INSERT INTO Units (building_id, unit_number) VALUES (18, 'voucher');
+--
+-- Building IDs are looked up by code rather than hard-coded so the inserts
+-- stay correct even if Buildings.id shifts (e.g. re-seed on a database whose
+-- identity has drifted past 18 from prior inserts).
+INSERT INTO Units (building_id, unit_number)
+VALUES ((SELECT id FROM Buildings WHERE code = 'SPC'), 'voucher');
+
+INSERT INTO Units (building_id, unit_number)
+VALUES ((SELECT id FROM Buildings WHERE code = 'SSP'), 'voucher');
 
 DECLARE @building_id INT = 1;
 DECLARE @max_building_id INT = 16;

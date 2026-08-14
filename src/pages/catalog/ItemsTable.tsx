@@ -22,7 +22,7 @@ import {
   MenuItem,
   TablePagination,
 } from '@mui/material';
-import { Check, Close, Add } from '@mui/icons-material';
+import { Check, Close, Add, Archive, Unarchive } from '@mui/icons-material';
 import { AdminItem, CategoryItem, EditState } from '../../types/interfaces';
 import SearchBar from '../../components/Searchbar/SearchBar';
 
@@ -177,6 +177,25 @@ const ItemsTable = ({
     setEditState({ id: null, field: null, value: '' });
   };
 
+  // PIT-514: toggle an item's archived state. Archived items are hidden from
+  // the volunteer checkout page (filtered at the ItemsByCategory view) and
+  // grayed out in the admin table below.
+  const handleToggleArchive = async (item: AdminItem) => {
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const nextArchived = !item.is_archived;
+      await onUpdate(item.id, { is_archived: nextArchived });
+      onSuccess(nextArchived ? 'Item archived' : 'Item unarchived');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to update item';
+      onError(message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleAddNew = async () => {
     if (!newItem.name.trim()) {
       onError('Item name cannot be empty');
@@ -212,6 +231,9 @@ const ItemsTable = ({
         items_per_basket: newItem.items_per_basket
           ? parseInt(newItem.items_per_basket)
           : null,
+        // New items are never archived on creation. The DB default is also 0,
+        // but we include it explicitly to satisfy the Omit<AdminItem, ...> type.
+        is_archived: false,
       });
       onSuccess('Item created successfully');
       setNewItem(defaultNewItem);
@@ -403,6 +425,7 @@ const ItemsTable = ({
               <TableCell>Qty</TableCell>
               <TableCell>Threshold</TableCell>
               <TableCell>Per Basket</TableCell>
+              <TableCell align="center">Archive</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -537,10 +560,24 @@ const ItemsTable = ({
                     </IconButton>
                   </Box>
                 </TableCell>
+                {/* Archive column has no meaning for a not-yet-created row. */}
+                <TableCell />
               </TableRow>
             )}
             {paginatedItems.map((item) => (
-              <TableRow key={item.id}>
+              <TableRow
+                key={item.id}
+                // PIT-514: gray out archived rows so admins can see them but
+                // recognize they're hidden from the volunteer checkout page.
+                sx={
+                  item.is_archived
+                    ? {
+                        opacity: 0.5,
+                        backgroundColor: 'action.hover',
+                      }
+                    : undefined
+                }
+              >
                 <TableCell>
                   {renderEditableCell(item, 'name', item.name)}
                 </TableCell>
@@ -566,11 +603,26 @@ const ItemsTable = ({
                     item.items_per_basket,
                   )}
                 </TableCell>
+                <TableCell align="center">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleToggleArchive(item)}
+                    disabled={isSaving}
+                    aria-label={item.is_archived ? 'Unarchive item' : 'Archive item'}
+                    title={item.is_archived ? 'Unarchive item' : 'Archive item'}
+                  >
+                    {item.is_archived ? (
+                      <Unarchive fontSize="small" />
+                    ) : (
+                      <Archive fontSize="small" />
+                    )}
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
             {paginatedItems.length === 0 && !isAdding && (
               <TableRow>
-                <TableCell colSpan={7} align="center">
+                <TableCell colSpan={8} align="center">
                   {searchValue
                     ? 'No items match your search'
                     : 'No items found'}

@@ -27,6 +27,7 @@ describe('ItemsTable Component', () => {
       quantity: 50,
       threshold: 10,
       items_per_basket: null,
+      is_archived: false,
     },
     {
       id: 2,
@@ -38,6 +39,7 @@ describe('ItemsTable Component', () => {
       quantity: 30,
       threshold: 5,
       items_per_basket: 2,
+      is_archived: false,
     },
   ];
 
@@ -243,6 +245,7 @@ describe('ItemsTable Component', () => {
       quantity: 10,
       threshold: 5,
       items_per_basket: null,
+      is_archived: false,
     }));
 
     render(

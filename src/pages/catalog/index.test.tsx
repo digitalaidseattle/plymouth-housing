@@ -130,6 +130,7 @@ describe('Catalog Component', () => {
         quantity: 10,
         threshold: 5,
         items_per_basket: null,
+        is_archived: false,
       },
     ];
 
@@ -223,6 +224,7 @@ describe('Catalog Component', () => {
         quantity: 50,
         threshold: 10,
         items_per_basket: null,
+        is_archived: false,
       },
     ];
 

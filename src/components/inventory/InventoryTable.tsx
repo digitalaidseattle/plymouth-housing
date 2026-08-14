@@ -134,6 +134,13 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                   sx={{
                     height: '64px',
                     boxShadow: '0px -1px 0px 0px rgb(212, 212, 212);',
+                    // PIT-514: gray out archived items so admins can spot them
+                    // when restocking without being surprised they're hidden
+                    // from the volunteer checkout page.
+                    ...(row.is_archived && {
+                      opacity: 0.5,
+                      backgroundColor: 'action.hover',
+                    }),
                   }}
                 >
                   <TableCell
@@ -143,7 +150,21 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                       overflowWrap: 'normal',
                     }}
                   >
-                    {row.name}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {row.name}
+                      {row.is_archived && (
+                        <Chip
+                          label="Archived"
+                          size="small"
+                          sx={{
+                            backgroundColor: 'action.selected',
+                            color: 'text.secondary',
+                            fontSize: '0.7rem',
+                            height: '20px',
+                          }}
+                        />
+                      )}
+                    </Box>
                   </TableCell>
                   <TableCell
                     sx={{

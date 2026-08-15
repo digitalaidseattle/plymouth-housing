@@ -39,10 +39,6 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
     ActiveMenuItemContext,
   );
 
-  // PIT-517: below the lg breakpoint the drawer is rendered as a temporary
-  // overlay (see MainLayout/Drawer/index.tsx). Match the same breakpoint here
-  // so navigating on tablet auto-closes the drawer. Above lg the drawer is
-  // permanent and stays put.
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
 
   // active menu item on page load
@@ -73,10 +69,6 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   const itemHandler = (id: string) => {
     setActiveMenuItem(id);
-    // PIT-517: on tablet the drawer overlays the page. Close it on nav so
-    // the newly-loaded page is actually visible without a manual dismiss.
-    // NavCollapse (parent-with-submenu) does not call this, so expanding a
-    // submenu still leaves the drawer open.
     if (matchDownLG) {
       setDrawerOpen(false);
     }

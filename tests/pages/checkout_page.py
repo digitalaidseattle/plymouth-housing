@@ -176,9 +176,9 @@ class CheckOutPage(BasePage):
         self.click(self.common_locators.CHECKOUT_MENU_BUTTON)
 
         if flow == "general":
-            self.click(self.common_locators.GENERAL_MENU_BUTTON)
+            self.click(self.common_locators.CHECKOUT_GENERAL_MENU_BUTTON)
         elif flow == "welcome":
-            self.click(self.common_locators.WELCOME_MENU_BUTTON)
+            self.click(self.common_locators.CHECKOUT_WELCOME_MENU_BUTTON)
         else:
             raise ValueError("Invalid checkout flow")
 

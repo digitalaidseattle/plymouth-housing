@@ -28,7 +28,7 @@ const routes = [
         path: '',
         element: (
           <RootRedirect source="volunteer-home">
-            <MainContainer title="Volunteer Home">
+            <MainContainer>
               <VolunteerHome />
             </MainContainer>
           </RootRedirect>
@@ -58,7 +58,17 @@ const routes = [
         path: 'volunteer-home',
         element: (
           <RootRedirect source="volunteer-home">
-            <MainContainer title="Volunteer Home">
+            <MainContainer>
+              <VolunteerHome />
+            </MainContainer>
+          </RootRedirect>
+        ),
+      },
+      {
+        path: 'admin-home',
+        element: (
+          <RootRedirect source="admin-home">
+            <MainContainer>
               <VolunteerHome />
             </MainContainer>
           </RootRedirect>

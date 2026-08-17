@@ -366,6 +366,60 @@ describe('HistoryPage Component', () => {
     });
   });
 
+  test('changes date to this month when selected', async () => {
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    const dateSelect = screen.getByRole('combobox', { name: /Date/i });
+    fireEvent.mouseDown(dateSelect);
+
+    const thisMonthOption = await screen.findByText('This Month');
+    fireEvent.click(thisMonthOption);
+
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+  });
+
+  test('changes date to last month when selected', async () => {
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    const dateSelect = screen.getByRole('combobox', { name: /Date/i });
+    fireEvent.mouseDown(dateSelect);
+
+    const lastMonthOption = await screen.findByText('Last Month');
+    fireEvent.click(lastMonthOption);
+
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+  });
+
+  test('changes date to last 30 days when selected', async () => {
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    const dateSelect = screen.getByRole('combobox', { name: /Date/i });
+    fireEvent.mouseDown(dateSelect);
+
+    const last30DaysOption = await screen.findByText('Last 30 Days');
+    fireEvent.click(last30DaysOption);
+
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+  });
+
   test('opens custom date dialog when custom option is selected', async () => {
     render(
       <Wrapper>
@@ -603,6 +657,179 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
     });
+  });
+
+  test('building dropdown renders building options plus All Buildings', async () => {
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId('circular-loader'),
+      ).not.toBeInTheDocument();
+    });
+
+    const buildingSelect = screen.getByRole('combobox', { name: /Building/i });
+    fireEvent.mouseDown(buildingSelect);
+
+    const listbox = await screen.findByRole('listbox');
+    expect(within(listbox).getByText('All Buildings')).toBeInTheDocument();
+    expect(within(listbox).getByText('A — 123 Main St')).toBeInTheDocument();
+    expect(within(listbox).getByText('B — 456 Oak Ave')).toBeInTheDocument();
+  });
+
+  test('filters displayed records by selected building combined with date filter', async () => {
+    const multiBuildingTransactions: CheckoutTransaction[] = [
+      mockCheckoutTransactions[0],
+      {
+        transaction_id: '2',
+        user_id: 2,
+        building_id: 2,
+        building_code: 'B',
+        building_name: '456 Oak Ave',
+        unit_number: '201',
+        resident_id: 2,
+        resident_name: 'Resident B',
+        transaction_date: new Date().toISOString(),
+        item_type: 'general',
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
+        is_edited: false,
+      },
+    ];
+
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
+      multiBuildingTransactions,
+    );
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
+    });
+
+    // Apply a date preset filter (combines with building filter)
+    const dateSelect = screen.getByRole('combobox', { name: /Date/i });
+    fireEvent.mouseDown(dateSelect);
+    const thisMonthOption = await screen.findByText('This Month');
+    fireEvent.click(thisMonthOption);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
+    });
+
+    // Now filter down to building A only
+    const buildingSelect = screen.getByRole('combobox', { name: /Building/i });
+    fireEvent.mouseDown(buildingSelect);
+    const buildingAOption = await screen.findByText('A — 123 Main St');
+    fireEvent.click(buildingAOption);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 1 record total/i)).toBeInTheDocument();
+    });
+  });
+
+  test('hides the building filter on the Inventory tab and resets it on return', async () => {
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(residentService.getBuildings).toHaveBeenCalled();
+    });
+
+    const buildingSelect = screen.getByRole('combobox', { name: /Building/i });
+    fireEvent.mouseDown(buildingSelect);
+    const buildingAOption = await screen.findByText('A — 123 Main St');
+    fireEvent.click(buildingAOption);
+
+    await waitFor(() => {
+      expect(screen.getByText('A — 123 Main St')).toBeInTheDocument();
+    });
+
+    const inventoryButton = screen.getByRole('button', { name: /Inventory/i });
+    fireEvent.click(inventoryButton);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('combobox', { name: /Building/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    const checkoutButton = screen.getByRole('button', { name: /Checkout/i });
+    fireEvent.click(checkoutButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('All Buildings')).toBeInTheDocument();
+    });
+  });
+
+  test('empty state message mentions building when a building filter yields no results', async () => {
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+
+    const buildingSelect = screen.getByRole('combobox', { name: /Building/i });
+    fireEvent.mouseDown(buildingSelect);
+    const buildingBOption = await screen.findByText('B — 456 Oak Ave');
+    fireEvent.click(buildingBOption);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/No transactions found for this date and building/i),
+      ).toBeInTheDocument();
+    });
+  });
+
+  test('shows a reset filters button once a filter is active and it resets both filters', async () => {
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+
+    expect(
+      screen.queryByRole('button', { name: /Reset filters/i }),
+    ).not.toBeInTheDocument();
+
+    const dateSelect = screen.getByRole('combobox', { name: /Date/i });
+    fireEvent.mouseDown(dateSelect);
+    const yesterdayOption = await screen.findByText('Yesterday');
+    fireEvent.click(yesterdayOption);
+
+    const resetButton = await screen.findByRole('button', {
+      name: /Reset filters/i,
+    });
+    fireEvent.click(resetButton);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: /Reset filters/i }),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('combobox', { name: /Date/i })).toHaveTextContent(
+      /today/i,
+    );
   });
 
   test('refetches transactions when date range changes', async () => {

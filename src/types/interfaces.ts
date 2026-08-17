@@ -300,7 +300,14 @@ export interface ApiConfig {
 
 // ─── Date Range ───────────────────────────────────────────────────────────────
 
-export type DatePreset = 'today' | 'yesterday' | 'this week' | 'custom';
+export type DatePreset =
+  | 'today'
+  | 'yesterday'
+  | 'this week'
+  | 'this month'
+  | 'last month'
+  | 'last 30 days'
+  | 'custom';
 
 export type DateRange = {
   startDate: Date;

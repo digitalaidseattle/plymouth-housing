@@ -14,6 +14,7 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -33,10 +34,12 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
   const location = useLocation();
   const { pathname } = location;
 
-  const { drawerOpen } = useContext(DrawerOpenContext);
+  const { drawerOpen, setDrawerOpen } = useContext(DrawerOpenContext);
   const { activeMenuItem, setActiveMenuItem } = useContext(
     ActiveMenuItemContext,
   );
+
+  const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
 
   // active menu item on page load
   useEffect(() => {
@@ -66,6 +69,9 @@ const NavItem: React.FC<NavItemProps> = ({ item, level }) => {
 
   const itemHandler = (id: string) => {
     setActiveMenuItem(id);
+    if (matchDownLG) {
+      setDrawerOpen(false);
+    }
   };
 
   const textColor = 'text.primary';

@@ -5,7 +5,7 @@
  *
  */
 import { ClientPrincipal } from '../types/interfaces';
-import { USER_ROLES } from '../types/constants';
+import { ROLE_PAGES, USER_ROLES } from '../types/constants';
 
 export function assertLoggedIn(userId: number | null): asserts userId is number {
   if (userId === null) throw new Error('You must be signed in to perform this action.');
@@ -21,4 +21,10 @@ export function getRole(user: ClientPrincipal | null): string {
   }
 
   throw new Error(`${user?.userDetails ?? JSON.stringify(user)} - User is not a member of Admin or Volunteer role.`);
+}
+
+/** Landing page for a role — ROLE_PAGES lists each role's home first. */
+export function getHomePath(user: ClientPrincipal | null): string {
+  if (!user) return '/';
+  return `/${ROLE_PAGES[getRole(user) as keyof typeof ROLE_PAGES][0]}`;
 }

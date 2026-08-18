@@ -2,10 +2,13 @@ from selenium.webdriver.common.by import By
 
 class CommonLocators:
     INVENTORY_BUTTON = (By.XPATH, "//h6[normalize-space()='Inventory']")
-    VOLUNTEER_HOME_BUTTON = (By.XPATH, '//h6[text()="Volunteer Home"]')
+    HOME_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='Home']")
     CHECKOUT_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='Checkout']")
-    GENERAL_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='General']/ancestor::a")
-    WELCOME_MENU_BUTTON = (By.XPATH, "//h6[normalize-space()='Welcome basket']/ancestor::a")
+    # Inventory and Checkout both have General / Welcome Basket sub-items,
+    # so each one is scoped by the href of its parent menu.
+    INVENTORY_GENERAL_MENU_BUTTON = (By.XPATH, "//a[@href='/inventory'][.//h6[normalize-space()='General']]")
+    CHECKOUT_GENERAL_MENU_BUTTON = (By.XPATH, "//a[@href='/checkout'][.//h6[normalize-space()='General']]")
+    CHECKOUT_WELCOME_MENU_BUTTON = (By.XPATH, "//a[@href='/checkout'][.//h6[normalize-space()='Welcome Basket']]")
     HISTORY_MENU_BUTTON = (By.XPATH, "//a[@href='/history']")
 
 class HistoryPageLocators:
@@ -35,23 +38,13 @@ class HistoryPageLocators:
 
 class HomePageLocators:
     # ---- Sections ----
-    CHECKOUT_SECTION = (By.XPATH, "//h5[normalize-space()='Check out']")
-    STOCK_SECTION = (By.XPATH, "//h5[normalize-space()='Stock']")
-    # ---- Scoped CTAs ----
-    CHECKOUT_GENERAL_INVENTORY = (
-        By.XPATH,
-        "//h5[normalize-space()='Check out']/following::button[normalize-space()='General Inventory'][1]"
-    )
-
-    STOCK_GENERAL_INVENTORY = (
-        By.XPATH,
-        "//h5[normalize-space()='Stock']/following::button[normalize-space()='General Inventory'][1]"
-    )
-    ADMIN_HOME_MENU_BUTTON = (By.XPATH, '(//a[contains(@class,"MuiButtonBase")])[1]') # TODO COMMON LOCATORS PUT IN CommonLocators
+    CHECKOUT_SECTION = (By.CSS_SELECTOR, "[data-testid='section-checkout']")
+    INVENTORY_SECTION = (By.CSS_SELECTOR, "[data-testid='section-inventory']")
+    ADMIN_HOME_MENU_BUTTON = (By.XPATH, "//a[@href='/admin-home']")
     EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")
     LOGOUT_BUTTON = (By.XPATH, "//h6[normalize-space()='Log out']")
     PLYMOUTH_HOUSING_TEXT = (By.XPATH, '//h5[normalize-space()="Plymouth Housing"]')
-    VOLUNTEER_HOME_HEADER = (By.XPATH, "//*[normalize-space()='Volunteer Home']")
+    HOME_HEADER = (By.XPATH, "//h4[contains(., 'Thanks for being here')]")
 
 class LoginPageLocators:
     USERNAME_INPUT  = (By.NAME,  'loginfmt')
@@ -63,7 +56,7 @@ class LoginPageLocators:
     DATABASE_POPUP_TEXT = (By.XPATH, '//*[text()="Database is starting up"]')
     USER_PERSON = (By.XPATH, "//*[@data-testid='volunteer-name-autocomplete']//input")
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(text(),"Continue")]')
-    HOMEPAGE_TEXT = (By.XPATH, '//*[text()="Volunteer Home"]')
+    HOMEPAGE_TEXT = (By.CSS_SELECTOR, "[data-testid='section-checkout']")
     NAME_OPTIONS = (By.XPATH, "//li[@role='option']")
     INPUT_FIELD_1 = (By.ID, "pin-input-0")
     INPUT_FIELD_2 = (By.ID, "pin-input-1")

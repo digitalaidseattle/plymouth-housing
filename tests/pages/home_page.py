@@ -25,7 +25,7 @@ class HomePage(BasePage):
         # UI ready (role-based)
         self.wait.until(
             lambda d: (
-                    len(d.find_elements(*self.locators.VOLUNTEER_HOME_HEADER)) > 0
+                    len(d.find_elements(*self.locators.HOME_HEADER)) > 0
                     or len(d.find_elements(*self.locators.PLYMOUTH_HOUSING_TEXT)) > 0
             )
         )
@@ -64,15 +64,15 @@ class HomePage(BasePage):
     def get_header(self):
         self.wait.until(
             EC.visibility_of_element_located(
-                self.locators.VOLUNTEER_HOME_HEADER
+                self.locators.HOME_HEADER
             )
         )
-        return self.get_text(self.locators.VOLUNTEER_HOME_HEADER).strip()
+        return self.get_text(self.locators.HOME_HEADER).strip()
 
     def verify_volunteer_home_header(self):
         actual_header = self.get_header()
-        assert actual_header == "Volunteer Home", \
-            f"Expected 'Volunteer Home' but got '{actual_header}'"
+        assert "Thanks for being here" in actual_header, \
+            f"Expected the home greeting but got '{actual_header}'"
 
     # ---------------------------------------------------
     # Email
@@ -119,7 +119,7 @@ class HomePage(BasePage):
 
         self.wait.until(
             EC.visibility_of_element_located(
-                self.common_locators.GENERAL_MENU_BUTTON
+                self.common_locators.CHECKOUT_GENERAL_MENU_BUTTON
             )
         ).click()
 
@@ -132,7 +132,7 @@ class HomePage(BasePage):
 
         self.wait.until(
             EC.element_to_be_clickable(
-                self.common_locators.WELCOME_MENU_BUTTON
+                self.common_locators.CHECKOUT_WELCOME_MENU_BUTTON
             )
         ).click()
 
@@ -145,7 +145,7 @@ class HomePage(BasePage):
             self.locators.CHECKOUT_SECTION
         ), "Checkout section not visible"
 
-    def verify_stock_section(self):
+    def verify_inventory_section(self):
         assert self.is_visible(
-            self.locators.STOCK_SECTION
-        ), "Stock section not visible"
+            self.locators.INVENTORY_SECTION
+        ), "Inventory section not visible"

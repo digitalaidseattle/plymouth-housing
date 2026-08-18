@@ -60,7 +60,8 @@ const HistoryPage: React.FC = () => {
     }
   }, [historyType]);
 
-  const hasActiveFilters = dateInput !== 'today' || selectedBuildingId !== 'all';
+  const hasBuildingFilter = historyType === 'checkout' && selectedBuildingId !== 'all';
+  const hasActiveFilters = dateInput !== 'today' || hasBuildingFilter;
 
   const handleResetFilters = () => {
     handleDateSelection('today');
@@ -283,7 +284,7 @@ const HistoryPage: React.FC = () => {
             userList={userList}
             loggedInUserId={loggedInUserId}
             historyType={historyType}
-            hasBuildingFilter={selectedBuildingId !== 'all'}
+            hasBuildingFilter={hasBuildingFilter}
           />
         </>
       )}

@@ -373,6 +373,12 @@ describe('HistoryPage Component', () => {
       </Wrapper>,
     );
 
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+    const callCount = vi.mocked(historyService.getCheckoutHistory).mock.calls
+      .length;
+
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
     fireEvent.mouseDown(dateSelect);
 
@@ -380,7 +386,9 @@ describe('HistoryPage Component', () => {
     fireEvent.click(thisMonthOption);
 
     await waitFor(() => {
-      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+      expect(
+        vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
+      ).toBeGreaterThan(callCount);
     });
   });
 
@@ -391,6 +399,12 @@ describe('HistoryPage Component', () => {
       </Wrapper>,
     );
 
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+    const callCount = vi.mocked(historyService.getCheckoutHistory).mock.calls
+      .length;
+
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
     fireEvent.mouseDown(dateSelect);
 
@@ -398,7 +412,9 @@ describe('HistoryPage Component', () => {
     fireEvent.click(lastMonthOption);
 
     await waitFor(() => {
-      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+      expect(
+        vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
+      ).toBeGreaterThan(callCount);
     });
   });
 
@@ -409,6 +425,12 @@ describe('HistoryPage Component', () => {
       </Wrapper>,
     );
 
+    await waitFor(() => {
+      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+    });
+    const callCount = vi.mocked(historyService.getCheckoutHistory).mock.calls
+      .length;
+
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
     fireEvent.mouseDown(dateSelect);
 
@@ -416,7 +438,9 @@ describe('HistoryPage Component', () => {
     fireEvent.click(last30DaysOption);
 
     await waitFor(() => {
-      expect(historyService.getCheckoutHistory).toHaveBeenCalled();
+      expect(
+        vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
+      ).toBeGreaterThan(callCount);
     });
   });
 

@@ -162,6 +162,13 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </MemoryRouter>
 );
 
+const FIXED_NOW = new Date(2025, 5, 15, 12, 0, 0);
+
+const lastCheckoutDateArgs = () => {
+  const calls = vi.mocked(historyService.getCheckoutHistory).mock.calls;
+  return calls[calls.length - 1].slice(1);
+};
+
 describe('HistoryPage Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -199,6 +206,7 @@ describe('HistoryPage Component', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -367,6 +375,9 @@ describe('HistoryPage Component', () => {
   });
 
   test('changes date to this month when selected', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(FIXED_NOW);
+
     render(
       <Wrapper>
         <HistoryPage />
@@ -390,9 +401,16 @@ describe('HistoryPage Component', () => {
         vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
+    expect(lastCheckoutDateArgs()).toEqual([
+      new Date(2025, 5, 1, 0, 0, 0, 0).toISOString(),
+      new Date(2025, 5, 30, 23, 59, 59, 999).toISOString(),
+    ]);
   });
 
   test('changes date to last month when selected', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(FIXED_NOW);
+
     render(
       <Wrapper>
         <HistoryPage />
@@ -416,9 +434,16 @@ describe('HistoryPage Component', () => {
         vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
+    expect(lastCheckoutDateArgs()).toEqual([
+      new Date(2025, 4, 1, 0, 0, 0, 0).toISOString(),
+      new Date(2025, 4, 31, 23, 59, 59, 999).toISOString(),
+    ]);
   });
 
   test('changes date to last 30 days when selected', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(FIXED_NOW);
+
     render(
       <Wrapper>
         <HistoryPage />
@@ -442,6 +467,10 @@ describe('HistoryPage Component', () => {
         vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
       ).toBeGreaterThan(callCount);
     });
+    expect(lastCheckoutDateArgs()).toEqual([
+      new Date(2025, 4, 16, 0, 0, 0, 0).toISOString(),
+      new Date(2025, 5, 15, 23, 59, 59, 999).toISOString(),
+    ]);
   });
 
   test('opens custom date dialog when custom option is selected', async () => {
@@ -841,6 +870,11 @@ describe('HistoryPage Component', () => {
     const yesterdayOption = await screen.findByText('Yesterday');
     fireEvent.click(yesterdayOption);
 
+    const buildingSelect = screen.getByRole('combobox', { name: /Building/i });
+    fireEvent.mouseDown(buildingSelect);
+    const buildingAOption = await screen.findByText('A — 123 Main St');
+    fireEvent.click(buildingAOption);
+
     const resetButton = await screen.findByRole('button', {
       name: /Reset filters/i,
     });
@@ -854,6 +888,9 @@ describe('HistoryPage Component', () => {
     expect(screen.getByRole('combobox', { name: /Date/i })).toHaveTextContent(
       /today/i,
     );
+    expect(
+      screen.getByRole('combobox', { name: /Building/i }),
+    ).toHaveTextContent(/All Buildings/i);
   });
 
   test('refetches transactions when date range changes', async () => {

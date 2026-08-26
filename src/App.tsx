@@ -22,6 +22,7 @@ const App: React.FC = () => {
   const [user, setUser] = usePersistentState<ClientPrincipal | null>('user', null);
   const [loggedInUserId, setLoggedInUserId] = usePersistentState<number | null>('loggedInUserId', null);
   const [activeVolunteers, setActiveVolunteers] = usePersistentState<User[]>('activeVolunteers', []);
+  const [pinVerified, setPinVerified] = usePersistentState<boolean>('pinVerified', false);
 
   useAuthorization(user, Object.values(USER_ROLES));
 
@@ -40,9 +41,11 @@ const App: React.FC = () => {
       setLoggedInUserId,
       activeVolunteers,
       setActiveVolunteers,
+      pinVerified,
+      setPinVerified,
       isLoading: user === null,
     }),
-    [user, setUser, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers]
+    [user, setUser, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers, pinVerified, setPinVerified]
   );
 
   return (

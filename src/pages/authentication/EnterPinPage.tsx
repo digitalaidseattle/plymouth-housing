@@ -19,8 +19,9 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
+  const [pinAttempt, setPinAttempt] = useState<number>(0);
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
-  const { loggedInUserId, user, activeVolunteers } = useContext(UserContext);
+  const { loggedInUserId, user, activeVolunteers, setPinVerified } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handlePinChange = useCallback((newPin: string[]) => {
@@ -162,6 +163,7 @@ const EnterPinPage: React.FC = () => {
         if (loggedInUserId !== null) {
           await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
+        setPinVerified(true);
         navigate('/volunteer-home');
       } else if (result) {
         trackEvent('PIN_Submission', {
@@ -176,7 +178,7 @@ const EnterPinPage: React.FC = () => {
           `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
-        document.getElementById('pin-input-3')?.focus();
+        setPinAttempt((prev) => prev + 1);
       }
       // If result is null, verifyPin() already displayed an error message, so don't show another
     } else {
@@ -231,7 +233,7 @@ const EnterPinPage: React.FC = () => {
           </Typography>
           <Box sx={{ marginBottom: 4 }}>
             <PinInput
-              key={loggedInUserId}
+              key={`${loggedInUserId}-${pinAttempt}`}
               onPinChange={handlePinChange}
               onSubmit={handleNextClick}
             />

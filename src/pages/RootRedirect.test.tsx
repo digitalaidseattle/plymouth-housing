@@ -55,7 +55,7 @@ const GenericRedirectPage = ({ source }: { source: string }) => (
 );
 
 
-const mockUserContextValue = (role: 'admin' | 'volunteer' | null | undefined, isLoading: boolean): UserContextType => ({
+const mockUserContextValue = (role: 'admin' | 'volunteer' | null | undefined, isLoading: boolean, pinVerified = true): UserContextType => ({
   user: role ? {
     userRoles: [role],
     userId: 'test-user-id',
@@ -67,6 +67,8 @@ const mockUserContextValue = (role: 'admin' | 'volunteer' | null | undefined, is
   setLoggedInUserId: vi.fn(),
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
+  pinVerified,
+  setPinVerified: vi.fn(),
 });
 
 const renderWithRouter = (contextValue: any, { route = '/' } = {}) => {
@@ -170,6 +172,32 @@ describe('RootRedirect - invalid userRole handling', () => {
       value: {
         href: ''
       }
+    });
+  });
+
+  describe('RootRedirect - pinVerified gating', () => {
+    it('redirects volunteer to /pick-your-name when pinVerified is false', () => {
+      const contextValue = mockUserContextValue('volunteer', false, false);
+      renderWithRouter(contextValue, { route: '/volunteer-home' });
+      expect(screen.queryByText('Volunteer Home Page')).not.toBeInTheDocument();
+    });
+  
+    it('allows volunteer through to dashboard when pinVerified is true', () => {
+      const contextValue = mockUserContextValue('volunteer', false, true);
+      renderWithRouter(contextValue, { route: '/volunteer-home' });
+      expect(screen.getByText('Volunteer Home Page')).toBeInTheDocument();
+    });
+  
+    it('admin is unaffected by pinVerified being false', () => {
+      const contextValue = mockUserContextValue('admin', false, false);
+      renderWithRouter(contextValue, { route: '/admin-home' });
+      expect(screen.getByText('Admin Home Page')).toBeInTheDocument();
+    });
+  
+    it('volunteer with pinVerified false is blocked from shared pages too', () => {
+      const contextValue = mockUserContextValue('volunteer', false, false);
+      renderWithRouter(contextValue, { route: '/inventory' });
+      expect(screen.queryByText('Inventory Page Content')).not.toBeInTheDocument();
     });
   });
 

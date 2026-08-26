@@ -84,6 +84,7 @@ const renderWithRouter = (contextValue: any, { route = '/' } = {}) => {
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/volunteer-home" element={<VolunteerHomePage />} />
           <Route path="/admin-home" element={<AdminHomePage />} />
+          <Route path="/pick-your-name" element={<div>Pick Your Name Page</div>} />
           <Route path="/404" element={<div data-testid="page-404">404 Page</div>} />
           <Route path="/:source" element={<GenericRedirectPage source={route.slice(1)} />} />
         </Routes>
@@ -179,7 +180,7 @@ describe('RootRedirect - invalid userRole handling', () => {
     it('redirects volunteer to /pick-your-name when pinVerified is false', () => {
       const contextValue = mockUserContextValue('volunteer', false, false);
       renderWithRouter(contextValue, { route: '/volunteer-home' });
-      expect(screen.queryByText('Volunteer Home Page')).not.toBeInTheDocument();
+      expect(screen.getByText('Pick Your Name Page')).toBeInTheDocument();
     });
   
     it('allows volunteer through to dashboard when pinVerified is true', () => {

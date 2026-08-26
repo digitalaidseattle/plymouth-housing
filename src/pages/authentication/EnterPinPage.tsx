@@ -178,6 +178,7 @@ const EnterPinPage: React.FC = () => {
           `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
+        setPin(Array(4).fill(''));
         setPinAttempt((prev) => prev + 1);
       }
       // If result is null, verifyPin() already displayed an error message, so don't show another

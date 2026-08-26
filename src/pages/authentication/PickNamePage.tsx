@@ -33,8 +33,7 @@ const PickYourNamePage: React.FC = () => {
   useEffect(() => {
     setLoggedInUserId(null);
     setPinVerified(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setLoggedInUserId, setPinVerified]);
   
   useEffect(() => {
     if (!user) return;

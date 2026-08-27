@@ -17,7 +17,7 @@ interface RootRedirectProps {
 }
 
 export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) => {
-  const { user, isLoading, pinVerified } = React.useContext(UserContext);
+  const { user, isLoading, pinVerified, loggedInUserId } = React.useContext(UserContext);
 
   // This handles the situation when the userContext does not have a user set yet. 
   if (isLoading) {
@@ -36,7 +36,12 @@ export const RootRedirect: React.FC<RootRedirectProps> = ({ source, children }) 
   }
 
   if (userRole === 'volunteer' && !pinVerified) {
-    return <Navigate to="/pick-your-name" replace />;
+    return (
+      <Navigate
+        to={loggedInUserId !== null ? '/enter-your-pin' : '/pick-your-name'}
+        replace
+      />
+    );
   }
 
   const alternateRole = userRole === 'admin' ? 'volunteer' : 'admin';

@@ -24,6 +24,10 @@ const App: React.FC = () => {
   const [activeVolunteers, setActiveVolunteers] = usePersistentState<User[]>('activeVolunteers', []);
   const [pinVerified, setPinVerified] = React.useState<boolean>(false);
 
+  useEffect(() => {
+    setPinVerified(false);
+  }, [loggedInUserId]);
+  
   useAuthorization(user, Object.values(USER_ROLES));
 
   useEffect(() => {

@@ -203,6 +203,12 @@ const ResidentDetailDialog = ({
               label="Unit Number"
               value={SPECIAL_UNITS.VOUCHER}
               disabled
+              error={formError.unitError}
+              helperText={
+                formError.unitError
+                  ? 'Unable to load the voucher unit. Please try again.'
+                  : ''
+              }
             />
           ) : (
           <Autocomplete

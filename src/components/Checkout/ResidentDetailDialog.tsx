@@ -179,6 +179,7 @@ const ResidentDetailDialog = ({
         <FormControl>
           <BuildingCodeSelect
             buildings={buildings}
+            label="Building or Voucher Code"
             selectedBuilding={selectedBuilding}
             setSelectedBuilding={setSelectedBuilding}
             setSelectedUnit={setSelectedUnit}

@@ -23,6 +23,7 @@ interface BuildingCodeSelectProps {
   error: boolean;
   resetError: () => void;
   disabled?: boolean;
+  label?: string;
 }
 
 const filterOptions = createFilterOptions<Building>({
@@ -38,6 +39,7 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   error,
   resetError,
   disabled = false,
+  label = 'Building Code',
 }) => {
   // groupBy requires the options already sorted by group, so voucher programs last.
   const groupedBuildings = useMemo(
@@ -77,9 +79,9 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Building Code"
+            label={label}
             error={error}
-            helperText={error ? 'Please select the building code' : ''}
+            helperText={error ? `Please select the ${label.toLowerCase()}` : ''}
           />
         )}
       />

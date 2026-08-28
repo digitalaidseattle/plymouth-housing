@@ -92,7 +92,7 @@ describe('ResidentDetailDialog', () => {
       expect(
         screen.getByText('Provide resident details to continue'),
       ).toBeInTheDocument();
-      expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
+      expect(screen.getByLabelText('Building or Voucher Code')).toBeInTheDocument();
       expect(screen.getByLabelText('Unit Number')).toBeInTheDocument();
       expect(screen.getByLabelText('Resident Name')).toBeInTheDocument();
     });
@@ -118,7 +118,7 @@ describe('ResidentDetailDialog', () => {
 
       renderComponent();
 
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
 
       const buildingOption = await screen.findByText('A (Building A)');
@@ -142,7 +142,7 @@ describe('ResidentDetailDialog', () => {
 
       renderComponent();
 
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
 
       const buildingOption = await screen.findByText('A (Building A)');
@@ -159,7 +159,7 @@ describe('ResidentDetailDialog', () => {
 
       renderComponent();
 
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
 
       const buildingOption = await screen.findByText('A (Building A)');
@@ -181,7 +181,7 @@ describe('ResidentDetailDialog', () => {
 
       renderComponent();
 
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
 
       const buildingOption = await screen.findByText('A (Building A)');
@@ -303,13 +303,13 @@ describe('ResidentDetailDialog', () => {
 
       // Fields should be disabled during loading
       await waitFor(() => {
-        expect(screen.getByLabelText('Building Code')).toBeDisabled();
+        expect(screen.getByLabelText('Building or Voucher Code')).toBeDisabled();
         expect(screen.getByLabelText('Resident Name')).toBeDisabled();
       });
 
       // Fields should be enabled after loading
       await waitFor(() => {
-        expect(screen.getByLabelText('Building Code')).not.toBeDisabled();
+        expect(screen.getByLabelText('Building or Voucher Code')).not.toBeDisabled();
         expect(screen.getByLabelText('Resident Name')).not.toBeDisabled();
       });
     });
@@ -352,7 +352,7 @@ describe('ResidentDetailDialog', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/Please select the building code/i),
+          screen.getByText(/Please select the building or voucher code/i),
         ).toBeInTheDocument();
         expect(
           screen.getByText(/Please select a unit from the list/i),
@@ -401,7 +401,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -468,7 +468,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -540,7 +540,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -584,7 +584,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -631,7 +631,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -680,7 +680,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -736,7 +736,7 @@ describe('ResidentDetailDialog', () => {
 
       renderComponent();
 
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
 
       const buildingOption = await screen.findByText('A (Building A)');
@@ -1093,7 +1093,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -1149,7 +1149,7 @@ describe('ResidentDetailDialog', () => {
       });
 
       // Select building
-      const buildingInput = screen.getByLabelText('Building Code');
+      const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
       const buildingOption = await screen.findByText('A (Building A)');
       fireEvent.click(buildingOption);
@@ -1191,7 +1191,7 @@ describe('ResidentDetailDialog', () => {
     const voucherUnits = [{ id: 99, unit_number: 'voucher' }];
 
     const selectVoucherBuilding = async () => {
-      fireEvent.mouseDown(screen.getByLabelText('Building Code'));
+      fireEvent.mouseDown(screen.getByLabelText('Building or Voucher Code'));
       fireEvent.click(await screen.findByText('SPC (SPC Voucher Program)'));
     };
 
@@ -1254,7 +1254,7 @@ describe('ResidentDetailDialog', () => {
       (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
 
       renderWithVoucher();
-      fireEvent.mouseDown(screen.getByLabelText('Building Code'));
+      fireEvent.mouseDown(screen.getByLabelText('Building or Voucher Code'));
       fireEvent.click(await screen.findByText('A (Building A)'));
 
       await waitFor(() => {

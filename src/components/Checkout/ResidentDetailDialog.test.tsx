@@ -1186,4 +1186,81 @@ describe('ResidentDetailDialog', () => {
       });
     });
   });
+  describe('Voucher Buildings', () => {
+    const voucherBuilding = { id: 3, name: 'SPC Voucher Program', code: 'SPC' };
+    const voucherUnits = [{ id: 99, unit_number: 'voucher' }];
+
+    const selectVoucherBuilding = async () => {
+      fireEvent.mouseDown(screen.getByLabelText('Building Code'));
+      fireEvent.click(await screen.findByText('SPC (SPC Voucher Program)'));
+    };
+
+    const renderWithVoucher = (props = {}) =>
+      renderComponent({ buildings: [...mockBuildings, voucherBuilding], ...props });
+
+    test('shows a disabled unit field reading "voucher"', async () => {
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(voucherUnits);
+
+      renderWithVoucher();
+      await selectVoucherBuilding();
+
+      await waitFor(() => {
+        const unitField = screen.getByLabelText('Unit Number');
+        expect(unitField).toHaveValue('voucher');
+        expect(unitField).toBeDisabled();
+      });
+    });
+
+    test('auto-selects the placeholder unit so residents can be looked up', async () => {
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(voucherUnits);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidents);
+
+      renderWithVoucher();
+      await selectVoucherBuilding();
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(mockUser, 99);
+      });
+    });
+
+    test('submits with the placeholder unit id, without picking a unit', async () => {
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(voucherUnits);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue({
+        value: [{ id: 7, name: 'John Doe' }],
+      });
+      (CheckoutAPICalls.findResident as Mock).mockResolvedValue({
+        value: [{ id: 7, name: 'John Doe' }],
+      });
+
+      renderWithVoucher();
+      await selectVoucherBuilding();
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Resident Name')).toHaveValue('John Doe');
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+      await waitFor(() => {
+        expect(CheckoutAPICalls.findResident).toHaveBeenCalledWith(
+          mockUser,
+          'John Doe',
+          99,
+        );
+      });
+    });
+
+    test('leaves the unit dropdown in place for standard buildings', async () => {
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
+
+      renderWithVoucher();
+      fireEvent.mouseDown(screen.getByLabelText('Building Code'));
+      fireEvent.click(await screen.findByText('A (Building A)'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('test-id-select-unit-number')).toBeInTheDocument();
+      });
+      expect(screen.getByLabelText('Unit Number')).not.toBeDisabled();
+    });
+  });
 });

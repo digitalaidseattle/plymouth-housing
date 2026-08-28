@@ -1471,16 +1471,7 @@ INSERT INTO Units (building_id, unit_number) VALUES (16, '428');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '429');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '430');
 
--- Voucher-program placeholder units (PIT-506). Voucher recipients are not
--- tied to a specific unit, but Residents.unit_id is NOT NULL, so each voucher
--- building gets one hidden placeholder unit that all voucher-recipient
--- residents attach to. UI grays out the unit field and shows "N/A" for these
--- buildings. Voucher programs do not receive welcome baskets, so no 'welcome'
--- unit is seeded for them.
---
--- Building IDs are looked up by code rather than hard-coded so the inserts
--- stay correct even if Buildings.id shifts (e.g. re-seed on a database whose
--- identity has drifted past 18 from prior inserts).
+-- Voucher Units
 INSERT INTO Units (building_id, unit_number)
 VALUES ((SELECT id FROM Buildings WHERE code = 'SPC'), 'voucher');
 

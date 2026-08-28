@@ -115,6 +115,23 @@ describe('WelcomeBasketBuildingDialog', () => {
       });
     });
 
+    test('excludes voucher program buildings from the options', async () => {
+      renderComponent({
+        buildings: [
+          ...mockBuildings,
+          { id: 3, name: 'SPC Voucher Program', code: 'SPC' },
+        ],
+      });
+
+      const buildingSelect = screen.getByLabelText('Building Code');
+      fireEvent.mouseDown(buildingSelect);
+
+      expect(
+        await screen.findByRole('option', { name: /A \(Building A\)/i }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /SPC/i })).not.toBeInTheDocument();
+    });
+
     test('shows error when no building is selected', async () => {
       renderComponent();
 

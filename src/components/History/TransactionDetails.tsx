@@ -23,7 +23,6 @@ import {
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext';
 import { formatTransactionDate } from './historyUtils';
-import { isVoucherBuilding } from '../../types/constants';
 import {
   getItemName,
   getItemQtyColor,
@@ -188,9 +187,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
               >
                 {checkoutTransaction.building_code} -{' '}
                 {checkoutTransaction.building_name} -{' '}
-                {isVoucherBuilding(checkoutTransaction.building_code)
-                  ? 'N/A'
-                  : checkoutTransaction.unit_number}
+                {checkoutTransaction.unit_number}
               </Typography>
             </CardContent>
           </Card>

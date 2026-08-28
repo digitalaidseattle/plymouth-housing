@@ -14,7 +14,7 @@ import {
   ResidentNameOption,
   ResidentFormError,
 } from '../../types/interfaces';
-import { isVoucherBuilding } from '../../types/constants';
+import { SPECIAL_UNITS, isVoucherBuilding } from '../../types/constants';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -109,17 +109,15 @@ const ResidentDetailDialog = ({
     setUnitNumberValues(unitNumbersHook.unitNumberValues);
   }, [unitNumbersHook.unitNumberValues, setUnitNumberValues]);
 
-  // PIT-506: voucher-program buildings (SPC/SSP) don't have a real unit — each
-  // seeds a single placeholder unit that all voucher residents attach to.
-  // Auto-select it so submission can proceed without a unit selection.
+  // Voucher buildings have no real unit, so auto-select their placeholder to
+  // satisfy the unit_id requirement on submit.
   const isVoucher = isVoucherBuilding(selectedBuilding.code);
   React.useEffect(() => {
-    if (
-      isVoucher &&
-      unitNumbersHook.unitNumberValues.length > 0 &&
-      !selectedUnit.id
-    ) {
-      setSelectedUnit(unitNumbersHook.unitNumberValues[0]);
+    if (isVoucher && !selectedUnit.id) {
+      const placeholderUnit = unitNumbersHook.unitNumberValues.find(
+        (u) => u.unit_number.trim().toLowerCase() === SPECIAL_UNITS.VOUCHER,
+      );
+      if (placeholderUnit) setSelectedUnit(placeholderUnit);
     }
   }, [isVoucher, unitNumbersHook.unitNumberValues, selectedUnit.id]);
 
@@ -203,9 +201,8 @@ const ResidentDetailDialog = ({
               id="voucher-unit-number-placeholder"
               data-testid="test-id-voucher-unit-placeholder"
               label="Unit Number"
-              value="N/A"
+              value={SPECIAL_UNITS.VOUCHER}
               disabled
-              helperText="Not applicable for voucher-program checkouts"
             />
           ) : (
           <Autocomplete

@@ -19,9 +19,7 @@ INSERT INTO Buildings (name, code) VALUES
 ('Toft Terrace', 'TFT'),
 ('Pat Williams', 'WIL'),
 ('Pacific Apartments', 'PAC'),
--- Voucher programs (PIT-506): PH-internal programs whose recipients are not
--- tied to a specific building or unit. Full names TBC by Kirsten; using
--- placeholders so the codes are usable in checkout immediately.
+-- Voucher Programs
 ('SPC Voucher Program', 'SPC'),
 ('SSP Voucher Program', 'SSP');
 GO

@@ -118,11 +118,10 @@ export const SPECIAL_ITEMS = {
 
 export const SPECIAL_UNITS = {
   WELCOME: 'welcome',
+  VOUCHER: 'voucher',
 } as const;
 
-// PIT-506: buildings representing PH-internal voucher programs whose
-// recipients are not tied to a specific unit. Checkout grays out the unit
-// field for these; History displays "N/A" in place of the unit number.
+// Voucher-provider organizations. Their residents attach to a placeholder unit.
 export const VOUCHER_BUILDING_CODES = ['SPC', 'SSP'] as const;
 
 export const isVoucherBuilding = (buildingCode: string | null | undefined): boolean =>

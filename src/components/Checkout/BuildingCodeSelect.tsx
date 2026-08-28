@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Autocomplete,
   createFilterOptions,
@@ -12,6 +12,7 @@ import {
   TextField,
 } from '@mui/material';
 import { Building, Unit } from '../../types/interfaces';
+import { isVoucherBuilding } from '../../types/constants';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
@@ -38,13 +39,25 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   resetError,
   disabled = false,
 }) => {
+  // groupBy requires the options already sorted by group, so voucher programs last.
+  const groupedBuildings = useMemo(
+    () => [
+      ...buildings.filter((building) => !isVoucherBuilding(building.code)),
+      ...buildings.filter((building) => isVoucherBuilding(building.code)),
+    ],
+    [buildings],
+  );
+
   return (
     <FormControl>
       <Autocomplete
         id="select-building"
         data-testid="test-id-select-building"
-        options={buildings}
+        options={groupedBuildings}
         filterOptions={filterOptions}
+        groupBy={(option: Building) =>
+          isVoucherBuilding(option.code) ? 'Voucher Programs' : 'Buildings'
+        }
         value={selectedBuilding}
         disabled={disabled}
         isOptionEqualToValue={(option, value) => option.id === value.id}

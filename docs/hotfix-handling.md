@@ -64,3 +64,12 @@ hotfix — `git log --oneline main..staging` next to `git log --oneline staging.
 show the same subject lines on both sides if so. In that case the resolution is almost
 always "take the branch that is ahead", and the merged tree should come out identical to
 it.
+
+Verify that before committing: `git write-tree` prints the tree of the resolved merge, and
+`git rev-parse origin/<branch>^{tree}` prints the tree of the branch you took, `staging` or
+`dev` depending on the direction. Matching hashes mean nothing was dropped.
+
+A backport that only rejoins histories therefore has no file changes, and an empty Files
+Changed tab is the expected result. Do not switch branches while the merge is uncommitted —
+that discards the merge state and the follow-up commit silently creates nothing. Automated
+reviewers skip empty diffs, so these PRs need a human approval.

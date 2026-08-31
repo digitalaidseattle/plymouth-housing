@@ -66,8 +66,8 @@ always "take the branch that is ahead", and the merged tree should come out iden
 it.
 
 Verify that before committing: `git write-tree` prints the tree of the resolved merge, and
-`git rev-parse origin/dev^{tree}` prints the tree of the branch you took. Matching hashes mean
-nothing was dropped.
+`git rev-parse origin/<branch>^{tree}` prints the tree of the branch you took, `staging` or
+`dev` depending on the direction. Matching hashes mean nothing was dropped.
 
 A backport that only rejoins histories therefore has no file changes, and an empty Files
 Changed tab is the expected result. Do not switch branches while the merge is uncommitted —

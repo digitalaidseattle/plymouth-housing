@@ -14,6 +14,7 @@ import {
 } from '../../types/interfaces';
 import { SPECIAL_ITEMS } from '../../types/constants';
 import CheckedoutListItem from './CheckedoutListItem';
+import { withCount } from '../../utils/textUtils';
 import DialogTemplate from '../DialogTemplate';
 
 type AdditionalNotesDialogProps = {
@@ -82,7 +83,7 @@ const AdditionalNotesDialog = ({
                 <Box>
                     <Stack direction="row" sx={{ gap: 2 }}>
                         <Typography variant="body2" sx={{ fontWeight: '600' }}>Previously checked out</Typography>
-                        <Typography>{applianceMiscCheckouts.length} items</Typography>
+                        <Typography>{withCount(applianceMiscCheckouts.length, 'item')}</Typography>
                     </Stack>
                     <Box sx={{ 
                         border: '1px solid gray',

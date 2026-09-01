@@ -14,6 +14,7 @@ import {
   ResidentNameOption,
   ResidentFormError,
 } from '../../types/interfaces';
+import { SPECIAL_UNITS, isVoucherBuilding } from '../../types/constants';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
@@ -108,6 +109,18 @@ const ResidentDetailDialog = ({
     setUnitNumberValues(unitNumbersHook.unitNumberValues);
   }, [unitNumbersHook.unitNumberValues, setUnitNumberValues]);
 
+  // Voucher buildings have no real unit, so auto-select their placeholder to
+  // satisfy the unit_id requirement on submit.
+  const isVoucher = isVoucherBuilding(selectedBuilding.code);
+  React.useEffect(() => {
+    if (isVoucher && !selectedUnit.id) {
+      const placeholderUnit = unitNumbersHook.unitNumberValues.find(
+        (u) => u.unit_number.trim().toLowerCase() === SPECIAL_UNITS.VOUCHER,
+      );
+      if (placeholderUnit) setSelectedUnit(placeholderUnit);
+    }
+  }, [isVoucher, unitNumbersHook.unitNumberValues, selectedUnit.id]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (isEditMode) {
@@ -166,6 +179,7 @@ const ResidentDetailDialog = ({
         <FormControl>
           <BuildingCodeSelect
             buildings={buildings}
+            label="Building or Voucher Code"
             selectedBuilding={selectedBuilding}
             setSelectedBuilding={setSelectedBuilding}
             setSelectedUnit={setSelectedUnit}
@@ -183,6 +197,21 @@ const ResidentDetailDialog = ({
         </FormControl>
 
         <FormControl>
+          {isVoucher ? (
+            <TextField
+              id="voucher-unit-number-placeholder"
+              data-testid="test-id-voucher-unit-placeholder"
+              label="Unit Number"
+              value={SPECIAL_UNITS.VOUCHER}
+              disabled
+              error={formError.unitError}
+              helperText={
+                formError.unitError
+                  ? 'Unable to load the voucher unit. Please try again.'
+                  : ''
+              }
+            />
+          ) : (
           <Autocomplete
             id="select-unit-number"
             data-testid="test-id-select-unit-number"
@@ -234,6 +263,7 @@ const ResidentDetailDialog = ({
             }}
             freeSolo
           />
+          )}
         </FormControl>
 
         <FormControl>

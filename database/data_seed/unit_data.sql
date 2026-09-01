@@ -1471,8 +1471,15 @@ INSERT INTO Units (building_id, unit_number) VALUES (16, '428');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '429');
 INSERT INTO Units (building_id, unit_number) VALUES (16, '430');
 
+-- Voucher Units
+INSERT INTO Units (building_id, unit_number)
+VALUES ((SELECT id FROM Buildings WHERE code = 'SPC'), 'voucher');
+
+INSERT INTO Units (building_id, unit_number)
+VALUES ((SELECT id FROM Buildings WHERE code = 'SSP'), 'voucher');
+
 DECLARE @building_id INT = 1;
-DECLARE @max_building_id INT = 16; 
+DECLARE @max_building_id INT = 16;
 
 WHILE @building_id <= @max_building_id
 BEGIN

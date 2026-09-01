@@ -21,18 +21,22 @@ import { User } from '../../types/interfaces';
 import { apiRequest } from '../../services/apiRequest';
 import { ENDPOINTS, USER_ROLES } from '../../types/constants';
 import { trackException } from '../../utils/appInsights';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 const PickYourNamePage: React.FC = () => {
-  const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
+  const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers, setPinVerified } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({ open: false, message: '', severity: 'warning' });
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setLoggedInUserId(null);
+    setPinVerified(false);
+    // Intentionally run only when entering the name-selection page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
   useEffect(() => {
     if (!user) return;
     
@@ -55,11 +59,7 @@ const PickYourNamePage: React.FC = () => {
           component: 'PickNamePage',
           action: 'fetchVolunteers',
         });
-        setSnackbarState({
-          open: true,
-          message: 'Failed to load volunteer list. Please try again later.',
-          severity: 'warning',
-        });
+        showSnackbar('Failed to load volunteer list. Please try again later.', 'warning');
       } finally {
         setIsLoading(false);
       }
@@ -80,22 +80,8 @@ const PickYourNamePage: React.FC = () => {
     if (loggedInUserId) {
       navigate('/enter-your-pin');
     } else {
-      setSnackbarState({
-        open: true,
-        message: 'Please select a name before continuing.',
-        severity: 'warning',
-      });
+      showSnackbar('Please select a name before continuing.', 'warning');
     }
-  };
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarState((prev) => ({ ...prev, open: false }));
   };
 
   const isValidVolunteer = (volunteerId: number | null): boolean =>
@@ -165,7 +151,7 @@ const PickYourNamePage: React.FC = () => {
 
           <SnackbarAlert
             open={snackbarState.open}
-            onClose={handleSnackbarClose}
+            onClose={handleClose}
             severity={snackbarState.severity}
           >
             {snackbarState.message}

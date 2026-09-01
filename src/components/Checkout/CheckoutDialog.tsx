@@ -271,7 +271,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       }
     } catch (error) {
       let userFriendlyMessage = 'Checkout failed. Please try again.';
-      let errorCode = 'UNKNOWN';
+      // Every branch below assigns this, so there is no initializer to hold a
+      // stale default; TS flags any future branch that forgets to set it.
+      let errorCode: string;
 
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();

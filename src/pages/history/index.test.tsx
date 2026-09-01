@@ -155,6 +155,8 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
         activeVolunteers: [],
         setActiveVolunteers: vi.fn(),
         isLoading: false,
+        pinVerified: false,
+        setPinVerified: vi.fn(),
       }}
     >
       {children}

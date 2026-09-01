@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { UserContext } from '../../components/contexts/UserContext';
@@ -30,6 +30,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) =>
       activeVolunteers: [],
       setActiveVolunteers: vi.fn(),
       isLoading: false,
+      pinVerified: false,
+      setPinVerified: vi.fn(),
     },
     children,
   });
@@ -131,6 +133,51 @@ describe('useResidentsByBuilding', () => {
 
     expect(result.current.error).toBe('Failed to load residents');
     expect(result.current.data).toEqual([]);
+  });
+
+  it('updates a resident name locally after a successful save', async () => {
+    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(
+      mockRows,
+    );
+    vi.mocked(residentService.updateResident).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useResidentsByBuilding(1), { wrapper });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateResidentName(1, 'Alicia');
+    });
+
+    expect(residentService.updateResident).toHaveBeenCalledWith(
+      dummyUser,
+      1,
+      'Alicia',
+    );
+    const unit2 = result.current.data.find((d) => d.unit.unit_number === '2');
+    expect(unit2?.residents.map((r) => r.name)).toEqual(['Alicia', 'Bob']);
+  });
+
+  it('propagates the error and leaves data unchanged when the update fails', async () => {
+    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(
+      mockRows,
+    );
+    vi.mocked(residentService.updateResident).mockRejectedValue(
+      new Error('Network error'),
+    );
+
+    const { result } = renderHook(() => useResidentsByBuilding(1), { wrapper });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      await expect(
+        result.current.updateResidentName(1, 'Alicia'),
+      ).rejects.toThrow('Network error');
+    });
+
+    const unit2 = result.current.data.find((d) => d.unit.unit_number === '2');
+    expect(unit2?.residents.map((r) => r.name)).toEqual(['Alice', 'Bob']);
   });
 
   it('refetches when buildingId changes', async () => {

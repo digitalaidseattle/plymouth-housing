@@ -27,7 +27,9 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       setLoggedInUserId: vi.fn(),
       activeVolunteers: [],
       setActiveVolunteers: vi.fn(),
-      isLoading: false
+      isLoading: false,
+      pinVerified: false,
+      setPinVerified: vi.fn(),
     }}
   >
     {children}

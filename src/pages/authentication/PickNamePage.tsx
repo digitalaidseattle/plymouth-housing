@@ -24,12 +24,19 @@ import { trackException } from '../../utils/appInsights';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
 const PickYourNamePage: React.FC = () => {
-  const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers } = useContext(UserContext);
+  const { user, loggedInUserId, setLoggedInUserId, activeVolunteers, setActiveVolunteers, setPinVerified } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setLoggedInUserId(null);
+    setPinVerified(false);
+    // Intentionally run only when entering the name-selection page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
   useEffect(() => {
     if (!user) return;
     

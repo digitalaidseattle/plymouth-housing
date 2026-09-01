@@ -85,6 +85,8 @@ export interface UserContextType {
   activeVolunteers: User[];
   setActiveVolunteers: (activeVolunteers: User[]) => void;
   isLoading: boolean;
+  pinVerified: boolean;
+  setPinVerified: (verified: boolean) => void;
 }
 
 // BaseUser defines the common properties shared by all user types.

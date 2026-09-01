@@ -43,6 +43,8 @@ const createUserContextValue = (overrides = {}) => ({
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
   isLoading: false,
+  pinVerified: false,
+  setPinVerified: vi.fn(),
   ...overrides,
 });
 
@@ -85,9 +87,8 @@ describe('EnterPinPage Component', () => {
   });
 
   test('handles valid PIN and navigates to volunteer-home', async () => {
-    // Set up fetch mocks:
-    // 1st call: verifying the PIN (returns valid)
-    // 2nd call: updating last signed-in (succeeds)
+    const mockSetPinVerified = vi.fn();
+  
     (global.fetch as any) = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
@@ -97,30 +98,56 @@ describe('EnterPinPage Component', () => {
         ok: true,
         json: async () => ({}),
       });
-
+  
     render(
-      <UserContext.Provider value={createUserContextValue()}>
+      <UserContext.Provider value={createUserContextValue({ setPinVerified: mockSetPinVerified })}>
         <EnterPinPage />
       </UserContext.Provider>
     );
-
-    // Simulate entering a complete PIN via the mocked PinInput.
+  
     const pinInput = screen.getByTestId('pin-input');
     fireEvent.change(pinInput, { target: { value: '1234' } });
-
-    // Click the Continue button.
+  
     const continueButton = screen.getByRole('button', { name: /Continue/i });
     fireEvent.click(continueButton);
-
-    // Wait for the success snackbar message to appear.
+  
     await waitFor(() => {
       expect(screen.getByText(/Login successful! Redirecting.../i)).toBeInTheDocument();
     });
-
-    // Expect navigation to volunteer-home.
+  
+    expect(mockSetPinVerified).toHaveBeenCalledWith(true);
     expect(mockNavigate).toHaveBeenCalledWith('/volunteer-home');
-    // Verify that both fetch calls were made.
     expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  test('does not set pinVerified when PIN is invalid', async () => {
+    const mockSetPinVerified = vi.fn();
+  
+    (global.fetch as any) = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ value: [{ IsValid: false, ErrorMessage: "Incorrect PIN." }] }),
+    });
+  
+    render(
+      <UserContext.Provider value={createUserContextValue({ setPinVerified: mockSetPinVerified })}>
+        <EnterPinPage />
+      </UserContext.Provider>
+    );
+  
+    const pinInput = screen.getByTestId('pin-input');
+    fireEvent.change(pinInput, { target: { value: '9999' } });
+  
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    fireEvent.click(continueButton);
+  
+    await waitFor(() => {
+      expect(screen.getByText((content) =>
+        content.replace(/\s+/g, ' ').includes('Incorrect PIN.')
+      )).toBeInTheDocument();
+    });
+  
+    expect(mockSetPinVerified).not.toHaveBeenCalledWith(true);
+    expect(mockNavigate).not.toHaveBeenCalledWith('/volunteer-home');
   });
 
   test('handles invalid PIN and shows error snackbar', async () => {
@@ -157,6 +184,34 @@ describe('EnterPinPage Component', () => {
     expect(mockNavigate).not.toHaveBeenCalledWith('/volunteer-home');
   });
   
+  test('increments pinAttempt and remounts PinInput after an invalid PIN', async () => {
+    (global.fetch as any) = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ value: [{ IsValid: false, ErrorMessage: "Incorrect PIN." }] }),
+    });
+  
+    render(
+      <UserContext.Provider value={createUserContextValue()}>
+        <EnterPinPage />
+      </UserContext.Provider>
+    );
+  
+    const pinInputBefore = screen.getByTestId('pin-input');
+    fireEvent.change(pinInputBefore, { target: { value: '9999' } });
+  
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    fireEvent.click(continueButton);
+  
+    await waitFor(() => {
+      expect(screen.getByText((content) =>
+        content.replace(/\s+/g, ' ').includes('Incorrect PIN.')
+      )).toBeInTheDocument();
+    });
+  
+    // Confirm PinInput remounted with a fresh instance (key changed)
+    const pinInputAfter = screen.getByTestId('pin-input');
+    expect(pinInputAfter).not.toBe(pinInputBefore);
+  });
 
   test('navigates back to /pick-your-name when back link is clicked', async () => {
     render(

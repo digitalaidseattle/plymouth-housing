@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   Button,
   Stack,
@@ -43,18 +43,37 @@ const HistoryPage: React.FC = () => {
   } = useDateRangeFilter();
   const {
     userList,
+    buildings,
     isLoading: isLoadingReferenceData,
   } = useReferenceData({ user, onError: showSnackbar });
 
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
   );
+  const [selectedBuildingId, setSelectedBuildingId] = useState<number | 'all'>(
+    'all',
+  );
+
+  useEffect(() => {
+    if (historyType === 'inventory') {
+      setSelectedBuildingId('all');
+    }
+  }, [historyType]);
+
+  const hasBuildingFilter = historyType === 'checkout' && selectedBuildingId !== 'all';
+  const hasActiveFilters = dateInput !== 'today' || hasBuildingFilter;
+
+  const handleResetFilters = () => {
+    handleDateSelection('today');
+    setSelectedBuildingId('all');
+  };
 
   const { transactionsByUser, isLoading: isLoadingHistory } = useHistoryData({
     user,
     formattedDateRange,
     historyType,
     loggedInUserId,
+    selectedBuildingId,
     onError: showSnackbar,
   });
 
@@ -76,7 +95,15 @@ const HistoryPage: React.FC = () => {
         handleSetDateInput={() => {}}
       />
 
-      <Stack direction="row" sx={{ alignItems: 'center', width: '100%', gap: 3 }}>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        sx={{
+          alignItems: { xs: 'stretch', md: 'center' },
+          width: '100%',
+          gap: 3,
+          flexWrap: 'wrap',
+        }}
+      >
         <ToggleButtonGroup
           value={historyType}
           exclusive
@@ -143,35 +170,84 @@ const HistoryPage: React.FC = () => {
             Inventory
           </ToggleButton>
         </ToggleButtonGroup>
-        <FormControl>
-          <InputLabel id="select-date-label">Date</InputLabel>
-          <Select
-            labelId="select-date-label"
-            id="select-date"
-            value={dateInput}
-            label="Date"
-            onChange={(e) => {
-              const value = e.target.value as DatePreset;
-              if (value === 'custom') {
-                toggleCustomDateDialog();
-              } else {
-                handleDateSelection(value);
-              }
-            }}
-            sx={{
-              width: '10rem',
-              borderRadius: '18px',
-              '& .MuiSelect-select': { py: 2 },
-            }}
-          >
-            <MenuItem value="today">Today</MenuItem>
-            <MenuItem value="yesterday">Yesterday</MenuItem>
-            <MenuItem value="this week">This Week</MenuItem>
-            <MenuItem value="custom">
-              {dateRange.isCustom ? dateRangeString : 'Custom'}
-            </MenuItem>
-          </Select>
-        </FormControl>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          sx={{
+            alignItems: { xs: 'stretch', sm: 'center' },
+            width: { xs: '100%', md: 'auto' },
+            gap: 3,
+            flexWrap: 'wrap',
+          }}
+        >
+          <FormControl sx={{ flexShrink: 0 }}>
+            <InputLabel id="select-date-label">Date</InputLabel>
+            <Select
+              labelId="select-date-label"
+              id="select-date"
+              value={dateInput}
+              label="Date"
+              onChange={(e) => {
+                const value = e.target.value as DatePreset;
+                if (value === 'custom') {
+                  toggleCustomDateDialog();
+                } else {
+                  handleDateSelection(value);
+                }
+              }}
+              sx={{
+                width: { xs: '100%', sm: '10rem' },
+                borderRadius: '18px',
+                '& .MuiSelect-select': { py: 2 },
+              }}
+            >
+              <MenuItem value="today">Today</MenuItem>
+              <MenuItem value="yesterday">Yesterday</MenuItem>
+              <MenuItem value="this week">This Week</MenuItem>
+              <MenuItem value="this month">This Month</MenuItem>
+              <MenuItem value="last month">Last Month</MenuItem>
+              <MenuItem value="last 30 days">Last 30 Days</MenuItem>
+              <MenuItem value="custom">
+                {dateRange.isCustom ? dateRangeString : 'Custom'}
+              </MenuItem>
+            </Select>
+          </FormControl>
+          {historyType === 'checkout' && (
+            <FormControl sx={{ flexShrink: 0 }}>
+              <InputLabel id="select-building-label">Building</InputLabel>
+              <Select
+                labelId="select-building-label"
+                id="select-building"
+                value={selectedBuildingId}
+                label="Building"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSelectedBuildingId(value === 'all' ? 'all' : Number(value));
+                }}
+                sx={{
+                  width: { xs: '100%', sm: 'auto' },
+                  minWidth: '12rem',
+                  borderRadius: '18px',
+                  '& .MuiSelect-select': { py: 2 },
+                }}
+              >
+                <MenuItem value="all">All Buildings</MenuItem>
+                {buildings?.map((b) => (
+                  <MenuItem key={b.id} value={b.id}>
+                    {b.code} — {b.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+          {hasActiveFilters && (
+            <Button
+              onClick={handleResetFilters}
+              sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+            >
+              Reset filters
+            </Button>
+          )}
+        </Stack>
       </Stack>
 
       <Stack>
@@ -182,7 +258,9 @@ const HistoryPage: React.FC = () => {
           <Button onClick={toggleCustomDateDialog}>Change date range</Button>
         ) : (
           <Typography variant="body1">
-            {dateInput !== 'this week' ? dateString : dateRangeString}
+            {['this week', 'this month', 'last month', 'last 30 days'].includes(dateInput)
+              ? dateRangeString
+              : dateString}
           </Typography>
         )}
         {!isLoading && (() => {
@@ -206,6 +284,7 @@ const HistoryPage: React.FC = () => {
             userList={userList}
             loggedInUserId={loggedInUserId}
             historyType={historyType}
+            hasBuildingFilter={hasBuildingFilter}
           />
         </>
       )}

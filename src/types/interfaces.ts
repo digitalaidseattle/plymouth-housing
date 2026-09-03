@@ -130,6 +130,7 @@ export type InventoryItem = {
   type: string;
   description: string;
   quantity: number;
+  threshold: number;
   category: string;
   status: string;
 };
@@ -214,8 +215,7 @@ export type InventoryTransaction = {
   transaction_date: string;
   transaction_id: string;
   transaction_type:
-    | TransactionType.InventoryAdd
-    | TransactionType.InventoryReplaceValue;
+    TransactionType.InventoryAdd | TransactionType.InventoryReplaceValue;
   user_id: number;
 };
 
@@ -263,6 +263,20 @@ export type TransactionHistoryRow = {
   items: string; // JSON string, parsed to TransactionItem[]
 };
 
+export type CheckoutItemTotal = {
+  item_id: number;
+  item_name: string;
+  total_quantity: number;
+  checkout_count: number;
+};
+
+export type AnalyticsSummary = {
+  residentsServed: number;
+  checkouts: number;
+  itemsCheckedOut: number;
+  avgCheckoutsPerDay: number;
+};
+
 export type InventoryRow = {
   user_id: number;
   transaction_id: string;
@@ -302,7 +316,8 @@ export interface ApiConfig {
 
 // ─── Date Range ───────────────────────────────────────────────────────────────
 
-export type DatePreset = 'today' | 'yesterday' | 'this week' | 'custom';
+export type DatePreset =
+  'today' | 'yesterday' | 'this week' | 'this month' | 'custom';
 
 export type DateRange = {
   startDate: Date;

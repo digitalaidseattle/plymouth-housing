@@ -334,6 +334,22 @@
         }
       ]
     },
+    "GetCheckoutItemTotals": {
+      "source": {
+        "object": "dbo.GetCheckoutItemTotals",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/get-checkout-item-totals"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        }
+      ]
+    },
     "GetInventoryHistory": {
       "source": {
         "object": "dbo.GetInventoryHistory",

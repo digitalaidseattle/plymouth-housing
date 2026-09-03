@@ -1,0 +1,283 @@
+import { describe, test, expect } from 'vitest';
+import {
+  summarizeCheckouts,
+  flagDuplicates,
+  countResidentsByBuilding,
+  percentChange,
+  previousPeriod,
+  sortLowStockItems,
+  formatTransactionDate,
+} from './analyticsUtils';
+import { CheckoutTransaction, InventoryItem } from '../types/interfaces';
+
+const baseTransaction: CheckoutTransaction = {
+  building_id: 1,
+  building_code: 'A',
+  building_name: 'Building A',
+  item_type: 'general',
+  resident_id: 10,
+  resident_name: 'Resident A',
+  transaction_date: '2025-01-01T00:00:00Z',
+  transaction_id: 'txn-1',
+  unit_number: '101',
+  user_id: 1,
+  welcome_basket_item_id: null,
+  welcome_basket_quantity: null,
+  total_quantity: 5,
+  is_edited: false,
+};
+
+const makeTransaction = (
+  overrides: Partial<CheckoutTransaction>,
+): CheckoutTransaction => ({ ...baseTransaction, ...overrides });
+
+const baseItem: InventoryItem = {
+  id: 1,
+  name: 'Item A',
+  type: 'General',
+  description: '',
+  quantity: 5,
+  threshold: 5,
+  category: 'Category A',
+  status: 'Low Stock',
+};
+
+const makeItem = (overrides: Partial<InventoryItem>): InventoryItem => ({
+  ...baseItem,
+  ...overrides,
+});
+
+// Mirrors useDateRangeFilter's formattedDateRange: local midnight start,
+// local end-of-day end, each serialized with toISOString().
+const localDateRange = (
+  start: [number, number, number],
+  end: [number, number, number] = start,
+) => {
+  const startDate = new Date(...start);
+  startDate.setHours(0, 0, 0, 0);
+  const endDate = new Date(...end);
+  endDate.setHours(23, 59, 59, 999);
+  return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
+};
+
+describe('summarizeCheckouts', () => {
+  test('returns zeroed summary for an empty array', () => {
+    const { startDate, endDate } = localDateRange([2025, 0, 1]);
+    const result = summarizeCheckouts([], startDate, endDate);
+    expect(result).toEqual({
+      residentsServed: 0,
+      checkouts: 0,
+      itemsCheckedOut: 0,
+      avgCheckoutsPerDay: 0,
+    });
+  });
+
+  test('counts distinct residents, checkouts, and total items', () => {
+    const transactions = [
+      makeTransaction({
+        transaction_id: 'txn-1',
+        resident_id: 10,
+        total_quantity: 5,
+      }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        resident_id: 10,
+        total_quantity: 3,
+      }),
+      makeTransaction({
+        transaction_id: 'txn-3',
+        resident_id: 20,
+        total_quantity: 2,
+      }),
+    ];
+    const { startDate, endDate } = localDateRange([2025, 0, 1]);
+    const result = summarizeCheckouts(transactions, startDate, endDate);
+    expect(result.residentsServed).toBe(2);
+    expect(result.checkouts).toBe(3);
+    expect(result.itemsCheckedOut).toBe(10);
+  });
+
+  test('treats a single-day range as 1 calendar day', () => {
+    const transactions = [makeTransaction({})];
+    const { startDate, endDate } = localDateRange([2025, 0, 1]);
+    const result = summarizeCheckouts(transactions, startDate, endDate);
+    expect(result.avgCheckoutsPerDay).toBe(1);
+  });
+
+  test('divides checkouts across an inclusive multi-day range', () => {
+    const transactions = [
+      makeTransaction({}),
+      makeTransaction({ transaction_id: 'txn-2' }),
+    ];
+    const { startDate, endDate } = localDateRange([2025, 0, 1], [2025, 0, 4]);
+    const result = summarizeCheckouts(transactions, startDate, endDate);
+    expect(result.avgCheckoutsPerDay).toBe(0.5);
+  });
+});
+
+describe('flagDuplicates', () => {
+  test('flags no duplicates when each resident appears once', () => {
+    const transactions = [
+      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-2', resident_id: 20 }),
+    ];
+    const result = flagDuplicates(transactions);
+    expect(result.map((t) => t.isDuplicate)).toEqual([false, false]);
+  });
+
+  test('flags all transactions sharing a resident_id as duplicates', () => {
+    const transactions = [
+      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-2', resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-3', resident_id: 10 }),
+    ];
+    const result = flagDuplicates(transactions);
+    expect(result.map((t) => t.isDuplicate)).toEqual([true, true, true]);
+  });
+
+  test('preserves the original order', () => {
+    const transactions = [
+      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-2', resident_id: 20 }),
+    ];
+    const result = flagDuplicates(transactions);
+    expect(result.map((t) => t.transaction_id)).toEqual(['txn-1', 'txn-2']);
+  });
+});
+
+describe('countResidentsByBuilding', () => {
+  test('returns an empty array for no transactions', () => {
+    expect(countResidentsByBuilding([])).toEqual([]);
+  });
+
+  test('counts distinct residents per building and sorts descending', () => {
+    const transactions = [
+      makeTransaction({
+        building_code: 'A',
+        building_name: 'Building A',
+        resident_id: 10,
+      }),
+      makeTransaction({
+        building_code: 'A',
+        building_name: 'Building A',
+        resident_id: 10,
+      }),
+      makeTransaction({
+        building_code: 'A',
+        building_name: 'Building A',
+        resident_id: 11,
+      }),
+      makeTransaction({
+        building_code: 'B',
+        building_name: 'Building B',
+        resident_id: 20,
+      }),
+    ];
+    const result = countResidentsByBuilding(transactions);
+    expect(result).toEqual([
+      { building_code: 'A', building_name: 'Building A', residentCount: 2 },
+      { building_code: 'B', building_name: 'Building B', residentCount: 1 },
+    ]);
+  });
+});
+
+describe('percentChange', () => {
+  test('returns null when previous is 0', () => {
+    expect(percentChange(10, 0)).toBeNull();
+  });
+
+  test('returns the rounded percent increase', () => {
+    expect(percentChange(15, 10)).toBe(50);
+  });
+
+  test('returns the rounded percent decrease', () => {
+    expect(percentChange(5, 10)).toBe(-50);
+  });
+});
+
+describe('previousPeriod', () => {
+  test('returns an equal-length window ending immediately before startDate', () => {
+    const result = previousPeriod(
+      '2025-02-01T00:00:00.000Z',
+      '2025-02-28T23:59:59.999Z',
+    );
+    expect(result.endDate).toBe('2025-01-31T23:59:59.999Z');
+    expect(result.startDate).toBe('2025-01-04T00:00:00.000Z');
+  });
+
+  test('returns a single-day window for a single-day range', () => {
+    const result = previousPeriod(
+      '2025-01-02T00:00:00.000Z',
+      '2025-01-02T23:59:59.999Z',
+    );
+    expect(result.startDate).toBe('2025-01-01T00:00:00.000Z');
+    expect(result.endDate).toBe('2025-01-01T23:59:59.999Z');
+  });
+});
+
+describe('sortLowStockItems', () => {
+  test('excludes items above their threshold', () => {
+    const items = [
+      makeItem({ id: 1, quantity: 10, threshold: 5 }),
+      makeItem({ id: 2, quantity: 5, threshold: 5 }),
+    ];
+    expect(sortLowStockItems(items).map((item) => item.id)).toEqual([2]);
+  });
+
+  test('sorts Out of Stock items before Low Stock items', () => {
+    const items = [
+      makeItem({
+        id: 1,
+        name: 'B',
+        quantity: 3,
+        threshold: 5,
+        status: 'Low Stock',
+      }),
+      makeItem({
+        id: 2,
+        name: 'A',
+        quantity: 0,
+        threshold: 5,
+        status: 'Out of Stock',
+      }),
+    ];
+    expect(sortLowStockItems(items).map((item) => item.id)).toEqual([2, 1]);
+  });
+
+  test('within the same status, sorts by ascending quantity-minus-threshold', () => {
+    const items = [
+      makeItem({ id: 1, name: 'A', quantity: 1, threshold: 5 }),
+      makeItem({ id: 2, name: 'B', quantity: 4, threshold: 5 }),
+    ];
+    expect(sortLowStockItems(items).map((item) => item.id)).toEqual([1, 2]);
+  });
+
+  test('falls back to alphabetical order for equal deltas', () => {
+    const items = [
+      makeItem({ id: 1, name: 'Zebra', quantity: 4, threshold: 5 }),
+      makeItem({ id: 2, name: 'Apple', quantity: 4, threshold: 5 }),
+    ];
+    expect(sortLowStockItems(items).map((item) => item.name)).toEqual([
+      'Apple',
+      'Zebra',
+    ]);
+  });
+
+  test('does not mutate the original array', () => {
+    const items = [
+      makeItem({ id: 1, name: 'B', quantity: 4, threshold: 5 }),
+      makeItem({ id: 2, name: 'A', quantity: 4, threshold: 5 }),
+    ];
+    const original = [...items];
+    sortLowStockItems(items);
+    expect(items).toEqual(original);
+  });
+});
+
+describe('formatTransactionDate', () => {
+  test('formats an ISO date as "Mon D, YYYY"', () => {
+    expect(formatTransactionDate('2026-08-12T12:00:00.000Z')).toBe(
+      'Aug 12, 2026',
+    );
+  });
+});

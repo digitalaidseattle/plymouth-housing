@@ -30,5 +30,15 @@ export function cacheGet<T>(key: string): T | null {
 
 export function cacheSet<T>(key: string, data: T): void {
   const entry: CacheEntry<T> = { data, cachedAt: Date.now() };
-  sessionStorage.setItem(key, JSON.stringify(entry));
+  try {
+    sessionStorage.setItem(key, JSON.stringify(entry));
+  } catch (error) {
+    // A full quota must not fail the caller: the data it just fetched is good,
+    // only the cache write is lost.
+    console.error(`Error caching "${key}":`, error);
+  }
+}
+
+export function cacheRemove(key: string): void {
+  sessionStorage.removeItem(key);
 }

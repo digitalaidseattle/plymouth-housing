@@ -4,8 +4,8 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { Chip, Stack, Typography } from '@mui/material';
-import MainCard from '../MainCard';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
 
 interface StatTileProps {
   label: string;
@@ -23,37 +23,49 @@ const StatTile: React.FC<StatTileProps> = ({
   const isPositive = delta !== null && delta >= 0;
 
   return (
-    <MainCard>
-      <Stack sx={{ gap: 1 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-          }}
-        >
-          {label}
-        </Typography>
-        <Typography variant="h2" sx={{ fontWeight: 'fontWeightMedium' }}>
-          {value}
-        </Typography>
-        {delta !== null && (
-          <Chip
-            size="small"
-            label={`${isPositive ? '↑' : '↓'} ${isPositive ? '+' : ''}${delta}% vs. last month`}
+    <Card
+      variant="outlined"
+      sx={{ height: '100%', borderColor: 'grey.300', borderRadius: 3 }}
+    >
+      <CardContent sx={{ p: 3 }}>
+        <Stack sx={{ gap: 1, alignItems: 'flex-start' }}>
+          <Typography
             sx={{
-              alignSelf: 'flex-start',
-              bgcolor: isPositive ? 'success.lighter' : 'error.lighter',
-              color: isPositive ? 'success.main' : 'error.main',
+              typography: 'body2',
+              color: 'text.secondary',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
             }}
-          />
-        )}
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {caption}
-        </Typography>
-      </Stack>
-    </MainCard>
+          >
+            {label}
+          </Typography>
+          <Typography variant="h1">{value}</Typography>
+          {delta !== null && (
+            <Stack
+              direction="row"
+              sx={{
+                alignItems: 'center',
+                gap: 0.5,
+                typography: 'body2',
+                py: 0.5,
+                px: 1.5,
+                borderRadius: 5,
+                backgroundColor: isPositive
+                  ? 'success.lighter'
+                  : 'error.lighter',
+                color: isPositive ? 'success.dark' : 'error.dark',
+              }}
+            >
+              {isPositive ? <CaretUpOutlined /> : <CaretDownOutlined />}
+              {`${isPositive ? '+' : ''}${delta}% vs. last month`}
+            </Stack>
+          )}
+          <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
+            {caption}
+          </Typography>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -176,6 +176,28 @@ You can use an Azure SQL database for development as well. It is not recommended
 1. Add your local IP to the **Security/Networking** section of the Azure SQL Server (not the database).  
 1. Test the connection by adding it to the VS Code SQL Server extension.
 
+## Demo Data
+
+A freshly bootstrapped database has no transaction rows, so the Admin Analytics page renders empty tiles and empty charts. `database/seed_demo_data.ps1` fills a local database with a year of checkout history to work against.
+
+Run it after `bootstrap_db.ps1`. It takes a few seconds.
+
+```powershell
+$env:DATABASE_CONNECTION_STRING = 'Server=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'
+.\database\seed_demo_data.ps1
+```
+
+It inserts roughly 60 residents across 12 buildings, 500 checkouts spread over the last 365 days, checkout edits, restocks and corrections. Volumes are set by the constants at the top of each section in `database/data_demo/demo_data.sql`. Re-running it clears the previous demo data first.
+
+Notes:
+
+1. It is opt-in. `bootstrap_db.ps1` does not run it, so a plain rebuild stays fast and never picks up demo data.
+1. It is local only. The runner checks the connection string and refuses anything that is not a local SQL Server instance. There is no bypass.
+1. Demo residents are named with a `[demo]` suffix, which is how the reset finds them. The residents from `data_test/resident_data.sql` are left alone.
+1. It writes to `Transactions` and `TransactionItems` directly rather than calling `ProcessCheckout`, because `LogTransaction` takes no date parameter and `transaction_date` defaults to `GETDATE()`. Driving the stored procedures would date every row today.
+1. It does not decrement `Items.quantity` to pay for the generated history. The seeded quantities are the count on hand today, not a balance carried forward.
+1. The Low Stock table needs `threshold` on the `ItemsWithCategory` view. A full `bootstrap_db.ps1` deploys that, since the view is defined in `database/tables/inventory.sql`.
+
 ## Production/Staging
 
 1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)

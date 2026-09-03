@@ -4,8 +4,15 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { Grid, LinearProgress, Stack, Typography } from '@mui/material';
-import MainCard from '../MainCard';
+import { Fragment } from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  LinearProgress,
+  Stack,
+  Typography,
+} from '@mui/material';
 
 interface RankedBarChartProps {
   title: string;
@@ -18,53 +25,68 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
   hint,
   rows,
 }) => {
-  const maxValue = Math.max(...rows.map((row) => row.value));
+  const maxValue = Math.max(...rows.map((row) => row.value), 1);
 
   return (
-    <MainCard>
-      <Stack sx={{ gap: 3 }}>
-        <Stack direction="row" sx={{ alignItems: 'center' }}>
-          <Typography variant="h5">{title}</Typography>
-          <Typography
-            variant="caption"
-            sx={{ color: 'text.secondary', marginLeft: 'auto' }}
+    <Card
+      variant="outlined"
+      sx={{ height: '100%', borderColor: 'grey.300', borderRadius: 3 }}
+    >
+      <CardContent sx={{ p: 3 }}>
+        <Stack sx={{ gap: 3 }}>
+          <Stack
+            direction="row"
+            sx={{ alignItems: 'center', justifyContent: 'space-between' }}
           >
-            {hint}
-          </Typography>
-        </Stack>
-        {rows.length === 0 ? (
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No checkouts in this range
-          </Typography>
-        ) : (
-          <Stack sx={{ gap: 2 }}>
-            {rows.map((row) => (
-              <Grid
-                container
-                key={row.label}
-                spacing={2}
-                sx={{ alignItems: 'center' }}
-              >
-                <Grid size={3}>
-                  <Typography variant="body2">{row.label}</Typography>
-                </Grid>
-                <Grid size="grow">
+            <Typography variant="h5">{title}</Typography>
+            <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
+              {hint}
+            </Typography>
+          </Stack>
+          {rows.length === 0 ? (
+            <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
+              No checkouts in this range
+            </Typography>
+          ) : (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 10rem) 1fr auto',
+                alignItems: 'center',
+                columnGap: 2,
+                rowGap: 2,
+              }}
+            >
+              {rows.map((row) => (
+                <Fragment key={row.label}>
+                  <Typography
+                    sx={{ typography: 'body2' }}
+                    noWrap
+                    title={row.label}
+                  >
+                    {row.label}
+                  </Typography>
                   <LinearProgress
                     variant="determinate"
                     value={Math.max((row.value / maxValue) * 100, 2)}
+                    sx={{ height: 10, backgroundColor: 'grey.200' }}
                   />
-                </Grid>
-                <Grid size={1}>
-                  <Typography variant="body2" sx={{ textAlign: 'right' }}>
+                  <Typography
+                    sx={{
+                      typography: 'body2',
+                      minWidth: '2.5rem',
+                      textAlign: 'right',
+                    }}
+                  >
                     {row.value}
                   </Typography>
-                </Grid>
-              </Grid>
-            ))}
-          </Stack>
-        )}
-      </Stack>
-    </MainCard>
+                </Fragment>
+              ))}
+            </Box>
+          )}
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };
 

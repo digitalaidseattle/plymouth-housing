@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Grid, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
@@ -27,7 +27,6 @@ import {
   summarizeCheckouts,
 } from '../../utils/analyticsUtils';
 import { downloadCsv } from '../../utils/csvExport';
-import { SETTINGS } from '../../types/constants';
 
 const AdminHome: React.FC = () => {
   const { user } = useContext(UserContext);
@@ -41,25 +40,25 @@ const AdminHome: React.FC = () => {
     handleDateSelection,
     handleSetCustomDateRange,
     toggleCustomDateDialog,
-  } = useDateRangeFilter('this month');
+  } = useDateRangeFilter();
   const [buildingId, setBuildingId] = useState<number | null>(null);
   const [repeatsOnly, setRepeatsOnly] = useState(false);
-  const [detailPage, setDetailPage] = useState(0);
-  const [detailRowsPerPage, setDetailRowsPerPage] = useState(
-    SETTINGS.itemsPerPage,
-  );
 
-  const { currentRows, previousRows, itemTotals, items, buildings, isLoading } =
-    useAnalyticsData({
-      user,
-      formattedDateRange,
-      buildingId,
-      onError: showSnackbar,
-    });
-
-  useEffect(() => {
-    setDetailPage(0);
-  }, [formattedDateRange, buildingId]);
+  const {
+    currentRows,
+    previousRows,
+    itemTotals,
+    items,
+    buildings,
+    isLoading,
+    lastUpdated,
+    refresh,
+  } = useAnalyticsData({
+    user,
+    formattedDateRange,
+    buildingId,
+    onError: showSnackbar,
+  });
 
   const currentSummary = useMemo(
     () =>
@@ -75,21 +74,26 @@ const AdminHome: React.FC = () => {
     formattedDateRange.endDate,
   );
   const previousSummary = useMemo(
-    () => summarizeCheckouts(previousRows, previous.startDate, previous.endDate),
+    () =>
+      summarizeCheckouts(previousRows, previous.startDate, previous.endDate),
     [previousRows, previous.startDate, previous.endDate],
   );
   const hasData = currentSummary.checkouts > 0;
 
   const itemTotalsById = useMemo(
-    () => new Map(itemTotals.map((total) => [total.item_id, total.total_quantity])),
+    () =>
+      new Map(itemTotals.map((total) => [total.item_id, total.total_quantity])),
     [itemTotals],
   );
   const lowStockRows = useMemo(() => sortLowStockItems(items), [items]);
 
   const flaggedRows = useMemo(() => flagDuplicates(currentRows), [currentRows]);
-  const detailRows = repeatsOnly
-    ? flaggedRows.filter((row) => row.isDuplicate)
-    : flaggedRows;
+  // Memoized so the detail table's page reset only fires when the rows change.
+  const detailRows = useMemo(
+    () =>
+      repeatsOnly ? flaggedRows.filter((row) => row.isDuplicate) : flaggedRows,
+    [flaggedRows, repeatsOnly],
+  );
 
   const residentsByBuilding = useMemo(
     () => countResidentsByBuilding(currentRows),
@@ -144,7 +148,7 @@ const AdminHome: React.FC = () => {
       detailRows.map((row) => [
         row.resident_name,
         row.building_code,
-        row.unit_number.trim() || '—',
+        row.unit_number.trim() || '-',
         row.total_quantity,
         formatTransactionDate(row.transaction_date),
         row.isDuplicate ? 'Yes' : '',
@@ -178,6 +182,9 @@ const AdminHome: React.FC = () => {
         buildingId={buildingId}
         onBuildingChange={handleBuildingChange}
         onExport={handleExportCsv}
+        lastUpdated={lastUpdated}
+        isRefreshing={isLoading}
+        onRefresh={refresh}
       />
 
       <Grid container spacing={3}>
@@ -207,12 +214,10 @@ const AdminHome: React.FC = () => {
               <RankedBarChart
                 title="Top 10 Items Checked Out"
                 hint="by item count"
-                rows={itemTotals
-                  .slice(0, 10)
-                  .map((item) => ({
-                    label: item.item_name,
-                    value: item.total_quantity,
-                  }))}
+                rows={itemTotals.slice(0, 10).map((item) => ({
+                  label: item.item_name,
+                  value: item.total_quantity,
+                }))}
               />
             </Grid>
             <Grid size={{ xs: 12, lg: 6 }}>
@@ -241,17 +246,7 @@ const AdminHome: React.FC = () => {
         <ResidentsDetailTable
           rows={detailRows}
           repeatsOnly={repeatsOnly}
-          onRepeatsOnlyChange={(checked) => {
-            setRepeatsOnly(checked);
-            setDetailPage(0);
-          }}
-          page={detailPage}
-          rowsPerPage={detailRowsPerPage}
-          onPageChange={setDetailPage}
-          onRowsPerPageChange={(rowsPerPage) => {
-            setDetailRowsPerPage(rowsPerPage);
-            setDetailPage(0);
-          }}
+          onRepeatsOnlyChange={setRepeatsOnly}
         />
       )}
     </Stack>

@@ -5,7 +5,13 @@
  *
  */
 import React from 'react';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -101,7 +107,7 @@ const mockItemTotals: CheckoutItemTotal[] = [
 
 // Space Heater is at/below threshold; Pillows is not, so it should be excluded
 // from the Low Stock panel. Item ids intentionally don't match mockItemTotals,
-// so the "Checked Out (This Range)" column falls back to an em dash.
+// so the "Checked Out" column falls back to a dash.
 const mockItems: InventoryItem[] = [
   {
     id: 1,
@@ -153,6 +159,8 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 describe('AdminHome Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // The page caches its fetches in session storage; each test starts cold.
+    sessionStorage.clear();
     // Same transactions are returned for both the current and previous period
     // fetches; only the current-period math is asserted here.
     vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
@@ -233,7 +241,7 @@ describe('AdminHome Component', () => {
     );
 
     const detailPanel = (
-      await screen.findByText('Residents Served — Detail')
+      await screen.findByText('Residents Served Detail')
     ).closest('.MuiCard-root') as HTMLElement;
     const aliceRows = within(detailPanel).getAllByText('Alice Resident');
     expect(aliceRows).toHaveLength(2);
@@ -253,7 +261,7 @@ describe('AdminHome Component', () => {
     );
 
     const detailPanel = (
-      await screen.findByText('Residents Served — Detail')
+      await screen.findByText('Residents Served Detail')
     ).closest('.MuiCard-root') as HTMLElement;
     expect(within(detailPanel).getByText('Bob Resident')).toBeInTheDocument();
 
@@ -277,7 +285,7 @@ describe('AdminHome Component', () => {
 
     expect(
       within(
-        (await screen.findByText('Residents Served — Detail')).closest(
+        (await screen.findByText('Residents Served Detail')).closest(
           '.MuiCard-root',
         ) as HTMLElement,
       ).getByText('Bob Resident'),
@@ -293,7 +301,7 @@ describe('AdminHome Component', () => {
     // Changing the building refetches (isLoading briefly flips), so re-query
     // the panel after the update rather than reusing the earlier node.
     const updatedDetailPanel = (
-      await screen.findByText('Residents Served — Detail')
+      await screen.findByText('Residents Served Detail')
     ).closest('.MuiCard-root') as HTMLElement;
     expect(
       await within(updatedDetailPanel).findAllByText('Alice Resident'),
@@ -303,6 +311,35 @@ describe('AdminHome Component', () => {
     ).not.toBeInTheDocument();
   });
 
+  test('serves a remount from cache and refetches when Refresh is clicked', async () => {
+    const { unmount } = render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+    await screen.findByText('Residents Served Detail');
+    const callsAfterFirstLoad = vi.mocked(historyService.getCheckoutHistory)
+      .mock.calls.length;
+    unmount();
+
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+    await screen.findByText('Residents Served Detail');
+    expect(historyService.getCheckoutHistory).toHaveBeenCalledTimes(
+      callsAfterFirstLoad,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /refresh/i }));
+    await waitFor(() =>
+      expect(
+        vi.mocked(historyService.getCheckoutHistory).mock.calls.length,
+      ).toBeGreaterThan(callsAfterFirstLoad),
+    );
+  });
+
   test('shows an enabled Export CSV button', async () => {
     render(
       <Wrapper>
@@ -310,7 +347,7 @@ describe('AdminHome Component', () => {
       </Wrapper>,
     );
 
-    await screen.findByText('Residents Served — Detail');
+    await screen.findByText('Residents Served Detail');
     const exportButton = screen.getByRole('button', { name: /export csv/i });
     expect(exportButton).toBeEnabled();
   });

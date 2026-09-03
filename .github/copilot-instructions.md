@@ -31,6 +31,7 @@ Plymouth Housing's centralized inventory management system for tracking in-kind 
 ```bash
 npx swa start        # Start Azure SWA CLI locally (browse to http://localhost:4280; proxies to Vite on :3000)
 dab start -c ./dab/dab-config.json  # Start Data API Builder (backend API)
+./database/seed_demo_data.ps1  # Fill a local DB with demo checkout history (see docs/database-setup.md)
 npm run build        # TypeScript compile + Vite build
 npm run lint         # Run ESLint
 npm test             # Run Vitest in watch mode

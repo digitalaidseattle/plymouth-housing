@@ -127,3 +127,9 @@ export const formatTransactionDate = (isoDate: string): string =>
     day: 'numeric',
     year: 'numeric',
   });
+
+export const formatLastUpdated = (timestamp: number): string =>
+  new Date(timestamp).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+  });

@@ -62,6 +62,7 @@ export const SETTINGS = {
   slow_request_threshold: 1000,
   inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
   cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
+  analytics_cache_ttl: 60 * 60 * 1000, // 1 hour in milliseconds
 };
 
 export const USER_ROLES = {

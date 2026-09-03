@@ -69,7 +69,10 @@ export function useAnalyticsData({
         if (previousResult.status === 'fulfilled') {
           setPreviousRowsRaw(previousResult.value);
         } else {
-          onError('Error fetching checkout history: ' + previousResult.reason);
+          onError(
+            'Error fetching the previous period for comparison: ' +
+              previousResult.reason,
+          );
         }
         if (itemTotalsResult.status === 'fulfilled') {
           setItemTotals(itemTotalsResult.value);

@@ -41,7 +41,7 @@ const StatTile: React.FC<StatTileProps> = ({
         {delta !== null && (
           <Chip
             size="small"
-            label={`${isPositive ? '^' : 'v'} ${isPositive ? '+' : ''}${delta}% vs. last month`}
+            label={`${isPositive ? '↑' : '↓'} ${isPositive ? '+' : ''}${delta}% vs. last month`}
             sx={{
               alignSelf: 'flex-start',
               bgcolor: isPositive ? 'success.lighter' : 'error.lighter',

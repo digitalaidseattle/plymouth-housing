@@ -1,3 +1,9 @@
+/**
+ *  analyticsUtils.test.ts
+ *
+ *  @copyright 2026 Digital Aid Seattle
+ *
+ */
 import { describe, test, expect } from 'vitest';
 import {
   summarizeCheckouts,

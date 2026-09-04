@@ -451,4 +451,122 @@ describe('AdminHome Component', () => {
       }),
     ).toBeInTheDocument();
   });
+
+  test('lists a never-checked-out item in Least Checked Out Items but not in Top 10 Items Checked Out', async () => {
+    // In the catalog but absent from the totals, so it never moved in this range.
+    vi.spyOn(itemsService, 'getItems').mockResolvedValue([
+      ...mockItems,
+      {
+        id: 3,
+        name: 'Unused Umbrella',
+        type: 'General',
+        description: '',
+        quantity: 20,
+        threshold: 5,
+        category: 'Miscellaneous',
+        status: 'In Stock',
+      },
+    ]);
+    vi.spyOn(analyticsService, 'getCheckoutItemTotals').mockResolvedValue([
+      {
+        item_id: 1,
+        item_name: 'Space Heater',
+        total_quantity: 12,
+        checkout_count: 4,
+      },
+      {
+        item_id: 2,
+        item_name: 'Pillows',
+        total_quantity: 8,
+        checkout_count: 3,
+      },
+    ]);
+
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    const leastPanel = (
+      await screen.findByText('Least Checked Out Items')
+    ).closest('.MuiCard-root') as HTMLElement;
+    expect(within(leastPanel).getByText('Unused Umbrella')).toBeInTheDocument();
+
+    const topPanel = screen
+      .getByText('Top 10 Items Checked Out')
+      .closest('.MuiCard-root') as HTMLElement;
+    expect(
+      within(topPanel).queryByText('Unused Umbrella'),
+    ).not.toBeInTheDocument();
+  });
+
+  test('empties Top 10 Items Checked Out but still lists the catalog as least checked out when nothing moved', async () => {
+    vi.spyOn(analyticsService, 'getCheckoutItemTotals').mockResolvedValue([]);
+
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    const topPanel = (
+      await screen.findByText('Top 10 Items Checked Out')
+    ).closest('.MuiCard-root') as HTMLElement;
+    expect(
+      within(topPanel).getByText('No checkouts in this range'),
+    ).toBeInTheDocument();
+
+    const leastPanel = screen
+      .getByText('Least Checked Out Items')
+      .closest('.MuiCard-root') as HTMLElement;
+    expect(within(leastPanel).getByText('Space Heater')).toBeInTheDocument();
+    expect(within(leastPanel).getByText('Pillows')).toBeInTheDocument();
+    expect(
+      within(topPanel).queryByText('Winter Coats'),
+    ).not.toBeInTheDocument();
+  });
+
+  test('detail table shows the per-resident visit count in the # Visits column', async () => {
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    const detailPanel = await findDetailPanel();
+    const aliceRows = within(detailPanel).getAllByText('Alice Resident');
+    aliceRows.forEach((nameEl) => {
+      const row = nameEl.closest('tr') as HTMLElement;
+      const cells = within(row).getAllByRole('cell');
+      // Resident, Building, Unit, # Visits, # Items, Transaction Date
+      expect(cells[3]).toHaveTextContent('2');
+    });
+
+    const bobRow = within(detailPanel)
+      .getByText('Bob Resident')
+      .closest('tr') as HTMLElement;
+    const bobCells = within(bobRow).getAllByRole('cell');
+    expect(bobCells[3]).toHaveTextContent('1');
+  });
+
+  test('shows the per-building visit count as a caption distinct from the unique-resident bar value', async () => {
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    const buildingsPanel = (
+      await screen.findByText('Residents Served by Building')
+    ).closest('.MuiCard-root') as HTMLElement;
+
+    const captionEl = await within(buildingsPanel).findByText('2 visits');
+    const labelBox = captionEl.parentElement as HTMLElement;
+    expect(within(labelBox).getByText('A')).toBeInTheDocument();
+
+    const barValueEl = labelBox.nextElementSibling
+      ?.nextElementSibling as HTMLElement;
+    expect(barValueEl).toHaveTextContent('1');
+  });
 });

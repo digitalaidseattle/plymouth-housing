@@ -59,19 +59,23 @@ export const residentKey = (name: string): string => {
   return parts.length === 1 ? surname : `${parts[0][0]} ${surname}`;
 };
 
+// Keyed per building, so a shared surname and initial across two buildings is two people.
 export const flagDuplicates = (
   transactions: CheckoutTransaction[],
-): (CheckoutTransaction & { isDuplicate: boolean })[] => {
+): (CheckoutTransaction & { isDuplicate: boolean; visitCount: number })[] => {
   const counts = new Map<string, number>();
   transactions.forEach((t) => {
     const key = residentKey(t.resident_name);
-    if (key) counts.set(key, (counts.get(key) ?? 0) + 1);
+    if (!key) return;
+    const buildingKey = `${key}|${t.building_id}`;
+    counts.set(buildingKey, (counts.get(buildingKey) ?? 0) + 1);
   });
 
-  return transactions.map((t) => ({
-    ...t,
-    isDuplicate: (counts.get(residentKey(t.resident_name)) ?? 0) > 1,
-  }));
+  return transactions.map((t) => {
+    const key = residentKey(t.resident_name);
+    const visitCount = key ? (counts.get(`${key}|${t.building_id}`) ?? 0) : 0;
+    return { ...t, isDuplicate: visitCount > 1, visitCount };
+  });
 };
 
 export const countResidentsByBuilding = (
@@ -80,24 +84,28 @@ export const countResidentsByBuilding = (
   building_code: string;
   building_name: string;
   residentCount: number;
+  visitCount: number;
 }[] => {
   const buildings = new Map<
     string,
-    { building_name: string; residents: Set<number> }
+    { building_name: string; residents: Set<number>; visitCount: number }
   >();
   transactions.forEach((t) => {
     const building = buildings.get(t.building_code) ?? {
       building_name: t.building_name,
       residents: new Set<number>(),
+      visitCount: 0,
     };
     building.residents.add(t.resident_id);
+    building.visitCount += 1;
     buildings.set(t.building_code, building);
   });
   return Array.from(buildings.entries())
-    .map(([building_code, { building_name, residents }]) => ({
+    .map(([building_code, { building_name, residents, visitCount }]) => ({
       building_code,
       building_name,
       residentCount: residents.size,
+      visitCount,
     }))
     .sort((a, b) => b.residentCount - a.residentCount);
 };
@@ -145,8 +153,9 @@ export const sortLowStockItems = (items: InventoryItem[]): InventoryItem[] =>
   items
     .filter((item) => item.quantity <= item.threshold)
     .sort((a, b) => {
-      if (a.status === 'Out of Stock' && b.status !== 'Out of Stock') return -1;
-      if (b.status === 'Out of Stock' && a.status !== 'Out of Stock') return 1;
+      // Sign orders it: negative stock, then zero, then the rest.
+      const signDiff = Math.sign(a.quantity) - Math.sign(b.quantity);
+      if (signDiff !== 0) return signDiff;
       const deltaDiff = a.quantity - a.threshold - (b.quantity - b.threshold);
       return deltaDiff !== 0 ? deltaDiff : a.name.localeCompare(b.name);
     });

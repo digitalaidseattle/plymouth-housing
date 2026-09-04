@@ -12,7 +12,7 @@ interface RankedBarChartProps {
   title: string;
   hint: string;
   emptyMessage: string;
-  rows: { label: string; value: number }[];
+  rows: { label: string; caption?: string; value: number }[];
 }
 
 const RankedBarChart: React.FC<RankedBarChartProps> = ({
@@ -51,13 +51,23 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
           >
             {rows.map((row) => (
               <Fragment key={row.label}>
-                <Typography
-                  sx={{ typography: 'body2' }}
-                  noWrap
-                  title={row.label}
-                >
-                  {row.label}
-                </Typography>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography
+                    sx={{ typography: 'body2' }}
+                    noWrap
+                    title={row.label}
+                  >
+                    {row.label}
+                  </Typography>
+                  {row.caption && (
+                    <Typography
+                      sx={{ typography: 'caption', color: 'text.secondary' }}
+                      noWrap
+                    >
+                      {row.caption}
+                    </Typography>
+                  )}
+                </Box>
                 <LinearProgress
                   variant="determinate"
                   value={Math.max((row.value / maxValue) * 100, 2)}

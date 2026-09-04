@@ -194,7 +194,11 @@ export function useAnalyticsData({
     previousInventoryAdds: range.data.previousInventoryAdds,
     items: items.data,
     buildings: buildings.data,
-    isLoading: range.isLoading || itemTotals.isLoading,
+    isLoading:
+      range.isLoading ||
+      itemTotals.isLoading ||
+      items.isLoading ||
+      buildings.isLoading,
     lastUpdated,
     refresh,
   };

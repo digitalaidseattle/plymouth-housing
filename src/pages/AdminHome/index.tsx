@@ -108,6 +108,27 @@ const AdminHome: React.FC = () => {
     [inventoryAdds],
   );
 
+  // Every item with its checkouts for the range, so items that never moved still appear.
+  const itemUsage = useMemo(
+    () =>
+      items
+        .map((item) => ({
+          item_name: item.name,
+          total_quantity: itemTotalsById.get(item.id) ?? 0,
+        }))
+        .sort(
+          (a, b) =>
+            b.total_quantity - a.total_quantity ||
+            a.item_name.localeCompare(b.item_name),
+        ),
+    [items, itemTotalsById],
+  );
+
+  const leastCheckedOutItems = useMemo(
+    () => itemUsage.slice(-10).reverse(),
+    [itemUsage],
+  );
+
   const itemsAdded = useMemo(
     () => sumItemsAdded(inventoryAdds),
     [inventoryAdds],
@@ -197,18 +218,17 @@ const AdminHome: React.FC = () => {
       },
       {
         title: 'Residents Served by Building',
-        headers: ['Building', 'Residents'],
+        headers: ['Building', 'Residents', 'Visits'],
         rows: residentsByBuilding.map((building) => [
           building.building_code,
           building.residentCount,
+          building.visitCount,
         ]),
       },
       {
-        title: 'Top 10 Items Checked Out',
+        title: 'Items Checked Out',
         headers: ['Item', 'Quantity'],
-        rows: itemTotals
-          .slice(0, 10)
-          .map((item) => [item.item_name, item.total_quantity]),
+        rows: itemUsage.map((item) => [item.item_name, item.total_quantity]),
       },
       {
         title: 'Top 10 Inventory Items Added',
@@ -224,6 +244,7 @@ const AdminHome: React.FC = () => {
           'Resident',
           'Building',
           'Unit',
+          '# Visits',
           '# Items',
           'Transaction Date',
           'Repeat',
@@ -232,6 +253,7 @@ const AdminHome: React.FC = () => {
           row.resident_name,
           row.building_code,
           row.unit_number.trim() || '-',
+          row.visitCount,
           row.total_quantity,
           formatTransactionDate(row.transaction_date),
           row.isDuplicate ? 'Yes' : '',
@@ -322,25 +344,26 @@ const AdminHome: React.FC = () => {
 
       <Grid container spacing={3}>
         {isLoading ? (
-          [0, 1, 2].map((key) => (
-            <Grid size={{ xs: 12, lg: 4 }} key={key}>
+          [0, 1, 2, 3].map((key) => (
+            <Grid size={{ xs: 12, md: 6 }} key={key}>
               <Skeleton variant="rounded" height={280} />
             </Grid>
           ))
         ) : (
           <>
-            <Grid size={{ xs: 12, lg: 4 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <RankedBarChart
                 title="Residents Served by Building"
                 hint="unique residents"
                 emptyMessage="No checkouts in this range"
                 rows={residentsByBuilding.map((building) => ({
                   label: building.building_code,
+                  caption: `${building.visitCount} visits`,
                   value: building.residentCount,
                 }))}
               />
             </Grid>
-            <Grid size={{ xs: 12, lg: 4 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <RankedBarChart
                 title="Top 10 Items Checked Out"
                 hint="by item count"
@@ -351,12 +374,23 @@ const AdminHome: React.FC = () => {
                 }))}
               />
             </Grid>
-            <Grid size={{ xs: 12, lg: 4 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <RankedBarChart
                 title="Top 10 Inventory Items Added"
                 hint="by quantity"
                 emptyMessage="No inventory added in this range"
                 rows={topInventoryAdded.map((item) => ({
+                  label: item.item_name,
+                  value: item.total_quantity,
+                }))}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <RankedBarChart
+                title="Least Checked Out Items"
+                hint="0 = never checked out"
+                emptyMessage="No items to show"
+                rows={leastCheckedOutItems.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,
                 }))}

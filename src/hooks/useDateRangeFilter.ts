@@ -25,7 +25,7 @@ function dateRangeForPreset(preset: SelectablePreset): DateRange {
   }
   if (preset === 'this week') {
     const lastWeekDate = new Date();
-    lastWeekDate.setDate(todaysDate.getDate() - 7);
+    lastWeekDate.setDate(todaysDate.getDate() - 6);
     return { startDate: lastWeekDate, endDate: todaysDate };
   }
   if (preset === 'this month') {
@@ -35,6 +35,15 @@ function dateRangeForPreset(preset: SelectablePreset): DateRange {
       1,
     );
     return { startDate: firstOfMonth, endDate: todaysDate };
+  }
+  if (preset === 'this year') {
+    const firstOfYear = new Date(todaysDate.getFullYear(), 0, 1);
+    return { startDate: firstOfYear, endDate: todaysDate };
+  }
+  if (preset === 'last year') {
+    const firstOfLastYear = new Date(todaysDate.getFullYear() - 1, 0, 1);
+    const lastOfLastYear = new Date(todaysDate.getFullYear() - 1, 11, 31);
+    return { startDate: firstOfLastYear, endDate: lastOfLastYear };
   }
   return { startDate: todaysDate, endDate: todaysDate };
 }

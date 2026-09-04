@@ -131,6 +131,8 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
             }}
             sx={{ ...historySelectSx, width: '10rem' }}
           >
+            <MenuItem value="this year">This Year</MenuItem>
+            <MenuItem value="last year">Last Year</MenuItem>
             <MenuItem value="this month">This Month</MenuItem>
             <MenuItem value="this week">This Week</MenuItem>
             <MenuItem value="today">Today</MenuItem>

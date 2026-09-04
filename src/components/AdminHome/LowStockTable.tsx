@@ -27,6 +27,12 @@ interface LowStockTableProps {
 
 const headerSx = { fontWeight: 'bold', whiteSpace: 'nowrap' };
 
+const statusChipSx: Record<string, { backgroundColor: string; color: string }> = {
+  'Needs Review': { backgroundColor: 'error.main', color: 'common.white' },
+  'Out of Stock': { backgroundColor: 'error.lighter', color: 'error.dark' },
+  'Low Stock': { backgroundColor: 'warning.light', color: 'warning.darker' },
+};
+
 const LowStockTable: React.FC<LowStockTableProps> = ({
   rows,
   checkedOutById,
@@ -78,14 +84,7 @@ const LowStockTable: React.FC<LowStockTableProps> = ({
                     sx={{
                       height: 'auto',
                       borderRadius: 2,
-                      backgroundColor:
-                        item.status === 'Out of Stock'
-                          ? 'error.lighter'
-                          : 'warning.light',
-                      color:
-                        item.status === 'Out of Stock'
-                          ? 'error.dark'
-                          : 'warning.darker',
+                      ...(statusChipSx[item.status] ?? statusChipSx['Low Stock']),
                       '& .MuiChip-label': { px: 1, py: 0.5 },
                     }}
                   />

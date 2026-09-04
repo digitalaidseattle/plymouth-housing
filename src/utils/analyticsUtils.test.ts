@@ -214,6 +214,36 @@ describe('flagDuplicates', () => {
     const result = flagDuplicates(transactions);
     expect(result.map((t) => t.transaction_id)).toEqual(['txn-1', 'txn-2']);
   });
+
+  test('does not flag the same normalized name across different buildings', () => {
+    const transactions = [
+      makeTransaction({
+        transaction_id: 'txn-1',
+        building_id: 1,
+        resident_id: 10,
+        resident_name: 'John Doe',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        building_id: 2,
+        resident_id: 11,
+        resident_name: 'John Doe',
+      }),
+    ];
+    const result = flagDuplicates(transactions);
+    expect(result.map((t) => t.isDuplicate)).toEqual([false, false]);
+    expect(result.map((t) => t.visitCount)).toEqual([1, 1]);
+  });
+
+  test('counts visits for a resident with 3 transactions in one building', () => {
+    const transactions = [
+      makeTransaction({ transaction_id: 'txn-1', building_id: 1, resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-2', building_id: 1, resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-3', building_id: 1, resident_id: 10 }),
+    ];
+    const result = flagDuplicates(transactions);
+    expect(result.map((t) => t.visitCount)).toEqual([3, 3, 3]);
+  });
 });
 
 describe('residentKey', () => {
@@ -276,8 +306,42 @@ describe('countResidentsByBuilding', () => {
     ];
     const result = countResidentsByBuilding(transactions);
     expect(result).toEqual([
-      { building_code: 'A', building_name: 'Building A', residentCount: 2 },
-      { building_code: 'B', building_name: 'Building B', residentCount: 1 },
+      {
+        building_code: 'A',
+        building_name: 'Building A',
+        residentCount: 2,
+        visitCount: 3,
+      },
+      {
+        building_code: 'B',
+        building_name: 'Building B',
+        residentCount: 1,
+        visitCount: 1,
+      },
+    ]);
+  });
+
+  test('reports visitCount separately from residentCount for a repeat visitor', () => {
+    const transactions = [
+      makeTransaction({
+        building_code: 'A',
+        building_name: 'Building A',
+        resident_id: 10,
+      }),
+      makeTransaction({
+        building_code: 'A',
+        building_name: 'Building A',
+        resident_id: 10,
+      }),
+    ];
+    const result = countResidentsByBuilding(transactions);
+    expect(result).toEqual([
+      {
+        building_code: 'A',
+        building_name: 'Building A',
+        residentCount: 1,
+        visitCount: 2,
+      },
     ]);
   });
 });
@@ -411,6 +475,26 @@ describe('sortLowStockItems', () => {
         quantity: 0,
         threshold: 5,
         status: 'Out of Stock',
+      }),
+    ];
+    expect(sortLowStockItems(items).map((item) => item.id)).toEqual([2, 1]);
+  });
+
+  test('sorts Needs Review items before Out of Stock items', () => {
+    const items = [
+      makeItem({
+        id: 1,
+        name: 'A',
+        quantity: 0,
+        threshold: 5,
+        status: 'Out of Stock',
+      }),
+      makeItem({
+        id: 2,
+        name: 'B',
+        quantity: -2,
+        threshold: 5,
+        status: 'Needs Review',
       }),
     ];
     expect(sortLowStockItems(items).map((item) => item.id)).toEqual([2, 1]);

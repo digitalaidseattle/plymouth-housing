@@ -24,7 +24,7 @@ import PanelCard from './PanelCard';
 import TablePaginationBar from './TablePaginationBar';
 
 interface ResidentsDetailTableProps {
-  rows: (CheckoutTransaction & { isDuplicate: boolean })[];
+  rows: (CheckoutTransaction & { isDuplicate: boolean; visitCount: number })[];
   repeatsOnly: boolean;
   onRepeatsOnlyChange: (checked: boolean) => void;
 }
@@ -70,6 +70,9 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
               <TableCell sx={headerSx}>Building</TableCell>
               <TableCell sx={headerSx}>Unit</TableCell>
               <TableCell sx={headerSx} align="right">
+                # Visits
+              </TableCell>
+              <TableCell sx={headerSx} align="right">
                 # Items
               </TableCell>
               <TableCell sx={headerSx}>Transaction Date</TableCell>
@@ -110,6 +113,7 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
                 </TableCell>
                 <TableCell>{row.building_code}</TableCell>
                 <TableCell>{row.unit_number.trim() || '-'}</TableCell>
+                <TableCell align="right">{row.visitCount}</TableCell>
                 <TableCell align="right">{row.total_quantity}</TableCell>
                 <TableCell>
                   {formatTransactionDate(row.transaction_date)}
@@ -118,7 +122,7 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
             ))}
             {paginatedRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={6} align="center">
                   No checkouts in this range
                 </TableCell>
               </TableRow>

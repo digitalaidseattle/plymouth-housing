@@ -60,7 +60,9 @@ export const SETTINGS = {
   database_retry_attempts: 20,
   database_retry_delay: 5000,
   slow_request_threshold: 1000,
-  inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
+  inactivity_timeout: import.meta.env.DEV
+    ? 8 * 60 * 60 * 1000 // 8 hours in milliseconds
+    : 15 * 60 * 1000, // 15 minutes in milliseconds
   cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
   analytics_cache_ttl: 60 * 60 * 1000, // 1 hour in milliseconds
 };

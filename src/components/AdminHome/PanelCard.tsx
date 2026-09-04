@@ -8,7 +8,6 @@ import { Card, CardContent } from '@mui/material';
 
 interface PanelCardProps {
   children: React.ReactNode;
-  // Stretches a tile to match the tallest in its Grid row.
   fullHeight?: boolean;
 }
 

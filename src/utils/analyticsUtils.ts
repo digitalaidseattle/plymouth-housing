@@ -46,8 +46,8 @@ export const summarizeCheckouts = (
   };
 };
 
-// First initial plus surname, so "John O'Brien-Doe" and "Jon OBrien Doe" both
-// key to "j doe". Two residents sharing a surname and an initial count as one.
+// "John O'Brien-Doe" and "Jon OBrien Doe" both key to "j doe". Two residents
+// sharing a surname and an initial count as one.
 export const residentKey = (name: string): string => {
   const parts = name
     .toLowerCase()

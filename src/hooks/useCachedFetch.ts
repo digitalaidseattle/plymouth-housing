@@ -15,16 +15,14 @@ interface Entry<T> {
 
 interface CachedFetchOptions<T> {
   cacheKey: string;
-  // Everything the fetcher reads, as one string. A change refetches, and a
-  // cached entry only answers for the variant it was filled with. This is the
-  // only trigger, so anything the fetcher depends on has to appear here.
+  // Everything the fetcher reads. The only refetch trigger, so anything the
+  // fetcher depends on has to appear here.
   variant: string;
   ttl: number;
   initial: T;
   fetcher: () => Promise<T>;
   errorLabel: string;
   onError: (message: string) => void;
-  // Incremented by the caller's Refresh button.
   reloadToken: number;
 }
 
@@ -42,9 +40,7 @@ export function useCachedFetch<T>({
   const [fetchedAt, setFetchedAt] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Held in a ref so the fetch effect depends only on primitives. Callers can
-  // pass plain inline arrows without their changing identity refetching every
-  // render, and `variant` stays the single trigger.
+  // Ref'd so the effect depends only on primitives and inline arrows are safe.
   const latest = useRef({ fetcher, onError, initial });
   useLayoutEffect(() => {
     latest.current = { fetcher, onError, initial };
@@ -73,8 +69,7 @@ export function useCachedFetch<T>({
       })
       .catch((error) => {
         if (!mounted) return;
-        // Cleared rather than left alone, so the page never shows one range's
-        // numbers under another range's heading.
+        // Cleared, so one range's numbers never sit under another's heading.
         setData(latest.current.initial);
         setFetchedAt(null);
         latest.current.onError(`${errorLabel}: ${message(error)}`);
@@ -94,7 +89,7 @@ export function useCachedFetch<T>({
 const message = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
-// Names the failing request, so one rejection out of several still says which.
+// Names the failing request when several are awaited together.
 export const labelled = <T>(label: string, request: Promise<T>): Promise<T> =>
   request.catch((error) => {
     throw new Error(`${label} (${message(error)})`);

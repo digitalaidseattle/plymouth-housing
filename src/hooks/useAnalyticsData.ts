@@ -27,9 +27,7 @@ import { cacheRemove } from '../utils/sessionCache';
 import { useCachedFetch, labelled } from './useCachedFetch';
 import { SETTINGS } from '../types/constants';
 
-// Four slots, so changing the building only refetches the item totals: the
-// checkout and inventory rows depend on the range alone and are filtered by
-// building in the browser.
+// Separate slots, so a building change only refetches the item totals.
 const CACHE_KEYS = {
   range: 'analyticsRange',
   itemTotals: 'analyticsItemTotals',
@@ -46,23 +44,17 @@ interface RangeData {
   previousInventoryAdds: InventoryTransaction[];
 }
 
-// Stable identities, so an empty result never looks like a new one.
 const NO_RANGE_DATA: RangeData = {
   currentRows: [],
   previousRows: [],
   inventoryAdds: [],
   previousInventoryAdds: [],
 };
-const NO_ITEM_TOTALS: CheckoutItemTotal[] = [];
-const NO_ITEMS: InventoryItem[] = [];
-const NO_BUILDINGS: Building[] = [];
 
-// Inventory history covers adds and value corrections; only adds are stock in.
+// Inventory history also carries value corrections; only adds are stock in.
 const onlyAdds = (rows: InventoryTransaction[]): InventoryTransaction[] =>
   rows.filter((t) => t.transaction_type === TransactionType.InventoryAdd);
 
-// The checkout and inventory rows for the selected range and the window it is
-// compared against. One failure fails the set, so the four never disagree.
 const fetchRangeData = async (
   user: ClientPrincipal | null,
   current: DateRangeStrings,
@@ -112,7 +104,6 @@ export function useAnalyticsData({
   const { startDate, endDate } = formattedDateRange;
   const userId = user?.userId ?? 'anonymous';
 
-  // The equal-length window immediately before the selected range.
   const previousRange = useMemo(
     () => previousPeriod(startDate, endDate),
     [startDate, endDate],
@@ -139,7 +130,7 @@ export function useAnalyticsData({
     cacheKey: CACHE_KEYS.itemTotals,
     variant: `${userId}|${startDate}|${endDate}|${buildingId ?? 'all'}`,
     ttl: TTL,
-    initial: NO_ITEM_TOTALS,
+    initial: [] as CheckoutItemTotal[],
     fetcher: () => getCheckoutItemTotals(user, startDate, endDate, buildingId),
     errorLabel: 'Error fetching checkout item totals',
     onError,
@@ -151,7 +142,7 @@ export function useAnalyticsData({
     cacheKey: CACHE_KEYS.items,
     variant: userId,
     ttl: TTL,
-    initial: NO_ITEMS,
+    initial: [] as InventoryItem[],
     fetcher: () => getItems(user),
     errorLabel: 'Error fetching items',
     onError,
@@ -162,7 +153,7 @@ export function useAnalyticsData({
     cacheKey: CACHE_KEYS.buildings,
     variant: userId,
     ttl: TTL,
-    initial: NO_BUILDINGS,
+    initial: [] as Building[],
     fetcher: () => getBuildings(user),
     errorLabel: 'Error fetching buildings',
     onError,
@@ -186,7 +177,7 @@ export function useAnalyticsData({
     [allPreviousRows, buildingId],
   );
 
-  // The oldest fetch, so the label never claims data is newer than it is.
+  // Oldest, not newest, so the label never overstates freshness.
   const lastUpdated = useMemo(() => {
     const stamps = [range.fetchedAt, items.fetchedAt].filter(
       (stamp): stamp is number => stamp !== null,

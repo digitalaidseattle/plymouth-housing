@@ -32,7 +32,6 @@ export interface CsvSection {
   rows: CsvValue[][];
 }
 
-// One sheet, several labelled blocks separated by a blank line.
 export const toCsvSections = (sections: CsvSection[]): string =>
   sections
     .map(

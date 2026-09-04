@@ -11,8 +11,7 @@ import PanelCard from './PanelCard';
 interface StatTileProps {
   label: string;
   value: string;
-  // Muted qualifier beside the headline, e.g. "2.1 / day".
-  valueSuffix?: string;
+  valueSuffix?: string; // e.g. "2.1 / day"
   delta?: number | null;
   caption: string;
 }

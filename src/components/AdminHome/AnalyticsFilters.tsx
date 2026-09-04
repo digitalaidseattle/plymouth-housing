@@ -50,7 +50,7 @@ const historySelectSx = {
 // Tablet (sm–md) shows the icon only; the label returns on phone and desktop.
 const actionLabelSx = { display: { xs: 'inline', sm: 'none', lg: 'inline' } };
 
-// 44px keeps the icon-only tablet state a comfortable touch target.
+// 44px keeps the icon-only tablet state a usable touch target.
 const actionButtonSx = {
   whiteSpace: 'nowrap',
   color: 'common.black',

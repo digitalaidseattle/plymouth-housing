@@ -42,9 +42,7 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
   onRepeatsOnlyChange,
 }) => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(
-    SETTINGS.itemsPerPage,
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(SETTINGS.itemsPerPage);
 
   useEffect(() => {
     setPage(0);
@@ -68,21 +66,16 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
             mb: 2,
           }}
         >
-          <Typography variant="h5">Residents Served Detail</Typography>
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={repeatsOnly}
-                  onChange={(_, checked) => onRepeatsOnlyChange(checked)}
-                />
-              }
-              label="Repeats only"
-            />
-            <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
-              duplicate residents highlighted
-            </Typography>
-          </Stack>
+          <Typography variant="h5">Residents Served</Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={repeatsOnly}
+                onChange={(_, checked) => onRepeatsOnlyChange(checked)}
+              />
+            }
+            label="Repeats only"
+          />
         </Stack>
         <TableContainer sx={{ overflowX: 'auto' }}>
           <Table sx={{ minWidth: 650 }}>

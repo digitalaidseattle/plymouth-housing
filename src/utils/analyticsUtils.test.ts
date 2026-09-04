@@ -8,13 +8,22 @@ import { describe, test, expect } from 'vitest';
 import {
   summarizeCheckouts,
   flagDuplicates,
+  namesLikelyMatch,
   countResidentsByBuilding,
   percentChange,
   previousPeriod,
   sortLowStockItems,
+  sumItemsAdded,
+  topItemsAdded,
+  formatSignedTotal,
   formatTransactionDate,
 } from './analyticsUtils';
-import { CheckoutTransaction, InventoryItem } from '../types/interfaces';
+import {
+  CheckoutTransaction,
+  InventoryItem,
+  InventoryTransaction,
+  TransactionType,
+} from '../types/interfaces';
 
 const baseTransaction: CheckoutTransaction = {
   building_id: 1,
@@ -75,6 +84,7 @@ describe('summarizeCheckouts', () => {
       checkouts: 0,
       itemsCheckedOut: 0,
       avgCheckoutsPerDay: 0,
+      rangeDays: 1,
     });
   });
 
@@ -118,14 +128,23 @@ describe('summarizeCheckouts', () => {
     const { startDate, endDate } = localDateRange([2025, 0, 1], [2025, 0, 4]);
     const result = summarizeCheckouts(transactions, startDate, endDate);
     expect(result.avgCheckoutsPerDay).toBe(0.5);
+    expect(result.rangeDays).toBe(4);
   });
 });
 
 describe('flagDuplicates', () => {
   test('flags no duplicates when each resident appears once', () => {
     const transactions = [
-      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-2', resident_id: 20 }),
+      makeTransaction({
+        transaction_id: 'txn-1',
+        resident_id: 10,
+        resident_name: 'Alice Johnson',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        resident_id: 20,
+        resident_name: 'Bob Williams',
+      }),
     ];
     const result = flagDuplicates(transactions);
     expect(result.map((t) => t.isDuplicate)).toEqual([false, false]);
@@ -141,13 +160,74 @@ describe('flagDuplicates', () => {
     expect(result.map((t) => t.isDuplicate)).toEqual([true, true, true]);
   });
 
+  test('flags near-identical names as the same resident', () => {
+    const transactions = [
+      makeTransaction({
+        transaction_id: 'txn-1',
+        resident_id: 10,
+        resident_name: 'John Doe',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        resident_id: 11,
+        resident_name: 'Jon Doe',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-3',
+        resident_id: 12,
+        resident_name: 'Marcus Green',
+      }),
+    ];
+    const result = flagDuplicates(transactions);
+    expect(result.map((t) => t.isDuplicate)).toEqual([true, true, false]);
+  });
+
+  test('ignores casing and punctuation differences', () => {
+    const transactions = [
+      makeTransaction({
+        transaction_id: 'txn-1',
+        resident_id: 10,
+        resident_name: "Mary O'Brien",
+      }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        resident_id: 11,
+        resident_name: 'mary obrien',
+      }),
+    ];
+    const result = flagDuplicates(transactions);
+    expect(result.map((t) => t.isDuplicate)).toEqual([true, true]);
+  });
+
   test('preserves the original order', () => {
     const transactions = [
-      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-2', resident_id: 20 }),
+      makeTransaction({
+        transaction_id: 'txn-1',
+        resident_id: 10,
+        resident_name: 'Alice Johnson',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        resident_id: 20,
+        resident_name: 'Bob Williams',
+      }),
     ];
     const result = flagDuplicates(transactions);
     expect(result.map((t) => t.transaction_id)).toEqual(['txn-1', 'txn-2']);
+  });
+});
+
+describe('namesLikelyMatch', () => {
+  test('matches a one-character typo in a long-enough name', () => {
+    expect(namesLikelyMatch('John Doe', 'Jon Doe')).toBe(true);
+  });
+
+  test('does not match clearly different names', () => {
+    expect(namesLikelyMatch('John Doe', 'Jane Roe')).toBe(false);
+  });
+
+  test('does not fuzzy-match very short names', () => {
+    expect(namesLikelyMatch('Al', 'Ed')).toBe(false);
   });
 });
 
@@ -184,6 +264,77 @@ describe('countResidentsByBuilding', () => {
       { building_code: 'A', building_name: 'Building A', residentCount: 2 },
       { building_code: 'B', building_name: 'Building B', residentCount: 1 },
     ]);
+  });
+});
+
+describe('topItemsAdded', () => {
+  const makeAdd = (
+    overrides: Partial<InventoryTransaction>,
+  ): InventoryTransaction => ({
+    transaction_id: 'inv-1',
+    user_id: 1,
+    transaction_type: TransactionType.InventoryAdd,
+    transaction_date: '2026-01-01T00:00:00Z',
+    item_name: 'Item A',
+    category_name: 'Category A',
+    quantity: 1,
+    ...overrides,
+  });
+
+  test('sums quantity per item and ranks highest first', () => {
+    const result = topItemsAdded(
+      [
+        makeAdd({ transaction_id: 'a', item_name: 'Soap', quantity: 5 }),
+        makeAdd({ transaction_id: 'b', item_name: 'Towels', quantity: 12 }),
+        makeAdd({ transaction_id: 'c', item_name: 'Soap', quantity: 3 }),
+      ],
+      10,
+    );
+    expect(result).toEqual([
+      { item_name: 'Towels', total_quantity: 12 },
+      { item_name: 'Soap', total_quantity: 8 },
+    ]);
+  });
+
+  test('caps the list at the given limit', () => {
+    const result = topItemsAdded(
+      [
+        makeAdd({ transaction_id: 'a', item_name: 'A', quantity: 3 }),
+        makeAdd({ transaction_id: 'b', item_name: 'B', quantity: 2 }),
+        makeAdd({ transaction_id: 'c', item_name: 'C', quantity: 1 }),
+      ],
+      2,
+    );
+    expect(result.map((r) => r.item_name)).toEqual(['A', 'B']);
+  });
+});
+
+describe('sumItemsAdded', () => {
+  const makeAdd = (
+    overrides: Partial<InventoryTransaction>,
+  ): InventoryTransaction => ({
+    transaction_id: 'inv-1',
+    user_id: 1,
+    transaction_type: TransactionType.InventoryAdd,
+    transaction_date: '2026-01-01T00:00:00Z',
+    item_name: 'Item A',
+    category_name: 'Category A',
+    quantity: 1,
+    ...overrides,
+  });
+
+  test('totals the quantity across every transaction', () => {
+    expect(
+      sumItemsAdded([
+        makeAdd({ transaction_id: 'a', quantity: 5 }),
+        makeAdd({ transaction_id: 'b', quantity: 12 }),
+        makeAdd({ transaction_id: 'c', quantity: 3 }),
+      ]),
+    ).toBe(20);
+  });
+
+  test('returns 0 for an empty range', () => {
+    expect(sumItemsAdded([])).toBe(0);
   });
 });
 
@@ -277,6 +428,18 @@ describe('sortLowStockItems', () => {
     const original = [...items];
     sortLowStockItems(items);
     expect(items).toEqual(original);
+  });
+});
+
+describe('formatSignedTotal', () => {
+  test('signs a non-zero total in the given direction', () => {
+    expect(formatSignedTotal(24, '+')).toBe('+24');
+    expect(formatSignedTotal(10, '-')).toBe('-10');
+  });
+
+  test('leaves zero unsigned', () => {
+    expect(formatSignedTotal(0, '+')).toBe('0');
+    expect(formatSignedTotal(0, '-')).toBe('0');
   });
 });
 

@@ -15,7 +15,7 @@ export type { DatePreset };
 
 type SelectablePreset = Exclude<DatePreset, 'custom'>;
 
-function getPresetDateRange(preset: SelectablePreset): DateRange {
+function dateRangeForPreset(preset: SelectablePreset): DateRange {
   const todaysDate = new Date();
 
   if (preset === 'yesterday') {
@@ -39,11 +39,11 @@ function getPresetDateRange(preset: SelectablePreset): DateRange {
   return { startDate: todaysDate, endDate: todaysDate };
 }
 
-export function useDateRangeFilter(initialPreset: SelectablePreset = 'today') {
+export function useDateRangeFilter() {
   const [dateRange, setDateRange] = useState<DateRange>(() =>
-    getPresetDateRange(initialPreset),
+    dateRangeForPreset('today'),
   );
-  const [dateInput, setDateInput] = useState<DatePreset>(initialPreset);
+  const [dateInput, setDateInput] = useState<DatePreset>('today');
   const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
 
   const formattedDateRange = useMemo(() => {
@@ -66,7 +66,7 @@ export function useDateRangeFilter(initialPreset: SelectablePreset = 'today') {
   const handleDateSelection = useCallback((preset: DatePreset) => {
     setDateInput(preset);
     if (preset !== 'custom') {
-      setDateRange(getPresetDateRange(preset));
+      setDateRange(dateRangeForPreset(preset));
     }
   }, []);
 

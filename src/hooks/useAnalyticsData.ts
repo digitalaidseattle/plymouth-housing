@@ -10,9 +10,14 @@ import type {
   CheckoutTransaction,
   CheckoutItemTotal,
   InventoryItem,
+  InventoryTransaction,
   Building,
 } from '../types/interfaces';
-import { getCheckoutHistory } from '../services/historyService';
+import { TransactionType } from '../types/interfaces';
+import {
+  getCheckoutHistory,
+  getInventoryHistory,
+} from '../services/historyService';
 import { getCheckoutItemTotals } from '../services/analyticsService';
 import { getItems } from '../services/itemsService';
 import { getBuildings } from '../services/residentService';
@@ -25,13 +30,26 @@ import { SETTINGS } from '../types/constants';
 const CHECKOUTS_CACHE_KEY = 'analyticsCheckouts';
 const ITEMS_CACHE_KEY = 'analyticsItems';
 
-interface CheckoutsCache {
-  key: string;
+interface CheckoutsData {
   currentRows: CheckoutTransaction[];
   previousRows: CheckoutTransaction[];
   itemTotals: CheckoutItemTotal[];
+  inventoryAdds: InventoryTransaction[];
+  previousInventoryAdds: InventoryTransaction[];
+}
+
+interface CheckoutsCache extends CheckoutsData {
+  key: string;
   fetchedAt: number;
 }
+
+const NO_CHECKOUTS: CheckoutsData = {
+  currentRows: [],
+  previousRows: [],
+  itemTotals: [],
+  inventoryAdds: [],
+  previousInventoryAdds: [],
+};
 
 interface ItemsCache {
   items: InventoryItem[];
@@ -40,6 +58,11 @@ interface ItemsCache {
 
 const isFresh = (fetchedAt: number): boolean =>
   Date.now() - fetchedAt < SETTINGS.analytics_cache_ttl;
+
+// Inventory history covers adds and value corrections; only the adds count as
+// stock coming in.
+const onlyAdds = (rows: InventoryTransaction[]): InventoryTransaction[] =>
+  rows.filter((t) => t.transaction_type === TransactionType.InventoryAdd);
 
 interface UseAnalyticsDataProps {
   user: ClientPrincipal | null;
@@ -57,13 +80,7 @@ export function useAnalyticsData({
   buildingId,
   onError,
 }: UseAnalyticsDataProps) {
-  const [currentRowsRaw, setCurrentRowsRaw] = useState<CheckoutTransaction[]>(
-    [],
-  );
-  const [previousRowsRaw, setPreviousRowsRaw] = useState<CheckoutTransaction[]>(
-    [],
-  );
-  const [itemTotals, setItemTotals] = useState<CheckoutItemTotal[]>([]);
+  const [checkouts, setCheckouts] = useState<CheckoutsData>(NO_CHECKOUTS);
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,10 +101,16 @@ export function useAnalyticsData({
     const cacheKey = `${startDate}|${endDate}|${buildingId ?? 'all'}`;
     const cached = cacheGet<CheckoutsCache>(CHECKOUTS_CACHE_KEY);
 
-    if (cached && cached.key === cacheKey && isFresh(cached.fetchedAt)) {
-      setCurrentRowsRaw(cached.currentRows);
-      setPreviousRowsRaw(cached.previousRows);
-      setItemTotals(cached.itemTotals);
+    // Array.isArray guards against a cache entry written by an older build that
+    // predates a field; a missing shape falls through to a fresh fetch.
+    if (
+      cached &&
+      cached.key === cacheKey &&
+      isFresh(cached.fetchedAt) &&
+      Array.isArray(cached.inventoryAdds) &&
+      Array.isArray(cached.previousInventoryAdds)
+    ) {
+      setCheckouts(cached);
       setCheckoutsFetchedAt(cached.fetchedAt);
       setIsLoading(false);
       return;
@@ -99,49 +122,64 @@ export function useAnalyticsData({
       try {
         setIsLoading(true);
         const previous = previousPeriod(startDate, endDate);
-        const [currentResult, previousResult, itemTotalsResult] =
-          await Promise.allSettled([
-            getCheckoutHistory(user, startDate, endDate),
-            getCheckoutHistory(user, previous.startDate, previous.endDate),
-            getCheckoutItemTotals(user, startDate, endDate, buildingId),
-          ]);
+        const [
+          currentResult,
+          previousResult,
+          itemTotalsResult,
+          inventoryResult,
+          previousInventoryResult,
+        ] = await Promise.allSettled([
+          getCheckoutHistory(user, startDate, endDate),
+          getCheckoutHistory(user, previous.startDate, previous.endDate),
+          getCheckoutItemTotals(user, startDate, endDate, buildingId),
+          getInventoryHistory(user, startDate, endDate),
+          getInventoryHistory(user, previous.startDate, previous.endDate),
+        ]);
         if (!mounted) return;
 
-        if (currentResult.status === 'fulfilled') {
-          setCurrentRowsRaw(currentResult.value);
-        } else {
-          onError('Error fetching checkout history: ' + currentResult.reason);
-        }
-        if (previousResult.status === 'fulfilled') {
-          setPreviousRowsRaw(previousResult.value);
-        } else {
-          onError(
-            'Error fetching the previous period for comparison: ' +
-              previousResult.reason,
-          );
-        }
-        if (itemTotalsResult.status === 'fulfilled') {
-          setItemTotals(itemTotalsResult.value);
-        } else {
-          onError(
-            'Error fetching checkout item totals: ' + itemTotalsResult.reason,
-          );
-        }
+        // A failed call reports itself and contributes nothing, so the page
+        // never shows one range's numbers beside another's.
+        let complete = true;
+        const settle = <T>(
+          result: PromiseSettledResult<T[]>,
+          label: string,
+        ): T[] => {
+          if (result.status === 'fulfilled') return result.value;
+          complete = false;
+          onError(`${label}: ${result.reason}`);
+          return [];
+        };
+
+        const data: CheckoutsData = {
+          currentRows: settle(currentResult, 'Error fetching checkout history'),
+          previousRows: settle(
+            previousResult,
+            'Error fetching the previous period for comparison',
+          ),
+          itemTotals: settle(
+            itemTotalsResult,
+            'Error fetching checkout item totals',
+          ),
+          inventoryAdds: onlyAdds(
+            settle(inventoryResult, 'Error fetching inventory history'),
+          ),
+          previousInventoryAdds: onlyAdds(
+            settle(
+              previousInventoryResult,
+              'Error fetching the previous period inventory history',
+            ),
+          ),
+        };
 
         const fetchedAt = Date.now();
+        setCheckouts(data);
         setCheckoutsFetchedAt(fetchedAt);
         // Only a complete result is worth caching; a partial one would hide the
         // failed call behind stale numbers until the cache expires.
-        if (
-          currentResult.status === 'fulfilled' &&
-          previousResult.status === 'fulfilled' &&
-          itemTotalsResult.status === 'fulfilled'
-        ) {
+        if (complete) {
           cacheSet<CheckoutsCache>(CHECKOUTS_CACHE_KEY, {
             key: cacheKey,
-            currentRows: currentResult.value,
-            previousRows: previousResult.value,
-            itemTotals: itemTotalsResult.value,
+            ...data,
             fetchedAt,
           });
         }
@@ -201,19 +239,21 @@ export function useAnalyticsData({
     };
   }, [user, onError, reloadToken]);
 
+  const { currentRows: allCurrentRows, previousRows: allPreviousRows } =
+    checkouts;
   const currentRows = useMemo(
     () =>
       buildingId === null
-        ? currentRowsRaw
-        : currentRowsRaw.filter((row) => row.building_id === buildingId),
-    [currentRowsRaw, buildingId],
+        ? allCurrentRows
+        : allCurrentRows.filter((row) => row.building_id === buildingId),
+    [allCurrentRows, buildingId],
   );
   const previousRows = useMemo(
     () =>
       buildingId === null
-        ? previousRowsRaw
-        : previousRowsRaw.filter((row) => row.building_id === buildingId),
-    [previousRowsRaw, buildingId],
+        ? allPreviousRows
+        : allPreviousRows.filter((row) => row.building_id === buildingId),
+    [allPreviousRows, buildingId],
   );
 
   // The oldest of the two fetches, so the label never claims data is newer
@@ -228,7 +268,9 @@ export function useAnalyticsData({
   return {
     currentRows,
     previousRows,
-    itemTotals,
+    itemTotals: checkouts.itemTotals,
+    inventoryAdds: checkouts.inventoryAdds,
+    previousInventoryAdds: checkouts.previousInventoryAdds,
     items,
     buildings,
     isLoading,

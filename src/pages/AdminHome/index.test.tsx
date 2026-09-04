@@ -25,7 +25,9 @@ import {
   CheckoutTransaction,
   CheckoutItemTotal,
   InventoryItem,
+  InventoryTransaction,
   Building,
+  TransactionType,
 } from '../../types/interfaces';
 
 vi.mock('../../services/historyService');
@@ -136,6 +138,27 @@ const mockBuildings: Building[] = [
   { id: 2, code: 'B', name: 'Building B' },
 ];
 
+const mockInventoryHistory: InventoryTransaction[] = [
+  {
+    transaction_id: 'inv-1',
+    user_id: 1,
+    transaction_type: TransactionType.InventoryAdd,
+    transaction_date: '2026-08-06T09:00:00.000Z',
+    item_name: 'Blankets',
+    category_name: 'Bedding',
+    quantity: 24,
+  },
+  {
+    transaction_id: 'inv-2',
+    user_id: 1,
+    transaction_type: TransactionType.InventoryReplaceValue,
+    transaction_date: '2026-08-07T09:00:00.000Z',
+    item_name: 'Mugs',
+    category_name: 'Kitchen',
+    quantity: 5,
+  },
+];
+
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <MemoryRouter>
     <UserContext.Provider
@@ -166,6 +189,9 @@ describe('AdminHome Component', () => {
     vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
       mockCurrentTransactions,
     );
+    vi.spyOn(historyService, 'getInventoryHistory').mockResolvedValue(
+      mockInventoryHistory,
+    );
     vi.spyOn(analyticsService, 'getCheckoutItemTotals').mockResolvedValue(
       mockItemTotals,
     );
@@ -177,9 +203,18 @@ describe('AdminHome Component', () => {
     vi.restoreAllMocks();
   });
 
+  // The stat-tile label is a <p>; scoped by selector so it doesn't collide
+  // with the "Residents Served" table heading (<h5>).
   const findTileCard = async (label: string): Promise<HTMLElement> => {
-    const labelEl = await screen.findByText(label);
+    const labelEl = await screen.findByText(label, { selector: 'p' });
     return labelEl.closest('.MuiCard-root') as HTMLElement;
+  };
+
+  const findDetailPanel = async (): Promise<HTMLElement> => {
+    const heading = await screen.findByRole('heading', {
+      name: 'Residents Served',
+    });
+    return heading.closest('.MuiCard-root') as HTMLElement;
   };
 
   test('renders tiles with computed values', async () => {
@@ -192,8 +227,21 @@ describe('AdminHome Component', () => {
     const residentsTile = await findTileCard('Residents Served');
     expect(within(residentsTile).getByText('2')).toBeInTheDocument();
 
+    // Items leaving stock are signed negative on the tile.
     const itemsTile = await findTileCard('Items Checked Out');
-    expect(within(itemsTile).getByText('10')).toBeInTheDocument();
+    expect(within(itemsTile).getByText('-10')).toBeInTheDocument();
+  });
+
+  test('totals only InventoryAdd quantity in the Items Added tile', async () => {
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    // 24 from the InventoryAdd row; the InventoryReplaceValue row's 5 is excluded.
+    const addedTile = await findTileCard('Items Added');
+    expect(within(addedTile).getByText('+24')).toBeInTheDocument();
   });
 
   test('renders Top 10 Items Checked Out and Residents Served by Building panels', async () => {
@@ -240,9 +288,7 @@ describe('AdminHome Component', () => {
       </Wrapper>,
     );
 
-    const detailPanel = (
-      await screen.findByText('Residents Served Detail')
-    ).closest('.MuiCard-root') as HTMLElement;
+    const detailPanel = await findDetailPanel();
     const aliceRows = within(detailPanel).getAllByText('Alice Resident');
     expect(aliceRows).toHaveLength(2);
     expect(within(detailPanel).getAllByText('Repeat')).toHaveLength(2);
@@ -260,9 +306,7 @@ describe('AdminHome Component', () => {
       </Wrapper>,
     );
 
-    const detailPanel = (
-      await screen.findByText('Residents Served Detail')
-    ).closest('.MuiCard-root') as HTMLElement;
+    const detailPanel = await findDetailPanel();
     expect(within(detailPanel).getByText('Bob Resident')).toBeInTheDocument();
 
     const repeatsOnlySwitch = within(detailPanel).getByRole('switch', {
@@ -284,11 +328,7 @@ describe('AdminHome Component', () => {
     );
 
     expect(
-      within(
-        (await screen.findByText('Residents Served Detail')).closest(
-          '.MuiCard-root',
-        ) as HTMLElement,
-      ).getByText('Bob Resident'),
+      within(await findDetailPanel()).getByText('Bob Resident'),
     ).toBeInTheDocument();
 
     const buildingSelect = screen.getByRole('combobox', { name: /building/i });
@@ -300,9 +340,7 @@ describe('AdminHome Component', () => {
 
     // Changing the building refetches (isLoading briefly flips), so re-query
     // the panel after the update rather than reusing the earlier node.
-    const updatedDetailPanel = (
-      await screen.findByText('Residents Served Detail')
-    ).closest('.MuiCard-root') as HTMLElement;
+    const updatedDetailPanel = await findDetailPanel();
     expect(
       await within(updatedDetailPanel).findAllByText('Alice Resident'),
     ).toHaveLength(2);
@@ -317,7 +355,7 @@ describe('AdminHome Component', () => {
         <AdminHome />
       </Wrapper>,
     );
-    await screen.findByText('Residents Served Detail');
+    await findDetailPanel();
     const callsAfterFirstLoad = vi.mocked(historyService.getCheckoutHistory)
       .mock.calls.length;
     unmount();
@@ -327,7 +365,7 @@ describe('AdminHome Component', () => {
         <AdminHome />
       </Wrapper>,
     );
-    await screen.findByText('Residents Served Detail');
+    await findDetailPanel();
     expect(historyService.getCheckoutHistory).toHaveBeenCalledTimes(
       callsAfterFirstLoad,
     );
@@ -347,8 +385,71 @@ describe('AdminHome Component', () => {
       </Wrapper>,
     );
 
-    await screen.findByText('Residents Served Detail');
+    await findDetailPanel();
     const exportButton = screen.getByRole('button', { name: /export csv/i });
     expect(exportButton).toBeEnabled();
+  });
+
+  test('omits the per-day average from the Checkouts tile for a single-day range', async () => {
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    const tile = await findTileCard('Checkouts');
+    expect(within(tile).getByText('3')).toBeInTheDocument();
+    expect(within(tile).queryByText(/\/ day/)).not.toBeInTheDocument();
+  });
+
+  test('shows the per-day average beside the total once the range spans days', async () => {
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+    await findDetailPanel();
+
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: /date/i }));
+    fireEvent.click(await screen.findByRole('option', { name: 'This Week' }));
+
+    // "This Week" spans 8 calendar days, so 3 checkouts averages 0.4 a day.
+    const tile = await findTileCard('Checkouts');
+    expect(await within(tile).findByText('0.4 / day')).toBeInTheDocument();
+  });
+
+  test('charts only InventoryAdd rows in Top Inventory Items Added', async () => {
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    const panel = (
+      await screen.findByRole('heading', {
+        name: 'Top 10 Inventory Items Added',
+      })
+    ).closest('.MuiCard-root') as HTMLElement;
+    expect(within(panel).getByText('Blankets')).toBeInTheDocument();
+    expect(within(panel).getByText('24')).toBeInTheDocument();
+    expect(within(panel).queryByText('Mugs')).not.toBeInTheDocument();
+  });
+
+  test('offers a current-inventory export in the split-button menu', async () => {
+    render(
+      <Wrapper>
+        <AdminHome />
+      </Wrapper>,
+    );
+
+    await findDetailPanel();
+    fireEvent.click(
+      screen.getByRole('button', { name: /more export options/i }),
+    );
+    expect(
+      await screen.findByRole('menuitem', {
+        name: /export current inventory/i,
+      }),
+    ).toBeInTheDocument();
   });
 });

@@ -4,20 +4,24 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
 
 interface StatTileProps {
   label: string;
   value: string;
-  delta: number | null;
+  // Secondary figure set beside the headline, in the muted body style so it
+  // reads as a qualifier rather than a second headline (e.g. "2.1 / day").
+  valueSuffix?: string;
+  delta?: number | null;
   caption: string;
 }
 
 const StatTile: React.FC<StatTileProps> = ({
   label,
   value,
-  delta,
+  valueSuffix,
+  delta = null,
   caption,
 }) => {
   const isPositive = delta !== null && delta >= 0;
@@ -39,8 +43,15 @@ const StatTile: React.FC<StatTileProps> = ({
           >
             {label}
           </Typography>
-          <Typography variant="h1">{value}</Typography>
-          {delta !== null && (
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
+            <Typography variant="h1">{value}</Typography>
+            {valueSuffix && (
+              <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
+                {valueSuffix}
+              </Typography>
+            )}
+          </Stack>
+          {delta !== null ? (
             <Stack
               direction="row"
               sx={{
@@ -57,8 +68,12 @@ const StatTile: React.FC<StatTileProps> = ({
               }}
             >
               {isPositive ? <CaretUpOutlined /> : <CaretDownOutlined />}
-              {`${isPositive ? '+' : ''}${delta}% vs. last month`}
+              {`${isPositive ? '+' : ''}${delta}% vs. previous period`}
             </Stack>
+          ) : (
+            // Holds the chip's slot open so the caption sits on the same line
+            // across every tile, including one with nothing to compare against.
+            <Box sx={{ typography: 'body2', py: 0.5 }}>&nbsp;</Box>
           )}
           <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
             {caption}

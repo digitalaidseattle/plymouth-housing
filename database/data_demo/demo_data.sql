@@ -402,6 +402,65 @@ END
 GO
 
 -- =============================================================================
+-- Recent restocks
+-- =============================================================================
+-- The main restock loop spreads 60 restocks over a year, so on the default
+-- "today" / short-range views the Top 10 Inventory Items Added chart is empty.
+-- This mirrors the dense-recent-days floor used for checkouts: a burst of
+-- restocks in the last two weeks, a few of them today, all drawn from the front
+-- of the item pool so the same names lead both the checked-out and added charts.
+
+DECLARE @RecentRestocks INT = 18;
+DECLARE @RecentDays     INT = 14;
+DECLARE @Anchor        DATE = CAST(GETDATE() AS DATE);
+
+DECLARE @items      INT = (SELECT COUNT(*) FROM #ItemPool);
+DECLARE @volunteers INT = (SELECT COUNT(*) FROM #Volunteers);
+
+DECLARE @i INT = 1;
+DECLARE @txn UNIQUEIDENTIFIER;
+DECLARE @volunteer INT;
+DECLARE @placed_at DATETIME;
+DECLARE @lines INT;
+DECLARE @line INT;
+DECLARE @item INT;
+
+WHILE @i <= @RecentRestocks
+BEGIN
+    -- The first few land today; the rest fall within the last @RecentDays.
+    SET @placed_at = DATEADD(DAY,
+        CASE WHEN @i <= 3 THEN 0 ELSE -CAST(RAND() * @RecentDays AS INT) END,
+        DATEADD(HOUR, 8 + CAST(RAND() * 6 AS INT), CAST(@Anchor AS DATETIME)));
+
+    SELECT @volunteer = id FROM #Volunteers WHERE rn = 1 + CAST(RAND() * @volunteers AS INT);
+
+    SET @txn = NEWID();
+
+    INSERT INTO Transactions (id, user_id, resident_id, transaction_type, transaction_date)
+    VALUES (@txn, @volunteer, NULL, 2, @placed_at);
+
+    SET @lines = 3 + CAST(RAND() * 5 AS INT);
+    SET @line = 1;
+
+    WHILE @line <= @lines
+    BEGIN
+        -- Squaring favours the front of the pool (the items also going out).
+        SELECT @item = id FROM #ItemPool
+        WHERE rn = 1 + CAST(POWER(RAND(), 2.0) * @items AS INT);
+
+        IF NOT EXISTS (SELECT 1 FROM TransactionItems
+                       WHERE transaction_id = @txn AND item_id = @item)
+            INSERT INTO TransactionItems (transaction_id, item_id, quantity)
+            VALUES (@txn, @item, 12 + CAST(RAND() * 60 AS INT));
+
+        SET @line = @line + 1;
+    END
+
+    SET @i = @i + 1;
+END
+GO
+
+-- =============================================================================
 -- Stock levels
 -- =============================================================================
 -- The seeded inventory already covers Out of Stock, Low Stock and Normal Stock.

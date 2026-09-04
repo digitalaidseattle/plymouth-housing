@@ -275,6 +275,7 @@ export type AnalyticsSummary = {
   checkouts: number;
   itemsCheckedOut: number;
   avgCheckoutsPerDay: number;
+  rangeDays: number;
 };
 
 export type InventoryRow = {

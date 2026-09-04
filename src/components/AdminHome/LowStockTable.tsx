@@ -37,9 +37,7 @@ const LowStockTable: React.FC<LowStockTableProps> = ({
   checkedOutById,
 }) => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(
-    SETTINGS.itemsPerPage,
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(SETTINGS.itemsPerPage);
 
   useEffect(() => {
     setPage(0);

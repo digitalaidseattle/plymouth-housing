@@ -17,12 +17,14 @@ import {
 interface RankedBarChartProps {
   title: string;
   hint: string;
+  emptyMessage: string;
   rows: { label: string; value: number }[];
 }
 
 const RankedBarChart: React.FC<RankedBarChartProps> = ({
   title,
   hint,
+  emptyMessage,
   rows,
 }) => {
   const maxValue = Math.max(...rows.map((row) => row.value), 1);
@@ -45,7 +47,7 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
           </Stack>
           {rows.length === 0 ? (
             <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
-              No checkouts in this range
+              {emptyMessage}
             </Typography>
           ) : (
             <Box

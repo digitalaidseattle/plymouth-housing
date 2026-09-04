@@ -27,16 +27,29 @@ const escapeField = (field: CsvValue): string => {
 export const toCsv = (headers: string[], rows: CsvValue[][]): string =>
   [headers, ...rows].map((row) => row.map(escapeField).join(',')).join('\n');
 
+export interface CsvSection {
+  title: string;
+  headers: string[];
+  rows: CsvValue[][];
+}
+
+// One sheet, several labelled blocks: a title row, then the block's own header
+// row and body, blocks separated by a blank line. Used to dump every panel on
+// the analytics page into a single file.
+export const toCsvSections = (sections: CsvSection[]): string =>
+  sections
+    .map(
+      ({ title, headers, rows }) =>
+        `${escapeField(title)}\n${toCsv(headers, rows)}`,
+    )
+    .join('\n\n');
+
 // Prepend a UTF-8 BOM so Excel detects the encoding instead of garbling
 // accented resident names.
 const UTF8_BOM = '\ufeff';
 
-export const downloadCsv = (
-  filename: string,
-  headers: string[],
-  rows: CsvValue[][],
-): void => {
-  const blob = new Blob([UTF8_BOM + toCsv(headers, rows)], {
+const triggerDownload = (filename: string, csv: string): void => {
+  const blob = new Blob([UTF8_BOM + csv], {
     type: 'text/csv;charset=utf-8',
   });
   const url = URL.createObjectURL(blob);
@@ -53,3 +66,14 @@ export const downloadCsv = (
     URL.revokeObjectURL(url);
   }
 };
+
+export const downloadCsv = (
+  filename: string,
+  headers: string[],
+  rows: CsvValue[][],
+): void => triggerDownload(filename, toCsv(headers, rows));
+
+export const downloadCsvSections = (
+  filename: string,
+  sections: CsvSection[],
+): void => triggerDownload(filename, toCsvSections(sections));

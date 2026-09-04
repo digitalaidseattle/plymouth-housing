@@ -5,7 +5,7 @@
  *
  */
 import { describe, test, expect } from 'vitest';
-import { toCsv } from './csvExport';
+import { toCsv, toCsvSections } from './csvExport';
 
 describe('toCsv', () => {
   test('joins headers and plain fields with commas and newlines', () => {
@@ -57,5 +57,31 @@ describe('toCsv', () => {
   test('leaves negative numbers alone', () => {
     const result = toCsv(['Delta'], [[-5]]);
     expect(result).toBe('Delta\n-5');
+  });
+});
+
+describe('toCsvSections', () => {
+  test('writes each section as a title row, header row, and body', () => {
+    const result = toCsvSections([
+      { title: 'Summary', headers: ['Metric', 'Value'], rows: [['Served', 2]] },
+      {
+        title: 'Top Items',
+        headers: ['Item', 'Qty'],
+        rows: [
+          ['Soap', 5],
+          ['Towels', 3],
+        ],
+      },
+    ]);
+    expect(result).toBe(
+      'Summary\nMetric,Value\nServed,2\n\nTop Items\nItem,Qty\nSoap,5\nTowels,3',
+    );
+  });
+
+  test('escapes a section title that needs quoting', () => {
+    const result = toCsvSections([
+      { title: 'Low Stock, High Need', headers: ['Item'], rows: [['Soap']] },
+    ]);
+    expect(result).toBe('"Low Stock, High Need"\nItem\nSoap');
   });
 });

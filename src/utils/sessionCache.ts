@@ -11,13 +11,17 @@ interface CacheEntry<T> {
   cachedAt: number;
 }
 
-export function cacheGet<T>(key: string): T | null {
+// `ttl` overrides the default for callers whose data goes stale sooner.
+export function cacheGet<T>(
+  key: string,
+  ttl: number = SETTINGS.cache_ttl,
+): T | null {
   const raw = sessionStorage.getItem(key);
   if (!raw) return null;
 
   try {
     const entry = JSON.parse(raw) as CacheEntry<T>;
-    if (!entry.cachedAt || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
+    if (!entry.cachedAt || Date.now() - entry.cachedAt > ttl) {
       sessionStorage.removeItem(key);
       return null;
     }

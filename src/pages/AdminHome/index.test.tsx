@@ -227,9 +227,8 @@ describe('AdminHome Component', () => {
     const residentsTile = await findTileCard('Residents Served');
     expect(within(residentsTile).getByText('2')).toBeInTheDocument();
 
-    // Items leaving stock are signed negative on the tile.
     const itemsTile = await findTileCard('Items Checked Out');
-    expect(within(itemsTile).getByText('-10')).toBeInTheDocument();
+    expect(within(itemsTile).getByText('10')).toBeInTheDocument();
   });
 
   test('totals only InventoryAdd quantity in the Items Added tile', async () => {
@@ -241,7 +240,7 @@ describe('AdminHome Component', () => {
 
     // 24 from the InventoryAdd row; the InventoryReplaceValue row's 5 is excluded.
     const addedTile = await findTileCard('Items Added');
-    expect(within(addedTile).getByText('+24')).toBeInTheDocument();
+    expect(within(addedTile).getByText('24')).toBeInTheDocument();
   });
 
   test('renders Top 10 Items Checked Out and Residents Served by Building panels', async () => {

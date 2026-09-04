@@ -20,10 +20,8 @@ import { useAnalyticsData } from '../../hooks/useAnalyticsData';
 import {
   countResidentsByBuilding,
   flagDuplicates,
-  formatSignedTotal,
   formatTransactionDate,
   percentChange,
-  previousPeriod,
   sortLowStockItems,
   sumItemsAdded,
   summarizeCheckouts,
@@ -50,6 +48,7 @@ const AdminHome: React.FC = () => {
   const {
     currentRows,
     previousRows,
+    previousRange,
     itemTotals,
     inventoryAdds,
     previousInventoryAdds,
@@ -74,14 +73,14 @@ const AdminHome: React.FC = () => {
       ),
     [currentRows, formattedDateRange.startDate, formattedDateRange.endDate],
   );
-  const previous = previousPeriod(
-    formattedDateRange.startDate,
-    formattedDateRange.endDate,
-  );
   const previousSummary = useMemo(
     () =>
-      summarizeCheckouts(previousRows, previous.startDate, previous.endDate),
-    [previousRows, previous.startDate, previous.endDate],
+      summarizeCheckouts(
+        previousRows,
+        previousRange.startDate,
+        previousRange.endDate,
+      ),
+    [previousRows, previousRange],
   );
   const hasData = currentSummary.checkouts > 0;
 
@@ -93,7 +92,6 @@ const AdminHome: React.FC = () => {
   const lowStockRows = useMemo(() => sortLowStockItems(items), [items]);
 
   const flaggedRows = useMemo(() => flagDuplicates(currentRows), [currentRows]);
-  // Memoized so the detail table's page reset only fires when the rows change.
   const detailRows = useMemo(
     () =>
       repeatsOnly ? flaggedRows.filter((row) => row.isDuplicate) : flaggedRows,
@@ -136,8 +134,7 @@ const AdminHome: React.FC = () => {
     {
       label: 'Checkouts',
       value: String(currentSummary.checkouts),
-      // A per-day average only means something once the range covers more
-      // than a single day.
+      // Only meaningful once the range covers more than a day.
       valueSuffix:
         currentSummary.rangeDays > 1
           ? `${currentSummary.avgCheckoutsPerDay.toFixed(1)} / day`
@@ -150,7 +147,7 @@ const AdminHome: React.FC = () => {
     },
     {
       label: 'Items Checked Out',
-      value: formatSignedTotal(currentSummary.itemsCheckedOut, '-'),
+      value: String(currentSummary.itemsCheckedOut),
       delta: deltaVsPrevious(
         currentSummary.itemsCheckedOut,
         previousSummary.itemsCheckedOut,
@@ -159,9 +156,8 @@ const AdminHome: React.FC = () => {
     },
     {
       label: 'Items Added',
-      value: formatSignedTotal(itemsAdded, '+'),
-      // Gated on its own total, not on checkouts: a range can take stock in
-      // without a single checkout going out.
+      value: String(itemsAdded),
+      // Gated on its own total: stock can come in with no checkouts going out.
       delta:
         itemsAdded > 0 ? percentChange(itemsAdded, previousItemsAdded) : null,
       caption: 'Total quantity added to inventory',
@@ -177,7 +173,6 @@ const AdminHome: React.FC = () => {
     buildings.find((building) => building.id === buildingId)?.name ??
     'All Buildings';
 
-  // One workbook of every panel currently on screen, section by section.
   const handleExportCsv = () => {
     downloadCsvSections('analytics-report.csv', [
       {

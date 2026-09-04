@@ -42,7 +42,6 @@ interface AnalyticsFiltersProps {
   onRefresh: () => void;
 }
 
-// Rounded select, matching the Date control on the History page.
 const historySelectSx = {
   borderRadius: '18px',
   '& .MuiSelect-select': { py: 2 },

@@ -6,8 +6,7 @@
  */
 export type CsvValue = string | number | null | undefined;
 
-// Excel and Sheets evaluate a cell that opens with one of these, so a resident
-// name or note typed as a formula would run when the file is opened.
+// Excel and Sheets execute a cell opening with one of these.
 const FORMULA_PREFIX = /^[=+\-@\t\r]/;
 
 // RFC 4180: quote a field holding a delimiter, a quote, or a line break.
@@ -33,9 +32,7 @@ export interface CsvSection {
   rows: CsvValue[][];
 }
 
-// One sheet, several labelled blocks: a title row, then the block's own header
-// row and body, blocks separated by a blank line. Used to dump every panel on
-// the analytics page into a single file.
+// One sheet, several labelled blocks separated by a blank line.
 export const toCsvSections = (sections: CsvSection[]): string =>
   sections
     .map(
@@ -44,8 +41,7 @@ export const toCsvSections = (sections: CsvSection[]): string =>
     )
     .join('\n\n');
 
-// Prepend a UTF-8 BOM so Excel detects the encoding instead of garbling
-// accented resident names.
+// A BOM makes Excel detect UTF-8 instead of garbling accented names.
 const UTF8_BOM = '\ufeff';
 
 const triggerDownload = (filename: string, csv: string): void => {

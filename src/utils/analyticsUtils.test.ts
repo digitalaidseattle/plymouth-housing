@@ -8,14 +8,13 @@ import { describe, test, expect } from 'vitest';
 import {
   summarizeCheckouts,
   flagDuplicates,
-  namesLikelyMatch,
+  residentKey,
   countResidentsByBuilding,
   percentChange,
   previousPeriod,
   sortLowStockItems,
   sumItemsAdded,
   topItemsAdded,
-  formatSignedTotal,
   formatTransactionDate,
 } from './analyticsUtils';
 import {
@@ -217,17 +216,33 @@ describe('flagDuplicates', () => {
   });
 });
 
-describe('namesLikelyMatch', () => {
-  test('matches a one-character typo in a long-enough name', () => {
-    expect(namesLikelyMatch('John Doe', 'Jon Doe')).toBe(true);
+describe('residentKey', () => {
+  test('reduces a name to first initial and surname', () => {
+    expect(residentKey('John Doe')).toBe('j doe');
   });
 
-  test('does not match clearly different names', () => {
-    expect(namesLikelyMatch('John Doe', 'Jane Roe')).toBe(false);
+  test('gives a shortened given name the same key', () => {
+    expect(residentKey('Jon Doe')).toBe(residentKey('John Doe'));
   });
 
-  test('does not fuzzy-match very short names', () => {
-    expect(namesLikelyMatch('Al', 'Ed')).toBe(false);
+  test('ignores casing, punctuation and extra whitespace', () => {
+    expect(residentKey("  Mary  O'Brien-Doe ")).toBe('m obriendoe');
+  });
+
+  test('uses a middle name only for the surname', () => {
+    expect(residentKey('John Michael Doe')).toBe('j doe');
+  });
+
+  test('keeps a single-word name whole', () => {
+    expect(residentKey('Cher')).toBe('cher');
+  });
+
+  test('returns an empty key for a name with nothing usable', () => {
+    expect(residentKey('  --  ')).toBe('');
+  });
+
+  test('keeps different surnames apart', () => {
+    expect(residentKey('John Doe')).not.toBe(residentKey('John Roe'));
   });
 });
 
@@ -428,18 +443,6 @@ describe('sortLowStockItems', () => {
     const original = [...items];
     sortLowStockItems(items);
     expect(items).toEqual(original);
-  });
-});
-
-describe('formatSignedTotal', () => {
-  test('signs a non-zero total in the given direction', () => {
-    expect(formatSignedTotal(24, '+')).toBe('+24');
-    expect(formatSignedTotal(10, '-')).toBe('-10');
-  });
-
-  test('leaves zero unsigned', () => {
-    expect(formatSignedTotal(0, '+')).toBe('0');
-    expect(formatSignedTotal(0, '-')).toBe('0');
   });
 });
 

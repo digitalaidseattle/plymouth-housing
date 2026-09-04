@@ -320,6 +320,12 @@ export interface ApiConfig {
 export type DatePreset =
   'today' | 'yesterday' | 'this week' | 'this month' | 'custom';
 
+// A range already serialized for the API: local midnight to local end of day.
+export type DateRangeStrings = {
+  startDate: string;
+  endDate: string;
+};
+
 export type DateRange = {
   startDate: Date;
   endDate: Date;

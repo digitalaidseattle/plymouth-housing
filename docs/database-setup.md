@@ -190,7 +190,7 @@ It inserts roughly 60 residents across 12 buildings, 500 checkouts spread over t
 Notes:
 
 1. It is opt-in. Without the switch a plain rebuild skips it, so it stays fast and never picks up demo data.
-1. It is local only. The switch checks the connection string and refuses anything that is not a local SQL Server instance. There is no bypass.
+1. It is for local development only. Nothing enforces that, so check your connection string first. `bootstrap_db.ps1` drops the database before it seeds, and staging and prod schema changes go through the Azure Portal query editor instead, see [schema-migration.md](schema-migration.md).
 1. Demo residents are named with a `[demo]` suffix, which is how the reset finds them. The residents from `data_test/resident_data.sql` are left alone.
 1. It writes to `Transactions` and `TransactionItems` directly rather than calling `ProcessCheckout`, because `LogTransaction` takes no date parameter and `transaction_date` defaults to `GETDATE()`. Driving the stored procedures would date every row today.
 1. It does not decrement `Items.quantity` to pay for the generated history. The seeded quantities are the count on hand today, not a balance carried forward.

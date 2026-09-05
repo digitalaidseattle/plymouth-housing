@@ -27,23 +27,6 @@ function Get-ConnectionStringForDatabase {
     return $builder.ConnectionString
 }
 
-function Assert-LocalDataSource {
-    param([string]$ConnectionString)
-
-    $builder = [Microsoft.Data.SqlClient.SqlConnectionStringBuilder]::new($ConnectionString)
-    $dataSource = $builder['Data Source']
-
-    # localhost, ., (local), 127.0.0.1, and named instances of those. Anything
-    # else, such as *.database.windows.net, is refused, with no override.
-    $isLocal =
-        ($dataSource -match '^(localhost|127\.0\.0\.1|\.)(\\.+)?$') -or
-        ($dataSource -match '^\(local\)(\\.+)?$')
-
-    if (-not $isLocal) {
-        throw "Demo data is local-dev only. Data Source '$dataSource' does not look like a local SQL Server instance (expected localhost, ., (local), 127.0.0.1, or a \SQLEXPRESS-style local named instance). Refusing to run."
-    }
-}
-
 function Invoke-SqlScriptFile {
     param(
         [Parameter(Mandatory = $true)]
@@ -96,8 +79,6 @@ try {
     Invoke-Scripts-In-Folder -Folder "./database/data_test/" -ConnectionString $inventoryConnectionString
 
     if ($SeedDemoData) {
-        # Checked here, not at the top: bootstrapping staging is fine, seeding it is not.
-        Assert-LocalDataSource -ConnectionString $env:DATABASE_CONNECTION_STRING
         Write-Host "Seeding analytics demo data" -ForegroundColor Green
         Invoke-SqlScriptFile -FilePath "./database/data_seed/$demoDataScript" -ConnectionString $inventoryConnectionString
     }

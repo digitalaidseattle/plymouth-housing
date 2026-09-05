@@ -24,6 +24,7 @@ coverage
 *.sln
 *.sw?
 .env
+api/dist
 
 bundle-visualization.html
 bootstrap_db_results.rpt

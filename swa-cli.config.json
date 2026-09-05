@@ -3,6 +3,7 @@
   "configurations": {
     "plymouth-housing": {
       "appLocation": ".",
+      "apiLocation": "api",
       "outputLocation": "dist",
       "dataApiLocation": "swa-db-connections",
       "appBuildCommand": "npm run build",

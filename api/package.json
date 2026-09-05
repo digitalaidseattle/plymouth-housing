@@ -1,0 +1,23 @@
+{
+  "name": "plymouth-housing-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.16.2",
+    "@google/genai": "^2.21.0",
+    "dotenv": "^17.4.2",
+    "mssql": "^11.0.1"
+  },
+  "devDependencies": {
+    "@types/mssql": "^12.3.0",
+    "@types/node": "^20.19.0",
+    "typescript": "^5.9.2"
+  }
+}

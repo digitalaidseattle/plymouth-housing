@@ -178,23 +178,19 @@ You can use an Azure SQL database for development as well. It is not recommended
 
 ## Demo Data
 
-A freshly bootstrapped database has no transaction rows, so the Admin Analytics page renders empty tiles and empty charts. Pass `-SeedDemoData` to `bootstrap_db.ps1` to fill a local database with a year of checkout history to work against.
+The Admin Analytics page is blank on a fresh database, there are no transactions to chart. `-SeedDemoData` fills a local database with a year of fake checkout history so the page has something to show.
 
 ```powershell
 $env:DATABASE_CONNECTION_STRING = 'Server=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'
 .\database\bootstrap_db.ps1 -SeedDemoData
 ```
 
-It inserts roughly 60 residents across 12 buildings, 500 checkouts spread over the last 365 days, checkout edits, restocks and corrections. Volumes are set by the constants at the top of each section in `database/data_seed/analytics_demo_data.sql`. Re-running it clears the previous demo data first.
+You get about 60 residents across 12 buildings and 500 checkouts over the last 365 days, plus edits, restocks and corrections. Re-running clears the old demo data first. Volumes are the constants at the top of `database/data_seed/analytics_demo_data.sql`.
 
-Notes:
+Two things to know:
 
-1. It is opt-in. Without the switch a plain rebuild skips it, so it stays fast and never picks up demo data.
-1. It is for local development only. Nothing enforces that, so check your connection string first. `bootstrap_db.ps1` drops the database before it seeds, and staging and prod schema changes go through the Azure Portal query editor instead, see [schema-migration.md](schema-migration.md).
-1. Demo residents are named with a `[demo]` suffix, which is how the reset finds them. The residents from `data_test/resident_data.sql` are left alone.
-1. It writes to `Transactions` and `TransactionItems` directly rather than calling `ProcessCheckout`, because `LogTransaction` takes no date parameter and `transaction_date` defaults to `GETDATE()`. Driving the stored procedures would date every row today.
-1. It does not decrement `Items.quantity` to pay for the generated history. The seeded quantities are the count on hand today, not a balance carried forward.
-1. The Low Stock table needs `threshold` on the `ItemsWithCategory` view. A full `bootstrap_db.ps1` deploys that, since the view is defined in `database/tables/inventory.sql`.
+1. **Local only.** Nothing stops you pointing it at staging, and `bootstrap_db.ps1` drops the database before it seeds, so check your connection string. Staging and prod go through the Azure Portal instead, see [schema-migration.md](schema-migration.md).
+1. **Stock counts are left alone.** The seeded checkouts don't come out of `Items.quantity`, so the numbers on hand won't tie out against the history.
 
 ## Production/Staging
 

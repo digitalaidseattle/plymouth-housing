@@ -137,6 +137,11 @@ const AdminHome: React.FC = () => {
     [items, itemTotalsById],
   );
 
+  const topCheckedOutItems = useMemo(
+    () => itemTotals.slice(0, 10),
+    [itemTotals],
+  );
+
   const leastCheckedOutItems = useMemo(
     () => itemUsage.slice(-10).reverse(),
     [itemUsage],
@@ -219,34 +224,39 @@ const AdminHome: React.FC = () => {
         ],
       },
       {
+        // Built from the tiles themselves, so the two can't drift apart.
         title: 'Summary',
         headers: ['Metric', 'Value'],
-        rows: [
-          ['Residents Served', String(currentSummary.residentsServed)],
-          ['Total Checkouts', String(currentSummary.checkouts)],
-          ['Avg Checkouts / Day', currentSummary.avgCheckoutsPerDay.toFixed(1)],
-          ['Items Checked Out', String(currentSummary.itemsCheckedOut)],
-          ['Items Added', String(itemsAdded)],
-        ],
+        rows: statTiles.map((tile) => [tile.label, tile.value]),
       },
       {
         title: 'Residents Served by Building',
-        headers: ['Building', 'Residents', 'Visits'],
+        headers: ['Building', 'Residents'],
         rows: residentsByBuilding.map((building) => [
           building.building_code,
           building.residentCount,
-          building.visitCount,
         ]),
       },
       {
-        title: 'Items Checked Out',
+        title: 'Top 10 Items Checked Out',
         headers: ['Item', 'Quantity'],
-        rows: itemUsage.map((item) => [item.item_name, item.total_quantity]),
+        rows: topCheckedOutItems.map((item) => [
+          item.item_name,
+          item.total_quantity,
+        ]),
       },
       {
         title: 'Top 10 Inventory Items Added',
         headers: ['Item', 'Quantity Added'],
         rows: topInventoryAdded.map((item) => [
+          item.item_name,
+          item.total_quantity,
+        ]),
+      },
+      {
+        title: 'Least Checked Out Items',
+        headers: ['Item', 'Quantity'],
+        rows: leastCheckedOutItems.map((item) => [
           item.item_name,
           item.total_quantity,
         ]),
@@ -260,16 +270,14 @@ const AdminHome: React.FC = () => {
           '# Visits',
           '# Items',
           'Transaction Date',
-          'Repeat',
         ],
         rows: detailRows.map((row) => [
           row.resident_name,
           row.building_code,
-          row.unit_number.trim() || '-',
+          row.unit_number.trim(),
           row.visitCount,
           row.total_quantity,
           formatTransactionDate(row.transaction_date),
-          row.isDuplicate ? 'Yes' : '',
         ]),
       },
       {
@@ -277,18 +285,18 @@ const AdminHome: React.FC = () => {
         headers: [
           'Item',
           'Category',
+          'Status',
           'Current Qty',
           'Threshold',
           'Checked Out',
-          'Status',
         ],
         rows: lowStockRows.map((item) => [
           item.name,
           item.category,
+          item.status,
           item.quantity,
           item.threshold,
-          itemTotalsById.get(item.id) ?? 0,
-          item.status,
+          itemTotalsById.get(item.id) || '',
         ]),
       },
     ]);
@@ -381,7 +389,7 @@ const AdminHome: React.FC = () => {
                 title="Top 10 Items Checked Out"
                 hint="by item count"
                 emptyMessage="No checkouts in this range"
-                rows={itemTotals.slice(0, 10).map((item) => ({
+                rows={topCheckedOutItems.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,
                 }))}

@@ -4,17 +4,15 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SETTINGS } from '../types/constants';
 
 export function usePagination<T>(rows: T[]) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(SETTINGS.itemsPerPage);
 
-  // A filter must not leave the table on a page that no longer exists.
-  useEffect(() => {
-    setPage(0);
-  }, [rows]);
+  const pageCount = Math.max(1, Math.ceil(rows.length / rowsPerPage));
+  const safePage = Math.min(page, pageCount - 1);
 
   const changeRowsPerPage = (value: number) => {
     setRowsPerPage(value);
@@ -22,13 +20,14 @@ export function usePagination<T>(rows: T[]) {
   };
 
   return {
-    page,
+    page: safePage,
     rowsPerPage,
+    pageCount,
     setPage,
     changeRowsPerPage,
     paginatedRows: rows.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage,
+      safePage * rowsPerPage,
+      safePage * rowsPerPage + rowsPerPage,
     ),
   };
 }

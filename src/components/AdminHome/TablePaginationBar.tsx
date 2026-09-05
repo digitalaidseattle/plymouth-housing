@@ -8,7 +8,7 @@ import { Box, MenuItem, Pagination, Select, Typography } from '@mui/material';
 import { SETTINGS } from '../../types/constants';
 
 interface TablePaginationBarProps {
-  rowCount: number;
+  pageCount: number;
   page: number;
   rowsPerPage: number;
   onPageChange: (page: number) => void;
@@ -22,7 +22,7 @@ const selectSx = {
 
 // `page` is zero-based here, converted for MUI's one-based Pagination.
 const TablePaginationBar: React.FC<TablePaginationBarProps> = ({
-  rowCount,
+  pageCount,
   page,
   rowsPerPage,
   onPageChange,
@@ -49,7 +49,7 @@ const TablePaginationBar: React.FC<TablePaginationBarProps> = ({
       </Select>
     </Box>
     <Pagination
-      count={Math.max(1, Math.ceil(rowCount / rowsPerPage))}
+      count={pageCount}
       page={page + 1}
       onChange={(_, newPage) => onPageChange(newPage - 1)}
     />

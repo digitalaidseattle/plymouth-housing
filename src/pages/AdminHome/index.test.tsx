@@ -4,7 +4,6 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React from 'react';
 import {
   render,
   screen,
@@ -159,25 +158,26 @@ const mockInventoryHistory: InventoryTransaction[] = [
   },
 ];
 
-const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <MemoryRouter>
-    <UserContext.Provider
-      value={{
-        user: mockUser,
-        setUser: vi.fn(),
-        loggedInUserId: 1,
-        setLoggedInUserId: vi.fn(),
-        activeVolunteers: [],
-        setActiveVolunteers: vi.fn(),
-        isLoading: false,
-        pinVerified: false,
-        setPinVerified: vi.fn(),
-      }}
-    >
-      {children}
-    </UserContext.Provider>
-  </MemoryRouter>
-);
+const renderAdminHome = () =>
+  render(
+    <MemoryRouter>
+      <UserContext.Provider
+        value={{
+          user: mockUser,
+          setUser: vi.fn(),
+          loggedInUserId: 1,
+          setLoggedInUserId: vi.fn(),
+          activeVolunteers: [],
+          setActiveVolunteers: vi.fn(),
+          isLoading: false,
+          pinVerified: false,
+          setPinVerified: vi.fn(),
+        }}
+      >
+        <AdminHome />
+      </UserContext.Provider>
+    </MemoryRouter>,
+  );
 
 describe('AdminHome Component', () => {
   beforeEach(() => {
@@ -218,11 +218,7 @@ describe('AdminHome Component', () => {
   };
 
   test('renders tiles with computed values', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const residentsTile = await findTileCard('Residents Served');
     expect(within(residentsTile).getByText('2')).toBeInTheDocument();
@@ -232,11 +228,7 @@ describe('AdminHome Component', () => {
   });
 
   test('totals only InventoryAdd quantity in the Items Added tile', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     // 24 from the InventoryAdd row; the InventoryReplaceValue row's 5 is excluded.
     const addedTile = await findTileCard('Items Added');
@@ -244,11 +236,7 @@ describe('AdminHome Component', () => {
   });
 
   test('renders Top 10 Items Checked Out and Residents Served by Building panels', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const itemsPanel = (
       await screen.findByText('Top 10 Items Checked Out')
@@ -264,11 +252,7 @@ describe('AdminHome Component', () => {
   });
 
   test('shows the at/below-threshold item with its status chip in Low Stock table', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const lowStockPanel = (
       await screen.findByText('Low Stock & High Need')
@@ -281,11 +265,7 @@ describe('AdminHome Component', () => {
   });
 
   test('detail table renders and flags the duplicate resident with a Repeat chip', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const detailPanel = await findDetailPanel();
     const aliceRows = within(detailPanel).getAllByText('Alice Resident');
@@ -299,11 +279,7 @@ describe('AdminHome Component', () => {
   });
 
   test('toggling "Repeats only" hides the non-duplicate rows', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const detailPanel = await findDetailPanel();
     expect(within(detailPanel).getByText('Bob Resident')).toBeInTheDocument();
@@ -320,11 +296,7 @@ describe('AdminHome Component', () => {
   });
 
   test('changing the building filter narrows the detail rows to that building', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     expect(
       within(await findDetailPanel()).getByText('Bob Resident'),
@@ -349,21 +321,13 @@ describe('AdminHome Component', () => {
   });
 
   test('serves a remount from cache and refetches when Refresh is clicked', async () => {
-    const { unmount } = render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    const { unmount } = renderAdminHome();
     await findDetailPanel();
     const callsAfterFirstLoad = vi.mocked(historyService.getCheckoutHistory)
       .mock.calls.length;
     unmount();
 
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
     await findDetailPanel();
     expect(historyService.getCheckoutHistory).toHaveBeenCalledTimes(
       callsAfterFirstLoad,
@@ -378,11 +342,7 @@ describe('AdminHome Component', () => {
   });
 
   test('shows an enabled Export CSV button', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     await findDetailPanel();
     const exportButton = screen.getByRole('button', { name: /export csv/i });
@@ -390,11 +350,7 @@ describe('AdminHome Component', () => {
   });
 
   test('omits the per-day average from the Checkouts tile for a single-day range', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const tile = await findTileCard('Checkouts');
     expect(within(tile).getByText('3')).toBeInTheDocument();
@@ -402,11 +358,7 @@ describe('AdminHome Component', () => {
   });
 
   test('shows the per-day average beside the total once the range spans days', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
     await findDetailPanel();
 
     fireEvent.mouseDown(screen.getByRole('combobox', { name: /date/i }));
@@ -418,11 +370,7 @@ describe('AdminHome Component', () => {
   });
 
   test('charts only InventoryAdd rows in Top Inventory Items Added', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const panel = (
       await screen.findByRole('heading', {
@@ -435,11 +383,7 @@ describe('AdminHome Component', () => {
   });
 
   test('offers a current-inventory export in the split-button menu', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     await findDetailPanel();
     fireEvent.click(
@@ -482,11 +426,7 @@ describe('AdminHome Component', () => {
       },
     ]);
 
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const leastPanel = (
       await screen.findByText('Least Checked Out Items')
@@ -504,11 +444,7 @@ describe('AdminHome Component', () => {
   test('empties Top 10 Items Checked Out but still lists the catalog as least checked out when nothing moved', async () => {
     vi.spyOn(analyticsService, 'getCheckoutItemTotals').mockResolvedValue([]);
 
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const topPanel = (
       await screen.findByText('Top 10 Items Checked Out')
@@ -528,11 +464,7 @@ describe('AdminHome Component', () => {
   });
 
   test('detail table shows the per-resident visit count in the # Visits column', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const detailPanel = await findDetailPanel();
     const aliceRows = within(detailPanel).getAllByText('Alice Resident');
@@ -551,11 +483,7 @@ describe('AdminHome Component', () => {
   });
 
   test('shows the per-building visit count as a caption distinct from the unique-resident bar value', async () => {
-    render(
-      <Wrapper>
-        <AdminHome />
-      </Wrapper>,
-    );
+    renderAdminHome();
 
     const buildingsPanel = (
       await screen.findByText('Residents Served by Building')

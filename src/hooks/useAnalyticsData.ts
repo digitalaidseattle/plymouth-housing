@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import type {
   ClientPrincipal,
   CheckoutTransaction,
@@ -28,11 +28,11 @@ import { useCachedFetch, labelled } from './useCachedFetch';
 import { SETTINGS } from '../types/constants';
 
 // Separate slots, so a building change only refetches the item totals.
+// Buildings aren't here: getBuildings keeps its own longer-lived cache.
 const CACHE_KEYS = {
   range: 'analyticsRange',
   itemTotals: 'analyticsItemTotals',
   items: 'analyticsItems',
-  buildings: 'analyticsBuildings',
 };
 
 const TTL = SETTINGS.analytics_cache_ttl;
@@ -149,16 +149,27 @@ export function useAnalyticsData({
     reloadToken,
   });
 
-  const buildings = useCachedFetch({
-    cacheKey: CACHE_KEYS.buildings,
-    variant: userId,
-    ttl: TTL,
-    initial: [] as Building[],
-    fetcher: () => getBuildings(user),
-    errorLabel: 'Error fetching buildings',
-    onError,
-    reloadToken,
-  });
+  // Buildings rarely change, so getBuildings' own cache is the only one, and
+  // Refresh leaves it alone. Fetched once per user, not per reload.
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [buildingsLoading, setBuildingsLoading] = useState(true);
+  useEffect(() => {
+    let mounted = true;
+    setBuildingsLoading(true);
+    getBuildings(user)
+      .then((result) => {
+        if (mounted) setBuildings(result);
+      })
+      .catch((error) => {
+        if (mounted) onError(`Error fetching buildings: ${error}`);
+      })
+      .finally(() => {
+        if (mounted) setBuildingsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [user, onError]);
 
   const { currentRows: allCurrentRows, previousRows: allPreviousRows } =
     range.data;
@@ -193,12 +204,12 @@ export function useAnalyticsData({
     inventoryAdds: range.data.inventoryAdds,
     previousInventoryAdds: range.data.previousInventoryAdds,
     items: items.data,
-    buildings: buildings.data,
+    buildings,
     isLoading:
       range.isLoading ||
       itemTotals.isLoading ||
       items.isLoading ||
-      buildings.isLoading,
+      buildingsLoading,
     lastUpdated,
     refresh,
   };

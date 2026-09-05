@@ -2,8 +2,8 @@
 -- even if the query validator were bypassed, this login cannot write, and cannot
 -- read Users, which stores volunteer PINs in plain text.
 --
--- bootstrap_db.ps1 runs this. It needs $env:ASK_DATA_PASSWORD set, and the same
--- password then goes in DATABASE_CONNECTION_STRING_ASK_DATA.
+-- Run: ./database/bootstrap_db.ps1 -CreateAnalyticsUser, with $env:ASK_DATA_PASSWORD
+-- set. The same password then goes in DATABASE_CONNECTION_STRING_ASK_DATA.
 
 USE master;
 GO

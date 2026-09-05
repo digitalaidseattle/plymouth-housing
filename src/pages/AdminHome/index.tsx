@@ -4,7 +4,8 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Grid, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
@@ -31,7 +32,19 @@ import { downloadCsv, downloadCsvSections } from '../../utils/csvExport';
 
 const AdminHome: React.FC = () => {
   const { user } = useContext(UserContext);
+  const location = useLocation();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
+
+  // Success/cancel message from CheckoutPage
+  useEffect(() => {
+    if (location.state?.message) {
+      showSnackbar(
+        location.state.message,
+        location.state.checkoutSuccess ? 'success' : 'error',
+      );
+    }
+  }, [location.state, showSnackbar]);
+
   const {
     dateInput,
     dateRange,

@@ -1,5 +1,5 @@
 -- Demo data for the Admin Analytics page. Local dev only.
--- Run database/seed_demo_data.ps1 after bootstrap_db.ps1.
+-- Skipped by a plain bootstrap. Run: ./database/bootstrap_db.ps1 -SeedDemoData
 -- Re-runnable: the reset below clears the previous run first.
 
 -- =============================================================================

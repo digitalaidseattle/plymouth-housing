@@ -2,7 +2,18 @@
 # $env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=master;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'
 #
 # This script creates the Inventory database and applies the SQL scripts from the database folder.
+#
+#   ./database/bootstrap_db.ps1                 schema and reference data
+#   ./database/bootstrap_db.ps1 -SeedDemoData   the same, plus analytics demo history
+param(
+    # Local dev only: fictional residents and a year of checkout history, so the
+    # Admin Analytics page has something to show.
+    [switch]$SeedDemoData
+)
 Import-Module SqlServer -ErrorAction Stop
+
+# Opt-in, so a plain rebuild stays fast and never picks up fictional rows.
+$demoDataScript = 'analytics_demo_data.sql'
 
 if (-not $env:DATABASE_CONNECTION_STRING) {
     throw 'Please set $env:DATABASE_CONNECTION_STRING before running this script.'
@@ -14,6 +25,23 @@ function Get-ConnectionStringForDatabase {
     $builder = [Microsoft.Data.SqlClient.SqlConnectionStringBuilder]::new($env:DATABASE_CONNECTION_STRING)
     $builder['Initial Catalog'] = $DatabaseName
     return $builder.ConnectionString
+}
+
+function Assert-LocalDataSource {
+    param([string]$ConnectionString)
+
+    $builder = [Microsoft.Data.SqlClient.SqlConnectionStringBuilder]::new($ConnectionString)
+    $dataSource = $builder['Data Source']
+
+    # localhost, ., (local), 127.0.0.1, and named instances of those. Anything
+    # else, such as *.database.windows.net, is refused, with no override.
+    $isLocal =
+        ($dataSource -match '^(localhost|127\.0\.0\.1|\.)(\\.+)?$') -or
+        ($dataSource -match '^\(local\)(\\.+)?$')
+
+    if (-not $isLocal) {
+        throw "Demo data is local-dev only. Data Source '$dataSource' does not look like a local SQL Server instance (expected localhost, ., (local), 127.0.0.1, or a \SQLEXPRESS-style local named instance). Refusing to run."
+    }
 }
 
 function Invoke-SqlScriptFile {
@@ -39,11 +67,12 @@ function Invoke-Scripts-In-Folder {
         [Parameter(Mandatory = $true)]
         [string]$Folder,
         [Parameter(Mandatory = $true)]
-        [string]$ConnectionString
+        [string]$ConnectionString,
+        [string[]]$Skip = @()
     )
 
     Write-Host "Processing Folder: $Folder" -ForegroundColor Green
-    Get-ChildItem -Path $Folder | Sort-Object Name | ForEach-Object {
+    Get-ChildItem -Path $Folder | Where-Object { $Skip -notcontains $_.Name } | Sort-Object Name | ForEach-Object {
         Invoke-SqlScriptFile -FilePath $_.FullName -ConnectionString $ConnectionString
     }
 }
@@ -63,8 +92,16 @@ try {
     Invoke-Scripts-In-Folder -Folder "./database/types/" -ConnectionString $inventoryConnectionString
     Invoke-Scripts-In-Folder -Folder "./database/procedures/" -ConnectionString $inventoryConnectionString
     Invoke-Scripts-In-Folder -Folder "./database/views/" -ConnectionString $inventoryConnectionString
-    Invoke-Scripts-In-Folder -Folder "./database/data_seed/" -ConnectionString $inventoryConnectionString
+    Invoke-Scripts-In-Folder -Folder "./database/data_seed/" -ConnectionString $inventoryConnectionString -Skip $demoDataScript
     Invoke-Scripts-In-Folder -Folder "./database/data_test/" -ConnectionString $inventoryConnectionString
+
+    if ($SeedDemoData) {
+        # Checked here, not at the top: bootstrapping staging is fine, seeding it is not.
+        Assert-LocalDataSource -ConnectionString $env:DATABASE_CONNECTION_STRING
+        Write-Host "Seeding analytics demo data" -ForegroundColor Green
+        Invoke-SqlScriptFile -FilePath "./database/data_seed/$demoDataScript" -ConnectionString $inventoryConnectionString
+    }
+
     Write-Host "All done."
 }
 catch {

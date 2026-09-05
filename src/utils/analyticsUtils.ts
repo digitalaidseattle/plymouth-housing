@@ -135,17 +135,20 @@ export const percentChange = (
   return Math.round(((current - previous) / previous) * 100);
 };
 
+// Counted in calendar days rather than milliseconds, so the window either side of a
+// clock change is still the same number of days and still starts at local midnight.
 export const previousPeriod = (
   startDate: string,
   endDate: string,
 ): { startDate: string; endDate: string } => {
-  const start = new Date(startDate).getTime();
-  const end = new Date(endDate).getTime();
-  const newEnd = start - 1;
-  const newStart = start - (end - start + 1);
+  const days = calendarDays(startDate, endDate);
+  const start = new Date(startDate);
+  const year = start.getFullYear();
+  const month = start.getMonth();
+  const day = start.getDate();
   return {
-    startDate: new Date(newStart).toISOString(),
-    endDate: new Date(newEnd).toISOString(),
+    startDate: new Date(year, month, day - days, 0, 0, 0, 0).toISOString(),
+    endDate: new Date(year, month, day - 1, 23, 59, 59, 999).toISOString(),
   };
 };
 

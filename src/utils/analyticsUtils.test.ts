@@ -433,21 +433,25 @@ describe('percentChange', () => {
 
 describe('previousPeriod', () => {
   test('returns an equal-length window ending immediately before startDate', () => {
-    const result = previousPeriod(
-      '2025-02-01T00:00:00.000Z',
-      '2025-02-28T23:59:59.999Z',
-    );
-    expect(result.endDate).toBe('2025-01-31T23:59:59.999Z');
-    expect(result.startDate).toBe('2025-01-04T00:00:00.000Z');
+    const range = localDateRange([2025, 1, 1], [2025, 1, 28]);
+    const expected = localDateRange([2025, 0, 4], [2025, 0, 31]);
+
+    expect(previousPeriod(range.startDate, range.endDate)).toEqual(expected);
   });
 
   test('returns a single-day window for a single-day range', () => {
-    const result = previousPeriod(
-      '2025-01-02T00:00:00.000Z',
-      '2025-01-02T23:59:59.999Z',
-    );
-    expect(result.startDate).toBe('2025-01-01T00:00:00.000Z');
-    expect(result.endDate).toBe('2025-01-01T23:59:59.999Z');
+    const range = localDateRange([2025, 0, 2]);
+    const expected = localDateRange([2025, 0, 1]);
+
+    expect(previousPeriod(range.startDate, range.endDate)).toEqual(expected);
+  });
+
+  test('keeps the day count across a spring clock change', () => {
+    // 9 March 2025 is the US spring change, so the week itself is an hour short.
+    const range = localDateRange([2025, 2, 9], [2025, 2, 15]);
+    const expected = localDateRange([2025, 2, 2], [2025, 2, 8]);
+
+    expect(previousPeriod(range.startDate, range.endDate)).toEqual(expected);
   });
 });
 

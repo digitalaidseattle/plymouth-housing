@@ -92,7 +92,7 @@ const LowStockTable: React.FC<LowStockTableProps> = ({
                 <TableCell align="right">{item.quantity}</TableCell>
                 <TableCell align="right">{item.threshold}</TableCell>
                 <TableCell align="right">
-                  {checkedOutById.get(item.id) || '-'}
+                  {checkedOutById.get(item.id) ?? 0}
                 </TableCell>
               </TableRow>
             ))}

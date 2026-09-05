@@ -21,7 +21,9 @@ function Invoke-SqlScriptFile {
         [Parameter(Mandatory = $true)]
         [string]$FilePath,
         [Parameter(Mandatory = $true)]
-        [string]$ConnectionString
+        [string]$ConnectionString,
+        # sqlcmd variables, as "NAME=value", for scripts that take one.
+        [string[]]$Variables = @()
     )
 
     if (-not (Test-Path $FilePath)) {
@@ -29,8 +31,11 @@ function Invoke-SqlScriptFile {
         return
     }
 
+    $options = @{}
+    if ($Variables.Count -gt 0) { $options['Variable'] = $Variables }
+
     Write-Host "- running $FilePath" -ForegroundColor Blue
-    Invoke-Sqlcmd -InputFile $FilePath -ConnectionString $ConnectionString -QueryTimeout 600 -Verbose -ErrorAction Stop
+    Invoke-Sqlcmd -InputFile $FilePath -ConnectionString $ConnectionString -QueryTimeout 600 -Verbose -ErrorAction Stop @options
     Write-Host "    - done"
 }
 
@@ -65,6 +70,16 @@ try {
     Invoke-Scripts-In-Folder -Folder "./database/views/" -ConnectionString $inventoryConnectionString
     Invoke-Scripts-In-Folder -Folder "./database/data_seed/" -ConnectionString $inventoryConnectionString
     Invoke-Scripts-In-Folder -Folder "./database/data_test/" -ConnectionString $inventoryConnectionString
+
+    # Last, because it grants SELECT on tables that have to exist first.
+    Write-Host "Creating the read-only analytics login" -ForegroundColor Green
+    if ($env:ASK_DATA_PASSWORD) {
+        Invoke-SqlScriptFile -FilePath "./database/create_analytics_db_user.sql" -ConnectionString $masterConnectionString -Variables @("ASK_DATA_PASSWORD=$($env:ASK_DATA_PASSWORD)")
+    }
+    else {
+        Write-Host "- skipping (set `$env:ASK_DATA_PASSWORD to create the Ask the Data login)" -ForegroundColor Yellow
+    }
+
     Write-Host "All done."
 }
 catch {

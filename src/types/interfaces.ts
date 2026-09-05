@@ -288,6 +288,20 @@ export type InventoryRow = {
   quantity: number;
 };
 
+// ─── Ask the Data ─────────────────────────────────────────────────────────────
+
+// The generated query and the rows it returned. Only the app ever sees the rows.
+export type AskDataAnswer = {
+  sql: string;
+  display: 'number' | 'bar' | 'table';
+  title: string;
+  explanation: string;
+  columns: string[];
+  rows: (string | number)[][];
+  truncated: boolean;
+  totalTokens: number;
+};
+
 // ─── Context Types ────────────────────────────────────────────────────────────
 
 export interface SpinUpContextType {

@@ -48,6 +48,8 @@ export const ENDPOINTS = {
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',
   CATEGORIZED_ITEMS: API_PREFIX + '/itemsbycategory',
   RESIDENTS_BY_BUILDING: API_PREFIX + '/residents-by-building',
+  // Azure Function, not DAB, so it is /api in both local and deployed builds.
+  ASK_DATA: '/api/ask-data',
 } as const;
 
 export const SETTINGS = {

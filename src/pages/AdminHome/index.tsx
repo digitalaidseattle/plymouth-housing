@@ -12,6 +12,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import StatTile from '../../components/AdminHome/StatTile';
 import RankedBarChart from '../../components/AdminHome/RankedBarChart';
 import AnalyticsFilters from '../../components/AdminHome/AnalyticsFilters';
+import AskDataCard from '../../AskData/AskDataCard';
 import LowStockTable from '../../components/AdminHome/LowStockTable';
 import ResidentsDetailTable from '../../components/AdminHome/ResidentsDetailTable';
 import { useSnackbar } from '../../hooks/useSnackbar';
@@ -138,17 +139,19 @@ const AdminHome: React.FC = () => {
     [previousInventoryAdds],
   );
 
-  // Nothing in the current range means nothing to compare against.
-  const deltaVsPrevious = (current: number, previous: number) =>
-    hasData ? percentChange(current, previous) : null;
+  // Nothing in the current range means nothing to compare against. Each tile passes
+  // its own test, because stock can come in on a day with no checkouts going out.
+  const delta = (current: number, previous: number, hasCurrent: boolean) =>
+    hasCurrent ? percentChange(current, previous) : null;
 
   const statTiles = [
     {
       label: 'Residents Served',
       value: String(currentSummary.residentsServed),
-      delta: deltaVsPrevious(
+      delta: delta(
         currentSummary.residentsServed,
         previousSummary.residentsServed,
+        hasData,
       ),
       caption: 'Unique residents with at least one checkout',
     },
@@ -160,27 +163,23 @@ const AdminHome: React.FC = () => {
         currentSummary.rangeDays > 1
           ? `${currentSummary.avgCheckoutsPerDay.toFixed(1)} / day`
           : undefined,
-      delta: deltaVsPrevious(
-        currentSummary.checkouts,
-        previousSummary.checkouts,
-      ),
+      delta: delta(currentSummary.checkouts, previousSummary.checkouts, hasData),
       caption: 'Totals for the selected range',
     },
     {
       label: 'Items Checked Out',
       value: String(currentSummary.itemsCheckedOut),
-      delta: deltaVsPrevious(
+      delta: delta(
         currentSummary.itemsCheckedOut,
         previousSummary.itemsCheckedOut,
+        hasData,
       ),
       caption: 'Total item count across all checkouts',
     },
     {
       label: 'Items Added',
       value: String(itemsAdded),
-      // Gated on its own total: stock can come in with no checkouts going out.
-      delta:
-        itemsAdded > 0 ? percentChange(itemsAdded, previousItemsAdded) : null,
+      delta: delta(itemsAdded, previousItemsAdded, itemsAdded > 0),
       caption: 'Total quantity added to inventory',
     },
   ];
@@ -327,6 +326,8 @@ const AdminHome: React.FC = () => {
         isRefreshing={isLoading}
         onRefresh={refresh}
       />
+
+      <AskDataCard />
 
       <Grid container spacing={3}>
         {isLoading

@@ -22,10 +22,10 @@ jobs:
 
     env:
       CI: 'true'
-      URL: ${{ secrets.STAGING_URL }}
-      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      URL: ${{ vars.STAGING_URL }}
+      ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      VOLUNTEER_USERNAME: ${{ secrets.VOLUNTEER_USERNAME }}
+      VOLUNTEER_USERNAME: ${{ vars.VOLUNTEER_USERNAME }}
       VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
 
     steps:

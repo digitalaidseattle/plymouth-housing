@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -79,6 +79,7 @@ const ItemsTable = ({
   };
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   // Filter items by search
   const filteredItems = items.filter(
@@ -99,6 +100,7 @@ const ItemsTable = ({
     field: string,
     currentValue: string | number | null,
   ) => {
+    if (isSaving) return;
     if (editState.id === id && editState.field === field) return;
     setEditState({
       id,
@@ -116,7 +118,7 @@ const ItemsTable = ({
   };
 
   const handleSave = async () => {
-    if (editState.id === null || editState.field === null) return;
+    if (editState.id === null || editState.field === null || isSaving) return;
 
     const item = items.find((i) => i.id === editState.id);
     if (!item) return;
@@ -175,6 +177,11 @@ const ItemsTable = ({
 
   const handleCancel = () => {
     setEditState({ id: null, field: null, value: '' });
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    if (e.relatedTarget === cancelButtonRef.current) return;
+    handleSave();
   };
 
   const handleAddNew = async () => {
@@ -248,7 +255,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={handleSave}
+              onBlur={handleBlur}
               autoFocus
               disabled={isSaving}
               sx={{ width: '140px' }}
@@ -256,10 +263,23 @@ const ItemsTable = ({
               <MenuItem value="General">General</MenuItem>
               <MenuItem value="Welcome Basket">Welcome Basket</MenuItem>
             </Select>
-            <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+            <IconButton
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSave}
+              disabled={isSaving}
+              aria-label="Save"
+            >
               <Check fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+            <IconButton
+              ref={cancelButtonRef}
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleCancel}
+              disabled={isSaving}
+              aria-label="Cancel"
+            >
               <Close fontSize="small" />
             </IconButton>
           </Box>
@@ -275,7 +295,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={handleSave}
+              onBlur={handleBlur}
               autoFocus
               disabled={isSaving}
               sx={{ width: '150px' }}
@@ -286,10 +306,23 @@ const ItemsTable = ({
                 </MenuItem>
               ))}
             </Select>
-            <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+            <IconButton
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSave}
+              disabled={isSaving}
+              aria-label="Save"
+            >
               <Check fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+            <IconButton
+              ref={cancelButtonRef}
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleCancel}
+              disabled={isSaving}
+              aria-label="Cancel"
+            >
               <Close fontSize="small" />
             </IconButton>
           </Box>
@@ -308,7 +341,7 @@ const ItemsTable = ({
               setEditState((prev) => ({ ...prev, value: e.target.value }))
             }
             onKeyDown={handleKeyDown}
-            onBlur={handleSave}
+            onBlur={handleBlur}
             autoFocus
             type={isNumber ? 'number' : 'text'}
             disabled={isSaving}
@@ -320,10 +353,23 @@ const ItemsTable = ({
                   : '150px',
             }}
           />
-          <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+          <IconButton
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleSave}
+            disabled={isSaving}
+            aria-label="Save"
+          >
             <Check fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+          <IconButton
+            ref={cancelButtonRef}
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleCancel}
+            disabled={isSaving}
+            aria-label="Cancel"
+          >
             <Close fontSize="small" />
           </IconButton>
         </Box>

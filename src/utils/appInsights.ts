@@ -74,6 +74,3 @@ export const trackEvent = (
   }
 };
 
-export const getAppInsights = (): ApplicationInsights | null => {
-  return appInsights;
-};

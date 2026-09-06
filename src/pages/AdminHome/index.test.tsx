@@ -450,7 +450,7 @@ describe('AdminHome Component', () => {
       await screen.findByText('Top 10 Items Checked Out')
     ).closest('.MuiCard-root') as HTMLElement;
     expect(
-      within(topPanel).getByText('No checkouts in this range'),
+      within(topPanel).getByText(/No checkouts in the selected date range/),
     ).toBeInTheDocument();
 
     const leastPanel = screen

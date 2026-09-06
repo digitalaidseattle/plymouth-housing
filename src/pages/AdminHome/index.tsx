@@ -377,7 +377,7 @@ const AdminHome: React.FC = () => {
               <RankedBarChart
                 title="Residents Served by Building"
                 hint="unique residents"
-                emptyMessage="No checkouts in this range"
+                emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
                 rows={residentsByBuilding.map((building) => ({
                   label: building.building_code,
                   caption: `${building.visitCount} visits`,
@@ -389,7 +389,7 @@ const AdminHome: React.FC = () => {
               <RankedBarChart
                 title="Top 10 Items Checked Out"
                 hint="by item count"
-                emptyMessage="No checkouts in this range"
+                emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
                 rows={topCheckedOutItems.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,
@@ -400,7 +400,7 @@ const AdminHome: React.FC = () => {
               <RankedBarChart
                 title="Top 10 Inventory Items Added"
                 hint="by quantity"
-                emptyMessage="No inventory added in this range"
+                emptyMessage="No inventory added in the selected date range. Try a wider range or a different building."
                 rows={topInventoryAdded.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,
@@ -411,7 +411,7 @@ const AdminHome: React.FC = () => {
               <RankedBarChart
                 title="Least Checked Out Items"
                 hint="0 = never checked out"
-                emptyMessage="No items to show"
+                emptyMessage="No inventory items for the selected building."
                 rows={leastCheckedOutItems.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,

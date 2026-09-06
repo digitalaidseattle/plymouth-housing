@@ -25,7 +25,7 @@ import {
 } from '@ant-design/icons';
 import { useAskData } from './useAskData';
 import { downloadCsv } from '../utils/csvExport';
-import PanelCard from '../components/AdminHome/PanelCard';
+import PanelCard from '../components/Analytics/PanelCard';
 import AskDataResult from './AskDataResult';
 
 const codeSx = {

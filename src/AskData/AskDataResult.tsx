@@ -6,8 +6,8 @@
  */
 import { Stack, Typography } from '@mui/material';
 import { AskDataAnswer } from '../types/interfaces';
-import DataTable from '../components/AdminHome/DataTable';
-import RankedBarChart from '../components/AdminHome/RankedBarChart';
+import DataTable from '../components/Analytics/DataTable';
+import RankedBarChart from '../components/Analytics/RankedBarChart';
 
 const EMPTY = 'No rows matched';
 

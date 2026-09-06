@@ -26,7 +26,11 @@ import type {
 } from '../types/interfaces';
 
 vi.mock('../services/historyService');
-vi.mock('../services/analyticsService');
+// Partial: fetchRangeData stays real so it still calls the mocked history service.
+vi.mock('../services/analyticsService', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../services/analyticsService')>()),
+  getCheckoutItemTotals: vi.fn(),
+}));
 vi.mock('../services/itemsService');
 vi.mock('../services/residentService');
 

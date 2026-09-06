@@ -6,6 +6,8 @@
  */
 import { describe, test, expect } from 'vitest';
 import {
+  buildAnalyticsSections,
+  onlyAdds,
   summarizeCheckouts,
   flagDuplicates,
   countResidentsByBuilding,
@@ -468,5 +470,94 @@ describe('formatTransactionDate', () => {
     expect(formatTransactionDate('2026-08-12T12:00:00.000Z')).toBe(
       'Aug 12, 2026',
     );
+  });
+});
+
+describe('onlyAdds', () => {
+  const makeRow = (
+    overrides: Partial<InventoryTransaction>,
+  ): InventoryTransaction => ({
+    transaction_id: 'inv-1',
+    user_id: 1,
+    transaction_type: TransactionType.InventoryAdd,
+    transaction_date: '2026-01-01T00:00:00Z',
+    item_name: 'Item A',
+    category_name: 'Category A',
+    quantity: 1,
+    ...overrides,
+  });
+
+  test('keeps adds and drops value corrections', () => {
+    const rows = [
+      makeRow({ transaction_id: 'a' }),
+      makeRow({
+        transaction_id: 'b',
+        transaction_type: TransactionType.InventoryReplaceValue,
+      }),
+    ];
+    expect(onlyAdds(rows).map((row) => row.transaction_id)).toEqual(['a']);
+  });
+});
+
+describe('buildAnalyticsSections', () => {
+  const sections = buildAnalyticsSections({
+    dateRangeString: 'Aug 1 - Aug 31, 2026',
+    buildingName: 'Building A',
+    repeatsOnly: true,
+    statTiles: [{ label: 'Checkouts', value: '12' }],
+    residentsByBuilding: [
+      {
+        building_code: 'A',
+        building_name: 'Building A',
+        residentCount: 2,
+        visitCount: 3,
+      },
+    ],
+    topCheckedOutItems: [{ item_name: 'Soap', total_quantity: 9 }],
+    topInventoryAdded: [{ item_name: 'Towels', total_quantity: 4 }],
+    leastCheckedOutItems: [{ item_name: 'Mop', total_quantity: 0 }],
+    detailRows: flagDuplicates([
+      makeTransaction({
+        unit_number: ' 101 ',
+        transaction_date: '2026-08-12T12:00:00.000Z',
+      }),
+    ]),
+    lowStockRows: [
+      makeItem({ id: 1, name: 'Soap' }),
+      makeItem({ id: 2, name: 'Mop' }),
+    ],
+    checkedOutById: new Map([[1, 9]]),
+  });
+
+  test('lists one section per panel, in the order the page shows them', () => {
+    expect(sections.map((section) => section.title)).toEqual([
+      'Filters',
+      'Summary',
+      'Residents Served by Building',
+      'Top 10 Items Checked Out',
+      'Top 10 Inventory Items Added',
+      'Least Checked Out Items',
+      'Residents Served',
+      'Low Stock & High Need',
+    ]);
+  });
+
+  test('takes the summary rows straight from the stat tiles', () => {
+    expect(sections[1].rows).toEqual([['Checkouts', '12']]);
+  });
+
+  test('trims the unit number and formats the transaction date', () => {
+    expect(sections[6].rows[0]).toEqual([
+      'Resident A',
+      'A',
+      '101',
+      1,
+      5,
+      'Aug 12, 2026',
+    ]);
+  });
+
+  test('leaves checked out blank for an item that never moved', () => {
+    expect(sections[7].rows.map((row) => row[5])).toEqual([9, '']);
   });
 });

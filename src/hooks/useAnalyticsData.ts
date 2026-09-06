@@ -13,20 +13,17 @@ import {
   useRef,
 } from 'react';
 import type {
+  AnalyticsRangeData,
   ClientPrincipal,
-  CheckoutTransaction,
   CheckoutItemTotal,
   InventoryItem,
-  InventoryTransaction,
   Building,
   DateRangeStrings,
 } from '../types/interfaces';
-import { TransactionType } from '../types/interfaces';
 import {
-  getCheckoutHistory,
-  getInventoryHistory,
-} from '../services/historyService';
-import { getCheckoutItemTotals } from '../services/analyticsService';
+  fetchRangeData,
+  getCheckoutItemTotals,
+} from '../services/analyticsService';
 import { getItems } from '../services/itemsService';
 import { getBuildings } from '../services/residentService';
 import { previousPeriod } from '../utils/analyticsUtils';
@@ -43,54 +40,11 @@ const CACHE_KEYS = {
 
 const TTL = SETTINGS.analytics_cache_ttl;
 
-interface RangeData {
-  currentRows: CheckoutTransaction[];
-  previousRows: CheckoutTransaction[];
-  inventoryAdds: InventoryTransaction[];
-  previousInventoryAdds: InventoryTransaction[];
-}
-
-const NO_RANGE_DATA: RangeData = {
+const NO_RANGE_DATA: AnalyticsRangeData = {
   currentRows: [],
   previousRows: [],
   inventoryAdds: [],
   previousInventoryAdds: [],
-};
-
-// Inventory history also carries value corrections; only adds are stock in.
-const onlyAdds = (rows: InventoryTransaction[]): InventoryTransaction[] =>
-  rows.filter((t) => t.transaction_type === TransactionType.InventoryAdd);
-
-const fetchRangeData = async (
-  user: ClientPrincipal | null,
-  current: DateRangeStrings,
-  previous: DateRangeStrings,
-): Promise<RangeData> => {
-  const [currentRows, previousRows, inventory, previousInventory] =
-    await Promise.all([
-      labelled(
-        'checkouts',
-        getCheckoutHistory(user, current.startDate, current.endDate),
-      ),
-      labelled(
-        'previous period checkouts',
-        getCheckoutHistory(user, previous.startDate, previous.endDate),
-      ),
-      labelled(
-        'inventory',
-        getInventoryHistory(user, current.startDate, current.endDate),
-      ),
-      labelled(
-        'previous period inventory',
-        getInventoryHistory(user, previous.startDate, previous.endDate),
-      ),
-    ]);
-  return {
-    currentRows,
-    previousRows,
-    inventoryAdds: onlyAdds(inventory),
-    previousInventoryAdds: onlyAdds(previousInventory),
-  };
 };
 
 interface UseAnalyticsDataProps {
@@ -196,11 +150,13 @@ export function useAnalyticsData({
 
   // Oldest, not newest, so the label never overstates freshness.
   const lastUpdated = useMemo(() => {
-    const stamps = [range.fetchedAt, items.fetchedAt].filter(
-      (stamp): stamp is number => stamp !== null,
-    );
+    const stamps = [
+      range.fetchedAt,
+      itemTotals.fetchedAt,
+      items.fetchedAt,
+    ].filter((stamp): stamp is number => stamp !== null);
     return stamps.length > 0 ? Math.min(...stamps) : null;
-  }, [range.fetchedAt, items.fetchedAt]);
+  }, [range.fetchedAt, itemTotals.fetchedAt, items.fetchedAt]);
 
   return {
     currentRows,
@@ -304,9 +260,3 @@ function useCachedFetch<T>({
 
 const message = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
-
-// Names the failing request when several are awaited together.
-const labelled = <T>(label: string, request: Promise<T>): Promise<T> =>
-  request.catch((error) => {
-    throw new Error(`${label} (${message(error)})`);
-  });

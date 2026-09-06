@@ -6,7 +6,14 @@
  */
 import { getRole } from '../utils/userUtils';
 import { ENDPOINTS } from '../types/constants';
-import { ClientPrincipal, CheckoutItemTotal } from '../types/interfaces';
+import {
+  AnalyticsRangeData,
+  ClientPrincipal,
+  CheckoutItemTotal,
+  DateRangeStrings,
+} from '../types/interfaces';
+import { onlyAdds } from '../utils/analyticsUtils';
+import { getCheckoutHistory, getInventoryHistory } from './historyService';
 import { apiRequest } from './apiRequest';
 
 export async function getCheckoutItemTotals(
@@ -37,3 +44,42 @@ export async function getCheckoutItemTotals(
     throw error;
   }
 }
+
+// Names the failing request when several are awaited together.
+const labelled = <T>(label: string, request: Promise<T>): Promise<T> =>
+  request.catch((error) => {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`${label} (${reason})`);
+  });
+
+export const fetchRangeData = async (
+  user: ClientPrincipal | null,
+  current: DateRangeStrings,
+  previous: DateRangeStrings,
+): Promise<AnalyticsRangeData> => {
+  const [currentRows, previousRows, inventory, previousInventory] =
+    await Promise.all([
+      labelled(
+        'checkouts',
+        getCheckoutHistory(user, current.startDate, current.endDate),
+      ),
+      labelled(
+        'previous period checkouts',
+        getCheckoutHistory(user, previous.startDate, previous.endDate),
+      ),
+      labelled(
+        'inventory',
+        getInventoryHistory(user, current.startDate, current.endDate),
+      ),
+      labelled(
+        'previous period inventory',
+        getInventoryHistory(user, previous.startDate, previous.endDate),
+      ),
+    ]);
+  return {
+    currentRows,
+    previousRows,
+    inventoryAdds: onlyAdds(inventory),
+    previousInventoryAdds: onlyAdds(previousInventory),
+  };
+};

@@ -9,9 +9,25 @@ import {
   CheckoutTransaction,
   InventoryItem,
   InventoryTransaction,
+  TransactionType,
 } from '../types/interfaces';
+import { CsvSection } from './csvExport';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+export type RankedItem = { item_name: string; total_quantity: number };
+
+export type BuildingResidents = {
+  building_code: string;
+  building_name: string;
+  residentCount: number;
+  visitCount: number;
+};
+
+export type FlaggedTransaction = CheckoutTransaction & {
+  isDuplicate: boolean;
+  visitCount: number;
+};
 
 // Inclusive calendar days between two local-midnight ISO instants.
 const calendarDays = (startDate: string, endDate: string): number => {
@@ -49,7 +65,7 @@ export const summarizeCheckouts = (
 // Keyed on resident_id, so two residents sharing a name stay two people.
 export const flagDuplicates = (
   transactions: CheckoutTransaction[],
-): (CheckoutTransaction & { isDuplicate: boolean; visitCount: number })[] => {
+): FlaggedTransaction[] => {
   const counts = new Map<number, number>();
   transactions.forEach((t) =>
     counts.set(t.resident_id, (counts.get(t.resident_id) ?? 0) + 1),
@@ -63,12 +79,7 @@ export const flagDuplicates = (
 
 export const countResidentsByBuilding = (
   transactions: CheckoutTransaction[],
-): {
-  building_code: string;
-  building_name: string;
-  residentCount: number;
-  visitCount: number;
-}[] => {
+): BuildingResidents[] => {
   const buildings = new Map<
     string,
     { building_name: string; residents: Set<number>; visitCount: number }
@@ -93,13 +104,19 @@ export const countResidentsByBuilding = (
     .sort((a, b) => b.residentCount - a.residentCount);
 };
 
+// Inventory history also carries value corrections; only adds are stock in.
+export const onlyAdds = (
+  rows: InventoryTransaction[],
+): InventoryTransaction[] =>
+  rows.filter((t) => t.transaction_type === TransactionType.InventoryAdd);
+
 export const sumItemsAdded = (transactions: InventoryTransaction[]): number =>
   transactions.reduce((sum, t) => sum + t.quantity, 0);
 
 export const topItemsAdded = (
   transactions: InventoryTransaction[],
   limit: number,
-): { item_name: string; total_quantity: number }[] => {
+): RankedItem[] => {
   const totals = new Map<string, number>();
   transactions.forEach((t) =>
     totals.set(t.item_name, (totals.get(t.item_name) ?? 0) + t.quantity),
@@ -155,3 +172,118 @@ export const formatLastUpdated = (timestamp: number): string =>
     hour: 'numeric',
     minute: '2-digit',
   });
+
+interface AnalyticsExport {
+  dateRangeString: string;
+  buildingName: string;
+  repeatsOnly: boolean;
+  statTiles: { label: string; value: string }[];
+  residentsByBuilding: BuildingResidents[];
+  topCheckedOutItems: RankedItem[];
+  topInventoryAdded: RankedItem[];
+  leastCheckedOutItems: RankedItem[];
+  detailRows: FlaggedTransaction[];
+  lowStockRows: InventoryItem[];
+  checkedOutById: Map<number, number>;
+}
+
+// One section per panel on the page, in the order they are shown.
+export const buildAnalyticsSections = ({
+  dateRangeString,
+  buildingName,
+  repeatsOnly,
+  statTiles,
+  residentsByBuilding,
+  topCheckedOutItems,
+  topInventoryAdded,
+  leastCheckedOutItems,
+  detailRows,
+  lowStockRows,
+  checkedOutById,
+}: AnalyticsExport): CsvSection[] => [
+  {
+    title: 'Filters',
+    headers: ['Field', 'Value'],
+    rows: [
+      ['Date range', dateRangeString],
+      ['Building', buildingName],
+      ['Repeats only', repeatsOnly ? 'Yes' : 'No'],
+    ],
+  },
+  {
+    // Built from the tiles themselves, so the two can't drift apart.
+    title: 'Summary',
+    headers: ['Metric', 'Value'],
+    rows: statTiles.map((tile) => [tile.label, tile.value]),
+  },
+  {
+    title: 'Residents Served by Building',
+    headers: ['Building', 'Residents'],
+    rows: residentsByBuilding.map((building) => [
+      building.building_code,
+      building.residentCount,
+    ]),
+  },
+  {
+    title: 'Top 10 Items Checked Out',
+    headers: ['Item', 'Quantity'],
+    rows: topCheckedOutItems.map((item) => [
+      item.item_name,
+      item.total_quantity,
+    ]),
+  },
+  {
+    title: 'Top 10 Inventory Items Added',
+    headers: ['Item', 'Quantity Added'],
+    rows: topInventoryAdded.map((item) => [
+      item.item_name,
+      item.total_quantity,
+    ]),
+  },
+  {
+    title: 'Least Checked Out Items',
+    headers: ['Item', 'Quantity'],
+    rows: leastCheckedOutItems.map((item) => [
+      item.item_name,
+      item.total_quantity,
+    ]),
+  },
+  {
+    title: 'Residents Served',
+    headers: [
+      'Resident',
+      'Building',
+      'Unit',
+      '# Visits',
+      '# Items',
+      'Transaction Date',
+    ],
+    rows: detailRows.map((row) => [
+      row.resident_name,
+      row.building_code,
+      row.unit_number.trim(),
+      row.visitCount,
+      row.total_quantity,
+      formatTransactionDate(row.transaction_date),
+    ]),
+  },
+  {
+    title: 'Low Stock & High Need',
+    headers: [
+      'Item',
+      'Category',
+      'Status',
+      'Current Qty',
+      'Threshold',
+      'Checked Out',
+    ],
+    rows: lowStockRows.map((item) => [
+      item.name,
+      item.category,
+      item.status,
+      item.quantity,
+      item.threshold,
+      checkedOutById.get(item.id) || '',
+    ]),
+  },
+];

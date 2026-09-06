@@ -278,6 +278,13 @@ export type AnalyticsSummary = {
   rangeDays: number;
 };
 
+export type AnalyticsRangeData = {
+  currentRows: CheckoutTransaction[];
+  previousRows: CheckoutTransaction[];
+  inventoryAdds: InventoryTransaction[];
+  previousInventoryAdds: InventoryTransaction[];
+};
+
 export type InventoryRow = {
   user_id: number;
   transaction_id: string;

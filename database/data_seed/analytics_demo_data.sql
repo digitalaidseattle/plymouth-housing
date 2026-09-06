@@ -1,89 +1,132 @@
 -- Demo data for the Admin Analytics page. Local dev only.
 -- Skipped by a plain bootstrap. Run: ./database/bootstrap_db.ps1 -SeedDemoData
--- Re-runnable: the reset below clears the previous run first.
+-- Re-runnable: the previous run's rows are removed first.
+
+-- =============================================================================
+-- Settings
+-- =============================================================================
+
+DECLARE @Anchor       DATETIME = CAST(CAST(GETDATE() AS DATE) AS DATETIME);
+DECLARE @Days         INT      = 365;
+DECLARE @DenseDays    INT      = 21;   -- recent days that always get checkouts
+DECLARE @WelcomeEvery INT      = 36;   -- every Nth checkout is a welcome basket
+DECLARE @EditEvery    INT      = 12;   -- every Nth ordinary checkout is edited later
+
+-- Opening hours, in minutes into the day.
+DECLARE @PantryOpens INT = 9 * 60, @PantryCloses INT = 17 * 60;
+DECLARE @StockOpens  INT = 8 * 60, @StockCloses  INT = 14 * 60;
+
+DECLARE @DateSkew     FLOAT = 1.2;  -- 1 spreads checkouts evenly over @Days, higher bunches them near today
+DECLARE @ResidentSkew FLOAT = 2.0;  -- 1 treats residents alike, higher lets a minority make most of the visits
+DECLARE @ItemSkew     FLOAT = 0.5;  -- 0 treats items alike, higher favours the front of the item pool
+
+DECLARE @Checkout     INT = (SELECT id FROM TransactionTypes WHERE transaction_type = 'CHECKOUT');
+DECLARE @CheckoutEdit INT = (SELECT id FROM TransactionTypes WHERE transaction_type = 'CHECKOUT_EDIT');
+DECLARE @Restock      INT = (SELECT id FROM TransactionTypes WHERE transaction_type = 'RESTOCK');
+DECLARE @Correction   INT = (SELECT id FROM TransactionTypes WHERE transaction_type = 'CORRECTION');
+
+-- GetCheckoutHistory recognises a welcome basket by one of these two sheet sets.
+DECLARE @TwinSheets INT = 171, @FullSheets INT = 172;
+
+-- How many of each kind to write, how far back, how many land today, and what their lines look like.
+DECLARE @Kinds TABLE (
+    kind       VARCHAR(20) PRIMARY KEY,
+    type_id    INT   NOT NULL,
+    total      INT   NOT NULL,
+    days_back  INT   NOT NULL,
+    land_today INT   NOT NULL,
+    lines_min  INT   NOT NULL,
+    lines_max  INT   NOT NULL,
+    qty_min    INT   NOT NULL,
+    qty_max    INT   NOT NULL,
+    item_skew  FLOAT NOT NULL
+);
+
+INSERT INTO @Kinds
+    (kind,             type_id,     total, days_back, land_today, lines_min, lines_max, qty_min, qty_max, item_skew)
+VALUES
+    ('checkout',       @Checkout,   500,   @Days,     0,          1,         6,         1,       3,       @ItemSkew),
+    ('restock',        @Restock,    60,    @Days,     0,          3,         10,        10,      59,      0),
+    ('correction',     @Correction, 10,    @Days,     0,          1,         1,         1,       30,      0),
+    -- Keeps the Top 10 Inventory Items Added chart populated on the short-range views.
+    ('recent_restock', @Restock,    18,    14,        3,          3,         7,         12,      71,      @ItemSkew);
 
 -- =============================================================================
 -- Reset
 -- =============================================================================
 
 DELETE FROM TransactionItems;
-GO
-
 DELETE FROM Transactions;
-GO
-
--- '[[]' is the LIKE escape for a literal '[', so this matches names ending '[demo]'.
-DELETE FROM Residents WHERE name LIKE '%[[]demo]';
-GO
 
 -- =============================================================================
 -- Residents
 -- =============================================================================
--- Counts per building are uneven on purpose so the Residents Served by Building
--- chart ranks instead of showing twelve equal bars.
+-- Counts per building are uneven on purpose, so the Residents Served by Building chart ranks.
 
 DECLARE @DemoResidents TABLE (name NVARCHAR(255), building_id INT);
 
 INSERT INTO @DemoResidents
     (name, building_id)
 VALUES
-    ('Alice Nguyen [demo]', 1),
-    ('Ben Brooks [demo]', 1),
-    ('Carla Castillo [demo]', 1),
-    ('Derek Dawson [demo]', 1),
-    ('Elena Ellery [demo]', 1),
-    ('Felix Foster [demo]', 1),
-    ('Grace Grant [demo]', 1),
-    ('Hank Hensley [demo]', 1),
-    ('Iris Ibarra [demo]', 1),
-    ('Jamal Jansen [demo]', 1),
-    ('Kayla Keller [demo]', 2),
-    ('Liam Lindqvist [demo]', 2),
-    ('Mona Marsh [demo]', 2),
-    ('Noah Novak [demo]', 2),
-    ('Olivia Osei [demo]', 2),
-    ('Priya Pemberton [demo]', 2),
-    ('Quinn Quintana [demo]', 2),
-    ('Rosa Reyes [demo]', 2),
-    ('Samuel Sorensen [demo]', 3),
-    ('Talia Tanaka [demo]', 3),
-    ('Aaron Whitfield [demo]', 3),
-    ('Bianca Cole [demo]', 3),
-    ('Cyrus Delgado [demo]', 3),
-    ('Dahlia Emerson [demo]', 3),
-    ('Elias Farrow [demo]', 3),
-    ('Fiona Garrett [demo]', 4),
-    ('Gabriel Hollis [demo]', 4),
-    ('Hana Iverson [demo]', 4),
-    ('Isaac Jarrett [demo]', 4),
-    ('Jenna Kowalski [demo]', 4),
-    ('Kofi Lawson [demo]', 4),
-    ('Lena Mbeki [demo]', 5),
-    ('Marcus Nolan [demo]', 5),
-    ('Nadia Ortega [demo]', 5),
-    ('Omar Prescott [demo]', 5),
-    ('Paloma Quill [demo]', 5),
-    ('Reuben Salas [demo]', 6),
-    ('Sofia Trent [demo]', 6),
-    ('Tobias Underwood [demo]', 6),
-    ('Uma Vance [demo]', 6),
-    ('Victor Weaver [demo]', 7),
-    ('Wren Yamada [demo]', 7),
-    ('Xavier Zamora [demo]', 7),
-    ('Yara Abbott [demo]', 7),
-    ('Zach Bellamy [demo]', 8),
-    ('Amara Chen [demo]', 8),
-    ('Bruno Duarte [demo]', 8),
-    ('Celia Egan [demo]', 9),
-    ('Dorian Fitz [demo]', 9),
-    ('Esme Gallo [demo]', 9),
-    ('Frank Haines [demo]', 10),
-    ('Greta Iqbal [demo]', 10),
-    ('Hugo Jimenez [demo]', 10),
-    ('Ingrid Kaur [demo]', 11),
-    ('Jonas Leclair [demo]', 11),
-    ('Kira Mendez [demo]', 12),
-    ('Louis Novotny [demo]', 12);
+    ('Alice Nguyen', 1),
+    ('Ben Brooks', 1),
+    ('Carla Castillo', 1),
+    ('Derek Dawson', 1),
+    ('Elena Ellery', 1),
+    ('Felix Foster', 1),
+    ('Grace Grant', 1),
+    ('Hank Hensley', 1),
+    ('Iris Ibarra', 1),
+    ('Jamal Jansen', 1),
+    ('Kayla Keller', 2),
+    ('Liam Lindqvist', 2),
+    ('Mona Marsh', 2),
+    ('Noah Novak', 2),
+    ('Olivia Osei', 2),
+    ('Priya Pemberton', 2),
+    ('Quinn Quintana', 2),
+    ('Rosa Reyes', 2),
+    ('Samuel Sorensen', 3),
+    ('Talia Tanaka', 3),
+    ('Aaron Whitfield', 3),
+    ('Bianca Cole', 3),
+    ('Cyrus Delgado', 3),
+    ('Dahlia Emerson', 3),
+    ('Elias Farrow', 3),
+    ('Fiona Garrett', 4),
+    ('Gabriel Hollis', 4),
+    ('Hana Iverson', 4),
+    ('Isaac Jarrett', 4),
+    ('Jenna Kowalski', 4),
+    ('Kofi Lawson', 4),
+    ('Lena Mbeki', 5),
+    ('Marcus Nolan', 5),
+    ('Nadia Ortega', 5),
+    ('Omar Prescott', 5),
+    ('Paloma Quill', 5),
+    ('Reuben Salas', 6),
+    ('Sofia Trent', 6),
+    ('Tobias Underwood', 6),
+    ('Uma Vance', 6),
+    ('Victor Weaver', 7),
+    ('Wren Yamada', 7),
+    ('Xavier Zamora', 7),
+    ('Yara Abbott', 7),
+    ('Zach Bellamy', 8),
+    ('Amara Chen', 8),
+    ('Bruno Duarte', 8),
+    ('Celia Egan', 9),
+    ('Dorian Fitz', 9),
+    ('Esme Gallo', 9),
+    ('Frank Haines', 10),
+    ('Greta Iqbal', 10),
+    ('Hugo Jimenez', 10),
+    ('Ingrid Kaur', 11),
+    ('Jonas Leclair', 11),
+    ('Kira Mendez', 12),
+    ('Louis Novotny', 12);
+
+DELETE FROM Residents WHERE name IN (SELECT name FROM @DemoResidents);
 
 -- Units are matched by position within the building, so unit ids are never hardcoded.
 INSERT INTO Residents (name, unit_id)
@@ -98,385 +141,192 @@ JOIN (
            ROW_NUMBER() OVER (PARTITION BY building_id ORDER BY id) AS seq
     FROM Units
 ) u ON u.building_id = r.building_id AND u.seq = r.seq;
-GO
 
 -- =============================================================================
 -- Pools
 -- =============================================================================
--- Numbered lookups the loops below draw from.
+-- Numbered, so a random position can be turned into an id.
 
-DROP TABLE IF EXISTS #Volunteers;
-DROP TABLE IF EXISTS #ResidentPool;
-DROP TABLE IF EXISTS #ItemPool;
+DECLARE @VolunteerPool TABLE (rn INT IDENTITY(1,1) PRIMARY KEY, id INT NOT NULL);
+DECLARE @ResidentPool  TABLE (rn INT IDENTITY(1,1) PRIMARY KEY, id INT NOT NULL);
+DECLARE @ItemPool      TABLE (rn INT IDENTITY(1,1) PRIMARY KEY, id INT NOT NULL);
+DECLARE @Numbers       TABLE (i  INT PRIMARY KEY);
 
-CREATE TABLE #Volunteers (rn INT IDENTITY(1,1), id INT);
-INSERT INTO #Volunteers (id)
+INSERT INTO @VolunteerPool (id)
 SELECT id FROM Users WHERE role = 'volunteer' AND active = 1 ORDER BY id;
 
-CREATE TABLE #ResidentPool (rn INT IDENTITY(1,1), id INT);
-INSERT INTO #ResidentPool (id)
+INSERT INTO @ResidentPool (id)
 SELECT id FROM Residents ORDER BY id;
 
--- Items already at or below their threshold come first. The loops favour the
--- start of this list, so the items running out are also the ones going out and
--- the Low Stock table's Checked Out column has numbers in it.
-CREATE TABLE #ItemPool (rn INT IDENTITY(1,1), id INT);
-INSERT INTO #ItemPool (id)
+-- Low-stock items first: picks favour the front, so the items running out are the ones going out.
+INSERT INTO @ItemPool (id)
 SELECT id FROM Items
 WHERE type = 'General'
 ORDER BY CASE WHEN quantity <= threshold THEN 0 ELSE 1 END, id;
-GO
+
+-- 1 to 1000, more than any total in @Kinds.
+INSERT INTO @Numbers (i)
+SELECT TOP (1000) ROW_NUMBER() OVER (ORDER BY (SELECT NULL))
+FROM sys.all_objects a CROSS JOIN sys.all_objects b;
+
+DECLARE @VolunteerCount INT = (SELECT COUNT(*) FROM @VolunteerPool);
+DECLARE @ResidentCount  INT = (SELECT COUNT(*) FROM @ResidentPool);
 
 -- =============================================================================
--- Checkout schedule
+-- Schedule
 -- =============================================================================
--- Dates are chosen first so the density rules live in one place and the
--- checkout loop below stays simple.
+-- One row per transaction to write. Every density rule lives here; the inserts below only read it.
+-- Random values come from NEWID() so each row gets its own; a bare RAND() is one value per statement.
 
-DROP TABLE IF EXISTS #Schedule;
-CREATE TABLE #Schedule (rn INT IDENTITY(1,1), placed_at DATETIME, is_welcome BIT);
+DECLARE @Schedule TABLE (
+    id           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    kind         VARCHAR(20)      NOT NULL,
+    placed_at    DATETIME         NOT NULL,
+    is_welcome   BIT              NOT NULL DEFAULT 0,
+    volunteer_rn INT,  -- pool positions, resolved to ids when Transactions is written
+    resident_rn  INT,
+    line_count   INT
+);
 
-DECLARE @CheckoutCount INT = 500;
-DECLARE @Days          INT = 365;
-DECLARE @DenseDays     INT = 21;
-DECLARE @Anchor       DATE = CAST(GETDATE() AS DATE);
-DECLARE @i             INT = 1;
-DECLARE @offset        INT;
-DECLARE @day          DATE;
+-- Checkouts over the year, bunched towards today so the period-over-period deltas are not flat.
+INSERT INTO @Schedule (kind, placed_at, is_welcome)
+SELECT k.kind,
+       DATEADD(MINUTE, @PantryOpens + ABS(CHECKSUM(NEWID())) % (@PantryCloses - @PantryOpens),
+               DATEADD(DAY, -CAST(k.days_back * POWER(RAND(CHECKSUM(NEWID())), @DateSkew) AS INT), @Anchor)),
+       CASE WHEN n.i % @WelcomeEvery = 0 THEN 1 ELSE 0 END
+FROM @Kinds k
+JOIN @Numbers n ON n.i <= k.total
+WHERE k.kind = 'checkout';
 
-DECLARE @seed FLOAT = RAND(20260101);
+-- The pantry runs on weekdays, so weekends slide back to Friday. Day 0 (1900-01-01) is a Monday.
+UPDATE @Schedule
+SET placed_at = DATEADD(DAY, -CASE DATEDIFF(DAY, '19000101', placed_at) % 7 WHEN 5 THEN 1 WHEN 6 THEN 2 ELSE 0 END, placed_at);
 
-WHILE @i <= @CheckoutCount
-BEGIN
-    -- Squaring pushes dates towards the present, so recent months are busier
-    -- than old ones and the period-over-period deltas are not flat.
-    SET @offset = CAST(@Days * POWER(RAND(), 1.2) AS INT);
-    SET @day = DATEADD(DAY, -@offset, @Anchor);
+-- The page opens on today, so the last @DenseDays days (weekends too) get 2 to 4 extra checkouts each.
+INSERT INTO @Schedule (kind, placed_at)
+SELECT 'checkout',
+       DATEADD(MINUTE, @PantryOpens + ABS(CHECKSUM(NEWID())) % (@PantryCloses - @PantryOpens),
+               DATEADD(DAY, 1 - day.i, @Anchor))
+FROM @Numbers day
+JOIN @Numbers line ON line.i <= 4
+WHERE day.i <= @DenseDays
+  AND (line.i <= 2 OR ABS(CHECKSUM(NEWID())) % 2 = 0);   -- two always, the rest on a coin flip
 
-    -- The pantry runs on weekdays.
-    IF DATEDIFF(DAY, '19000101', @day) % 7 = 5 SET @day = DATEADD(DAY, -1, @day);
-    IF DATEDIFF(DAY, '19000101', @day) % 7 = 6 SET @day = DATEADD(DAY, -2, @day);
+-- Restocks and corrections have no resident, so only the History page's inventory tab sees them.
+INSERT INTO @Schedule (kind, placed_at)
+SELECT k.kind,
+       DATEADD(MINUTE, @StockOpens + ABS(CHECKSUM(NEWID())) % (@StockCloses - @StockOpens),
+               DATEADD(DAY, -CASE WHEN n.i <= k.land_today THEN 0 ELSE ABS(CHECKSUM(NEWID())) % k.days_back END, @Anchor))
+FROM @Kinds k
+JOIN @Numbers n ON n.i <= k.total
+WHERE k.kind <> 'checkout';
 
-    INSERT INTO #Schedule (placed_at, is_welcome)
-    VALUES (DATEADD(MINUTE, 540 + CAST(RAND() * 480 AS INT), CAST(@day AS DATETIME)),
-            CASE WHEN @i % 36 = 0 THEN 1 ELSE 0 END);
-
-    SET @i = @i + 1;
-END
-
--- The page opens on "today", and the delta chip needs yesterday to be non-empty
--- too. Give the recent days a floor so that first screen is never empty.
-DECLARE @d INT = 0;
-DECLARE @shortfall INT;
-
-WHILE @d < @DenseDays
-BEGIN
-    SET @day = DATEADD(DAY, -@d, @Anchor);
-    SET @shortfall = 2 + CAST(RAND() * 3 AS INT)
-                   - (SELECT COUNT(*) FROM #Schedule WHERE CAST(placed_at AS DATE) = @day);
-
-    WHILE @shortfall > 0
-    BEGIN
-        INSERT INTO #Schedule (placed_at, is_welcome)
-        VALUES (DATEADD(MINUTE, 540 + CAST(RAND() * 480 AS INT), CAST(@day AS DATETIME)), 0);
-
-        SET @shortfall = @shortfall - 1;
-    END
-
-    SET @d = @d + 1;
-END
-GO
+-- Who handled it, who it was for, and how many lines it has.
+UPDATE s
+SET volunteer_rn = 1 + ABS(CHECKSUM(NEWID())) % @VolunteerCount,
+    resident_rn  = CASE WHEN s.kind = 'checkout'
+                        THEN 1 + CAST(POWER(RAND(CHECKSUM(NEWID())), @ResidentSkew) * @ResidentCount AS INT) END,
+    line_count   = k.lines_min + ABS(CHECKSUM(NEWID())) % (k.lines_max - k.lines_min + 1)
+FROM @Schedule s
+JOIN @Kinds k ON k.kind = s.kind;
 
 -- =============================================================================
--- Checkouts
+-- Transactions
 -- =============================================================================
 
-DECLARE @rn         INT = 1;
-DECLARE @last       INT = (SELECT MAX(rn) FROM #Schedule);
-DECLARE @residents  INT = (SELECT COUNT(*) FROM #ResidentPool);
-DECLARE @items      INT = (SELECT COUNT(*) FROM #ItemPool);
-DECLARE @volunteers INT = (SELECT COUNT(*) FROM #Volunteers);
+-- building_id stays NULL: the reporting procs resolve it through Residents, Units and Buildings.
+INSERT INTO Transactions (id, user_id, resident_id, transaction_type, transaction_date)
+SELECT s.id, v.id, r.id, k.type_id, s.placed_at
+FROM @Schedule s
+JOIN @Kinds k ON k.kind = s.kind
+JOIN @VolunteerPool v ON v.rn = s.volunteer_rn
+LEFT JOIN @ResidentPool r ON r.rn = s.resident_rn;
 
-DECLARE @txn UNIQUEIDENTIFIER;
-DECLARE @placed_at DATETIME;
-DECLARE @welcome BIT;
-DECLARE @resident INT;
-DECLARE @volunteer INT;
-DECLARE @lines INT;
-DECLARE @line INT;
-DECLARE @item INT;
+-- Weighted pick without replacement: item weight is 1 / rn ^ skew, so a skew of 0 is uniform.
+INSERT INTO TransactionItems (transaction_id, item_id, quantity)
+SELECT s.id, p.id, k.qty_min + ABS(CHECKSUM(NEWID())) % (k.qty_max - k.qty_min + 1)
+FROM @Schedule s
+JOIN @Kinds k ON k.kind = s.kind
+CROSS APPLY (
+    SELECT TOP (s.line_count) i.id
+    FROM @ItemPool i
+    ORDER BY POWER(RAND(CHECKSUM(NEWID())), POWER(CAST(i.rn AS FLOAT), k.item_skew)) DESC
+) p
+WHERE s.is_welcome = 0;
 
-WHILE @rn <= @last
-BEGIN
-    SELECT @placed_at = placed_at, @welcome = is_welcome FROM #Schedule WHERE rn = @rn;
-
-    -- Squaring makes a minority of residents account for most visits, which is
-    -- what gives the Repeats only toggle something to filter.
-    SELECT @resident = id FROM #ResidentPool
-    WHERE rn = 1 + CAST(POWER(RAND(), 2.0) * @residents AS INT);
-
-    SELECT @volunteer = id FROM #Volunteers
-    WHERE rn = 1 + CAST(RAND() * @volunteers AS INT);
-
-    SET @txn = NEWID();
-
-    -- building_id stays NULL: no stored procedure writes it, and the reporting
-    -- procs resolve the building through Residents, Units and Buildings.
-    INSERT INTO Transactions (id, user_id, resident_id, transaction_type, transaction_date)
-    VALUES (@txn, @volunteer, @resident, 1, @placed_at);
-
-    IF @welcome = 1
-    BEGIN
-        -- Mirrors ProcessWelcomeBasketCheckout: every basket item, plus a sheet
-        -- set. Ids 171 and 172 are what GetCheckoutHistory looks for, and both
-        -- have items_per_basket = 0 so they are not in the bulk insert.
-        INSERT INTO TransactionItems (transaction_id, item_id, quantity)
-        SELECT @txn, id, items_per_basket
-        FROM Items
-        WHERE type = 'Welcome Basket' AND items_per_basket > 0;
-
-        INSERT INTO TransactionItems (transaction_id, item_id, quantity)
-        VALUES (@txn, CASE WHEN @rn % 2 = 0 THEN 171 ELSE 172 END, 1);
-    END
-    ELSE
-    BEGIN
-        SET @lines = 1 + CAST(RAND() * 6 AS INT);
-        SET @line = 1;
-
-        WHILE @line <= @lines
-        BEGIN
-            SELECT @item = id FROM #ItemPool
-            WHERE rn = 1 + CAST(POWER(RAND(), 2.2) * @items AS INT);
-
-            IF NOT EXISTS (SELECT 1 FROM TransactionItems
-                           WHERE transaction_id = @txn AND item_id = @item)
-                INSERT INTO TransactionItems (transaction_id, item_id, quantity)
-                VALUES (@txn, @item, 1 + CAST(RAND() * 3 AS INT));
-
-            SET @line = @line + 1;
-        END
-    END
-
-    SET @rn = @rn + 1;
-END
-GO
+-- Welcome baskets mirror ProcessWelcomeBasketCheckout: every basket item plus one sheet set.
+INSERT INTO TransactionItems (transaction_id, item_id, quantity)
+SELECT s.id, i.id, i.items_per_basket
+FROM @Schedule s
+JOIN Items i ON i.type = 'Welcome Basket' AND i.items_per_basket > 0
+WHERE s.is_welcome = 1
+UNION ALL
+SELECT id, CASE WHEN ABS(CHECKSUM(NEWID())) % 2 = 0 THEN @TwinSheets ELSE @FullSheets END, 1
+FROM @Schedule
+WHERE is_welcome = 1;
 
 -- =============================================================================
 -- Checkout edits
 -- =============================================================================
--- An edit is a child transaction holding the DELTA, not the new total. Both
--- reporting procs fold children into the parent with SUM(...) HAVING > 0, so a
--- negative delta equal to the original quantity drops the item from the totals.
--- Edits land a few days after their parent, which puts some of them in the
--- following month.
+-- An edit is a child transaction holding the delta; the reporting procs SUM it into the parent.
 
-DROP TABLE IF EXISTS #Editable;
-CREATE TABLE #Editable (rn INT IDENTITY(1,1), id UNIQUEIDENTIFIER, user_id INT,
-                        resident_id INT, transaction_date DATETIME);
+DECLARE @Edits TABLE (
+    id        UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    parent_id UNIQUEIDENTIFIER NOT NULL,
+    edited_at DATETIME         NOT NULL,
+    shape     VARCHAR(10)      NOT NULL,  -- add, reduce or return
+    item_id   INT              NOT NULL,  -- the parent's first line
+    quantity  INT              NOT NULL
+);
 
--- Every twelfth checkout gets edited. Welcome baskets are left alone.
-INSERT INTO #Editable (id, user_id, resident_id, transaction_date)
-SELECT id, user_id, resident_id, transaction_date
+-- Every @EditEvery-th ordinary checkout, 1 to 20 days later, cycling through the three shapes.
+INSERT INTO @Edits (parent_id, edited_at, shape, item_id, quantity)
+SELECT c.id, c.edited_at,
+       CASE (c.seq / @EditEvery) % 3 WHEN 0 THEN 'add' WHEN 1 THEN 'reduce' ELSE 'return' END,
+       parent_line.item_id, parent_line.quantity
 FROM (
-    SELECT t.id, t.user_id, t.resident_id, t.transaction_date,
-           ROW_NUMBER() OVER (ORDER BY t.transaction_date) AS seq
-    FROM Transactions t
-    WHERE t.transaction_type = 1
-      AND NOT EXISTS (SELECT 1 FROM TransactionItems ti
-                      WHERE ti.transaction_id = t.id AND ti.item_id IN (171, 172))
+    SELECT id,
+           DATEADD(DAY, 1 + ABS(CHECKSUM(NEWID())) % 20, placed_at) AS edited_at,
+           ROW_NUMBER() OVER (ORDER BY placed_at) AS seq
+    FROM @Schedule
+    WHERE kind = 'checkout' AND is_welcome = 0
 ) c
-WHERE seq % 12 = 0;
+CROSS APPLY (
+    SELECT TOP 1 item_id, quantity
+    FROM TransactionItems
+    WHERE transaction_id = c.id
+    ORDER BY item_id
+) parent_line
+WHERE c.seq % @EditEvery = 0;
 
-DECLARE @Anchor DATE = CAST(GETDATE() AS DATE);
-DECLARE @rn INT = 1;
-DECLARE @last INT = (SELECT ISNULL(MAX(rn), 0) FROM #Editable);
-DECLARE @items INT = (SELECT COUNT(*) FROM #ItemPool);
+DECLARE @ClosingToday DATETIME = DATEADD(MINUTE, @PantryCloses, @Anchor);
+UPDATE @Edits SET edited_at = @ClosingToday WHERE edited_at > @ClosingToday;
 
-DECLARE @edit UNIQUEIDENTIFIER;
-DECLARE @parent UNIQUEIDENTIFIER;
-DECLARE @user_id INT;
-DECLARE @resident_id INT;
-DECLARE @edited_at DATETIME;
-DECLARE @item INT;
-DECLARE @quantity INT;
-DECLARE @shape INT;
+INSERT INTO Transactions (id, user_id, resident_id, transaction_type, transaction_date, parent_transaction_id)
+SELECT e.id, t.user_id, t.resident_id, @CheckoutEdit, e.edited_at, e.parent_id
+FROM @Edits e
+JOIN Transactions t ON t.id = e.parent_id;
 
-WHILE @rn <= @last
-BEGIN
-    SELECT @parent = id, @user_id = user_id, @resident_id = resident_id,
-           @edited_at = DATEADD(DAY, 1 + CAST(RAND() * 20 AS INT), transaction_date)
-    FROM #Editable WHERE rn = @rn;
-
-    IF @edited_at > DATEADD(HOUR, 17, CAST(@Anchor AS DATETIME))
-        SET @edited_at = DATEADD(HOUR, 17, CAST(@Anchor AS DATETIME));
-
-    SELECT TOP 1 @item = item_id, @quantity = quantity
-    FROM TransactionItems WHERE transaction_id = @parent ORDER BY item_id;
-
-    SET @edit = NEWID();
-    SET @shape = @rn % 3;
-
-    INSERT INTO Transactions (id, user_id, resident_id, transaction_type,
-                              transaction_date, parent_transaction_id)
-    VALUES (@edit, @user_id, @resident_id, 4, @edited_at, @parent);
-
-    IF @shape = 0
-    BEGIN
-        -- An item that was missed at the counter.
-        SELECT @item = id FROM #ItemPool WHERE rn = 1 + CAST(RAND() * @items AS INT);
-
-        INSERT INTO TransactionItems (transaction_id, item_id, quantity, additional_notes)
-        VALUES (@edit, @item, 1 + CAST(RAND() * 2 AS INT), 'Item added after checkout');
-    END
-    ELSE IF @shape = 1 AND @quantity > 1
-    BEGIN
-        INSERT INTO TransactionItems (transaction_id, item_id, quantity, additional_notes)
-        VALUES (@edit, @item, -1, 'Quantity corrected');
-    END
-    ELSE
-    BEGIN
-        -- Nets to zero, so this item drops out of GetCheckoutItemTotals.
-        INSERT INTO TransactionItems (transaction_id, item_id, quantity, additional_notes)
-        VALUES (@edit, @item, -@quantity, 'Returned in full');
-    END
-
-    SET @rn = @rn + 1;
-END
-GO
-
--- =============================================================================
--- Restocks and corrections
--- =============================================================================
--- Both carry resident_id NULL. The reporting procs inner join Residents, so
--- these never reach the analytics page. They feed the History page's inventory
--- tab through GetInventoryHistory.
-
-DECLARE @RestockCount    INT = 60;
-DECLARE @CorrectionCount INT = 10;
-DECLARE @Days            INT = 365;
-DECLARE @Anchor         DATE = CAST(GETDATE() AS DATE);
-
-DECLARE @items      INT = (SELECT COUNT(*) FROM #ItemPool);
-DECLARE @volunteers INT = (SELECT COUNT(*) FROM #Volunteers);
-
-DECLARE @i INT = 1;
-DECLARE @txn UNIQUEIDENTIFIER;
-DECLARE @volunteer INT;
-DECLARE @placed_at DATETIME;
-DECLARE @type INT;
-DECLARE @lines INT;
-DECLARE @line INT;
-DECLARE @item INT;
-
-WHILE @i <= @RestockCount + @CorrectionCount
-BEGIN
-    SET @type = CASE WHEN @i <= @RestockCount THEN 2 ELSE 3 END;
-    SET @placed_at = DATEADD(DAY, -CAST(RAND() * @Days AS INT),
-                             DATEADD(HOUR, 8, CAST(@Anchor AS DATETIME)));
-
-    SELECT @volunteer = id FROM #Volunteers WHERE rn = 1 + CAST(RAND() * @volunteers AS INT);
-
-    SET @txn = NEWID();
-
-    INSERT INTO Transactions (id, user_id, resident_id, transaction_type, transaction_date)
-    VALUES (@txn, @volunteer, NULL, @type, @placed_at);
-
-    SET @lines = CASE WHEN @type = 2 THEN 3 + CAST(RAND() * 8 AS INT) ELSE 1 END;
-    SET @line = 1;
-
-    WHILE @line <= @lines
-    BEGIN
-        SELECT @item = id FROM #ItemPool WHERE rn = 1 + CAST(RAND() * @items AS INT);
-
-        IF NOT EXISTS (SELECT 1 FROM TransactionItems
-                       WHERE transaction_id = @txn AND item_id = @item)
-            INSERT INTO TransactionItems (transaction_id, item_id, quantity)
-            VALUES (@txn, @item, CASE WHEN @type = 2 THEN 10 + CAST(RAND() * 50 AS INT)
-                                      ELSE 1 + CAST(RAND() * 30 AS INT) END);
-
-        SET @line = @line + 1;
-    END
-
-    SET @i = @i + 1;
-END
-GO
-
--- =============================================================================
--- Recent restocks
--- =============================================================================
--- The main restock loop spreads 60 restocks over a year, so on the default
--- "today" / short-range views the Top 10 Inventory Items Added chart is empty.
--- This mirrors the dense-recent-days floor used for checkouts: a burst of
--- restocks in the last two weeks, a few of them today, all drawn from the front
--- of the item pool so the same names lead both the checked-out and added charts.
-
-DECLARE @RecentRestocks INT = 18;
-DECLARE @RecentDays     INT = 14;
-DECLARE @Anchor        DATE = CAST(GETDATE() AS DATE);
-
-DECLARE @items      INT = (SELECT COUNT(*) FROM #ItemPool);
-DECLARE @volunteers INT = (SELECT COUNT(*) FROM #Volunteers);
-
-DECLARE @i INT = 1;
-DECLARE @txn UNIQUEIDENTIFIER;
-DECLARE @volunteer INT;
-DECLARE @placed_at DATETIME;
-DECLARE @lines INT;
-DECLARE @line INT;
-DECLARE @item INT;
-
-WHILE @i <= @RecentRestocks
-BEGIN
-    -- The first few land today; the rest fall within the last @RecentDays.
-    SET @placed_at = DATEADD(DAY,
-        CASE WHEN @i <= 3 THEN 0 ELSE -CAST(RAND() * @RecentDays AS INT) END,
-        DATEADD(HOUR, 8 + CAST(RAND() * 6 AS INT), CAST(@Anchor AS DATETIME)));
-
-    SELECT @volunteer = id FROM #Volunteers WHERE rn = 1 + CAST(RAND() * @volunteers AS INT);
-
-    SET @txn = NEWID();
-
-    INSERT INTO Transactions (id, user_id, resident_id, transaction_type, transaction_date)
-    VALUES (@txn, @volunteer, NULL, 2, @placed_at);
-
-    SET @lines = 3 + CAST(RAND() * 5 AS INT);
-    SET @line = 1;
-
-    WHILE @line <= @lines
-    BEGIN
-        -- Squaring favours the front of the pool (the items also going out).
-        SELECT @item = id FROM #ItemPool
-        WHERE rn = 1 + CAST(POWER(RAND(), 2.0) * @items AS INT);
-
-        IF NOT EXISTS (SELECT 1 FROM TransactionItems
-                       WHERE transaction_id = @txn AND item_id = @item)
-            INSERT INTO TransactionItems (transaction_id, item_id, quantity)
-            VALUES (@txn, @item, 12 + CAST(RAND() * 60 AS INT));
-
-        SET @line = @line + 1;
-    END
-
-    SET @i = @i + 1;
-END
-GO
+-- 'add' picks an item the parent did not have; the other shapes touch the parent's first line.
+INSERT INTO TransactionItems (transaction_id, item_id, quantity, additional_notes)
+SELECT e.id,
+       COALESCE(added.id, e.item_id),
+       CASE e.shape WHEN 'add' THEN 1 + ABS(CHECKSUM(NEWID())) % 2 WHEN 'reduce' THEN -1 ELSE -e.quantity END,
+       CASE e.shape WHEN 'add' THEN 'Item added after checkout' WHEN 'reduce' THEN 'Quantity corrected' ELSE 'Returned in full' END
+FROM @Edits e
+OUTER APPLY (
+    SELECT TOP 1 i.id
+    FROM @ItemPool i
+    WHERE e.shape = 'add'
+      AND NOT EXISTS (SELECT 1 FROM TransactionItems ti WHERE ti.transaction_id = e.parent_id AND ti.item_id = i.id)
+    ORDER BY NEWID()
+) added;
 
 -- =============================================================================
 -- Stock levels
 -- =============================================================================
--- The seeded inventory already covers Out of Stock, Low Stock and Normal Stock.
--- These two give the Needs Review status (quantity < 0) an example. Stock is
--- not decremented to pay for the history above: Items.quantity is the count on
--- hand today, not a balance carried forward from a year of checkouts.
+-- Two Needs Review examples (quantity < 0). Items.quantity is today's count, not a balance from the history above.
 
 UPDATE Items SET quantity = -3 WHERE name = 'Blender';
-GO
-
 UPDATE Items SET quantity = -1 WHERE name = 'Umbrella';
-GO
-
-DROP TABLE IF EXISTS #Volunteers;
-DROP TABLE IF EXISTS #ResidentPool;
-DROP TABLE IF EXISTS #ItemPool;
-DROP TABLE IF EXISTS #Schedule;
-DROP TABLE IF EXISTS #Editable;
 GO

@@ -46,34 +46,17 @@ export const summarizeCheckouts = (
   };
 };
 
-// "John O'Brien-Doe" and "Jon OBrien Doe" both key to "j doe". Two residents
-// sharing a surname and an initial count as one.
-export const residentKey = (name: string): string => {
-  const parts = name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, '')
-    .split(/\s+/)
-    .filter(Boolean);
-  if (parts.length === 0) return '';
-  const surname = parts[parts.length - 1];
-  return parts.length === 1 ? surname : `${parts[0][0]} ${surname}`;
-};
-
-// Keyed per building, so a shared surname and initial across two buildings is two people.
+// Keyed on resident_id, so two residents sharing a name stay two people.
 export const flagDuplicates = (
   transactions: CheckoutTransaction[],
 ): (CheckoutTransaction & { isDuplicate: boolean; visitCount: number })[] => {
-  const counts = new Map<string, number>();
-  transactions.forEach((t) => {
-    const key = residentKey(t.resident_name);
-    if (!key) return;
-    const buildingKey = `${key}|${t.building_id}`;
-    counts.set(buildingKey, (counts.get(buildingKey) ?? 0) + 1);
-  });
+  const counts = new Map<number, number>();
+  transactions.forEach((t) =>
+    counts.set(t.resident_id, (counts.get(t.resident_id) ?? 0) + 1),
+  );
 
   return transactions.map((t) => {
-    const key = residentKey(t.resident_name);
-    const visitCount = key ? (counts.get(`${key}|${t.building_id}`) ?? 0) : 0;
+    const visitCount = counts.get(t.resident_id) ?? 0;
     return { ...t, isDuplicate: visitCount > 1, visitCount };
   });
 };

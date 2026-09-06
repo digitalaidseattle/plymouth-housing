@@ -4,20 +4,10 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import {
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { AskDataAnswer } from '../types/interfaces';
-import { usePagination } from '../hooks/usePagination';
+import DataTable from '../components/AdminHome/DataTable';
 import RankedBarChart from '../components/AdminHome/RankedBarChart';
-import TablePaginationBar from '../components/AdminHome/TablePaginationBar';
 
 const EMPTY = 'No rows matched';
 
@@ -38,9 +28,6 @@ const resolveDisplay = ({ display, columns, rows }: AskDataAnswer) => {
 const AskDataResult: React.FC<{ answer: AskDataAnswer }> = ({ answer }) => {
   const { title, explanation, columns, rows } = answer;
   const display = resolveDisplay(answer);
-  // A new answer brings a new rows array, which sends the table back to page one.
-  const { page, rowsPerPage, setPage, changeRowsPerPage, paginatedRows } =
-    usePagination(rows);
 
   if (display === 'number') {
     return (
@@ -79,60 +66,22 @@ const AskDataResult: React.FC<{ answer: AskDataAnswer }> = ({ answer }) => {
   }
 
   return (
-    <Stack sx={{ gap: 2 }}>
-      <Stack
-        direction="row"
-        sx={{ alignItems: 'center', justifyContent: 'space-between' }}
-      >
-        <Typography variant="h5">{title}</Typography>
+    <DataTable
+      bare
+      title={title}
+      action={
         <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
           {answer.truncated ? `First ${rows.length} rows` : explanation}
         </Typography>
-      </Stack>
-      <TableContainer sx={{ overflowX: 'auto' }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column}
-                  sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}
-                >
-                  {column}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedRows.map((row, rowIndex) => (
-              <TableRow key={`${page}-${rowIndex}`}>
-                {row.map((value, valueIndex) => (
-                  <TableCell key={columns[valueIndex] ?? valueIndex}>
-                    {value}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-            {rows.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={Math.max(columns.length, 1)} align="center">
-                  {EMPTY}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {rows.length > 0 && (
-        <TablePaginationBar
-          rowCount={rows.length}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={setPage}
-          onRowsPerPageChange={changeRowsPerPage}
-        />
-      )}
-    </Stack>
+      }
+      columns={columns.map((column, columnIndex) => ({
+        label: column,
+        render: (row: AskDataAnswer['rows'][number]) => row[columnIndex],
+      }))}
+      rows={rows}
+      getRowKey={(_, index) => index}
+      emptyMessage={EMPTY}
+    />
   );
 };
 

@@ -8,7 +8,6 @@ import { describe, test, expect } from 'vitest';
 import {
   summarizeCheckouts,
   flagDuplicates,
-  residentKey,
   countResidentsByBuilding,
   percentChange,
   previousPeriod,
@@ -159,7 +158,7 @@ describe('flagDuplicates', () => {
     expect(result.map((t) => t.isDuplicate)).toEqual([true, true, true]);
   });
 
-  test('flags near-identical names as the same resident', () => {
+  test('keeps distinct residents sharing a name apart', () => {
     const transactions = [
       makeTransaction({
         transaction_id: 'txn-1',
@@ -169,33 +168,17 @@ describe('flagDuplicates', () => {
       makeTransaction({
         transaction_id: 'txn-2',
         resident_id: 11,
-        resident_name: 'Jon Doe',
+        resident_name: 'John Doe',
       }),
       makeTransaction({
         transaction_id: 'txn-3',
         resident_id: 12,
-        resident_name: 'Marcus Green',
+        resident_name: 'Jane Doe',
       }),
     ];
     const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.isDuplicate)).toEqual([true, true, false]);
-  });
-
-  test('ignores casing and punctuation differences', () => {
-    const transactions = [
-      makeTransaction({
-        transaction_id: 'txn-1',
-        resident_id: 10,
-        resident_name: "Mary O'Brien",
-      }),
-      makeTransaction({
-        transaction_id: 'txn-2',
-        resident_id: 11,
-        resident_name: 'mary obrien',
-      }),
-    ];
-    const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.isDuplicate)).toEqual([true, true]);
+    expect(result.map((t) => t.isDuplicate)).toEqual([false, false, false]);
+    expect(result.map((t) => t.visitCount)).toEqual([1, 1, 1]);
   });
 
   test('preserves the original order', () => {
@@ -215,64 +198,14 @@ describe('flagDuplicates', () => {
     expect(result.map((t) => t.transaction_id)).toEqual(['txn-1', 'txn-2']);
   });
 
-  test('does not flag the same normalized name across different buildings', () => {
+  test('counts every transaction a resident made', () => {
     const transactions = [
-      makeTransaction({
-        transaction_id: 'txn-1',
-        building_id: 1,
-        resident_id: 10,
-        resident_name: 'John Doe',
-      }),
-      makeTransaction({
-        transaction_id: 'txn-2',
-        building_id: 2,
-        resident_id: 11,
-        resident_name: 'John Doe',
-      }),
-    ];
-    const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.isDuplicate)).toEqual([false, false]);
-    expect(result.map((t) => t.visitCount)).toEqual([1, 1]);
-  });
-
-  test('counts visits for a resident with 3 transactions in one building', () => {
-    const transactions = [
-      makeTransaction({ transaction_id: 'txn-1', building_id: 1, resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-2', building_id: 1, resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-3', building_id: 1, resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-2', resident_id: 10 }),
+      makeTransaction({ transaction_id: 'txn-3', resident_id: 10 }),
     ];
     const result = flagDuplicates(transactions);
     expect(result.map((t) => t.visitCount)).toEqual([3, 3, 3]);
-  });
-});
-
-describe('residentKey', () => {
-  test('reduces a name to first initial and surname', () => {
-    expect(residentKey('John Doe')).toBe('j doe');
-  });
-
-  test('gives a shortened given name the same key', () => {
-    expect(residentKey('Jon Doe')).toBe(residentKey('John Doe'));
-  });
-
-  test('ignores casing, punctuation and extra whitespace', () => {
-    expect(residentKey("  Mary  O'Brien-Doe ")).toBe('m obriendoe');
-  });
-
-  test('uses a middle name only for the surname', () => {
-    expect(residentKey('John Michael Doe')).toBe('j doe');
-  });
-
-  test('keeps a single-word name whole', () => {
-    expect(residentKey('Cher')).toBe('cher');
-  });
-
-  test('returns an empty key for a name with nothing usable', () => {
-    expect(residentKey('  --  ')).toBe('');
-  });
-
-  test('keeps different surnames apart', () => {
-    expect(residentKey('John Doe')).not.toBe(residentKey('John Roe'));
   });
 });
 

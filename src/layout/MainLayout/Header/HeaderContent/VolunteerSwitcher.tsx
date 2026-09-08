@@ -14,7 +14,7 @@ import {
 const VolunteerSwitcher: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-  const { loggedInUserId, setLoggedInUserId, activeVolunteers } = useContext(UserContext);
+  const { loggedInUserId, setLoggedInUserId, activeVolunteers, setPinVerifiedForUserId } = useContext(UserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -25,6 +25,7 @@ const VolunteerSwitcher: React.FC = () => {
   };
 
   const handleSelect = (selectedVolunteer: number) => {
+    setPinVerifiedForUserId(null);
     setLoggedInUserId(selectedVolunteer);
     navigate('/enter-your-pin');
     handleClose();

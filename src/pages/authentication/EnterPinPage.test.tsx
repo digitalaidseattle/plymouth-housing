@@ -44,7 +44,7 @@ const createUserContextValue = (overrides = {}) => ({
   setActiveVolunteers: vi.fn(),
   isLoading: false,
   pinVerified: false,
-  setPinVerified: vi.fn(),
+  setPinVerifiedForUserId: vi.fn(),
   ...overrides,
 });
 
@@ -87,7 +87,7 @@ describe('EnterPinPage Component', () => {
   });
 
   test('handles valid PIN and navigates to volunteer-home', async () => {
-    const mockSetPinVerified = vi.fn();
+    const mockSetPinVerifiedForUserId = vi.fn();
   
     (global.fetch as any) = vi.fn()
       .mockResolvedValueOnce({
@@ -100,7 +100,7 @@ describe('EnterPinPage Component', () => {
       });
   
     render(
-      <UserContext.Provider value={createUserContextValue({ setPinVerified: mockSetPinVerified })}>
+      <UserContext.Provider value={createUserContextValue({ setPinVerifiedForUserId: mockSetPinVerifiedForUserId })}>
         <EnterPinPage />
       </UserContext.Provider>
     );
@@ -115,13 +115,13 @@ describe('EnterPinPage Component', () => {
       expect(screen.getByText(/Login successful! Redirecting.../i)).toBeInTheDocument();
     });
   
-    expect(mockSetPinVerified).toHaveBeenCalledWith(true);
+    expect(mockSetPinVerifiedForUserId).toHaveBeenCalledWith(123);
     expect(mockNavigate).toHaveBeenCalledWith('/volunteer-home');
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 
-  test('does not set pinVerified when PIN is invalid', async () => {
-    const mockSetPinVerified = vi.fn();
+  test('does not set pin verified when PIN is invalid', async () => {
+    const mockSetPinVerifiedForUserId = vi.fn();
   
     (global.fetch as any) = vi.fn().mockResolvedValueOnce({
       ok: true,
@@ -129,7 +129,7 @@ describe('EnterPinPage Component', () => {
     });
   
     render(
-      <UserContext.Provider value={createUserContextValue({ setPinVerified: mockSetPinVerified })}>
+      <UserContext.Provider value={createUserContextValue({ setPinVerifiedForUserId: mockSetPinVerifiedForUserId })}>
         <EnterPinPage />
       </UserContext.Provider>
     );
@@ -146,7 +146,7 @@ describe('EnterPinPage Component', () => {
       )).toBeInTheDocument();
     });
   
-    expect(mockSetPinVerified).not.toHaveBeenCalledWith(true);
+    expect(mockSetPinVerifiedForUserId).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalledWith('/volunteer-home');
   });
 

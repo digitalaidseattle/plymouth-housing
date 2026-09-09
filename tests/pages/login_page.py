@@ -91,7 +91,6 @@ class LoginPage(BasePage):
     # Microsoft login
     # ---------------------------------------------------
 
-    from urllib.parse import urljoin
 
     def is_microsoft_login_open(self) -> bool:
         """True once the browser has reached the Microsoft sign-in flow."""
@@ -234,7 +233,7 @@ class LoginPage(BasePage):
     ) -> None:
         if not username:
             raise ValueError(
-                "ADMIN_USERNAME cannot be empty"
+                "username cannot be empty"
             )
 
         try:
@@ -313,7 +312,7 @@ class LoginPage(BasePage):
     ) -> None:
         if not password:
             raise ValueError(
-                "ADMIN_PASSWORD cannot be empty"
+                "password cannot be empty"
             )
 
         try:
@@ -667,6 +666,7 @@ class LoginPage(BasePage):
         for locator, digit in zip(
             fields,
             pin,
+            strict=True,
         ):
             field = self.wait.until(
                 EC.element_to_be_clickable(

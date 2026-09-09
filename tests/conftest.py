@@ -223,7 +223,7 @@ def build_chrome_options() -> Options:
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
-def driver() -> Generator[WebDriver, None, None]:
+def driver(request) -> Generator[WebDriver, None, None]:
     base_url = validate_base_url(URL)
     options = build_chrome_options()
 
@@ -236,6 +236,11 @@ def driver() -> Generator[WebDriver, None, None]:
 
     if not is_ci_environment():
         browser.maximize_window()
+
+    # Publish the browser before the first navigation. If browser.get()
+    # fails, the fixture never yields, so "driver" is never registered in
+    # item.funcargs and the report hook would have nothing to capture.
+    request.node.setup_failure_driver = browser
 
     try:
         browser.get(base_url)
@@ -443,7 +448,11 @@ def pytest_runtest_makereport(
     ):
         return
 
-    browser = item.funcargs.get("driver")
+    browser = item.funcargs.get("driver") or getattr(
+        item,
+        "setup_failure_driver",
+        None,
+    )
 
     if browser is None:
         return

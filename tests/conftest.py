@@ -246,6 +246,16 @@ def driver(request) -> Generator[WebDriver, None, None]:
         browser.get(base_url)
         yield browser
 
+    except Exception:
+        # finally closes the browser before the report hook runs, so the
+        # evidence has to be captured here, while the session is still live.
+        attach_debug_artifacts(
+            browser,
+            "driver_setup_failure",
+        )
+
+        raise
+
     finally:
         try:
             browser.quit()

@@ -488,11 +488,16 @@ class CheckOutPage(BasePage):
         """
         Base XPath for an item's row inside the Checkout Summary.
 
+        Scoped to the dialog because the catalogue stays mounted behind the
+        modal and carries a p[@aria-label] for the same item, which would
+        otherwise match first in document order.
+
         Anchored on the item's aria-label rather than a contains() text
         match, so a row cannot be confused with another item whose name
         contains this one.
         """
         return (
+            "//*[@role='dialog']"
             f"//p[@aria-label={self._xpath_literal(item_name)}]"
             "/ancestor::div[contains(@class,'MuiCard-root')][1]"
         )

@@ -138,6 +138,30 @@ class CheckoutPageLocators:
     # modal header
     SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
 
+    # ---------------------------------------------------
+    # Edit mode (Checkout Summary opened from History > Edit)
+    # ---------------------------------------------------
+
+    EDIT_SUMMARY_HEADER = (
+        By.XPATH,
+        "//*[@role='dialog']"
+        "//*[contains(normalize-space(),'Checkout Summary (Editing)')]"
+    )
+
+    # One button carries both states: it reads "No changes" and is
+    # disabled until an edit is made, then becomes "Save changes".
+    SAVE_CHANGES_BUTTON = (
+        By.XPATH,
+        "//*[@role='dialog']//button["
+        "normalize-space()='Save changes'"
+        " or normalize-space()='No changes']"
+    )
+
+    EDIT_CANCEL_BUTTON = (
+        By.ID,
+        "checkout-dialog-cancel-edit-btn"
+    )
+
     # over limit warning
     OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
 

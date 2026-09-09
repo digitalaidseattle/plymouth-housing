@@ -19,6 +19,13 @@ export const useUnitNumbers = (
     const fetchUnitNumbers = async (user: ClientPrincipal | null, buildingId: number) => {
         setIsLoadingUnits(true);
         setApiError('');
+        // PIT-518: clear stale state BEFORE the request so a slow or failed
+        // fetch can't leave the previous building's options visible or its
+        // selected unit submittable. Previously only the success path
+        // cleared these; the error path left selectedUnit intact, which
+        // could attach a resident to a unit from a different building.
+        setUnitNumberValues([]);
+        setSelectedUnit({id: 0, unit_number: ''});
         document.body.style.cursor = 'wait';
         try {
             const response = await getUnitNumbers(user, buildingId);
@@ -28,10 +35,8 @@ export const useUnitNumbers = (
                     item.unit_number.trim().toLowerCase() !== SPECIAL_UNITS.WELCOME
                 );
             setUnitNumberValues(unitNumbers);
-            setSelectedUnit({id: 0, unit_number: ''});
         } catch (error) {
             console.error('Error fetching unit numbers:', error);
-            setUnitNumberValues([]);
             if (error instanceof TypeError && error.message === 'Failed to fetch') {
                 setApiError('Unable to load unit numbers. Please check your connection and try again.');
             } else {

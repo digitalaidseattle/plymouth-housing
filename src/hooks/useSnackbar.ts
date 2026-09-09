@@ -5,7 +5,15 @@
  *
  */
 import { useState, useCallback } from 'react';
-import { SnackbarState } from '../types/interfaces';
+import type { AlertColor } from '@mui/material';
+
+type SnackbarSeverity = AlertColor;
+
+interface SnackbarState {
+  open: boolean;
+  message: string;
+  severity: SnackbarSeverity;
+}
 
 export function useSnackbar() {
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({

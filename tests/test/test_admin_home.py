@@ -9,7 +9,7 @@ def home_page(driver):
 @pytest.mark.smoke
 def test_admin_home_button_text(driver, admin_home_page):
     actual_home_button_text = admin_home_page.get_menu_home_text()
-    expected_header = 'Inventory'
+    expected_header = 'Home'
     assert actual_home_button_text == expected_header, (
         'Unexpected home button text.\n'
         f'Expected: {expected_header}\n'

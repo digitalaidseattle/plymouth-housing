@@ -42,6 +42,11 @@ ALTER TABLE dbo.Transactions
 ADD CONSTRAINT FK_Transactions_ResidentId
 FOREIGN KEY (resident_id) REFERENCES dbo.Residents(id);
 
+-- Units -> Buildings
+ALTER TABLE dbo.Units
+ADD CONSTRAINT FK_Units_BuildingId
+FOREIGN KEY (building_id) REFERENCES dbo.Buildings(id);
+
 -- Residents -> Units
 ALTER TABLE dbo.Residents
 ADD CONSTRAINT FK_Residents_UnitId

@@ -73,9 +73,13 @@ export const USER_ROLES = {
   TEST: 'test',
 } as const;
 
+// First entry of each list is that role's landing page.
 export const ROLE_PAGES = {
   admin: [
+    'admin-home',
     'inventory',
+    'inventory-general',
+    'inventory-welcome-basket',
     'checkout',
     'checkout-general',
     'checkout-welcome-basket',
@@ -87,6 +91,8 @@ export const ROLE_PAGES = {
   volunteer: [
     'volunteer-home',
     'inventory',
+    'inventory-general',
+    'inventory-welcome-basket',
     'checkout',
     'checkout-general',
     'checkout-welcome-basket',

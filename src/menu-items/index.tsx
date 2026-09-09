@@ -12,7 +12,6 @@ import {
   QuestionOutlined,
   ExclamationOutlined,
   FileOutlined,
-  FileExclamationOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
@@ -23,6 +22,8 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 
+import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
+
 const icons = {
   LoginOutlined,
   ProfileOutlined,
@@ -30,7 +31,6 @@ const icons = {
   QuestionOutlined,
   ExclamationOutlined,
   FileOutlined,
-  FileExclamationOutlined,
   UploadOutlined,
   DragOutlined,
   GlobalOutlined,
@@ -39,6 +39,7 @@ const icons = {
   ClusterOutlined,
   ShoppingCartOutlined,
   TeamOutlined,
+  Inventory2Outlined,
 };
 
 const dashboard = {
@@ -47,19 +48,44 @@ const dashboard = {
   children: [
     {
       id: 'volunteer-home',
-      title: 'Volunteer Home',
+      title: 'Home',
       type: 'item',
       url: '/volunteer-home',
       icon: icons.HomeOutlined,
       breadcrumbs: false,
     },
     {
+      id: 'admin-home',
+      title: 'Home',
+      type: 'item',
+      url: '/admin-home',
+      icon: icons.HomeOutlined,
+      breadcrumbs: false,
+    },
+    {
       id: 'inventory',
       title: 'Inventory',
-      type: 'item',
-      url: '/inventory',
-      icon: icons.FileExclamationOutlined,
+      type: 'collapse',
+      icon: icons.Inventory2Outlined,
       breadcrumbs: false,
+      children: [
+        {
+          id: 'inventory-general',
+          title: 'General',
+          type: 'item',
+          url: '/inventory',
+          state: { inventoryType: 'General' },
+          breadcrumbs: false,
+        },
+        {
+          id: 'inventory-welcome-basket',
+          title: 'Welcome Basket',
+          type: 'item',
+          url: '/inventory',
+          state: { inventoryType: 'Welcome Basket' },
+          breadcrumbs: false,
+        },
+      ],
     },
     {
       id: 'checkout',

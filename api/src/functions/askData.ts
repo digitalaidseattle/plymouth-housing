@@ -31,7 +31,6 @@ config({ path: resolve(process.cwd(), '.env') });
 
 // Tried in order. Google takes whole models offline with a 503 for stretches at a
 // time, and which one is down moves around, so one name alone is not dependable.
-// Keep the strongest first: a lite model writes weaker SQL against a schema.
 const MODELS = [
   'gemini-3.5-flash',
   'gemini-3.6-flash',
@@ -40,7 +39,7 @@ const MODELS = [
 const MODEL_ROUNDS = 2;
 const MODEL_RETRY_MS = 500;
 const MAX_QUESTION_LENGTH = 500;
-const RATE_LIMIT = 40;
+const RATE_LIMIT = 40; // 40 questions per hour
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 
 interface AskDataRequest {

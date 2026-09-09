@@ -276,6 +276,12 @@ class CheckOutPage(BasePage):
 
         wait.until(has_plausible_resident_value)
 
+        return (
+            self.driver.find_element(
+                *self.locators.NAME_INPUT
+            ).get_attribute("value") or ""
+        ).strip()
+
     def add_item(self, item_name):
         """
         Add an item from the checkout item list.
@@ -360,12 +366,18 @@ class CheckOutPage(BasePage):
     # ---------------------------------------------------
 
     def complete_checkout(self, item_name):
+        """
+        Run the full checkout flow.
+
+        Returns the resident name that was autofilled during checkout, which
+        the edit-flow tests use to locate the transaction they just created.
+        """
         self.click_checkout()
 
         self.select_first_building_option()
         self.select_first_unit_number()
 
-        self.wait_for_resident_autofill()
+        selected_resident_name = self.wait_for_resident_autofill()
 
         self.click_continue_button()
 
@@ -374,6 +386,8 @@ class CheckOutPage(BasePage):
 
         self.click_proceed_to_checkout()
         self.click_confirm()
+
+        return selected_resident_name
 
     def complete_welcome_basket_checkout(self):
         item = "Twin-size Sheet Set"

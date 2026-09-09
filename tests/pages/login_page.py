@@ -93,14 +93,76 @@ class LoginPage(BasePage):
 
     from urllib.parse import urljoin
 
+    def is_microsoft_login_open(self) -> bool:
+        """True once the browser has reached the Microsoft sign-in flow."""
+        try:
+            current_url = (
+                self.driver.current_url or ""
+            ).lower()
+        except WebDriverException:
+            return False
+
+        return (
+            "login.microsoftonline.com" in current_url
+            or "login.live.com" in current_url
+            or ".auth/login/aad" in current_url
+        )
+
     def click_app_login_button(self) -> None:
+        """
+        Click the app's own "Log In" link.
+
+        staticwebapp.config.json restricts "/*" to authenticated users and
+        turns a 401 into a redirect to /.auth/login/aad, so an anonymous
+        request for the site root never renders the app's Log In page. That
+        link is only reachable when the suite is pointed at /login.html.
+        Both entry points are supported: when the browser has already been
+        redirected to Microsoft, there is no button to click and this step
+        is skipped.
+        """
         wait = WebDriverWait(self.driver, 30)
 
-        login_link = wait.until(
-            EC.element_to_be_clickable(
-                self.locators.APP_LOGIN_BUTTON
+        def _login_link_or_microsoft(driver):
+            if self.is_microsoft_login_open():
+                return "microsoft"
+
+            for link in driver.find_elements(
+                *self.locators.APP_LOGIN_BUTTON
+            ):
+                try:
+                    if (
+                        link.is_displayed()
+                        and link.is_enabled()
+                    ):
+                        return link
+                except StaleElementReferenceException:
+                    continue
+
+            return False
+
+        try:
+            outcome = wait.until(
+                _login_link_or_microsoft
             )
-        )
+        except TimeoutException as exc:
+            self.save_debug_screenshot(
+                "app_login_button_timeout.png"
+            )
+
+            raise AssertionError(
+                "Neither the app Log In link nor the Microsoft "
+                "sign-in page appeared. Current URL: "
+                f"{self.driver.current_url}"
+            ) from exc
+
+        if outcome == "microsoft":
+            print(
+                "Already redirected to Microsoft login; "
+                "no app Log In link to click"
+            )
+            return
+
+        login_link = outcome
 
         href = login_link.get_attribute("href")
 

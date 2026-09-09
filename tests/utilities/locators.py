@@ -36,13 +36,37 @@ class HistoryPageLocators:
         "//*[contains(text(),'No transactions found')]"
     )
 
+    # Transaction details modal, opened by clicking a history card.
+    # Edit/History are scoped to the dialog so the "History" accordion
+    # cannot collide with the sidebar History nav item.
+    TRANSACTION_DETAILS_DIALOG = (
+        By.CSS_SELECTOR,
+        "[role='dialog']"
+    )
+
+    DIALOG_CLOSE_BUTTON = (
+        By.CSS_SELECTOR,
+        "[role='dialog'] button[aria-label='Close dialog']"
+    )
+
+    EDIT_BUTTON = (
+        By.XPATH,
+        "//*[@role='dialog']//button[normalize-space()='Edit']"
+    )
+
+    HISTORY_ACCORDION = (
+        By.XPATH,
+        "//*[@role='dialog']//button[normalize-space()='History']"
+    )
+
 class HomePageLocators:
     # ---- Sections ----
     CHECKOUT_SECTION = (By.CSS_SELECTOR, "[data-testid='section-checkout']")
     INVENTORY_SECTION = (By.CSS_SELECTOR, "[data-testid='section-inventory']")
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, "//a[@href='/admin-home']")
     EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")
-    LOGOUT_BUTTON = (By.XPATH, "//h6[normalize-space()='Log out']")
+    # The logout control renders as a <button>, not an <h6>.
+    LOGOUT_BUTTON = (By.XPATH, "//button[normalize-space()='Log out']")
     PLYMOUTH_HOUSING_TEXT = (By.XPATH, '//h5[normalize-space()="Plymouth Housing"]')
     HOME_HEADER = (By.XPATH, "//h4[contains(., 'Thanks for being here')]")
 

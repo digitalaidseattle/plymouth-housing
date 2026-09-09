@@ -243,13 +243,11 @@ describe('countResidentsByBuilding', () => {
     expect(result).toEqual([
       {
         building_code: 'A',
-        building_name: 'Building A',
         residentCount: 2,
         visitCount: 3,
       },
       {
         building_code: 'B',
-        building_name: 'Building B',
         residentCount: 1,
         visitCount: 1,
       },
@@ -273,7 +271,6 @@ describe('countResidentsByBuilding', () => {
     expect(result).toEqual([
       {
         building_code: 'A',
-        building_name: 'Building A',
         residentCount: 1,
         visitCount: 2,
       },
@@ -512,7 +509,6 @@ describe('buildAnalyticsSections', () => {
     residentsByBuilding: [
       {
         building_code: 'A',
-        building_name: 'Building A',
         residentCount: 2,
         visitCount: 3,
       },

@@ -6,7 +6,7 @@
  */
 import { useState } from 'react';
 import { AskDataAnswer } from '../types/interfaces';
-import { askData } from './askDataService';
+import { askData } from '../services/askDataService';
 
 export function useAskData() {
   const [answer, setAnswer] = useState<AskDataAnswer | null>(null);

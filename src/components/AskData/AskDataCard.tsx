@@ -10,6 +10,8 @@ import {
   Box,
   Button,
   Collapse,
+  IconButton,
+  InputAdornment,
   Skeleton,
   Stack,
   TextField,
@@ -20,12 +22,12 @@ import {
   UpOutlined,
   DownloadOutlined,
   ClearOutlined,
+  CloseOutlined,
   RobotOutlined,
 } from '@ant-design/icons';
-import { useAskData } from './useAskData';
-import { ASK_DATA_MODEL } from '../types/constants';
-import { downloadCsv } from '../utils/csvExport';
-import PanelCard from '../components/Analytics/PanelCard';
+import { useAskData } from '../../hooks/useAskData';
+import { downloadCsv } from '../../utils/csvExport';
+import PanelCard from '../Analytics/PanelCard';
 import AskDataResult from './AskDataResult';
 
 const codeSx = {
@@ -38,8 +40,8 @@ const codeSx = {
 };
 
 const AskDataCard: React.FC = () => {
-  const [expanded, setExpanded] = useState(false);
-  const [showQuery, setShowQuery] = useState(false);
+  const [expanded, setExpanded] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const [question, setQuestion] = useState('');
   const { answer, isLoading, error, ask, reset } = useAskData();
 
@@ -88,7 +90,23 @@ const AskDataCard: React.FC = () => {
                   fullWidth
                   size="small"
                   placeholder="How many residents did we serve this month?"
-                  slotProps={{ htmlInput: { 'aria-label': 'Ask the data' } }}
+                  slotProps={{
+                    htmlInput: { 'aria-label': 'Ask the data' },
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            size="small"
+                            aria-label="Clear question"
+                            onClick={() => setQuestion('')}
+                            sx={{ visibility: question ? 'visible' : 'hidden' }}
+                          >
+                            <CloseOutlined />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   onKeyDown={(e) => {
@@ -107,8 +125,7 @@ const AskDataCard: React.FC = () => {
               <Typography
                 sx={{ typography: 'caption', color: 'text.secondary' }}
               >
-                Ask a question in plain English and get an answer straight from
-                live data.
+                Answers are straight from the database.
               </Typography>
             </Stack>
 
@@ -123,59 +140,55 @@ const AskDataCard: React.FC = () => {
             {!isLoading && answer && (
               <Stack sx={{ gap: 1, alignItems: 'flex-start' }}>
                 <AskDataResult answer={answer} />
-                <Button size="small" onClick={() => setShowQuery((on) => !on)}>
-                  {showQuery ? 'Hide query' : 'Show query'}
+                <Button
+                  size="small"
+                  onClick={() => setShowDetails((on) => !on)}
+                >
+                  {showDetails ? 'Hide details' : 'Show details'}
                 </Button>
-                <Collapse in={showQuery} sx={{ width: '100%' }}>
-                  <Box sx={codeSx}>{answer.sql}</Box>
+                <Collapse in={showDetails} sx={{ width: '100%' }}>
+                  <Stack sx={{ gap: 1 }}>
+                    <Box sx={codeSx}>{answer.sql}</Box>
+                    <Typography
+                      sx={{ typography: 'caption', color: 'text.secondary' }}
+                    >
+                      {`${answer.model} · ${answer.totalTokens.toLocaleString()} tokens · ${answer.questionsUsed} of ${answer.questionLimit} questions this hour`}
+                    </Typography>
+                  </Stack>
                 </Collapse>
               </Stack>
             )}
 
-            <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
-              <Typography
-                sx={{ typography: 'caption', color: 'text.secondary' }}
+            <Stack direction="row" sx={{ gap: 1, justifyContent: 'flex-end' }}>
+              <Button
+                size="small"
+                startIcon={<DownloadOutlined />}
+                sx={{ whiteSpace: 'nowrap' }}
+                onClick={() =>
+                  answer &&
+                  downloadCsv(
+                    `ask-data-${Date.now()}.csv`,
+                    answer.columns,
+                    answer.rows,
+                  )
+                }
+                disabled={!answer || isLoading}
               >
-                {[
-                  answer?.model ?? ASK_DATA_MODEL,
-                  answer && `${answer.totalTokens.toLocaleString()} tokens`,
-                  answer?.questionLimit &&
-                    `${answer.questionsUsed} of ${answer.questionLimit} questions`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </Typography>
-              <Stack direction="row" sx={{ gap: 1, ml: 'auto', flexShrink: 0 }}>
-                <Button
-                  size="small"
-                  startIcon={<DownloadOutlined />}
-                  sx={{ whiteSpace: 'nowrap' }}
-                  onClick={() =>
-                    answer &&
-                    downloadCsv(
-                      `ask-data-${Date.now()}.csv`,
-                      answer.columns,
-                      answer.rows,
-                    )
-                  }
-                  disabled={!answer || isLoading}
-                >
-                  Export CSV
-                </Button>
-                <Button
-                  size="small"
-                  startIcon={<ClearOutlined />}
-                  sx={{ whiteSpace: 'nowrap' }}
-                  disabled={isLoading}
-                  onClick={() => {
-                    reset();
-                    setQuestion('');
-                    setShowQuery(false);
-                  }}
-                >
-                  Clear
-                </Button>
-              </Stack>
+                Export answer
+              </Button>
+              <Button
+                size="small"
+                startIcon={<ClearOutlined />}
+                sx={{ whiteSpace: 'nowrap' }}
+                disabled={isLoading}
+                onClick={() => {
+                  reset();
+                  setQuestion('');
+                  setShowDetails(false);
+                }}
+              >
+                Clear
+              </Button>
             </Stack>
           </Stack>
         </Collapse>

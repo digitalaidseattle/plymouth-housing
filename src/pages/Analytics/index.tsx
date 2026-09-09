@@ -11,7 +11,7 @@ import CustomDateDialog from '../../components/History/CustomDateDialog';
 import StatTile from '../../components/Analytics/StatTile';
 import RankedBarChart from '../../components/Analytics/RankedBarChart';
 import AnalyticsFilters from '../../components/Analytics/AnalyticsFilters';
-import AskDataCard from '../../AskData/AskDataCard';
+import AskDataCard from '../../components/AskData/AskDataCard';
 import LowStockTable from '../../components/Analytics/LowStockTable';
 import ResidentsDetailTable from '../../components/Analytics/ResidentsDetailTable';
 import { useDateRangeFilter } from '../../hooks/useDateRangeFilter';
@@ -262,8 +262,6 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         onRefresh={refresh}
       />
 
-      <AskDataCard />
-
       <Grid container spacing={3}>
         {isLoading
           ? [0, 1, 2, 3].map((key) => (
@@ -351,6 +349,8 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
       ) : (
         <LowStockTable rows={lowStockRows} checkedOutById={itemTotalsById} />
       )}
+
+      <AskDataCard />
     </Stack>
   );
 };

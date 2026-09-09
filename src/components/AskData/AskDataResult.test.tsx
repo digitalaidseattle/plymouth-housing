@@ -8,7 +8,7 @@ import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AskDataResult from './AskDataResult';
-import { AskDataAnswer } from '../types/interfaces';
+import { AskDataAnswer } from '../../types/interfaces';
 
 const answer = (overrides: Partial<AskDataAnswer>): AskDataAnswer => ({
   sql: 'SELECT TOP (500) 1',

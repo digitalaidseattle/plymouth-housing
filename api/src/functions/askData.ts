@@ -169,7 +169,7 @@ async function planQuery(
   question: string,
 ): Promise<{ plan: QueryPlan; totalTokens: number; model: string }> {
   const client = new GoogleGenAI({ apiKey });
-  const config = {
+  const generationConfig = {
     systemInstruction: instructions(await getSchema(), seattleToday()),
     responseMimeType: 'application/json',
     responseSchema: RESPONSE_SCHEMA,
@@ -183,7 +183,7 @@ async function planQuery(
         const response = await client.models.generateContent({
           model,
           contents: question,
-          config,
+          config: generationConfig,
         });
         const answered = JSON.parse(response.text ?? '{}');
         return {
@@ -222,11 +222,6 @@ const askData = async (
   const userId = adminId(request);
   if (!userId) return fail(403, 'Admins only.');
 
-  const questionsUsed = countQuestion(userId);
-  if (questionsUsed === null) {
-    return fail(429, 'Too many questions this hour. Try again later.');
-  }
-
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     context.error('GEMINI_API_KEY is not set');
@@ -237,6 +232,11 @@ const askData = async (
   const question = body.question?.trim() ?? '';
   const problem = questionProblem(question);
   if (problem) return fail(400, problem);
+
+  const questionsUsed = countQuestion(userId);
+  if (questionsUsed === null) {
+    return fail(429, 'Too many questions this hour. Try again later.');
+  }
 
   const startedAt = Date.now();
   let generated = '';

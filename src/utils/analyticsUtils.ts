@@ -19,7 +19,6 @@ export type RankedItem = { item_name: string; total_quantity: number };
 
 export type BuildingResidents = {
   building_code: string;
-  building_name: string;
   residentCount: number;
   visitCount: number;
 };
@@ -82,11 +81,10 @@ export const countResidentsByBuilding = (
 ): BuildingResidents[] => {
   const buildings = new Map<
     string,
-    { building_name: string; residents: Set<number>; visitCount: number }
+    { residents: Set<number>; visitCount: number }
   >();
   transactions.forEach((t) => {
     const building = buildings.get(t.building_code) ?? {
-      building_name: t.building_name,
       residents: new Set<number>(),
       visitCount: 0,
     };
@@ -95,9 +93,8 @@ export const countResidentsByBuilding = (
     buildings.set(t.building_code, building);
   });
   return Array.from(buildings.entries())
-    .map(([building_code, { building_name, residents, visitCount }]) => ({
+    .map(([building_code, { residents, visitCount }]) => ({
       building_code,
-      building_name,
       residentCount: residents.size,
       visitCount,
     }))

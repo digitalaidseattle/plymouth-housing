@@ -5,9 +5,9 @@
  *
  */
 import { Stack, Typography } from '@mui/material';
-import { AskDataAnswer } from '../types/interfaces';
-import DataTable from '../components/Analytics/DataTable';
-import RankedBarChart from '../components/Analytics/RankedBarChart';
+import { AskDataAnswer } from '../../types/interfaces';
+import DataTable from '../Analytics/DataTable';
+import RankedBarChart from '../Analytics/RankedBarChart';
 
 const EMPTY = 'No rows matched';
 

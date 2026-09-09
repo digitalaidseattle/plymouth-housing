@@ -12,6 +12,7 @@ import {
   getResidents,
   findResident,
   addResident,
+  updateResident,
   getResidentsByBuilding,
   getAllResidents,
   getLastResidentVisit,
@@ -184,6 +185,37 @@ describe('residentService', () => {
       });
 
       await expect(addResident(user, name, unitId)).rejects.toThrow('Error');
+    });
+  });
+
+  describe('updateResident', () => {
+    const id = 1;
+    const name = 'Alice Smyth';
+
+    it('should update a resident successfully', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ value: [{ id, name }] }),
+      });
+
+      await updateResident(user, id, name);
+
+      expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.RESIDENTS}/id/${id}`, {
+        method: 'PATCH',
+        headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+        body: JSON.stringify({ name }),
+      });
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+      });
+
+      await expect(updateResident(user, id, name)).rejects.toThrow('Error');
     });
   });
 

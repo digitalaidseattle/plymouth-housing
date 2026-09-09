@@ -9,9 +9,8 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useRef,
 } from 'react';
-import { Alert, Box, Button, Pagination } from '@mui/material';
+import { Alert, Box, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddItemModal from '../../components/inventory/AddItemModal.tsx';
 import AdjustQuantityModal from '../../components/inventory/AdjustQuantityModal.tsx';
@@ -20,13 +19,19 @@ import InventoryTable from '../../components/inventory/InventoryTable';
 import { UserContext } from '../../components/contexts/UserContext';
 import { CategoryItem, InventoryItem } from '../../types/interfaces.ts';
 import { getItems, getCategories } from '../../services/itemsService';
-import { SETTINGS } from '../../types/constants';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useLocation } from 'react-router-dom';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 const Inventory = () => {
   const { user } = useContext(UserContext);
   const location = useLocation();
+  // Set by the Home page's Add stock button and the Inventory sub-menu items.
+  const navState = location.state as {
+    inventoryType?: 'General' | 'Welcome Basket';
+    openAddModal?: boolean;
+    message?: string;
+  } | null;
   const [originalData, setOriginalData] = useState<InventoryItem[]>([]);
   const [displayData, setDisplayData] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
@@ -34,12 +39,12 @@ const Inventory = () => {
     'asc' | 'desc' | 'original'
   >('original');
   const [sortColumn, setSortColumn] = useState<keyof InventoryItem | null>(null);
-  const [addModal, setAddModal] = useState(false);
+  const [addModal, setAddModal] = useState(Boolean(navState?.openAddModal));
   const [adjustModal, setAdjustModal] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
-    type: '',
+    type: navState?.inventoryType ?? '',
     category: '',
     status: '',
     search: '',
@@ -49,35 +54,8 @@ const Inventory = () => {
     category: null as null | HTMLElement,
     status: null as null | HTMLElement,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [error, setError] = useState<string | null>(null);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({
-    open: location.state && location.state.message,
-    message: location.state ? location.state.message : '',
-    severity: 'success',
-  });
-  const [itemsPerPage, setItemsPerPage] = useState(SETTINGS.itemsPerPage);
-  const tableContainerRef = useRef<HTMLElement | null>(null);
+  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
   const [showResults, setShowResults] = useState(false);
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = displayData.slice(indexOfFirstItem, indexOfLastItem);
-
-  const calculateItemsPerPage = () => {
-    if (tableContainerRef.current) {
-      const parentHeight =
-        tableContainerRef.current?.parentElement?.clientHeight ?? 0; // Calculates the parent container height in px
-      const tableHeight = (parentHeight * 80) / 100; // Calculates the table height in px as 80% of the parent height
-      const items = Math.floor(tableHeight / 64); // Within the table height, each row has a height of 64px. Sets how many items to be shown within each table
-      setItemsPerPage(items > 0 ? items - 1 : 1); // Subtract 1 because of header row
-    }
-  };
-
   const handleAddOpen = () => {
     setAddModal(true);
     setShowResults(false);
@@ -142,12 +120,11 @@ const Inventory = () => {
     }));
   };
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setCurrentPage(value);
-  };
+  useEffect(() => {
+    if (location.state?.message) {
+      showSnackbar(location.state.message, 'success');
+    }
+  }, [location.state, showSnackbar]);
 
   const negativeItemCount = originalData.filter(
     (item) => item.quantity < 0,
@@ -206,7 +183,6 @@ const Inventory = () => {
     }
 
     setDisplayData(searchFiltered);
-    setCurrentPage(1);
   }, [filters, sortDirection, sortColumn, originalData]);
 
   const fetchData = useCallback(async () => {
@@ -215,11 +191,12 @@ const Inventory = () => {
       setOriginalData(inventoryList);
       setDisplayData(inventoryList);
     } catch (error) {
-      setError('Could not get inventory. \r\n' + error);
+      const message = error instanceof Error ? error.message : String(error);
+      showSnackbar(`Could not get inventory: ${message}`, 'warning');
       console.error('Could not get inventory:', error);
     }
     setIsLoading(false);
-  }, [user]);
+  }, [user, showSnackbar]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -238,56 +215,38 @@ const Inventory = () => {
     return () => clearTimeout(handler);
   }, [user, fetchData, fetchCategories]);
 
+  // /inventory is one route, so switching sub-items does not remount this
+  // component and the useState initialisers above do not re-run.
   useEffect(() => {
-    const handler = setTimeout(() => {
-      calculateItemsPerPage();
-    }, 0);
-    window.addEventListener('resize', calculateItemsPerPage);
-    return () => {
-      clearTimeout(handler);
-      window.removeEventListener('resize', calculateItemsPerPage);
-    };
-  }, []);
+    const inventoryType = navState?.inventoryType;
+    if (inventoryType) {
+      setFilters((prev) => ({ ...prev, type: inventoryType }));
+    }
+    if (navState?.openAddModal) {
+      setAddModal(true);
+      setShowResults(false);
+    }
+  }, [navState]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       handleFilter();
     }, 300); // Reduces calls to filter while typing in search
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [filters, handleFilter]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      handleFilter();
-    }, 0);
     return () => clearTimeout(handler);
-  }, [sortDirection, handleFilter]);
+  }, [handleFilter]);
 
-  useEffect(() => {
-    if (error) {
-      const handler = setTimeout(() => {
-        setSnackbarState({ open: true, message: error, severity: 'warning' });
-      }, 0);
-      return () => clearTimeout(handler);
-    }
-  }, [error]);
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
+  // When the table is scoped to one inventory type, lock the Add dialog to it.
+  const modalInventoryType =
+    filters.type === 'General' || filters.type === 'Welcome Basket'
+      ? filters.type
+      : undefined;
 
   if (isLoading) {
     return <p>Loading ...</p>;
   }
 
   return (
-    <Box ref={tableContainerRef} sx={{ height: '100%' }}>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {/* Negative item warning */}
       <Box
         id="negative-warning-container"
@@ -302,24 +261,15 @@ const Inventory = () => {
           <></>
         )}
       </Box>
-      {/* Add button */}
-      <Box id="add-container" sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          sx={{ bgcolor: '#F5F5F5', color: 'black' }}
-          onClick={handleAddOpen}
-        >
-          <AddIcon fontSize="small" sx={{ color: 'black' }} />
-          Add
-        </Button>
-      </Box>
-
       <AddItemModal
+        key={filters.type}
         addModal={addModal}
         handleAddClose={handleAddClose}
         fetchData={fetchData}
         originalData={originalData}
         showResults={showResults}
         setShowResults={setShowResults}
+        inventoryType={modalInventoryType}
       />
 
       <AdjustQuantityModal
@@ -327,40 +277,42 @@ const Inventory = () => {
         handleClose={() => setAdjustModal(false)}
         fetchData={fetchData}
         itemToEdit={itemToEdit}
-        handleSnackbar={setSnackbarState}
+        handleSnackbar={showSnackbar}
       />
 
-      {/* Inventory Filter */}
-      <InventoryFilter
-        filters={filters}
-        anchors={anchors}
-        categoryData={categoryData}
-        handleFilterClick={handleFilterClick}
-        handleMenuClick={handleMenuClick}
-        clearFilter={clearFilter}
-        handleSearch={handleSearch}
-      />
+      {/* Toolbar: filters + add */}
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', width: '100%' }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <InventoryFilter
+            filters={filters}
+            anchors={anchors}
+            categoryData={categoryData}
+            handleFilterClick={handleFilterClick}
+            handleMenuClick={handleMenuClick}
+            clearFilter={clearFilter}
+            handleSearch={handleSearch}
+          />
+        </Box>
+        <Button variant="contained" onClick={handleAddOpen}>
+          <AddIcon fontSize="small" />
+          Add
+        </Button>
+      </Stack>
 
       {/* Inventory Table */}
-      <InventoryTable
-        currentItems={currentItems}
-        sortDirection={sortDirection}
-        sortColumn={sortColumn}
-        handleSort={handleSort}
-        setAdjustModal={setAdjustModal}
-        setItemToEdit={setItemToEdit}
-      />
-
-      {/* Pagination */}
       <Box
-        sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
+        sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
       >
-        <Pagination
-          count={Math.ceil(displayData.length / itemsPerPage)}
-          page={currentPage}
-          onChange={handlePageChange}
+        <InventoryTable
+          items={displayData}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
+          handleSort={handleSort}
+          setAdjustModal={setAdjustModal}
+          setItemToEdit={setItemToEdit}
         />
       </Box>
+
       <SnackbarAlert
         open={snackbarState.open}
         onClose={handleSnackbarClose}

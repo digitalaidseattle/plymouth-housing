@@ -35,6 +35,8 @@ describe('WelcomeBasketBuildingDialog', () => {
     activeVolunteers: [],
     setActiveVolunteers: vi.fn(),
     isLoading: false,
+    pinVerified: false,
+    setPinVerified: vi.fn(),
   };
 
   const mockBuildings = [
@@ -75,7 +77,7 @@ describe('WelcomeBasketBuildingDialog', () => {
     test('renders dialog when showDialog is true', () => {
       renderComponent();
       expect(
-        screen.getByText('provide building code to continue'),
+        screen.getByText('Provide building code to continue'),
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
     });
@@ -83,7 +85,7 @@ describe('WelcomeBasketBuildingDialog', () => {
     test('does not render dialog when showDialog is false', () => {
       renderComponent({ showDialog: false });
       expect(
-        screen.queryByText('provide building code to continue'),
+        screen.queryByText('Provide building code to continue'),
       ).not.toBeInTheDocument();
     });
 

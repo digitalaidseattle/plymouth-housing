@@ -4,6 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
+
 import { useContext, useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import { UserContext } from '../contexts/UserContext';
@@ -29,6 +30,7 @@ const AddVolunteerModal = ({
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prevFormData) => ({
@@ -75,6 +77,7 @@ const AddVolunteerModal = ({
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await createUser(user, { ...formData, active: true, role: 'volunteer' });
       setSuccessMessage('Volunteer added successfully.');
@@ -104,6 +107,8 @@ const AddVolunteerModal = ({
           'Something went wrong while adding the volunteer. Please try again.',
         );
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -115,8 +120,9 @@ const AddVolunteerModal = ({
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '30%',
-          padding: 3,
+          width: { xs: '92%', sm: '80%', md: '50%', lg: '30%' },
+          maxWidth: 500,
+          padding: { xs: 3, sm: 4 },
           backgroundColor: 'white',
           borderRadius: '8px',
           boxShadow: 24,
@@ -158,7 +164,9 @@ const AddVolunteerModal = ({
             onChange={(e) => handleInputChange('PIN', e.target.value)}
             type="text"
             placeholder="Enter 4-digit PIN"
-            slotProps={{ htmlInput: { maxLength: 4, pattern: '\\d{4}' } }}
+            slotProps={{
+              htmlInput: { maxLength: 4, pattern: '\\d{4}', inputMode: 'numeric' },
+            }}
           />
         </Box>
 
@@ -177,15 +185,16 @@ const AddVolunteerModal = ({
         {/* Buttons */}
         <Box
           id="modal-buttons"
-          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+          sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}
         >
-          <Button onClick={resetInputsHandler} sx={{ mr: 2 }}>
+          <Button variant="text" onClick={resetInputsHandler}>
             Cancel
           </Button>
           <Button
             onClick={createVolunteerHandler}
             variant="contained"
             color="primary"
+            disabled={isSubmitting}
           >
             Add
           </Button>

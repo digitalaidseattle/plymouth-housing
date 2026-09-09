@@ -11,8 +11,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
     baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
 });
 
 export default [{
@@ -29,8 +27,12 @@ export default [{
         "venv/**",
     ],
 
-}, ...fixupConfigRules(compat.extends(
-    "eslint:recommended",
+},
+// Applied natively rather than via compat.extends("eslint:recommended"):
+// @eslint/js 10 stamps a top-level `name` on its configs, which the legacy
+// eslintrc schema validator inside FlatCompat rejects.
+js.configs.recommended,
+...fixupConfigRules(compat.extends(
     "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended",
 )), {
@@ -48,5 +50,10 @@ export default [{
         "react-refresh/only-export-components": ["warn", {
             allowConstantExport: true,
         }],
+        // react-hooks 7.1.1 added this to the recommended preset. It flags guarded
+        // init/reset/fetch effects across the app that are working as intended;
+        // adopting it would mean refactoring checkout, auth, and inventory flows,
+        // which is out of scope for a dependency bump. Disabled deliberately.
+        "react-hooks/set-state-in-effect": "off",
     },
 }];

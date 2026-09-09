@@ -15,15 +15,13 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { trackEvent, trackException } from '../../utils/appInsights';
 import { verifyPin as verifyPinService } from '../../services/authService';
 import { updateUser } from '../../services/userService';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<
-    'success' | 'warning'
-  >('warning');
-  const { loggedInUserId, user, activeVolunteers } = useContext(UserContext);
+  const [pinAttempt, setPinAttempt] = useState<number>(0);
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
+  const { loggedInUserId, user, activeVolunteers, setPinVerified } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handlePinChange = useCallback((newPin: string[]) => {
@@ -33,7 +31,7 @@ const EnterPinPage: React.FC = () => {
   const isPinComplete = pin.every((p) => p !== '');
 
   useEffect(() => {
-    setPin(Array(4).fill('')); // Clear PIN on any loggedInUserId change
+    setPin(Array(4).fill(''));  
     if (!loggedInUserId) {
       navigate('/pick-your-name');
     }
@@ -44,13 +42,11 @@ const EnterPinPage: React.FC = () => {
     return activeVolunteers.find((v) => v.id === id)?.name || 'Unknown';
   };
 
-  const handleTheSnackies = (
+  const showSnackMessage = (
     message: string,
     severity: 'success' | 'warning',
   ) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setOpenSnackbar(true);
+    showSnackbar(message, severity);
   };
 
   const verifyPin = async (id: number, enteredPin: string) => {
@@ -58,7 +54,11 @@ const EnterPinPage: React.FC = () => {
       const data = await verifyPinService(user, id, enteredPin);
 
       // Validate response structure
-      if (!data?.value || !Array.isArray(data.value) || data.value.length === 0) {
+      if (
+        !data?.value ||
+        !Array.isArray(data.value) ||
+        data.value.length === 0
+      ) {
         console.error('Invalid response format from PIN verification API:', {
           hasData: !!data,
           hasValue: !!(data && data.value),
@@ -88,9 +88,14 @@ const EnterPinPage: React.FC = () => {
           : new Error('Unknown error verifying PIN');
 
       // Check if this is an authentication/authorization error
-      if ((err as Error & { status?: number }).status === 401 || (err as Error & { status?: number }).status === 403) {
-        console.error('Authentication error detected - Azure AD token may have expired');
-        handleTheSnackies(
+      if (
+        (err as Error & { status?: number }).status === 401 ||
+        (err as Error & { status?: number }).status === 403
+      ) {
+        console.error(
+          'Authentication error detected - Azure AD token may have expired',
+        );
+        showSnackMessage(
           'Your session has expired. Please log out and log back in.',
           'warning',
         );
@@ -111,7 +116,7 @@ const EnterPinPage: React.FC = () => {
         component: 'EnterPinPage',
         action: 'pin_api_error',
       });
-      handleTheSnackies('Failed to verify PIN. Please try again.', 'warning');
+      showSnackMessage('Failed to verify PIN. Please try again.', 'warning');
       return null;
     }
   };
@@ -140,7 +145,7 @@ const EnterPinPage: React.FC = () => {
       if (loggedInUserId !== null) {
         result = await verifyPin(loggedInUserId, enteredPin);
       } else {
-        handleTheSnackies(
+        showSnackMessage(
           'Volunteer ID is missing. Please try again.',
           'warning',
         );
@@ -154,10 +159,11 @@ const EnterPinPage: React.FC = () => {
           component: 'EnterPinPage',
           action: 'pin_verified',
         });
-        handleTheSnackies('Login successful! Redirecting...', 'success');
+        showSnackMessage('Login successful! Redirecting...', 'success');
         if (loggedInUserId !== null) {
-          result = await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
+          await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
+        setPinVerified(true);
         navigate('/volunteer-home');
       } else if (result) {
         trackEvent('PIN_Submission', {
@@ -168,29 +174,21 @@ const EnterPinPage: React.FC = () => {
           component: 'EnterPinPage',
           action: 'pin_failed',
         });
-        handleTheSnackies(
+        showSnackMessage(
           `${getVolunteerName(loggedInUserId)}: ${result.ErrorMessage || 'Incorrect PIN. Please try again.'}`,
           'warning',
         );
+        setPin(Array(4).fill(''));
+        setPinAttempt((prev) => prev + 1);
       }
       // If result is null, verifyPin() already displayed an error message, so don't show another
     } else {
-      handleTheSnackies('Please enter your PIN before continuing.', 'warning');
+      showSnackMessage('Please enter your PIN before continuing.', 'warning');
     }
   };
 
   const handlePreviousClick = () => {
     navigate('/pick-your-name');
-  };
-
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenSnackbar(false);
   };
 
   if (!loggedInUserId) {
@@ -200,7 +198,7 @@ const EnterPinPage: React.FC = () => {
   return (
     <MinimalWrapper>
       <CenteredLayout>
-        <Box sx={{ maxWidth: '250px', minWidth: '250px', width: '100%' }}>
+        <Box sx={{ maxWidth: '340px', width: '100%' }}>
           <Typography
             variant="h4"
             sx={{
@@ -208,7 +206,8 @@ const EnterPinPage: React.FC = () => {
               textAlign: 'left',
             }}
           >
-            Welcome, <span id="volunteer-name">{getVolunteerName(loggedInUserId)}!</span>
+            Welcome,{' '}
+            <span id="volunteer-name">{getVolunteerName(loggedInUserId)}!</span>
           </Typography>
 
           <Typography
@@ -231,13 +230,11 @@ const EnterPinPage: React.FC = () => {
               lineHeight: 1.5,
             }}
           >
-            <strong>Forget your pin?</strong> Contact IT department at{' '}
-            {import.meta.env.VITE_ADMIN_PHONE_NUMBER} or{' '}
-            {import.meta.env.VITE_ADMIN_EMAIL}
+            <strong>Forget your PIN?</strong> Let a staff member know
           </Typography>
-          <Box sx={{ marginBottom: 6 }}>
+          <Box sx={{ marginBottom: 4 }}>
             <PinInput
-              key={loggedInUserId}
+              key={`${loggedInUserId}-${pinAttempt}`}
               onPinChange={handlePinChange}
               onSubmit={handleNextClick}
             />
@@ -245,15 +242,11 @@ const EnterPinPage: React.FC = () => {
 
           <Button
             variant="contained"
+            color="primary"
+            fullWidth
             onClick={handleNextClick}
             disabled={!isPinComplete}
-            sx={{
-              height: '45px',
-              width: '100%',
-              backgroundColor: 'black',
-              color: 'white',
-              marginTop: 2,
-            }}
+            sx={{ height: '56px' }}
           >
             Continue
           </Button>
@@ -265,17 +258,18 @@ const EnterPinPage: React.FC = () => {
               textAlign: 'center',
               marginTop: 2,
               textDecoration: 'underline',
+              textUnderlineOffset: '3px',
             }}
           >
-            Back to the name selection.
+            Back to the name selection
           </Typography>
         </Box>
         <SnackbarAlert
-          open={openSnackbar}
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
+          open={snackbarState.open}
+          onClose={handleClose}
+          severity={snackbarState.severity}
         >
-          {snackbarMessage}
+          {snackbarState.message}
         </SnackbarAlert>
       </CenteredLayout>
     </MinimalWrapper>
@@ -283,3 +277,4 @@ const EnterPinPage: React.FC = () => {
 };
 
 export default EnterPinPage;
+

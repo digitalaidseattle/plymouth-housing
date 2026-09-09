@@ -6,6 +6,11 @@
  */
 export const VITE_APPLICATION_NAME = 'Plymouth Housing';
 
+// Deployment environment, injected at build time per workflow (see the
+// azure-static-web-apps-*.yml build steps). Unset locally, so local dev and any
+// non-production build are treated as non-production and never blocked below.
+export const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT ?? 'development';
+
 export const API_HEADERS = {
   Accept: 'application/json',
   'Content-Type': 'application/json;charset=utf-8',
@@ -45,7 +50,8 @@ export const ENDPOINTS = {
 } as const;
 
 export const SETTINGS = {
-  itemsPerPage: 10,
+  itemsPerPage: 15,
+  rowsPerPageOptions: [10, 15, 25, 50, 100],
   checkout_item_limit: 10,
   api_fetch_limit_items: 10000,
   api_fetch_limit_units: 1000,
@@ -60,11 +66,20 @@ export const SETTINGS = {
 export const USER_ROLES = {
   ADMIN: 'admin',
   VOLUNTEER: 'volunteer',
+  // Marks an account as test-only. Assigned to the accounts the E2E suite and
+  // manual testers use, in addition to their functional admin/volunteer role.
+  // The app refuses any account carrying this role when ENVIRONMENT is
+  // 'production' (see MainLayout).
+  TEST: 'test',
 } as const;
 
+// First entry of each list is that role's landing page.
 export const ROLE_PAGES = {
   admin: [
+    'admin-home',
     'inventory',
+    'inventory-general',
+    'inventory-welcome-basket',
     'checkout',
     'checkout-general',
     'checkout-welcome-basket',
@@ -76,6 +91,8 @@ export const ROLE_PAGES = {
   volunteer: [
     'volunteer-home',
     'inventory',
+    'inventory-general',
+    'inventory-welcome-basket',
     'checkout',
     'checkout-general',
     'checkout-welcome-basket',

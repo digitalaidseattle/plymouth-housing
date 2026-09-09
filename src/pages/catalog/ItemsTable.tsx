@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -23,7 +23,7 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Check, Close, Add } from '@mui/icons-material';
-import { AdminItem, CategoryItem } from '../../types/interfaces';
+import { AdminItem, CategoryItem, EditState } from '../../types/interfaces';
 import SearchBar from '../../components/Searchbar/SearchBar';
 
 type ItemsTableProps = {
@@ -33,12 +33,6 @@ type ItemsTableProps = {
   onCreate: (item: Omit<AdminItem, 'id' | 'category_name'>) => Promise<boolean>;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
-};
-
-type EditState = {
-  id: number | null;
-  field: string | null;
-  value: string | number;
 };
 
 type NewItem = {
@@ -85,6 +79,7 @@ const ItemsTable = ({
   };
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   // Filter items by search
   const filteredItems = items.filter(
@@ -105,6 +100,7 @@ const ItemsTable = ({
     field: string,
     currentValue: string | number | null,
   ) => {
+    if (isSaving) return;
     if (editState.id === id && editState.field === field) return;
     setEditState({
       id,
@@ -122,7 +118,7 @@ const ItemsTable = ({
   };
 
   const handleSave = async () => {
-    if (editState.id === null || editState.field === null) return;
+    if (editState.id === null || editState.field === null || isSaving) return;
 
     const item = items.find((i) => i.id === editState.id);
     if (!item) return;
@@ -181,6 +177,11 @@ const ItemsTable = ({
 
   const handleCancel = () => {
     setEditState({ id: null, field: null, value: '' });
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    if (e.relatedTarget === cancelButtonRef.current) return;
+    handleSave();
   };
 
   const handleAddNew = async () => {
@@ -254,7 +255,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={handleSave}
+              onBlur={handleBlur}
               autoFocus
               disabled={isSaving}
               sx={{ width: '140px' }}
@@ -262,10 +263,23 @@ const ItemsTable = ({
               <MenuItem value="General">General</MenuItem>
               <MenuItem value="Welcome Basket">Welcome Basket</MenuItem>
             </Select>
-            <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+            <IconButton
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSave}
+              disabled={isSaving}
+              aria-label="Save"
+            >
               <Check fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+            <IconButton
+              ref={cancelButtonRef}
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleCancel}
+              disabled={isSaving}
+              aria-label="Cancel"
+            >
               <Close fontSize="small" />
             </IconButton>
           </Box>
@@ -281,7 +295,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={handleSave}
+              onBlur={handleBlur}
               autoFocus
               disabled={isSaving}
               sx={{ width: '150px' }}
@@ -292,10 +306,23 @@ const ItemsTable = ({
                 </MenuItem>
               ))}
             </Select>
-            <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+            <IconButton
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSave}
+              disabled={isSaving}
+              aria-label="Save"
+            >
               <Check fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+            <IconButton
+              ref={cancelButtonRef}
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleCancel}
+              disabled={isSaving}
+              aria-label="Cancel"
+            >
               <Close fontSize="small" />
             </IconButton>
           </Box>
@@ -314,7 +341,7 @@ const ItemsTable = ({
               setEditState((prev) => ({ ...prev, value: e.target.value }))
             }
             onKeyDown={handleKeyDown}
-            onBlur={handleSave}
+            onBlur={handleBlur}
             autoFocus
             type={isNumber ? 'number' : 'text'}
             disabled={isSaving}
@@ -326,10 +353,23 @@ const ItemsTable = ({
                   : '150px',
             }}
           />
-          <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+          <IconButton
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleSave}
+            disabled={isSaving}
+            aria-label="Save"
+          >
             <Check fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+          <IconButton
+            ref={cancelButtonRef}
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleCancel}
+            disabled={isSaving}
+            aria-label="Cancel"
+          >
             <Close fontSize="small" />
           </IconButton>
         </Box>
@@ -369,7 +409,7 @@ const ItemsTable = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box
         sx={{
           display: 'flex',
@@ -383,6 +423,7 @@ const ItemsTable = ({
           <SearchBar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
+            compact
             placeholder="Search items..."
             width="250px"
           />
@@ -392,13 +433,13 @@ const ItemsTable = ({
             onClick={() => setIsAdding(true)}
             disabled={isAdding}
           >
-            Add Item
+            Add item
           </Button>
         </Box>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -584,19 +625,19 @@ const ItemsTable = ({
             )}
           </TableBody>
         </Table>
-        <TablePagination
-          component="div"
-          count={filteredItems.length}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-        />
       </TableContainer>
+      <TablePagination
+        component="div"
+        count={filteredItems.length}
+        page={page}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
+        rowsPerPageOptions={[10, 25, 50, 100]}
+      />
     </Box>
   );
 };

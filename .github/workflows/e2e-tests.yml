@@ -36,14 +36,14 @@ jobs:
     env:
       CI: "true"
 
-      URL: ${{ secrets.STAGING_URL }}
+      URL: ${{ vars.STAGING_URL }}
 
-      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
-      VOLUNTEER_USERNAME: ${{ secrets.VOLUNTEER_USERNAME }}
+      VOLUNTEER_USERNAME: ${{ vars.VOLUNTEER_USERNAME }}
       VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
-      VOLUNTEER_DISPLAY_NAME: ${{ secrets.VOLUNTEER_DISPLAY_NAME }}
+      VOLUNTEER_DISPLAY_NAME: ${{ vars.VOLUNTEER_DISPLAY_NAME }}
       VOLUNTEER_PIN: ${{ secrets.VOLUNTEER_PIN }}
 
     steps:

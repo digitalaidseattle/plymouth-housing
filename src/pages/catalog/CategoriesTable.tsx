@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Check, Close, Add } from '@mui/icons-material';
-import { CategoryItem } from '../../types/interfaces';
+import { CategoryItem, EditState } from '../../types/interfaces';
 
 type CategoriesTableProps = {
   categories: CategoryItem[];
@@ -28,12 +28,6 @@ type CategoriesTableProps = {
   onCreate: (category: Omit<CategoryItem, 'id'>) => Promise<boolean>;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
-};
-
-type EditState = {
-  id: number | null;
-  field: string | null;
-  value: string;
 };
 
 type NewCategory = {
@@ -60,8 +54,10 @@ const CategoriesTable = ({
     item_limit: '1',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleCellClick = (id: number, field: string, currentValue: string | number) => {
+    if (isSaving) return;
     if (editState.id === id && editState.field === field) return;
     setEditState({
       id,
@@ -79,19 +75,20 @@ const CategoriesTable = ({
   };
 
   const handleSave = async () => {
-    if (editState.id === null || editState.field === null) return;
+    if (editState.id === null || editState.field === null || isSaving) return;
 
     const category = categories.find(c => c.id === editState.id);
     if (!category) return;
 
     // Validate
-    if (editState.field === 'name' && !editState.value.trim()) {
+    const strValue = String(editState.value);
+    if (editState.field === 'name' && !strValue.trim()) {
       onError('Category name cannot be empty');
       return;
     }
 
     if (editState.field === 'item_limit') {
-      const limit = parseInt(editState.value);
+      const limit = parseInt(strValue);
       if (isNaN(limit) || limit < 1) {
         onError('Item limit must be a positive number');
         return;
@@ -102,9 +99,9 @@ const CategoriesTable = ({
     try {
       const updates: Partial<CategoryItem> = {};
       if (editState.field === 'name') {
-        updates.name = editState.value.trim();
+        updates.name = strValue.trim();
       } else if (editState.field === 'item_limit') {
-        updates.item_limit = parseInt(editState.value);
+        updates.item_limit = parseInt(strValue);
       }
 
       await onUpdate(editState.id, updates);
@@ -120,6 +117,11 @@ const CategoriesTable = ({
 
   const handleCancel = () => {
     setEditState({ id: null, field: null, value: '' });
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    if (e.relatedTarget === cancelButtonRef.current) return;
+    handleSave();
   };
 
   const handleAddNew = async () => {
@@ -171,17 +173,30 @@ const CategoriesTable = ({
             value={editState.value}
             onChange={(e) => setEditState(prev => ({ ...prev, value: e.target.value }))}
             onKeyDown={handleKeyDown}
-            onBlur={handleSave}
+            onBlur={handleBlur}
             autoFocus
             type={field === 'item_limit' ? 'number' : 'text'}
             slotProps={{ htmlInput: field === 'item_limit' ? { min: 1 } : {} }}
             disabled={isSaving}
             sx={{ width: field === 'item_limit' ? '80px' : '200px' }}
           />
-          <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+          <IconButton
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleSave}
+            disabled={isSaving}
+            aria-label="Save"
+          >
             <Check fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+          <IconButton
+            ref={cancelButtonRef}
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleCancel}
+            disabled={isSaving}
+            aria-label="Cancel"
+          >
             <Close fontSize="small" />
           </IconButton>
         </Box>
@@ -206,7 +221,7 @@ const CategoriesTable = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4">Categories</Typography>
         <Button
@@ -215,12 +230,12 @@ const CategoriesTable = ({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          Add Category
+          Add category
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>

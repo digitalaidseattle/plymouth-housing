@@ -38,9 +38,9 @@ const PastCheckoutDialog = ({
             showDialog={showDialog} 
             handleShowDialog={handleShowDialog} 
             handleSubmit={handleSubmit}
-            title="looks like they already got this one"
-            submitButtonText='staff said it is ok'
-            backButtonText='go back'>
+            title="Looks like they already got this one"
+            submitButtonText='Staff said it is OK'
+            backButtonText='Go back'>
             <Typography>
                 {residentInfo.name} has previously checked out a {item.name}. Please check with a staff member before continuing.
             </Typography>

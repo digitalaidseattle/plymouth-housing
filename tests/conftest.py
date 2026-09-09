@@ -4,6 +4,7 @@ from collections.abc import Generator
 import allure
 import pytest
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -63,6 +64,100 @@ def validate_base_url(url: str | None) -> str:
 
 
 # ---------------------------------------------------
+# Debug helpers
+# ---------------------------------------------------
+
+def sanitize_attachment_name(
+    value: str,
+) -> str:
+    safe_characters = []
+
+    for character in value:
+        if character.isalnum() or character in {
+            "-",
+            "_",
+            ".",
+        }:
+            safe_characters.append(character)
+        else:
+            safe_characters.append("_")
+
+    return "".join(safe_characters)
+
+
+def attach_debug_artifacts(
+    driver: WebDriver,
+    name: str = "debug",
+) -> None:
+    """
+    Attach browser state to Allure without exposing credentials.
+    This helps diagnose setup/login failures.
+    """
+    safe_name = sanitize_attachment_name(name)
+
+    try:
+        allure.attach(
+            driver.current_url,
+            name=f"{safe_name}_current_url",
+            attachment_type=allure.attachment_type.TEXT,
+        )
+    except Exception as exc:
+        print(f"[WARN] Could not attach current URL: {exc}")
+
+    try:
+        allure.attach(
+            driver.title,
+            name=f"{safe_name}_page_title",
+            attachment_type=allure.attachment_type.TEXT,
+        )
+    except Exception as exc:
+        print(f"[WARN] Could not attach page title: {exc}")
+
+    try:
+        allure.attach(
+            driver.page_source,
+            name=f"{safe_name}_page_source",
+            attachment_type=allure.attachment_type.HTML,
+        )
+    except Exception as exc:
+        print(f"[WARN] Could not attach page source: {exc}")
+
+    try:
+        allure.attach(
+            driver.get_screenshot_as_png(),
+            name=f"{safe_name}_screenshot",
+            attachment_type=allure.attachment_type.PNG,
+        )
+    except Exception as exc:
+        print(f"[WARN] Could not attach screenshot: {exc}")
+
+
+def wait_for_password_field(
+    driver: WebDriver,
+    login_page: LoginPage,
+    timeout: int = 30,
+):
+    """
+    Wait for the Microsoft/Azure password field after the username
+    is submitted. Attaches debug evidence if it never appears.
+    """
+    try:
+        return WebDriverWait(driver, timeout).until(
+            EC.visibility_of_element_located(
+                login_page.locators.PASSWORD_INPUT
+            )
+        )
+    except TimeoutException:
+        print("[DEBUG] Password field did not appear after clicking Next")
+        print("[DEBUG] Current URL:", driver.current_url)
+        print("[DEBUG] Page title:", driver.title)
+        print("[DEBUG] Page source preview:", driver.page_source[:1000])
+
+        attach_debug_artifacts(driver, "password_field_timeout")
+        raise
+
+
+# ---------------------------------------------------
 # Chrome configuration
 # ---------------------------------------------------
 
@@ -77,6 +172,29 @@ def build_chrome_options() -> Options:
     )
     options.add_argument(
         "--disable-infobars"
+    )
+
+    # Reduce saved-password, credential, and passkey prompts. This avoids
+    # Windows Security "Choose a passkey" popups during Microsoft login.
+    options.add_argument("--incognito")
+    options.add_argument(
+        "--disable-save-password-bubble"
+    )
+    options.add_argument(
+        "--disable-popup-blocking"
+    )
+    options.add_argument(
+        "--disable-features="
+        "WebAuthenticationConditionalUI"
+    )
+
+    options.add_experimental_option(
+        "prefs",
+        {
+            "credentials_enable_service": False,
+            "profile.password_manager_enabled": False,
+            "profile.default_content_setting_values.notifications": 2,
+        },
     )
 
     if is_ci_environment():
@@ -177,13 +295,10 @@ def login_with_volunteer(
     )
     login_page.click_next_button()
 
-    WebDriverWait(
+    wait_for_password_field(
         driver,
-        30,
-    ).until(
-        EC.visibility_of_element_located(
-            login_page.locators.PASSWORD_INPUT
-        )
+        login_page,
+        timeout=30,
     )
 
     login_page.enter_password(
@@ -239,13 +354,10 @@ def admin_home_page(
     )
     login_page.click_next_button()
 
-    WebDriverWait(
+    wait_for_password_field(
         driver,
-        30,
-    ).until(
-        EC.visibility_of_element_located(
-            login_page.locators.PASSWORD_INPUT
-        )
+        login_page,
+        timeout=30,
     )
 
     login_page.enter_password(
@@ -314,24 +426,6 @@ def add_item_page(
 # Allure failure evidence
 # ---------------------------------------------------
 
-def sanitize_attachment_name(
-    value: str,
-) -> str:
-    safe_characters = []
-
-    for character in value:
-        if character.isalnum() or character in {
-            "-",
-            "_",
-            ".",
-        }:
-            safe_characters.append(character)
-        else:
-            safe_characters.append("_")
-
-    return "".join(safe_characters)
-
-
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(
     item: pytest.Item,
@@ -340,9 +434,9 @@ def pytest_runtest_makereport(
     outcome = yield
     report = outcome.get_result()
 
-    # Save evidence for setup and test-call failures.
-    # Teardown failures are excluded because the driver
-    # may already have been closed.
+    # Save evidence for setup and test-call failures. Login fixture
+    # failures happen during setup, so that phase matters. Teardown is
+    # excluded because the driver may already have been closed.
     if (
         not report.failed
         or report.when not in {"setup", "call"}
@@ -354,29 +448,15 @@ def pytest_runtest_makereport(
     if browser is None:
         return
 
-    test_name = sanitize_attachment_name(
-        item.nodeid
-    )
-
     try:
-        screenshot = (
-            browser.get_screenshot_as_png()
-        )
-
-        allure.attach(
-            screenshot,
-            name=(
-                f"{test_name}_"
-                f"{report.when}_failure"
-            ),
-            attachment_type=(
-                allure.attachment_type.PNG
-            ),
+        attach_debug_artifacts(
+            browser,
+            f"{item.name}_{report.when}_failure",
         )
 
     except Exception as exc:
+        # Never allow debug capture failure to break the test run.
         print(
-            "[WARN] Screenshot capture failed: "
+            "[WARN] Failure artifact capture failed: "
             f"{exc}"
         )
-

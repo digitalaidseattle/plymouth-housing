@@ -21,7 +21,7 @@ const CheckoutPageContainer = () => {
   const checkoutType = state?.checkoutType || 'general';
   const editTransaction = state?.editTransaction;
 
-  const title = `Check out - ${checkoutType === 'general' ? 'General' : 'Welcome Basket'}`;
+  const title = `Checkout - ${checkoutType === 'general' ? 'General' : 'Welcome Basket'}`;
 
   return (
     <MainContainer title={title}>

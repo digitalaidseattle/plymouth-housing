@@ -19,8 +19,8 @@ class TestAddItem:
 
         inventory_page.click_on_add_item()
 
-        add_item_page.click_inventory_type()
-        add_item_page.select_general_option()
+        # The General sub-menu locks the dialog to General and hides the type
+        # dropdown, so there is nothing to select.
         add_item_page.click_add_item()
 
         add_item_page.wait_for_data_load(item)

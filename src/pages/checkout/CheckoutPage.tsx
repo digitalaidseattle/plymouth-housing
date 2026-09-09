@@ -15,8 +15,9 @@ import {
 } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getLastResidentVisit } from '../../services/residentService';
-import { getRole } from '../../utils/userUtils';
+import { getHomePath } from '../../utils/userUtils';
 import { computeCartDeltas } from '../../utils/transactionUtils';
+import { withCount } from '../../utils/textUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
 import CheckoutFooter from '../../components/Checkout/CheckoutFooter';
 import { useNavigate } from 'react-router-dom';
@@ -221,23 +222,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       (accumulator, category) => accumulator + category.categoryCount,
       0,
     );
-    const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {
         checkoutSuccess: !isError,
         message: isError
           ? errorMessage
-          : `${numberOfItems} ${
-              numberOfItems === 1 ? 'item has been' : 'items have been'
-            } checked out`,
+          : `${withCount(numberOfItems, 'item')} ${
+              numberOfItems === 1 ? 'has' : 'have'
+            } been checked out`,
       },
     };
 
-    if (userRole === 'volunteer') {
-      navigate('/volunteer-home', navigateState);
-    } else {
-      navigate('/inventory', navigateState);
-    }
+    navigate(getHomePath(user), navigateState);
   };
 
   const categories =
@@ -261,7 +257,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       if (!confirmed) return;
     }
 
-    const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {
         checkoutSuccess: false,
@@ -269,15 +264,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       },
     };
 
-    if (userRole === 'volunteer') {
-      navigate('/volunteer-home', navigateState);
-    } else {
-      navigate('/inventory', navigateState);
-    }
+    navigate(getHomePath(user), navigateState);
   };
 
   return (
-    <>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {checkoutTransaction && (
         <Box sx={{ px: 2, py: 1 }}>
           <Chip
@@ -294,7 +285,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 <Button
                   size="small"
                   variant="text"
-                  color="primary"
                   id="edit-mode-header-cancel-btn"
                   onClick={handleCancelEdits}
                 >
@@ -376,10 +366,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
       <Box
         sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: 'auto',
           backgroundColor: theme.palette.grey[100],
           borderRadius: '15px',
-          paddingBottom: 3,
-          minHeight: '100vh',
+          pb: 3,
         }}
       >
         <CategoryList
@@ -399,8 +391,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             setShowPastCheckoutDialog(true);
           }}
         />
+      </Box>
 
-        <CheckoutFooter
+      <CheckoutFooter
           checkoutItems={checkoutItems}
           setOpenSummary={setOpenSummary}
           selectedBuildingCode={residentInfo.building.code}
@@ -430,8 +423,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         >
           {snackbarState.message}
         </SnackbarAlert>
-      </Box>
-    </>
+    </Box>
   );
 };
 

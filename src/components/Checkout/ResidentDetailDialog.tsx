@@ -131,8 +131,8 @@ const ResidentDetailDialog = ({
       showDialog={showDialog}
       handleShowDialog={handleShowDialog}
       handleSubmit={handleSubmit}
-      title="provide details to continue"
-      submitButtonText="continue"
+      title="Provide resident details to continue"
+      submitButtonText="Continue"
       isSubmitting={isWaiting}
     >
       <Box
@@ -156,7 +156,7 @@ const ResidentDetailDialog = ({
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box component="span">Editing transaction</Box>
-                <Button size="small" variant="text" color="primary" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
+                <Button size="small" variant="text" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
                   Cancel
                 </Button>
               </Box>
@@ -327,7 +327,7 @@ const ResidentDetailDialog = ({
             }
             sx={{ alignSelf: 'flex-start' }}
           >
-            last visit:{' '}
+            Last visit:{' '}
             {formatVisitDate(residentsHook.currentLastVisitDate, 'none')}
           </Typography>
         )}

@@ -5,18 +5,20 @@
  *
  */
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, Alert, Tabs, Tab } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  Alert,
+  Tabs,
+  Tab,
+} from '@mui/material';
 import MainCard from '../../components/MainCard';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import { useCatalog } from './useCatalog';
 import ItemsTable from './ItemsTable';
 import CategoriesTable from './CategoriesTable';
-
-type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: 'success' | 'error' | 'warning' | 'info';
-};
 
 type TabPanelProps = {
   children?: React.ReactNode;
@@ -25,10 +27,17 @@ type TabPanelProps = {
 };
 
 const TabPanel = ({ children, value, index }: TabPanelProps) => {
+  // Keep inactive panels mounted (display: none) so each table's search,
+  // pagination, and edit state survives tab switches.
+  const isActive = value === index;
   return (
-    <div role="tabpanel" hidden={value !== index}>
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
-    </div>
+    <Box
+      role="tabpanel"
+      hidden={!isActive}
+      sx={{ pt: 2, flex: 1, minHeight: 0, flexDirection: 'column', display: isActive ? 'flex' : 'none' }}
+    >
+      {children}
+    </Box>
   );
 };
 
@@ -46,11 +55,7 @@ const Catalog = () => {
     clearError,
   } = useCatalog();
 
-  const [snackbar, setSnackbar] = useState<SnackbarState>({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -62,23 +67,11 @@ const Catalog = () => {
   }, [fetchData]);
 
   const handleSuccess = (message: string) => {
-    setSnackbar({
-      open: true,
-      message,
-      severity: 'success',
-    });
+    showSnackbar(message, 'success');
   };
 
   const handleError = (message: string) => {
-    setSnackbar({
-      open: true,
-      message,
-      severity: 'error',
-    });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    showSnackbar(message, 'error');
   };
 
   if (isLoading) {
@@ -105,7 +98,7 @@ const Catalog = () => {
           action={
             <Typography
               component="span"
-              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+              sx={{ cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}
               onClick={() => {
                 clearError();
                 fetchData();
@@ -122,8 +115,12 @@ const Catalog = () => {
   }
 
   return (
-    <Box>
-      <MainCard>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <MainCard
+        border={false}
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        contentSX={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabValue} onChange={handleTabChange}>
             <Tab label="Items" sx={{ typography: 'body1' }} />
@@ -154,14 +151,15 @@ const Catalog = () => {
       </MainCard>
 
       <SnackbarAlert
-        open={snackbar.open}
-        onClose={handleCloseSnackbar}
-        severity={snackbar.severity}
+        open={snackbarState.open}
+        onClose={handleClose}
+        severity={snackbarState.severity}
       >
-        {snackbar.message}
+        {snackbarState.message}
       </SnackbarAlert>
     </Box>
   );
 };
 
 export default Catalog;
+

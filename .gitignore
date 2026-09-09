@@ -35,3 +35,6 @@ __pycache__/
 *.pyc
 venv/
 allure-results/
+
+# Claude Code personal settings (per-developer, not shared)
+.claude/settings.local.json

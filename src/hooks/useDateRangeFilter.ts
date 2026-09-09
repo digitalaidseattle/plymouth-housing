@@ -6,14 +6,9 @@
  */
 import { useState, useMemo, useCallback } from 'react';
 import { formatDateRange, formatFullDate } from '../components/History/historyUtils';
+import { DatePreset, DateRange } from '../types/interfaces';
 
-export type DatePreset = 'today' | 'yesterday' | 'this week' | 'custom';
-
-interface DateRange {
-  startDate: Date;
-  endDate: Date;
-  isCustom?: boolean;
-}
+export type { DatePreset };
 
 export function useDateRangeFilter() {
   const todaysDate = new Date();

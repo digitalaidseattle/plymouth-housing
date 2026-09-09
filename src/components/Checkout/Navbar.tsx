@@ -20,17 +20,18 @@ const Navbar = ({ filteredData, scrollToCategory }: dataProps) => {
       sx={{
         display: 'flex',
         overflowX: 'auto',
+        maxWidth: '100%',
         gap: 2,
         whiteSpace: 'nowrap',
       }}
     >
       {hasWelcomeBasket && (
-        <Button onClick={() => scrollToCategory('Welcome Basket')} sx={{ color: 'black', minWidth: 'auto' }}>
+        <Button onClick={() => scrollToCategory('Welcome Basket')} sx={{ color: 'black', minWidth: 'auto', textDecoration: 'none' }}>
           Welcome Basket
         </Button>
       )}
       {filteredData.map((categories) => (
-        <Button key={categories.category} onClick={() => scrollToCategory(categories.category)} sx={{ color: 'black',  minWidth: 'auto' }}>
+        <Button key={categories.category} onClick={() => scrollToCategory(categories.category)} sx={{ color: 'black',  minWidth: 'auto', textDecoration: 'none' }}>
           {categories.category}
         </Button>
       ))}

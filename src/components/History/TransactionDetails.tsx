@@ -94,8 +94,8 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   useEffect(() => {
     if (!showDialog) return;
     let mounted = true;
-    setEditTransaction(null);
     (async () => {
+      setEditTransaction(null);
       setLoading(true);
       try {
         const data = await getEditTransactionData(user, checkoutTransaction);

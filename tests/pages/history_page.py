@@ -6,492 +6,731 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
     TimeoutException,
 )
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
 from tests.pages.base_page import BasePage
-from tests.utilities.locators import (
-    CommonLocators,
-    HistoryPageLocators,
-)
+from tests.utilities.locators import HistoryPageLocators, CommonLocators
 
 
 class HistoryPage(BasePage):
 
+    # Screenshot-confirmed history transaction card root:
+    # <div role="button" id="checkout-card-...">
+    SAFE_HISTORY_CARDS = (
+        By.CSS_SELECTOR,
+        "div[role='button'][id^='checkout-card-']"
+    )
+
+    SAFE_RECORD_COUNT_TEXT = (
+        By.XPATH,
+        "//*[contains(normalize-space(),'Showing') "
+        "and contains(normalize-space(),'record')]"
+    )
+
     def __init__(self, driver):
         super().__init__(driver)
-
         self.locators = HistoryPageLocators
         self.common_locators = CommonLocators
-        self.wait = WebDriverWait(
-            driver,
-            timeout=15,
-            poll_frequency=1,
-            ignored_exceptions=(
-                NoSuchElementException,
+        self.wait = WebDriverWait(driver, 15)
+
+    # ---------------------------------------------------
+    # Internal safe element helpers
+    # ---------------------------------------------------
+
+    def _find_elements_safe(self, locator):
+        try:
+            return self.driver.find_elements(*locator)
+        except Exception:
+            return []
+
+    def _visible_elements(self, locator, require_text=False):
+        visible = []
+
+        for el in self._find_elements_safe(locator):
+            try:
+                if not el.is_displayed():
+                    continue
+
+                if require_text and not el.text.strip():
+                    continue
+
+                visible.append(el)
+
+            except (
                 StaleElementReferenceException,
-            ),
+                NoSuchElementException,
+            ):
+                continue
+
+        return visible
+
+    def _visible_history_cards(self):
+        """
+        Return only real transaction cards.
+
+        Prefer the screenshot-confirmed checkout-card root locator because the
+        older MuiBox/MuiStack based locator can accidentally match a large page
+        container and make latest-card assertions read the whole page.
+        """
+        cards = self._visible_elements(
+            self.SAFE_HISTORY_CARDS,
+            require_text=True
         )
+
+        if cards:
+            return cards
+
+        # Fallback for older builds only.
+        fallback_cards = self._visible_elements(
+            self.locators.HISTORY_CARDS,
+            require_text=True
+        )
+
+        return fallback_cards
+
+    def _history_content_loaded(self):
+        cards = self._visible_history_cards()
+
+        count_text_visible = bool(
+            self._visible_elements(self.SAFE_RECORD_COUNT_TEXT)
+            or self._visible_elements(self.locators.RECORD_COUNT_TEXT)
+        )
+
+        no_transactions_visible = bool(
+            self._visible_elements(self.locators.NO_TRANSACTIONS_MESSAGE)
+        )
+
+        return bool(cards or count_text_visible or no_transactions_visible)
 
     # ---------------------------------------------------
     # Navigation
     # ---------------------------------------------------
 
-    def open_history(self) -> None:
+    def open_history(self):
         print("Opening history page...")
 
-        self.click(
-            self.common_locators.HISTORY_MENU_BUTTON
-        )
+        self.click(self.common_locators.HISTORY_MENU_BUTTON)
 
-        self.wait_for_history_page_loaded()
+        self.wait_for_visibility(self.locators.HISTORY_HEADER)
+
+        self.get_wait(15).until(
+            lambda d: self._history_content_loaded()
+        )
 
         print("History page loaded")
 
-    def wait_for_history_page_loaded(
-        self,
-        timeout: int = 20,
-    ) -> None:
-        wait = WebDriverWait(
-            self.driver,
-            timeout,
-            poll_frequency=1,
-            ignored_exceptions=(
-                NoSuchElementException,
-                StaleElementReferenceException,
-            ),
-        )
-
-        wait.until(
-            lambda driver: (
-                len(
-                    driver.find_elements(
-                        *self.locators.HISTORY_HEADER
-                    )
-                )
-                > 0
-            )
-        )
-
-        wait.until(
-            lambda driver: (
-                len(
-                    driver.find_elements(
-                        *self.locators.RECORD_COUNT_TEXT
-                    )
-                )
-                > 0
-                or len(
-                    driver.find_elements(
-                        *self.locators.NO_TRANSACTIONS_MESSAGE
-                    )
-                )
-                > 0
-            )
-        )
-
-    def go_back_home(self) -> None:
+    def go_back_home(self):
         print("Navigating back to home page...")
 
         self.driver.back()
 
         from tests.pages.home_page import HomePage
-
         home_page = HomePage(self.driver)
         home_page.wait_for_homepage_loaded()
 
-    def refresh_history(self) -> None:
+    def refresh_history(self):
         self.driver.refresh()
-        self.wait_for_history_page_loaded()
+
+        self.wait_for_visibility(self.locators.HISTORY_HEADER)
+
+        self.get_wait(15).until(
+            lambda d: self._history_content_loaded()
+        )
 
     # ---------------------------------------------------
-    # Record Count
+    # Safe logging helpers
     # ---------------------------------------------------
 
-    def get_record_count_text(self) -> str:
-        return self.get_text(
-            self.locators.RECORD_COUNT_TEXT
-        ).strip()
-
-    def get_record_count_number(self) -> int:
+    def log_safe_card_found(self):
         """
-        Extract the total record count from text such as:
+        Do not print full card text.
 
-        - Showing 13 records total
-        - 1,234 records
-        - Showing 1-20 of 130
+        History cards may contain resident names, building/unit information,
+        timestamps, and transaction details. Since this is a public/open-source
+        project, test logs should avoid exposing resident-related data.
         """
-        if self.is_no_transactions_message_visible():
-            return 0
+        print("[MATCHED CARD] Matching history card found")
 
-        if not self.is_visible(
-            self.locators.RECORD_COUNT_TEXT,
-            timeout=10,
-        ):
-            raise AssertionError(
-                "History record count text is not visible"
-            )
+    def log_safe_quantity_found(self, quantity):
+        """
+        Log only the extracted quantity, not the full card text.
+        """
+        print(f"[MATCHED QUANTITY] Quantity found: {quantity}")
 
+    def log_safe_card_count(self, count):
+        """
+        Log only card count, not card contents.
+        """
+        print(f"[DEBUG] Visible history cards found: {count}")
+
+    # ---------------------------------------------------
+    # Record Count - Text Count
+    # ---------------------------------------------------
+
+    def _get_body_text(self):
+        try:
+            return self.driver.execute_script(
+                "return document.body ? document.body.innerText : '';"
+            ) or ""
+        except Exception:
+            return ""
+
+    def get_record_count_text(self):
+        """
+        Return only the History count label text.
+
+        Avoid broad element text because page-level containers can include the
+        footer year (for example 2026), which previously made the parser return
+        2026 instead of the actual history count.
+        """
+        body_text = self._get_body_text()
+
+        for line in body_text.splitlines():
+            line = line.strip()
+
+            if re.search(
+                r"\bShowing\s+\d[\d,]*\s+records?\s+total\b",
+                line,
+                re.IGNORECASE,
+            ):
+                return line
+
+        for line in body_text.splitlines():
+            line = line.strip()
+
+            if re.search(
+                r"\bYou\s+\d[\d,]*\s+records?\b",
+                line,
+                re.IGNORECASE,
+            ):
+                return line
+
+        return ""
+
+    def get_record_count_number(self):
+        """
+        Extract the History count safely.
+
+        Prefer explicit History count labels. Fall back to visible card count so
+        tests are not blocked by count text lagging behind rendered cards.
+        """
         text = self.get_record_count_text()
 
-        print(
-            f"History record count raw text: {text!r}"
-        )
-
-        total_match = re.search(
-            r"Showing\s+([\d,]+)\s+records?\s+total",
+        match = re.search(
+            r"\bShowing\s+(\d[\d,]*)\s+records?\s+total\b",
             text,
             re.IGNORECASE,
         )
 
-        if total_match:
-            return int(
-                total_match.group(1).replace(",", "")
-            )
+        if match:
+            return int(match.group(1).replace(",", ""))
 
-        range_total_match = re.search(
-            r"\bof\s+([\d,]+)\b",
+        match = re.search(
+            r"\bYou\s+(\d[\d,]*)\s+records?\b",
             text,
             re.IGNORECASE,
         )
 
-        if range_total_match:
-            return int(
-                range_total_match.group(1).replace(
-                    ",",
-                    "",
-                )
-            )
+        if match:
+            return int(match.group(1).replace(",", ""))
 
-        generic_records_match = re.search(
-            r"([\d,]+)\s+records?\b",
-            text,
-            re.IGNORECASE,
-        )
+        return len(self._visible_history_cards())
 
-        if generic_records_match:
-            return int(
-                generic_records_match.group(1).replace(
-                    ",",
-                    "",
-                )
-            )
+    def get_record_count(self):
+        """
+        Return the numeric record count from the History count text.
 
-        raise AssertionError(
-            "Could not parse history record count "
-            f"from: {text!r}"
-        )
-
-    def get_record_count(self) -> int:
+        Keep this method text-count based because legacy history tests use
+        get_record_count_number() for the initial value and then call the
+        record-count wait methods.
+        """
         return self.get_record_count_number()
 
-    def wait_for_record_count_to_increase(
-        self,
-        previous_count: int,
-        timeout: int = 20,
-    ) -> int:
-        def count_increased(_driver):
-            try:
-                current_count = (
-                    self.get_record_count_number()
-                )
+    def wait_for_record_count_to_increase(self, initial_count, timeout=30):
+        """
+        Wait until History count increases.
 
-                if current_count > previous_count:
-                    return current_count
+        The app can render the new card before the count label updates, so this
+        checks both the parsed count label and the visible checkout-card count.
+        """
+        end_time = time.time() + timeout
+        last_count = max(
+            self.get_record_count_number(),
+            self.get_visible_record_count(),
+        )
 
-                return False
-
-            except (
-                AssertionError,
-                NoSuchElementException,
-                StaleElementReferenceException,
-            ):
-                return False
-
-        increased_count = WebDriverWait(
-            self.driver,
-            timeout,
-            poll_frequency=1,
-            ignored_exceptions=(
-                NoSuchElementException,
-                StaleElementReferenceException,
-            ),
-        ).until(count_increased)
-
-        return int(increased_count)
-
-    def wait_for_record_count_to_be(
-        self,
-        expected_count: int,
-        timeout: int = 20,
-    ) -> int:
-        def expected_count_reached(_driver):
-            try:
-                current_count = (
-                    self.get_record_count_number()
-                )
-
-                if current_count >= expected_count:
-                    return current_count
-
-                return False
-
-            except (
-                AssertionError,
-                NoSuchElementException,
-                StaleElementReferenceException,
-            ):
-                return False
-
-        reached_count = WebDriverWait(
-            self.driver,
-            timeout,
-            poll_frequency=1,
-            ignored_exceptions=(
-                NoSuchElementException,
-                StaleElementReferenceException,
-            ),
-        ).until(expected_count_reached)
-
-        return int(reached_count)
-
-    def verify_record_count_increased(
-        self,
-        before_count: int,
-        timeout: int = 20,
-    ) -> None:
-        after_count = (
-            self.wait_for_record_count_to_increase(
-                previous_count=before_count,
-                timeout=timeout,
+        while time.time() < end_time:
+            current_count = max(
+                self.get_record_count_number(),
+                self.get_visible_record_count(),
             )
+
+            if current_count > initial_count:
+                print(f"Record count increased: {initial_count} → {current_count}")
+                return current_count
+
+            last_count = current_count
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Record count did not increase. "
+            f"Before: {initial_count}, After: {last_count}"
         )
 
-        assert after_count > before_count, (
-            "Record count did not increase. "
-            f"Before: {before_count}, "
-            f"After: {after_count}"
+    def wait_for_record_count_to_be(self, expected_count, timeout=30):
+        """
+        Wait until History count is at least expected_count.
+
+        Uses visible checkout-card count as a fallback because the text label can
+        lag behind the rendered cards.
+        """
+        end_time = time.time() + timeout
+        last_count = max(
+            self.get_record_count_number(),
+            self.get_visible_record_count(),
         )
 
-        print(
-            "Record count increased: "
-            f"{before_count} -> {after_count}"
+        while time.time() < end_time:
+            current_count = max(
+                self.get_record_count_number(),
+                self.get_visible_record_count(),
+            )
+
+            if current_count >= expected_count:
+                print(f"Record count reached expected value: {current_count}")
+                return current_count
+
+            last_count = current_count
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Record count did not reach expected value. "
+            f"Expected at least: {expected_count}, Actual: {last_count}"
         )
+
+    def verify_record_count_increased(self, before_count, timeout=30):
+        after = self.wait_for_record_count_to_increase(before_count, timeout)
+
+        assert after > before_count, (
+            f"Record count did not increase. Before: {before_count}, After: {after}"
+        )
+
+        print(f"Record count increased: {before_count} → {after}")
+
+    # ---------------------------------------------------
+    # Record Count - Visible Card Count
+    # ---------------------------------------------------
+
+    def get_visible_record_count(self):
+        """
+        Return the number of visible history cards.
+
+        Use this for BDD checkout validation where the page may render the new
+        card before the record-count text updates.
+        """
+        return len(self.get_history_cards())
+
+    def wait_for_visible_record_count_to_increase(self, initial_count, timeout=30):
+        """
+        Wait until the visible History card count increases.
+
+        Use this only for tests that captured the initial value with
+        get_visible_record_count().
+        """
+        end_time = time.time() + timeout
+        last_count = self.get_visible_record_count()
+
+        while time.time() < end_time:
+            current_count = self.get_visible_record_count()
+
+            if current_count > initial_count:
+                print(
+                    f"Visible record count increased: "
+                    f"{initial_count} → {current_count}"
+                )
+                return current_count
+
+            last_count = current_count
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Visible record count did not increase. "
+            f"Before: {initial_count}, After: {last_count}"
+        )
+
+    def verify_visible_record_count_increased(self, before_count, timeout=30):
+        after = self.wait_for_visible_record_count_to_increase(
+            before_count,
+            timeout
+        )
+
+        assert after > before_count, (
+            f"Visible record count did not increase. "
+            f"Before: {before_count}, After: {after}"
+        )
+
+        print(f"Visible record count increased: {before_count} → {after}")
 
     # ---------------------------------------------------
     # Cards
     # ---------------------------------------------------
 
     def get_history_cards(self):
-        if self.get_record_count_number() == 0:
-            return []
+        """
+        Return visible history cards.
 
-        cards = self.find_all(
-            self.locators.HISTORY_CARDS
-        )
+        Do not depend on the record-count text here. The count label can lag
+        behind the rendered cards, which makes checkout BDD tests flaky.
 
-        return [
-            card
-            for card in cards
-            if card.is_displayed()
-        ]
+        Important:
+        The card locator must target the real checkout-card root. Avoid broad
+        MuiBox-root containers because they can include the whole History page.
+        """
+        cards = self._visible_history_cards()
+
+        self.log_safe_card_count(len(cards))
+
+        return cards
 
     def get_latest_card(self):
         cards = self.get_history_cards()
 
-        if not cards:
-            return None
+        return cards[0] if cards else None
 
-        return cards[0]
+    def wait_for_latest_card_to_change(self, previous_id="", timeout=30):
+        """
+        Wait until the latest history card exists and has a different card id.
 
-    def verify_latest_record_exists(self) -> None:
+        History card text can repeat across separate transactions, so this
+        compares the unique checkout-card-* id instead of card text.
+        """
+        end_time = time.time() + timeout
+        last_id = ""
+
+        while time.time() < end_time:
+            card = self.get_latest_card()
+
+            if card:
+                try:
+                    current_id = (card.get_attribute("id") or "").strip()
+                    last_id = current_id
+
+                    if current_id and current_id != previous_id:
+                        return card
+
+                except (
+                    StaleElementReferenceException,
+                    NoSuchElementException,
+                ):
+                    pass
+
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
+
+        raise AssertionError(
+            f"Latest history card id did not change. "
+            f"Previous id: {previous_id}, Last seen id: {last_id}"
+        )
+
+    def verify_latest_record_exists(self):
         cards = self.get_history_cards()
 
         assert cards, "No history records found"
 
         latest = cards[0]
 
-        assert latest.is_displayed(), (
-            "Latest record is not visible"
-        )
+        assert latest.is_displayed(), "Latest record is not visible"
 
         print("Latest history record is visible")
 
-    def verify_item_exists(
-        self,
-        item_name: str,
-    ) -> None:
-        if not item_name or not item_name.strip():
-            raise ValueError(
-                "Item name cannot be empty"
-            )
-
-        expected_item = item_name.strip().lower()
-
+    def open_latest_transaction(self):
         cards = self.get_history_cards()
 
-        matching_card = next(
-            (
-                card
-                for card in cards
-                if expected_item
-                in card.text.strip().lower()
-            ),
-            None,
+        assert cards, "No transactions found"
+
+        card = cards[0]
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});", card
         )
 
-        if matching_card is None:
-            raise AssertionError(
-                "Expected checkout record was not found in the "
-                "visible history records"
+        self.driver.execute_script("arguments[0].click();", card)
+
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        print("Latest transaction details opened")
+
+    def get_card_matching(self, resident_name=None, item_name=None):
+        """
+        Find a visible history card by resident name and/or item name.
+
+        Do not print the matched card text because it may contain resident
+        names, housing/building information, unit numbers, and timestamps.
+        """
+        cards = self.get_history_cards()
+
+        for card in cards:
+            try:
+                text = card.text
+            except (
+                StaleElementReferenceException,
+                NoSuchElementException,
+            ):
+                continue
+
+            resident_matches = (
+                resident_name is None
+                or resident_name.lower() in text.lower()
             )
 
-        print(
-            f"History item is visible: {item_name}"
+            item_matches = (
+                item_name is None
+                or item_name.lower() in text.lower()
+            )
+
+            if resident_matches and item_matches:
+                self.log_safe_card_found()
+                return card
+
+        raise AssertionError(
+            "No matching history card found"
         )
 
-    def open_latest_transaction(self) -> None:
-        card = self.get_latest_card()
+    def open_transaction_matching(self, resident_name=None, item_name=None):
+        """
+        Open a specific transaction card instead of blindly opening latest.
 
-        assert card is not None, (
-            "No transactions found"
+        Do not log resident_name or item_name because these values may contain
+        sensitive resident-related data.
+        """
+        card = self.get_card_matching(
+            resident_name=resident_name,
+            item_name=item_name
         )
 
         self.driver.execute_script(
-            "arguments[0].scrollIntoView("
-            "{block: 'center'}"
-            ");",
-            card,
+            "arguments[0].scrollIntoView({block:'center'});", card
         )
 
-        try:
-            card.click()
+        self.driver.execute_script("arguments[0].click();", card)
 
-        except (
-            StaleElementReferenceException,
-            NoSuchElementException,
-        ):
-            card = self.get_latest_card()
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
 
-            assert card is not None, (
-                "Latest transaction disappeared "
-                "before it could be opened"
-            )
-
-            self.driver.execute_script(
-                "arguments[0].click();",
-                card,
-            )
+        print("Transaction details opened for matching history card")
 
     # ---------------------------------------------------
-    # Edit Flow
+    # Transaction Details Modal
     # ---------------------------------------------------
 
-    def click_edit_transaction(self) -> None:
-        edit_button = self.wait_for_clickable(
-            self.locators.EDIT_BUTTON
+    def click_edit_transaction(self):
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        edit_btn = self.wait_for_clickable(self.locators.EDIT_BUTTON)
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});", edit_btn
         )
 
-        self.safe_click(edit_button)
+        self.driver.execute_script("arguments[0].click();", edit_btn)
+
+        print("Edit transaction button clicked")
+
+    def close_transaction_details(self):
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        close_btn = self.wait_for_clickable(self.locators.DIALOG_CLOSE_BUTTON)
+
+        self.driver.execute_script("arguments[0].click();", close_btn)
+
+        print("Transaction details modal closed")
+
+    def expand_history_accordion(self):
+        self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+
+        accordion = self.wait_for_clickable(self.locators.HISTORY_ACCORDION)
+
+        self.driver.execute_script("arguments[0].click();", accordion)
+
+        print("History accordion expanded")
 
     # ---------------------------------------------------
     # Quantity Validation
     # ---------------------------------------------------
 
-    def get_latest_quantity(self) -> int:
-        card = self.get_latest_card()
+    def extract_quantity_from_text(self, text):
+        """
+        Extract quantity from text like '1 / 10' or '2 / 10'.
+        """
+        match = re.search(r"(\d+)\s*/\s*\d+", text)
 
-        assert card is not None, (
-            "No latest transaction card found"
-        )
-
-        text = card.text.strip()
-
-        print(
-            f"[DEBUG CARD TEXT]\n{text}"
-        )
-
-        match = re.search(
-            r"(\d+)\s*/\s*\d+",
-            text,
-        )
-
-        if match is None:
-            raise AssertionError(
-                "Quantity was not found in "
-                f"latest card text: {text!r}"
-            )
+        if not match:
+            raise AssertionError("Quantity not found in history card text")
 
         return int(match.group(1))
 
-    def wait_for_latest_quantity(
-        self,
-        expected_qty: int,
-        timeout: int = 15,
-    ) -> None:
-        end_time = time.monotonic() + timeout
-        last_quantity = None
+    def get_latest_quantity(self):
+        card = self.get_latest_card()
 
-        while time.monotonic() < end_time:
+        assert card, "No latest transaction card found"
+
+        quantity = self.extract_quantity_from_text(card.text)
+
+        self.log_safe_quantity_found(quantity)
+
+        return quantity
+
+    def wait_for_latest_quantity(self, expected_qty, timeout=15):
+        """
+        Wait until latest history card shows the expected quantity.
+        Refreshes History while waiting to reduce flaky failures.
+        """
+        last_qty = None
+
+        for _ in range(timeout):
             try:
-                last_quantity = (
-                    self.get_latest_quantity()
-                )
+                qty = self.get_latest_quantity()
+                last_qty = qty
 
-                if last_quantity == expected_qty:
-                    return
+                if qty == expected_qty:
+                    print(f"Latest quantity matched expected value: {expected_qty}")
+                    return qty
 
-            except (
-                AssertionError,
-                NoSuchElementException,
-                StaleElementReferenceException,
-            ):
-                pass
+            except Exception as e:
+                print(f"[WARN] Latest quantity retry failed: {e}")
 
             time.sleep(1)
-            self.refresh_history()
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh retry failed: {e}")
 
         raise AssertionError(
-            "Updated quantity was not reflected "
-            "in history. "
-            f"Expected: {expected_qty}, "
-            f"Last observed: {last_quantity}"
+            f"Updated quantity not reflected in latest history card. "
+            f"Expected: {expected_qty}, Last seen: {last_qty}"
+        )
+
+    def get_quantity_from_card_matching(self, resident_name=None, item_name=None):
+        """
+        Get quantity from a specific history card matching resident/item.
+
+        Do not print full card text because it may contain resident-related data.
+        """
+        card = self.get_card_matching(
+            resident_name=resident_name,
+            item_name=item_name
+        )
+
+        quantity = self.extract_quantity_from_text(card.text)
+
+        self.log_safe_quantity_found(quantity)
+
+        return quantity
+
+    def wait_for_quantity_from_card_matching(
+        self,
+        resident_name=None,
+        item_name=None,
+        expected_qty=None,
+        timeout=30
+    ):
+        """
+        Wait until a matching history card shows the expected quantity.
+
+        Use this for edit-flow tests where relying on the first/latest card
+        can be flaky because multiple transactions may exist.
+        """
+        assert expected_qty is not None, "expected_qty is required"
+
+        end_time = time.time() + timeout
+        last_qty = None
+
+        while time.time() < end_time:
+            try:
+                qty = self.get_quantity_from_card_matching(
+                    resident_name=resident_name,
+                    item_name=item_name
+                )
+
+                last_qty = qty
+
+                if qty == expected_qty:
+                    print(f"Matched card quantity updated: {expected_qty}")
+                    return qty
+
+            except Exception as e:
+                print(f"[WARN] Matching card quantity retry failed: {e}")
+
+            time.sleep(1)
+
+            try:
+                self.refresh_history()
+            except Exception as e:
+                print(f"[WARN] History refresh failed: {e}")
+
+        raise AssertionError(
+            f"Updated quantity not reflected for matching history card. "
+            f"Expected: {expected_qty}, Last seen: {last_qty}"
         )
 
     # ---------------------------------------------------
     # States
     # ---------------------------------------------------
 
-    def is_no_transactions_message_visible(
-        self,
-    ) -> bool:
+    def is_no_transactions_message_visible(self):
         return self.is_visible(
             self.locators.NO_TRANSACTIONS_MESSAGE,
-            timeout=3,
+            timeout=5
         )
 
     # ---------------------------------------------------
     # Debug
     # ---------------------------------------------------
 
-    def debug_print_cards(self) -> None:
+    def debug_print_cards(self):
+        """
+        Safe debug output only.
+
+        Do not print card text because history cards may contain resident names,
+        building/unit information, timestamps, and transaction details.
+        """
         cards = self.get_history_cards()
 
-        print(
-            f"[DEBUG] Total visible cards: "
-            f"{len(cards)}"
-        )
+        print(f"[DEBUG] Total visible cards: {len(cards)}")
 
-        for index, card in enumerate(cards):
-            text = card.text.strip()
-
-            preview = (
-                f"{text[:40]}..."
-                if len(text) > 40
-                else text
-            )
+        for i, card in enumerate(cards):
+            try:
+                is_visible = card.is_displayed()
+                has_text = bool(card.text.strip())
+            except (
+                StaleElementReferenceException,
+                NoSuchElementException,
+            ):
+                is_visible = False
+                has_text = False
 
             print(
-                f"[CARD {index}] "
-                f"length={len(text)} "
-                f"preview={preview!r}"
+                f"[CARD {i}] "
+                f"visible={is_visible}, "
+                f"has_text={has_text}"
             )

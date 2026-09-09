@@ -8,7 +8,6 @@ import {
   Box,
   Typography,
   TextField,
-  styled,
   IconButton,
   Tooltip,
   FormControl,
@@ -16,6 +15,7 @@ import {
   FormControlLabel,
   Radio,
   Button,
+  type AlertColor,
 } from '@mui/material';
 import { useContext, useState, useEffect } from 'react';
 import { InventoryItem } from '../../types/interfaces.ts';
@@ -37,13 +37,7 @@ type AdjustQuantityModalProps = {
   handleClose: () => void;
   fetchData: () => void;
   itemToEdit: InventoryItem | null;
-  handleSnackbar: React.Dispatch<
-    React.SetStateAction<{
-      open: boolean;
-      message: string;
-      severity: 'success' | 'warning';
-    }>
-  >;
+  handleSnackbar: (message: string, severity?: AlertColor) => void;
 };
 
 const AdjustQuantityModal = ({
@@ -67,16 +61,9 @@ const AdjustQuantityModal = ({
   // Generate a new transaction ID when the dialog opens
   useEffect(() => {
     if (showDialog) {
-      setTransactionId(crypto.randomUUID());
+      setTransactionId(crypto.randomUUID());  
     }
   }, [showDialog]);
-
-  const DialogTitle = styled('h1')(({ theme }) => ({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-    margin: '0',
-  }));
 
   const handleInputChange = (field: string, value: string | number) => {
     const parsedValue =
@@ -144,11 +131,10 @@ const AdjustQuantityModal = ({
 
       if (result.Status === 'Success') {
         fetchData();
-        handleSnackbar({
-          open: true,
-          message: `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`,
-          severity: 'success',
-        });
+        handleSnackbar(
+          `${itemToEdit?.name} successfully updated to ${formData.newQuantity}.`,
+          'success',
+        );
         resetInputsHandler();
       } else if (
         result.Status === 'Error' &&
@@ -177,6 +163,7 @@ const AdjustQuantityModal = ({
     <DialogTemplate
       showDialog={showDialog}
       handleShowDialog={resetInputsHandler}
+      title={`Adjust ${itemToEdit?.name ?? ''} quantity`}
     >
       <Box
         sx={{
@@ -189,8 +176,6 @@ const AdjustQuantityModal = ({
           height: '100%',
         }}
       >
-        <DialogTitle>Adjust {itemToEdit?.name} number</DialogTitle>
-
         <Box id="current-stock">
           <Typography variant="body2">
             Current stock: {itemToEdit?.quantity}
@@ -290,16 +275,17 @@ const AdjustQuantityModal = ({
 
         <Box
           id="modal-buttons"
-          sx={{ display: 'flex', width: '100%', justifyContent: 'end' }}
+          sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'end' }}
         >
           <Button
-            sx={{ mr: 3, color: 'black' }}
+            variant="text"
             onClick={resetInputsHandler}
           >
             Cancel
           </Button>
           <Button
-            sx={{ color: 'black' }}
+            variant="contained"
+            color="primary"
             onClick={updateItemHandler}
             disabled={isSubmitting}
           >

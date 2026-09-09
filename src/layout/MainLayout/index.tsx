@@ -19,8 +19,9 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { AdminUser, User } from '../../types/interfaces';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer';
 import { useSnackbar } from '../../hooks/useSnackbar';
-import { ENDPOINTS, SETTINGS, USER_ROLES } from '../../types/constants';
+import { ENDPOINTS, ENVIRONMENT, SETTINGS, USER_ROLES } from '../../types/constants';
 import { getAuthMe } from '../../services/authService';
+import { trackEvent } from '../../utils/appInsights';
 import { apiRequest } from '../../services/apiRequest';
 
 const requestCache = new Map<string, Promise<AdminUser>>();
@@ -31,9 +32,20 @@ const MainLayout: React.FC = () => {
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(!matchDownLG);
+  // sync the drawer to the breakpoint during render rather than in an effect, so the
+  // temporary Drawer never mounts open and strands an invisible full-screen modal
+  const [prevMatchDownLG, setPrevMatchDownLG] = useState(matchDownLG);
+  if (prevMatchDownLG !== matchDownLG) {
+    setPrevMatchDownLG(matchDownLG);
+    setDrawerOpen(!matchDownLG);
+  }
   const navigate = useNavigate();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const navigateTimeoutRef = useRef<number | null>(null);
+  // In production nothing is rendered until the test-account guard below has
+  // run, so a blocked session never mounts the app shell or any child route.
+  // Outside production there is nothing to decide, so rendering is not held up.
+  const [guardCleared, setGuardCleared] = useState(ENVIRONMENT !== 'production');
 
   // Add inactivity timer
   const resetTimer = useInactivityTimer({
@@ -44,60 +56,6 @@ const MainLayout: React.FC = () => {
     },
     timeout: SETTINGS.inactivity_timeout,
   });
-
-  useEffect(() => {
-    const fetchTokenAndRole = async () => {
-      try {
-        const payload = await getAuthMe();
-        const { clientPrincipal } = payload;
-        const userClaims = clientPrincipal;
-        setUser(userClaims || null);
-
-        if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
-          navigate('/pick-your-name');
-          return;
-        }
-
-        if (userClaims?.userRoles?.includes('admin')) {
-          try {
-            const createdOrUpdatedAdmin = await upsertAdminUser({
-              name: userClaims.userDetails ?? '',
-              email: userClaims.userId ?? '',
-              claims: userClaims,
-            });
-            // Now we have an User object with id, name, created_at, last_signed_in
-            setLoggedInUserId(createdOrUpdatedAdmin.id);
-          } catch (error) {
-            console.error('Error in upsertAdminUser:', error);
-            const originalMessage =
-              error instanceof Error ? error.message : 'Unknown error';
-            throw new Error(
-              `Failed to create/update admin account: ${originalMessage}`,
-            );
-          }
-        }
-      } catch (error) {
-        console.error('Error in fetchTokenAndVolunteers:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
-        showSnackbar(`Authentication error: ${errorMessage}`, 'error');
-        navigateTimeoutRef.current = window.setTimeout(() => {
-          navigateTimeoutRef.current = null;
-          navigate('/');
-        }, 3000);
-      }
-    };
-    fetchTokenAndRole();
-
-    return () => {
-      if (navigateTimeoutRef.current !== null) {
-        clearTimeout(navigateTimeoutRef.current);
-        navigateTimeoutRef.current = null;
-      }
-    };
-
-    // The effect is intended to run only once on mount.
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, []);
 
   /**
    * Create or update an Admin entry in the "Users" table:
@@ -185,14 +143,94 @@ const MainLayout: React.FC = () => {
     return promise;
   };
 
+  useEffect(() => {
+    const fetchTokenAndRole = async () => {
+      try {
+        const payload = await getAuthMe();
+        const { clientPrincipal } = payload;
+        const userClaims = clientPrincipal;
+
+        // Guardrail: test-only accounts must never operate against production.
+        // This prevents the accidental "testing against prod" case by refusing
+        // the session and logging the account back out. It runs before the user
+        // is stored and before `guardCleared` opens, so no protected UI mounts.
+        // It is not a security boundary (a direct API call bypasses it) — the
+        // real boundary is the absence of these accounts/data in the production
+        // database.
+        const isProduction = ENVIRONMENT === 'production';
+        const hasTestRole = userClaims?.userRoles?.includes(USER_ROLES.TEST);
+        if (isProduction && hasTestRole) {
+          trackEvent('TestAccountBlockedInProduction', {
+            environment: ENVIRONMENT,
+            // Identifying the account is the point of the event — we need to
+            // know *which* test account hit production. Consistent with the
+            // PIN_Submission events, which already carry volunteer names.
+            userDetails: userClaims?.userDetails ?? '',
+            userRoles: (userClaims?.userRoles ?? []).join(','),
+          });
+          localStorage.clear();
+          window.location.href =
+            '/.auth/logout?post_logout_redirect_uri=/login.html';
+          return;
+        }
+
+        setUser(userClaims || null);
+        setGuardCleared(true);
+
+        if (userClaims?.userRoles?.includes('volunteer') && !loggedInUserId) {
+          navigate('/pick-your-name');
+          return;
+        }
+
+        if (userClaims?.userRoles?.includes('admin')) {
+          try {
+            const createdOrUpdatedAdmin = await upsertAdminUser({
+              name: userClaims.userDetails ?? '',
+              email: userClaims.userId ?? '',
+              claims: userClaims,
+            });
+            // Now we have an User object with id, name, created_at, last_signed_in
+            setLoggedInUserId(createdOrUpdatedAdmin.id);
+          } catch (error) {
+            console.error('Error in upsertAdminUser:', error);
+            const originalMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Failed to create/update admin account: ${originalMessage}`, { cause: error });
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchTokenAndVolunteers:', error);
+        // The guard could not reach a verdict; render so the error is visible.
+        setGuardCleared(true);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate user';
+        showSnackbar(`Authentication error: ${errorMessage}`, 'error');
+        navigateTimeoutRef.current = window.setTimeout(() => {
+          navigateTimeoutRef.current = null;
+          navigate('/');
+        }, 3000);
+      }
+    };
+    fetchTokenAndRole();
+
+    return () => {
+      if (navigateTimeoutRef.current !== null) {
+        clearTimeout(navigateTimeoutRef.current);
+        navigateTimeoutRef.current = null;
+      }
+    };
+
+    // The effect is intended to run only once on mount.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
+
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
 
-  // set media wise responsive drawer
-  useEffect(() => {
-    setDrawerOpen(!matchDownLG);
-  }, [matchDownLG]);
+  // Hold the app shell (and every child route) until the guard has cleared the
+  // session. A blocked account stays here until the logout redirect takes over.
+  if (!guardCleared) {
+    return null;
+  }
 
   return (
     <DrawerOpenContext.Provider value={{ drawerOpen, setDrawerOpen }}>
@@ -207,11 +245,20 @@ const MainLayout: React.FC = () => {
           <Drawer open={drawerOpen} handleDrawerToggle={handleDrawerToggle} />
           <Box
             component="main"
-            sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 }, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
+            sx={{
+              width: '100%',
+              flexGrow: 1,
+              minWidth: 0,
+              height: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              p: { xs: 2, sm: 3 },
+            }}
           >
             <Toolbar />
             <Breadcrumbs navigation={navigation} title />
-            <Box sx={{ flexGrow: 1 }}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
               <Outlet context={{ drawerOpen }} />
             </Box>
             <Typography

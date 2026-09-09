@@ -19,6 +19,7 @@ import LinearProgress from './LinearProgress';
 import Link from './Link';
 import ListItemIcon from './ListItemIcon';
 import OutlinedInput from './OutlinedInput';
+import Pagination from './Pagination';
 import Tab from './Tab';
 import TableCell from './TableCell';
 import Tabs from './Tabs';
@@ -50,6 +51,7 @@ export default function ComponentsOverrides(theme: Theme) {
     Link(),
     ListItemIcon(),
     OutlinedInput(theme),
+    Pagination(theme),
     Tab(theme),
     TableCell(theme),
     Tabs(),

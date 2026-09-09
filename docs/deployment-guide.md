@@ -22,7 +22,7 @@ For detailed DAB setup instructions, see [DAB-setup.md](DAB-setup.md).
 
 1. Under **deployment** select Github. Point it to the repo you just created under 1.
 
-1. Click Next to go to the **Advanced** tab. We are not using Azure Functions so we can leave this alone. 
+1. Click Next to go to the **Advanced** tab. Leave it alone. The Ask the Data Function in `api/` is deployed by the workflow (`api_location: 'api'`), not from here. 
 
 1. We are also not using **Tags** in the next tab, so you can click Create
 
@@ -91,6 +91,22 @@ Key steps:
 3. Configure your `dab-config.json` file
 4. Link the Container App to your Static Web App
 5. Configure environment variables and managed identity
+
+### Ask the Data (Azure Function)
+
+The Ask the Data card is the one call that skips DAB. It posts to an Azure Function in `api/`,
+which the workflows will upload through `api_location: 'api'`.
+
+> **It does not work in staging or production yet, and deploying it changes nothing.** `/api`
+> in a deployed build is routed to the DAB Container App linked to this Static Web App, so
+> `POST /api/ask-data` reaches DAB, which has no such entity. Microsoft's
+> [API overview](https://learn.microsoft.com/en-us/azure/static-web-apps/apis-overview) also
+> states that "each static web app environment can only be configured with one type of backend
+> API at a time", so a managed Function cannot be added next to the linked Container App.
+> Making it work needs a separate Azure Function App with its own Microsoft Entra validation.
+> Details and options: [ask-the-data-setup.md](ask-the-data-setup.md#staging-and-production).
+
+The Function being uploaded and unused is harmless. Nothing else in the app is affected.
 
 ---  
 

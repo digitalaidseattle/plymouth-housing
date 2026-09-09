@@ -52,6 +52,8 @@ export const ENDPOINTS = {
   ASK_DATA: '/api/ask-data',
 } as const;
 
+export const ASK_DATA_MODEL = 'gemini-3.5-flash';
+
 export const SETTINGS = {
   itemsPerPage: 15,
   rowsPerPageOptions: [10, 15, 25, 50, 100],

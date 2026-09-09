@@ -203,6 +203,34 @@ $env:ASK_DATA_PASSWORD = 'pick-a-strong-one'
 
 Then put that password in `DATABASE_CONNECTION_STRING_ASK_DATA` in your `.env`. Without the switch the login is not created, and without the connection string the card falls back to the main database connection.
 
+Re-running with a different `$env:ASK_DATA_PASSWORD` resets the login's password, so the script and your `.env` cannot drift apart. Check it before moving on:
+
+```powershell
+sqlcmd -S "localhost,1433" -U analytics_reader -P "$env:ASK_DATA_PASSWORD" -d Inventory -C -Q "SELECT COUNT(*) FROM Residents;"
+```
+
+Full setup steps for the card are in [ask-the-data-setup.md](ask-the-data-setup.md).
+
+### Windows SQL Express prerequisites
+
+A default SQL Express install only accepts Windows accounts, and only over shared memory. The Function needs the opposite: `analytics_reader` is a SQL login, and its Node driver can only connect over TCP. Turn both on once. Docker and WSL installs already have both, and DAB is not affected either way.
+
+Run this in an **admin** PowerShell:
+
+```powershell
+$instance = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL').SQLEXPRESS
+$k = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instance\MSSQLServer"
+Set-ItemProperty $k -Name LoginMode -Value 2                                   # SQL and Windows logins
+Set-ItemProperty "$k\SuperSocketNetLib\Tcp" -Name Enabled -Value 1             # TCP/IP on
+Set-ItemProperty "$k\SuperSocketNetLib\Tcp\IPAll" -Name TcpDynamicPorts -Value ''
+Set-ItemProperty "$k\SuperSocketNetLib\Tcp\IPAll" -Name TcpPort -Value '1433'  # fixed port, no SQL Browser needed
+Restart-Service 'MSSQL$SQLEXPRESS' -Force
+```
+
+If you would rather click, the same switches are in SQL Server Configuration Manager (SQL Server Network Configuration, Protocols for SQLEXPRESS, TCP/IP, then port 1433 under IPAll) and SSMS (Server Properties, Security, SQL Server and Windows Authentication mode). Restart the service afterwards.
+
+Your `localhost\SQLEXPRESS` connection string keeps working for DAB and the bootstrap script. Only the Ask the Data string uses `localhost,1433`.
+
 ## Production/Staging
 
 1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)

@@ -30,10 +30,23 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
     <Stack sx={{ gap: 3 }}>
       <Stack
         direction="row"
-        sx={{ alignItems: 'center', justifyContent: 'space-between' }}
+        sx={{
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          gap: 2,
+        }}
       >
         <Typography variant="h5">{title}</Typography>
-        <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
+        {/* A generated title can run the width of the card, so the column name
+            holds its place and the title wraps instead. */}
+        <Typography
+          sx={{
+            typography: 'body2',
+            color: 'text.secondary',
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+          }}
+        >
           {hint}
         </Typography>
       </Stack>

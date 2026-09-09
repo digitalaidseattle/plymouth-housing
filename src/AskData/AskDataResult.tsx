@@ -26,7 +26,7 @@ const resolveDisplay = ({ display, columns, rows }: AskDataAnswer) => {
 };
 
 const AskDataResult: React.FC<{ answer: AskDataAnswer }> = ({ answer }) => {
-  const { title, explanation, columns, rows } = answer;
+  const { title, columns, rows } = answer;
   const display = resolveDisplay(answer);
 
   if (display === 'number') {
@@ -43,9 +43,6 @@ const AskDataResult: React.FC<{ answer: AskDataAnswer }> = ({ answer }) => {
           {title}
         </Typography>
         <Typography variant="h1">{rows[0][0]}</Typography>
-        <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
-          {explanation}
-        </Typography>
       </Stack>
     );
   }
@@ -70,9 +67,11 @@ const AskDataResult: React.FC<{ answer: AskDataAnswer }> = ({ answer }) => {
       bare
       title={title}
       action={
-        <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
-          {answer.truncated ? `First ${rows.length} rows` : explanation}
-        </Typography>
+        answer.truncated && (
+          <Typography sx={{ typography: 'body2', color: 'text.secondary' }}>
+            First {rows.length} rows
+          </Typography>
+        )
       }
       columns={columns.map((column, columnIndex) => ({
         label: column,

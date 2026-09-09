@@ -18,6 +18,7 @@ Plymouth Housing's centralized inventory management system for tracking in-kind 
 ### Backend & Infrastructure
 - **Azure Static Web Apps** for frontend hosting
 - **Data API Builder (DAB)** as API layer (runs in Azure Container Apps)
+- **Azure Functions** for the Ask the Data card (`api/`, local development only so far, see [docs/ask-the-data-setup.md](../docs/ask-the-data-setup.md))
 - **Azure SQL Server** for database
 - **Microsoft Clarity** for analytics
 
@@ -31,6 +32,7 @@ Plymouth Housing's centralized inventory management system for tracking in-kind 
 ```bash
 npx swa start        # Start Azure SWA CLI locally (browse to http://localhost:4280; proxies to Vite on :3000)
 dab start -c ./dab/dab-config.json  # Start Data API Builder (backend API)
+npm start --prefix api  # Start the Ask the Data Function on :7071 (SWA proxies /api to it)
 ./database/bootstrap_db.ps1 -SeedDemoData  # Rebuild a local DB with demo checkout history (see docs/database-setup.md)
 npm run build        # TypeScript compile + Vite build
 npm run lint         # Run ESLint
@@ -69,6 +71,7 @@ src/
 
 database/            # SQL scripts and migrations
 dab/                 # Data API Builder configuration
+api/                 # Azure Function behind the Ask the Data card (own package.json)
 docs/                # Project documentation
 tests/               # End-to-end tests
 ```
@@ -159,6 +162,7 @@ Follow git flow convention: `{name}/{ticket-number}-brief-description`
 - API calls through Data API Builder (DAB)
 - Custom `apiRequest` utility in `src/services/apiRequest.ts` for resilient network requests and retry/spin-up behavior
 - Environment variables for configuration (`.env.local`)
+- The one exception is Ask the Data: the card posts to `/api/ask-data`, an Azure Function in `api/`. Locally it runs on :7071 and SWA proxies `/api` to it. Setup and secrets: [docs/ask-the-data-setup.md](../docs/ask-the-data-setup.md)
 
 ## Accessibility
 
@@ -173,9 +177,9 @@ Follow git flow convention: `{name}/{ticket-number}-brief-description`
 
 ## Development Workflow
 
-1. Set up database (see `docs/database-setup.md`) and DAB (see `docs/DAB-setup.md`)
+1. Set up database (see `docs/database-setup.md`), DAB (see `docs/DAB-setup.md`), and Ask the Data (see `docs/ask-the-data-setup.md`)
 2. Create feature branch following naming convention
-3. Run dev servers (`npx swa start` and `dab start`)
+3. Run dev servers (`npx swa start`, `dab start`, and `npm start --prefix api`)
 4. Write tests alongside features
 5. Run linter before committing
 6. Create PR and request review

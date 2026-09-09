@@ -302,11 +302,13 @@ export type AskDataAnswer = {
   sql: string;
   display: 'number' | 'bar' | 'table';
   title: string;
-  explanation: string;
   columns: string[];
   rows: (string | number)[][];
   truncated: boolean;
+  model: string;
   totalTokens: number;
+  questionsUsed: number;
+  questionLimit: number;
 };
 
 // ─── Context Types ────────────────────────────────────────────────────────────
@@ -339,8 +341,13 @@ export interface ApiConfig {
 // ─── Date Range ───────────────────────────────────────────────────────────────
 
 export type DatePreset =
-  'today' | 'yesterday' | 'this week' | 'this month' | 'this year' |
-  'last year' | 'custom';
+  | 'today'
+  | 'yesterday'
+  | 'this week'
+  | 'this month'
+  | 'this year'
+  | 'last year'
+  | 'custom';
 
 // A range already serialized for the API: local midnight to local end of day.
 export type DateRangeStrings = {

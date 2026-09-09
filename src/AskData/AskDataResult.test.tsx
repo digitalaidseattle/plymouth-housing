@@ -14,11 +14,13 @@ const answer = (overrides: Partial<AskDataAnswer>): AskDataAnswer => ({
   sql: 'SELECT TOP (500) 1',
   display: 'table',
   title: 'Result',
-  explanation: 'A count of checkouts.',
   columns: ['Checkouts'],
   rows: [[42]],
   truncated: false,
+  model: 'gemini-3.6-flash',
   totalTokens: 120,
+  questionsUsed: 1,
+  questionLimit: 40,
   ...overrides,
 });
 
@@ -27,7 +29,6 @@ describe('AskDataResult', () => {
     render(<AskDataResult answer={answer({ display: 'number' })} />);
 
     expect(screen.getByText('42')).toBeInTheDocument();
-    expect(screen.getByText('A count of checkouts.')).toBeInTheDocument();
   });
 
   test('a bar answer renders one row per label', () => {
@@ -86,7 +87,11 @@ describe('AskDataResult', () => {
   test('a truncated result says how many rows are shown', () => {
     render(
       <AskDataResult
-        answer={answer({ columns: ['Item'], rows: [['Towel']], truncated: true })}
+        answer={answer({
+          columns: ['Item'],
+          rows: [['Towel']],
+          truncated: true,
+        })}
       />,
     );
 

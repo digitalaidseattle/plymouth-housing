@@ -8,7 +8,9 @@
 USE master;
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'analytics_reader')
+IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'analytics_reader')
+    ALTER LOGIN analytics_reader WITH PASSWORD = '$(ASK_DATA_PASSWORD)';
+ELSE
     CREATE LOGIN analytics_reader WITH PASSWORD = '$(ASK_DATA_PASSWORD)';
 GO
 

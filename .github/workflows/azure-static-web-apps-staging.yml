@@ -54,13 +54,25 @@ jobs:
             }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: 'upload'
-          deployment_environment: 'staging' # this is a reference to the Azure environment for deployment
+          # REQUIRED -- do not remove. This token points at the same Static Web
+          # App as the production workflow, so without an explicit target
+          # environment the action uploads to the app's *default (production)*
+          # environment and staging silently replaces the live site. That is
+          # what happened on 2026-08-03, after commit 19b402d dropped this line.
+          #
+          # @v1 logs "Unexpected input(s) 'deployment_environment'" because the
+          # ambiguous ref now resolves to the 2021 tag, whose action.yml predates
+          # the input. The warning is cosmetic: the value still reaches the
+          # container as INPUT_DEPLOYMENT_ENVIRONMENT and is honoured. Do not
+          # "fix" the warning by removing the input.
+          deployment_environment: 'staging'
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: '/' # App source code path
           api_location: '' # Api source code path - optional
           output_location: 'dist' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
+          VITE_ENVIRONMENT: staging
           VITE_CLARITY_PROJECT_ID: ${{ secrets.VITE_CLARITY_PROJECT_ID }}
           VITE_APPINSIGHTS_CONNECTION_STRING:
             ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}

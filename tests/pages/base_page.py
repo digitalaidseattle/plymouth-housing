@@ -200,13 +200,22 @@ class BasePage:
     # ---------------------------------------------------
 
     def click_on_inventory(self):
+        # Inventory only expands a sub-menu, so General does the navigating.
+        # Skip the expand when the sub-menu is already open, or it closes it.
+        if not self.is_element_present(
+            self.common_locators.INVENTORY_GENERAL_MENU_BUTTON
+        ):
+            self.click(
+                self.common_locators.INVENTORY_BUTTON
+            )
+
         self.click(
-            self.common_locators.INVENTORY_BUTTON
+            self.common_locators.INVENTORY_GENERAL_MENU_BUTTON
         )
 
     def click_on_volunteer_home(self):
         self.click(
-            self.common_locators.VOLUNTEER_HOME_BUTTON
+            self.common_locators.HOME_MENU_BUTTON
         )
 
     def click_on_checkout(self):

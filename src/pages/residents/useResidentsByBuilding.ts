@@ -4,10 +4,10 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { UserContext } from '../../components/contexts/UserContext';
 import { Unit } from '../../types/interfaces';
-import { getResidentsByBuilding } from '../../services/residentService';
+import { getResidentsByBuilding, updateResident } from '../../services/residentService';
 
 export type UnitWithResidents = {
   unit: Unit;
@@ -74,5 +74,18 @@ export function useResidentsByBuilding(buildingId: number | null) {
     };
   }, [buildingId, user]);
 
-  return { data, isLoading, error };
+  const updateResidentName = useCallback(
+    async (id: number, name: string) => {
+      await updateResident(user, id, name);
+      setData((prev) =>
+        prev.map((u) => ({
+          ...u,
+          residents: u.residents.map((r) => (r.id === id ? { ...r, name } : r)),
+        })),
+      );
+    },
+    [user],
+  );
+
+  return { data, isLoading, error, updateResidentName };
 }

@@ -12,8 +12,13 @@ process.env.TZ = 'UTC';
 import {
   formatTransactionDate,
   formatDateRange,
+  formatDateRangeSummary,
   formatFullDate,
-
+  formatClockTime,
+  formatShortDate,
+  getPresetDateRange,
+  dayKey,
+  parseTimestamp,
 } from './historyUtils';
 
 afterAll(() => {
@@ -81,6 +86,117 @@ describe('formatFullDate', () => {
     const result = formatFullDate(date);
     expect(result).toMatch(/2025/);
     expect(result).toMatch(/Jan/);
+  });
+});
+
+describe('getPresetDateRange', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('returns the expected inclusive dates for every preset', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T12:00:00Z'));
+
+    const expectedRanges = {
+      today: [15, 15],
+      yesterday: [14, 14],
+      'this week': [9, 15],
+      'this month': [1, 30],
+      'last month': [1, 31],
+      'last 30 days': [16, 15],
+      'this year': [1, 15],
+      'last year': [1, 31],
+    };
+
+    Object.entries(expectedRanges).forEach(([preset, [startDay, endDay]]) => {
+      const { startDate, endDate } = getPresetDateRange(
+        preset as Exclude<
+          import('../../types/interfaces').DatePreset,
+          'custom'
+        >,
+      );
+
+      expect(startDate.getDate()).toBe(startDay);
+      expect(endDate.getDate()).toBe(endDay);
+    });
+  });
+});
+
+describe('parseTimestamp', () => {
+  // The API returns SQL Server DATETIME values with no offset. Reading those as
+  // local time would shift the day for anyone outside UTC.
+  test('reads a timestamp with no offset as UTC', () => {
+    expect(parseTimestamp('2026-08-12T23:00:00').getTime()).toBe(
+      Date.parse('2026-08-12T23:00:00Z'),
+    );
+  });
+
+  test('honours an offset when the timestamp carries one', () => {
+    expect(parseTimestamp('2026-08-12T18:00:00-05:00').getTime()).toBe(
+      Date.parse('2026-08-12T23:00:00Z'),
+    );
+  });
+});
+
+describe('formatShortDate', () => {
+  test('formats an ISO date as "Mon D, YYYY"', () => {
+    expect(formatShortDate('2026-08-12T12:00:00.000Z')).toBe('Aug 12, 2026');
+  });
+
+  test('lands on the same day with or without a trailing Z', () => {
+    expect(formatShortDate('2026-08-12T23:00:00')).toBe(
+      formatShortDate('2026-08-12T23:00:00Z'),
+    );
+  });
+});
+
+describe('dayKey', () => {
+  test('lands on the same day with or without a trailing Z', () => {
+    expect(dayKey('2026-08-12T23:00:00')).toBe(dayKey('2026-08-12T23:00:00Z'));
+  });
+
+  test('separates two instants that fall on different local days', () => {
+    expect(dayKey(new Date(2026, 7, 12, 12).toISOString())).not.toBe(
+      dayKey(new Date(2026, 7, 13, 12).toISOString()),
+    );
+  });
+});
+
+describe('formatClockTime', () => {
+  test('shows a 12-hour time with a padded minute', () => {
+    const time = formatClockTime(new Date(2026, 7, 12, 14, 5).getTime());
+    expect(time).toMatch(/^\d{1,2}:\d{2}[\s ](AM|PM)$/);
+  });
+});
+
+describe('formatDateRangeSummary', () => {
+  test('counts both ends of a multi-day range', () => {
+    expect(
+      formatDateRangeSummary(new Date(2026, 8, 1), new Date(2026, 8, 9), 4),
+    ).toBe('Sep 1 - Sep 9, 2026 (9 days, 4 active days)');
+  });
+
+  test('shows a single day with its weekday', () => {
+    expect(
+      formatDateRangeSummary(new Date(2026, 8, 9), new Date(2026, 8, 9), 1),
+    ).toBe('Wednesday, Sep 9, 2026');
+  });
+
+  test('ignores the time of day on either end', () => {
+    expect(
+      formatDateRangeSummary(
+        new Date(2026, 8, 1, 23, 30),
+        new Date(2026, 8, 2, 0, 15),
+        2,
+      ),
+    ).toBe('Sep 1 - Sep 2, 2026 (2 days, 2 active days)');
+  });
+
+  test('echoes the active-day count it is handed', () => {
+    expect(
+      formatDateRangeSummary(new Date(2026, 8, 7), new Date(2026, 8, 13), 3),
+    ).toBe('Sep 7 - Sep 13, 2026 (7 days, 3 active days)');
   });
 });
 

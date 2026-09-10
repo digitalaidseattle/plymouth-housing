@@ -9,20 +9,17 @@ import {
   Button,
   Stack,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import CircularLoader from '../../components/CircularLoader';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
+import ReportFilterControls from '../../components/ReportFilterControls';
 import TransactionsList from '../../components/History/TransactionsList';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useSnackbar } from '../../hooks/useSnackbar';
-import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
+import { useDateRangeFilter } from '../../hooks/useDateRangeFilter';
 import { useReferenceData } from '../../hooks/useReferenceData';
 import { useHistoryData } from '../../hooks/useHistoryData';
 import { withCount } from '../../utils/textUtils';
@@ -92,7 +89,6 @@ const HistoryPage: React.FC = () => {
         showDialog={showCustomDateDialog}
         handleShowDialog={toggleCustomDateDialog}
         handleSetDateRange={handleSetCustomDateRange}
-        handleSetDateInput={() => {}}
       />
 
       <Stack
@@ -179,66 +175,17 @@ const HistoryPage: React.FC = () => {
             flexWrap: 'wrap',
           }}
         >
-          <FormControl sx={{ flexShrink: 0 }}>
-            <InputLabel id="select-date-label">Date</InputLabel>
-            <Select
-              labelId="select-date-label"
-              id="select-date"
-              value={dateInput}
-              label="Date"
-              onChange={(e) => {
-                const value = e.target.value as DatePreset;
-                if (value === 'custom') {
-                  toggleCustomDateDialog();
-                } else {
-                  handleDateSelection(value);
-                }
-              }}
-              sx={(theme) => ({
-                width: { xs: '100%', sm: theme.spacing(20) },
-                borderRadius: theme.spacing(2.25),
-                '& .MuiSelect-select': { py: 2 },
-              })}
-            >
-              <MenuItem value="today">Today</MenuItem>
-              <MenuItem value="yesterday">Yesterday</MenuItem>
-              <MenuItem value="this week">This Week</MenuItem>
-              <MenuItem value="this month">This Month</MenuItem>
-              <MenuItem value="last month">Last Month</MenuItem>
-              <MenuItem value="last 30 days">Last 30 Days</MenuItem>
-              <MenuItem value="custom">
-                {dateRange.isCustom ? dateRangeString : 'Custom'}
-              </MenuItem>
-            </Select>
-          </FormControl>
-          {historyType === 'checkout' && (
-            <FormControl sx={{ flexShrink: 0 }}>
-              <InputLabel id="select-building-label">Building</InputLabel>
-              <Select
-                labelId="select-building-label"
-                id="select-building"
-                value={selectedBuildingId}
-                label="Building"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSelectedBuildingId(value === 'all' ? 'all' : Number(value));
-                }}
-                sx={(theme) => ({
-                  width: { xs: '100%', sm: 'auto' },
-                  minWidth: theme.spacing(24),
-                  borderRadius: theme.spacing(2.25),
-                  '& .MuiSelect-select': { py: 2 },
-                })}
-              >
-                <MenuItem value="all">All Buildings</MenuItem>
-                {buildings?.map((b) => (
-                  <MenuItem key={b.id} value={b.id}>
-                    {b.code} — {b.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
+          <ReportFilterControls
+            dateInput={dateInput}
+            dateRange={dateRange}
+            dateRangeString={dateRangeString}
+            onDateSelect={handleDateSelection}
+            onOpenCustomDialog={toggleCustomDateDialog}
+            buildings={buildings}
+            buildingId={selectedBuildingId}
+            onBuildingChange={setSelectedBuildingId}
+            showBuilding={historyType === 'checkout'}
+          />
           {hasActiveFilters && (
             <Button
               onClick={handleResetFilters}

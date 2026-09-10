@@ -43,9 +43,7 @@ function getPool(): Promise<sql.ConnectionPool> {
   if (pool) return pool;
 
   // Read here, not at module load: dotenv runs after this module is evaluated.
-  const connectionString =
-    process.env.DATABASE_CONNECTION_STRING_ASK_DATA ??
-    process.env.DATABASE_CONNECTION_STRING;
+  const connectionString = process.env.DATABASE_CONNECTION_STRING_ASK_DATA;
   if (!connectionString) {
     return Promise.reject(new Error('No connection string is configured.'));
   }
@@ -98,7 +96,7 @@ export async function getSchema(): Promise<string> {
 // ─── Validation ───────────────────────────────────────────────────────────────
 
 const BANNED =
-  /--|\/\*|\b(INTO|WAITFOR|OPENROWSET|OPENQUERY|OPENDATASOURCE|EXEC|EXECUTE|GRANT|REVOKE|SHUTDOWN|xp_\w+|sp_\w+)\b/i;
+  /--|\/\*|\b(INSERT|UPDATE|DELETE|MERGE|INTO|WAITFOR|OPENROWSET|OPENQUERY|OPENDATASOURCE|EXEC|EXECUTE|GRANT|REVOKE|SHUTDOWN|xp_\w+|sp_\w+)\b/i;
 const TABLE_REF =
   /\b(?:FROM|JOIN)\s+((?:\[[^\]]+\]|\w+)(?:\s*\.\s*(?:\[[^\]]+\]|\w+))*)/gi;
 const CTE_NAME = /(?:\bWITH|,)\s*(\[[^\]]+\]|\w+)\s+AS\s*\(/gi;

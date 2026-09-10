@@ -34,7 +34,6 @@ const RECENT_QUESTIONS_KEY = 'askDataRecentQuestions';
 
 const codeSx = {
   typography: 'caption',
-  fontFamily: 'monospace',
   whiteSpace: 'pre-wrap',
   bgcolor: 'grey.100',
   borderRadius: 1,

@@ -201,7 +201,7 @@ $env:ASK_DATA_PASSWORD = 'pick-a-strong-one'
 .\database\bootstrap_db.ps1 -CreateAnalyticsUser
 ```
 
-Then put that password in `DATABASE_CONNECTION_STRING_ASK_DATA` in your `.env`. Without the switch the login is not created, and without the connection string the card falls back to the main database connection.
+Then put that password in `DATABASE_CONNECTION_STRING_ASK_DATA` in your `.env`. Without the switch the login is not created, and without the connection string Ask the Data will not start.
 
 Re-running with a different `$env:ASK_DATA_PASSWORD` resets the login's password, so the script and your `.env` cannot drift apart. Check it before moving on:
 
@@ -248,4 +248,3 @@ Your `localhost\SQLEXPRESS` connection string keeps working for DAB and the boot
     Replace `[container-app-name]` with the name of your Azure Container App running DAB.
 
 1. The database connection is configured in the Container App environment variables. See [DAB-setup.md](DAB-setup.md) for complete deployment instructions.  
-

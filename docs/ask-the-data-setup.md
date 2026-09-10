@@ -131,9 +131,9 @@ DATABASE_CONNECTION_STRING_ASK_DATA=Server=localhost,1433;Database=Inventory;Use
 - `Server=localhost,1433`, with a **comma**. Not `localhost\SQLEXPRESS`, the Node driver cannot
   resolve named instances. Same on macOS Docker and WSL.
 - `Password=` must be the exact `$env:ASK_DATA_PASSWORD` from step 5.
-- Leave `DATABASE_CONNECTION_STRING_ASK_DATA` blank and the Function falls back to
-  `DATABASE_CONNECTION_STRING`, your full-access Windows login, so the read-only boundary is
-  gone. Set it.
+- `DATABASE_CONNECTION_STRING_ASK_DATA` is required. The Function does not fall back to
+  `DATABASE_CONNECTION_STRING`, ensuring generated queries never receive the main application's
+  write-capable credentials.
 
 ## Run it
 

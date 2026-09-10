@@ -22,7 +22,7 @@ For detailed DAB setup instructions, see [DAB-setup.md](DAB-setup.md).
 
 1. Under **deployment** select Github. Point it to the repo you just created under 1.
 
-1. Click Next to go to the **Advanced** tab. Leave it alone. The Ask the Data Function in `api/` is deployed by the workflow (`api_location: 'api'`), not from here. 
+1. Click Next to go to the **Advanced** tab. Leave it alone. The Ask the Data Function in `api/` is deployed by the workflow (`api_location: 'api'`), not from here.
 
 1. We are also not using **Tags** in the next tab, so you can click Create
 

@@ -64,6 +64,8 @@ const contextValue = (): UserContextType => ({
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
   isLoading: false,
+  pinVerified: false,
+  setPinVerified: vi.fn(),
 });
 
 const renderLayout = () =>

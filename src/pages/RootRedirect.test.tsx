@@ -55,18 +55,27 @@ const GenericRedirectPage = ({ source }: { source: string }) => (
 );
 
 
-const mockUserContextValue = (role: 'admin' | 'volunteer' | null | undefined, isLoading: boolean): UserContextType => ({
-  user: role ? {
-    userRoles: [role],
-    userId: 'test-user-id',
-    userDetails: 'test-user-details'
-  } : null,
+const mockUserContextValue = (
+  role: 'admin' | 'volunteer' | null | undefined,
+  isLoading: boolean,
+  pinVerified = true,
+  loggedInUserId: number | null = null,
+): UserContextType => ({
+  user: role
+    ? {
+        userRoles: [role],
+        userId: 'test-user-id',
+        userDetails: 'test-user-details',
+      }
+    : null,
   isLoading,
   setUser: vi.fn(),
-  loggedInUserId: null,
+  loggedInUserId,
   setLoggedInUserId: vi.fn(),
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
+  pinVerified,
+  setPinVerified: vi.fn(),
 });
 
 const renderWithRouter = (contextValue: any, { route = '/' } = {}) => {
@@ -82,6 +91,8 @@ const renderWithRouter = (contextValue: any, { route = '/' } = {}) => {
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/volunteer-home" element={<VolunteerHomePage />} />
           <Route path="/admin-home" element={<AdminHomePage />} />
+          <Route path="/pick-your-name" element={<div>Pick Your Name Page</div>} />
+          <Route path="/enter-your-pin" element={<div>Enter Your PIN Page</div>} />
           <Route path="/404" element={<div data-testid="page-404">404 Page</div>} />
           <Route path="/:source" element={<GenericRedirectPage source={route.slice(1)} />} />
         </Routes>
@@ -154,6 +165,40 @@ describe('RootRedirect', () => {
       </UserContext.Provider>
     );
     expect(screen.getByText('Inventory Page Content')).toBeInTheDocument();
+  });
+});
+
+describe('RootRedirect - pinVerified gating', () => {
+  it('redirects volunteer with no selected volunteer to /pick-your-name', () => {
+    const contextValue = mockUserContextValue('volunteer', false, false, null);
+    renderWithRouter(contextValue, { route: '/volunteer-home' });
+    expect(screen.getByText('Pick Your Name Page')).toBeInTheDocument();
+  });
+
+  it('redirects selected volunteer to /enter-your-pin when pinVerified is false', () => {
+    const contextValue = mockUserContextValue('volunteer', false, false, 123);
+    renderWithRouter(contextValue, { route: '/volunteer-home' });
+    expect(screen.queryByText('Volunteer Home Page')).not.toBeInTheDocument();
+    expect(screen.getByText('Enter Your PIN Page')).toBeInTheDocument();
+  });
+
+  it('allows volunteer through to dashboard when pinVerified is true', () => {
+    const contextValue = mockUserContextValue('volunteer', false, true, 123);
+    renderWithRouter(contextValue, { route: '/volunteer-home' });
+    expect(screen.getByText('Volunteer Home Page')).toBeInTheDocument();
+  });
+
+  it('admin is unaffected by pinVerified being false', () => {
+    const contextValue = mockUserContextValue('admin', false, false, null);
+    renderWithRouter(contextValue, { route: '/admin-home' });
+    expect(screen.getByText('Admin Home Page')).toBeInTheDocument();
+  });
+
+  it('blocks volunteer with no PIN verification from shared pages', () => {
+    const contextValue = mockUserContextValue('volunteer', false, false, 123);
+    renderWithRouter(contextValue, { route: '/inventory' });
+    expect(screen.queryByText('Inventory Page Content')).not.toBeInTheDocument();
+    expect(screen.getByText('Enter Your PIN Page')).toBeInTheDocument();
   });
 });
 

@@ -5,45 +5,21 @@
  *
  */
 import {
+  calendarDays,
+  dayKey,
+  formatShortDate,
+} from '../components/History/historyUtils';
+import {
   AnalyticsSummary,
+  BuildingResidents,
   CheckoutTransaction,
+  FlaggedTransaction,
   InventoryItem,
   InventoryTransaction,
+  RankedItem,
   TransactionType,
 } from '../types/interfaces';
 import { CsvSection } from './csvExport';
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-export type RankedItem = { item_name: string; total_quantity: number };
-
-export type BuildingResidents = {
-  building_code: string;
-  residentCount: number;
-  visitCount: number;
-};
-
-export type FlaggedTransaction = CheckoutTransaction & {
-  isDuplicate: boolean;
-  visitCount: number;
-};
-
-// Inclusive calendar days between two local-midnight ISO instants.
-const calendarDays = (startDate: string, endDate: string): number => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const startDay = new Date(
-    start.getFullYear(),
-    start.getMonth(),
-    start.getDate(),
-  ).getTime();
-  const endDay = new Date(
-    end.getFullYear(),
-    end.getMonth(),
-    end.getDate(),
-  ).getTime();
-  return Math.round((endDay - startDay) / MS_PER_DAY) + 1;
-};
 
 export const summarizeCheckouts = (
   transactions: CheckoutTransaction[],
@@ -51,12 +27,16 @@ export const summarizeCheckouts = (
   endDate: string,
 ): AnalyticsSummary => {
   const checkouts = transactions.length;
-  const rangeDays = calendarDays(startDate, endDate);
+  const rangeDays = calendarDays(new Date(startDate), new Date(endDate));
+  // Averaged over days that saw a checkout, so quiet days don't drag it down.
+  const activeDays = new Set(
+    transactions.map((t) => dayKey(t.transaction_date)),
+  ).size;
   return {
     residentsServed: new Set(transactions.map((t) => t.resident_id)).size,
     checkouts,
     itemsCheckedOut: transactions.reduce((sum, t) => sum + t.total_quantity, 0),
-    avgCheckoutsPerDay: checkouts / rangeDays,
+    avgCheckoutsPerActiveDay: activeDays === 0 ? 0 : checkouts / activeDays,
     rangeDays,
   };
 };
@@ -138,8 +118,8 @@ export const previousPeriod = (
   startDate: string,
   endDate: string,
 ): { startDate: string; endDate: string } => {
-  const days = calendarDays(startDate, endDate);
   const start = new Date(startDate);
+  const days = calendarDays(start, new Date(endDate));
   const year = start.getFullYear();
   const month = start.getMonth();
   const day = start.getDate();
@@ -160,19 +140,6 @@ export const sortLowStockItems = (items: InventoryItem[]): InventoryItem[] =>
       return deltaDiff !== 0 ? deltaDiff : a.name.localeCompare(b.name);
     });
 
-export const formatTransactionDate = (isoDate: string): string =>
-  new Date(isoDate).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-export const formatLastUpdated = (timestamp: number): string =>
-  new Date(timestamp).toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-
 interface AnalyticsExport {
   dateRangeString: string;
   buildingName: string;
@@ -186,6 +153,17 @@ interface AnalyticsExport {
   lowStockRows: InventoryItem[];
   checkedOutById: Map<number, number>;
 }
+
+// The three ranked-item panels differ only by title and what the count means.
+const rankedSection = (
+  title: string,
+  quantityHeader: string,
+  items: RankedItem[],
+): CsvSection => ({
+  title,
+  headers: ['Item', quantityHeader],
+  rows: items.map((item) => [item.item_name, item.total_quantity]),
+});
 
 // One section per panel on the page, in the order they are shown.
 export const buildAnalyticsSections = ({
@@ -219,35 +197,15 @@ export const buildAnalyticsSections = ({
   {
     title: 'Residents Served by Building',
     headers: ['Building', 'Residents'],
-    rows: residentsByBuilding.map((building) => [
-      building.building_code,
-      building.residentCount,
-    ]),
+    rows: residentsByBuilding.map((b) => [b.building_code, b.residentCount]),
   },
-  {
-    title: 'Top 10 Items Checked Out',
-    headers: ['Item', 'Quantity'],
-    rows: topCheckedOutItems.map((item) => [
-      item.item_name,
-      item.total_quantity,
-    ]),
-  },
-  {
-    title: 'Top 10 Inventory Items Added',
-    headers: ['Item', 'Quantity Added'],
-    rows: topInventoryAdded.map((item) => [
-      item.item_name,
-      item.total_quantity,
-    ]),
-  },
-  {
-    title: 'Least Checked Out Items',
-    headers: ['Item', 'Quantity'],
-    rows: leastCheckedOutItems.map((item) => [
-      item.item_name,
-      item.total_quantity,
-    ]),
-  },
+  rankedSection('Top 10 Items Checked Out', 'Quantity', topCheckedOutItems),
+  rankedSection(
+    'Top 10 Inventory Items Added',
+    'Quantity Added',
+    topInventoryAdded,
+  ),
+  rankedSection('Least Checked Out Items', 'Quantity', leastCheckedOutItems),
   {
     title: 'Residents Served',
     headers: [
@@ -264,7 +222,7 @@ export const buildAnalyticsSections = ({
       row.unit_number.trim(),
       row.visitCount,
       row.total_quantity,
-      formatTransactionDate(row.transaction_date),
+      formatShortDate(row.transaction_date),
     ]),
   },
   {

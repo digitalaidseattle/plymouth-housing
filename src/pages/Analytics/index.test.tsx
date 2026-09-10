@@ -368,9 +368,9 @@ describe('Analytics Page', () => {
     fireEvent.mouseDown(screen.getByRole('combobox', { name: /date/i }));
     fireEvent.click(await screen.findByRole('option', { name: 'This Week' }));
 
-    // "This Week" spans 8 calendar days, so 3 checkouts averages 0.4 a day.
+    // The 3 checkouts land on 3 separate days, and quiet days are not counted.
     const tile = await findTileCard('Checkouts');
-    expect(await within(tile).findByText('0.4 / day')).toBeInTheDocument();
+    expect(await within(tile).findByText('1.0 / day')).toBeInTheDocument();
   });
 
   test('charts only InventoryAdd rows in Top Inventory Items Added', async () => {

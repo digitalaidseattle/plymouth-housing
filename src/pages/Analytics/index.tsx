@@ -168,7 +168,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
       // Only meaningful once the range covers more than a day.
       valueSuffix:
         currentSummary.rangeDays > 1
-          ? `${currentSummary.avgCheckoutsPerDay.toFixed(1)} / day`
+          ? `${currentSummary.avgCheckoutsPerActiveDay.toFixed(1)} / day`
           : undefined,
       delta: delta(
         currentSummary.checkouts,

@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import { usePagination } from '../../hooks/usePagination';
+import { SETTINGS } from '../../types/constants';
 import PanelCard from './PanelCard';
 import TablePaginationBar from './TablePaginationBar';
 
@@ -66,7 +67,7 @@ const DataTable = <T,>({
     setPage,
     changeRowsPerPage,
     paginatedRows,
-  } = usePagination(rows);
+  } = usePagination(rows, SETTINGS.analyticsItemsPerPage);
 
   const table = (
     <>

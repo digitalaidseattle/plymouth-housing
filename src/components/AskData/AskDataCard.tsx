@@ -7,11 +7,10 @@
 import { useState } from 'react';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Collapse,
-  IconButton,
-  InputAdornment,
   Skeleton,
   Stack,
   TextField,
@@ -22,13 +21,16 @@ import {
   UpOutlined,
   DownloadOutlined,
   ClearOutlined,
-  CloseOutlined,
   RobotOutlined,
 } from '@ant-design/icons';
 import { useAskData } from '../../hooks/useAskData';
+import usePersistentState from '../../hooks/usePersistentState';
+import { SETTINGS } from '../../types/constants';
 import { downloadCsv } from '../../utils/csvExport';
 import PanelCard from '../Analytics/PanelCard';
 import AskDataResult from './AskDataResult';
+
+const RECENT_QUESTIONS_KEY = 'askDataRecentQuestions';
 
 const codeSx = {
   typography: 'caption',
@@ -43,13 +45,27 @@ const AskDataCard: React.FC = () => {
   const [expanded, setExpanded] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
   const [question, setQuestion] = useState('');
+  const [recentQuestions, setRecentQuestions] = usePersistentState<string[]>(
+    RECENT_QUESTIONS_KEY,
+    [],
+  );
   const { answer, isLoading, error, ask, reset } = useAskData();
 
   const toggle = () => setExpanded((open) => !open);
 
-  const submit = () => {
-    const trimmed = question.trim();
-    if (trimmed && !isLoading) ask(trimmed);
+  const submit = (value = question) => {
+    const trimmed = value.trim();
+    if (!trimmed || isLoading) return;
+    setQuestion(trimmed);
+    setRecentQuestions(
+      [
+        trimmed,
+        ...recentQuestions.filter(
+          (recent) => recent.toLowerCase() !== trimmed.toLowerCase(),
+        ),
+      ].slice(0, SETTINGS.askDataRecentQuestionsMax),
+    );
+    ask(trimmed);
   };
 
   return (
@@ -86,37 +102,38 @@ const AskDataCard: React.FC = () => {
           <Stack sx={{ gap: 3 }}>
             <Stack sx={{ gap: 1 }}>
               <Stack direction="row" sx={{ gap: 1 }}>
-                <TextField
+                <Autocomplete
+                  freeSolo
                   fullWidth
                   size="small"
-                  placeholder="How many residents did we serve this month?"
-                  slotProps={{
-                    htmlInput: { 'aria-label': 'Ask the data' },
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            size="small"
-                            aria-label="Clear question"
-                            onClick={() => setQuestion('')}
-                            sx={{ visibility: question ? 'visible' : 'hidden' }}
-                          >
-                            <CloseOutlined />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  onKeyDown={(e) => {
+                  disabled={isLoading}
+                  clearText="Clear question"
+                  options={recentQuestions}
+                  inputValue={question}
+                  onInputChange={(_, value) => setQuestion(value)}
+                  // On key up, not down: Enter first lets the Autocomplete put
+                  // the picked suggestion in the box, so Enter and the Ask
+                  // button both send what the box shows.
+                  onKeyUp={(e) => {
                     if (e.key === 'Enter') submit();
                   }}
-                  disabled={isLoading}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="How many residents did we serve this month?"
+                      slotProps={{
+                        ...params.slotProps,
+                        htmlInput: {
+                          ...params.slotProps.htmlInput,
+                          'aria-label': 'Ask the data',
+                        },
+                      }}
+                    />
+                  )}
                 />
                 <Button
                   variant="contained"
-                  onClick={submit}
+                  onClick={() => submit()}
                   disabled={isLoading || !question.trim()}
                 >
                   Ask
@@ -138,24 +155,29 @@ const AskDataCard: React.FC = () => {
             {isLoading && <Skeleton variant="rounded" height={160} />}
 
             {!isLoading && answer && (
-              <Stack sx={{ gap: 1, alignItems: 'flex-start' }}>
+              <Stack sx={{ gap: 2 }}>
                 <AskDataResult answer={answer} />
-                <Button
-                  size="small"
-                  onClick={() => setShowDetails((on) => !on)}
-                >
-                  {showDetails ? 'Hide details' : 'Show details'}
-                </Button>
-                <Collapse in={showDetails} sx={{ width: '100%' }}>
-                  <Stack sx={{ gap: 1 }}>
-                    <Box sx={codeSx}>{answer.sql}</Box>
-                    <Typography
-                      sx={{ typography: 'caption', color: 'text.secondary' }}
-                    >
-                      {`${answer.model} · ${answer.totalTokens.toLocaleString()} tokens · ${answer.questionsUsed} of ${answer.questionLimit} questions this hour`}
-                    </Typography>
-                  </Stack>
-                </Collapse>
+                <Stack sx={{ gap: 1 }}>
+                  <Button
+                    variant="text"
+                    size="small"
+                    aria-expanded={showDetails}
+                    onClick={() => setShowDetails((on) => !on)}
+                    sx={{ alignSelf: 'flex-start', ml: -0.5 }}
+                  >
+                    {showDetails ? 'Hide details' : 'Show details'}
+                  </Button>
+                  <Collapse in={showDetails}>
+                    <Stack sx={{ gap: 1 }}>
+                      <Box sx={codeSx}>{answer.sql}</Box>
+                      <Typography
+                        sx={{ typography: 'caption', color: 'text.secondary' }}
+                      >
+                        {`${answer.model} · ${answer.totalTokens.toLocaleString()} tokens · ${answer.questionsUsed} of ${answer.questionLimit} questions this hour`}
+                      </Typography>
+                    </Stack>
+                  </Collapse>
+                </Stack>
               </Stack>
             )}
 

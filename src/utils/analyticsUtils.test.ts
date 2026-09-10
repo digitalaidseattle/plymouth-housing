@@ -16,7 +16,6 @@ import {
   sortLowStockItems,
   sumItemsAdded,
   topItemsAdded,
-  formatTransactionDate,
 } from './analyticsUtils';
 import {
   CheckoutTransaction,
@@ -62,6 +61,10 @@ const makeItem = (overrides: Partial<InventoryItem>): InventoryItem => ({
   ...overrides,
 });
 
+// Midday local, so the instant lands on the intended day in any timezone.
+const localNoon = ([year, month, day]: [number, number, number]) =>
+  new Date(year, month, day, 12).toISOString();
+
 // Mirrors useDateRangeFilter's formattedDateRange: local midnight start,
 // local end-of-day end, each serialized with toISOString().
 const localDateRange = (
@@ -83,7 +86,7 @@ describe('summarizeCheckouts', () => {
       residentsServed: 0,
       checkouts: 0,
       itemsCheckedOut: 0,
-      avgCheckoutsPerDay: 0,
+      avgCheckoutsPerActiveDay: 0,
       rangeDays: 1,
     });
   });
@@ -117,17 +120,24 @@ describe('summarizeCheckouts', () => {
     const transactions = [makeTransaction({})];
     const { startDate, endDate } = localDateRange([2025, 0, 1]);
     const result = summarizeCheckouts(transactions, startDate, endDate);
-    expect(result.avgCheckoutsPerDay).toBe(1);
+    expect(result.avgCheckoutsPerActiveDay).toBe(1);
   });
 
-  test('divides checkouts across an inclusive multi-day range', () => {
+  test('divides checkouts by the days that had one, not the whole range', () => {
     const transactions = [
-      makeTransaction({}),
-      makeTransaction({ transaction_id: 'txn-2' }),
+      makeTransaction({ transaction_date: localNoon([2025, 0, 1]) }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        transaction_date: localNoon([2025, 0, 1]),
+      }),
+      makeTransaction({
+        transaction_id: 'txn-3',
+        transaction_date: localNoon([2025, 0, 3]),
+      }),
     ];
     const { startDate, endDate } = localDateRange([2025, 0, 1], [2025, 0, 4]);
     const result = summarizeCheckouts(transactions, startDate, endDate);
-    expect(result.avgCheckoutsPerDay).toBe(0.5);
+    expect(result.avgCheckoutsPerActiveDay).toBe(1.5);
     expect(result.rangeDays).toBe(4);
   });
 });
@@ -466,14 +476,6 @@ describe('sortLowStockItems', () => {
   });
 });
 
-describe('formatTransactionDate', () => {
-  test('formats an ISO date as "Mon D, YYYY"', () => {
-    expect(formatTransactionDate('2026-08-12T12:00:00.000Z')).toBe(
-      'Aug 12, 2026',
-    );
-  });
-});
-
 describe('onlyAdds', () => {
   const makeRow = (
     overrides: Partial<InventoryTransaction>,
@@ -544,6 +546,14 @@ describe('buildAnalyticsSections', () => {
 
   test('takes the summary rows straight from the stat tiles', () => {
     expect(sections[1].rows).toEqual([['Checkouts', '12']]);
+  });
+
+  test('labels each ranked panel with what its count means', () => {
+    expect(sections.slice(3, 6).map((section) => section.headers)).toEqual([
+      ['Item', 'Quantity'],
+      ['Item', 'Quantity Added'],
+      ['Item', 'Quantity'],
+    ]);
   });
 
   test('trims the unit number and formats the transaction date', () => {

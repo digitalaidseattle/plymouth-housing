@@ -131,7 +131,11 @@ Rules about the data:
     WHERE c.transaction_type = 1
 - TransactionItems.quantity is how many units moved. Items.quantity is stock on hand,
   and stock at or below Items.threshold is low.
-- Residents sit in Units, Units sit in Buildings. Transactions also carry building_id.
+- Transactions.building_id is never filled in, so joining on it returns nothing. A
+  transaction's building comes from its resident instead:
+    JOIN Residents r ON r.id = c.resident_id
+    JOIN Units u ON u.id = r.unit_id
+    JOIN Buildings b ON b.id = u.building_id
 - Every datetime column is stored in UTC, but the charity works in Seattle time, so
   convert before comparing a date:
   transaction_date AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific Standard Time'.

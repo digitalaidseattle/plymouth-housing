@@ -34,7 +34,7 @@ const renderWithRoles = (userRoles: string[]) =>
         setActiveVolunteers: vi.fn(),
         isLoading: false,
         pinVerified: false,
-        setPinVerified: vi.fn(),
+        setPinVerifiedForUserId: vi.fn(),
       }}
     >
       <MemoryRouter>

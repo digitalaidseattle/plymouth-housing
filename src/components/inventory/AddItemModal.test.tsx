@@ -40,7 +40,7 @@ const userContextValue = {
     setActiveVolunteers: vi.fn(),
     isLoading: false,
     pinVerified: false,
-    setPinVerified: vi.fn(),
+    setPinVerifiedForUserId: vi.fn(),
 };
 
 const renderComponent = () => {

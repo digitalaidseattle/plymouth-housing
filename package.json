@@ -58,6 +58,6 @@
     "source-map-explorer": "^2.5.3",
     "typescript": "^6.0.3",
     "vite": "^8.2.1",
-    "vitest": "^4.0.6"
+    "vitest": "^4.1.11"
   }
 }

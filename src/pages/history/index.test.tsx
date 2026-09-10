@@ -736,7 +736,10 @@ describe('HistoryPage Component', () => {
 
   test('filters displayed records by selected building combined with date filter', async () => {
     const multiBuildingTransactions: CheckoutTransaction[] = [
-      mockCheckoutTransactions[0],
+      {
+        ...mockCheckoutTransactions[0],
+        transaction_date: '2025-06-10T12:00:00.000Z',
+      },
       {
         transaction_id: '2',
         user_id: 2,
@@ -746,7 +749,23 @@ describe('HistoryPage Component', () => {
         unit_number: '201',
         resident_id: 2,
         resident_name: 'Resident B',
-        transaction_date: new Date().toISOString(),
+        transaction_date: '2025-06-11T12:00:00.000Z',
+        item_type: 'general',
+        total_quantity: 1,
+        welcome_basket_item_id: null,
+        welcome_basket_quantity: null,
+        is_edited: false,
+      },
+      {
+        transaction_id: '3',
+        user_id: 3,
+        building_id: 1,
+        building_code: 'A',
+        building_name: '123 Main St',
+        unit_number: '102',
+        resident_id: 3,
+        resident_name: 'Resident C',
+        transaction_date: '2025-05-31T12:00:00.000Z',
         item_type: 'general',
         total_quantity: 1,
         welcome_basket_item_id: null,
@@ -755,19 +774,25 @@ describe('HistoryPage Component', () => {
       },
     ];
 
-    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue(
-      multiBuildingTransactions,
+    vi.spyOn(historyService, 'getCheckoutHistory').mockImplementation(
+      (_, startDate, endDate) =>
+        Promise.resolve(
+          multiBuildingTransactions.filter(
+            (transaction) =>
+              transaction.transaction_date >= startDate &&
+              transaction.transaction_date <= endDate,
+          ),
+        ),
     );
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(FIXED_NOW);
 
     render(
       <Wrapper>
         <HistoryPage />
       </Wrapper>,
     );
-
-    await waitFor(() => {
-      expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
-    });
 
     // Apply a date preset filter (combines with building filter)
     const dateSelect = screen.getByRole('combobox', { name: /Date/i });
@@ -778,6 +803,11 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
     });
+    expect(screen.getByTestId('general-checkout-card-1')).toBeInTheDocument();
+    expect(screen.getByTestId('general-checkout-card-2')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('general-checkout-card-3'),
+    ).not.toBeInTheDocument();
 
     // Now filter down to building A only
     const buildingSelect = screen.getByRole('combobox', { name: /Building/i });
@@ -788,6 +818,13 @@ describe('HistoryPage Component', () => {
     await waitFor(() => {
       expect(screen.getByText(/Showing 1 record total/i)).toBeInTheDocument();
     });
+    expect(screen.getByTestId('general-checkout-card-1')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('general-checkout-card-2'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('general-checkout-card-3'),
+    ).not.toBeInTheDocument();
   });
 
   test('hides the building filter on the Inventory tab and resets it on return', async () => {

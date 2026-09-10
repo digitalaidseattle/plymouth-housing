@@ -112,7 +112,7 @@ const HistoryPage: React.FC = () => {
             gap: 2,
             '& .MuiToggleButton-root': {
               border: 'none',
-              borderRadius: '18px !important', // Override grouped styles
+              borderRadius: (theme) => `${theme.spacing(2.25)} !important`, // Override grouped styles
               marginLeft: '0 !important',
             },
           }}
@@ -122,7 +122,7 @@ const HistoryPage: React.FC = () => {
             sx={{
               py: 2,
               px: 4,
-              borderRadius: '18px',
+              borderRadius: (theme) => theme.spacing(2.25),
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
@@ -148,7 +148,7 @@ const HistoryPage: React.FC = () => {
             sx={{
               py: 2,
               px: 4,
-              borderRadius: '18px',
+              borderRadius: (theme) => theme.spacing(2.25),
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
@@ -194,11 +194,11 @@ const HistoryPage: React.FC = () => {
                   handleDateSelection(value);
                 }
               }}
-              sx={{
-                width: { xs: '100%', sm: '10rem' },
-                borderRadius: '18px',
+              sx={(theme) => ({
+                width: { xs: '100%', sm: theme.spacing(20) },
+                borderRadius: theme.spacing(2.25),
                 '& .MuiSelect-select': { py: 2 },
-              }}
+              })}
             >
               <MenuItem value="today">Today</MenuItem>
               <MenuItem value="yesterday">Yesterday</MenuItem>
@@ -223,12 +223,12 @@ const HistoryPage: React.FC = () => {
                   const value = e.target.value;
                   setSelectedBuildingId(value === 'all' ? 'all' : Number(value));
                 }}
-                sx={{
+                sx={(theme) => ({
                   width: { xs: '100%', sm: 'auto' },
-                  minWidth: '12rem',
-                  borderRadius: '18px',
+                  minWidth: theme.spacing(24),
+                  borderRadius: theme.spacing(2.25),
                   '& .MuiSelect-select': { py: 2 },
-                }}
+                })}
               >
                 <MenuItem value="all">All Buildings</MenuItem>
                 {buildings?.map((b) => (

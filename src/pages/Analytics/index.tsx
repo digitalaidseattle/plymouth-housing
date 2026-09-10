@@ -5,7 +5,7 @@
  *
  */
 import React, { useContext, useMemo, useState } from 'react';
-import { Grid, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
+import { Grid, Skeleton, Stack } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
 import StatTile from '../../components/Analytics/StatTile';
@@ -194,9 +194,8 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
     },
   ];
 
-  const handleBuildingChange = (e: SelectChangeEvent<number | 'all'>) => {
-    const value = e.target.value;
-    setBuildingId(value === 'all' ? null : Number(value));
+  const handleBuildingChange = (value: number | 'all') => {
+    setBuildingId(value === 'all' ? null : value);
   };
 
   const selectedBuildingName =
@@ -246,7 +245,6 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         showDialog={showCustomDateDialog}
         handleShowDialog={toggleCustomDateDialog}
         handleSetDateRange={handleSetCustomDateRange}
-        handleSetDateInput={() => {}}
       />
 
       <AnalyticsFilters

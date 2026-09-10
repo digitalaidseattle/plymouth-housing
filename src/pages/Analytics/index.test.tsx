@@ -309,7 +309,7 @@ describe('Analytics Page', () => {
     const buildingSelect = screen.getByRole('combobox', { name: /building/i });
     fireEvent.mouseDown(buildingSelect);
     const buildingAOption = await screen.findByRole('option', {
-      name: 'Building A',
+      name: 'A — Building A',
     });
     fireEvent.click(buildingAOption);
 
@@ -349,7 +349,7 @@ describe('Analytics Page', () => {
     renderAnalytics();
 
     await findDetailPanel();
-    const exportButton = screen.getByRole('button', { name: /export/i });
+    const exportButton = screen.getByRole('button', { name: 'Export' });
     expect(exportButton).toBeEnabled();
   });
 

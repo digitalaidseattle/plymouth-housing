@@ -14,50 +14,9 @@ import { DatePreset, DateRange } from '../types/interfaces';
 
 export type { DatePreset };
 
-type SelectablePreset = Exclude<DatePreset, 'custom'>;
-
-function dateRangeForPreset(preset: SelectablePreset): DateRange {
-  const todaysDate = new Date();
-
-  if (preset === 'yesterday') {
-    const yesterday = new Date();
-    yesterday.setDate(todaysDate.getDate() - 1);
-    return { startDate: yesterday, endDate: yesterday };
-  }
-  if (preset === 'this week') {
-    const lastWeekDate = new Date();
-    lastWeekDate.setDate(todaysDate.getDate() - 6);
-    return { startDate: lastWeekDate, endDate: todaysDate };
-  }
-  if (preset === 'this month') {
-    const firstOfMonth = new Date(
-      todaysDate.getFullYear(),
-      todaysDate.getMonth(),
-      1,
-    );
-    return { startDate: firstOfMonth, endDate: todaysDate };
-  }
-  if (preset === 'last month') {
-    return getPresetDateRange('last-month');
-  }
-  if (preset === 'last 30 days') {
-    return getPresetDateRange('last-30-days');
-  }
-  if (preset === 'this year') {
-    const firstOfYear = new Date(todaysDate.getFullYear(), 0, 1);
-    return { startDate: firstOfYear, endDate: todaysDate };
-  }
-  if (preset === 'last year') {
-    const firstOfLastYear = new Date(todaysDate.getFullYear() - 1, 0, 1);
-    const lastOfLastYear = new Date(todaysDate.getFullYear() - 1, 11, 31);
-    return { startDate: firstOfLastYear, endDate: lastOfLastYear };
-  }
-  return { startDate: todaysDate, endDate: todaysDate };
-}
-
 export function useDateRangeFilter() {
   const [dateRange, setDateRange] = useState<DateRange>(() =>
-    dateRangeForPreset('today'),
+    getPresetDateRange('today'),
   );
   const [dateInput, setDateInput] = useState<DatePreset>('today');
   const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
@@ -82,7 +41,7 @@ export function useDateRangeFilter() {
   const handleDateSelection = useCallback((preset: DatePreset) => {
     setDateInput(preset);
     if (preset !== 'custom') {
-      setDateRange(dateRangeForPreset(preset));
+      setDateRange(getPresetDateRange(preset));
     }
   }, []);
 

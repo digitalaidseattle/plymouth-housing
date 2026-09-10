@@ -21,6 +21,7 @@ interface TransactionsListProps {
   userList: User[] | null;
   loggedInUserId: number | null;
   historyType: 'checkout' | 'inventory';
+  hasBuildingFilter: boolean;
 }
 
 const TransactionsList: React.FC<TransactionsListProps> = ({
@@ -28,13 +29,14 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   userList,
   loggedInUserId,
   historyType,
+  hasBuildingFilter,
 }) => {
 
   if (transactionsByUser.length === 0) {
     return (
       <p>
-        No transactions found for this date. Try selecting a different date
-        range.
+        No transactions found for this date{hasBuildingFilter ? ' and building' : ''}.
+        Try selecting a different date range{hasBuildingFilter ? ' or building' : ''}.
       </p>
     );
   }

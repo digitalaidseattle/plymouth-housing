@@ -8,6 +8,7 @@ import { useState, useMemo, useCallback } from 'react';
 import {
   formatDateRange,
   formatFullDate,
+  getPresetDateRange,
 } from '../components/History/historyUtils';
 import { DatePreset, DateRange } from '../types/interfaces';
 
@@ -35,6 +36,12 @@ function dateRangeForPreset(preset: SelectablePreset): DateRange {
       1,
     );
     return { startDate: firstOfMonth, endDate: todaysDate };
+  }
+  if (preset === 'last month') {
+    return getPresetDateRange('last-month');
+  }
+  if (preset === 'last 30 days') {
+    return getPresetDateRange('last-30-days');
   }
   if (preset === 'this year') {
     const firstOfYear = new Date(todaysDate.getFullYear(), 0, 1);

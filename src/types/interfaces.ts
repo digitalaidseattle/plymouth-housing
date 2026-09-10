@@ -347,6 +347,8 @@ export type DatePreset =
   | 'this month'
   | 'this year'
   | 'last year'
+  | 'last month'
+  | 'last 30 days'
   | 'custom';
 
 // A range already serialized for the API: local midnight to local end of day.

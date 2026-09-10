@@ -15,17 +15,9 @@ import {
   Typography,
 } from '@mui/material';
 import { usePagination } from '../../hooks/usePagination';
+import { SETTINGS } from '../../types/constants';
 import PanelCard from './PanelCard';
 import TablePaginationBar from './TablePaginationBar';
-
-export type RowTone = 'critical' | 'warning' | 'notice' | 'good';
-
-const toneBackground: Record<RowTone, string> = {
-  critical: 'error.lighter',
-  warning: 'warning.lighter',
-  notice: 'info.lighter',
-  good: 'success.lighter',
-};
 
 export type Column<T> = {
   label: string;
@@ -39,12 +31,14 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   rows: T[];
   getRowKey: (row: T) => React.Key;
-  getRowTone?: (row: T) => RowTone | undefined;
+  getRowHighlight?: (row: T) => boolean;
   emptyMessage: string;
   minWidth?: number;
 }
 
 const headerSx = { fontWeight: 'bold', whiteSpace: 'nowrap' };
+const bodyCellSx = { whiteSpace: 'nowrap' };
+const ROW_HEIGHT = 53;
 
 const DataTable = <T,>({
   title,
@@ -52,7 +46,7 @@ const DataTable = <T,>({
   columns,
   rows,
   getRowKey,
-  getRowTone,
+  getRowHighlight,
   emptyMessage,
   minWidth = 650,
 }: DataTableProps<T>) => {
@@ -63,7 +57,9 @@ const DataTable = <T,>({
     setPage,
     changeRowsPerPage,
     paginatedRows,
-  } = usePagination(rows);
+  } = usePagination(rows, SETTINGS.analyticsItemsPerPage);
+
+  const emptyRows = rowsPerPage - paginatedRows.length;
 
   return (
     <PanelCard>
@@ -96,26 +92,31 @@ const DataTable = <T,>({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedRows.map((row) => {
-              const tone = getRowTone?.(row);
-              return (
-                <TableRow
-                  key={getRowKey(row)}
-                  sx={
-                    tone ? { backgroundColor: toneBackground[tone] } : undefined
-                  }
-                >
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.label}
-                      align={column.align ?? 'left'}
-                    >
-                      {column.render(row)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              );
-            })}
+            {paginatedRows.map((row) => (
+              <TableRow
+                key={getRowKey(row)}
+                sx={
+                  getRowHighlight?.(row)
+                    ? { backgroundColor: 'warning.lighter' }
+                    : undefined
+                }
+              >
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.label}
+                    align={column.align ?? 'left'}
+                    sx={bodyCellSx}
+                  >
+                    {column.render(row)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+            {pageCount > 1 && emptyRows > 0 && paginatedRows.length > 0 && (
+              <TableRow sx={{ height: ROW_HEIGHT * emptyRows }}>
+                <TableCell colSpan={columns.length} />
+              </TableRow>
+            )}
             {paginatedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center">

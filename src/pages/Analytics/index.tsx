@@ -145,17 +145,19 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
     [previousInventoryAdds],
   );
 
-  // Nothing in the current range means nothing to compare against.
-  const deltaVsPrevious = (current: number, previous: number) =>
-    hasData ? percentChange(current, previous) : null;
+  // Nothing in the current range means nothing to compare against. Each tile passes
+  // its own test, because stock can come in on a day with no checkouts going out.
+  const delta = (current: number, previous: number, hasCurrent: boolean) =>
+    hasCurrent ? percentChange(current, previous) : null;
 
   const statTiles = [
     {
       label: 'Residents Served',
       value: String(currentSummary.residentsServed),
-      delta: deltaVsPrevious(
+      delta: delta(
         currentSummary.residentsServed,
         previousSummary.residentsServed,
+        hasData,
       ),
       caption: 'Unique residents with at least one checkout',
     },
@@ -165,29 +167,29 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
       // Only meaningful once the range covers more than a day.
       valueSuffix:
         currentSummary.rangeDays > 1
-          ? `${currentSummary.avgCheckoutsPerDay.toFixed(1)} / day`
+          ? `${currentSummary.avgCheckoutsPerActiveDay.toFixed(1)} / active day`
           : undefined,
-      delta: deltaVsPrevious(
+      delta: delta(
         currentSummary.checkouts,
         previousSummary.checkouts,
+        hasData,
       ),
       caption: 'Totals for the selected range',
     },
     {
       label: 'Items Checked Out',
       value: String(currentSummary.itemsCheckedOut),
-      delta: deltaVsPrevious(
+      delta: delta(
         currentSummary.itemsCheckedOut,
         previousSummary.itemsCheckedOut,
+        hasData,
       ),
       caption: 'Total item count across all checkouts',
     },
     {
       label: 'Items Added',
       value: String(itemsAdded),
-      // Gated on its own total: stock can come in with no checkouts going out.
-      delta:
-        itemsAdded > 0 ? percentChange(itemsAdded, previousItemsAdded) : null,
+      delta: delta(itemsAdded, previousItemsAdded, itemsAdded > 0),
       caption: 'Total quantity added to inventory',
     },
   ];
@@ -209,6 +211,10 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         buildingName: selectedBuildingName,
         repeatsOnly,
         statTiles,
+        avgCheckoutsPerActiveDay:
+          currentSummary.rangeDays > 1
+            ? currentSummary.avgCheckoutsPerActiveDay.toFixed(1)
+            : undefined,
         residentsByBuilding,
         topCheckedOutItems,
         topInventoryAdded,
@@ -247,6 +253,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         dateInput={dateInput}
         dateRange={dateRange}
         dateRangeString={dateRangeString}
+        activeDays={currentSummary.activeDays}
         onDateSelect={handleDateSelection}
         onOpenCustomDialog={toggleCustomDateDialog}
         buildings={buildings}
@@ -285,12 +292,12 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <RankedBarChart
                 title="Residents Served by Building"
-                hint="unique residents"
-                emptyMessage="No checkouts in this range"
+                hint="residents / visits"
+                emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
                 rows={residentsByBuilding.map((building) => ({
                   label: building.building_code,
-                  caption: `${building.visitCount} visits`,
                   value: building.residentCount,
+                  secondaryValue: building.visitCount,
                 }))}
               />
             </Grid>
@@ -298,7 +305,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
               <RankedBarChart
                 title="Top 10 Items Checked Out"
                 hint="by item count"
-                emptyMessage="No checkouts in this range"
+                emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
                 rows={topCheckedOutItems.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,
@@ -309,7 +316,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
               <RankedBarChart
                 title="Top 10 Inventory Items Added"
                 hint="by quantity"
-                emptyMessage="No inventory added in this range"
+                emptyMessage="No inventory added in the selected date range. Try a wider range."
                 rows={topInventoryAdded.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,
@@ -320,7 +327,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
               <RankedBarChart
                 title="Least Checked Out Items"
                 hint="0 = never checked out"
-                emptyMessage="No items to show"
+                emptyMessage="No inventory items to show."
                 rows={leastCheckedOutItems.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,

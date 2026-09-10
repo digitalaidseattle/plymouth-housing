@@ -16,7 +16,6 @@ import {
   sortLowStockItems,
   sumItemsAdded,
   topItemsAdded,
-  formatTransactionDate,
 } from './analyticsUtils';
 import {
   CheckoutTransaction,
@@ -62,6 +61,10 @@ const makeItem = (overrides: Partial<InventoryItem>): InventoryItem => ({
   ...overrides,
 });
 
+// Midday local, so the instant lands on the intended day in any timezone.
+const localNoon = ([year, month, day]: [number, number, number]) =>
+  new Date(year, month, day, 12).toISOString();
+
 // Mirrors useDateRangeFilter's formattedDateRange: local midnight start,
 // local end-of-day end, each serialized with toISOString().
 const localDateRange = (
@@ -83,7 +86,8 @@ describe('summarizeCheckouts', () => {
       residentsServed: 0,
       checkouts: 0,
       itemsCheckedOut: 0,
-      avgCheckoutsPerDay: 0,
+      activeDays: 0,
+      avgCheckoutsPerActiveDay: 0,
       rangeDays: 1,
     });
   });
@@ -117,17 +121,25 @@ describe('summarizeCheckouts', () => {
     const transactions = [makeTransaction({})];
     const { startDate, endDate } = localDateRange([2025, 0, 1]);
     const result = summarizeCheckouts(transactions, startDate, endDate);
-    expect(result.avgCheckoutsPerDay).toBe(1);
+    expect(result.avgCheckoutsPerActiveDay).toBe(1);
   });
 
-  test('divides checkouts across an inclusive multi-day range', () => {
+  test('divides checkouts by the days that had one, not the whole range', () => {
     const transactions = [
-      makeTransaction({}),
-      makeTransaction({ transaction_id: 'txn-2' }),
+      makeTransaction({ transaction_date: localNoon([2025, 0, 1]) }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        transaction_date: localNoon([2025, 0, 1]),
+      }),
+      makeTransaction({
+        transaction_id: 'txn-3',
+        transaction_date: localNoon([2025, 0, 3]),
+      }),
     ];
     const { startDate, endDate } = localDateRange([2025, 0, 1], [2025, 0, 4]);
     const result = summarizeCheckouts(transactions, startDate, endDate);
-    expect(result.avgCheckoutsPerDay).toBe(0.5);
+    expect(result.activeDays).toBe(2);
+    expect(result.avgCheckoutsPerActiveDay).toBe(1.5);
     expect(result.rangeDays).toBe(4);
   });
 });
@@ -243,13 +255,11 @@ describe('countResidentsByBuilding', () => {
     expect(result).toEqual([
       {
         building_code: 'A',
-        building_name: 'Building A',
         residentCount: 2,
         visitCount: 3,
       },
       {
         building_code: 'B',
-        building_name: 'Building B',
         residentCount: 1,
         visitCount: 1,
       },
@@ -273,7 +283,6 @@ describe('countResidentsByBuilding', () => {
     expect(result).toEqual([
       {
         building_code: 'A',
-        building_name: 'Building A',
         residentCount: 1,
         visitCount: 2,
       },
@@ -368,21 +377,25 @@ describe('percentChange', () => {
 
 describe('previousPeriod', () => {
   test('returns an equal-length window ending immediately before startDate', () => {
-    const result = previousPeriod(
-      '2025-02-01T00:00:00.000Z',
-      '2025-02-28T23:59:59.999Z',
-    );
-    expect(result.endDate).toBe('2025-01-31T23:59:59.999Z');
-    expect(result.startDate).toBe('2025-01-04T00:00:00.000Z');
+    const range = localDateRange([2025, 1, 1], [2025, 1, 28]);
+    const expected = localDateRange([2025, 0, 4], [2025, 0, 31]);
+
+    expect(previousPeriod(range.startDate, range.endDate)).toEqual(expected);
   });
 
   test('returns a single-day window for a single-day range', () => {
-    const result = previousPeriod(
-      '2025-01-02T00:00:00.000Z',
-      '2025-01-02T23:59:59.999Z',
-    );
-    expect(result.startDate).toBe('2025-01-01T00:00:00.000Z');
-    expect(result.endDate).toBe('2025-01-01T23:59:59.999Z');
+    const range = localDateRange([2025, 0, 2]);
+    const expected = localDateRange([2025, 0, 1]);
+
+    expect(previousPeriod(range.startDate, range.endDate)).toEqual(expected);
+  });
+
+  test('keeps the day count across a spring clock change', () => {
+    // 9 March 2025 is the US spring change, so the week itself is an hour short.
+    const range = localDateRange([2025, 2, 9], [2025, 2, 15]);
+    const expected = localDateRange([2025, 2, 2], [2025, 2, 8]);
+
+    expect(previousPeriod(range.startDate, range.endDate)).toEqual(expected);
   });
 });
 
@@ -465,14 +478,6 @@ describe('sortLowStockItems', () => {
   });
 });
 
-describe('formatTransactionDate', () => {
-  test('formats an ISO date as "Mon D, YYYY"', () => {
-    expect(formatTransactionDate('2026-08-12T12:00:00.000Z')).toBe(
-      'Aug 12, 2026',
-    );
-  });
-});
-
 describe('onlyAdds', () => {
   const makeRow = (
     overrides: Partial<InventoryTransaction>,
@@ -508,7 +513,6 @@ describe('buildAnalyticsSections', () => {
     residentsByBuilding: [
       {
         building_code: 'A',
-        building_name: 'Building A',
         residentCount: 2,
         visitCount: 3,
       },
@@ -544,6 +548,35 @@ describe('buildAnalyticsSections', () => {
 
   test('takes the summary rows straight from the stat tiles', () => {
     expect(sections[1].rows).toEqual([['Checkouts', '12']]);
+  });
+
+  test('adds an average checkouts row when one is given', () => {
+    const withAvg = buildAnalyticsSections({
+      dateRangeString: 'Aug 1 - Aug 31, 2026',
+      buildingName: 'Building A',
+      repeatsOnly: true,
+      statTiles: [{ label: 'Checkouts', value: '12' }],
+      avgCheckoutsPerActiveDay: '2.5',
+      residentsByBuilding: [],
+      topCheckedOutItems: [],
+      topInventoryAdded: [],
+      leastCheckedOutItems: [],
+      detailRows: [],
+      lowStockRows: [],
+      checkedOutById: new Map(),
+    });
+    expect(withAvg[1].rows).toEqual([
+      ['Checkouts', '12'],
+      ['Avg Checkouts / Active Day', '2.5'],
+    ]);
+  });
+
+  test('labels each ranked panel with what its count means', () => {
+    expect(sections.slice(3, 6).map((section) => section.headers)).toEqual([
+      ['Item', 'Quantity'],
+      ['Item', 'Quantity Added'],
+      ['Item', 'Quantity'],
+    ]);
   });
 
   test('trims the unit number and formats the transaction date', () => {

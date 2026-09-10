@@ -5,11 +5,10 @@
  *
  */
 import { useState } from 'react';
-import { SETTINGS } from '../types/constants';
 
-export function usePagination<T>(rows: T[]) {
+export function usePagination<T>(rows: T[], initialRowsPerPage: number) {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(SETTINGS.itemsPerPage);
+  const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
 
   const pageCount = Math.max(1, Math.ceil(rows.length / rowsPerPage));
   const safePage = Math.min(page, pageCount - 1);

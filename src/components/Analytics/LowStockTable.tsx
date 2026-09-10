@@ -46,7 +46,7 @@ const LowStockTable: React.FC<LowStockTableProps> = ({
     {
       label: 'Checked Out',
       align: 'right',
-      render: (item) => checkedOutById.get(item.id) || '-',
+      render: (item) => checkedOutById.get(item.id) ?? 0,
     },
   ];
 

@@ -12,8 +12,9 @@ DECLARE @DenseDays    INT      = 21;   -- recent days that always get checkouts
 DECLARE @WelcomeEvery INT      = 36;   -- every Nth checkout is a welcome basket
 DECLARE @EditEvery    INT      = 12;   -- every Nth ordinary checkout is edited later
 
--- Opening hours, in minutes into the day.
-DECLARE @PantryOpens INT = 9 * 60, @PantryCloses INT = 17 * 60;
+-- Opening hours, in minutes into the day. The supply center opens Wednesday and
+-- Thursday, noon to 4pm; stocking up happens on the closed days too.
+DECLARE @PantryOpens INT = 12 * 60, @PantryCloses INT = 16 * 60;
 DECLARE @StockOpens  INT = 8 * 60, @StockCloses  INT = 14 * 60;
 
 DECLARE @DateSkew     FLOAT = 1.2;  -- 1 spreads checkouts evenly over @Days, higher bunches them near today
@@ -198,11 +199,7 @@ FROM @Kinds k
 JOIN @Numbers n ON n.i <= k.total
 WHERE k.kind = 'checkout';
 
--- The pantry runs on weekdays, so weekends slide back to Friday. Day 0 (1900-01-01) is a Monday.
-UPDATE @Schedule
-SET placed_at = DATEADD(DAY, -CASE DATEDIFF(DAY, '19000101', placed_at) % 7 WHEN 5 THEN 1 WHEN 6 THEN 2 ELSE 0 END, placed_at);
-
--- The page opens on today, so the last @DenseDays days (weekends too) get 2 to 4 extra checkouts each.
+-- The page opens on today, so the last @DenseDays days get 2 to 4 extra checkouts each.
 INSERT INTO @Schedule (kind, placed_at)
 SELECT 'checkout',
        DATEADD(MINUTE, @PantryOpens + ABS(CHECKSUM(NEWID())) % (@PantryCloses - @PantryOpens),
@@ -211,6 +208,12 @@ FROM @Numbers day
 JOIN @Numbers line ON line.i <= 4
 WHERE day.i <= @DenseDays
   AND (line.i <= 2 OR ABS(CHECKSUM(NEWID())) % 2 = 0);   -- two always, the rest on a coin flip
+
+-- Every checkout above slides back onto a Wednesday or a Thursday. Day 0 (1900-01-01) is
+-- a Monday, so 2 is Wednesday. The closed days split between the two so neither looks dead.
+-- Restocks are written after this, on purpose: stocking up happens on closed days too.
+UPDATE @Schedule
+SET placed_at = DATEADD(DAY, -CASE DATEDIFF(DAY, '19000101', placed_at) % 7 WHEN 0 THEN 5 WHEN 1 THEN 5 WHEN 4 THEN 1 WHEN 5 THEN 2 WHEN 6 THEN 4 ELSE 0 END, placed_at);
 
 -- Restocks and corrections have no resident, so only the History page's inventory tab sees them.
 INSERT INTO @Schedule (kind, placed_at)
@@ -299,8 +302,14 @@ CROSS APPLY (
 ) parent_line
 WHERE c.seq % @EditEvery = 0;
 
-DECLARE @ClosingToday DATETIME = DATEADD(MINUTE, @PantryCloses, @Anchor);
-UPDATE @Edits SET edited_at = @ClosingToday WHERE edited_at > @ClosingToday;
+-- An edit is made at the counter too, so it waits for the next day the doors open. It
+-- slides forward rather than back so an edit can never land before the checkout it amends.
+UPDATE @Edits
+SET edited_at = DATEADD(DAY, CASE DATEDIFF(DAY, '19000101', edited_at) % 7 WHEN 0 THEN 2 WHEN 1 THEN 1 WHEN 4 THEN 5 WHEN 5 THEN 4 WHEN 6 THEN 3 ELSE 0 END, edited_at);
+
+DECLARE @LastOpenDay DATETIME = DATEADD(DAY, -CASE DATEDIFF(DAY, '19000101', @Anchor) % 7 WHEN 0 THEN 4 WHEN 1 THEN 5 WHEN 4 THEN 1 WHEN 5 THEN 2 WHEN 6 THEN 3 ELSE 0 END, @Anchor);
+DECLARE @LastClose DATETIME = DATEADD(MINUTE, @PantryCloses, @LastOpenDay);
+UPDATE @Edits SET edited_at = @LastClose WHERE edited_at > @LastClose;
 
 INSERT INTO Transactions (id, user_id, resident_id, transaction_type, transaction_date, parent_transaction_id)
 SELECT e.id, t.user_id, t.resident_id, @CheckoutEdit, e.edited_at, e.parent_id

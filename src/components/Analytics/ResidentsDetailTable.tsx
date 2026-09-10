@@ -11,22 +11,17 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { CheckoutTransaction } from '../../types/interfaces';
-import { formatTransactionDate } from '../../utils/analyticsUtils';
+import { FlaggedTransaction } from '../../types/interfaces';
+import { formatShortDate } from '../History/historyUtils';
 import DataTable, { Column } from './DataTable';
 
-type DetailRow = CheckoutTransaction & {
-  isDuplicate: boolean;
-  visitCount: number;
-};
-
 interface ResidentsDetailTableProps {
-  rows: DetailRow[];
+  rows: FlaggedTransaction[];
   repeatsOnly: boolean;
   onRepeatsOnlyChange: (checked: boolean) => void;
 }
 
-const columns: Column<DetailRow>[] = [
+const columns: Column<FlaggedTransaction>[] = [
   {
     label: 'Resident',
     render: (row) => (
@@ -55,7 +50,7 @@ const columns: Column<DetailRow>[] = [
   { label: '# Items', align: 'right', render: (row) => row.total_quantity },
   {
     label: 'Transaction Date',
-    render: (row) => formatTransactionDate(row.transaction_date),
+    render: (row) => formatShortDate(row.transaction_date),
   },
 ];
 
@@ -80,8 +75,8 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
     columns={columns}
     rows={rows}
     getRowKey={(row) => row.transaction_id}
-    getRowTone={(row) => (row.isDuplicate ? 'warning' : undefined)}
-    emptyMessage="No checkouts in this range"
+    getRowHighlight={(row) => row.isDuplicate}
+    emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
   />
 );
 

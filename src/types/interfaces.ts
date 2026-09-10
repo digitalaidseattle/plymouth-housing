@@ -263,18 +263,34 @@ export type TransactionHistoryRow = {
   items: string; // JSON string, parsed to TransactionItem[]
 };
 
-export type CheckoutItemTotal = {
-  item_id: number;
+export type RankedItem = {
   item_name: string;
   total_quantity: number;
+};
+
+export type CheckoutItemTotal = RankedItem & {
+  item_id: number;
   checkout_count: number;
+};
+
+export type BuildingResidents = {
+  building_code: string;
+  residentCount: number;
+  visitCount: number;
+};
+
+// A checkout alongside how many times that resident appears in the same range.
+export type FlaggedTransaction = CheckoutTransaction & {
+  isDuplicate: boolean;
+  visitCount: number;
 };
 
 export type AnalyticsSummary = {
   residentsServed: number;
   checkouts: number;
   itemsCheckedOut: number;
-  avgCheckoutsPerDay: number;
+  activeDays: number;
+  avgCheckoutsPerActiveDay: number;
   rangeDays: number;
 };
 
@@ -325,8 +341,13 @@ export interface ApiConfig {
 // ─── Date Range ───────────────────────────────────────────────────────────────
 
 export type DatePreset =
-  'today' | 'yesterday' | 'this week' | 'this month' | 'this year' |
-  'last year' | 'custom';
+  | 'today'
+  | 'yesterday'
+  | 'this week'
+  | 'this month'
+  | 'this year'
+  | 'last year'
+  | 'custom';
 
 // A range already serialized for the API: local midnight to local end of day.
 export type DateRangeStrings = {

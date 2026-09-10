@@ -112,7 +112,7 @@ const mockItemTotals: CheckoutItemTotal[] = [
 
 // Space Heater is at/below threshold; Pillows is not, so it should be excluded
 // from the Low Stock panel. Item ids intentionally don't match mockItemTotals,
-// so the "Checked Out" column falls back to a dash.
+// so the "Checked Out" column falls back to 0.
 const mockItems: InventoryItem[] = [
   {
     id: 1,
@@ -345,11 +345,11 @@ describe('Analytics Page', () => {
     );
   });
 
-  test('shows an enabled Export CSV button', async () => {
+  test('shows an enabled Export button', async () => {
     renderAnalytics();
 
     await findDetailPanel();
-    const exportButton = screen.getByRole('button', { name: /export csv/i });
+    const exportButton = screen.getByRole('button', { name: /export/i });
     expect(exportButton).toBeEnabled();
   });
 
@@ -358,7 +358,7 @@ describe('Analytics Page', () => {
 
     const tile = await findTileCard('Checkouts');
     expect(within(tile).getByText('3')).toBeInTheDocument();
-    expect(within(tile).queryByText(/\/ day/)).not.toBeInTheDocument();
+    expect(within(tile).queryByText(/\/ active day/)).not.toBeInTheDocument();
   });
 
   test('shows the per-day average beside the total once the range spans days', async () => {
@@ -368,9 +368,9 @@ describe('Analytics Page', () => {
     fireEvent.mouseDown(screen.getByRole('combobox', { name: /date/i }));
     fireEvent.click(await screen.findByRole('option', { name: 'This Week' }));
 
-    // "This Week" spans 8 calendar days, so 3 checkouts averages 0.4 a day.
+    // The 3 checkouts land on 3 separate days, and quiet days are not counted.
     const tile = await findTileCard('Checkouts');
-    expect(await within(tile).findByText('0.4 / day')).toBeInTheDocument();
+    expect(await within(tile).findByText('1.0 / active day')).toBeInTheDocument();
   });
 
   test('charts only InventoryAdd rows in Top Inventory Items Added', async () => {
@@ -454,7 +454,7 @@ describe('Analytics Page', () => {
       await screen.findByText('Top 10 Items Checked Out')
     ).closest('.MuiCard-root') as HTMLElement;
     expect(
-      within(topPanel).getByText('No checkouts in this range'),
+      within(topPanel).getByText(/No checkouts in the selected date range/),
     ).toBeInTheDocument();
 
     const leastPanel = screen
@@ -486,19 +486,25 @@ describe('Analytics Page', () => {
     expect(bobCells[3]).toHaveTextContent('1');
   });
 
-  test('shows the per-building visit count as a caption distinct from the unique-resident bar value', async () => {
+  test("shows each building's residents and visits beside the bar", async () => {
     renderAnalytics();
 
     const buildingsPanel = (
       await screen.findByText('Residents Served by Building')
     ).closest('.MuiCard-root') as HTMLElement;
 
-    const captionEl = await within(buildingsPanel).findByText('2 visits');
-    const labelBox = captionEl.parentElement as HTMLElement;
-    expect(within(labelBox).getByText('A')).toBeInTheDocument();
+    expect(
+      within(buildingsPanel).getByText('residents / visits'),
+    ).toBeInTheDocument();
+
+    const labelBox = within(buildingsPanel)
+      .getByText('A')
+      .parentElement as HTMLElement;
+    // The counts sit in the value column, not under the building name.
+    expect(labelBox).not.toHaveTextContent('2');
 
     const barValueEl = labelBox.nextElementSibling
       ?.nextElementSibling as HTMLElement;
-    expect(barValueEl).toHaveTextContent('1');
+    expect(barValueEl).toHaveTextContent('1 / 2');
   });
 });

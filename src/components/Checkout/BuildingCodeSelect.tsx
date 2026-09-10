@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Autocomplete,
   createFilterOptions,
@@ -12,6 +12,7 @@ import {
   TextField,
 } from '@mui/material';
 import { Building, Unit } from '../../types/interfaces';
+import { isVoucherBuilding } from '../../types/constants';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];
@@ -22,6 +23,7 @@ interface BuildingCodeSelectProps {
   error: boolean;
   resetError: () => void;
   disabled?: boolean;
+  label?: string;
 }
 
 const filterOptions = createFilterOptions<Building>({
@@ -37,14 +39,27 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
   error,
   resetError,
   disabled = false,
+  label = 'Building Code',
 }) => {
+  // groupBy requires the options already sorted by group, so voucher programs last.
+  const groupedBuildings = useMemo(
+    () => [
+      ...buildings.filter((building) => !isVoucherBuilding(building.code)),
+      ...buildings.filter((building) => isVoucherBuilding(building.code)),
+    ],
+    [buildings],
+  );
+
   return (
     <FormControl>
       <Autocomplete
         id="select-building"
         data-testid="test-id-select-building"
-        options={buildings}
+        options={groupedBuildings}
         filterOptions={filterOptions}
+        groupBy={(option: Building) =>
+          isVoucherBuilding(option.code) ? 'Voucher Programs' : 'Buildings'
+        }
         value={selectedBuilding}
         disabled={disabled}
         isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -64,9 +79,9 @@ const BuildingCodeSelect: React.FC<BuildingCodeSelectProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Building Code"
+            label={label}
             error={error}
-            helperText={error ? 'Please select the building code' : ''}
+            helperText={error ? `Please select the ${label.toLowerCase()}` : ''}
           />
         )}
       />

@@ -4,11 +4,11 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { FormEvent, useState, useContext } from 'react';
+import React, { FormEvent, useState, useContext, useMemo } from 'react';
 import { Box, FormControl, Typography, Chip, Button, useTheme, Stack } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
-import { SPECIAL_UNITS } from '../../types/constants';
+import { SPECIAL_UNITS, isVoucherBuilding } from '../../types/constants';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
 import {
@@ -37,6 +37,12 @@ const WelcomeBasketBuildingDialog = ({
 }: WelcomeBasketBuildingDialogProps) => {
   const theme = useTheme();
   const { user } = useContext(UserContext);
+
+  // Voucher programs have no welcome unit, so they cannot receive a welcome basket.
+  const welcomeBasketBuildings = useMemo(
+    () => buildings.filter((building) => !isVoucherBuilding(building.code)),
+    [buildings],
+  );
 
   const [selectedBuilding, setSelectedBuilding] = useState<Building>({
     id: 0,
@@ -157,7 +163,7 @@ const WelcomeBasketBuildingDialog = ({
           )}
           <FormControl>
             <BuildingCodeSelect
-              buildings={buildings}
+              buildings={welcomeBasketBuildings}
               selectedBuilding={selectedBuilding}
               setSelectedBuilding={setSelectedBuilding}
               setSelectedUnit={() => {}} // No-op since we don't show unit selector

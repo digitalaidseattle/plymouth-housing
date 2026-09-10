@@ -421,7 +421,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         {/* Resident Information */}
         <Stack>
           <Typography>
-            <strong>Building code: </strong>
+            <strong>Building or voucher code: </strong>
             {selectedBuildingCode}
           </Typography>
           <Typography>

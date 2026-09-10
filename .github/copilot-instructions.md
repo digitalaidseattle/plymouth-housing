@@ -18,7 +18,7 @@ Plymouth Housing's centralized inventory management system for tracking in-kind 
 ### Backend & Infrastructure
 - **Azure Static Web Apps** for frontend hosting
 - **Data API Builder (DAB)** as API layer (runs in Azure Container Apps)
-- **Azure Functions** for the Ask the Data card (`api/`, local development only so far, see [docs/ask-the-data-setup.md](../docs/ask-the-data-setup.md))
+- **Azure Functions** for the Ask the Data card (`api/`, local development only, not deployed, see [docs/ask-the-data-setup.md](../docs/ask-the-data-setup.md))
 - **Azure SQL Server** for database
 - **Microsoft Clarity** for analytics
 

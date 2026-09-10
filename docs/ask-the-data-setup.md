@@ -6,8 +6,7 @@ The Ask the Data card on the Analytics page takes a plain English question, has 
 one `SELECT`, runs it as a read-only SQL login, and shows the rows. It is an Azure Function in
 [`api/`](../api/), the only part of the app that does not go through DAB.
 
-> **Status: local development only.** It cannot be deployed as it stands. See
-> [Staging and production](#staging-and-production).
+> **Status: local development only.** There is no deployment plan for it yet.
 
 ## How it fits together
 
@@ -178,41 +177,6 @@ In the api terminal:
 
 At startup the api terminal prints `injected env (4) from ..\.env`. A count of 0 means it is
 not reading your `.env`, check you started it from the repo root.
-
-## Staging and production
-
-**This does not deploy today.** The workflows would ship the Function, but the request would
-never reach it.
-
-1. **`/api` already belongs to DAB.** In a deployed build,
-   [`src/types/constants.ts`](../src/types/constants.ts) points every DAB call at `/api`, and
-   [DAB-setup.md](DAB-setup.md#productionstaging-deployment) has DAB in Container Apps linked to
-   the Static Web App. So `POST /api/ask-data` is handed to DAB, which has no such entity.
-2. **A static web app can only have one kind of API.** From
-   [Microsoft's API overview](https://learn.microsoft.com/en-us/azure/static-web-apps/apis-overview):
-   "Each static web app environment can only be configured with one type of backend API at a
-   time." The linked Container App is that one type.
-3. **There is a 45-second ceiling**, from the same page. A paused serverless Azure SQL can take
-   most of that to wake up, before Gemini is even called. Worth knowing even after 1 and 2 are
-   solved.
-
-`api_location: 'api'` is already in both deploy workflows from an earlier restructure. It was
-harmless while `api/` did not exist. Now the next deploy will build and upload the Function,
-and it will sit there unreachable.
-
-To confirm points 1 and 2: Azure Portal, the staging Static Web App, **Settings, APIs**. A
-linked Container App backend listed there is the blocker.
-
-### Options
-
-1. **Give the Function its own Azure Function App** and call it by hostname rather than through
-   `/api`. The real fix. It loses the `x-ms-client-principal` header SWA injects, which is how
-   the Function knows who is asking and whether they are an admin, so it needs its own
-   Microsoft Entra validation. Not a small change.
-2. **Keep it local only** until someone picks up option 1.
-
-Whoever takes option 1 should also revisit the 45-second ceiling, and decide what the card
-should say while a paused database wakes up.
 
 ## What keeps it safe
 

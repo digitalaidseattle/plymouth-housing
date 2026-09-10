@@ -23,8 +23,7 @@ import {
   SqlRejected,
 } from '../db.js';
 
-// Secrets live in the repo root .env, same as Vite and DAB. In Azure there is no
-// .env and the values arrive as Static Web App settings instead. The host runs
+// Secrets live in the repo root .env, same as Vite and DAB. The host runs
 // from api/, the SWA CLI sometimes from the repo root, so try both.
 config({ path: resolve(process.cwd(), '../.env') });
 config({ path: resolve(process.cwd(), '.env') });

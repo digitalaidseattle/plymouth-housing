@@ -13,6 +13,7 @@ import {
   AnalyticsSummary,
   BuildingResidents,
   CheckoutTransaction,
+  DateRangeStrings,
   FlaggedTransaction,
   InventoryItem,
   InventoryTransaction,
@@ -117,7 +118,7 @@ export const percentChange = (
 export const previousPeriod = (
   startDate: string,
   endDate: string,
-): { startDate: string; endDate: string } => {
+): DateRangeStrings => {
   const start = new Date(startDate);
   const days = calendarDays(start, new Date(endDate));
   const year = start.getFullYear();

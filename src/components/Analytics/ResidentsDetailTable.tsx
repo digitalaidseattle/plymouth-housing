@@ -75,7 +75,7 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
     columns={columns}
     rows={rows}
     getRowKey={(row) => row.transaction_id}
-    getRowTone={(row) => (row.isDuplicate ? 'warning' : undefined)}
+    getRowHighlight={(row) => row.isDuplicate}
     emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
   />
 );

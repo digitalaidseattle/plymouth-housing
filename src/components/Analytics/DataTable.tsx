@@ -19,15 +19,6 @@ import { SETTINGS } from '../../types/constants';
 import PanelCard from './PanelCard';
 import TablePaginationBar from './TablePaginationBar';
 
-export type RowTone = 'critical' | 'warning' | 'notice' | 'good';
-
-const toneBackground: Record<RowTone, string> = {
-  critical: 'error.lighter',
-  warning: 'warning.lighter',
-  notice: 'info.lighter',
-  good: 'success.lighter',
-};
-
 export type Column<T> = {
   label: string;
   align?: 'left' | 'right';
@@ -40,7 +31,7 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   rows: T[];
   getRowKey: (row: T, index: number) => React.Key;
-  getRowTone?: (row: T) => RowTone | undefined;
+  getRowHighlight?: (row: T) => boolean;
   emptyMessage: string;
   minWidth?: number;
   // Set when the table already sits inside a card, to avoid a doubled border.
@@ -55,7 +46,7 @@ const DataTable = <T,>({
   columns,
   rows,
   getRowKey,
-  getRowTone,
+  getRowHighlight,
   emptyMessage,
   minWidth = 650,
   bare,
@@ -100,26 +91,22 @@ const DataTable = <T,>({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedRows.map((row, index) => {
-              const tone = getRowTone?.(row);
-              return (
-                <TableRow
-                  key={getRowKey(row, index)}
-                  sx={
-                    tone ? { backgroundColor: toneBackground[tone] } : undefined
-                  }
-                >
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.label}
-                      align={column.align ?? 'left'}
-                    >
-                      {column.render(row)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              );
-            })}
+            {paginatedRows.map((row, index) => (
+              <TableRow
+                key={getRowKey(row, index)}
+                sx={
+                  getRowHighlight?.(row)
+                    ? { backgroundColor: 'warning.lighter' }
+                    : undefined
+                }
+              >
+                {columns.map((column) => (
+                  <TableCell key={column.label} align={column.align ?? 'left'}>
+                    {column.render(row)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
             {paginatedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center">

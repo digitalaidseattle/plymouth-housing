@@ -14,7 +14,8 @@ import {
   ResidentNameOption,
   ResidentFormError,
 } from '../../types/interfaces';
-import { SPECIAL_UNITS, isVoucherBuilding } from '../../types/constants';
+import { SPECIAL_UNITS } from '../../types/constants';
+import { isVoucherBuilding } from '../../utils/buildingUtils';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';

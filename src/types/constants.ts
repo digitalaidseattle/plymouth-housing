@@ -123,6 +123,3 @@ export const SPECIAL_UNITS = {
 
 // Voucher-provider organizations. Their residents attach to a placeholder unit.
 export const VOUCHER_BUILDING_CODES = ['SPC', 'SSP'] as const;
-
-export const isVoucherBuilding = (buildingCode: string | null | undefined): boolean =>
-  !!buildingCode && (VOUCHER_BUILDING_CODES as readonly string[]).includes(buildingCode);

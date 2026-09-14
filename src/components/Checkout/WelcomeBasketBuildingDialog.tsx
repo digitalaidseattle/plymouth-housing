@@ -8,7 +8,8 @@ import React, { FormEvent, useState, useContext, useMemo } from 'react';
 import { Box, FormControl, Typography, Chip, Button, useTheme, Stack } from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import { Building, ResidentInfo, Unit } from '../../types/interfaces';
-import { SPECIAL_UNITS, isVoucherBuilding } from '../../types/constants';
+import { SPECIAL_UNITS } from '../../types/constants';
+import { isVoucherBuilding } from '../../utils/buildingUtils';
 import DialogTemplate from '../DialogTemplate';
 import { UserContext } from '../contexts/UserContext.ts';
 import {

@@ -12,7 +12,7 @@ import {
   TextField,
 } from '@mui/material';
 import { Building, Unit } from '../../types/interfaces';
-import { isVoucherBuilding } from '../../types/constants';
+import { isVoucherBuilding } from '../../utils/buildingUtils';
 
 interface BuildingCodeSelectProps {
   buildings: Building[];

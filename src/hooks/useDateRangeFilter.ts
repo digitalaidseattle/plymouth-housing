@@ -5,7 +5,11 @@
  *
  */
 import { useState, useMemo, useCallback } from 'react';
-import { formatDateRange, formatFullDate } from '../components/History/historyUtils';
+import {
+  formatDateRange,
+  formatFullDate,
+  getPresetDateRange,
+} from '../components/History/historyUtils';
 import { DatePreset, DateRange } from '../types/interfaces';
 
 export type { DatePreset };
@@ -59,6 +63,12 @@ export function useDateRangeFilter() {
         startDate: lastWeekDate,
         endDate: todaysDate,
       });
+    } else if (preset === 'this month') {
+      setDateRange(getPresetDateRange('this-month'));
+    } else if (preset === 'last month') {
+      setDateRange(getPresetDateRange('last-month'));
+    } else if (preset === 'last 30 days') {
+      setDateRange(getPresetDateRange('last-30-days'));
     }
   }, []);
 

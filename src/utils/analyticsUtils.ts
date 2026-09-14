@@ -13,6 +13,7 @@ import {
   AnalyticsSummary,
   BuildingResidents,
   CheckoutTransaction,
+  CsvSection,
   DateRangeStrings,
   FlaggedTransaction,
   InventoryItem,
@@ -20,7 +21,6 @@ import {
   RankedItem,
   TransactionType,
 } from '../types/interfaces';
-import { CsvSection } from './csvExport';
 
 export const summarizeCheckouts = (
   transactions: CheckoutTransaction[],
@@ -250,7 +250,7 @@ export const buildAnalyticsSections = ({
       item.status,
       item.quantity,
       item.threshold,
-      checkedOutById.get(item.id) || '',
+      checkedOutById.get(item.id) ?? '',
     ]),
   },
 ];

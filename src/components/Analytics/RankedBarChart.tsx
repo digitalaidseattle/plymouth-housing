@@ -75,7 +75,12 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
                 </Box>
                 <LinearProgress
                   variant="determinate"
-                  value={Math.max((row.value / maxValue) * 100, 2)}
+                  value={
+                    row.value === 0
+                      ? 0
+                      : Math.max((row.value / maxValue) * 100, 2)
+                  }
+                  aria-label={row.label}
                   sx={{ height: 10, backgroundColor: 'grey.200' }}
                 />
                 <Typography

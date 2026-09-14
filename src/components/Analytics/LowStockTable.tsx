@@ -5,8 +5,8 @@
  *
  */
 import { Chip, Typography } from '@mui/material';
-import { InventoryItem } from '../../types/interfaces';
-import DataTable, { Column } from './DataTable';
+import { Column, InventoryItem } from '../../types/interfaces';
+import DataTable from './DataTable';
 
 interface LowStockTableProps {
   rows: InventoryItem[];

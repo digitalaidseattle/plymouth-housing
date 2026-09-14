@@ -140,7 +140,7 @@ export function getPresetDateRange(
       };
     case 'last 30 days': {
       const startDate = new Date(today);
-      startDate.setDate(today.getDate() - 30);
+      startDate.setDate(today.getDate() - 29);
       return { startDate, endDate: today };
     }
     case 'this year':

@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-export type CsvValue = string | number | null | undefined;
+import { CsvSection, CsvValue } from '../types/interfaces';
 
 // Excel and Sheets execute a cell opening with one of these.
 const FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -25,12 +25,6 @@ const escapeField = (field: CsvValue): string => {
 
 export const toCsv = (headers: string[], rows: CsvValue[][]): string =>
   [headers, ...rows].map((row) => row.map(escapeField).join(',')).join('\n');
-
-export interface CsvSection {
-  title: string;
-  headers: string[];
-  rows: CsvValue[][];
-}
 
 export const toCsvSections = (sections: CsvSection[]): string =>
   sections

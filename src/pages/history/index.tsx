@@ -205,7 +205,14 @@ const HistoryPage: React.FC = () => {
           <Button onClick={toggleCustomDateDialog}>Change date range</Button>
         ) : (
           <Typography variant="body1">
-            {['this week', 'this month', 'last month', 'last 30 days'].includes(dateInput)
+            {[
+              'this week',
+              'this month',
+              'last month',
+              'last 30 days',
+              'this year',
+              'last year',
+            ].includes(dateInput)
               ? dateRangeString
               : dateString}
           </Typography>

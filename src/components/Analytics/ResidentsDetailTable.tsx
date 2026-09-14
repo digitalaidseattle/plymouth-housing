@@ -11,9 +11,9 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { FlaggedTransaction } from '../../types/interfaces';
+import { Column, FlaggedTransaction } from '../../types/interfaces';
 import { formatShortDate } from '../History/historyUtils';
-import DataTable, { Column } from './DataTable';
+import DataTable from './DataTable';
 
 interface ResidentsDetailTableProps {
   rows: FlaggedTransaction[];
@@ -76,7 +76,11 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
     rows={rows}
     getRowKey={(row) => row.transaction_id}
     getRowHighlight={(row) => row.isDuplicate}
-    emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
+    emptyMessage={
+      repeatsOnly
+        ? 'No repeat visits in the selected date range.'
+        : 'No checkouts in the selected date range. Try a wider range or a different building.'
+    }
   />
 );
 

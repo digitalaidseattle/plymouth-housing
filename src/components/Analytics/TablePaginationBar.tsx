@@ -33,6 +33,7 @@ const TablePaginationBar: React.FC<TablePaginationBarProps> = ({
       <Typography variant="body2">Rows per page:</Typography>
       <Select
         variant="standard"
+        aria-label="Rows per page"
         sx={selectSx}
         value={rowsPerPage}
         onChange={(e) => onRowsPerPageChange(Number(e.target.value))}

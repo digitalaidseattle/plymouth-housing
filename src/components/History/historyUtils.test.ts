@@ -104,7 +104,7 @@ describe('getPresetDateRange', () => {
       'this week': [9, 15],
       'this month': [1, 30],
       'last month': [1, 31],
-      'last 30 days': [16, 15],
+      'last 30 days': [17, 15],
       'this year': [1, 15],
       'last year': [1, 31],
     };

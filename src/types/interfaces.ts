@@ -378,3 +378,21 @@ export type EditState = {
   field: string | null;
   value: string | number;
 };
+
+// ─── Data Table ───────────────────────────────────────────────────────────────
+
+export type Column<T> = {
+  label: string;
+  align?: 'left' | 'right';
+  render: (row: T) => React.ReactNode;
+};
+
+// ─── CSV Export ───────────────────────────────────────────────────────────────
+
+export type CsvValue = string | number | null | undefined;
+
+export interface CsvSection {
+  title: string;
+  headers: string[];
+  rows: CsvValue[][];
+}

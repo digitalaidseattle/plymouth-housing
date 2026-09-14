@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function usePagination<T>(rows: T[], initialRowsPerPage: number) {
   const [page, setPage] = useState(0);
@@ -12,6 +12,10 @@ export function usePagination<T>(rows: T[], initialRowsPerPage: number) {
 
   const pageCount = Math.max(1, Math.ceil(rows.length / rowsPerPage));
   const safePage = Math.min(page, pageCount - 1);
+
+  useEffect(() => {
+    if (safePage !== page) setPage(safePage);
+  }, [safePage, page]);
 
   const changeRowsPerPage = (value: number) => {
     setRowsPerPage(value);

@@ -163,6 +163,7 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
             aria-label="Export"
             startIcon={<DownloadOutlined />}
             onClick={onExport}
+            disabled={isRefreshing}
             sx={actionButtonSx}
           >
             <Box component="span" sx={actionLabelSx}>
@@ -174,6 +175,7 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
             aria-haspopup="menu"
             aria-expanded={Boolean(exportMenuAnchor)}
             onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+            disabled={isRefreshing}
             sx={caretButtonSx}
           >
             <CaretDownOutlined />

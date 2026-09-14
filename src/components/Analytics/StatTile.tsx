@@ -23,7 +23,8 @@ const StatTile: React.FC<StatTileProps> = ({
   delta = null,
   caption,
 }) => {
-  const isPositive = delta !== null && delta >= 0;
+  const isPositive = delta !== null && delta > 0;
+  const isNeutral = delta === 0;
 
   return (
     <PanelCard fullHeight>
@@ -56,11 +57,20 @@ const StatTile: React.FC<StatTileProps> = ({
               py: 0.5,
               px: 1.5,
               borderRadius: 5,
-              backgroundColor: isPositive ? 'success.lighter' : 'error.lighter',
-              color: isPositive ? 'success.dark' : 'error.dark',
+              backgroundColor: isNeutral
+                ? 'grey.200'
+                : isPositive
+                  ? 'success.lighter'
+                  : 'error.lighter',
+              color: isNeutral
+                ? 'text.secondary'
+                : isPositive
+                  ? 'success.dark'
+                  : 'error.dark',
             }}
           >
-            {isPositive ? <CaretUpOutlined /> : <CaretDownOutlined />}
+            {!isNeutral &&
+              (isPositive ? <CaretUpOutlined /> : <CaretDownOutlined />)}
             {`${isPositive ? '+' : ''}${delta}% vs. previous period`}
           </Stack>
         ) : (

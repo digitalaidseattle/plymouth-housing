@@ -16,14 +16,9 @@ import {
 } from '@mui/material';
 import { usePagination } from '../../hooks/usePagination';
 import { SETTINGS } from '../../types/constants';
+import { Column } from '../../types/interfaces';
 import PanelCard from './PanelCard';
 import TablePaginationBar from './TablePaginationBar';
-
-export type Column<T> = {
-  label: string;
-  align?: 'left' | 'right';
-  render: (row: T) => React.ReactNode;
-};
 
 interface DataTableProps<T> {
   title: string;

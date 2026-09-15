@@ -41,6 +41,18 @@ describe('ItemsTable Component', () => {
       items_per_basket: 2,
       is_archived: false,
     },
+    {
+      id: 3,
+      name: 'Archived Towels',
+      type: 'General',
+      category_id: 2,
+      category_name: 'Hygiene',
+      description: 'Archived towels',
+      quantity: 10,
+      threshold: 5,
+      items_per_basket: null,
+      is_archived: true,
+    },
   ];
 
   const mockHandlers = {
@@ -264,5 +276,73 @@ describe('ItemsTable Component', () => {
 
     expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
     expect(screen.getByText('Item 11')).toBeInTheDocument();
+  });
+  
+  test('hides archived items by default and shows them when requested', () => {
+    render(
+      <ItemsTable
+        items={mockItems}
+        categories={mockCategories}
+        {...mockHandlers}
+      />,
+    );
+  
+    expect(screen.getByText('Apples')).toBeInTheDocument();
+    expect(screen.getByText('Soap')).toBeInTheDocument();
+    expect(screen.queryByText('Archived Towels')).not.toBeInTheDocument();
+  
+    const showArchivedSwitch = screen.getByRole('switch', {
+      name: 'Show Archived',
+    });
+  
+    expect(showArchivedSwitch).not.toBeChecked();
+  
+    fireEvent.click(showArchivedSwitch);
+  
+    expect(screen.getByText('Archived Towels')).toBeInTheDocument();
+    expect(showArchivedSwitch).toBeChecked();
+  
+    fireEvent.click(showArchivedSwitch);
+  
+    expect(screen.queryByText('Archived Towels')).not.toBeInTheDocument();
+    expect(showArchivedSwitch).not.toBeChecked();
+  });
+  
+  test('archives and unarchives an item', async () => {
+    render(
+      <ItemsTable
+        items={mockItems}
+        categories={mockCategories}
+        {...mockHandlers}
+      />,
+    );
+  
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Archive item' })[0],
+    );
+  
+    await waitFor(() => {
+      expect(mockHandlers.onUpdate).toHaveBeenCalledWith(1, {
+        is_archived: true,
+      });
+      expect(mockHandlers.onSuccess).toHaveBeenCalledWith('Item archived');
+    });
+  
+    fireEvent.click(
+      screen.getByRole('switch', { name: 'Show Archived' }),
+    );
+  
+    expect(screen.getByText('Archived Towels')).toBeInTheDocument();
+  
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Unarchive item' })[0],
+    );
+  
+    await waitFor(() => {
+      expect(mockHandlers.onUpdate).toHaveBeenCalledWith(3, {
+        is_archived: false,
+      });
+      expect(mockHandlers.onSuccess).toHaveBeenCalledWith('Item unarchived');
+    });
   });
 });

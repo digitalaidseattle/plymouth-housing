@@ -130,8 +130,6 @@ export type InventoryItem = {
   quantity: number;
   category: string;
   status: string;
-  // PIT-514: true if the item has been archived by an admin. Filtered out of
-  // the volunteer checkout page; still shown (grayed) in admin views.
   is_archived: boolean;
 };
 
@@ -151,8 +149,6 @@ export type AdminItem = {
   quantity: number;
   threshold: number;
   items_per_basket: number | null;
-  // PIT-514: true if the item has been archived by an admin. Filtered out of
-  // the volunteer checkout page; still shown (grayed) in admin views.
   is_archived: boolean;
 };
 

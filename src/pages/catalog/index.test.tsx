@@ -14,6 +14,8 @@ vi.mock('@mui/icons-material', () => ({
   Close: () => null,
   Add: () => null,
   Search: () => null,
+  Archive: () => null,
+  Unarchive: () => null,
 }));
 
 import Catalog from './index';

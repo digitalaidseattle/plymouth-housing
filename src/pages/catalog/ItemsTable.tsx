@@ -15,6 +15,8 @@ import {
   Paper,
   TextField,
   Button,
+  Switch,
+  FormControlLabel,
   Box,
   IconButton,
   Typography,
@@ -75,20 +77,20 @@ const ItemsTable = ({
   const [searchValue, setSearchValueInternal] = useState('');
   const setSearchValue = (value: string) => {
     setSearchValueInternal(value);
-    setPage(0); // Reset to first page on search
+    setPage(0);
   };
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [showArchived, setShowArchived] = useState(false);
 
-  // Filter items by search
   const filteredItems = items.filter(
     (item) =>
-      item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      item.category_name?.toLowerCase().includes(searchValue.toLowerCase()),
+      (showArchived || !item.is_archived) &&
+      (item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.category_name?.toLowerCase().includes(searchValue.toLowerCase())),
   );
 
-  // Paginate
   const paginatedItems = filteredItems.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
@@ -177,9 +179,6 @@ const ItemsTable = ({
     setEditState({ id: null, field: null, value: '' });
   };
 
-  // PIT-514: toggle an item's archived state. Archived items are hidden from
-  // the volunteer checkout page (filtered at the ItemsByCategory view) and
-  // grayed out in the admin table below.
   const handleToggleArchive = async (item: AdminItem) => {
     if (isSaving) return;
     setIsSaving(true);
@@ -231,8 +230,6 @@ const ItemsTable = ({
         items_per_basket: newItem.items_per_basket
           ? parseInt(newItem.items_per_basket)
           : null,
-        // New items are never archived on creation. The DB default is also 0,
-        // but we include it explicitly to satisfy the Omit<AdminItem, ...> type.
         is_archived: false,
       });
       onSuccess('Item created successfully');
@@ -260,7 +257,6 @@ const ItemsTable = ({
     const isEditing = editState.id === item.id && editState.field === field;
 
     if (isEditing) {
-      // Render appropriate input based on field type
       if (field === 'type') {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -352,7 +348,6 @@ const ItemsTable = ({
       );
     }
 
-    // Display value
     let displayValue = value;
     if (field === 'category_id') {
       displayValue = item.category_name || 'Unknown';
@@ -402,6 +397,21 @@ const ItemsTable = ({
             compact
             placeholder="Search items..."
             width="250px"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showArchived}
+                onChange={(event) => setShowArchived(event.target.checked)}
+                size="small"
+              />
+            }
+            label="Show Archived"
+            sx={{
+              '& .MuiFormControlLabel-label': {
+                typography: 'button',
+              },
+            }}
           />
           <Button
             variant="contained"
@@ -560,15 +570,12 @@ const ItemsTable = ({
                     </IconButton>
                   </Box>
                 </TableCell>
-                {/* Archive column has no meaning for a not-yet-created row. */}
                 <TableCell />
               </TableRow>
             )}
             {paginatedItems.map((item) => (
               <TableRow
                 key={item.id}
-                // PIT-514: gray out archived rows so admins can see them but
-                // recognize they're hidden from the volunteer checkout page.
                 sx={
                   item.is_archived
                     ? {

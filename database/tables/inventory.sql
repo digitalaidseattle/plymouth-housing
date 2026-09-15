@@ -11,10 +11,6 @@ CREATE TABLE Items (
     quantity INT NOT NULL,
     threshold INT NOT NULL,
     items_per_basket INT,
-    -- PIT-514: archived items are hidden from volunteer-facing checkout but
-    -- remain in the database so historical transaction references stay intact.
-    -- Admin Catalog and Inventory pages still show them (grayed) so admins can
-    -- unarchive or restock.
     is_archived BIT NOT NULL DEFAULT 0
     );
 GO
@@ -41,9 +37,6 @@ AS
         Categories c ON c.id = i.category_id;
 GO
 
--- PIT-514: this view feeds the volunteer checkout page. Archived items are
--- filtered out here so volunteers never see them; historical transactions
--- still resolve item names by joining directly on Items by id elsewhere.
 CREATE VIEW ItemsByCategory
 AS
     SELECT

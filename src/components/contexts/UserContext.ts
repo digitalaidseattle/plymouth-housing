@@ -15,5 +15,7 @@ export const UserContext = createContext<UserContextType>({
   activeVolunteers: [],
   setActiveVolunteers: () => {},
   isLoading: true,
+  pinVerified: false,
+  setPinVerified: () => {},
 });
 

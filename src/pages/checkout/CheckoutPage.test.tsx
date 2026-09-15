@@ -19,7 +19,9 @@ const mockUserContext = {
   setLoggedInUserId: vi.fn(),
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
-  isLoading: false
+  isLoading: false,
+  pinVerified: false,
+  setPinVerified: vi.fn(),
 };
 
 describe('CheckoutPage', async () => {

@@ -54,6 +54,7 @@ const DialogTemplate: React.FC<DialogTemplateProps> = ({
           },
         }}
         open={showDialog}
+        onClose={handleShowDialog}
       >
         {title ? (
           <DialogTitle

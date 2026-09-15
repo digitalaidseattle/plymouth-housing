@@ -85,6 +85,8 @@ export interface UserContextType {
   activeVolunteers: User[];
   setActiveVolunteers: (activeVolunteers: User[]) => void;
   isLoading: boolean;
+  pinVerified: boolean;
+  setPinVerified: (verified: boolean) => void;
 }
 
 // BaseUser defines the common properties shared by all user types.
@@ -302,7 +304,14 @@ export interface ApiConfig {
 
 // ─── Date Range ───────────────────────────────────────────────────────────────
 
-export type DatePreset = 'today' | 'yesterday' | 'this week' | 'custom';
+export type DatePreset =
+  | 'today'
+  | 'yesterday'
+  | 'this week'
+  | 'this month'
+  | 'last month'
+  | 'last 30 days'
+  | 'custom';
 
 export type DateRange = {
   startDate: Date;

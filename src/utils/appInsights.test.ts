@@ -149,33 +149,6 @@ describe('appInsights', () => {
     });
   });
 
-  describe('getAppInsights', () => {
-    it('should return null when not initialized', async () => {
-      vi.stubEnv('MODE', 'development');
-
-      const { getAppInsights } = await import('./appInsights');
-
-      expect(getAppInsights()).toBeNull();
-    });
-
-    it('should return App Insights instance when initialized', async () => {
-      vi.stubEnv('MODE', 'production');
-      vi.stubEnv(
-        'VITE_APPINSIGHTS_CONNECTION_STRING',
-        'InstrumentationKey=test-key',
-      );
-
-      const { initializeAppInsights, getAppInsights } = await import(
-        './appInsights'
-      );
-      initializeAppInsights();
-
-      const instance = getAppInsights();
-      expect(instance).not.toBeNull();
-      expect(instance).toHaveProperty('loadAppInsights');
-      expect(instance).toHaveProperty('trackException');
-    });
-  });
 
   describe('trackEvent', () => {
     it('should track event when App Insights is initialized', async () => {

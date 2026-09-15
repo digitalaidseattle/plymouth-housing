@@ -32,6 +32,13 @@ const MainLayout: React.FC = () => {
   const { setUser, loggedInUserId, setLoggedInUserId } =
     useContext(UserContext);
   const [drawerOpen, setDrawerOpen] = useState(!matchDownLG);
+  // sync the drawer to the breakpoint during render rather than in an effect, so the
+  // temporary Drawer never mounts open and strands an invisible full-screen modal
+  const [prevMatchDownLG, setPrevMatchDownLG] = useState(matchDownLG);
+  if (prevMatchDownLG !== matchDownLG) {
+    setPrevMatchDownLG(matchDownLG);
+    setDrawerOpen(!matchDownLG);
+  }
   const navigate = useNavigate();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
   const navigateTimeoutRef = useRef<number | null>(null);
@@ -218,11 +225,6 @@ const MainLayout: React.FC = () => {
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
-
-  // set media wise responsive drawer
-  useEffect(() => {
-    setDrawerOpen(!matchDownLG);  
-  }, [matchDownLG]);
 
   // Hold the app shell (and every child route) until the guard has cleared the
   // session. A blocked account stays here until the logout redirect takes over.

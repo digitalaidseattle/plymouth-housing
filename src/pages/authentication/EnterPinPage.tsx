@@ -14,6 +14,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import { UserContext } from '../../components/contexts/UserContext';
 import { trackEvent, trackException } from '../../utils/appInsights';
 import { verifyPin as verifyPinService } from '../../services/authService';
+import { getCategorizedItems } from '../../services/itemsService';
 import { updateUser } from '../../services/userService';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
@@ -163,6 +164,10 @@ const EnterPinPage: React.FC = () => {
         if (loggedInUserId !== null) {
           await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
+        // Not awaited: warms the cache during the redirect, must not block login.
+        getCategorizedItems(user, true).catch((error) => {
+          console.error('Error prefetching categorized items on login:', error);
+        });
         setPinVerified(true);
         navigate('/volunteer-home');
       } else if (result) {

@@ -97,6 +97,11 @@ describe('EnterPinPage Component', () => {
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({}),
+      })
+      // Login's inventory prefetch. Needs a real response or apiRequest retries 20x.
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ value: [] }),
       });
   
     render(
@@ -117,7 +122,11 @@ describe('EnterPinPage Component', () => {
   
     expect(mockSetPinVerified).toHaveBeenCalledWith(true);
     expect(mockNavigate).toHaveBeenCalledWith('/volunteer-home');
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(3);
+    });
+    expect((global.fetch as any).mock.calls[2][0]).toContain('itemsbycategory');
   });
 
   test('does not set pinVerified when PIN is invalid', async () => {

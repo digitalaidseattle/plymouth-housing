@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -18,6 +18,7 @@ import {
   Switch,
   FormControlLabel,
   Box,
+  Stack,
   IconButton,
   Typography,
   Select,
@@ -91,6 +92,17 @@ const ItemsTable = ({
         item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
         item.category_name?.toLowerCase().includes(searchValue.toLowerCase())),
   );
+
+  useEffect(() => {
+    const maxPage = Math.max(
+      0,
+      Math.ceil(filteredItems.length / rowsPerPage) - 1,
+    );
+
+    if (page > maxPage) {
+      setPage(maxPage);
+    }
+  }, [filteredItems.length, page, rowsPerPage]);
 
   const paginatedItems = filteredItems.slice(
     page * rowsPerPage,
@@ -436,7 +448,7 @@ const ItemsTable = ({
         }}
       >
         <Typography variant="h4">Items</Typography>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <SearchBar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
@@ -452,10 +464,11 @@ const ItemsTable = ({
                 size="small"
               />
             }
-            label="Show Archived"
+            label="Show archived"
             sx={{
               '& .MuiFormControlLabel-label': {
                 typography: 'button',
+                fontWeight: 400,
               },
             }}
           />
@@ -467,7 +480,7 @@ const ItemsTable = ({
           >
             Add item
           </Button>
-        </Box>
+        </Stack>
       </Box>
 
       <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>

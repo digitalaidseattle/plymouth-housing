@@ -10,10 +10,33 @@ import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import Inventory from './index';
 import { UserContext } from '../../components/contexts/UserContext';
+import type { InventoryItem } from '../../types/interfaces';
 
 // Navigation state under test, swapped per case.
-const { navState } = vi.hoisted(() => ({
+const { navState, mockInventoryItems } = vi.hoisted(() => ({
   navState: { current: null as unknown },
+  mockInventoryItems: [
+    {
+      id: 1,
+      name: 'Active Item',
+      type: 'General',
+      description: 'Active inventory item',
+      quantity: 10,
+      category: 'Food',
+      status: 'Normal Stock',
+      is_archived: false,
+    },
+    {
+      id: 2,
+      name: 'Archived Item',
+      type: 'General',
+      description: 'Archived inventory item',
+      quantity: 5,
+      category: 'Food',
+      status: 'Normal Stock',
+      is_archived: true,
+    },
+  ] satisfies InventoryItem[],
 }));
 
 vi.mock('react-router-dom', () => ({
@@ -27,7 +50,7 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('../../services/itemsService', () => ({
-  getItems: vi.fn(async () => []),
+  getItems: vi.fn(async () => mockInventoryItems),
   getCategories: vi.fn(async () => []),
 }));
 
@@ -45,7 +68,13 @@ vi.mock('../../components/inventory/AdjustQuantityModal.tsx', () => ({
 }));
 
 vi.mock('../../components/inventory/InventoryTable', () => ({
-  default: () => <div data-testid="inventory-table" />,
+  default: ({ items }: { items: InventoryItem[] }) => (
+    <div data-testid="inventory-table">
+      {items.map((item) => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+    </div>
+  ),
 }));
 
 const mockUser = {
@@ -139,6 +168,17 @@ describe('Inventory navigation state', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Item checked out')).toBeInTheDocument();
+    });
+  });
+
+  test('does not display archived inventory items', async () => {
+    renderInventory(null);
+
+    await waitFor(() => {
+      const table = screen.getByTestId('inventory-table');
+
+      expect(table).toHaveTextContent('Active Item');
+      expect(table).not.toHaveTextContent('Archived Item');
     });
   });
 });

@@ -134,10 +134,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                   sx={{
                     height: '64px',
                     boxShadow: '0px -1px 0px 0px rgb(212, 212, 212);',
-                    ...(row.is_archived && {
-                      opacity: 0.5,
-                      backgroundColor: 'action.hover',
-                    }),
                   }}
                 >
                   <TableCell
@@ -149,16 +145,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {row.name}
-                      {row.is_archived && (
-                        <Chip
-                          label="Archived"
-                          size="small"
-                          sx={{
-                            backgroundColor: 'action.selected',
-                            color: 'text.secondary',
-                          }}
-                        />
-                      )}
                     </Box>
                   </TableCell>
                   <TableCell

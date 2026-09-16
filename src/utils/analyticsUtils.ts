@@ -87,7 +87,9 @@ export const countResidentsByBuilding = (
 export const onlyAdds = (
   rows: InventoryTransaction[],
 ): InventoryTransaction[] =>
-  rows.filter((t) => t.transaction_type === TransactionType.InventoryAdd);
+  rows.filter(
+    (t) => t.transaction_type === TransactionType.InventoryAdd && t.quantity > 0,
+  );
 
 export const sumItemsAdded = (transactions: InventoryTransaction[]): number =>
   transactions.reduce((sum, t) => sum + t.quantity, 0);

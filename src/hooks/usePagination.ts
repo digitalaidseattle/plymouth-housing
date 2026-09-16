@@ -14,8 +14,8 @@ export function usePagination<T>(rows: T[], initialRowsPerPage: number) {
   const safePage = Math.min(page, pageCount - 1);
 
   useEffect(() => {
-    if (safePage !== page) setPage(safePage);
-  }, [safePage, page]);
+    setPage(0);
+  }, [rows]);
 
   const changeRowsPerPage = (value: number) => {
     setRowsPerPage(value);

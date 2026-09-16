@@ -84,8 +84,6 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
       ),
     [previousRows, previousRange],
   );
-  const hasData = currentSummary.checkouts > 0;
-
   const itemTotalsById = useMemo(
     () =>
       new Map(itemTotals.map((total) => [total.item_id, total.total_quantity])),
@@ -145,19 +143,13 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
     [previousInventoryAdds],
   );
 
-  // Nothing in the current range means nothing to compare against. Each tile passes
-  // its own test, because stock can come in on a day with no checkouts going out.
-  const delta = (current: number, previous: number, hasCurrent: boolean) =>
-    hasCurrent ? percentChange(current, previous) : null;
-
   const statTiles = [
     {
       label: 'Residents Served',
       value: String(currentSummary.residentsServed),
-      delta: delta(
+      delta: percentChange(
         currentSummary.residentsServed,
         previousSummary.residentsServed,
-        hasData,
       ),
       caption: 'Unique residents with at least one checkout',
     },
@@ -169,27 +161,25 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         currentSummary.rangeDays > 1
           ? `${currentSummary.avgCheckoutsPerActiveDay.toFixed(1)} / active day`
           : undefined,
-      delta: delta(
+      delta: percentChange(
         currentSummary.checkouts,
         previousSummary.checkouts,
-        hasData,
       ),
       caption: 'Totals for the selected range',
     },
     {
       label: 'Items Checked Out',
       value: String(currentSummary.itemsCheckedOut),
-      delta: delta(
+      delta: percentChange(
         currentSummary.itemsCheckedOut,
         previousSummary.itemsCheckedOut,
-        hasData,
       ),
       caption: 'Total item count across all checkouts',
     },
     {
       label: 'Items Added',
       value: String(itemsAdded),
-      delta: delta(itemsAdded, previousItemsAdded, itemsAdded > 0),
+      delta: percentChange(itemsAdded, previousItemsAdded),
       caption: 'Total quantity added to inventory',
     },
   ];

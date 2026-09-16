@@ -36,17 +36,47 @@ class HistoryPageLocators:
         "//*[contains(text(),'No transactions found')]"
     )
 
+    # Transaction details modal, opened by clicking a history card.
+    # Edit/History are scoped to the dialog so the "History" accordion
+    # cannot collide with the sidebar History nav item.
+    TRANSACTION_DETAILS_DIALOG = (
+        By.CSS_SELECTOR,
+        "[role='dialog']"
+    )
+
+    DIALOG_CLOSE_BUTTON = (
+        By.CSS_SELECTOR,
+        "[role='dialog'] button[aria-label='Close dialog']"
+    )
+
+    EDIT_BUTTON = (
+        By.XPATH,
+        "//*[@role='dialog']//button[normalize-space()='Edit']"
+    )
+
+    HISTORY_ACCORDION = (
+        By.XPATH,
+        "//*[@role='dialog']//button[normalize-space()='History']"
+    )
+
 class HomePageLocators:
     # ---- Sections ----
     CHECKOUT_SECTION = (By.CSS_SELECTOR, "[data-testid='section-checkout']")
     INVENTORY_SECTION = (By.CSS_SELECTOR, "[data-testid='section-inventory']")
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, "//a[@href='/admin-home']")
     EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")
-    LOGOUT_BUTTON = (By.XPATH, "//h6[normalize-space()='Log out']")
+    # The logout control renders as a <button>, not an <h6>.
+    LOGOUT_BUTTON = (By.XPATH, "//button[normalize-space()='Log out']")
     PLYMOUTH_HOUSING_TEXT = (By.XPATH, '//h5[normalize-space()="Plymouth Housing"]')
     HOME_HEADER = (By.XPATH, "//h4[contains(., 'Thanks for being here')]")
 
 class LoginPageLocators:
+    # Staging requires clicking the app's AAD login link before
+    # the Microsoft sign-in flow begins.
+    APP_LOGIN_BUTTON = (
+        By.CSS_SELECTOR,
+        'a[href*=".auth/login/aad"]',
+    )
     USERNAME_INPUT  = (By.NAME,  'loginfmt')
     NEXT_BUTTON     = (By.ID,    'idSIButton9')
     PASSWORD_INPUT  = (By.NAME,  'passwd')
@@ -107,6 +137,30 @@ class CheckoutPageLocators:
 
     # modal header
     SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
+
+    # ---------------------------------------------------
+    # Edit mode (Checkout Summary opened from History > Edit)
+    # ---------------------------------------------------
+
+    EDIT_SUMMARY_HEADER = (
+        By.XPATH,
+        "//*[@role='dialog']"
+        "//*[contains(normalize-space(),'Checkout Summary (Editing)')]"
+    )
+
+    # One button carries both states: it reads "No changes" and is
+    # disabled until an edit is made, then becomes "Save changes".
+    SAVE_CHANGES_BUTTON = (
+        By.XPATH,
+        "//*[@role='dialog']//button["
+        "normalize-space()='Save changes'"
+        " or normalize-space()='No changes']"
+    )
+
+    EDIT_CANCEL_BUTTON = (
+        By.ID,
+        "checkout-dialog-cancel-edit-btn"
+    )
 
     # over limit warning
     OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")

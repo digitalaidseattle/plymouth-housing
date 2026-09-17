@@ -186,7 +186,7 @@ const Inventory = () => {
     try {
       const inventoryList = await getItems(user);
       setOriginalData(inventoryList);
-      setDisplayData(inventoryList);
+      setDisplayData(inventoryList.filter((item) => !item.is_archived));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       showSnackbar(`Could not get inventory: ${message}`, 'warning');

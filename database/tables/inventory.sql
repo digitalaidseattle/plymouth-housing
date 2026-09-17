@@ -23,6 +23,7 @@ AS
         c.name AS category,
         i.description,
         i.quantity,
+        i.threshold,
         CASE
             WHEN i.quantity = 0 THEN 'Out of Stock'
             WHEN i.quantity > 0 AND i.quantity <= i.threshold THEN 'Low Stock'

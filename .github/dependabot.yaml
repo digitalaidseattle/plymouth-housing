@@ -16,3 +16,13 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
+      # react-router and react-router-dom ship as one release train on matching
+      # version numbers, but dependabot bumps them independently. react-router
+      # published an 8.x with no react-router-dom counterpart, so major bumps
+      # split the pair and crash the router (see #616). Holding both at 7.x
+      # keeps them in lockstep on minors; lift these together, by hand, once
+      # react-router-dom has a matching major.
+      - dependency-name: "react-router"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-router-dom"
+        update-types: ["version-update:semver-major"]

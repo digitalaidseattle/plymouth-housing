@@ -137,6 +137,8 @@ ADMIN_USERNAME=admin_test@example.com
 ADMIN_PASSWORD=admin_test_password
 VOLUNTEER_USERNAME=volunteer_test@example.com
 VOLUNTEER_PASSWORD=volunteer_test_password
+VOLUNTEER_DISPLAY_NAME=John Doe 1234
+VOLUNTEER_PIN=<4 digits>
 ```
 ⚠️ **Do not commit real or production credentials**  
 Ensure `.env` is included in `.gitignore`.
@@ -147,31 +149,64 @@ Ensure `.env` is included in `.gitignore`.
 > Set `URL` to dev/staging, not prod.
 
 ## Running Tests
+
+> **Set `CI=true` unless you specifically want to watch the browser.**
+> Chrome runs headed by default, which requires a working desktop session.
+> On WSL, headless servers, and most containers, headed Chrome fails to
+> start and every test errors during setup with:
+>
+> ```text
+> SessionNotCreatedException: Chrome instance exited.
+> ```
+>
+> This happens in the `driver` fixture before any test code runs, so the
+> whole suite fails identically regardless of credentials or environment.
+
 ### Run All Tests
 ```bash
-pytest
+CI=true pytest
 ```
 #### Run Smoke Tests Only
 ```bash
-pytest -m smoke
+CI=true pytest -m smoke
 ```
 #### Run Regression Tests
 ```bash
-pytest -m regression
+CI=true pytest -m regression
 ```
 #### Parallel Execution (Exclude Serial Tests)
 ```bash
-pytest -n auto -m "not serial"
+CI=true pytest -n auto -m "not serial"
 ```
 #### Run Serial Tests Only
 ```bash
-pytest -m serial
+CI=true pytest -m serial
 ```
+
+To export it once for the whole shell session instead of prefixing each command:
+
+```bash
+export CI=true
+```
+
 ### Headless Execution (CI / Azure DevOps)
 
-#### Headless mode is automatically enabled when the CI environment variable is set:
+Headless mode is enabled automatically when the `CI` environment variable is
+set to `true`. Alongside headless, this also applies the CI-only Chrome flags
+(`--no-sandbox`, `--disable-dev-shm-usage`, a fixed 1920x1080 window) that keep
+Chrome stable in containers and on WSL.
+
+GitHub Actions sets `CI=true` on its own, and `.github/workflows/e2e-tests.yml`
+sets it explicitly, so no extra flags are needed there.
+
+#### Running headed (optional)
+
+Leave `CI` unset to watch the browser. This needs a real display, so on WSL it
+requires WSLg — and note that headed Chrome is known to crash on some WSL
+setups even when WSLg is available, in which case use `CI=true`.
+
 ```bash
-CI=true
+pytest -m smoke
 ```
 ### Notes & Best Practices
 

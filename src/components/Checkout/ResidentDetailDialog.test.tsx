@@ -37,7 +37,7 @@ describe('ResidentDetailDialog', () => {
     setActiveVolunteers: vi.fn(),
     isLoading: false,
     pinVerified: false,
-    setPinVerified: vi.fn(),
+    setPinVerifiedForUserId: vi.fn(),
   };
 
   const mockBuildings = [

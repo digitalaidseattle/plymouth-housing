@@ -132,6 +132,7 @@ export type InventoryItem = {
   quantity: number;
   category: string;
   status: string;
+  is_archived: boolean;
 };
 
 export type CategoryItem = {
@@ -150,6 +151,7 @@ export type AdminItem = {
   quantity: number;
   threshold: number;
   items_per_basket: number | null;
+  is_archived: boolean;
 };
 
 // ─── Location / Residents ─────────────────────────────────────────────────────

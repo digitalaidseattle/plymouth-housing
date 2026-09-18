@@ -74,7 +74,18 @@ tests/               # End-to-end tests
 
 ## Code Style
 
-Only add comments if reading the code is insufficient.
+### Comments
+
+Only add comments if reading the code is insufficient. Default to none.
+
+- Never narrate what the code does, restate the diff, or explain why a change was
+  made. That belongs in the commit message or PR description, not the source.
+- Never address a comment to a reviewer.
+- Legitimate uses: a non-obvious constraint, a workaround plus its cause, an
+  invariant the types cannot express.
+- Prefer renaming or extracting a function over explaining in prose.
+- Keep it to one line unless the reason genuinely needs more.
+- Don't add or reflow comments in code you are only touching incidentally.
 
 ### TypeScript
 - Use **strict mode** (all strict checks enabled)

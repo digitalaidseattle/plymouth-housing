@@ -11,22 +11,31 @@ import {
   InventoryItem,
 } from '../types/interfaces';
 import { ENDPOINTS, SETTINGS } from '../types/constants';
-import { cacheGet, cacheSet } from '../utils/sessionCache';
+import { cacheGet, cacheSet, cacheTimestamp } from '../utils/sessionCache';
 import { getRole } from '../utils/userUtils';
 import { apiRequest } from './apiRequest';
 
+const CATEGORIZED_ITEMS_KEY = 'categorizedItems';
+
+export function getCategorizedItemsTimestamp(): number | null {
+  return cacheTimestamp(CATEGORIZED_ITEMS_KEY);
+}
+
 export async function getCategorizedItems(
-  user: ClientPrincipal | null
+  user: ClientPrincipal | null,
+  forceRefresh = false,
 ): Promise<CategoryProps[]> {
-  const cached = cacheGet<CategoryProps[]>('categorizedItems');
-  if (cached) return cached;
+  if (!forceRefresh) {
+    const cached = cacheGet<CategoryProps[]>(CATEGORIZED_ITEMS_KEY);
+    if (cached) return cached;
+  }
 
   try {
     const result = await apiRequest<CategoryProps[]>({
       url: ENDPOINTS.CATEGORIZED_ITEMS,
       role: getRole(user),
     });
-    cacheSet('categorizedItems', result.value);
+    cacheSet(CATEGORIZED_ITEMS_KEY, result.value);
     return result.value;
   } catch (error) {
     console.error('Error fetching categorized items:', error);

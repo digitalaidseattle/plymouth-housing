@@ -5,7 +5,8 @@
  *
  */
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { describe, test, expect } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 import SpinUpDialog from './SpinUpDialog';
 import { SETTINGS } from '../../types/constants';
 

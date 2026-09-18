@@ -5,7 +5,7 @@
  *
  */
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import ResidentsPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';

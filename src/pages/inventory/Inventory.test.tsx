@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import Inventory from './index';
 import { UserContext } from '../../components/contexts/UserContext';

@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import AddItemModal from './AddItemModal';
 import { UserContext } from '../contexts/UserContext';
 import { InventoryItem, ClientPrincipal } from '../../types/interfaces';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 const mockUUID = 'a-random-uuid';
 vi.stubGlobal('crypto', {

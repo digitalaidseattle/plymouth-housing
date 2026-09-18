@@ -5,7 +5,7 @@
  *
  */
 import { render, screen, fireEvent, within } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@mui/icons-material', () => ({

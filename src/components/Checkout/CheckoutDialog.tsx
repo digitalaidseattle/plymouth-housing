@@ -45,7 +45,7 @@ type CheckoutDialogProps = {
   ) => void;
   setCheckoutItems: (items: CategoryProps[]) => void;
   selectedBuildingCode: string;
-  fetchData: (forceRefresh?: boolean) => void;
+  fetchData: () => void;
   residentInfo: ResidentInfo;
   setResidentInfo: (residentInfo: ResidentInfo) => void;
   onError: (message: string) => void;
@@ -238,7 +238,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           building: { id: 0, code: '', name: '' },
         });
         setCheckoutItems([]);
-        fetchData(true);
+        fetchData();
         setStatusMessage('Transaction Successful');
         onClose();
         onSuccess();
@@ -254,7 +254,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           building: { id: 0, code: '', name: '' },
         });
         setCheckoutItems([]);
-        fetchData(true);
+        fetchData();
         onClose();
         onSuccess('This transaction has already been submitted.');
         return;

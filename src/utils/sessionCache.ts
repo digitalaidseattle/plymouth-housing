@@ -28,6 +28,21 @@ export function cacheGet<T>(key: string): T | null {
   }
 }
 
+export function cacheTimestamp(key: string): number | null {
+  const raw = sessionStorage.getItem(key);
+  if (!raw) return null;
+
+  try {
+    const entry = JSON.parse(raw) as CacheEntry<unknown>;
+    if (!entry.cachedAt || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
+      return null;
+    }
+    return entry.cachedAt;
+  } catch {
+    return null;
+  }
+}
+
 export function cacheSet<T>(key: string, data: T): void {
   const entry: CacheEntry<T> = { data, cachedAt: Date.now() };
   sessionStorage.setItem(key, JSON.stringify(entry));

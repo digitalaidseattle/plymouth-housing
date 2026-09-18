@@ -68,17 +68,15 @@ const CheckoutPageHeader: React.FC<CheckoutPageHeaderProps> = ({
         >
           {residentLabel}
         </Button>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          {checkoutType === 'general' && (
-            <SearchBar
-              data={data}
-              setSearchData={setSearchData}
-              setSearchActive={setSearchActive}
-              width="220px"
-              compact
-            />
-          )}
-        </Stack>
+        {checkoutType === 'general' && (
+          <SearchBar
+            data={data}
+            setSearchData={setSearchData}
+            setSearchActive={setSearchActive}
+            width="220px"
+            compact
+          />
+        )}
       </Stack>
       {!searchActive && checkoutType === 'general' && (
         <Box sx={{ my: 2 }}>

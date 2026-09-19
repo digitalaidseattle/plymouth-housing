@@ -10,7 +10,8 @@ CREATE TABLE Items (
     description NVARCHAR(255),
     quantity INT NOT NULL,
     threshold INT NOT NULL,
-    items_per_basket INT
+    items_per_basket INT,
+    is_archived BIT NOT NULL DEFAULT 0
     );
 GO
 
@@ -23,6 +24,7 @@ AS
         c.name AS category,
         i.description,
         i.quantity,
+        i.is_archived,
         CASE
             WHEN i.quantity = 0 THEN 'Out of Stock'
             WHEN i.quantity > 0 AND i.quantity <= i.threshold THEN 'Low Stock'
@@ -51,6 +53,7 @@ AS
             Items
         WHERE
             Items.category_id = Categories.id
+            AND Items.is_archived = 0
         FOR JSON PATH
     ) AS items
     FROM

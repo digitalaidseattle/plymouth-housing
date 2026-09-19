@@ -21,8 +21,8 @@ const mockHandleAddClose = vi.fn();
 const mockSetShowResults = vi.fn();
 
 const originalData: InventoryItem[] = [
-    { id: 1, name: 'Item 1', type: 'General', quantity: 10, description: 'Desc 1', category: 'Cat 1', status: 'Active' },
-    { id: 2, name: 'Item 2', type: 'Welcome Basket', quantity: 5, description: 'Desc 2', category: 'Cat 2', status: 'Active' },
+    { id: 1, name: 'Item 1', type: 'General', quantity: 10, description: 'Desc 1', category: 'Cat 1', status: 'Active', is_archived: false },
+    { id: 2, name: 'Item 2', type: 'Welcome Basket', quantity: 5, description: 'Desc 2', category: 'Cat 2', status: 'Active', is_archived: false },
 ];
 
 const mockUser: ClientPrincipal = {

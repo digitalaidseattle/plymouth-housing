@@ -127,11 +127,11 @@ describe('CheckoutPage', async () => {
   });
 
   it('renders the building code select with correct label', () => {
-    expect(screen.getByLabelText('Building Code')).toBeInTheDocument();
+    expect(screen.getByLabelText('Building or Voucher Code')).toBeInTheDocument();
   });
 
   it('updates selected value when a building is chosen', async () => {
-    const select = screen.getByLabelText('Building Code');
+    const select = screen.getByLabelText('Building or Voucher Code');
 
     // Open the dropdown
     fireEvent.mouseDown(select);
@@ -176,7 +176,7 @@ describe('CheckoutPage', async () => {
 
   // it('shows checkout dialog when "Continue" is clicked', () => {
 
-  //   const select = screen.getByLabelText('Building Code');
+  //   const select = screen.getByLabelText('Building or Voucher Code');
 
   //   // Open the dropdown
   //   fireEvent.mouseDown(select);

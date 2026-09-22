@@ -18,5 +18,8 @@ INSERT INTO Buildings (name, code) VALUES
 ('Sylvia Odom''s Place', 'SYL'),
 ('Toft Terrace', 'TFT'),
 ('Pat Williams', 'WIL'),
-('Pacific Apartments', 'PAC');
+('Pacific Apartments', 'PAC'),
+-- Voucher Programs
+('SPC Voucher Program', 'SPC'),
+('SSP Voucher Program', 'SSP');
 GO

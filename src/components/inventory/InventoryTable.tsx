@@ -143,7 +143,9 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                       overflowWrap: 'normal',
                     }}
                   >
-                    {row.name}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {row.name}
+                    </Box>
                   </TableCell>
                   <TableCell
                     sx={{

@@ -7,7 +7,7 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import CheckoutPage from './CheckoutPage';
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { UserContext } from '../../components/contexts/UserContext';
 import { ENDPOINTS } from '../../types/constants';
 import { BrowserRouter } from 'react-router-dom';

@@ -8,7 +8,7 @@
  */
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { MemoryRouter } from 'react-router-dom';
 import MainLayout from './index';
 import { UserContext } from '../../components/contexts/UserContext';

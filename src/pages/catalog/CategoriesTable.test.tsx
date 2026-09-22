@@ -5,8 +5,8 @@
  *
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { describe, test, expect, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import CategoriesTable from './CategoriesTable';
 import { CategoryItem } from '../../types/interfaces';
 

@@ -86,7 +86,7 @@ export interface UserContextType {
   setActiveVolunteers: (activeVolunteers: User[]) => void;
   isLoading: boolean;
   pinVerified: boolean;
-  setPinVerified: (verified: boolean) => void;
+  setPinVerifiedForUserId: (userId: number | null) => void;
 }
 
 // BaseUser defines the common properties shared by all user types.
@@ -132,6 +132,7 @@ export type InventoryItem = {
   quantity: number;
   category: string;
   status: string;
+  is_archived: boolean;
 };
 
 export type CategoryItem = {
@@ -150,6 +151,7 @@ export type AdminItem = {
   quantity: number;
   threshold: number;
   items_per_basket: number | null;
+  is_archived: boolean;
 };
 
 // ─── Location / Residents ─────────────────────────────────────────────────────
@@ -302,7 +304,14 @@ export interface ApiConfig {
 
 // ─── Date Range ───────────────────────────────────────────────────────────────
 
-export type DatePreset = 'today' | 'yesterday' | 'this week' | 'custom';
+export type DatePreset =
+  | 'today'
+  | 'yesterday'
+  | 'this week'
+  | 'this month'
+  | 'last month'
+  | 'last 30 days'
+  | 'custom';
 
 export type DateRange = {
   startDate: Date;

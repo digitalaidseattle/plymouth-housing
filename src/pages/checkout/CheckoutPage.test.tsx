@@ -397,3 +397,53 @@ describe('CheckoutPage - Welcome Basket Mode', () => {
     consoleSpy.mockRestore();
   });
 });
+
+describe('CheckoutPage - cache use', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('serves inventory from the cache without refetching it', async () => {
+    sessionStorage.setItem(
+      'categorizedItems',
+      JSON.stringify({
+        data: [
+          {
+            id: 1,
+            category: 'Electronics',
+            items: [{ id: 1, name: 'Cached Laptop', quantity: 1 }],
+          },
+        ],
+        cachedAt: Date.now(),
+      }),
+    );
+
+    global.fetch = vi.fn((url) => {
+      if (url.includes(ENDPOINTS.BUILDINGS)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            value: [{ id: 1, name: 'Building 1', code: 'B1' }],
+          }),
+        });
+      }
+      return Promise.reject(new Error('Unknown endpoint'));
+    }) as Mock;
+
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <UserContext.Provider value={mockUserContext}>
+            <CheckoutPage />
+          </UserContext.Provider>
+        </BrowserRouter>
+      );
+    });
+
+    expect(screen.getByText(/Cached Laptop/i)).toBeInTheDocument();
+    const itemRequests = (global.fetch as Mock).mock.calls.filter((call) =>
+      String(call[0]).includes(ENDPOINTS.CATEGORIZED_ITEMS),
+    );
+    expect(itemRequests).toHaveLength(0);
+  });
+});

@@ -1,7 +1,8 @@
 /**
  *  MainLayout/index.test.tsx
  *
- *  Covers the guardrail that refuses test-role accounts in production.
+ *  Covers the guardrail that refuses test-role accounts in production and the
+ *  inactivity logout.
  *
  *  @copyright 2026 Digital Aid Seattle
  *
@@ -34,10 +35,17 @@ const { getAuthMe } = vi.hoisted(() => ({ getAuthMe: vi.fn() }));
 const { trackEvent } = vi.hoisted(() => ({ trackEvent: vi.fn() }));
 const { apiRequest } = vi.hoisted(() => ({ apiRequest: vi.fn() }));
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
+const inactivity = vi.hoisted(() => ({ onInactivity: () => {} }));
 
 vi.mock('../../services/authService', () => ({ getAuthMe }));
 vi.mock('../../utils/appInsights', () => ({ trackEvent }));
 vi.mock('../../services/apiRequest', () => ({ apiRequest }));
+vi.mock('../../hooks/useInactivityTimer', () => ({
+  useInactivityTimer: ({ onInactivity }: { onInactivity: () => void }) => {
+    inactivity.onInactivity = onInactivity;
+    return () => {};
+  },
+}));
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -193,5 +201,45 @@ describe('MainLayout - production test-account guard', () => {
     expect(await screen.findByText('Outlet Content')).toBeInTheDocument();
     expect(window.location.href).toBe('');
     consoleError.mockRestore();
+  });
+});
+
+describe('MainLayout - inactivity logout', () => {
+  let clearSpy: ReturnType<typeof vi.spyOn>;
+  let originalLocation: Location;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    env.value = 'development';
+    authAs(['volunteer']);
+    clearSpy = vi
+      .spyOn(Storage.prototype, 'clear')
+      .mockImplementation(() => {});
+
+    originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { href: '' },
+    });
+  });
+
+  afterEach(() => {
+    clearSpy.mockRestore();
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: originalLocation,
+    });
+  });
+
+  it('clears both session and local storage before logging out', async () => {
+    renderLayout();
+    expect(await screen.findByText('Outlet Content')).toBeInTheDocument();
+    clearSpy.mockClear();
+
+    inactivity.onInactivity();
+
+    expect(clearSpy.mock.contexts).toContain(sessionStorage);
+    expect(clearSpy.mock.contexts).toContain(localStorage);
+    expect(window.location.href).toBe(LOGOUT_URL);
   });
 });

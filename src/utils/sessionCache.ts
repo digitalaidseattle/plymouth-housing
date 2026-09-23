@@ -11,8 +11,17 @@ interface CacheEntry<T> {
   cachedAt: number;
 }
 
+function readRaw(key: string): string | null {
+  try {
+    return sessionStorage.getItem(key);
+  } catch (error) {
+    console.warn(`Failed to read ${key} from sessionStorage`, error);
+    return null;
+  }
+}
+
 export function cacheGet<T>(key: string): T | null {
-  const raw = sessionStorage.getItem(key);
+  const raw = readRaw(key);
   if (!raw) return null;
 
   try {
@@ -29,7 +38,7 @@ export function cacheGet<T>(key: string): T | null {
 }
 
 export function cacheTimestamp(key: string): number | null {
-  const raw = sessionStorage.getItem(key);
+  const raw = readRaw(key);
   if (!raw) return null;
 
   try {

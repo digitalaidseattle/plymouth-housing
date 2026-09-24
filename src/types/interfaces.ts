@@ -281,7 +281,6 @@ export type BuildingResidents = {
   visitCount: number;
 };
 
-// A checkout alongside how many times that resident appears in the same range.
 export type FlaggedTransaction = CheckoutTransaction & {
   isDuplicate: boolean;
   visitCount: number;

@@ -14,7 +14,6 @@ const AdminHome: React.FC = () => {
   const location = useLocation();
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
 
-  // Success/cancel message from CheckoutPage
   useEffect(() => {
     if (location.state?.message) {
       showSnackbar(

@@ -159,7 +159,6 @@ interface AnalyticsExport {
   checkedOutById: Map<number, number>;
 }
 
-// The three ranked-item panels differ only by title and what the count means.
 const rankedSection = (
   title: string,
   quantityHeader: string,
@@ -170,7 +169,6 @@ const rankedSection = (
   rows: items.map((item) => [item.item_name, item.total_quantity]),
 });
 
-// One section per panel on the page, in the order they are shown.
 export const buildAnalyticsSections = ({
   dateRangeString,
   buildingName,

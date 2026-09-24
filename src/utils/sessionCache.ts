@@ -11,7 +11,6 @@ interface CacheEntry<T> {
   cachedAt: number;
 }
 
-// `ttl` overrides the default for callers whose data goes stale sooner.
 export function cacheGet<T>(
   key: string,
   ttl: number = SETTINGS.cache_ttl,

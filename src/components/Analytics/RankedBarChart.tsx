@@ -62,8 +62,8 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
               rowGap: 2,
             }}
           >
-            {rows.map((row) => (
-              <Fragment key={row.label}>
+            {rows.map((row, index) => (
+              <Fragment key={index}>
                 <Box sx={{ minWidth: 0 }}>
                   <Typography
                     sx={{ typography: 'body2' }}

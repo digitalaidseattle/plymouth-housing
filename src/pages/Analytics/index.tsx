@@ -156,7 +156,6 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
     {
       label: 'Checkouts',
       value: String(currentSummary.checkouts),
-      // Only meaningful once the range covers more than a day.
       valueSuffix:
         currentSummary.rangeDays > 1
           ? `${currentSummary.avgCheckoutsPerActiveDay.toFixed(1)} / active day`

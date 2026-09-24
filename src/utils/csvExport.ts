@@ -37,6 +37,8 @@ export const toCsvSections = (sections: CsvSection[]): string =>
 // A BOM makes Excel detect UTF-8 instead of garbling accented names.
 const UTF8_BOM = '\ufeff';
 
+const REVOKE_DELAY_MS = 1000;
+
 const triggerDownload = (filename: string, csv: string): void => {
   const blob = new Blob([UTF8_BOM + csv], {
     type: 'text/csv;charset=utf-8',
@@ -52,7 +54,7 @@ const triggerDownload = (filename: string, csv: string): void => {
     anchor.click();
   } finally {
     anchor.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
   }
 };
 

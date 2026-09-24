@@ -24,6 +24,7 @@ AS
         c.name AS category,
         i.description,
         i.quantity,
+        i.threshold,
         i.is_archived,
         CASE
             WHEN i.quantity = 0 THEN 'Out of Stock'

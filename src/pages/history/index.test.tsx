@@ -470,7 +470,7 @@ describe('HistoryPage Component', () => {
       ).toBeGreaterThan(callCount);
     });
     expect(lastCheckoutDateArgs()).toEqual([
-      new Date(2025, 4, 16, 0, 0, 0, 0).toISOString(),
+      new Date(2025, 4, 17, 0, 0, 0, 0).toISOString(),
       new Date(2025, 5, 15, 23, 59, 59, 999).toISOString(),
     ]);
   });

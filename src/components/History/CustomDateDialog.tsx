@@ -12,12 +12,12 @@ import { SyntheticEvent, useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ToggleButton, ToggleButtonGroup, styled } from '@mui/material';
 import { getPresetDateRange } from './historyUtils';
+import { DatePreset } from '../../types/interfaces';
 
 type CustomDateDialogProps = {
   showDialog: boolean;
   handleShowDialog: () => void;
   handleSetDateRange: (startDate: Date, endDate: Date) => void;
-  handleSetDateInput: () => void;
 };
 
 const PresetToggleButton = styled(ToggleButton)(({ theme }) => ({
@@ -45,18 +45,18 @@ const CustomDateDialog = ({
   showDialog,
   handleShowDialog,
   handleSetDateRange,
-  handleSetDateInput,
 }: CustomDateDialogProps) => {
   const today = new Date();
   const [startDate, setStartDate] = useState<Dayjs>(dayjs(today));
   const [endDate, setEndDate] = useState<Dayjs>(dayjs(today));
   const [error, setError] = useState<string>('');
-  const [activePreset, setActivePreset] = useState<string>('none');
+  const [activePreset, setActivePreset] = useState<
+    Exclude<DatePreset, 'custom'> | 'none'
+  >('none');
 
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
     if (!error) {
-      handleSetDateInput();
       handleSetDateRange(startDate.toDate(), endDate.toDate());
       handleShowDialog();
     }
@@ -136,15 +136,16 @@ const CustomDateDialog = ({
         onChange={(_, preset) => {
           if (!preset) return;
 
-          const { startDate, endDate } = getPresetDateRange(preset);
+          const datePreset = preset as Exclude<DatePreset, 'custom'>;
+          const { startDate, endDate } = getPresetDateRange(datePreset);
           setStartDate(dayjs(startDate));
           setEndDate(dayjs(endDate));
-          setActivePreset(preset);
+          setActivePreset(datePreset);
         }}
       >
-        <PresetToggleButton value="this-month">This month</PresetToggleButton>
-        <PresetToggleButton value="last-month">Last month</PresetToggleButton>
-        <PresetToggleButton value="last-30-days">
+        <PresetToggleButton value="this month">This month</PresetToggleButton>
+        <PresetToggleButton value="last month">Last month</PresetToggleButton>
+        <PresetToggleButton value="last 30 days">
           Last 30 days
         </PresetToggleButton>
       </ToggleButtonGroup>

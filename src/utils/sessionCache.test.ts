@@ -30,4 +30,14 @@ describe('sessionCache', () => {
     expect(cacheTimestamp('key')).toBeNull();
     expect(warn).toHaveBeenCalledTimes(2);
   });
+
+  it('rejects entries whose timestamp is not a finite number', () => {
+    sessionStorage.setItem(
+      'key',
+      JSON.stringify({ data: { a: 1 }, cachedAt: 'invalid' }),
+    );
+
+    expect(cacheTimestamp('key')).toBeNull();
+    expect(cacheGet('key')).toBeNull();
+  });
 });

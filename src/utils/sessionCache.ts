@@ -26,7 +26,7 @@ export function cacheGet<T>(key: string): T | null {
 
   try {
     const entry = JSON.parse(raw) as CacheEntry<T>;
-    if (!entry.cachedAt || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
+    if (!Number.isFinite(entry.cachedAt) || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
       sessionStorage.removeItem(key);
       return null;
     }
@@ -43,7 +43,7 @@ export function cacheTimestamp(key: string): number | null {
 
   try {
     const entry = JSON.parse(raw) as CacheEntry<unknown>;
-    if (!entry.cachedAt || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
+    if (!Number.isFinite(entry.cachedAt) || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
       return null;
     }
     return entry.cachedAt;

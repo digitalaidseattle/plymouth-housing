@@ -488,18 +488,13 @@ class CheckOutPage(BasePage):
         """
         Base XPath for an item's row inside the Checkout Summary.
 
-        Scoped to the dialog because the catalogue stays mounted behind the
-        modal and carries a p[@aria-label] for the same item, which would
-        otherwise match first in document order.
-
-        Anchored on the item's aria-label rather than a contains() text
-        match, so a row cannot be confused with another item whose name
-        contains this one.
+        The catalogue uses the same card component, so scope to the summary.
+        The item name is fixture data exposed as an attribute, not UI text.
         """
         return (
-            "//*[@role='dialog']"
-            f"//p[@aria-label={self._xpath_literal(item_name)}]"
-            "/ancestor::div[contains(@class,'MuiCard-root')][1]"
+            "//*[@data-testid='checkout-summary-dialog']"
+            "//*[@data-testid='checkout-item-row'"
+            f" and @data-item-name={self._xpath_literal(item_name)}]"
         )
 
     def quantity_locator(self, item_name):
@@ -507,7 +502,7 @@ class CheckOutPage(BasePage):
             By.XPATH,
             (
                 f"{self.summary_row_xpath(item_name)}"
-                "//p[@data-testid='test-id-quantity']"
+                "//*[@data-testid='test-id-quantity']"
             )
         )
 
@@ -515,17 +510,13 @@ class CheckOutPage(BasePage):
         """
         The row's "+" control.
 
-        The summary row renders as [-] [quantity] [+] [Remove], so the plus
-        is the button immediately after the quantity. This is deliberately
-        not _wait_for_item_action_button(), which finds the catalogue "Add"
-        button behind the modal instead of the row's own control.
+        Resolve the control by its hook inside the selected summary row.
         """
         return (
             By.XPATH,
             (
                 f"{self.summary_row_xpath(item_name)}"
-                "//p[@data-testid='test-id-quantity']"
-                "/following-sibling::button[1]"
+                "//*[@data-testid='checkout-item-increase']"
             )
         )
 
@@ -534,8 +525,7 @@ class CheckOutPage(BasePage):
             By.XPATH,
             (
                 f"{self.summary_row_xpath(item_name)}"
-                "//p[@data-testid='test-id-quantity']"
-                "/preceding-sibling::button[1]"
+                "//*[@data-testid='checkout-item-decrease']"
             )
         )
 

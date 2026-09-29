@@ -46,7 +46,7 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => (
       setActiveVolunteers: vi.fn(),
       isLoading: false,
       pinVerified: false,
-      setPinVerified: vi.fn(),
+      setPinVerifiedForUserId: vi.fn(),
     }}
   >
     {children}

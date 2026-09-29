@@ -32,7 +32,7 @@ class CheckOutPage(BasePage):
             return f'"{value}"'
 
         parts = value.split("'")
-        return "concat(" + ', "\\\'", '.join(f"'{part}'" for part in parts) + ")"
+        return "concat(" + ", \"'\", ".join(f"'{part}'" for part in parts) + ")"
 
     @staticmethod
     def _case_insensitive_contains_xpath(target):

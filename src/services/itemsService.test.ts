@@ -63,6 +63,27 @@ describe('itemsService', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
     });
 
+    it('should bypass the cache and refetch when forceRefresh is true', async () => {
+      const mockItems = [{ category: 'Clothing', items: [] }];
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ value: mockItems }),
+      });
+
+      // Prime the cache
+      await getCategorizedItems(user);
+      expect(fetch).toHaveBeenCalledTimes(1);
+
+      // Without forceRefresh the cache is served (no new fetch)
+      await getCategorizedItems(user);
+      expect(fetch).toHaveBeenCalledTimes(1);
+
+      // With forceRefresh the cache is bypassed and a fresh fetch is made
+      const refreshed = await getCategorizedItems(user, true);
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(refreshed).toEqual(mockItems);
+    });
+
     it('should throw an error if the request fails', async () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,

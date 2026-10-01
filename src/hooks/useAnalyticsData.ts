@@ -100,7 +100,8 @@ export function useAnalyticsData({
     variant: userId,
     ttl: TTL,
     initial: [] as InventoryItem[],
-    fetcher: () => getItems(user),
+    fetcher: async () =>
+      (await getItems(user)).filter((item) => !item.is_archived),
     errorLabel: 'Error fetching items',
     onError,
     reloadToken,

@@ -54,6 +54,7 @@ const baseItem: InventoryItem = {
   threshold: 5,
   category: 'Category A',
   status: 'Low Stock',
+  is_archived: false,
 };
 
 const makeItem = (overrides: Partial<InventoryItem>): InventoryItem => ({

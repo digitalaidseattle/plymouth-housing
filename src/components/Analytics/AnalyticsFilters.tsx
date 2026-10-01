@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -20,8 +20,11 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { Building, DatePreset, DateRange } from '../../types/interfaces';
-import { formatClockTime, formatDateRangeSummary } from '../History/historyUtils';
+import { formatDateRangeSummary } from '../History/historyUtils';
+import { formatAge } from '../../utils/textUtils';
 import ReportFilterControls from '../ReportFilterControls';
+
+const TICK_INTERVAL = 30 * 1000;
 
 interface AnalyticsFiltersProps {
   dateInput: DatePreset;
@@ -83,6 +86,16 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
+  const [now, setNow] = useState(Date.now);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const interval = window.setInterval(
+      () => setNow(Date.now()),
+      TICK_INTERVAL,
+    );
+    return () => window.clearInterval(interval);
+  }, [lastUpdated]);
 
   const runExport = (fn: () => void) => {
     setExportMenuAnchor(null);
@@ -142,7 +155,7 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
       >
         {lastUpdated !== null && (
           <Typography sx={{ typography: 'caption', color: 'text.secondary' }}>
-            Updated {formatClockTime(lastUpdated)}
+            Updated {formatAge(now - lastUpdated)}
           </Typography>
         )}
         <Button

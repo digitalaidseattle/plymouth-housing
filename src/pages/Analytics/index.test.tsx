@@ -123,6 +123,7 @@ const mockItems: InventoryItem[] = [
     threshold: 5,
     category: 'Appliances',
     status: 'Low Stock',
+    is_archived: false,
   },
   {
     id: 2,
@@ -133,6 +134,7 @@ const mockItems: InventoryItem[] = [
     threshold: 5,
     category: 'Bedding',
     status: 'In Stock',
+    is_archived: false,
   },
 ];
 
@@ -175,7 +177,7 @@ const renderAnalytics = () =>
           setActiveVolunteers: vi.fn(),
           isLoading: false,
           pinVerified: false,
-          setPinVerified: vi.fn(),
+          setPinVerifiedForUserId: vi.fn(),
         }}
       >
         <Analytics onError={vi.fn()} />
@@ -413,6 +415,7 @@ describe('Analytics Page', () => {
         threshold: 5,
         category: 'Miscellaneous',
         status: 'In Stock',
+        is_archived: false,
       },
     ]);
     vi.spyOn(analyticsService, 'getCheckoutItemTotals').mockResolvedValue([

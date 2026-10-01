@@ -99,6 +99,7 @@ const ITEMS: InventoryItem[] = [
     threshold: 5,
     category: 'Kitchen',
     status: 'Low',
+    is_archived: false,
   },
 ];
 const BUILDINGS: Building[] = [

@@ -59,7 +59,9 @@ You should see `Docker Compose version v2.x` or later.
 
 ### Windows: Docker inside WSL
 
-On Windows, the project runs entirely inside WSL (Windows Subsystem for Linux): your code, Docker and the containers all live in an Ubuntu distro. We don't use Docker Desktop's WSL integration. Running Docker inside the distro keeps everything in one place, gives fast file access and working hot reload, and doesn't require WSL interop (the bridge that lets Linux run Windows programs), which some developers turn off for security.
+On Windows, the project runs entirely inside WSL (Windows Subsystem for Linux): your code, Docker and the containers all live in an Ubuntu distro. We don't use Docker Desktop. Running Docker inside the distro keeps everything in one place, gives fast file access and working hot reload, and works with WSL's links to Windows turned off (see [Step 3](#step-3-optional-limit-what-wsl-can-do-on-windows)).
+
+We run Docker in **rootless mode**: the Docker daemon and the containers run as your own Linux user instead of as root. If a container or a malicious package is compromised, it doesn't get root in your distro, and so it can't undo the settings in Step 3.
 
 Run every command in this guide in an **Ubuntu terminal**, not PowerShell, and keep the repo in your Linux home folder (for example `~/repos`), **not** under `C:\` or `/mnt/c`.
 
@@ -72,6 +74,12 @@ wsl --install -d Ubuntu-24.04
 ```
 
 Restart Windows if asked, then open **Ubuntu** from the Start menu and create your Linux username and password.
+
+If you already use WSL for other things, you can give this project its own distro instead. On recent WSL versions, add a name (run `wsl --update` first if `--name` isn't recognized):
+
+```powershell
+wsl --install -d Ubuntu-24.04 --name plymouth
+```
 
 #### Step 2: Make sure systemd is on
 
@@ -90,25 +98,68 @@ systemd=true
 
 Then run `wsl --shutdown` in PowerShell and reopen Ubuntu.
 
-#### Step 3: If Docker Desktop is installed, disconnect it from WSL
+#### Step 3 (optional): Limit what WSL can do on Windows
+
+By default, any program running in WSL can **start Windows programs as you** (this is called "interop") and **read and write your Windows files** through `/mnt/c`. So a malicious npm package that runs in WSL can do almost anything you can do on Windows. This project has hundreds of npm dependencies, so this is a real risk.
+
+To turn both off, add these lines to `/etc/wsl.conf` (keep the `[boot]` section from Step 2):
+
+```ini
+[interop]
+enabled=false
+appendWindowsPath=false
+
+[automount]
+enabled=false
+```
+
+Then run `wsl --shutdown` in PowerShell and reopen Ubuntu.
+
+What still works: the VS Code WSL extension, opening the app in your Windows browser, and connecting to the database from Windows. What stops working: running Windows programs from the Ubuntu terminal, such as `code .`, `explorer.exe .` or `clip.exe`, and seeing your `C:` drive at `/mnt/c`. To open the project in VS Code, start VS Code on Windows and use **WSL: Connect to WSL** instead.
+
+These settings only hold as long as nothing gets root in your distro, because root can change `/etc/wsl.conf`. Rootless Docker (Step 6) and a `sudo` password help keep it that way.
+
+#### Step 4: If Docker Desktop is installed, uninstall it
 
 Skip this step if you've never installed Docker Desktop.
 
-Docker Desktop and the Docker Engine inside WSL would both try to own the `docker` command. In Docker Desktop, open **Settings → Resources → WSL integration** and turn it **off** for your Ubuntu distro. Then check whether a leftover Docker Desktop link is still in place:
+Docker Desktop would compete with the Docker Engine in your distro for the `docker` command and for ports, and it leaves settings behind that break Docker Engine. Uninstall it from **Windows Settings → Apps → Installed apps → Docker Desktop → Uninstall**. This deletes all containers and data inside Docker Desktop, so first back up anything you need.
 
-```bash
-ls -l /usr/bin/docker
+Then, in PowerShell, check that its WSL distros are gone:
+
+```powershell
+wsl -l -v
 ```
 
-If it points to `/mnt/wsl/docker-desktop/...`, remove it:
+If `docker-desktop` (or `docker-desktop-data`) is still listed, remove it, then restart WSL:
 
-```bash
-sudo rm /usr/bin/docker
+```powershell
+wsl --unregister docker-desktop
 ```
 
-While you work on this project, quit Docker Desktop, or at least stop any of its containers that use ports `1433`, `5000` or `4280`. Both engines publish ports on Windows `localhost`, and they would collide.
+```powershell
+wsl --shutdown
+```
 
-#### Step 4: Install Docker Engine
+Finally, in Ubuntu, remove the links and settings Docker Desktop left in your distro. Check for leftover links first:
+
+```bash
+ls -l /usr/bin/docker*
+```
+
+Remove any that point to `/mnt/wsl/docker-desktop/...` or `/Docker/host/...`, for example:
+
+```bash
+sudo rm /usr/bin/docker /usr/bin/docker-compose /usr/bin/docker-credential-desktop.exe
+```
+
+Docker Desktop also leaves a `~/.docker` folder that tells Docker to fetch credentials from a Windows program. Move it out of the way; Docker creates a fresh one:
+
+```bash
+mv ~/.docker ~/.docker.desktop-backup
+```
+
+#### Step 5: Install Docker Engine
 
 These commands follow Docker's official [Ubuntu install guide](https://docs.docker.com/engine/install/ubuntu/). If anything here doesn't work, that guide is the source of truth.
 
@@ -123,34 +174,64 @@ sudo chmod a+r /etc/apt/keyrings/docker.asc
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-Install Docker Engine and the Compose plugin:
+Install Docker Engine, the Compose plugin, and the extra packages rootless mode needs:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras uidmap dbus-user-session
 ```
 
-#### Step 5: Run Docker without `sudo`
+#### Step 6: Switch Docker to rootless mode
 
-Add yourself to the `docker` group:
+These steps follow Docker's [rootless mode guide](https://docs.docker.com/engine/security/rootless/).
+
+The installer started a Docker daemon that runs as root. Turn it off:
 
 ```bash
-sudo usermod -aG docker $USER
+sudo systemctl disable --now docker.service docker.socket
 ```
 
-Close the Ubuntu terminal and open a new one so the change takes effect. Then check:
+```bash
+sudo rm -f /var/run/docker.sock
+```
+
+Set up rootless Docker for your user. Run this **without** `sudo`:
+
+```bash
+dockerd-rootless-setuptool.sh install
+```
+
+Tell the `docker` command to use it:
+
+```bash
+docker context use rootless
+```
+
+Let your rootless Docker keep running when no terminal is open, so containers don't stop when you close Ubuntu:
+
+```bash
+sudo loginctl enable-linger $USER
+```
+
+Check that it works:
 
 ```bash
 docker run --rm hello-world
 ```
 
-You should see `Hello from Docker!`.
+You should see `Hello from Docker!`. To confirm you're in rootless mode:
 
-> **About the `docker` group:** members of this group can control the Docker daemon, which runs as root, so they effectively have root access to the distro. That's normal for a development machine. If you want tighter isolation, Docker's [rootless mode](https://docs.docker.com/engine/security/rootless/) runs the daemon as your own user instead; this project's ports are all above 1024, so it works with rootless mode.
+```bash
+docker info --format '{{.SecurityOptions}}'
+```
+
+The output should include `name=rootless`.
+
+> **Don't add yourself to the `docker` group.** Many guides tell you to. Members of that group control the root Docker daemon, which effectively gives them root on the distro, and that defeats the point of rootless mode. If you're already in it, leave it with `sudo gpasswd -d $USER docker` and open a new terminal.
 
 #### Opening the app from Windows
 
-WSL forwards ports to Windows automatically, so your normal Windows browser can open http://localhost:4280 once the containers are running. VS Code tools on Windows (such as the SQL Server extension) can connect to `localhost,1433` the same way.
+WSL forwards ports to Windows automatically, so your normal Windows browser can open http://localhost:4280 once the containers are running. VS Code tools on Windows (such as the SQL Server extension) can connect to `localhost,1433` the same way. This port forwarding is separate from interop, so it still works with Step 3 applied.
 
 ---
 
@@ -286,15 +367,15 @@ The `database/` folder is shared into the `sql` container at `/database`. If `$M
 
 ### `docker` says "Cannot connect to the Docker daemon"
 
-The Docker service isn't running. Start it:
+Your rootless Docker service isn't running. Start it (no `sudo`):
 
 ```bash
-sudo systemctl start docker
+systemctl --user start docker
 ```
 
-On Windows, if `ls -l /usr/bin/docker` points to `/mnt/wsl/docker-desktop/...`, you're still using Docker Desktop's link. Follow [Step 3](#step-3-if-docker-desktop-is-installed-disconnect-it-from-wsl).
+If that doesn't help, check that the `docker` command points at rootless Docker: `docker context ls` should show a `*` next to `rootless`. If not, run `docker context use rootless`.
 
-If it says "permission denied" instead, you're not in the `docker` group yet. See [Step 5](#step-5-run-docker-without-sudo).
+On Windows, if `ls -l /usr/bin/docker` points to `/mnt/wsl/docker-desktop/...`, you're still using Docker Desktop's link. Follow [Step 4](#step-4-if-docker-desktop-is-installed-uninstall-it).
 
 ### "port is already allocated" or "address already in use"
 
@@ -302,7 +383,7 @@ Something else on your machine is using port `1433`, `5000` or `4280`. Common cu
 
 - A SQL Server you installed earlier (SQL Express on Windows, or SQL Server on WSL). Stop it, or change the port in `.env` (see [Configuration reference](#configuration-reference)).
 - An older SQL Server container from the [database-setup.md](database-setup.md) instructions. List all containers with `docker ps -a` and stop the old one with `docker stop <name>`.
-- **Windows:** containers running in Docker Desktop. Docker Desktop publishes ports on Windows `localhost` too, so quit it (see [Step 3](#step-3-if-docker-desktop-is-installed-disconnect-it-from-wsl)).
+- **Windows:** containers running in Docker Desktop. Docker Desktop publishes ports on Windows `localhost` too, so uninstall it (see [Step 4](#step-4-if-docker-desktop-is-installed-uninstall-it)).
 - `dab start` or `swa start` still running in another terminal. Stop them with `Ctrl+C`.
 
 ### The `sql` container keeps restarting or exits
@@ -374,5 +455,7 @@ Docker Compose sets `DATABASE_CONNECTION_STRING` for the `dab` container itself,
 - **One bootstrap script.** `db-init` runs the existing `bootstrap_db.ps1` inside a PowerShell container rather than a separate copy of its logic, so the Docker and non-Docker setups always build the same database.
 - **Safe by default.** `bootstrap_db.ps1` drops the database. `db-init` only runs it when `Inventory` doesn't exist, or when you explicitly pass `--reset`. Restarting containers never deletes data.
 - **Same images as production and CI.** `sql` uses the `mcr.microsoft.com/mssql/server:2022-latest` image that CI uses. `dab` uses the official `mcr.microsoft.com/azure-databases/data-api-builder` image, the same one that runs in Azure Container Apps, pinned to a specific version so everyone runs the same one.
+- **Ports open on your machine only.** Every published port is bound to `127.0.0.1` (for example `127.0.0.1:1433:1433`), so SQL Server, DAB and the app can't be reached from other machines on your network, whatever your WSL or firewall settings.
+- **Rootless Docker on Windows.** The containers run as your Linux user, not root, so a compromised container or dependency can't change your WSL settings or reach into Windows through them.
 - **Local only.** Nothing here changes how staging or production are built or deployed.
 - **Tests run in the `web` container.** The Python UI tests ([e2e-automation-test.md](e2e-automation-test.md)) still run on your machine, against the app at http://localhost:4280.

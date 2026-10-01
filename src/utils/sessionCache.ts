@@ -11,22 +11,46 @@ interface CacheEntry<T> {
   cachedAt: number;
 }
 
+function readRaw(key: string): string | null {
+  try {
+    return sessionStorage.getItem(key);
+  } catch (error) {
+    console.warn(`Failed to read ${key} from sessionStorage`, error);
+    return null;
+  }
+}
+
 export function cacheGet<T>(
   key: string,
   ttl: number = SETTINGS.cache_ttl,
 ): T | null {
-  const raw = sessionStorage.getItem(key);
+  const raw = readRaw(key);
   if (!raw) return null;
 
   try {
     const entry = JSON.parse(raw) as CacheEntry<T>;
-    if (!entry.cachedAt || Date.now() - entry.cachedAt > ttl) {
+    if (!Number.isFinite(entry.cachedAt) || Date.now() - entry.cachedAt > ttl) {
       sessionStorage.removeItem(key);
       return null;
     }
     return entry.data;
   } catch {
     sessionStorage.removeItem(key);
+    return null;
+  }
+}
+
+export function cacheTimestamp(key: string): number | null {
+  const raw = readRaw(key);
+  if (!raw) return null;
+
+  try {
+    const entry = JSON.parse(raw) as CacheEntry<unknown>;
+    if (!Number.isFinite(entry.cachedAt) || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
+      return null;
+    }
+    return entry.cachedAt;
+  } catch {
     return null;
   }
 }

@@ -117,7 +117,14 @@ describe('EnterPinPage Component', () => {
   
     expect(mockSetPinVerifiedForUserId).toHaveBeenCalledWith(123);
     expect(mockNavigate).toHaveBeenCalledWith('/volunteer-home');
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+    const requestedUrls = (global.fetch as any).mock.calls.map((call: unknown[]) =>
+      String(call[0]),
+    );
+    expect(requestedUrls.some((url: string) => url.includes('itemsbycategory'))).toBe(false);
   });
 
   test('does not set pin verified when PIN is invalid', async () => {

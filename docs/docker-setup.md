@@ -38,11 +38,11 @@ Your source code is shared with the `web` container, so when you save a file the
 
 ## Prerequisites
 
-You only need three things:
+You need:
 
 1. **Git**
-2. **Docker**
-   - **Windows:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) with the WSL 2 backend (the default). Also install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) with Ubuntu.
+2. **Docker Engine with the Compose plugin.** How you get it depends on your operating system:
+   - **Windows:** Docker Engine installed **inside WSL**. See [Windows: Docker inside WSL](#windows-docker-inside-wsl) below.
    - **macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/).
    - **Linux:** [Docker Engine](https://docs.docker.com/engine/install/) with the Compose plugin.
 3. **[Visual Studio Code](https://code.visualstudio.com/download)** (recommended). On Windows, also install the **WSL** extension.
@@ -55,9 +55,102 @@ docker compose version
 
 You should see `Docker Compose version v2.x` or later.
 
-> **Windows users:** run every command in this guide in an **Ubuntu (WSL) terminal**, not PowerShell, and clone the repo inside WSL (for example `~/repos`), **not** under `C:\` or `/mnt/c`. Files on the Windows drive are slow inside containers and break hot reload.
-
 > **Apple Silicon Mac users (M1 and later):** the SQL Server image is built for Intel. In Docker Desktop, open **Settings → General** and turn on **"Use Rosetta for x86_64/amd64 emulation on Apple Silicon"**. SQL Server will start more slowly than on other machines, but it works.
+
+### Windows: Docker inside WSL
+
+On Windows, the project runs entirely inside WSL (Windows Subsystem for Linux): your code, Docker and the containers all live in an Ubuntu distro. We don't use Docker Desktop's WSL integration. Running Docker inside the distro keeps everything in one place, gives fast file access and working hot reload, and doesn't require WSL interop (the bridge that lets Linux run Windows programs), which some developers turn off for security.
+
+Run every command in this guide in an **Ubuntu terminal**, not PowerShell, and keep the repo in your Linux home folder (for example `~/repos`), **not** under `C:\` or `/mnt/c`.
+
+#### Step 1: Install WSL with Ubuntu
+
+In a PowerShell window **run as Administrator**:
+
+```powershell
+wsl --install -d Ubuntu-24.04
+```
+
+Restart Windows if asked, then open **Ubuntu** from the Start menu and create your Linux username and password.
+
+#### Step 2: Make sure systemd is on
+
+Docker runs as a systemd service. Recent Ubuntu installs have systemd on already. Check:
+
+```bash
+systemctl is-system-running
+```
+
+If this prints `running` or `degraded`, go to Step 3. Otherwise, add these lines to `/etc/wsl.conf` (for example with `sudo nano /etc/wsl.conf`):
+
+```ini
+[boot]
+systemd=true
+```
+
+Then run `wsl --shutdown` in PowerShell and reopen Ubuntu.
+
+#### Step 3: If Docker Desktop is installed, disconnect it from WSL
+
+Skip this step if you've never installed Docker Desktop.
+
+Docker Desktop and the Docker Engine inside WSL would both try to own the `docker` command. In Docker Desktop, open **Settings → Resources → WSL integration** and turn it **off** for your Ubuntu distro. Then check whether a leftover Docker Desktop link is still in place:
+
+```bash
+ls -l /usr/bin/docker
+```
+
+If it points to `/mnt/wsl/docker-desktop/...`, remove it:
+
+```bash
+sudo rm /usr/bin/docker
+```
+
+While you work on this project, quit Docker Desktop, or at least stop any of its containers that use ports `1433`, `5000` or `4280`. Both engines publish ports on Windows `localhost`, and they would collide.
+
+#### Step 4: Install Docker Engine
+
+These commands follow Docker's official [Ubuntu install guide](https://docs.docker.com/engine/install/ubuntu/). If anything here doesn't work, that guide is the source of truth.
+
+Add Docker's package repository:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+Install Docker Engine and the Compose plugin:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+#### Step 5: Run Docker without `sudo`
+
+Add yourself to the `docker` group:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+Close the Ubuntu terminal and open a new one so the change takes effect. Then check:
+
+```bash
+docker run --rm hello-world
+```
+
+You should see `Hello from Docker!`.
+
+> **About the `docker` group:** members of this group can control the Docker daemon, which runs as root, so they effectively have root access to the distro. That's normal for a development machine. If you want tighter isolation, Docker's [rootless mode](https://docs.docker.com/engine/security/rootless/) runs the daemon as your own user instead; this project's ports are all above 1024, so it works with rootless mode.
+
+#### Opening the app from Windows
+
+WSL forwards ports to Windows automatically, so your normal Windows browser can open http://localhost:4280 once the containers are running. VS Code tools on Windows (such as the SQL Server extension) can connect to `localhost,1433` the same way.
 
 ---
 
@@ -191,12 +284,25 @@ The `database/` folder is shared into the `sql` container at `/database`. If `$M
 
 ## Troubleshooting
 
+### `docker` says "Cannot connect to the Docker daemon"
+
+The Docker service isn't running. Start it:
+
+```bash
+sudo systemctl start docker
+```
+
+On Windows, if `ls -l /usr/bin/docker` points to `/mnt/wsl/docker-desktop/...`, you're still using Docker Desktop's link. Follow [Step 3](#step-3-if-docker-desktop-is-installed-disconnect-it-from-wsl).
+
+If it says "permission denied" instead, you're not in the `docker` group yet. See [Step 5](#step-5-run-docker-without-sudo).
+
 ### "port is already allocated" or "address already in use"
 
 Something else on your machine is using port `1433`, `5000` or `4280`. Common culprits:
 
 - A SQL Server you installed earlier (SQL Express on Windows, or SQL Server on WSL). Stop it, or change the port in `.env` (see [Configuration reference](#configuration-reference)).
 - An older SQL Server container from the [database-setup.md](database-setup.md) instructions. List all containers with `docker ps -a` and stop the old one with `docker stop <name>`.
+- **Windows:** containers running in Docker Desktop. Docker Desktop publishes ports on Windows `localhost` too, so quit it (see [Step 3](#step-3-if-docker-desktop-is-installed-disconnect-it-from-wsl)).
 - `dab start` or `swa start` still running in another terminal. Stop them with `Ctrl+C`.
 
 ### The `sql` container keeps restarting or exits
@@ -224,7 +330,7 @@ The log shows which SQL file failed. Fix the script, then run `docker compose ru
 
 ### Saving a file doesn't reload the browser
 
-- **Windows:** your repo is probably under `C:\` or `/mnt/c`. Move it into your WSL home folder (see [Prerequisites](#prerequisites)).
+- **Windows:** your repo is probably under `C:\` or `/mnt/c`. Move it into your WSL home folder (see [Windows: Docker inside WSL](#windows-docker-inside-wsl)).
 - Run `docker compose restart web`.
 
 ### Starting over completely

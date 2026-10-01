@@ -5,7 +5,7 @@
  *
  */
 import React from 'react';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import VolunteerHome from './index';
@@ -147,6 +147,32 @@ describe('VolunteerHome Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/inventory', {
       state: { inventoryType: 'General', openAddModal: true },
     });
+  });
+
+  test('refreshes the inventory cache on landing, ignoring a warm cache', async () => {
+    vi.useRealTimers();
+    sessionStorage.setItem(
+      'categorizedItems',
+      JSON.stringify({ data: [{ id: 1, category: 'Electronics', items: [] }], cachedAt: Date.now() }),
+    );
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ value: [] }),
+    });
+    (global.fetch as any) = fetchMock;
+
+    render(
+      <Wrapper>
+        <VolunteerHome />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+    expect(fetchMock.mock.calls[0][0]).toContain('itemsbycategory');
+
+    sessionStorage.clear();
   });
 
   test('render snackbar', () => {

@@ -75,11 +75,13 @@ wsl --install -d Ubuntu-24.04
 
 Restart Windows if asked, then open **Ubuntu** from the Start menu and create your Linux username and password.
 
-If you already use WSL for other things, you can give this project its own distro instead. On recent WSL versions, add a name (run `wsl --update` first if `--name` isn't recognized):
+If you already use WSL, consider creating a fresh distro for your development work rather than reusing an old one with leftovers in it. On recent WSL versions you can give it a name (run `wsl --update` first if `--name` isn't recognized):
 
 ```powershell
-wsl --install -d Ubuntu-24.04 --name plymouth
+wsl --install -d Ubuntu-24.04 --name dev
 ```
+
+To see which distro a terminal is in, run `echo $WSL_DISTRO_NAME`. All distros show the same name in the prompt by default (your Windows computer name); Step 2 shows how to change that.
 
 #### Step 2: Make sure systemd is on
 
@@ -106,6 +108,15 @@ Save with `Ctrl+O` then `Enter`, and exit with `Ctrl+X`. To paste into the termi
 
 Then run `wsl --shutdown` in PowerShell and reopen Ubuntu.
 
+**Optional: give the distro its own name in the prompt.** Every distro uses your Windows computer name as its hostname, so two distros look identical in the terminal (`you@your-pc`). To tell them apart, add this to `/etc/wsl.conf` with your own choice of name:
+
+```ini
+[network]
+hostname=dev
+```
+
+After `wsl --shutdown` and reopening, the prompt shows `you@dev`.
+
 #### Step 3 (optional): Limit what WSL can do on Windows
 
 By default, any program running in WSL can **start Windows programs as you** (this is called "interop") and **read and write your Windows files** through `/mnt/c`. So a malicious npm package that runs in WSL can do almost anything you can do on Windows. This project has hundreds of npm dependencies, so this is a real risk.
@@ -129,7 +140,11 @@ enabled=false
 
 Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`), then run `wsl --shutdown` in PowerShell and reopen Ubuntu. To check: `ls /mnt/c` should now say "No such file or directory" or show an empty folder.
 
-What still works: the VS Code WSL extension, opening the app in your Windows browser, and connecting to the database from Windows. What stops working: running Windows programs from the Ubuntu terminal, such as `code .`, `explorer.exe .` or `clip.exe`, and seeing your `C:` drive at `/mnt/c`. To open the project in VS Code, start VS Code on Windows and use **WSL: Connect to WSL** instead.
+What still works: opening the app in your Windows browser, and Windows reaching into WSL (for example `\\wsl$\` paths in File Explorer). What stops working:
+
+- Running Windows programs from the Ubuntu terminal, such as `code .`, `explorer.exe .` or `clip.exe`.
+- Your `C:` drive at `/mnt/c`.
+- **VS Code's WSL extension and its "execute in WSL" Dev Containers mode.** Both translate Windows paths with `wslpath`, which needs the `C:` drive mounted. They fail with `wsl: Failed to translate 'c:\Users\...'` and "VS Code Server for WSL closed unexpectedly." [Step 7](#step-7-connect-vs-code-to-your-distro) shows how to connect VS Code over SSH instead.
 
 These settings only hold as long as nothing gets root in your distro, because root can change `/etc/wsl.conf`. Rootless Docker (Step 6) and a `sudo` password help keep it that way.
 
@@ -243,9 +258,111 @@ The output should include `name=rootless`.
 
 > **Don't add yourself to the `docker` group.** Many guides tell you to. Members of that group control the root Docker daemon, which effectively gives them root on the distro, and that defeats the point of rootless mode. If you're already in it, leave it with `sudo gpasswd -d $USER docker` and open a new terminal.
 
-#### Opening the app from Windows
+#### Step 7: Connect VS Code to your distro
 
-WSL forwards ports to Windows automatically, so your normal Windows browser can open http://localhost:4280 once the containers are running. VS Code tools on Windows (such as the SQL Server extension) can connect to `localhost,1433` the same way. This port forwarding is separate from interop, so it still works with Step 3 applied.
+VS Code runs on Windows and connects to your distro to work on files and run containers there.
+
+**If you skipped Step 3**, use the **WSL** extension: install it, then press `Ctrl+Shift+P` and run **WSL: Connect to WSL using Distro...** and pick your distro. The bottom-left corner shows `WSL: <distro>`. You're done with this step.
+
+**If you followed Step 3**, the WSL extension doesn't work (see above). Connect over SSH instead: you run a small SSH server in the distro that only accepts connections from your own PC, and VS Code's **Remote - SSH** extension connects to it. To VS Code, your distro then looks like any remote Linux machine.
+
+The examples below use `dev` as the distro name and `you` as your Linux username. Replace both with your own (`echo $WSL_DISTRO_NAME` and `whoami` in the distro).
+
+**7a. Install the SSH server** (in the distro):
+
+```bash
+sudo apt-get update && sudo apt-get install -y openssh-server netcat-openbsd
+```
+
+**7b. Restrict it to your own PC, port 2222, and keys only.** Create a settings file:
+
+```bash
+sudo nano /etc/ssh/sshd_config.d/10-local-only.conf
+```
+
+Paste this, replacing `you` with your Linux username, then save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`):
+
+```
+ListenAddress 127.0.0.1
+Port 2222
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+AllowUsers you
+```
+
+Ubuntu 24.04 starts SSH through systemd, so reload it:
+
+```bash
+sudo systemctl daemon-reload && sudo systemctl restart ssh.socket
+```
+
+Check that it's listening on `127.0.0.1:2222`:
+
+```bash
+ss -ltn | grep 2222
+```
+
+**7c. Create a key on Windows.** In PowerShell (press `Enter` at the passphrase prompt, or set one):
+
+```powershell
+ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\wsl_dev
+```
+
+Check that you now have two **files**, `wsl_dev` and `wsl_dev.pub`:
+
+```powershell
+Get-ChildItem $env:USERPROFILE\.ssh
+```
+
+**7d. Give the distro your public key.** In PowerShell, replacing `dev` with your distro name:
+
+```powershell
+Get-Content $env:USERPROFILE\.ssh\wsl_dev.pub | wsl -d dev -e sh -c "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
+
+**7e. Tell Windows how to reach the distro.** In PowerShell:
+
+```powershell
+notepad $env:USERPROFILE\.ssh\config
+```
+
+Add this, replacing `dev` (three times) and `you`, and **save** before you go on:
+
+```
+Host dev
+  HostName 127.0.0.1
+  Port 2222
+  User you
+  IdentityFile ~/.ssh/wsl_dev
+  ProxyCommand C:\Windows\System32\wsl.exe -d dev -e nc 127.0.0.1 2222
+```
+
+The `ProxyCommand` line sends the connection through `wsl.exe`, which also **starts the distro if it isn't running**.
+
+> Notepad sometimes saves this as `config.txt`. If `Get-ChildItem $env:USERPROFILE\.ssh` shows `config.txt`, rename it: `Rename-Item $env:USERPROFILE\.ssh\config.txt config`.
+
+**7f. Test the connection.** In PowerShell:
+
+```powershell
+ssh dev
+```
+
+Type `yes` the first time it asks about the host. You should land at your distro's prompt. Type `exit`.
+
+**7g. Connect VS Code.** In VS Code on Windows:
+
+1. Install the **Remote - SSH** extension.
+2. If the **WSL** extension is installed, **disable** it. Otherwise it keeps offering to reopen folders "in WSL", which fails.
+3. Press `Ctrl+Shift+P`, run **Remote-SSH: Connect to Host...** and pick `dev`. If asked for the platform, choose **Linux**.
+
+The first connection takes a minute while VS Code installs its server in the distro. The bottom-left corner shows `SSH: dev`. Next time, use **File → Open Recent**.
+
+**If it doesn't work:**
+
+- `ssh: Could not resolve hostname dev`: Windows didn't read your config. Make sure the file is called `config`, not `config.txt`, and that you saved it. `ssh -G dev | Select-String "^hostname|^port"` should show `hostname 127.0.0.1` and `port 2222`.
+- `Permission denied (publickey)`: the key didn't reach the distro. Check `cat ~/.ssh/authorized_keys` in the distro and repeat 7d.
+- `Connection refused`: the SSH server isn't listening. Repeat the restart command in 7b and check with `ss -ltn | grep 2222`.
 
 ### Git and GitHub
 

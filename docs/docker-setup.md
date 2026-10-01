@@ -1,38 +1,36 @@
 # Local Development with Docker
 
-> **Status: proposed.** This document describes the Docker setup we intend to build. The files it refers to (`docker-compose.yml`, `docker/`) do not exist yet. Review this document first; the implementation will follow it.
+> **Status: proposed.** This document describes the Docker setup we intend to build. The files it refers to (`.devcontainer/`, `.vscode/tasks.json`) do not exist yet. Review this document first; the implementation will follow it.
 
 ## Introduction
 
-This guide gets the whole app running on your machine with one command: the SQL database, the API layer (Data API Builder, "DAB") and the React frontend. Each runs in its own Docker container, so you don't need to install SQL Server, .NET, PowerShell or the DAB CLI.
+This guide sets up everything you need to work on the app inside Docker containers: the code, Node, the API layer (Data API Builder, "DAB") and the SQL database. You open the repo in VS Code as a **dev container**, and VS Code builds the containers, creates and fills the database, and starts the app. You don't install SQL Server, .NET, PowerShell, Node or the DAB CLI on your machine.
+
+The code lives in a **Docker volume**, not in a folder on your machine. Everything that runs during development, including every `npm install`, runs inside a container.
 
 If you'd rather install everything on your machine directly, the original guides still work: [database-setup.md](database-setup.md), [DAB-setup.md](DAB-setup.md) and [swa-setup.md](swa-setup.md).
 
 ### How the pieces fit together
 
 ```
- your browser
-     │
-     ▼
- ┌────────────────────────┐        ┌──────────────┐        ┌──────────────┐
- │ web        :4280       │ /data-api  dab   :5000 │  SQL   │ sql   :1433  │
- │ SWA CLI + Vite (React) │───────▶│ Data API     │───────▶│ SQL Server   │
- │ mock login at /.auth   │        │ Builder      │        │ 2022         │
- └────────────────────────┘        └──────────────┘        └──────▲───────┘
-                                                                  │ creates and
-                                                     ┌────────────┴───────┐
-                                                     │ db-init (runs once)│
-                                                     └────────────────────┘
+ VS Code (on your PC)
+   │  terminal, editor, port forwarding
+   ▼
+ ┌──────────────────────────────────────────────┐        ┌──────────────┐
+ │ app  (the dev container)                     │        │ sql          │
+ │  /workspaces/plymouth-housing  ← Docker volume│  SQL   │ SQL Server   │
+ │  SWA CLI + Vite  :4280  (the app)            │───────▶│ 2022         │
+ │  DAB             :5000  (the REST API)       │        │ :1433        │
+ │  PowerShell + bootstrap_db.ps1 (DB setup)    │        └──────────────┘
+ └──────────────────────────────────────────────┘
 ```
 
-| Container | What it does | Port on your machine |
-|---|---|---|
-| `sql` | SQL Server 2022. The data is kept in a Docker volume, so it survives restarts. | `1433` |
-| `db-init` | Runs the existing [bootstrap_db.ps1](../database/bootstrap_db.ps1) to create and seed the `Inventory` database, then exits. **It does nothing if the database already exists.** | none |
-| `dab` | Data API Builder, using [dab/dab-config.json](../dab/dab-config.json). Turns the database into a REST API. | `5000` |
-| `web` | The Static Web Apps (SWA) CLI and the Vite dev server. Serves the app, emulates the Azure login, and forwards `/data-api` calls to `dab`. | `4280` |
+| Container | What it does |
+|---|---|
+| `app` | Your dev container. It holds the code (in a Docker volume) and has Node 22, the SWA CLI, the DAB CLI and PowerShell. VS Code's terminal runs here. The app (SWA CLI + Vite) and DAB run here as two processes that VS Code starts for you. |
+| `sql` | SQL Server 2022. Its data is kept in its own Docker volume, so it survives restarts and rebuilds. |
 
-Your source code is shared with the `web` container, so when you save a file the browser reloads, the same as running Vite yourself.
+VS Code **forwards ports** from the containers to your PC: http://localhost:4280 for the app, http://localhost:5000/swagger for the API. Nothing is published on your network, and nothing listens on your machine except through VS Code.
 
 ---
 
@@ -40,30 +38,22 @@ Your source code is shared with the `web` container, so when you save a file the
 
 You need:
 
-1. **Git and a GitHub login.** See [Git and GitHub](#git-and-github) below.
-2. **Docker Engine with the Compose plugin.** How you get it depends on your operating system:
-   - **Windows:** Docker Engine installed **inside WSL**. See [Windows: Docker inside WSL](#windows-docker-inside-wsl) below.
+1. **Docker Engine.**
+   - **Windows:** Docker Engine installed **inside WSL**, in rootless mode. See [Windows: Docker inside WSL](#windows-docker-inside-wsl) below.
    - **macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-   - **Linux:** [Docker Engine](https://docs.docker.com/engine/install/) with the Compose plugin.
-3. **[Visual Studio Code](https://code.visualstudio.com/download)** (recommended). On Windows, also install the **WSL** extension.
-
-Check that Docker works:
-
-```bash
-docker compose version
-```
-
-You should see `Docker Compose version v2.x` or later.
+   - **Linux:** [Docker Engine](https://docs.docker.com/engine/install/) with the Compose plugin. Rootless mode ([Step 6](#step-6-switch-docker-to-rootless-mode) below) is recommended here too.
+2. **Git and a GitHub login** on the machine that runs Docker. See [Git and GitHub](#git-and-github).
+3. **[Visual Studio Code](https://code.visualstudio.com/download)** with the **Dev Containers** extension. On Windows, also see [Step 7](#step-7-connect-vs-code-to-your-distro) for connecting VS Code to WSL.
 
 > **Apple Silicon Mac users (M1 and later):** the SQL Server image is built for Intel. In Docker Desktop, open **Settings → General** and turn on **"Use Rosetta for x86_64/amd64 emulation on Apple Silicon"**. SQL Server will start more slowly than on other machines, but it works.
 
 ### Windows: Docker inside WSL
 
-On Windows, the project runs entirely inside WSL (Windows Subsystem for Linux): your code, Docker and the containers all live in an Ubuntu distro. We don't use Docker Desktop. Running Docker inside the distro keeps everything in one place, gives fast file access and working hot reload, and works with WSL's links to Windows turned off (see [Step 3](#step-3-optional-limit-what-wsl-can-do-on-windows)).
+On Windows, Docker runs inside WSL (Windows Subsystem for Linux), in an Ubuntu distro. We don't use Docker Desktop. Running Docker Engine inside the distro keeps everything in one place and works with WSL's links to Windows turned off (see [Step 3](#step-3-optional-limit-what-wsl-can-do-on-windows)).
 
 We run Docker in **rootless mode**: the Docker daemon and the containers run as your own Linux user instead of as root. If a container or a malicious package is compromised, it doesn't get root in your distro, and so it can't undo the settings in Step 3.
 
-Run every command in this guide in an **Ubuntu terminal**, not PowerShell, and keep the repo in your Linux home folder (for example `~/repos`), **not** under `C:\` or `/mnt/c`.
+Unless a step says PowerShell, run commands in an **Ubuntu terminal**.
 
 #### Step 1: Install WSL with Ubuntu
 
@@ -366,7 +356,7 @@ The first connection takes a minute while VS Code installs its server in the dis
 
 ### Git and GitHub
 
-You need git to get the code, and a GitHub login to push your changes. On Windows, do this in your Ubuntu terminal.
+VS Code clones the repo and pushes your changes using the git login on the machine running Docker. On Windows that's your Ubuntu distro, so do this in your Ubuntu terminal. VS Code passes the login on to the dev container, so you don't log in again inside it.
 
 Install git and the GitHub CLI (`gh`):
 
@@ -412,53 +402,36 @@ It should say `Logged in to github.com account <your username>`.
 
 ## First-time setup
 
-### Step 1: Clone the repository
+### Step 1: Open the repo in a container volume
 
-If you haven't set up git yet, do that first: see [Git and GitHub](#git-and-github).
+1. Open VS Code and connect it to the machine that runs Docker. **On Windows**, that's your WSL distro ([Step 7](#step-7-connect-vs-code-to-your-distro)); the bottom-left corner should show `SSH: <distro>` or `WSL: <distro>`. **On macOS and Linux**, a normal VS Code window is fine.
+2. Install the **Dev Containers** extension in that window, if you haven't yet.
+3. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on macOS) and run **Dev Containers: Clone Repository in Container Volume...**.
+4. Paste the repo URL:
 
-```bash
-git clone https://github.com/digitalaidseattle/plymouth-housing.git
-```
+   ```
+   https://github.com/digitalaidseattle/plymouth-housing.git
+   ```
 
-```bash
-cd plymouth-housing
-```
+   Or choose **GitHub** and pick the repo from the list.
+5. Pick the branch you want to work on, usually `dev`.
 
-### Step 2: Create your `.env` file
+VS Code now builds the containers. The first time takes several minutes: it downloads the images, installs the npm packages and the DAB CLI, and creates and fills the database. To watch, click **show log** in the notification at the bottom right. Later starts take seconds.
 
-The `.env` file holds your local settings. It is ignored by git, so your password never gets committed.
+When it's done, the bottom-left corner shows `Dev Container: Plymouth Housing`.
 
-```bash
-cp .env.example .env
-```
+### Step 2: Let VS Code start the app
 
-Open `.env` and set a password for the SQL Server admin (`sa`) account:
+The first time, VS Code asks whether to **allow automatic tasks** for this folder. Choose **Allow**. VS Code then opens two terminals and starts:
 
-```
-MSSQL_SA_PASSWORD=Choose-A-Strong-Passw0rd
-```
+- **DAB**: wait for `Now listening on: http://localhost:5000`.
+- **App**: wait for `Azure Static Web Apps emulator started at http://localhost:4280`.
 
-SQL Server **refuses to start** if the password is too weak. It must be at least 8 characters and include three of these four: uppercase letters, lowercase letters, numbers, symbols.
+If you missed the prompt, or the terminals don't appear, start them yourself: **Terminal → Run Task... → Start DAB**, then **Terminal → Run Task... → Start app**.
 
-You don't need to write a connection string. Docker Compose builds it from this password.
+### Step 3: Log in to the app
 
-### Step 3: Start everything
-
-```bash
-docker compose up --build
-```
-
-The first run takes several minutes. Docker downloads the images, installs the npm packages and creates the database. Later starts take seconds.
-
-You'll see logs from all four containers mixed together, each line prefixed with the container name. Wait until you see:
-
-- `db-init` reporting `All done.` and then `exited with code 0`
-- `dab` reporting `Now listening on: http://[::]:5000`
-- `web` reporting that the emulator is available at `http://localhost:4280`
-
-### Step 4: Log in to the app
-
-1. Open **http://localhost:4280**.
+1. Open **http://localhost:4280** in your browser.
 2. You'll see the SWA mock login screen (this stands in for the Azure login used in production):
 
    ![SWA Authentication](./assets/azure-swa-auth.png)
@@ -473,36 +446,46 @@ If you log in as a volunteer, the app asks you to pick a name and enter a PIN. T
 
 You're set up. 🎉
 
+### Reopening the project later
+
+Use **File → Open Recent** (the entry ends in `[Dev Container]`), or the **Remote Explorer** in VS Code's left sidebar, which lists your dev containers and volumes. Your code, your database and any files you created are still there.
+
 ---
 
 ## Everyday use
 
-| I want to… | Command |
+All commands below run in VS Code's terminal (`` Ctrl+` ``), which is inside the `app` container.
+
+| I want to… | Do this |
 |---|---|
-| Start everything in the background | `docker compose up -d` |
-| See the logs | `docker compose logs -f` (or `docker compose logs -f web` for one container) |
-| Check what's running | `docker compose ps` |
-| Stop everything (keeps your data) | `docker compose down` |
-| Restart DAB after editing `dab/dab-config.json` | `docker compose restart dab` |
-| Reinstall npm packages after `package.json` changes | `docker compose run --rm web npm ci` and then `docker compose restart web` |
-| Run the unit tests | `docker compose exec web npm test` |
-| Run the linter | `docker compose exec web npm run lint` |
+| Start or restart DAB (for example after editing `dab/dab-config.json`) | **Terminal → Run Task... → Start DAB**. If it's already running, first stop it with `Ctrl+C` in its terminal. |
+| Start or restart the app | **Terminal → Run Task... → Start app** |
+| Run the unit tests | `npm test` |
+| Run the linter | `npm run lint` |
+| Reinstall npm packages after `package.json` changes | `npm ci` |
 | Browse the API | http://localhost:5000/swagger |
+| Pick up changes to `.devcontainer/` | `Ctrl+Shift+P` → **Dev Containers: Rebuild Container**. Your code and database are kept. |
 
 The API in Swagger is useful for seeing what endpoints exist. Most calls will fail from Swagger, though, because the app's requests carry login information that SWA adds (see [DAB-setup.md](DAB-setup.md#testing-the-api)).
 
-### Connecting to the database from VS Code
+### Working with the database
 
-Install the **SQL Server (mssql)** extension and add a connection with:
+The **SQL Server (mssql)** extension is installed in the dev container, with a ready-made connection called **Plymouth local**. Open the SQL Server view in the left sidebar and pick it. The details, if you need them:
 
 | Setting | Value |
 |---|---|
-| Server | `localhost,1433` |
+| Server | `sql` (from inside the container) or `localhost,1433` (from tools on your PC, through VS Code's port forwarding) |
 | Authentication | SQL Login |
 | User | `sa` |
-| Password | your `MSSQL_SA_PASSWORD` |
+| Password | `Plymouth-Local-Dev-1`, unless you changed it (see [Configuration reference](#configuration-reference)) |
 | Database | `Inventory` |
 | Trust server certificate | Yes |
+
+To run one script, for example a stored procedure you're editing, open the `.sql` file and click **Run** (or press `Ctrl+Shift+E`) with the **Plymouth local** connection.
+
+### Files git doesn't track
+
+Your code is in a Docker volume, so files that git ignores, such as `.env`, exist **only in that volume**. The app doesn't need any of them to run locally. If you add one, for example to try Application Insights, keep a copy somewhere safe: removing the volume removes the file.
 
 ---
 
@@ -513,126 +496,126 @@ Install the **SQL Server (mssql)** extension and add a connection with:
 Do this after you pull changes that touch `database/`, or when your local data is in a bad state:
 
 ```bash
-docker compose run --rm db-init --reset
+.devcontainer/init-db.sh --reset
 ```
 
-This **deletes all data in your local `Inventory` database** and recreates it from the scripts in `database/`. It only affects your machine.
+This **deletes all data in your local `Inventory` database** and recreates it from the scripts in `database/`, using the same `bootstrap_db.ps1` as the non-Docker setup. It only affects your machine.
 
-To also throw away the SQL Server volume itself (a completely clean start):
+Without `--reset`, the script only creates the database if it doesn't exist yet. That's what runs automatically when the container is first built.
 
-```bash
-docker compose down -v
-```
+---
 
-```bash
-docker compose up -d
-```
+## Your code lives in a Docker volume
 
-### Trying out a single SQL script
+This is what keeps everything inside containers, but it changes a few habits:
 
-To run one script without rebuilding everything, for example a stored procedure you're editing:
-
-```bash
-docker compose exec sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -d Inventory -i /database/procedures/process_checkout.sql
-```
-
-The `database/` folder is shared into the `sql` container at `/database`. If `$MSSQL_SA_PASSWORD` isn't set in your shell, run `set -a; source .env; set +a` first.
+- **Push often.** The volume is the only copy of work you haven't pushed. Deleting it deletes that work.
+- **Be careful with cleanup commands.** `docker volume prune` and `docker system prune --volumes` delete volumes that no container is using, which can include your code. Leave out `--volumes` unless you mean it, and check `docker volume ls` first.
+- **Rebuilding is safe.** **Dev Containers: Rebuild Container** replaces the containers but keeps the code volume and the database volume.
+- **To find your files from outside VS Code**, use `docker volume ls`. The code volume's name starts with the repo name.
 
 ---
 
 ## Troubleshooting
 
-### `docker` says "Cannot connect to the Docker daemon"
+### VS Code can't find Docker, or "Cannot connect to the Docker daemon"
 
-Your rootless Docker service isn't running. Start it (no `sudo`):
+Check in your distro's terminal (on Windows) or a terminal on your machine:
 
 ```bash
-systemctl --user start docker
+docker run --rm hello-world
 ```
 
-If that doesn't help, check that the `docker` command points at rootless Docker: `docker context ls` should show a `*` next to `rootless`. If not, run `docker context use rootless`.
+If that fails with rootless Docker, start it with `systemctl --user start docker`, and check that `docker context ls` shows a `*` next to `rootless`.
+
+If `docker` works in the terminal but VS Code still can't find it, point VS Code at the rootless Docker socket. Add this line to `~/.bashrc` in your distro:
+
+```bash
+export DOCKER_HOST=unix:///run/user/$(id -u)/docker.sock
+```
+
+Then in VS Code, close the remote connection (`Ctrl+Shift+P` → **Remote: Close Remote Connection**) and connect again.
 
 On Windows, if `ls -l /usr/bin/docker` points to `/mnt/wsl/docker-desktop/...`, you're still using Docker Desktop's link. Follow [Step 4](#step-4-if-docker-desktop-is-installed-uninstall-it).
 
-### "port is already allocated" or "address already in use"
+### Building the container fails
 
-Something else on your machine is using port `1433`, `5000` or `4280`. Common culprits:
+Click **show log** in the notification, or run `Ctrl+Shift+P` → **Dev Containers: Show Container Log**. The last lines usually name the step that failed. After fixing the cause, run **Dev Containers: Rebuild Container**.
 
-- A SQL Server you installed earlier (SQL Express on Windows, or SQL Server on WSL). Stop it, or change the port in `.env` (see [Configuration reference](#configuration-reference)).
-- An older SQL Server container from the [database-setup.md](database-setup.md) instructions. List all containers with `docker ps -a` and stop the old one with `docker stop <name>`.
-- **Windows:** containers running in Docker Desktop. Docker Desktop publishes ports on Windows `localhost` too, so uninstall it (see [Step 4](#step-4-if-docker-desktop-is-installed-uninstall-it)).
-- `dab start` or `swa start` still running in another terminal. Stop them with `Ctrl+C`.
+### The database wasn't created, or setup says it can't reach SQL Server
 
-### The `sql` container keeps restarting or exits
-
-Check its logs:
+SQL Server takes up to a minute to start the first time. Run the setup again:
 
 ```bash
-docker compose logs sql
+.devcontainer/init-db.sh
 ```
 
-If you see a message about the password not meeting policy, choose a stronger `MSSQL_SA_PASSWORD` (see [Step 2](#step-2-create-your-env-file)). SQL Server only reads the password **the first time** it creates its volume. If you change the password later, you also need to reset the volume with `docker compose down -v`.
-
-### `db-init` failed
-
-```bash
-docker compose logs db-init
-```
-
-The log shows which SQL file failed. Fix the script, then run `docker compose run --rm db-init --reset`.
+If it still fails, check SQL Server's logs: `Ctrl+Shift+P` → **Dev Containers: Show Container Log** and pick the `sql` container. If they mention the password policy, see [Changing the SQL password](#changing-the-sql-password).
 
 ### The app loads, but the data doesn't
 
 - Make sure you logged in with **exactly one** role (`admin` or `volunteer`). To log in again, go to http://localhost:4280/.auth/logout.
-- Check that DAB is running and connected: `docker compose logs dab`.
+- Look at the **Start DAB** terminal. If it isn't running, or shows connection errors, restart it.
 
-### Saving a file doesn't reload the browser
+### http://localhost:4280 doesn't open
 
-- **Windows:** your repo is probably under `C:\` or `/mnt/c`. Move it into your WSL home folder (see [Windows: Docker inside WSL](#windows-docker-inside-wsl)).
-- Run `docker compose restart web`.
+Open the **Ports** tab next to VS Code's terminal. Ports `4280` and `5000` should be listed. If they're missing, click **Forward a Port** and add them. If port 4280 on your PC is taken by something else, VS Code forwards to a different local port; the **Ports** tab shows which.
 
 ### Starting over completely
 
-This removes all containers, volumes (including the database) and cached npm packages for this project:
-
-```bash
-docker compose down -v --rmi local
-```
-
-Then follow [Step 3](#step-3-start-everything) again.
+1. `Ctrl+Shift+P` → **Dev Containers: Rebuild Without Cache Container**. This rebuilds the containers from scratch but keeps your code and database.
+2. If the database volume itself is the problem, run `.devcontainer/init-db.sh --reset` instead.
+3. Only as a last resort, delete the volumes (after pushing your work!) and go back to [Step 1](#step-1-open-the-repo-in-a-container-volume).
 
 ---
 
 ## Configuration reference
 
-### Environment variables in `.env`
+### Changing the SQL password
 
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `MSSQL_SA_PASSWORD` | Yes | none | Password for the SQL Server `sa` account. |
-| `SQL_PORT` | No | `1433` | Port for SQL Server on your machine. |
-| `DAB_PORT` | No | `5000` | Port for DAB on your machine. |
-| `WEB_PORT` | No | `4280` | Port for the app on your machine. |
-| `DAB_HOST_MODE` | No | `development` | DAB logging mode. `development` gives detailed errors. |
-| `VITE_APPINSIGHTS_CONNECTION_STRING` | No | empty | Application Insights. Leave empty locally. |
+The local SQL Server uses the password `Plymouth-Local-Dev-1` by default. That's safe because SQL Server is only reachable from inside the dev container, and from your own PC through VS Code. To use your own password:
 
-Docker Compose sets `DATABASE_CONNECTION_STRING` for the `dab` container itself, pointing at the `sql` container. A `DATABASE_CONNECTION_STRING` in your `.env` (used by the non-Docker setup) is ignored by the containers.
+1. Create `.devcontainer/.env` (git ignores it) containing:
+
+   ```
+   MSSQL_SA_PASSWORD=Your-Own-Passw0rd
+   ```
+
+   SQL Server **refuses to start** with a weak password: use at least 8 characters, including three of these four: uppercase letters, lowercase letters, numbers, symbols.
+2. SQL Server only reads the password when its volume is first created. Delete the database volume (`docker volume ls`, then `docker volume rm <name>` for the one ending in `sqlserverdata`), then run **Dev Containers: Rebuild Container**.
+
+### Environment variables
+
+These are set for you inside the `app` container:
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `DATABASE_CONNECTION_STRING` | points at `sql`, database `Inventory` | Used by DAB and by `bootstrap_db.ps1` |
+| `DAB_HOST_MODE` | `development` | Detailed DAB errors |
+| `MSSQL_SA_PASSWORD` | `Plymouth-Local-Dev-1`, or your own | SQL Server `sa` password |
+
+Optional, in a `.env` file at the repo root: `VITE_APPINSIGHTS_CONNECTION_STRING` (leave empty locally).
 
 ### Files
 
 | File | Purpose |
 |---|---|
-| `docker-compose.yml` | Defines the four containers and how they connect. |
-| `docker/web.Dockerfile` | Image for the `web` container: Node 22 and the SWA CLI. |
-| `docker/db-init.sh` | Waits for SQL Server, checks whether `Inventory` exists, and runs `bootstrap_db.ps1` if it doesn't (or always, with `--reset`). |
-| `.dockerignore` | Keeps `node_modules`, `dist`, `coverage` and `venv` out of image builds. |
+| `.devcontainer/devcontainer.json` | Tells VS Code how to build and open the dev container: the services, extensions, forwarded ports and setup commands. |
+| `.devcontainer/docker-compose.yml` | Defines the `app` and `sql` containers and the database volume. |
+| `.devcontainer/init-db.sh` | Waits for SQL Server, checks whether `Inventory` exists, and runs `database/bootstrap_db.ps1` if it doesn't (or always, with `--reset`). |
+| `.vscode/tasks.json` | The **Start DAB** and **Start app** tasks, set to run when the folder opens. `.gitignore` gets an exception so this file is tracked. |
 
 ### Design notes
 
-- **One bootstrap script.** `db-init` runs the existing `bootstrap_db.ps1` inside a PowerShell container rather than a separate copy of its logic, so the Docker and non-Docker setups always build the same database.
-- **Safe by default.** `bootstrap_db.ps1` drops the database. `db-init` only runs it when `Inventory` doesn't exist, or when you explicitly pass `--reset`. Restarting containers never deletes data.
-- **Same images as production and CI.** `sql` uses the `mcr.microsoft.com/mssql/server:2022-latest` image that CI uses. `dab` uses the official `mcr.microsoft.com/azure-databases/data-api-builder` image, the same one that runs in Azure Container Apps, pinned to a specific version so everyone runs the same one.
-- **Ports open on your machine only.** Every published port is bound to `127.0.0.1` (for example `127.0.0.1:1433:1433`), so SQL Server, DAB and the app can't be reached from other machines on your network, whatever your WSL or firewall settings.
-- **Rootless Docker on Windows.** The containers run as your Linux user, not root, so a compromised container or dependency can't change your WSL settings or reach into Windows through them.
+- **Two containers.** The `app` container has the code, so everything that needs the code runs there: the app, DAB and the database setup. Only SQL Server, which doesn't need the code, runs separately. This avoids sharing the code volume between containers.
+- **One bootstrap script.** `init-db.sh` runs the existing `bootstrap_db.ps1` rather than a separate copy of its logic, so the Docker and non-Docker setups always build the same database.
+- **Safe by default.** `bootstrap_db.ps1` drops the database. `init-db.sh` only runs it when `Inventory` doesn't exist, or when you explicitly pass `--reset`. Rebuilding containers never deletes data.
+- **Same versions as production and CI.** The DAB CLI is pinned to the same version as the DAB image in Azure Container Apps (1.5.56 today). `sql` uses the `mcr.microsoft.com/mssql/server:2022-latest` image that CI uses.
+- **No published ports.** Nothing is published on the Docker host; VS Code forwards ports to your PC. SQL Server and DAB can't be reached from other machines on your network, whatever your WSL or firewall settings.
+- **Rootless Docker.** On Windows (and recommended on Linux), the containers run as your own user, not root. A compromised container or dependency doesn't get root on your machine.
 - **Local only.** Nothing here changes how staging or production are built or deployed.
-- **Tests run in the `web` container.** The Python UI tests ([e2e-automation-test.md](e2e-automation-test.md)) still run on your machine, against the app at http://localhost:4280.
+
+### Open questions for the implementation
+
+- **The Python UI tests** ([e2e-automation-test.md](e2e-automation-test.md)) need Python and a browser. They're not part of this setup yet; adding them to the `app` container is a follow-up.
+- **To verify when building:** that "Clone Repository in Container Volume" mounts the code volume into the `app` service as expected with a Compose-based dev container, and that SQL Server runs under rootless Docker.

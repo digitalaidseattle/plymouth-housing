@@ -40,7 +40,7 @@ Your source code is shared with the `web` container, so when you save a file the
 
 You need:
 
-1. **Git**
+1. **Git and a GitHub login.** See [Git and GitHub](#git-and-github) below.
 2. **Docker Engine with the Compose plugin.** How you get it depends on your operating system:
    - **Windows:** Docker Engine installed **inside WSL**. See [Windows: Docker inside WSL](#windows-docker-inside-wsl) below.
    - **macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/).
@@ -89,12 +89,20 @@ Docker runs as a systemd service. Recent Ubuntu installs have systemd on already
 systemctl is-system-running
 ```
 
-If this prints `running` or `degraded`, go to Step 3. Otherwise, add these lines to `/etc/wsl.conf` (for example with `sudo nano /etc/wsl.conf`):
+If this prints `running` or `degraded`, go to Step 3. Otherwise, open `/etc/wsl.conf` in the nano editor (it asks for your Linux password):
+
+```bash
+sudo nano /etc/wsl.conf
+```
+
+Add these lines, keeping anything already in the file:
 
 ```ini
 [boot]
 systemd=true
 ```
+
+Save with `Ctrl+O` then `Enter`, and exit with `Ctrl+X`. To paste into the terminal, right-click.
 
 Then run `wsl --shutdown` in PowerShell and reopen Ubuntu.
 
@@ -102,9 +110,15 @@ Then run `wsl --shutdown` in PowerShell and reopen Ubuntu.
 
 By default, any program running in WSL can **start Windows programs as you** (this is called "interop") and **read and write your Windows files** through `/mnt/c`. So a malicious npm package that runs in WSL can do almost anything you can do on Windows. This project has hundreds of npm dependencies, so this is a real risk.
 
-To turn both off, add these lines to `/etc/wsl.conf` (keep the `[boot]` section from Step 2):
+To turn both off, open `/etc/wsl.conf` again with `sudo nano /etc/wsl.conf` and make it look like this. Keep the `[boot]` section from Step 2, and any `[user]` section Ubuntu added:
 
 ```ini
+[boot]
+systemd=true
+
+[user]
+default=your-linux-username
+
 [interop]
 enabled=false
 appendWindowsPath=false
@@ -113,7 +127,7 @@ appendWindowsPath=false
 enabled=false
 ```
 
-Then run `wsl --shutdown` in PowerShell and reopen Ubuntu.
+Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`), then run `wsl --shutdown` in PowerShell and reopen Ubuntu. To check: `ls /mnt/c` should now say "No such file or directory" or show an empty folder.
 
 What still works: the VS Code WSL extension, opening the app in your Windows browser, and connecting to the database from Windows. What stops working: running Windows programs from the Ubuntu terminal, such as `code .`, `explorer.exe .` or `clip.exe`, and seeing your `C:` drive at `/mnt/c`. To open the project in VS Code, start VS Code on Windows and use **WSL: Connect to WSL** instead.
 
@@ -233,11 +247,57 @@ The output should include `name=rootless`.
 
 WSL forwards ports to Windows automatically, so your normal Windows browser can open http://localhost:4280 once the containers are running. VS Code tools on Windows (such as the SQL Server extension) can connect to `localhost,1433` the same way. This port forwarding is separate from interop, so it still works with Step 3 applied.
 
+### Git and GitHub
+
+You need git to get the code, and a GitHub login to push your changes. On Windows, do this in your Ubuntu terminal.
+
+Install git and the GitHub CLI (`gh`):
+
+- **Windows (Ubuntu in WSL) and Linux (Ubuntu/Debian):**
+
+  ```bash
+  sudo apt-get update && sudo apt-get install -y git gh
+  ```
+
+- **macOS:** with [Homebrew](https://brew.sh/):
+
+  ```bash
+  brew install git gh
+  ```
+
+Tell git your name and email. These appear on your commits:
+
+```bash
+git config --global user.name "Your Name"
+```
+
+```bash
+git config --global user.email "you@example.com"
+```
+
+Sign in to GitHub:
+
+```bash
+gh auth login
+```
+
+Choose **GitHub.com**, then **HTTPS**, then **Yes** to authenticate git, then **Login with a web browser**. If your browser doesn't open by itself (it won't if you followed Step 3 on Windows), open https://github.com/login/device in your browser and enter the one-time code `gh` shows you.
+
+Check that it worked:
+
+```bash
+gh auth status
+```
+
+It should say `Logged in to github.com account <your username>`.
+
 ---
 
 ## First-time setup
 
 ### Step 1: Clone the repository
+
+If you haven't set up git yet, do that first: see [Git and GitHub](#git-and-github).
 
 ```bash
 git clone https://github.com/digitalaidseattle/plymouth-housing.git

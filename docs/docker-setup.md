@@ -1,6 +1,6 @@
 # Local Development with Docker
 
-> **Status: proposed.** This document describes the Docker setup we intend to build. The files it refers to (`.devcontainer/`, `.vscode/tasks.json`) do not exist yet. Review this document first; the implementation will follow it.
+> **Status: being tested.** The files this document refers to (`.devcontainer/`, `.vscode/tasks.json`) are a first version that hasn't been tested end to end yet. Expect rough edges, and report anything that doesn't match this guide.
 
 ## Introduction
 

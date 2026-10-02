@@ -1,7 +1,5 @@
 # Local Development with Docker
 
-> **Status: being tested.** The files this document refers to (`.devcontainer/`, `.vscode/tasks.json`) are a first version that hasn't been tested end to end yet. Expect rough edges, and report anything that doesn't match this guide.
-
 ## Introduction
 
 This guide sets up everything you need to work on the app inside Docker containers: the code, Node, the API layer (Data API Builder, "DAB") and the SQL database. You open the repo in VS Code as a **dev container**, and VS Code builds the containers, creates and fills the database, and starts the app. You don't install SQL Server, .NET, PowerShell, Node or the DAB CLI on your machine.
@@ -634,7 +632,6 @@ Optional, in a `.env` file at the repo root: `VITE_APPINSIGHTS_CONNECTION_STRING
 - **Rootless Docker.** On Windows (and recommended on Linux), the containers run as your own user, not root. A compromised container or dependency doesn't get root on your machine.
 - **Local only.** Nothing here changes how staging or production are built or deployed.
 
-### Open questions for the implementation
+### Not included yet
 
-- **The Python UI tests** ([e2e-automation-test.md](e2e-automation-test.md)) need Python and a browser. They're not part of this setup yet; adding them to the `app` container is a follow-up.
-- **To verify when building:** that the container can write to the mounted folder under rootless Docker when running as `root`, and that SQL Server runs under rootless Docker.
+- **The Python UI tests** ([e2e-automation-test.md](e2e-automation-test.md)) need Python and a browser, which the `app` container doesn't have. Run them on your machine against http://localhost:4280 for now.

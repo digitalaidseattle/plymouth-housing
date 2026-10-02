@@ -25,6 +25,8 @@ The deployment of this inventory management system is set to significantly enhan
 
 ## **Getting Started**  
 
+**The quickest way to get started is with Docker:** see [docker-setup.md](/docs/docker-setup.md). VS Code opens the repo in a dev container with SQL Server, Data API Builder and the app already set up, so you only need Docker, Git and VS Code. The steps below are for installing everything on your machine instead.
+
 ### **Prerequisites**
 
 - [**Visual Studio Code**](https://code.visualstudio.com/download)
@@ -84,6 +86,7 @@ Steps to set up the project locally:
 Please read our [Working Agreement](docs/working-agreement.md) for the project guidelines.
 
 ### **Documentation**
+- [Local Development with Docker](docs/docker-setup.md) - Dev container with SQL Server, DAB and the app
 - [Database Setup](docs/database-setup.md) - SQL Server configuration and bootstrapping
 - [DAB Setup](docs/DAB-setup.md) - Data API Builder configuration and local development
 - [Deployment Guide](docs/deployment-guide.md) - Azure deployment instructions

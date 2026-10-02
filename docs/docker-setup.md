@@ -404,7 +404,7 @@ It should say `Logged in to github.com account <your username>`.
 
 ### Step 1: Open the repo in a container volume
 
-1. Open VS Code and connect it to the machine that runs Docker. **On Windows**, that's your WSL distro ([Step 7](#step-7-connect-vs-code-to-your-distro)); the bottom-left corner should show `SSH: <distro>` or `WSL: <distro>`. **On macOS and Linux**, a normal VS Code window is fine.
+1. Open VS Code and connect it to the machine that runs Docker. **On Windows**, that's your WSL distro ([Step 7](#step-7-connect-vs-code-to-your-distro)); the bottom-left corner should show `SSH: <distro>` or `WSL: <distro>`. Run the next steps **in that window**, not in a local VS Code window. **On macOS and Linux**, a normal VS Code window is fine.
 2. Install the **Dev Containers** extension in that window, if you haven't yet.
 3. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on macOS) and run **Dev Containers: Clone Repository in Container Volume...**.
 4. Paste the repo URL:
@@ -537,6 +537,13 @@ export DOCKER_HOST=unix:///run/user/$(id -u)/docker.sock
 Then in VS Code, close the remote connection (`Ctrl+Shift+P` → **Remote: Close Remote Connection**) and connect again.
 
 On Windows, if `ls -l /usr/bin/docker` points to `/mnt/wsl/docker-desktop/...`, you're still using Docker Desktop's link. Follow [Step 4](#step-4-if-docker-desktop-is-installed-uninstall-it).
+
+### "Command failed: wsl -d ... -e wslpath -u C:\Users\..."
+
+VS Code tried to reach Docker in WSL from a local window, which needs the `C:` drive mounted in WSL (see [Step 3](#step-3-optional-limit-what-wsl-can-do-on-windows)).
+
+- Run the command from the window connected to your distro: the bottom-left corner must show `SSH: <distro>`.
+- If you ever added `dev.containers.executeInWSL` or `dev.containers.executeInWSLDistro` to your VS Code settings, remove them (`Ctrl+Shift+P` → **Preferences: Open User Settings (JSON)**).
 
 ### Building the container fails
 

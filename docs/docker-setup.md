@@ -6,7 +6,7 @@
 
 This guide sets up everything you need to work on the app inside Docker containers: the code, Node, the API layer (Data API Builder, "DAB") and the SQL database. You open the repo in VS Code as a **dev container**, and VS Code builds the containers, creates and fills the database, and starts the app. You don't install SQL Server, .NET, PowerShell, Node or the DAB CLI on your machine.
 
-The code lives in a **Docker volume**, not in a folder on your machine. Everything that runs during development, including every `npm install`, runs inside a container.
+The code lives in a normal folder on the machine that runs Docker (on Windows, in your WSL distro). VS Code mounts that folder into the dev container, so everything that runs during development, including every `npm install`, runs inside a container.
 
 If you'd rather install everything on your machine directly, the original guides still work: [database-setup.md](database-setup.md), [DAB-setup.md](DAB-setup.md) and [swa-setup.md](swa-setup.md).
 
@@ -18,7 +18,7 @@ If you'd rather install everything on your machine directly, the original guides
    ▼
  ┌──────────────────────────────────────────────┐        ┌──────────────┐
  │ app  (the dev container)                     │        │ sql          │
- │  /workspaces/plymouth-housing  ← Docker volume│  SQL   │ SQL Server   │
+ │  /workspaces/plymouth-housing  ← your folder │  SQL   │ SQL Server   │
  │  SWA CLI + Vite  :4280  (the app)            │───────▶│ 2022         │
  │  DAB             :5000  (the REST API)       │        │ :1433        │
  │  PowerShell + bootstrap_db.ps1 (DB setup)    │        └──────────────┘
@@ -27,7 +27,7 @@ If you'd rather install everything on your machine directly, the original guides
 
 | Container | What it does |
 |---|---|
-| `app` | Your dev container. It holds the code (in a Docker volume) and has Node 22, the SWA CLI, the DAB CLI and PowerShell. VS Code's terminal runs here. The app (SWA CLI + Vite) and DAB run here as two processes that VS Code starts for you. |
+| `app` | Your dev container. Your repo folder is mounted into it, and it has Node 22, the SWA CLI, the DAB CLI and PowerShell. VS Code's terminal runs here. The app (SWA CLI + Vite) and DAB run here as two processes that VS Code starts for you. |
 | `sql` | SQL Server 2022. Its data is kept in its own Docker volume, so it survives restarts and rebuilds. |
 
 VS Code **forwards ports** from the containers to your PC: http://localhost:4280 for the app, http://localhost:5000/swagger for the API. Nothing is published on your network, and nothing listens on your machine except through VS Code.
@@ -356,7 +356,7 @@ The first connection takes a minute while VS Code installs its server in the dis
 
 ### Git and GitHub
 
-VS Code clones the repo and pushes your changes using the git login on the machine running Docker. On Windows that's your Ubuntu distro, so do this in your Ubuntu terminal. VS Code passes the login on to the dev container, so you don't log in again inside it.
+You clone the repo and push your changes using the git login on the machine running Docker. On Windows that's your Ubuntu distro, so do this in your Ubuntu terminal. VS Code passes the login on to the dev container, so you don't log in again inside it.
 
 Install git and the GitHub CLI (`gh`):
 
@@ -402,25 +402,32 @@ It should say `Logged in to github.com account <your username>`.
 
 ## First-time setup
 
-### Step 1: Open the repo in a container volume
+### Step 1: Clone the repo
 
-1. Open VS Code and connect it to the machine that runs Docker. **On Windows**, that's your WSL distro ([Step 7](#step-7-connect-vs-code-to-your-distro)); the bottom-left corner should show `SSH: <distro>` or `WSL: <distro>`. Run the next steps **in that window**, not in a local VS Code window. **On macOS and Linux**, a normal VS Code window is fine.
+Clone the repo on the machine that runs Docker. **On Windows**, that's your WSL distro: run this in an Ubuntu terminal, **not** in PowerShell, and **not** under `C:\` or `/mnt/c`.
+
+```bash
+mkdir -p ~/repos && cd ~/repos && git clone https://github.com/digitalaidseattle/plymouth-housing.git
+```
+
+Then switch to the branch you want to work on, usually `dev`:
+
+```bash
+cd plymouth-housing && git switch dev
+```
+
+### Step 2: Open it in the dev container
+
+1. Open VS Code and connect it to the machine that runs Docker. **On Windows**, that's your WSL distro ([Step 7](#step-7-connect-vs-code-to-your-distro)); the bottom-left corner should show `SSH: <distro>` or `WSL: <distro>`. Do the next steps **in that window**, not in a local VS Code window. **On macOS and Linux**, a normal VS Code window is fine.
 2. Install the **Dev Containers** extension in that window, if you haven't yet.
-3. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on macOS) and run **Dev Containers: Clone Repository in Container Volume...**.
-4. Paste the repo URL:
-
-   ```
-   https://github.com/digitalaidseattle/plymouth-housing.git
-   ```
-
-   Or choose **GitHub** and pick the repo from the list.
-5. Pick the branch you want to work on, usually `dev`.
+3. **File → Open Folder...** and enter the repo path, for example `/home/you/repos/plymouth-housing`.
+4. VS Code notices the `.devcontainer` folder and offers **Reopen in Container**. Click it. If you miss the prompt, press `Ctrl+Shift+P` (`Cmd+Shift+P` on macOS) and run **Dev Containers: Reopen in Container**.
 
 VS Code now builds the containers. The first time takes several minutes: it downloads the images, installs the npm packages and the DAB CLI, and creates and fills the database. To watch, click **show log** in the notification at the bottom right. Later starts take seconds.
 
 When it's done, the bottom-left corner shows `Dev Container: Plymouth Housing`.
 
-### Step 2: Let VS Code start the app
+### Step 3: Let VS Code start the app
 
 The first time, VS Code asks whether to **allow automatic tasks** for this folder. Choose **Allow**. VS Code then opens two terminals and starts:
 
@@ -429,7 +436,7 @@ The first time, VS Code asks whether to **allow automatic tasks** for this folde
 
 If you missed the prompt, or the terminals don't appear, start them yourself: **Terminal → Run Task... → Start DAB**, then **Terminal → Run Task... → Start app**.
 
-### Step 3: Log in to the app
+### Step 4: Log in to the app
 
 1. Open **http://localhost:4280** in your browser.
 2. You'll see the SWA mock login screen (this stands in for the Azure login used in production):
@@ -448,7 +455,7 @@ You're set up. 🎉
 
 ### Reopening the project later
 
-Use **File → Open Recent** (the entry ends in `[Dev Container]`), or the **Remote Explorer** in VS Code's left sidebar, which lists your dev containers and volumes. Your code, your database and any files you created are still there.
+Use **File → Open Recent** (the entry ends in `[Dev Container]`), or the **Remote Explorer** in VS Code's left sidebar, which lists your dev containers. Your code and your database are still there.
 
 ---
 
@@ -483,9 +490,13 @@ The **SQL Server (mssql)** extension is installed in the dev container, with a r
 
 To run one script, for example a stored procedure you're editing, open the `.sql` file and click **Run** (or press `Ctrl+Shift+E`) with the **Plymouth local** connection.
 
-### Files git doesn't track
+### Where your files live
 
-Your code is in a Docker volume, so files that git ignores, such as `.env`, exist **only in that volume**. The app doesn't need any of them to run locally. If you add one, for example to try Application Insights, keep a copy somewhere safe: removing the volume removes the file.
+Your repo is a normal folder (on Windows, in your WSL distro), mounted into the container at `/workspaces/plymouth-housing`. Changes you make in VS Code, in the container's terminal or in the folder itself are the same files.
+
+- Run `npm`, tests and the app **in the container's terminal**, not in your distro, so they use the container's Node and tools.
+- Files that git ignores, such as `.env`, live in the folder and survive rebuilding or deleting the containers. The app doesn't need any of them to run locally.
+- Git works the same inside and outside the container. VS Code copies your git name and email into the container and passes your GitHub login through, so `git push` works from the container's terminal.
 
 ---
 
@@ -502,17 +513,6 @@ Do this after you pull changes that touch `database/`, or when your local data i
 This **deletes all data in your local `Inventory` database** and recreates it from the scripts in `database/`, using the same `bootstrap_db.ps1` as the non-Docker setup. It only affects your machine.
 
 Without `--reset`, the script only creates the database if it doesn't exist yet. That's what runs automatically when the container is first built.
-
----
-
-## Your code lives in a Docker volume
-
-This is what keeps everything inside containers, but it changes a few habits:
-
-- **Push often.** The volume is the only copy of work you haven't pushed. Deleting it deletes that work.
-- **Be careful with cleanup commands.** `docker volume prune` and `docker system prune --volumes` delete volumes that no container is using, which can include your code. Leave out `--volumes` unless you mean it, and check `docker volume ls` first.
-- **Rebuilding is safe.** **Dev Containers: Rebuild Container** replaces the containers but keeps the code volume and the database volume.
-- **To find your files from outside VS Code**, use `docker volume ls`. The code volume's name starts with the repo name.
 
 ---
 
@@ -542,8 +542,18 @@ On Windows, if `ls -l /usr/bin/docker` points to `/mnt/wsl/docker-desktop/...`, 
 
 VS Code tried to reach Docker in WSL from a local window, which needs the `C:` drive mounted in WSL (see [Step 3](#step-3-optional-limit-what-wsl-can-do-on-windows)).
 
-- Run the command from the window connected to your distro: the bottom-left corner must show `SSH: <distro>`.
+- Open the folder from the window connected to your distro: the bottom-left corner must show `SSH: <distro>`.
 - If you ever added `dev.containers.executeInWSL` or `dev.containers.executeInWSLDistro` to your VS Code settings, remove them (`Ctrl+Shift+P` → **Preferences: Open User Settings (JSON)**).
+
+### "Permission denied" or `EACCES` when saving files or running `npm`
+
+The container can't write to your repo folder. With rootless Docker, the container must run as `root`. That's safe: in rootless mode, `root` inside the container is your own user outside it, with no extra rights. The dev container is set up this way. If you changed `remoteUser` in `.devcontainer/devcontainer.json`, change it back and run **Dev Containers: Rebuild Container**.
+
+If you use normal (not rootless) Docker on Linux, files the container creates would belong to `root` on your machine. Rootless mode avoids that; see [Step 6](#step-6-switch-docker-to-rootless-mode).
+
+### "Clone Repository in Container Volume" fails with `Cannot connect to the Docker daemon at unix:///var/run/docker.sock`
+
+That command doesn't work with rootless Docker without extra setup, because its helper container expects Docker at the standard address. Clone the repo into a folder instead and use **Reopen in Container**, as in [Step 1](#step-1-clone-the-repo).
 
 ### Building the container fails
 
@@ -571,8 +581,8 @@ Open the **Ports** tab next to VS Code's terminal. Ports `4280` and `5000` shoul
 ### Starting over completely
 
 1. `Ctrl+Shift+P` → **Dev Containers: Rebuild Without Cache Container**. This rebuilds the containers from scratch but keeps your code and database.
-2. If the database volume itself is the problem, run `.devcontainer/init-db.sh --reset` instead.
-3. Only as a last resort, delete the volumes (after pushing your work!) and go back to [Step 1](#step-1-open-the-repo-in-a-container-volume).
+2. If the database itself is the problem, run `.devcontainer/init-db.sh --reset` instead.
+3. As a last resort, delete the database volume too: `docker volume ls`, then `docker volume rm <name>` for the one ending in `sqlserverdata`, then rebuild the container. Your code is unaffected; it's in your repo folder.
 
 ---
 
@@ -614,7 +624,9 @@ Optional, in a `.env` file at the repo root: `VITE_APPINSIGHTS_CONNECTION_STRING
 
 ### Design notes
 
-- **Two containers.** The `app` container has the code, so everything that needs the code runs there: the app, DAB and the database setup. Only SQL Server, which doesn't need the code, runs separately. This avoids sharing the code volume between containers.
+- **Source in a folder, tools in containers.** The repo is a normal folder mounted into the dev container (VS Code's **Reopen in Container**), the same pattern used for other dev-container projects. The code survives anything that happens to the containers, while everything that runs during development runs inside them.
+- **Two containers.** Everything that needs the code runs in the `app` container: the app, DAB and the database setup. Only SQL Server, which doesn't need the code, runs separately. Fewer containers means fewer things for a first-time developer to debug.
+- **The container runs as `root`.** With rootless Docker, that's what lets it write to your repo folder, and `root` in the container maps to your own user outside it. Running as a non-root container user would make your files read-only inside the container.
 - **One bootstrap script.** `init-db.sh` runs the existing `bootstrap_db.ps1` rather than a separate copy of its logic, so the Docker and non-Docker setups always build the same database.
 - **Safe by default.** `bootstrap_db.ps1` drops the database. `init-db.sh` only runs it when `Inventory` doesn't exist, or when you explicitly pass `--reset`. Rebuilding containers never deletes data.
 - **Same versions as production and CI.** The DAB CLI is pinned to the same version as the DAB image in Azure Container Apps (1.5.56 today). `sql` uses the `mcr.microsoft.com/mssql/server:2022-latest` image that CI uses.
@@ -625,4 +637,4 @@ Optional, in a `.env` file at the repo root: `VITE_APPINSIGHTS_CONNECTION_STRING
 ### Open questions for the implementation
 
 - **The Python UI tests** ([e2e-automation-test.md](e2e-automation-test.md)) need Python and a browser. They're not part of this setup yet; adding them to the `app` container is a follow-up.
-- **To verify when building:** that "Clone Repository in Container Volume" mounts the code volume into the `app` service as expected with a Compose-based dev container, and that SQL Server runs under rootless Docker.
+- **To verify when building:** that the container can write to the mounted folder under rootless Docker when running as `root`, and that SQL Server runs under rootless Docker.

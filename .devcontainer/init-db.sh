@@ -32,9 +32,14 @@ for attempt in $(seq 1 30); do
   sleep 2
 done
 
-if [[ "$reset" == false ]] && [[ -n "$(sql "SELECT DB_ID(N'Inventory')" | tr -d '[:space:]')" ]]; then
-  echo "The Inventory database already exists. Run '$0 --reset' to drop and recreate it."
-  exit 0
+if [[ "$reset" == false ]]; then
+  # Assigned on its own line so a failed query stops the script under set -e
+  # instead of reading as "no database" and running the destructive bootstrap.
+  db_id="$(sql "SELECT DB_ID(N'Inventory')")"
+  if [[ -n "${db_id//[[:space:]]/}" ]]; then
+    echo "The Inventory database already exists. Run '$0 --reset' to drop and recreate it."
+    exit 0
+  fi
 fi
 
 pwsh -NoProfile -File ./database/bootstrap_db.ps1

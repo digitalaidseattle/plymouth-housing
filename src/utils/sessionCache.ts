@@ -20,13 +20,16 @@ function readRaw(key: string): string | null {
   }
 }
 
-export function cacheGet<T>(key: string): T | null {
+export function cacheGet<T>(
+  key: string,
+  ttl: number = SETTINGS.cache_ttl,
+): T | null {
   const raw = readRaw(key);
   if (!raw) return null;
 
   try {
     const entry = JSON.parse(raw) as CacheEntry<T>;
-    if (!Number.isFinite(entry.cachedAt) || Date.now() - entry.cachedAt > SETTINGS.cache_ttl) {
+    if (!Number.isFinite(entry.cachedAt) || Date.now() - entry.cachedAt > ttl) {
       sessionStorage.removeItem(key);
       return null;
     }
@@ -54,5 +57,15 @@ export function cacheTimestamp(key: string): number | null {
 
 export function cacheSet<T>(key: string, data: T): void {
   const entry: CacheEntry<T> = { data, cachedAt: Date.now() };
-  sessionStorage.setItem(key, JSON.stringify(entry));
+  try {
+    sessionStorage.setItem(key, JSON.stringify(entry));
+  } catch (error) {
+    // A full quota must not fail the caller: the data it just fetched is good,
+    // only the cache write is lost.
+    console.error(`Error caching "${key}":`, error);
+  }
+}
+
+export function cacheRemove(key: string): void {
+  sessionStorage.removeItem(key);
 }

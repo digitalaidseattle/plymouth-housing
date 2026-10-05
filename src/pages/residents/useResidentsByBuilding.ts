@@ -22,7 +22,7 @@ export function useResidentsByBuilding(buildingId: number | null) {
 
   useEffect(() => {
     if (buildingId === null) {
-      setData([]);  
+      setData([]);
       return;
     }
 
@@ -75,14 +75,37 @@ export function useResidentsByBuilding(buildingId: number | null) {
   }, [buildingId, user]);
 
   const updateResidentName = useCallback(
-    async (id: number, name: string) => {
-      await updateResident(user, id, name);
-      setData((prev) =>
-        prev.map((u) => ({
-          ...u,
-          residents: u.residents.map((r) => (r.id === id ? { ...r, name } : r)),
-        })),
-      );
+    async (id: number, name: string, unitId: number) => {
+      await updateResident(user, id, name, unitId);
+
+      setData((prev) => {
+        return prev.map((unitGroup) => {
+          if (unitGroup.unit.id === unitId) {
+            const existingResident = unitGroup.residents.find(
+              (resident) => resident.id === id,
+            );
+
+            if (existingResident) {
+              return {
+                ...unitGroup,
+                residents: unitGroup.residents.map((resident) =>
+                  resident.id === id ? { ...resident, name } : resident,
+                ),
+              };
+            }
+
+            return {
+              ...unitGroup,
+              residents: [...unitGroup.residents, { id, name }],
+            };
+          }
+
+          return {
+            ...unitGroup,
+            residents: unitGroup.residents.filter((resident) => resident.id !== id),
+          };
+        });
+      });
     },
     [user],
   );

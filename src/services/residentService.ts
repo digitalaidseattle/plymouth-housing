@@ -81,6 +81,21 @@ export async function findResident(user: ClientPrincipal | null, name: string, u
   }
 }
 
+export async function findResidentsByName(user: ClientPrincipal | null, name: string) {
+  try {
+    const safeName = name.replace(/'/g, "''");
+    const filter = encodeURIComponent(`name eq '${safeName}'`);
+    const result = await apiRequest<Array<{ id: number; name: string }>>({
+      url: `${ENDPOINTS.RESIDENTS}?$filter=${filter}`,
+      role: getRole(user),
+    });
+    return result;
+  } catch (error) {
+    console.error('Error fetching residents by name:', error);
+    throw error;
+  }
+}
+
 export async function addResident(user: ClientPrincipal | null, name: string, unitId: number) {
   try {
     const result = await apiRequest<Array<{ id: number; name: string }>>({
@@ -96,13 +111,18 @@ export async function addResident(user: ClientPrincipal | null, name: string, un
   }
 }
 
-export async function updateResident(user: ClientPrincipal | null, id: number, name: string) {
+export async function updateResident(
+  user: ClientPrincipal | null,
+  id: number,
+  name: string,
+  unitId: number
+) {
   try {
     await apiRequest({
       url: `${ENDPOINTS.RESIDENTS}/id/${id}`,
       role: getRole(user),
       method: 'PATCH',
-      body: { name },
+      body: { name, unit_id: unitId },
     });
   } catch (error) {
     console.error('Error updating resident:', error);

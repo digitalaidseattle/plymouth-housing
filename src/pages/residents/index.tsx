@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   Autocomplete,
   Box,
@@ -26,13 +26,12 @@ import {
 } from '@mui/material';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import EditIcon from '@mui/icons-material/Edit';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
 import { UserContext } from '../../components/contexts/UserContext';
-import { Building, SnackbarState } from '../../types/interfaces';
+import { Building, SnackbarState, Unit } from '../../types/interfaces';
 import { getBuildings, getAllResidents } from '../../services/residentService';
 import { useResidentsByBuilding } from './useResidentsByBuilding';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import ResidentEditDialog from './ResidentEditDialog';
 
 type ResidentSearchResult = {
   id: number;
@@ -57,15 +56,19 @@ const ResidentsPage = () => {
   const [buildingsError, setBuildingsError] = useState<string | null>(null);
   const [allResidentsLoading, setAllResidentsLoading] = useState(false);
   const [allResidentsError, setAllResidentsError] = useState<string | null>(null);
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState('');
+  const [selectedResident, setSelectedResident] = useState<{
+    id: number;
+    name: string;
+    unit: Unit;
+    building: Building;
+  } | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editSnackbar, setEditSnackbar] = useState<SnackbarState>({
     open: false,
     message: '',
     severity: 'success',
   });
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data, isLoading, error: residentsError, updateResidentName } =
     useResidentsByBuilding(selectedBuildingId);
@@ -125,41 +128,57 @@ const ResidentsPage = () => {
     }
   };
 
-  const handleEditClick = (resident: { id: number; name: string }) => {
+  const handleEditClick = (
+    resident: { id: number; name: string },
+    unit: Unit,
+  ) => {
     if (isSaving) return;
-    setEditId(resident.id);
-    setEditValue(resident.name);
+
+    const building = buildings.find((b) => b.id === selectedBuildingId);
+    if (!building) return;
+
+    setSelectedResident({
+      id: resident.id,
+      name: resident.name,
+      unit,
+      building,
+    });
+    setIsEditDialogOpen(true);
   };
 
   const handleEditCancel = () => {
-    setEditId(null);
-    setEditValue('');
+    if (isSaving) return;
+
+    setIsEditDialogOpen(false);
+    setSelectedResident(null);
   };
 
-  const handleEditKeyDown = async (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      await handleEditSave();
-    } else if (e.key === 'Escape') {
-      handleEditCancel();
-    }
-  };
-
-  const handleEditSave = async () => {
-    if (editId === null || isSaving) return;
-
-    if (!editValue.trim()) {
-      setEditSnackbar({ open: true, message: 'Name cannot be empty.', severity: 'error' });
-      return;
-    }
+  const handleEditSave = async (
+    name: string,
+    _building: Building,
+    unit: Unit,
+  ) => {
+    if (!selectedResident || isSaving) return;
 
     setIsSaving(true);
+
     try {
-      await updateResidentName(editId, editValue.trim());
-      setEditSnackbar({ open: true, message: 'Resident name updated.', severity: 'success' });
-      setEditId(null);
-      setEditValue('');
+      await updateResidentName(selectedResident.id, name, unit.id);
+
+      setEditSnackbar({
+        open: true,
+        message: 'Resident updated.',
+        severity: 'success',
+      });
+
+      setIsEditDialogOpen(false);
+      setSelectedResident(null);
     } catch {
-      setEditSnackbar({ open: true, message: 'Failed to update resident name.', severity: 'error' });
+      setEditSnackbar({
+        open: true,
+        message: 'Failed to update resident.',
+        severity: 'error',
+      });
     } finally {
       setIsSaving(false);
     }
@@ -235,56 +254,22 @@ const ResidentsPage = () => {
                     </Typography>
                   ) : (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                      {residents.map((r) =>
-                        editId === r.id ? (
-                          <Box key={r.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <TextField
-                              size="small"
-                              value={editValue}
-                              onChange={(e) => setEditValue(e.target.value)}
-                              onKeyDown={handleEditKeyDown}
-                              onBlur={(e) => {
-                                if (e.relatedTarget === cancelButtonRef.current) return;
-                                handleEditSave();
-                              }}
-                              autoFocus
-                              disabled={isSaving}
-                              slotProps={{ htmlInput: { maxLength: 255 } }}
-                              sx={{ width: 180 }}
-                            />
-                            <IconButton
-                              size="large"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={handleEditSave}
-                              disabled={isSaving}
-                              aria-label="Save"
-                            >
-                              <CheckIcon fontSize="small" />
-                            </IconButton>
-                            <IconButton
-                              ref={cancelButtonRef}
-                              size="large"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={handleEditCancel}
-                              disabled={isSaving}
-                              aria-label="Cancel"
-                            >
-                              <CloseIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        ) : (
-                          <Box key={r.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Typography variant="body2">{r.name}</Typography>
-                            <IconButton
-                              size="large"
-                              onClick={() => handleEditClick(r)}
-                              aria-label={`Edit ${r.name}`}
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        ),
-                      )}
+                      {residents.map((r) => (
+                        <Box
+                          key={r.id}
+                          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        >
+                          <Typography variant="body2">{r.name}</Typography>
+                          <IconButton
+                            size="large"
+                            onClick={() => handleEditClick(r, unit)}
+                            aria-label={`Edit ${r.name}`}
+                            disabled={isSaving}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ))}
                     </Box>
                   )}
                 </TableCell>
@@ -317,6 +302,15 @@ const ResidentsPage = () => {
       >
         {editSnackbar.message}
       </SnackbarAlert>
+
+      <ResidentEditDialog
+        showDialog={isEditDialogOpen}
+        resident={selectedResident}
+        buildings={buildings}
+        onCancel={handleEditCancel}
+        onSave={handleEditSave}
+        isSaving={isSaving}
+      />
     </Box>
   );
 };

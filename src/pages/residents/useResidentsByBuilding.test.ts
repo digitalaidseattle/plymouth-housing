@@ -146,16 +146,45 @@ describe('useResidentsByBuilding', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     await act(async () => {
-      await result.current.updateResidentName(1, 'Alicia');
+      await result.current.updateResidentName(1, 'Alicia', 10);
     });
 
     expect(residentService.updateResident).toHaveBeenCalledWith(
       dummyUser,
       1,
       'Alicia',
+      10,
     );
     const unit2 = result.current.data.find((d) => d.unit.unit_number === '2');
     expect(unit2?.residents.map((r) => r.name)).toEqual(['Alicia', 'Bob']);
+  });
+
+  it('moves a resident to a different unit locally after a successful save', async () => {
+    vi.mocked(residentService.getResidentsByBuilding).mockResolvedValue(
+      mockRows,
+    );
+    vi.mocked(residentService.updateResident).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useResidentsByBuilding(1), { wrapper });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateResidentName(1, 'Alicia', 20);
+    });
+
+    expect(residentService.updateResident).toHaveBeenCalledWith(
+      dummyUser,
+      1,
+      'Alicia',
+      20,
+    );
+
+    const unit2 = result.current.data.find((d) => d.unit.unit_number === '2');
+    const unit10 = result.current.data.find((d) => d.unit.unit_number === '10');
+
+    expect(unit2?.residents.map((r) => r.name)).toEqual(['Bob']);
+    expect(unit10?.residents.map((r) => r.name)).toEqual(['Carol', 'Alicia']);
   });
 
   it('propagates the error and leaves data unchanged when the update fails', async () => {
@@ -172,7 +201,7 @@ describe('useResidentsByBuilding', () => {
 
     await act(async () => {
       await expect(
-        result.current.updateResidentName(1, 'Alicia'),
+        result.current.updateResidentName(1, 'Alicia', 20),
       ).rejects.toThrow('Network error');
     });
 

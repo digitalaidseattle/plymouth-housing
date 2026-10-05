@@ -23,6 +23,46 @@ vi.mock('./useResidentsByBuilding', () => ({
   useResidentsByBuilding: vi.fn(),
 }));
 
+vi.mock('./ResidentEditDialog', () => ({
+  default: ({
+    showDialog,
+    resident,
+    onCancel,
+    onSave,
+  }: {
+    showDialog: boolean;
+    resident: {
+      id: number;
+      name: string;
+      unit: { id: number; unit_number: string };
+      building: { id: number; name: string; code: string };
+    } | null;
+    onCancel: () => void;
+    onSave: (
+      name: string,
+      building: { id: number; name: string; code: string },
+      unit: { id: number; unit_number: string },
+    ) => Promise<void>;
+  }) =>
+    showDialog && resident ? (
+      <div role="dialog">
+        <div>Mock Edit Resident Dialog</div>
+        <div>{resident.name}</div>
+        <button
+          onClick={() =>
+            onSave('Alice Smyth', resident.building, {
+              id: 20,
+              unit_number: '202',
+            })
+          }
+        >
+          Save
+        </button>
+        <button onClick={onCancel}>Cancel</button>
+      </div>
+    ) : null,
+}));
+
 import * as residentService from '../../services/residentService';
 import { useResidentsByBuilding } from './useResidentsByBuilding';
 
@@ -70,6 +110,11 @@ const buildingData = [
     residents: [],
   },
 ];
+
+const selectBuilding = (name: string) => {
+  fireEvent.mouseDown(screen.getByLabelText('Building'));
+  fireEvent.click(screen.getByRole('option', { name }));
+};
 
 describe('ResidentsPage', () => {
   beforeEach(() => {
@@ -207,13 +252,12 @@ describe('ResidentsPage', () => {
     });
   });
 
-  test('edits a resident name', async () => {
-    const updateResidentName = vi.fn().mockResolvedValue(undefined);
+  test('opens the edit dialog for a resident', async () => {
     mockHook.mockReturnValue({
       data: buildingData,
       isLoading: false,
       error: null,
-      updateResidentName,
+      updateResidentName: vi.fn(),
     });
 
     render(
@@ -223,20 +267,18 @@ describe('ResidentsPage', () => {
     );
 
     await waitFor(() => screen.getByText('Alice Smith'));
+
+    selectBuilding('AH — Alpha House');
+
     fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
 
-    const input = screen.getByDisplayValue('Alice Smith');
-    fireEvent.change(input, { target: { value: 'Alice Smyth' } });
-    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
-
-    await waitFor(() => {
-      expect(updateResidentName).toHaveBeenCalledWith(1, 'Alice Smyth');
-      expect(screen.getByRole('alert')).toHaveTextContent('Resident name updated.');
-    });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveTextContent('Alice Smith');
   });
 
-  test('shows error when editing a resident name to empty', async () => {
-    const updateResidentName = vi.fn();
+  test('saves a resident with the selected unit', async () => {
+    const updateResidentName = vi.fn().mockResolvedValue(undefined);
+
     mockHook.mockReturnValue({
       data: buildingData,
       isLoading: false,
@@ -251,16 +293,45 @@ describe('ResidentsPage', () => {
     );
 
     await waitFor(() => screen.getByText('Alice Smith'));
+
+    selectBuilding('AH — Alpha House');
+
     fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
 
-    const input = screen.getByDisplayValue('Alice Smith');
-    fireEvent.change(input, { target: { value: '' } });
-    fireEvent.blur(input);
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Name cannot be empty.');
+      expect(updateResidentName).toHaveBeenCalledWith(1, 'Alice Smyth', 20);
     });
-    expect(updateResidentName).not.toHaveBeenCalled();
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Resident updated.');
+  });
+
+  test('closes the edit dialog when cancelled', async () => {
+    mockHook.mockReturnValue({
+      data: buildingData,
+      isLoading: false,
+      error: null,
+      updateResidentName: vi.fn(),
+    });
+
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => screen.getByText('Alice Smith'));
+
+    selectBuilding('AH — Alpha House');
+
+    fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   test('renders search input alongside building dropdown', async () => {

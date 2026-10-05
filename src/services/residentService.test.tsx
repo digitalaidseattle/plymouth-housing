@@ -11,6 +11,7 @@ import {
   getUnitNumbers,
   getResidents,
   findResident,
+  findResidentsByName,
   addResident,
   updateResident,
   getResidentsByBuilding,
@@ -156,6 +157,38 @@ describe('residentService', () => {
     });
   });
 
+  describe('findResidentsByName', () => {
+    const name = "John's Doe";
+
+    it('should find residents by name successfully', async () => {
+      const mockResidents = { value: [{ id: 1, name: "John's Doe" }] };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResidents),
+      });
+
+      const result = await findResidentsByName(user, name);
+      const safeName = name.replace(/'/g, "''");
+      const filter = encodeURIComponent(`name eq '${safeName}'`);
+
+      expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.RESIDENTS}?$filter=${filter}`, {
+        method: 'GET',
+        headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+      });
+      expect(result).toEqual(mockResidents);
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+      });
+
+      await expect(findResidentsByName(user, name)).rejects.toThrow('Error');
+    });
+  });
+
   describe('addResident', () => {
     const unitId = 1;
     const name = 'Jane Doe';
@@ -191,6 +224,7 @@ describe('residentService', () => {
   describe('updateResident', () => {
     const id = 1;
     const name = 'Alice Smyth';
+    const unitId = 10;
 
     it('should update a resident successfully', async () => {
       (fetch as Mock).mockResolvedValue({
@@ -199,12 +233,12 @@ describe('residentService', () => {
         json: () => Promise.resolve({ value: [{ id, name }] }),
       });
 
-      await updateResident(user, id, name);
+      await updateResident(user, id, name, unitId);
 
       expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.RESIDENTS}/id/${id}`, {
         method: 'PATCH',
         headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, unit_id: unitId }),
       });
     });
 
@@ -215,7 +249,7 @@ describe('residentService', () => {
         clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
-      await expect(updateResident(user, id, name)).rejects.toThrow('Error');
+      await expect(updateResident(user, id, name, unitId)).rejects.toThrow('Error');
     });
   });
 

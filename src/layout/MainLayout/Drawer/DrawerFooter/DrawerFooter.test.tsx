@@ -8,6 +8,7 @@ import { render, screen, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import DrawerFooter from './index';
+import { CATEGORIZED_ITEMS_UPDATED } from '../../../../services/itemsService';
 
 const cacheAgedBy = (milliseconds: number) => {
   sessionStorage.setItem(
@@ -67,5 +68,17 @@ describe('DrawerFooter', () => {
     });
 
     expect(screen.getByText('Inventory updated 2 minutes ago')).toBeInTheDocument();
+  });
+
+  test('updates as soon as the inventory cache is refreshed', () => {
+    render(<DrawerFooter />);
+    expect(screen.getByText('Inventory not loaded yet')).toBeInTheDocument();
+
+    act(() => {
+      cacheAgedBy(0);
+      window.dispatchEvent(new Event(CATEGORIZED_ITEMS_UPDATED));
+    });
+
+    expect(screen.getByText('Inventory updated just now')).toBeInTheDocument();
   });
 });

@@ -31,7 +31,6 @@ const VolunteerHome: React.FC = () => {
     handleClose: handleSnackbarClose,
   } = useSnackbar();
 
-  // The single inventory-cache refresh point; every role lands here on login and after checkout.
   useEffect(() => {
     if (!user) return;
     getCategorizedItems(user, true).catch((error) => {

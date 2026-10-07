@@ -5,8 +5,8 @@ import pytest
 @pytest.mark.regression
 @pytest.mark.serial
 @pytest.mark.parametrize("item", [
-    "Twin-size",
-    "Full-size"
+    "Twin-size Sheet Set",
+    "Full-size Sheet Set"
 ])
 def test_welcome_basket_over_limit(login_with_volunteer, checkout_page, home_page, item):
 

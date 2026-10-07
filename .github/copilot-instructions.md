@@ -31,6 +31,7 @@ Plymouth Housing's centralized inventory management system for tracking in-kind 
 ```bash
 npx swa start        # Start Azure SWA CLI locally (browse to http://localhost:4280; proxies to Vite on :3000)
 dab start -c ./dab/dab-config.json  # Start Data API Builder (backend API)
+./database/bootstrap_db.ps1 -SeedDemoData  # Rebuild a local DB with demo checkout history (see docs/database-setup.md)
 npm run build        # TypeScript compile + Vite build
 npm run lint         # Run ESLint
 npm test             # Run Vitest in watch mode
@@ -74,7 +75,18 @@ tests/               # End-to-end tests
 
 ## Code Style
 
-Only add comments if reading the code is insufficient.
+### Comments
+
+Only add comments if reading the code is insufficient. Default to none.
+
+- Never narrate what the code does, restate the diff, or explain why a change was
+  made. That belongs in the commit message or PR description, not the source.
+- Never address a comment to a reviewer.
+- Legitimate uses: a non-obvious constraint, a workaround plus its cause, an
+  invariant the types cannot express.
+- Prefer renaming or extracting a function over explaining in prose.
+- Keep it to one line unless the reason genuinely needs more.
+- Don't add or reflow comments in code you are only touching incidentally.
 
 ### TypeScript
 - Use **strict mode** (all strict checks enabled)

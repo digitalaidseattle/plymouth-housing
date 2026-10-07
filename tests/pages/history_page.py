@@ -7,10 +7,15 @@ from selenium.common.exceptions import (
     TimeoutException,
 )
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from tests.pages.base_page import BasePage
-from tests.utilities.locators import HistoryPageLocators, CommonLocators
+from tests.utilities.locators import (
+    CheckoutPageLocators,
+    CommonLocators,
+    HistoryPageLocators,
+)
 
 
 class HistoryPage(BasePage):
@@ -552,6 +557,16 @@ class HistoryPage(BasePage):
         )
 
         self.driver.execute_script("arguments[0].click();", edit_btn)
+
+        # Edit navigates to /checkout and re-renders the summary in editing
+        # mode. Wait for that view before returning: history cards do not
+        # contain item names, so a caller inspecting the page too early sees
+        # the history page and concludes the item is missing.
+        WebDriverWait(self.driver, 30).until(
+            EC.visibility_of_element_located(
+                CheckoutPageLocators.EDIT_SUMMARY_HEADER
+            )
+        )
 
         print("Edit transaction button clicked")
 

@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { Box, Typography, Stack } from '@mui/material';
@@ -13,9 +13,12 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import SnackbarAlert from '../../components/SnackbarAlert.tsx';
 import ActionCard from './ActionCard.tsx';
+import { UserContext } from '../../components/contexts/UserContext';
+import { getCategorizedItems } from '../../services/itemsService';
 
 const VolunteerHome: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const location = useLocation();
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -27,6 +30,13 @@ const VolunteerHome: React.FC = () => {
     showSnackbar,
     handleClose: handleSnackbarClose,
   } = useSnackbar();
+
+  useEffect(() => {
+    if (!user) return;
+    getCategorizedItems(user, true).catch((error) => {
+      console.error('Error refreshing categorized items:', error);
+    });
+  }, [user]);
 
   // Success/cancel message from CheckoutPage; absent on a plain visit.
   useEffect(() => {

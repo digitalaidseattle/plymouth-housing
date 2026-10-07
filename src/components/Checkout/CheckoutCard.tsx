@@ -58,6 +58,9 @@ const CheckoutCard = ({
   return (
     <Card
       key={item.name}
+      data-testid="checkout-item-row"
+      data-item-id={item.id}
+      data-item-name={item.name}
       variant="outlined"
       sx={{
         display: 'flex',

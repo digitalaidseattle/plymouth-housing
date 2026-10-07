@@ -86,7 +86,7 @@ export interface UserContextType {
   setActiveVolunteers: (activeVolunteers: User[]) => void;
   isLoading: boolean;
   pinVerified: boolean;
-  setPinVerified: (verified: boolean) => void;
+  setPinVerifiedForUserId: (userId: number | null) => void;
 }
 
 // BaseUser defines the common properties shared by all user types.
@@ -130,8 +130,10 @@ export type InventoryItem = {
   type: string;
   description: string;
   quantity: number;
+  threshold: number;
   category: string;
   status: string;
+  is_archived: boolean;
 };
 
 export type CategoryItem = {
@@ -150,6 +152,7 @@ export type AdminItem = {
   quantity: number;
   threshold: number;
   items_per_basket: number | null;
+  is_archived: boolean;
 };
 
 // ─── Location / Residents ─────────────────────────────────────────────────────
@@ -214,8 +217,7 @@ export type InventoryTransaction = {
   transaction_date: string;
   transaction_id: string;
   transaction_type:
-    | TransactionType.InventoryAdd
-    | TransactionType.InventoryReplaceValue;
+    TransactionType.InventoryAdd | TransactionType.InventoryReplaceValue;
   user_id: number;
 };
 
@@ -263,6 +265,43 @@ export type TransactionHistoryRow = {
   items: string; // JSON string, parsed to TransactionItem[]
 };
 
+export type RankedItem = {
+  item_name: string;
+  total_quantity: number;
+};
+
+export type CheckoutItemTotal = RankedItem & {
+  item_id: number;
+  checkout_count: number;
+};
+
+export type BuildingResidents = {
+  building_code: string;
+  residentCount: number;
+  visitCount: number;
+};
+
+export type FlaggedTransaction = CheckoutTransaction & {
+  isDuplicate: boolean;
+  visitCount: number;
+};
+
+export type AnalyticsSummary = {
+  residentsServed: number;
+  checkouts: number;
+  itemsCheckedOut: number;
+  activeDays: number;
+  avgCheckoutsPerActiveDay: number;
+  rangeDays: number;
+};
+
+export type AnalyticsRangeData = {
+  currentRows: CheckoutTransaction[];
+  previousRows: CheckoutTransaction[];
+  inventoryAdds: InventoryTransaction[];
+  previousInventoryAdds: InventoryTransaction[];
+};
+
 export type InventoryRow = {
   user_id: number;
   transaction_id: string;
@@ -302,7 +341,22 @@ export interface ApiConfig {
 
 // ─── Date Range ───────────────────────────────────────────────────────────────
 
-export type DatePreset = 'today' | 'yesterday' | 'this week' | 'custom';
+export type DatePreset =
+  | 'today'
+  | 'yesterday'
+  | 'this week'
+  | 'this month'
+  | 'this year'
+  | 'last year'
+  | 'last month'
+  | 'last 30 days'
+  | 'custom';
+
+// A range already serialized for the API: local midnight to local end of day.
+export type DateRangeStrings = {
+  startDate: string;
+  endDate: string;
+};
 
 export type DateRange = {
   startDate: Date;
@@ -325,3 +379,21 @@ export type EditState = {
   field: string | null;
   value: string | number;
 };
+
+// ─── Data Table ───────────────────────────────────────────────────────────────
+
+export type Column<T> = {
+  label: string;
+  align?: 'left' | 'right';
+  render: (row: T) => React.ReactNode;
+};
+
+// ─── CSV Export ───────────────────────────────────────────────────────────────
+
+export type CsvValue = string | number | null | undefined;
+
+export interface CsvSection {
+  title: string;
+  headers: string[];
+  rows: CsvValue[][];
+}

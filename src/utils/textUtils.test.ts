@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { pluralize, withCount, signNumber } from './textUtils';
+import { pluralize, withCount, signNumber, formatAge } from './textUtils';
 
 describe('pluralize', () => {
   test('returns singular form when count is 1', () => {
@@ -48,5 +48,19 @@ describe('signNumber', () => {
 
   test('returns "0" for zero', () => {
     expect(signNumber(0)).toBe('0');
+  });
+});
+
+describe('formatAge', () => {
+  test('returns "just now" under a minute', () => {
+    expect(formatAge(59 * 1000)).toBe('just now');
+  });
+
+  test('returns minutes under an hour', () => {
+    expect(formatAge(14 * 60 * 1000)).toBe('14 minutes ago');
+  });
+
+  test('returns whole hours from an hour up', () => {
+    expect(formatAge(3.5 * 60 * 60 * 1000)).toBe('3 hours ago');
   });
 });

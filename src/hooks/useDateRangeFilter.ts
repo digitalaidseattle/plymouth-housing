@@ -5,17 +5,19 @@
  *
  */
 import { useState, useMemo, useCallback } from 'react';
-import { formatDateRange, formatFullDate } from '../components/History/historyUtils';
+import {
+  formatDateRange,
+  formatFullDate,
+  getPresetDateRange,
+} from '../components/History/historyUtils';
 import { DatePreset, DateRange } from '../types/interfaces';
 
 export type { DatePreset };
 
 export function useDateRangeFilter() {
-  const todaysDate = new Date();
-  const [dateRange, setDateRange] = useState<DateRange>({
-    startDate: todaysDate,
-    endDate: todaysDate,
-  });
+  const [dateRange, setDateRange] = useState<DateRange>(() =>
+    getPresetDateRange('today'),
+  );
   const [dateInput, setDateInput] = useState<DatePreset>('today');
   const [showCustomDateDialog, setShowCustomDateDialog] = useState(false);
 
@@ -37,28 +39,9 @@ export function useDateRangeFilter() {
   );
 
   const handleDateSelection = useCallback((preset: DatePreset) => {
-    const todaysDate = new Date();
     setDateInput(preset);
-
-    if (preset === 'today') {
-      setDateRange({
-        startDate: todaysDate,
-        endDate: todaysDate,
-      });
-    } else if (preset === 'yesterday') {
-      const yesterday = new Date();
-      yesterday.setDate(todaysDate.getDate() - 1);
-      setDateRange({
-        startDate: yesterday,
-        endDate: yesterday,
-      });
-    } else if (preset === 'this week') {
-      const lastWeekDate = new Date();
-      lastWeekDate.setDate(todaysDate.getDate() - 7);
-      setDateRange({
-        startDate: lastWeekDate,
-        endDate: todaysDate,
-      });
+    if (preset !== 'custom') {
+      setDateRange(getPresetDateRange(preset));
     }
   }, []);
 

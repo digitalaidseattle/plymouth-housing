@@ -75,7 +75,7 @@ const mockUserContextValue = (
   activeVolunteers: [],
   setActiveVolunteers: vi.fn(),
   pinVerified,
-  setPinVerified: vi.fn(),
+  setPinVerifiedForUserId: vi.fn(),
 });
 
 const renderWithRouter = (contextValue: any, { route = '/' } = {}) => {

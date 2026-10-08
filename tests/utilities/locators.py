@@ -189,11 +189,22 @@ class CheckoutPageLocators:
 
     @staticmethod
     def get_add_button_locator(item_name):
+        """Find the catalogue item's increase button using stable test hooks."""
+        if "'" not in item_name:
+            item_literal = f"'{item_name}'"
+        elif '"' not in item_name:
+            item_literal = f'"{item_name}"'
+        else:
+            parts = item_name.split("'")
+            item_literal = "concat(" + ", \"'\", ".join(f"'{part}'" for part in parts) + ")"
+
         return (
             By.XPATH,
-            f"//p[@aria-label='{item_name}']"
-            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
-            f"/following-sibling::div//button"
+            "//*[@data-testid='checkout-item-row'"
+            f" and @data-item-name={item_literal}]"
+            "[not(ancestor::*[@role='dialog'"
+            " or @data-testid='checkout-summary-dialog'])]"
+            "//*[@data-testid='checkout-item-increase']",
         )
 
 class AddItemPageLocators:

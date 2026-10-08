@@ -1,5 +1,6 @@
 import time
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -271,15 +272,40 @@ class BasePage:
 
         This method intentionally re-fetches the input and option elements on
         every retry. MUI frequently re-renders listbox items, so keeping a saved
-        list of WebElements can cause stale element failures.
+        list of WebElements can cause stale element failures. Only enabled
+        role="option" elements are selected, excluding MUI group headings.
+        Dismiss open autocomplete menus before changing fields. Open the target
+        with the keyboard so a sticky group label cannot intercept a click.
+        After selection, blur the input and wait for all menus to close.
         """
         wait = self.get_wait(timeout)
         last_error = None
+        listbox_locator = (By.CSS_SELECTOR, ".MuiAutocomplete-popper [role='listbox']")
+
+        def menus_closed(driver):
+            try:
+                return not any(
+                    el.is_displayed()
+                    for el in driver.find_elements(*listbox_locator)
+                )
+            except StaleElementReferenceException:
+                return False
 
         for attempt in range(retries):
             try:
+                # Blur closes the old popup without sending Escape. Escape
+                # can reach the containing dialog after a popup has closed.
+                for opened in self.driver.find_elements(
+                    By.CSS_SELECTOR,
+                    "input[role='combobox'][aria-expanded='true']",
+                ):
+                    if opened.is_displayed():
+                        self.driver.execute_script("arguments[0].blur();", opened)
+                wait.until(menus_closed, "Previous autocomplete popup did not close")
+
                 input_el = wait.until(
-                    EC.element_to_be_clickable(input_locator)
+                    EC.element_to_be_clickable(input_locator),
+                    f"Autocomplete input not ready: {input_locator}",
                 )
 
                 self.driver.execute_script(
@@ -287,14 +313,17 @@ class BasePage:
                     input_el
                 )
 
-                input_el.click()
+                # Selenium focuses the input before sending this key. MUI's
+                # ArrowDown handler opens the list without a pointer click.
+                input_el.send_keys(Keys.ARROW_DOWN)
 
                 wait.until(
                     lambda d: (
                         d.find_element(*input_locator)
                         .get_attribute("aria-expanded")
                         == "true"
-                    )
+                    ),
+                    f"Autocomplete did not open after ArrowDown: {input_locator}",
                 )
 
                 def first_visible_option(driver):
@@ -304,7 +333,13 @@ class BasePage:
                         try:
                             text = el.text.strip()
 
-                            if el.is_displayed() and text:
+                            if (
+                                el.get_attribute("role") == "option"
+                                and el.get_attribute("aria-disabled") != "true"
+                                and el.is_displayed()
+                                and el.is_enabled()
+                                and text
+                            ):
                                 return el
 
                         except (
@@ -316,18 +351,18 @@ class BasePage:
                     return False
 
                 # Do not keep an old list of options. Return one fresh element.
-                first_option = wait.until(first_visible_option)
+                first_option = wait.until(
+                    first_visible_option,
+                    f"No visible enabled role=option found: {options_locator}",
+                )
                 selected_text = first_option.text.strip()
 
                 self.driver.execute_script(
-                    "arguments[0].scrollIntoView({block:'center'});",
-                    first_option
+                    "arguments[0].scrollIntoView({block:'nearest'});",
+                    first_option,
                 )
-
-                self.driver.execute_script(
-                    "arguments[0].click();",
-                    first_option
-                )
+                # Use the normal pointer event sequence expected by MUI.
+                first_option.click()
 
                 # Re-find the input after the option click because React/MUI can
                 # re-render it during selection.
@@ -335,12 +370,7 @@ class BasePage:
                     try:
                         current_input = driver.find_element(*input_locator)
                         value = (current_input.get_attribute("value") or "").strip()
-                        expanded = current_input.get_attribute("aria-expanded")
-
-                        return (
-                                value == selected_text
-                                or (value != "" and expanded == "false")
-                        )
+                        return value == selected_text
 
                     except (
                         StaleElementReferenceException,
@@ -348,23 +378,46 @@ class BasePage:
                     ):
                         return False
 
-                wait.until(selection_finished)
+                wait.until(
+                    selection_finished,
+                    f"Option selection did not update input {input_locator}; "
+                    f"expected {selected_text!r}",
+                )
 
-                try:
-                    current_input = wait.until(
-                        EC.presence_of_element_located(input_locator)
-                    )
-                    self.driver.execute_script(
-                        "arguments[0].blur();",
-                        current_input
-                    )
-                except (
-                    TimeoutException,
-                    StaleElementReferenceException,
-                    NoSuchElementException,
-                ):
-                    # Selection already succeeded; blur is only cleanup.
-                    pass
+                # A matching value before blur is not enough: an uncommitted
+                # autocomplete value may be cleared when focus moves away.
+                current_input = wait.until(
+                    EC.element_to_be_clickable(input_locator),
+                    f"Autocomplete input not ready: {input_locator}",
+                )
+                # The option click normally closes the popup. Do not send
+                # Escape here: it can close the resident-details dialog.
+                # Blur prevents openOnFocus from reopening the selected list.
+                self.driver.execute_script("arguments[0].blur();", current_input)
+
+                def dropdown_closed(driver):
+                    try:
+                        current = driver.find_element(*input_locator)
+                        options_visible = any(
+                            el.is_displayed()
+                            for el in driver.find_elements(*options_locator)
+                        )
+                        return (
+                            (current.get_attribute("value") or "").strip() == selected_text
+                            and current.get_attribute("aria-expanded") == "false"
+                            and not options_visible
+                            and menus_closed(driver)
+                        )
+                    except (
+                        StaleElementReferenceException,
+                        NoSuchElementException,
+                    ):
+                        return False
+
+                wait.until(
+                    dropdown_closed,
+                    f"Selection was cleared/changed after blur or popup stayed open: {input_locator}",
+                )
 
                 return selected_text
 
@@ -384,7 +437,7 @@ class BasePage:
         raise TimeoutException(
             f"Could not select autocomplete option for {input_locator}. "
             f"Last error: {last_error}"
-        )
+        ) from last_error
 
     # ---------------------------------------------------
     # Invisibility

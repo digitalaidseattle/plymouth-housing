@@ -118,6 +118,7 @@ class CheckOutPage(BasePage):
         return self.driver.execute_script(script, item_name)
 
     def _wait_for_item_action_button(self, item_name, timeout=25):
+        """Poll all button selectors together under one timeout."""
         wait = self.get_wait(timeout)
         target_xpath = self._case_insensitive_contains_xpath(item_name)
 
@@ -147,29 +148,29 @@ class CheckOutPage(BasePage):
             ),
         ]
 
-        last_error = None
+        def first_ready_button(driver):
+            # A missing first locator must not consume the full timeout before
+            # trying the remaining selectors. Re-fetch on every wait poll.
+            for locator in locators:
+                for button in driver.find_elements(*locator):
+                    try:
+                        if button.is_displayed() and button.is_enabled():
+                            return button
+                    except (NoSuchElementException, StaleElementReferenceException):
+                        continue
 
-        for locator in locators:
             try:
-                return wait.until(EC.element_to_be_clickable(locator))
-            except TimeoutException as err:
-                last_error = err
-                print(f"[WARN] Add button locator failed: {locator}")
+                button = self._find_item_action_button_with_js(item_name)
+                if button and button.is_displayed() and button.is_enabled():
+                    return button
+            except (NoSuchElementException, StaleElementReferenceException):
+                return False
 
-        try:
-            button = wait.until(
-                lambda d: self._find_item_action_button_with_js(item_name)
-            )
+            return False
 
-            if button:
-                return button
-
-        except TimeoutException as err:
-            last_error = err
-
-        raise TimeoutException(
-            f"Could not find enabled add button for item: {item_name}. "
-            f"Last error: {last_error}"
+        return wait.until(
+            first_ready_button,
+            f"Could not find enabled add button for item: {item_name}",
         )
 
     # ---------------------------------------------------
@@ -193,41 +194,32 @@ class CheckOutPage(BasePage):
     # ---------------------------------------------------
 
     def select_first_building_option(self):
-        for attempt in range(2):  # 1 normal + 1 retry
-            try:
-                self.click(self.locators.BUILDING_CODE)
-
-                options = self.get_wait(10).until(
-                    lambda d: [
-                        el for el in d.find_elements(*self.locators.BUILDING_OPTIONS)
-                        if el.is_displayed() and el.text.strip()
-                    ]
-                )
-
-                if options:
-                    self.driver.execute_script("arguments[0].click();", options[0])
-                    return
-
-            except TimeoutException:
-                print(f"⚠️ Building options not loaded (attempt {attempt + 1})")
-
-            if attempt == 0:
-                print("🔄 Refreshing page and retrying...")
-                self.driver.refresh()
-
-                self.get_wait(10).until(
-                    lambda d: len(d.find_elements(
-                        By.XPATH,
-                        "//*[contains(text(),'Provide Details')]"
-                    )) > 0
-                )
-
-        raise Exception("❌ Building options could not be loaded after retry")
+        """Select a building option and verify it remains selected after blur."""
+        self.select_from_autocomplete(
+            self.locators.BUILDING_CODE,
+            self.locators.BUILDING_OPTIONS,
+        )
 
     def select_first_unit_number(self):
+        """Select a unit only after a building has been selected."""
+        def building_selected(driver):
+            try:
+                building = driver.find_element(*self.locators.BUILDING_CODE)
+                return (
+                    bool((building.get_attribute("value") or "").strip())
+                    and building.get_attribute("aria-expanded") == "false"
+                )
+            except (NoSuchElementException, StaleElementReferenceException):
+                return False
+
+        self.get_wait(20).until(
+            building_selected,
+            "Building selection is empty or its popup is still open; "
+            "cannot select a unit",
+        )
         self.select_from_autocomplete(
             self.locators.UNIT_NUMBER,
-            self.locators.UNIT_OPTIONS
+            self.locators.UNIT_OPTIONS,
         )
 
     # ---------------------------------------------------

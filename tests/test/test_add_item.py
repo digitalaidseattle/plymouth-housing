@@ -5,7 +5,7 @@ import pytest
 class TestAddItem:
 
     @pytest.mark.parametrize('item, quantity', [
-        ('Baby Wipes', 5),
+        ('Disinfectant Wipes', 5),
     ])
     @pytest.mark.regression
     @pytest.mark.serial

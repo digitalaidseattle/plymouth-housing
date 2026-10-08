@@ -47,130 +47,31 @@ class CheckOutPage(BasePage):
             ")"
         )
 
-    def _find_item_action_button_with_js(self, item_name):
-        """
-        Find an enabled action/add button inside the item card.
-
-        MUI renders item cards with slightly different structures depending on
-        search results and item type. This JS fallback starts from the smallest
-        visible text/aria-label match, walks up to the nearest card-like root,
-        and returns the most likely enabled button.
-        """
-        script = """
-            const target = String(arguments[0] || '').trim().toLowerCase();
-            if (!target) return null;
-
-            const isVisible = (el) => {
-                if (!el) return false;
-                const style = window.getComputedStyle(el);
-                const rect = el.getBoundingClientRect();
-                return (
-                    style.visibility !== 'hidden' &&
-                    style.display !== 'none' &&
-                    rect.width > 0 &&
-                    rect.height > 0
-                );
-            };
-
-            const getText = (el) => (
-                el.getAttribute('aria-label') ||
-                el.innerText ||
-                el.textContent ||
-                ''
-            ).trim();
-
-            const candidates = Array.from(
-                document.querySelectorAll('[aria-label], p, h1, h2, h3, h4, h5, h6, span, div')
-            )
-                .filter((el) => isVisible(el))
-                .map((el) => ({ el, text: getText(el) }))
-                .filter(({ text }) => text && text.toLowerCase().includes(target))
-                .sort((a, b) => a.text.length - b.text.length);
-
-            for (const { el } of candidates) {
-                let root = el.closest('.MuiCard-root, [class*="MuiCard"], [class*="MuiStack-root"]');
-
-                while (root && root !== document.body) {
-                    const buttons = Array.from(root.querySelectorAll('button'))
-                        .filter((button) => !button.disabled && isVisible(button));
-
-                    if (buttons.length) {
-                        const preferred = buttons.find((button) => {
-                            const label = getText(button).toLowerCase();
-                            return (
-                                label.includes('add') ||
-                                label.includes('increase') ||
-                                label.includes('plus') ||
-                                label.includes('+')
-                            );
-                        });
-
-                        return preferred || buttons[buttons.length - 1];
-                    }
-
-                    root = root.parentElement;
-                }
-            }
-
-            return null;
-        """
-
-        return self.driver.execute_script(script, item_name)
 
     def _wait_for_item_action_button(self, item_name, timeout=25):
-        """Poll all button selectors together under one timeout."""
-        wait = self.get_wait(timeout)
-        target_xpath = self._case_insensitive_contains_xpath(item_name)
-
-        locators = [
-            self.locators.get_add_button_locator(item_name),
-            (
+        """Find only this product's enabled catalogue increase control."""
+        locator = (By.XPATH, self.catalogue_row_xpath(item_name)
+                   + "//*[@data-testid='checkout-item-increase']")
+        try:
+            return self.get_wait(timeout).until(EC.element_to_be_clickable(locator))
+        except TimeoutException as error:
+            rows = self.driver.find_elements(
                 By.XPATH,
-                (
-                    "//*[self::p or self::h6 or self::span or self::div]"
-                    f"[{target_xpath} or "
-                    f"contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), "
-                    f"{self._xpath_literal(item_name.lower())})]"
-                    "/ancestor::*[contains(@class,'MuiCard') or contains(@class,'MuiCard-root')][1]"
-                    "//button[not(@disabled)][last()]"
-                )
-            ),
-            (
-                By.XPATH,
-                (
-                    "//*[self::p or self::h6 or self::span or self::div]"
-                    f"[{target_xpath} or "
-                    f"contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), "
-                    f"{self._xpath_literal(item_name.lower())})]"
-                    "/ancestor::*[contains(@class,'MuiStack-root')][.//button][1]"
-                    "//button[not(@disabled)][last()]"
-                )
-            ),
-        ]
+                "//*[@data-testid='checkout-item-row' and "
+                "not(ancestor::*[@role='dialog' or @data-testid='checkout-summary-dialog'])]",
+            )
+            names = [row.get_attribute("data-item-name") for row in rows if row.is_displayed()]
+            raise TimeoutException(
+                f"No enabled catalogue add button for {item_name!r}. "
+                f"Visible item names: {names!r}. Check the item data and disabled state."
+            ) from error
 
-        def first_ready_button(driver):
-            # A missing first locator must not consume the full timeout before
-            # trying the remaining selectors. Re-fetch on every wait poll.
-            for locator in locators:
-                for button in driver.find_elements(*locator):
-                    try:
-                        if button.is_displayed() and button.is_enabled():
-                            return button
-                    except (NoSuchElementException, StaleElementReferenceException):
-                        continue
-
-            try:
-                button = self._find_item_action_button_with_js(item_name)
-                if button and button.is_displayed() and button.is_enabled():
-                    return button
-            except (NoSuchElementException, StaleElementReferenceException):
-                return False
-
-            return False
-
-        return wait.until(
-            first_ready_button,
-            f"Could not find enabled add button for item: {item_name}",
+    def catalogue_row_xpath(self, item_name):
+        """Exact product row outside all dialogs."""
+        return (
+            "//*[@data-testid='checkout-item-row'"
+            f" and @data-item-name={self._xpath_literal(item_name)}"
+            " and not(ancestor::*[@role='dialog' or @data-testid='checkout-summary-dialog'])]"
         )
 
     # ---------------------------------------------------
@@ -326,35 +227,16 @@ class CheckOutPage(BasePage):
     # ---------------------------------------------------
 
     def search_item(self, item_name, timeout=20):
+        """Verify the input value and wait for the actual product control."""
         wait = self.get_wait(timeout)
-
-        search_field = wait.until(
-            EC.visibility_of_element_located(self.locators.SEARCH)
-        )
-
-        wait.until(
-            EC.element_to_be_clickable(self.locators.SEARCH)
-        )
-
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block:'center'});",
-            search_field
-        )
-
+        search_field = wait.until(EC.element_to_be_clickable(self.locators.SEARCH))
+        self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", search_field)
         search_field.click()
         search_field.send_keys(Keys.CONTROL, "a")
         search_field.send_keys(Keys.BACKSPACE)
-
-        wait.until(lambda d: (search_field.get_attribute("value") or "") == "")
-        wait.until(lambda d: search_field.is_enabled())
-
-        search_field.send_keys(item_name)
-
-        wait.until(
-            lambda d: item_name.lower() in d.page_source.lower()
-        )
-
-        # Also wait until the matching item has an enabled action button.
+        wait.until(lambda d: (d.find_element(*self.locators.SEARCH).get_attribute("value") or "") == "")
+        self.driver.find_element(*self.locators.SEARCH).send_keys(item_name)
+        wait.until(lambda d: d.find_element(*self.locators.SEARCH).get_attribute("value") == item_name)
         self._wait_for_item_action_button(item_name, timeout=timeout)
 
     # ---------------------------------------------------
@@ -385,96 +267,92 @@ class CheckOutPage(BasePage):
 
         return selected_resident_name
 
-    def complete_welcome_basket_checkout(self):
-        item = "Twin-size Sheet Set"
-
+    def open_welcome_basket(self):
+        """Select the building and wait for its dialog to close."""
         self.click_checkout("welcome")
+        self.select_first_building_option()
+        self.click_continue_button()
+        self.get_wait(30).until(EC.invisibility_of_element_located(self.locators.BUILDING_CODE))
+        self.get_wait(20).until(EC.visibility_of_element_located((By.ID, "Welcome Basket")))
+        self.get_wait(20).until(EC.visibility_of_element_located((
+            By.XPATH, "//*[@data-testid='checkout-item-row' and "
+            "not(ancestor::*[@role='dialog'])]",
+        )))
 
-        self.select_from_autocomplete(
-            self.locators.BUILDING_CODE,
-            self.locators.BUILDING_OPTIONS
-        )
+    def complete_welcome_checkout(self, item_name, quantity=1):
+        """Complete a normal basket checkout after open_welcome_basket."""
+        self.set_quantity(quantity, item_name)
+        self.click_proceed_to_checkout()
+        self.wait_for_visibility(self.locators.SUMMARY_HEADER, timeout=15)
+        self.click_confirm()
 
-        continue_btn = self.wait_for_clickable(self.locators.CONTINUE_BUTTON)
-        self.driver.execute_script("arguments[0].click();", continue_btn)
+    def handle_limit_popup(self):
+        """Return from the limit confirmation to the summary without submitting."""
+        button = self.wait_for_clickable((By.ID, "checkout-dialog-return-to-summary-btn"))
+        button.click()
+        self.wait_for_visibility(self.locators.SUMMARY_HEADER, timeout=15)
 
-        self.get_wait(15).until(
-            EC.invisibility_of_element_located(self.locators.LOADING_SPINNER)
-        )
-
-        plus_locator = (
-            By.XPATH,
-            (
-                f"//p[@aria-label='{item}']"
-                "/ancestor::div[contains(@class,'MuiCard')]"
-                "//button[last()]"
-            )
-        )
-
-        self.get_wait(15).until(
-            EC.element_to_be_clickable(plus_locator)
-        )
-
+    def complete_welcome_basket_checkout(self):
+        """Exercise basket limit recovery and complete checkout at quantity five."""
+        item = "Twin-size Sheet Set"
+        self.open_welcome_basket()
         self.set_quantity(6, item)
-
-        proceed_btn = self.wait_for_clickable(self.locators.PROCEED_TO_CHECKOUT)
-        self.driver.execute_script("arguments[0].click();", proceed_btn)
-
-        self.get_wait(15).until(
-            lambda d: d.find_elements(
-                By.XPATH,
-                "//*[contains(text(),'Checkout Summary')]"
-            )
-        )
-
-        if self.is_visible((By.XPATH, "//*[contains(text(),'Over the usual category limit')]")):
-            ok_btn = self.wait_for_clickable(
-                (By.XPATH, "//button[contains(text(),'Staff Said It Is Ok')]")
-            )
-            self.driver.execute_script("arguments[0].click();", ok_btn)
-            self.get_wait(10).until(
-                EC.invisibility_of_element_located(
-                    (By.XPATH, "//*[contains(text(),'Over the usual category limit')]")
-                )
-            )
-
+        self.click_proceed_to_checkout()
+        self.wait_for_visibility(self.locators.SUMMARY_HEADER, timeout=15)
+        self.click_confirm()
+        self.handle_limit_popup()
         self.set_quantity(5, item)
-
-        confirm_btn = self.wait_for_clickable(self.locators.CONFIRM)
-        self.driver.execute_script("arguments[0].click();", confirm_btn)
+        self.click_confirm()
 
     def set_quantity(self, target, item_name):
-        quantity_locator = (
-            By.XPATH,
-            (
-                f"//div[contains(.,'{item_name}')]"
-                "/ancestor::div[contains(@class,'MuiCard')]"
-                "//p[@data-testid='test-id-quantity']"
-            )
-        )
+        """Set an exact quantity in the visible summary or catalogue row."""
+        if not isinstance(target, int) or target < 0:
+            raise ValueError("Quantity must be a non-negative integer")
+        in_summary = any(el.is_displayed() for el in self.driver.find_elements(
+            By.CSS_SELECTOR, "[data-testid='checkout-summary-dialog']"
+        ))
+        row_xpath = self.summary_row_xpath(item_name) if in_summary else self.catalogue_row_xpath(item_name)
+        row_locator = (By.XPATH, row_xpath)
+        self.get_wait(15).until(EC.visibility_of_element_located(row_locator))
 
-        def get_qty():
+        def read_current(driver):
             try:
-                el = self.driver.find_element(*quantity_locator)
-                return int(el.text.strip())
-            except (NoSuchElementException, ValueError):
-                return 0
+                rows = driver.find_elements(*row_locator)
+                row = next((row for row in rows if row.is_displayed()), None)
+                if row is None:
+                    return None
+                values = row.find_elements(By.CSS_SELECTOR, "[data-testid='test-id-quantity']")
+                if not values:
+                    return 0 if not in_summary else None
+                text = values[0].text.strip()
+                return int(text) if text.isdigit() else None
+            except StaleElementReferenceException:
+                return None
 
-        for _ in range(10):
-            current = get_qty()
-            print("🔥 Current qty:", current)
+        found = {}
+        def readable(driver):
+            value = read_current(driver)
+            if value is None:
+                return False
+            found['value'] = value
+            return True
 
-            if current == target:
-                return
-
-            if current < target:
-                self.click_plus_button(item_name)
+        self.get_wait(15).until(readable)
+        current = found['value']
+        for _ in range(abs(target - current)):
+            direction = 1 if target > current else -1
+            hook = 'checkout-item-increase' if direction > 0 else 'checkout-item-decrease'
+            button = self.get_wait(15).until(EC.element_to_be_clickable((
+                By.XPATH, row_xpath + f"//*[@data-testid='{hook}']"
+            )))
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", button)
+            button.click()
+            expected = current + direction
+            if expected == 0 and in_summary:
+                self.get_wait(15).until(EC.invisibility_of_element_located(row_locator))
             else:
-                self.click_minus_button(item_name)
-
-            self.wait(0.5)
-
-        raise AssertionError(f"❌ Quantity not set. Current: {get_qty()}")
+                self.get_wait(15).until(lambda d: read_current(d) == expected)
+            current = expected
 
     def summary_row_xpath(self, item_name):
         """
@@ -711,17 +589,10 @@ class CheckOutPage(BasePage):
         self.driver.execute_script("arguments[0].click();", btn)
 
     def click_minus_button(self, item_name):
-        locator = (
-            By.XPATH,
-            (
-                f"//div[contains(.,'{item_name}')]"
-                "/ancestor::div[contains(@class,'MuiCard')]"
-                "//button[1]"
-            )
-        )
-
-        btn = self.get_wait(10).until(
-            EC.element_to_be_clickable(locator)
-        )
-
-        self.driver.execute_script("arguments[0].click();", btn)
+        """Click the selected catalogue item's decrease control."""
+        button = self.get_wait(10).until(EC.element_to_be_clickable((
+            By.XPATH, self.catalogue_row_xpath(item_name)
+            + "//*[@data-testid='checkout-item-decrease']",
+        )))
+        self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", button)
+        button.click()

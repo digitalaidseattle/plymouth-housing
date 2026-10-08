@@ -20,7 +20,7 @@ class TestCheckout:
 
     @pytest.mark.parametrize("item", [
         "Curtains",
-        "Baby Wipes"
+        "Disinfectant Wipes"
     ])
     def test_checkout(self, checkout_page, home_page, item):
 

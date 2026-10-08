@@ -1,12 +1,9 @@
-from selenium.webdriver.common.by import By
 import pytest
 
 
 @pytest.mark.regression
 @pytest.mark.serial
-@pytest.mark.parametrize("item", [
-    "Twin-size",
-    "Full-size"])
+@pytest.mark.parametrize("item", ["Twin-size Sheet Set", "Full-size sheet set"])
 def test_welcome_basket_checkout(login_with_volunteer, checkout_page, home_page, item):
     """
     Test: Welcome Basket Checkout Flow (End-to-End)
@@ -31,14 +28,10 @@ def test_welcome_basket_checkout(login_with_volunteer, checkout_page, home_page,
     """
     home_page.wait_for_homepage_loaded()
     home_page.verify_volunteer_home_header()
-
     checkout_page.open_welcome_basket()
-
     checkout_page.complete_welcome_checkout(item, 1)
-
     home_page.wait_for_homepage_loaded()
     home_page.verify_volunteer_home_header()
-
     assert home_page.get_wait(10).until(
         lambda d: "checked out" in d.page_source.lower()
-    )
+    ), f"Checkout failed for {item}"

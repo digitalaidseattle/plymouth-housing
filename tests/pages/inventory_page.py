@@ -1,7 +1,7 @@
 import pytest
 import logging
 
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -22,7 +22,8 @@ class InventoryPage(BasePage):
 
     # BASIC INVENTORY METHODS
     def get_inventory(self, item: str) -> str:
-        locator = self.locators.get_inventory_locator(item)
+        locator = (By.XPATH, "//*[@id='inventory-container']//tr[td[1][normalize-space(.)="
+                   + self._xpath_literal(item) + "]] /td[6]")
         return self.get_text(locator, timeout=90)
 
     def get_inventory_quantity(self, item: str) -> int:
@@ -32,7 +33,8 @@ class InventoryPage(BasePage):
         Raises clean error if value is non-numeric.
         """
 
-        xpath = f"//td[normalize-space()='{item}']/following-sibling::td[5]"
+        xpath = ("//*[@id='inventory-container']//tr[td[1][normalize-space(.)="
+                 + self._xpath_literal(item) + "]]/td[6]")
 
         try:
             # Wait for cell presence
@@ -66,39 +68,62 @@ class InventoryPage(BasePage):
             )
 
     # SEARCH METHODS
-    def search_item(self, item_name: str):
-        search_field = WebDriverWait(self.driver, 20).until(
-            EC.element_to_be_clickable(self.locators.SEARCH)
-        )
+    @staticmethod
+    def _xpath_literal(value):
+        if "'" not in value:
+            return f"'{value}'"
 
-        self.scroll_into_view(self.locators.SEARCH)
-        search_field.clear()
-        search_field.send_keys(item_name)
+        if '"' not in value:
+            return f'"{value}"'
+
+        parts = value.split("'")
+        return "concat(" + ", \"'\", ".join(f"'{part}'" for part in parts) + ")"
+
+    def search_item(self, item_name: str):
+        """Replace the React search value and verify the entered query."""
+        wait = WebDriverWait(self.driver, 20)
+        search_field = wait.until(EC.element_to_be_clickable(self.locators.SEARCH))
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", search_field
+        )
+        search_field.click()
+        search_field.send_keys(Keys.CONTROL, "a")
+        search_field.send_keys(Keys.BACKSPACE)
+        wait.until(lambda d: (d.find_element(*self.locators.SEARCH).get_attribute("value") or "") == "")
+        self.driver.find_element(*self.locators.SEARCH).send_keys(item_name)
+        wait.until(lambda d: d.find_element(*self.locators.SEARCH).get_attribute("value") == item_name)
 
     def wait_for_search_results(self, item_name: str):
+        """Match nested product-name text in the inventory's first column."""
         xpath = (
-            f"//tr[td[contains(translate(text(),"
-            f"'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),"
-            f"'{item_name.lower()}')]]"
+            "//*[@id='inventory-container']//tr[td[1][contains("
+            "translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', "
+            "'abcdefghijklmnopqrstuvwxyz'), "
+            f"{self._xpath_literal(item_name.lower())})]]"
         )
 
-        for attempt in range(1, 3):
+        def visible_match(driver):
+            for row in driver.find_elements(By.XPATH, xpath):
+                try:
+                    if row.is_displayed():
+                        return row
+                except StaleElementReferenceException:
+                    continue
+            return False
+
+        for attempt in range(2):
             try:
-                logger.info(f"Search attempt {attempt} for '{item_name}'")
-
-                WebDriverWait(self.driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, xpath))
-                )
+                WebDriverWait(self.driver, 10).until(visible_match)
                 return
-
             except TimeoutException:
-                logger.warning(
-                    f"Search attempt {attempt} failed for '{item_name}' — retrying..."
-                )
-                self.search_item(item_name)
+                if attempt == 0:
+                    self.search_item(item_name)
 
+        names = [cell.text.strip() for cell in self.driver.find_elements(
+            By.XPATH, "//*[@id='inventory-container']//tr[td]/td[1]"
+        ) if cell.is_displayed()]
         raise AssertionError(
-            f"'{item_name}' not found in inventory table after retries."
+            f"{item_name!r} not found in inventory search. Visible results: {names!r}"
         )
 
     # LOADING HANDLING
@@ -111,33 +136,8 @@ class InventoryPage(BasePage):
 
     # DEFENSIVE SEARCH (STABILIZED)
     def second_search_item(self, item_name: str):
-
-        search_field = WebDriverWait(self.driver, 20).until(
-            EC.element_to_be_clickable(self.locators.SEARCH)
-        )
-
-        # Ensure field in view
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", search_field
-        )
-
-        # Try clear icon
-        try:
-            clear_icon = WebDriverWait(self.driver, 2).until(
-                EC.visibility_of_element_located(self.locators.CLEAR_ICON)
-            )
-            clear_icon.click()
-        except (NoSuchElementException, TimeoutException):
-            logger.debug("Clear icon not available — fallback to manual clearing")
-
-        # Defensive clear
-        search_field.send_keys(Keys.CONTROL + "a")
-        search_field.send_keys(Keys.DELETE)
-
-        if search_field.get_attribute("value").strip() != "":
-            search_field.clear()
-
-        search_field.send_keys(item_name)
+        """Use the same verified search replacement for subsequent queries."""
+        self.search_item(item_name)
 
     # STATUS FILTER METHODS
     def click_status(self):

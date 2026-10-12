@@ -10,7 +10,7 @@ updates:
     # one PR per kind of update.
     groups:
       # Minor version bumps, batched into a single monthly PR. Patch bumps are
-      # ignored below; the auto-merge workflow merges this PR once CI passes.
+      # ignored below.
       npm-minor:
         applies-to: version-updates
         patterns:

@@ -130,6 +130,7 @@ export type InventoryItem = {
   type: string;
   description: string;
   quantity: number;
+  threshold: number;
   category: string;
   status: string;
   is_archived: boolean;
@@ -216,8 +217,7 @@ export type InventoryTransaction = {
   transaction_date: string;
   transaction_id: string;
   transaction_type:
-    | TransactionType.InventoryAdd
-    | TransactionType.InventoryReplaceValue;
+    TransactionType.InventoryAdd | TransactionType.InventoryReplaceValue;
   user_id: number;
 };
 
@@ -265,6 +265,43 @@ export type TransactionHistoryRow = {
   items: string; // JSON string, parsed to TransactionItem[]
 };
 
+export type RankedItem = {
+  item_name: string;
+  total_quantity: number;
+};
+
+export type CheckoutItemTotal = RankedItem & {
+  item_id: number;
+  checkout_count: number;
+};
+
+export type BuildingResidents = {
+  building_code: string;
+  residentCount: number;
+  visitCount: number;
+};
+
+export type FlaggedTransaction = CheckoutTransaction & {
+  isDuplicate: boolean;
+  visitCount: number;
+};
+
+export type AnalyticsSummary = {
+  residentsServed: number;
+  checkouts: number;
+  itemsCheckedOut: number;
+  activeDays: number;
+  avgCheckoutsPerActiveDay: number;
+  rangeDays: number;
+};
+
+export type AnalyticsRangeData = {
+  currentRows: CheckoutTransaction[];
+  previousRows: CheckoutTransaction[];
+  inventoryAdds: InventoryTransaction[];
+  previousInventoryAdds: InventoryTransaction[];
+};
+
 export type InventoryRow = {
   user_id: number;
   transaction_id: string;
@@ -309,9 +346,17 @@ export type DatePreset =
   | 'yesterday'
   | 'this week'
   | 'this month'
+  | 'this year'
+  | 'last year'
   | 'last month'
   | 'last 30 days'
   | 'custom';
+
+// A range already serialized for the API: local midnight to local end of day.
+export type DateRangeStrings = {
+  startDate: string;
+  endDate: string;
+};
 
 export type DateRange = {
   startDate: Date;
@@ -334,3 +379,21 @@ export type EditState = {
   field: string | null;
   value: string | number;
 };
+
+// ─── Data Table ───────────────────────────────────────────────────────────────
+
+export type Column<T> = {
+  label: string;
+  align?: 'left' | 'right';
+  render: (row: T) => React.ReactNode;
+};
+
+// ─── CSV Export ───────────────────────────────────────────────────────────────
+
+export type CsvValue = string | number | null | undefined;
+
+export interface CsvSection {
+  title: string;
+  headers: string[];
+  rows: CsvValue[][];
+}

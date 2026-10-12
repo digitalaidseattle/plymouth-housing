@@ -16,6 +16,7 @@ import { getRole } from '../utils/userUtils';
 import { apiRequest } from './apiRequest';
 
 const CATEGORIZED_ITEMS_KEY = 'categorizedItems';
+export const CATEGORIZED_ITEMS_UPDATED = 'categorizedItemsUpdated';
 
 export function getCategorizedItemsTimestamp(): number | null {
   return cacheTimestamp(CATEGORIZED_ITEMS_KEY);
@@ -36,6 +37,7 @@ export async function getCategorizedItems(
       role: getRole(user),
     });
     cacheSet(CATEGORIZED_ITEMS_KEY, result.value);
+    window.dispatchEvent(new Event(CATEGORIZED_ITEMS_UPDATED));
     return result.value;
   } catch (error) {
     console.error('Error fetching categorized items:', error);

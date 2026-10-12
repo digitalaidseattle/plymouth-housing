@@ -6,19 +6,15 @@
  */
 import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
-import { getCategorizedItemsTimestamp } from '../../../../services/itemsService';
-import { withCount } from '../../../../utils/textUtils';
+import {
+  CATEGORIZED_ITEMS_UPDATED,
+  getCategorizedItemsTimestamp,
+} from '../../../../services/itemsService';
+import { formatAge } from '../../../../utils/textUtils';
 
 // ==============================|| DRAWER FOOTER ||============================== //
 
 const TICK_INTERVAL = 30 * 1000;
-
-const formatAge = (milliseconds: number): string => {
-  const minutes = Math.floor(milliseconds / 60000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${withCount(minutes, 'minute')} ago`;
-  return `${withCount(Math.floor(minutes / 60), 'hour')} ago`;
-};
 
 const inventoryLabel = (): string => {
   const cachedAt = getCategorizedItemsTimestamp();
@@ -33,12 +29,29 @@ const DrawerFooter = () => {
     const update = () => setLabel(inventoryLabel());
     update();
     const interval = window.setInterval(update, TICK_INTERVAL);
-    return () => window.clearInterval(interval);
+    window.addEventListener(CATEGORIZED_ITEMS_UPDATED, update);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener(CATEGORIZED_ITEMS_UPDATED, update);
+    };
   }, []);
 
   return (
-    <Box sx={{ mt: 'auto', px: 3, py: 2 }}>
-      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+    <Box
+      sx={{
+        mt: 'auto',
+        pl: '28px',
+        pr: 2,
+        py: 2,
+        borderTop: 1,
+        borderColor: 'divider',
+      }}
+    >
+      <Typography
+        variant="caption"
+        component="p"
+        sx={{ color: 'text.secondary', whiteSpace: 'normal' }}
+      >
         {label}
       </Typography>
     </Box>

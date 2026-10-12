@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start DAB",
+      "type": "shell",
+      "command": "dab start -c ./dab/dab-config.json",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "reveal": "always" },
+      "runOptions": { "runOn": "folderOpen" }
+    },
+    {
+      "label": "Start app",
+      "type": "shell",
+      "command": "npx swa start",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "reveal": "always" },
+      "runOptions": { "runOn": "folderOpen" }
+    }
+  ]
+}

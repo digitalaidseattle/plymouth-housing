@@ -1,0 +1,52 @@
+{
+  "name": "Plymouth Housing",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/plymouth-housing",
+  "shutdownAction": "stopCompose",
+  "remoteUser": "root",
+  "updateRemoteUserUID": false,
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "8.0"
+    },
+    "ghcr.io/devcontainers/features/powershell:1": {
+      "modules": "SqlServer"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/root/.dotnet/tools"
+  },
+  "postCreateCommand": "npm ci && dotnet tool install -g Microsoft.DataApiBuilder --version 1.5.56 && .devcontainer/init-db.sh",
+  "waitFor": "postCreateCommand",
+  "forwardPorts": [4280, 5000, "sql:1433"],
+  "portsAttributes": {
+    "4280": { "label": "App", "onAutoForward": "notify" },
+    "5000": { "label": "DAB", "onAutoForward": "silent" },
+    "3000": { "label": "Vite (use 4280)", "onAutoForward": "ignore" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-mssql.mssql"
+      ],
+      "settings": {
+        "mssql.connections": [
+          {
+            "profileName": "Plymouth local",
+            "server": "sql",
+            "database": "Inventory",
+            "authenticationType": "SqlLogin",
+            "user": "sa",
+            "password": "Plymouth-Local-Dev-1",
+            "savePassword": true,
+            "trustServerCertificate": true
+          }
+        ]
+      }
+    }
+  }
+}

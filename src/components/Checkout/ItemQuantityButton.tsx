@@ -41,6 +41,7 @@ const ItemQuantityButton = ({
       {foundInCart ? (
         <>
           <IconButton
+            data-testid="checkout-item-decrease"
             sx={{
               backgroundColor: '#E8E8E8',
               width: { xs: '40px', lg: '30px' },
@@ -62,6 +63,7 @@ const ItemQuantityButton = ({
         </>
       ) : null}
       <IconButton
+        data-testid="checkout-item-increase"
         sx={{
           backgroundColor: '#E8E8E8',
           width: { xs: '40px', lg: '30px' },

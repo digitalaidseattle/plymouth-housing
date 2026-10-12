@@ -40,23 +40,26 @@ class HistoryPageLocators:
     # Edit/History are scoped to the dialog so the "History" accordion
     # cannot collide with the sidebar History nav item.
     TRANSACTION_DETAILS_DIALOG = (
-        By.CSS_SELECTOR,
-        "[role='dialog']"
+        By.XPATH,
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
     )
 
     DIALOG_CLOSE_BUTTON = (
-        By.CSS_SELECTOR,
-        "[role='dialog'] button[aria-label='Close dialog']"
+        By.XPATH,
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
+        "//*[@data-testid='dialog-close-btn']"
     )
 
     EDIT_BUTTON = (
         By.XPATH,
-        "//*[@role='dialog']//button[normalize-space()='Edit']"
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
+        "//*[@data-testid='dialog-submit-btn']"
     )
 
     HISTORY_ACCORDION = (
         By.XPATH,
-        "//*[@role='dialog']//button[normalize-space()='History']"
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
+        "//*[@data-testid='transaction-details-history']"
     )
 
 class HomePageLocators:
@@ -131,35 +134,39 @@ class CheckoutPageLocators:
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "continue")]')
 
     PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "proceed to checkout")]')
-    CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
+    CONFIRM = (
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-dialog-confirm-btn']"
+    )
 
     SEARCH = (By.XPATH, "//input[@type='search']")
 
     # modal header
-    SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
+    SUMMARY_HEADER = (
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-summary-title']"
+    )
 
     # ---------------------------------------------------
     # Edit mode (Checkout Summary opened from History > Edit)
     # ---------------------------------------------------
 
     EDIT_SUMMARY_HEADER = (
-        By.XPATH,
-        "//*[@role='dialog']"
-        "//*[contains(normalize-space(),'Checkout Summary (Editing)')]"
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'][data-edit-mode='true'] "
+        "[data-testid='checkout-summary-title']"
     )
 
     # One button carries both states: it reads "No changes" and is
     # disabled until an edit is made, then becomes "Save changes".
     SAVE_CHANGES_BUTTON = (
-        By.XPATH,
-        "//*[@role='dialog']//button["
-        "normalize-space()='Save changes'"
-        " or normalize-space()='No changes']"
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-dialog-save-btn']"
     )
 
     EDIT_CANCEL_BUTTON = (
-        By.ID,
-        "checkout-dialog-cancel-edit-btn"
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-dialog-cancel-edit-btn']"
     )
 
     # over limit warning
@@ -182,11 +189,22 @@ class CheckoutPageLocators:
 
     @staticmethod
     def get_add_button_locator(item_name):
+        """Find the catalogue item's increase button using stable test hooks."""
+        if "'" not in item_name:
+            item_literal = f"'{item_name}'"
+        elif '"' not in item_name:
+            item_literal = f'"{item_name}"'
+        else:
+            parts = item_name.split("'")
+            item_literal = "concat(" + ", \"'\", ".join(f"'{part}'" for part in parts) + ")"
+
         return (
             By.XPATH,
-            f"//p[@aria-label='{item_name}']"
-            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
-            f"/following-sibling::div//button"
+            "//*[@data-testid='checkout-item-row'"
+            f" and @data-item-name={item_literal}]"
+            "[not(ancestor::*[@role='dialog'"
+            " or @data-testid='checkout-summary-dialog'])]"
+            "//*[@data-testid='checkout-item-increase']",
         )
 
 class AddItemPageLocators:

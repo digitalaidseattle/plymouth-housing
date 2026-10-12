@@ -40,6 +40,7 @@ export const ENDPOINTS = {
   PROCESS_INVENTORY_RESET_QUANTITY:
     API_PREFIX + '/process-inventory-reset-quantity',
   GET_CHECKOUT_HISTORY: API_PREFIX + '/get-checkout-history',
+  GET_CHECKOUT_ITEM_TOTALS: API_PREFIX + '/get-checkout-item-totals',
   GET_INVENTORY_HISTORY: API_PREFIX + '/get-inventory-history',
   GET_LAST_RESIDENT_VISIT: API_PREFIX + '/get-last-resident-visit',
   GET_TRANSACTION: API_PREFIX + '/get-transaction',
@@ -51,6 +52,7 @@ export const ENDPOINTS = {
 
 export const SETTINGS = {
   itemsPerPage: 15,
+  analyticsItemsPerPage: 10,
   rowsPerPageOptions: [10, 15, 25, 50, 100],
   checkout_item_limit: 10,
   api_fetch_limit_items: 10000,
@@ -59,8 +61,11 @@ export const SETTINGS = {
   database_retry_attempts: 20,
   database_retry_delay: 5000,
   slow_request_threshold: 1000,
-  inactivity_timeout: 15 * 60 * 1000, // 15 minutes in milliseconds
+  inactivity_timeout: import.meta.env.DEV
+    ? 8 * 60 * 60 * 1000 // 8 hours in milliseconds
+    : 15 * 60 * 1000, // 15 minutes in milliseconds
   cache_ttl: 12 * 60 * 60 * 1000, // 12 hours in milliseconds
+  analytics_cache_ttl: 60 * 60 * 1000, // 1 hour in milliseconds
 };
 
 export const USER_ROLES = {

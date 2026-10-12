@@ -176,6 +176,22 @@ You can use an Azure SQL database for development as well. It is not recommended
 1. Add your local IP to the **Security/Networking** section of the Azure SQL Server (not the database).  
 1. Test the connection by adding it to the VS Code SQL Server extension.
 
+## Demo Data
+
+The Admin Analytics page is blank on a fresh database, there are no transactions to chart. `-SeedDemoData` fills a local database with a year of fake checkout history so the page has something to show.
+
+```powershell
+$env:DATABASE_CONNECTION_STRING = 'Server=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'
+.\database\bootstrap_db.ps1 -SeedDemoData
+```
+
+You get about 60 residents across 12 buildings and 500 checkouts over the last 365 days, plus edits, restocks and corrections. Re-running clears the old demo data first. Volumes are the constants at the top of `database/data_seed/analytics_demo_data.sql`.
+
+Two things to know:
+
+1. **Local only.** Nothing stops you pointing it at staging, and `bootstrap_db.ps1` drops the database before it seeds, so check your connection string. Staging and prod go through the Azure Portal instead, see [schema-migration.md](schema-migration.md).
+1. **Stock counts are left alone.** The seeded checkouts don't come out of `Items.quantity`, so the numbers on hand won't tie out against the history.
+
 ## Production/Staging
 
 1. Create an Azure SQL database in the Azure portal. General Purpose, Serverless is most likely sufficient for our needs. The steps are outlined [here](https://learn.microsoft.com/en-us/azure/static-web-apps/database-azure-sql?tabs=bash&pivots=static-web-apps-rest)

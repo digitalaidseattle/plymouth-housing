@@ -5,12 +5,27 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
-    # Bundle all surviving updates into a single PR per run to cut noise.
-    # Dependabot applies `ignore` first, then groups whatever remains.
+    # Every Dependabot PR rewrites package-lock.json, so separate PRs conflict
+    # with each other as soon as one merges. Groups keep the routine traffic to
+    # one PR per kind of update.
     groups:
-      npm-dependencies:
+      # Minor version bumps, batched into a single monthly PR. Patch bumps are
+      # ignored below; the auto-merge workflow merges this PR once CI passes.
+      npm-minor:
+        applies-to: version-updates
         patterns:
           - "*"
+        update-types:
+          - "minor"
+      # Security fixes are not covered by version-update groups, so without
+      # this each advisory opens its own PR.
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      # Major bumps are deliberately not grouped: each one opens its own PR to
+      # review or ignore on its own. Bundling them with routine bumps let
+      # TypeScript 7 and vitest 5 break install and CI in #634.
     # Ignore patch updates (e.g., 1.0.0 -> 1.0.1)
     # This allows: major updates, minor updates, and security updates
     ignore:
@@ -25,4 +40,8 @@ updates:
       - dependency-name: "react-router"
         update-types: ["version-update:semver-major"]
       - dependency-name: "react-router-dom"
+        update-types: ["version-update:semver-major"]
+      # typescript-eslint 8.x requires typescript <6.1.0, so 7.x fails npm
+      # install. Lift once typescript-eslint supports TypeScript 7.
+      - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]

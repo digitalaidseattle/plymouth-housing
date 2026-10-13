@@ -1,15 +1,15 @@
 /**
- *  index.test.tsx
+ * index.test.tsx
  *
- *  @copyright 2026 Digital Aid Seattle
+ * @copyright 2026 Digital Aid Seattle
  *
  */
+import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import ResidentsPage from './index';
 import { UserContext } from '../../components/contexts/UserContext';
-import React from 'react';
 
 vi.mock('../../services/residentService', () => ({
   getBuildings: vi.fn().mockResolvedValue([
@@ -17,6 +17,8 @@ vi.mock('../../services/residentService', () => ({
     { id: 2, name: 'Beta House', code: 'BH' },
   ]),
   getAllResidents: vi.fn().mockResolvedValue([]),
+  findResidentsByName: vi.fn(),
+  mergeResidents: vi.fn(),
 }));
 
 vi.mock('./useResidentsByBuilding', () => ({
@@ -59,6 +61,57 @@ vi.mock('./ResidentEditDialog', () => ({
           Save
         </button>
         <button onClick={onCancel}>Cancel</button>
+      </div>
+    ) : null,
+}));
+
+vi.mock('./ResidentDuplicateDialog', () => ({
+  default: ({
+    showDialog,
+    pendingEdit,
+    matchingResidents,
+    handleClose,
+    onAnotherPerson,
+    onMergeResidents,
+    isSubmitting,
+  }: {
+    showDialog: boolean;
+    pendingEdit: { name: string };
+    matchingResidents: {
+      id: number;
+      name: string;
+      building_code: string;
+      unit_number: string | number;
+    }[];
+    handleClose: () => void;
+    onAnotherPerson: () => Promise<void>;
+    onMergeResidents: (targetResidentId: number) => Promise<void>;
+    isSubmitting?: boolean;
+  }) =>
+    showDialog ? (
+      <div role="dialog">
+        <div>Possible Duplicate Resident</div>
+        <div>{pendingEdit.name}</div>
+        {matchingResidents.map((resident) => (
+          <div key={resident.id}>
+            <span>
+              {resident.name} — {resident.building_code} · Unit{' '}
+              {resident.unit_number}
+            </span>
+            <button
+              disabled={isSubmitting}
+              onClick={() => onMergeResidents(resident.id)}
+            >
+              Merge with {resident.name} ({resident.id})
+            </button>
+          </div>
+        ))}
+        <button disabled={isSubmitting} onClick={onAnotherPerson}>
+          Another Person
+        </button>
+        <button disabled={isSubmitting} onClick={handleClose}>
+          Close duplicate dialog
+        </button>
       </div>
     ) : null,
 }));
@@ -119,11 +172,22 @@ const selectBuilding = (name: string) => {
 describe('ResidentsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    vi.mocked(residentService.getBuildings).mockResolvedValue([
+      { id: 1, name: 'Alpha House', code: 'AH' },
+      { id: 2, name: 'Beta House', code: 'BH' },
+    ]);
+
+    vi.mocked(residentService.getAllResidents).mockResolvedValue([]);
+    vi.mocked(residentService.findResidentsByName).mockResolvedValue([]);
+    vi.mocked(residentService.mergeResidents).mockResolvedValue(undefined);
+
     mockHook.mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
-      updateResidentName: vi.fn(),
+      updateResidentName: vi.fn().mockResolvedValue(undefined),
+      refresh: vi.fn(),
     });
   });
 
@@ -157,6 +221,7 @@ describe('ResidentsPage', () => {
       isLoading: false,
       error: null,
       updateResidentName: vi.fn(),
+      refresh: vi.fn(),
     });
 
     render(
@@ -179,6 +244,7 @@ describe('ResidentsPage', () => {
       isLoading: false,
       error: null,
       updateResidentName: vi.fn(),
+      refresh: vi.fn(),
     });
 
     render(
@@ -199,6 +265,7 @@ describe('ResidentsPage', () => {
       isLoading: true,
       error: null,
       updateResidentName: vi.fn(),
+      refresh: vi.fn(),
     });
 
     render(
@@ -216,6 +283,7 @@ describe('ResidentsPage', () => {
       isLoading: false,
       error: 'Failed to load residents',
       updateResidentName: vi.fn(),
+      refresh: vi.fn(),
     });
 
     render(
@@ -237,6 +305,7 @@ describe('ResidentsPage', () => {
       isLoading: false,
       error: null,
       updateResidentName: vi.fn(),
+      refresh: vi.fn(),
     });
 
     render(
@@ -258,6 +327,7 @@ describe('ResidentsPage', () => {
       isLoading: false,
       error: null,
       updateResidentName: vi.fn(),
+      refresh: vi.fn(),
     });
 
     render(
@@ -269,14 +339,13 @@ describe('ResidentsPage', () => {
     await waitFor(() => screen.getByText('Alice Smith'));
 
     selectBuilding('AH — Alpha House');
-
     fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toHaveTextContent('Alice Smith');
   });
 
-  test('saves a resident with the selected unit', async () => {
+  test('saves a resident with the selected unit when there are no duplicates', async () => {
     const updateResidentName = vi.fn().mockResolvedValue(undefined);
 
     mockHook.mockReturnValue({
@@ -284,7 +353,10 @@ describe('ResidentsPage', () => {
       isLoading: false,
       error: null,
       updateResidentName,
+      refresh: vi.fn(),
     });
+
+    vi.mocked(residentService.findResidentsByName).mockResolvedValue([]);
 
     render(
       <Wrapper>
@@ -295,9 +367,7 @@ describe('ResidentsPage', () => {
     await waitFor(() => screen.getByText('Alice Smith'));
 
     selectBuilding('AH — Alpha House');
-
     fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
-
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
@@ -305,6 +375,144 @@ describe('ResidentsPage', () => {
     });
 
     expect(screen.getByRole('alert')).toHaveTextContent('Resident updated.');
+    expect(residentService.getAllResidents).toHaveBeenCalled();
+  });
+
+  test('shows all matching residents before merging', async () => {
+    const updateResidentName = vi.fn().mockResolvedValue(undefined);
+
+    mockHook.mockReturnValue({
+      data: buildingData,
+      isLoading: false,
+      error: null,
+      updateResidentName,
+      refresh: vi.fn(),
+    });
+
+    vi.mocked(residentService.findResidentsByName).mockResolvedValue([
+      { id: 4, name: 'Alice Smyth' },
+      { id: 5, name: 'Alice Smyth' },
+    ]);
+
+    vi.mocked(residentService.getAllResidents).mockResolvedValue([
+      {
+        id: 4,
+        name: 'Alice Smyth',
+        unit_id: 40,
+        unit_number: '401',
+        building_id: 1,
+        building_name: 'Alpha House',
+        building_code: 'AH',
+      },
+      {
+        id: 5,
+        name: 'Alice Smyth',
+        unit_id: 50,
+        unit_number: '502',
+        building_id: 2,
+        building_name: 'Beta House',
+        building_code: 'BH',
+      },
+    ]);
+
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => screen.getByText('Alice Smith'));
+
+    selectBuilding('AH — Alpha House');
+    fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Possible Duplicate Resident')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Merge with Alice Smyth (4)' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Merge with Alice Smyth (5)' }),
+      ).toBeInTheDocument();
+    });
+
+    expect(updateResidentName).not.toHaveBeenCalled();
+  });
+
+  test('merges the selected duplicate and updates its profile in one request', async () => {
+    const updateResidentName = vi.fn().mockResolvedValue(undefined);
+    const refresh = vi.fn();
+
+    mockHook.mockReturnValue({
+      data: buildingData,
+      isLoading: false,
+      error: null,
+      updateResidentName,
+      refresh,
+    });
+
+    vi.mocked(residentService.findResidentsByName).mockResolvedValue([
+      { id: 4, name: 'Alice Smyth' },
+      { id: 5, name: 'Alice Smyth' },
+    ]);
+
+    vi.mocked(residentService.getAllResidents).mockResolvedValue([
+      {
+        id: 4,
+        name: 'Alice Smyth',
+        unit_id: 40,
+        unit_number: '401',
+        building_id: 1,
+        building_name: 'Alpha House',
+        building_code: 'AH',
+      },
+      {
+        id: 5,
+        name: 'Alice Smyth',
+        unit_id: 50,
+        unit_number: '502',
+        building_id: 2,
+        building_name: 'Beta House',
+        building_code: 'BH',
+      },
+    ]);
+
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => screen.getByText('Alice Smith'));
+
+    selectBuilding('AH — Alpha House');
+    fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Merge with Alice Smyth (5)',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(residentService.mergeResidents).toHaveBeenCalledWith(
+        dummyUser,
+        1,
+        5,
+        'Alice Smyth',
+        20,
+      );
+    });
+
+    expect(residentService.mergeResidents).toHaveBeenCalledTimes(1);
+    expect(updateResidentName).not.toHaveBeenCalled();
+    expect(refresh).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Residents merged.');
+    });
   });
 
   test('closes the edit dialog when cancelled', async () => {
@@ -313,6 +521,7 @@ describe('ResidentsPage', () => {
       isLoading: false,
       error: null,
       updateResidentName: vi.fn(),
+      refresh: vi.fn(),
     });
 
     render(
@@ -324,7 +533,6 @@ describe('ResidentsPage', () => {
     await waitFor(() => screen.getByText('Alice Smith'));
 
     selectBuilding('AH — Alpha House');
-
     fireEvent.click(screen.getByLabelText('Edit Alice Smith'));
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();

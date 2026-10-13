@@ -19,10 +19,17 @@ export function useResidentsByBuilding(buildingId: number | null) {
   const [data, setData] = useState<UnitWithResidents[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refresh = useCallback(() => {
+    setRefreshKey((key) => key + 1);
+  }, []);
 
   useEffect(() => {
     if (buildingId === null) {
       setData([]);
+      setIsLoading(false);
+      setError(null);
       return;
     }
 
@@ -30,8 +37,8 @@ export function useResidentsByBuilding(buildingId: number | null) {
 
     async function fetchData() {
       setIsLoading(true);
-      setData([]);
       setError(null);
+
       try {
         const rows = await getResidentsByBuilding(user, buildingId!);
 
@@ -43,6 +50,7 @@ export function useResidentsByBuilding(buildingId: number | null) {
               residents: [],
             });
           }
+
           unitMap
             .get(row.unit_id)!
             .residents.push({ id: row.id, name: row.name });
@@ -68,18 +76,19 @@ export function useResidentsByBuilding(buildingId: number | null) {
       }
     }
 
-    fetchData();
+    void fetchData();
+
     return () => {
       cancelled = true;
     };
-  }, [buildingId, user]);
+  }, [buildingId, user, refreshKey]);
 
   const updateResidentName = useCallback(
     async (id: number, name: string, unitId: number) => {
       await updateResident(user, id, name, unitId);
 
-      setData((prev) => {
-        return prev.map((unitGroup) => {
+      setData((prev) =>
+        prev.map((unitGroup) => {
           if (unitGroup.unit.id === unitId) {
             const existingResident = unitGroup.residents.find(
               (resident) => resident.id === id,
@@ -102,13 +111,15 @@ export function useResidentsByBuilding(buildingId: number | null) {
 
           return {
             ...unitGroup,
-            residents: unitGroup.residents.filter((resident) => resident.id !== id),
+            residents: unitGroup.residents.filter(
+              (resident) => resident.id !== id,
+            ),
           };
-        });
-      });
+        }),
+      );
     },
     [user],
   );
 
-  return { data, isLoading, error, updateResidentName };
+  return { data, isLoading, error, updateResidentName, refresh };
 }

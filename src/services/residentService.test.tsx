@@ -17,6 +17,7 @@ import {
   getResidentsByBuilding,
   getAllResidents,
   getLastResidentVisit,
+  mergeResidents,
 } from './residentService';
 import { API_HEADERS, ENDPOINTS, SETTINGS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
@@ -175,7 +176,7 @@ describe('residentService', () => {
         method: 'GET',
         headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
       });
-      expect(result).toEqual(mockResidents);
+      expect(result).toEqual(mockResidents.value);
     });
 
     it('should throw an error if the request fails', async () => {
@@ -352,6 +353,48 @@ describe('residentService', () => {
       });
 
       await expect(getLastResidentVisit(user, residentId)).rejects.toThrow('Error');
+    });
+  });
+
+  describe('mergeResidents', () => {
+    const sourceResidentId = 1;
+    const targetResidentId = 2;
+    const targetName = 'Alice Smyth';
+    const targetUnitId = 10;
+
+    it('should merge residents successfully', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+
+      await mergeResidents(user, sourceResidentId, targetResidentId, targetName, targetUnitId,);
+
+      expect(fetch).toHaveBeenCalledWith(ENDPOINTS.MERGE_RESIDENTS, {
+        method: 'POST',
+        headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+        body: JSON.stringify({
+          source_resident_id: sourceResidentId,
+          target_resident_id: targetResidentId,
+          target_name: targetName,
+          target_unit_id: targetUnitId,
+        }),
+      });
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({
+          json: () => Promise.reject(new Error()),
+          text: () => Promise.resolve(''),
+        }),
+      });
+
+      await expect(
+        mergeResidents(user, sourceResidentId, targetResidentId, targetName, targetUnitId,),
+      ).rejects.toThrow('Error');
     });
   });
 });

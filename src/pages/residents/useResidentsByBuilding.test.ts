@@ -233,4 +233,47 @@ describe('useResidentsByBuilding', () => {
       2,
     );
   });
+
+  it('refetches residents when refresh is called', async () => {
+    vi.mocked(residentService.getResidentsByBuilding)
+      .mockResolvedValueOnce(mockRows)
+      .mockResolvedValueOnce([
+        {
+          ...mockRows[1],
+          name: 'Bob Updated',
+        },
+        mockRows[2],
+      ]);
+
+    const { result } = renderHook(() => useResidentsByBuilding(1), {
+      wrapper,
+    });
+
+    await waitFor(() =>
+      expect(residentService.getResidentsByBuilding).toHaveBeenCalledTimes(1),
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      result.current.refresh();
+    });
+
+    await waitFor(() =>
+      expect(residentService.getResidentsByBuilding).toHaveBeenCalledTimes(2),
+    );
+
+    await waitFor(() =>
+      expect(
+        result.current.data.some((group) =>
+          group.residents.some((resident) => resident.name === 'Bob Updated'),
+        ),
+      ).toBe(true),
+    );
+
+    expect(residentService.getResidentsByBuilding).toHaveBeenLastCalledWith(
+      dummyUser,
+      1,
+    );
+  });
 });

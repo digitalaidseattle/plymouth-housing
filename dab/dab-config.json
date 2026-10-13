@@ -390,6 +390,26 @@
         }
       ]
     },
+    "MergeResidents": {
+      "source": {
+        "object": "dbo.MergeResidents",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/merge-residents"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        },
+        {
+          "actions": ["execute"],
+          "role": "volunteer"
+        }
+      ]
+    },
     "GetTransaction": {
       "source": {
         "object": "dbo.GetTransaction",

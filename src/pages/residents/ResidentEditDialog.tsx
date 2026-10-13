@@ -66,6 +66,8 @@ const ResidentEditDialog = ({
     setUnitError(false);
 
     void unitNumbersHook.fetchUnitNumbers(user, resident.building.id);
+    // The fetch should run when the dialog opens or the resident changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showDialog, resident, user]);
 
   useEffect(() => {

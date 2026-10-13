@@ -89,7 +89,7 @@ export async function findResidentsByName(user: ClientPrincipal | null, name: st
       url: `${ENDPOINTS.RESIDENTS}?$filter=${filter}`,
       role: getRole(user),
     });
-    return result;
+    return result.value;
   } catch (error) {
     console.error('Error fetching residents by name:', error);
     throw error;
@@ -183,6 +183,31 @@ export async function getLastResidentVisit(user: ClientPrincipal | null, residen
     return result;
   } catch (error) {
     console.error('Error fetching last resident visit:', error);
+    throw error;
+  }
+}
+
+export async function mergeResidents(
+  user: ClientPrincipal | null,
+  sourceResidentId: number,
+  targetResidentId: number,
+  targetName: string,
+  targetUnitId: number,
+) {
+  try {
+    await apiRequest({
+      url: ENDPOINTS.MERGE_RESIDENTS,
+      role: getRole(user),
+      method: 'POST',
+      body: {
+        source_resident_id: sourceResidentId,
+        target_resident_id: targetResidentId,
+        target_name: targetName,
+        target_unit_id: targetUnitId,
+      },
+    });
+  } catch (error) {
+    console.error('Error merging residents:', error);
     throw error;
   }
 }

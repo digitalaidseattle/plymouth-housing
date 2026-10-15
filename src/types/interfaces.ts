@@ -281,9 +281,15 @@ export type BuildingResidents = {
   visitCount: number;
 };
 
-export type FlaggedTransaction = CheckoutTransaction & {
-  isDuplicate: boolean;
+export type ResidentVisits = {
+  resident_id: number;
+  resident_name: string;
+  building_code: string;
+  unit_number: string;
   visitCount: number;
+  total_quantity: number;
+  last_visit: string;
+  isDuplicate: boolean;
 };
 
 export type AnalyticsSummary = {

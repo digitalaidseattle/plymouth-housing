@@ -15,12 +15,13 @@ import {
   CheckoutTransaction,
   CsvSection,
   DateRangeStrings,
-  FlaggedTransaction,
   InventoryItem,
   InventoryTransaction,
   RankedItem,
+  ResidentVisits,
   TransactionType,
 } from '../types/interfaces';
+import { SPECIAL_UNITS } from '../types/constants';
 
 export const summarizeCheckouts = (
   transactions: CheckoutTransaction[],
@@ -44,18 +45,48 @@ export const summarizeCheckouts = (
 };
 
 // Keyed on resident_id, so two residents sharing a name stay two people.
-export const flagDuplicates = (
+export const groupByResident = (
   transactions: CheckoutTransaction[],
-): FlaggedTransaction[] => {
-  const counts = new Map<number, number>();
-  transactions.forEach((t) =>
-    counts.set(t.resident_id, (counts.get(t.resident_id) ?? 0) + 1),
-  );
-
-  return transactions.map((t) => {
-    const visitCount = counts.get(t.resident_id) ?? 0;
-    return { ...t, isDuplicate: visitCount > 1, visitCount };
+): ResidentVisits[] => {
+  const residents = new Map<number, ResidentVisits>();
+  transactions.forEach((t) => {
+    const resident = residents.get(t.resident_id);
+    if (!resident) {
+      residents.set(t.resident_id, {
+        resident_id: t.resident_id,
+        resident_name: t.resident_name,
+        building_code: t.building_code,
+        unit_number: t.unit_number,
+        visitCount: 1,
+        total_quantity: t.total_quantity,
+        last_visit: t.transaction_date,
+        isDuplicate: false,
+      });
+      return;
+    }
+    resident.visitCount += 1;
+    resident.total_quantity += t.total_quantity;
+    if (
+      new Date(t.transaction_date).getTime() >
+      new Date(resident.last_visit).getTime()
+    ) {
+      resident.last_visit = t.transaction_date;
+    }
   });
+
+  return Array.from(residents.values())
+    .map((resident) => {
+      // Welcome baskets sit under a stand-in resident, not a real person.
+      if (resident.unit_number.trim().toLowerCase() === SPECIAL_UNITS.WELCOME) {
+        return { ...resident, resident_name: 'Welcome Baskets' };
+      }
+      return { ...resident, isDuplicate: resident.visitCount > 1 };
+    })
+    .sort(
+      (a, b) =>
+        b.visitCount - a.visitCount ||
+        new Date(b.last_visit).getTime() - new Date(a.last_visit).getTime(),
+    );
 };
 
 export const countResidentsByBuilding = (
@@ -154,7 +185,7 @@ interface AnalyticsExport {
   topCheckedOutItems: RankedItem[];
   topInventoryAdded: RankedItem[];
   leastCheckedOutItems: RankedItem[];
-  detailRows: FlaggedTransaction[];
+  detailRows: ResidentVisits[];
   lowStockRows: InventoryItem[];
   checkedOutById: Map<number, number>;
 }
@@ -223,7 +254,7 @@ export const buildAnalyticsSections = ({
       'Unit',
       '# Visits',
       '# Items',
-      'Transaction Date',
+      'Last Visit',
     ],
     rows: detailRows.map((row) => [
       row.resident_name,
@@ -231,7 +262,7 @@ export const buildAnalyticsSections = ({
       row.unit_number.trim(),
       row.visitCount,
       row.total_quantity,
-      formatShortDate(row.transaction_date),
+      formatShortDate(row.last_visit),
     ]),
   },
   {

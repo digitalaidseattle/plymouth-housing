@@ -18,7 +18,7 @@ import { useAnalyticsData } from '../../hooks/useAnalyticsData';
 import {
   buildAnalyticsSections,
   countResidentsByBuilding,
-  flagDuplicates,
+  groupByResident,
   percentChange,
   sortLowStockItems,
   sumItemsAdded,
@@ -91,11 +91,16 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
   );
   const lowStockRows = useMemo(() => sortLowStockItems(items), [items]);
 
-  const flaggedRows = useMemo(() => flagDuplicates(currentRows), [currentRows]);
+  const residentRows = useMemo(
+    () => groupByResident(currentRows),
+    [currentRows],
+  );
   const detailRows = useMemo(
     () =>
-      repeatsOnly ? flaggedRows.filter((row) => row.isDuplicate) : flaggedRows,
-    [flaggedRows, repeatsOnly],
+      repeatsOnly
+        ? residentRows.filter((row) => row.isDuplicate)
+        : residentRows,
+    [residentRows, repeatsOnly],
   );
 
   const residentsByBuilding = useMemo(

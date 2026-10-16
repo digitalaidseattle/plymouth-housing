@@ -11,11 +11,13 @@ import {
   getUnitNumbers,
   getResidents,
   findResident,
+  findResidentsByName,
   addResident,
   updateResident,
   getResidentsByBuilding,
   getAllResidents,
   getLastResidentVisit,
+  mergeResidents,
 } from './residentService';
 import { API_HEADERS, ENDPOINTS, SETTINGS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
@@ -156,6 +158,38 @@ describe('residentService', () => {
     });
   });
 
+  describe('findResidentsByName', () => {
+    const name = "John's Doe";
+
+    it('should find residents by name successfully', async () => {
+      const mockResidents = { value: [{ id: 1, name: "John's Doe" }] };
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResidents),
+      });
+
+      const result = await findResidentsByName(user, name);
+      const safeName = name.replace(/'/g, "''");
+      const filter = encodeURIComponent(`name eq '${safeName}'`);
+
+      expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.RESIDENTS}?$filter=${filter}`, {
+        method: 'GET',
+        headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+      });
+      expect(result).toEqual(mockResidents.value);
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+      });
+
+      await expect(findResidentsByName(user, name)).rejects.toThrow('Error');
+    });
+  });
+
   describe('addResident', () => {
     const unitId = 1;
     const name = 'Jane Doe';
@@ -191,6 +225,7 @@ describe('residentService', () => {
   describe('updateResident', () => {
     const id = 1;
     const name = 'Alice Smyth';
+    const unitId = 10;
 
     it('should update a resident successfully', async () => {
       (fetch as Mock).mockResolvedValue({
@@ -199,12 +234,12 @@ describe('residentService', () => {
         json: () => Promise.resolve({ value: [{ id, name }] }),
       });
 
-      await updateResident(user, id, name);
+      await updateResident(user, id, name, unitId);
 
       expect(fetch).toHaveBeenCalledWith(`${ENDPOINTS.RESIDENTS}/id/${id}`, {
         method: 'PATCH',
         headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, unit_id: unitId }),
       });
     });
 
@@ -215,7 +250,7 @@ describe('residentService', () => {
         clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
       });
 
-      await expect(updateResident(user, id, name)).rejects.toThrow('Error');
+      await expect(updateResident(user, id, name, unitId)).rejects.toThrow('Error');
     });
   });
 
@@ -318,6 +353,48 @@ describe('residentService', () => {
       });
 
       await expect(getLastResidentVisit(user, residentId)).rejects.toThrow('Error');
+    });
+  });
+
+  describe('mergeResidents', () => {
+    const sourceResidentId = 1;
+    const targetResidentId = 2;
+    const targetName = 'Alice Smyth';
+    const targetUnitId = 10;
+
+    it('should merge residents successfully', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+
+      await mergeResidents(user, sourceResidentId, targetResidentId, targetName, targetUnitId,);
+
+      expect(fetch).toHaveBeenCalledWith(ENDPOINTS.MERGE_RESIDENTS, {
+        method: 'POST',
+        headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+        body: JSON.stringify({
+          source_resident_id: sourceResidentId,
+          target_resident_id: targetResidentId,
+          target_name: targetName,
+          target_unit_id: targetUnitId,
+        }),
+      });
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({
+          json: () => Promise.reject(new Error()),
+          text: () => Promise.resolve(''),
+        }),
+      });
+
+      await expect(
+        mergeResidents(user, sourceResidentId, targetResidentId, targetName, targetUnitId,),
+      ).rejects.toThrow('Error');
     });
   });
 });

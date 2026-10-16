@@ -44,8 +44,8 @@ BEGIN
         MAX(CASE WHEN ti.item_id IN (171, 172) THEN ti.quantity ELSE NULL END) AS welcome_basket_quantity
     FROM Transactions
     INNER JOIN Residents ON Transactions.resident_id = Residents.id
-    INNER JOIN Units ON Residents.unit_id = Units.id
-    INNER JOIN Buildings ON Units.building_id = Buildings.id
+    INNER JOIN Units ON Transactions.unit_id = Units.id
+    INNER JOIN Buildings ON Transactions.building_id = Buildings.id
     LEFT JOIN TransactionItems ti ON ti.transaction_id = Transactions.id
     WHERE [transaction_date] >= @start_date
         AND [transaction_date] <= @end_date

@@ -59,7 +59,7 @@ export const groupByResident = (
         unit_number: t.unit_number,
         visitCount: 1,
         total_quantity: t.total_quantity,
-        last_visit: t.transaction_date,
+        lastVisit: t.transaction_date,
         isDuplicate: false,
       });
       return;
@@ -68,9 +68,9 @@ export const groupByResident = (
     resident.total_quantity += t.total_quantity;
     if (
       new Date(t.transaction_date).getTime() >
-      new Date(resident.last_visit).getTime()
+      new Date(resident.lastVisit).getTime()
     ) {
-      resident.last_visit = t.transaction_date;
+      resident.lastVisit = t.transaction_date;
     }
   });
 
@@ -85,7 +85,7 @@ export const groupByResident = (
     .sort(
       (a, b) =>
         b.visitCount - a.visitCount ||
-        new Date(b.last_visit).getTime() - new Date(a.last_visit).getTime(),
+        new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime(),
     );
 };
 
@@ -262,7 +262,7 @@ export const buildAnalyticsSections = ({
       row.unit_number.trim(),
       row.visitCount,
       row.total_quantity,
-      formatShortDate(row.last_visit),
+      formatShortDate(row.lastVisit),
     ]),
   },
   {

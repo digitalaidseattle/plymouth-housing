@@ -288,7 +288,7 @@ export type ResidentVisits = {
   unit_number: string;
   visitCount: number;
   total_quantity: number;
-  last_visit: string;
+  lastVisit: string;
   isDuplicate: boolean;
 };
 

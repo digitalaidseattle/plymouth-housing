@@ -50,7 +50,7 @@ const columns: Column<ResidentVisits>[] = [
   { label: '# Items', align: 'right', render: (row) => row.total_quantity },
   {
     label: 'Last Visit',
-    render: (row) => formatShortDate(row.last_visit),
+    render: (row) => formatShortDate(row.lastVisit),
   },
 ];
 

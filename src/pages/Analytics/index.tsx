@@ -169,7 +169,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         currentSummary.checkouts,
         previousSummary.checkouts,
       ),
-      caption: 'Totals for the selected range',
+      caption: 'Average counts only days with a checkout',
     },
     {
       label: 'Items Checked Out',

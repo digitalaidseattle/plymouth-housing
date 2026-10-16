@@ -177,7 +177,7 @@ describe('groupByResident', () => {
         transaction_date: '2025-02-01T00:00:00Z',
       }),
     ]);
-    expect(result[0].last_visit).toBe('2025-03-01T00:00:00Z');
+    expect(result[0].lastVisit).toBe('2025-03-01T00:00:00Z');
   });
 
   test('sorts by visits, then by most recent visit', () => {

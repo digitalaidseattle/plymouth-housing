@@ -96,6 +96,20 @@ export async function addResident(user: ClientPrincipal | null, name: string, un
   }
 }
 
+export async function updateResident(user: ClientPrincipal | null, id: number, name: string) {
+  try {
+    await apiRequest({
+      url: `${ENDPOINTS.RESIDENTS}/id/${id}`,
+      role: getRole(user),
+      method: 'PATCH',
+      body: { name },
+    });
+  } catch (error) {
+    console.error('Error updating resident:', error);
+    throw error;
+  }
+}
+
 export async function getResidentsByBuilding(user: ClientPrincipal | null, buildingId: number) {
   try {
     const result = await apiRequest<Array<{

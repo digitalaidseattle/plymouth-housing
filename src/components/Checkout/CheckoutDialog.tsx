@@ -271,7 +271,9 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       }
     } catch (error) {
       let userFriendlyMessage = 'Checkout failed. Please try again.';
-      let errorCode = 'UNKNOWN';
+      // Every branch below assigns this, so there is no initializer to hold a
+      // stale default; TS flags any future branch that forgets to set it.
+      let errorCode: string;
 
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
@@ -411,7 +413,11 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
       >
         {/* Dialog Title */}
         <DialogTitle sx={{ p: 0 }} id="customized-dialog-title" component="div">
-          <Typography variant="h4" sx={{ m: 0 }}>
+          <Typography
+            variant="h4"
+            sx={{ m: 0 }}
+            data-testid="checkout-summary-title"
+          >
             Checkout Summary{isEditMode && ' (Editing)'}
           </Typography>
         </DialogTitle>
@@ -419,7 +425,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         {/* Resident Information */}
         <Stack>
           <Typography>
-            <strong>Building code: </strong>
+            <strong>Building or voucher code: </strong>
             {selectedBuildingCode}
           </Typography>
           <Typography>
@@ -513,6 +519,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                 variant="text"
                 onClick={onCancelEdits}
                 id="checkout-dialog-cancel-edit-btn"
+                data-testid="checkout-dialog-cancel-edit-btn"
               >
                 Cancel
               </Button>
@@ -529,6 +536,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                 onClick={() => handleConfirm()}
                 disabled={isProcessing || !hasChanges}
                 id="checkout-dialog-save-btn"
+                data-testid="checkout-dialog-save-btn"
               >
                 {isProcessing
                   ? 'Working...'
@@ -552,6 +560,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                 onClick={() => handleConfirm()}
                 disabled={isProcessing}
                 id="checkout-dialog-confirm-btn"
+                data-testid="checkout-dialog-confirm-btn"
               >
                 {isProcessing ? 'Working...' : 'Confirm'}
               </Button>
@@ -564,6 +573,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
 
   return (
     <Dialog
+      data-testid="checkout-summary-dialog"
+      data-edit-mode={isEditMode}
       sx={{
         '& .MuiDialog-paper': {
           width: { xs: '80vw', md: '50vw' },

@@ -10,3 +10,7 @@ CREATE TABLE TransactionItems (
 );
 
 GO
+
+CREATE INDEX IX_TransactionItems_transaction_id
+    ON dbo.TransactionItems (transaction_id) INCLUDE (item_id, quantity);
+GO

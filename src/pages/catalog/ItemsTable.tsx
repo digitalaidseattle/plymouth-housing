@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -15,14 +15,17 @@ import {
   Paper,
   TextField,
   Button,
+  Switch,
+  FormControlLabel,
   Box,
+  Stack,
   IconButton,
   Typography,
   Select,
   MenuItem,
   TablePagination,
 } from '@mui/material';
-import { Check, Close, Add } from '@mui/icons-material';
+import { Check, Close, Add, Archive, Unarchive } from '@mui/icons-material';
 import { AdminItem, CategoryItem, EditState } from '../../types/interfaces';
 import SearchBar from '../../components/Searchbar/SearchBar';
 
@@ -75,20 +78,32 @@ const ItemsTable = ({
   const [searchValue, setSearchValueInternal] = useState('');
   const setSearchValue = (value: string) => {
     setSearchValueInternal(value);
-    setPage(0); // Reset to first page on search
+    setPage(0);
   };
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
-  // Filter items by search
   const filteredItems = items.filter(
     (item) =>
-      item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      item.category_name?.toLowerCase().includes(searchValue.toLowerCase()),
+      (showArchived || !item.is_archived) &&
+      (item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.category_name?.toLowerCase().includes(searchValue.toLowerCase())),
   );
 
-  // Paginate
+  useEffect(() => {
+    const maxPage = Math.max(
+      0,
+      Math.ceil(filteredItems.length / rowsPerPage) - 1,
+    );
+
+    if (page > maxPage) {
+      setPage(maxPage);
+    }
+  }, [filteredItems.length, page, rowsPerPage]);
+
   const paginatedItems = filteredItems.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
@@ -99,6 +114,7 @@ const ItemsTable = ({
     field: string,
     currentValue: string | number | null,
   ) => {
+    if (isSaving) return;
     if (editState.id === id && editState.field === field) return;
     setEditState({
       id,
@@ -116,7 +132,7 @@ const ItemsTable = ({
   };
 
   const handleSave = async () => {
-    if (editState.id === null || editState.field === null) return;
+    if (editState.id === null || editState.field === null || isSaving) return;
 
     const item = items.find((i) => i.id === editState.id);
     if (!item) return;
@@ -177,6 +193,27 @@ const ItemsTable = ({
     setEditState({ id: null, field: null, value: '' });
   };
 
+  const handleBlur = (e: React.FocusEvent) => {
+    if (e.relatedTarget === cancelButtonRef.current) return;
+    handleSave();
+  };
+
+  const handleToggleArchive = async (item: AdminItem) => {
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const nextArchived = !item.is_archived;
+      await onUpdate(item.id, { is_archived: nextArchived });
+      onSuccess(nextArchived ? 'Item archived' : 'Item unarchived');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to update item';
+      onError(message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleAddNew = async () => {
     if (!newItem.name.trim()) {
       onError('Item name cannot be empty');
@@ -212,6 +249,7 @@ const ItemsTable = ({
         items_per_basket: newItem.items_per_basket
           ? parseInt(newItem.items_per_basket)
           : null,
+        is_archived: false,
       });
       onSuccess('Item created successfully');
       setNewItem(defaultNewItem);
@@ -238,7 +276,6 @@ const ItemsTable = ({
     const isEditing = editState.id === item.id && editState.field === field;
 
     if (isEditing) {
-      // Render appropriate input based on field type
       if (field === 'type') {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -248,7 +285,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={handleSave}
+              onBlur={handleBlur}
               autoFocus
               disabled={isSaving}
               sx={{ width: '140px' }}
@@ -256,10 +293,23 @@ const ItemsTable = ({
               <MenuItem value="General">General</MenuItem>
               <MenuItem value="Welcome Basket">Welcome Basket</MenuItem>
             </Select>
-            <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+            <IconButton
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSave}
+              disabled={isSaving}
+              aria-label="Save"
+            >
               <Check fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+            <IconButton
+              ref={cancelButtonRef}
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleCancel}
+              disabled={isSaving}
+              aria-label="Cancel"
+            >
               <Close fontSize="small" />
             </IconButton>
           </Box>
@@ -275,7 +325,7 @@ const ItemsTable = ({
               onChange={(e) => {
                 setEditState((prev) => ({ ...prev, value: e.target.value }));
               }}
-              onBlur={handleSave}
+              onBlur={handleBlur}
               autoFocus
               disabled={isSaving}
               sx={{ width: '150px' }}
@@ -286,10 +336,23 @@ const ItemsTable = ({
                 </MenuItem>
               ))}
             </Select>
-            <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+            <IconButton
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSave}
+              disabled={isSaving}
+              aria-label="Save"
+            >
               <Check fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+            <IconButton
+              ref={cancelButtonRef}
+              size="small"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleCancel}
+              disabled={isSaving}
+              aria-label="Cancel"
+            >
               <Close fontSize="small" />
             </IconButton>
           </Box>
@@ -308,7 +371,7 @@ const ItemsTable = ({
               setEditState((prev) => ({ ...prev, value: e.target.value }))
             }
             onKeyDown={handleKeyDown}
-            onBlur={handleSave}
+            onBlur={handleBlur}
             autoFocus
             type={isNumber ? 'number' : 'text'}
             disabled={isSaving}
@@ -320,17 +383,29 @@ const ItemsTable = ({
                   : '150px',
             }}
           />
-          <IconButton size="small" onClick={handleSave} disabled={isSaving}>
+          <IconButton
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleSave}
+            disabled={isSaving}
+            aria-label="Save"
+          >
             <Check fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={handleCancel} disabled={isSaving}>
+          <IconButton
+            ref={cancelButtonRef}
+            size="small"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleCancel}
+            disabled={isSaving}
+            aria-label="Cancel"
+          >
             <Close fontSize="small" />
           </IconButton>
         </Box>
       );
     }
 
-    // Display value
     let displayValue = value;
     if (field === 'category_id') {
       displayValue = item.category_name || 'Unknown';
@@ -373,13 +448,29 @@ const ItemsTable = ({
         }}
       >
         <Typography variant="h4">Items</Typography>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <SearchBar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
             compact
             placeholder="Search items..."
             width="250px"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showArchived}
+                onChange={(event) => setShowArchived(event.target.checked)}
+                size="small"
+              />
+            }
+            label="Show archived"
+            sx={{
+              '& .MuiFormControlLabel-label': {
+                typography: 'button',
+                fontWeight: 400,
+              },
+            }}
           />
           <Button
             variant="contained"
@@ -389,7 +480,7 @@ const ItemsTable = ({
           >
             Add item
           </Button>
-        </Box>
+        </Stack>
       </Box>
 
       <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
@@ -403,6 +494,7 @@ const ItemsTable = ({
               <TableCell>Qty</TableCell>
               <TableCell>Threshold</TableCell>
               <TableCell>Per Basket</TableCell>
+              <TableCell align="center">Archive</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -537,10 +629,21 @@ const ItemsTable = ({
                     </IconButton>
                   </Box>
                 </TableCell>
+                <TableCell />
               </TableRow>
             )}
             {paginatedItems.map((item) => (
-              <TableRow key={item.id}>
+              <TableRow
+                key={item.id}
+                sx={
+                  item.is_archived
+                    ? {
+                        opacity: 0.5,
+                        backgroundColor: 'action.hover',
+                      }
+                    : undefined
+                }
+              >
                 <TableCell>
                   {renderEditableCell(item, 'name', item.name)}
                 </TableCell>
@@ -566,11 +669,26 @@ const ItemsTable = ({
                     item.items_per_basket,
                   )}
                 </TableCell>
+                <TableCell align="center">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleToggleArchive(item)}
+                    disabled={isSaving}
+                    aria-label={item.is_archived ? 'Unarchive item' : 'Archive item'}
+                    title={item.is_archived ? 'Unarchive item' : 'Archive item'}
+                  >
+                    {item.is_archived ? (
+                      <Unarchive fontSize="small" />
+                    ) : (
+                      <Archive fontSize="small" />
+                    )}
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
             {paginatedItems.length === 0 && !isAdding && (
               <TableRow>
-                <TableCell colSpan={7} align="center">
+                <TableCell colSpan={8} align="center">
                   {searchValue
                     ? 'No items match your search'
                     : 'No items found'}

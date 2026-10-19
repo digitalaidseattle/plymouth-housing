@@ -20,6 +20,7 @@ interface UseHistoryDataProps {
   };
   historyType: 'checkout' | 'inventory';
   loggedInUserId: number | null;
+  selectedBuildingId: number | 'all';
   onError: (message: string) => void;
 }
 
@@ -28,6 +29,7 @@ export function useHistoryData({
   formattedDateRange,
   historyType,
   loggedInUserId,
+  selectedBuildingId,
   onError,
 }: UseHistoryDataProps) {
   const [userHistory, setUserHistory] = useState<
@@ -66,9 +68,18 @@ export function useHistoryData({
     };
   }, [formattedDateRange, historyType, user, onError]);
 
+  const filteredUserHistory = useMemo(() => {
+    if (historyType === 'checkout' && selectedBuildingId !== 'all') {
+      return (userHistory as CheckoutTransaction[] | null)?.filter(
+        (transaction) => transaction.building_id === selectedBuildingId,
+      ) ?? [];
+    }
+    return userHistory ?? [];
+  }, [userHistory, historyType, selectedBuildingId]);
+
   const transactionsByUser = useMemo(
-    () => processTransactionsByUser(userHistory ?? [], loggedInUserId ?? 0),
-    [userHistory, loggedInUserId],
+    () => processTransactionsByUser(filteredUserHistory, loggedInUserId ?? 0),
+    [filteredUserHistory, loggedInUserId],
   );
 
   return {

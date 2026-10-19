@@ -42,6 +42,8 @@ const createUserContextValue = (overrides = {}) => ({
   setActiveVolunteers: vi.fn(),
   setUser: vi.fn(),
   isLoading: false,
+  pinVerified: false,
+  setPinVerifiedForUserId: vi.fn(),
   ...overrides,
 });
 
@@ -174,6 +176,32 @@ describe('PickNamePage Component', () => {
       expect(
         screen.getByText(/Failed to load volunteer list. Please try again later./i)
       ).toBeInTheDocument();
+    });
+  });
+
+  test('resets loggedInUserId and pin verification on mount (back-navigation regression)', async () => {
+    const mockSetLoggedInUserId = vi.fn();
+    const mockSetPinVerifiedForUserId = vi.fn();
+    const volunteers = [{ id: 1, name: 'Alice' }];
+
+    mockFetchWithRetry.mockResolvedValue({ value: volunteers });
+  
+    render(
+      <UserContext.Provider
+        value={createUserContextValue({
+          loggedInUserId: 1,
+          pinVerified: true,
+          setLoggedInUserId: mockSetLoggedInUserId,
+          setPinVerifiedForUserId: mockSetPinVerifiedForUserId,
+        })}
+      >
+        <PickNamePage />
+      </UserContext.Provider>
+    );
+  
+    await waitFor(() => {
+      expect(mockSetLoggedInUserId).toHaveBeenCalledWith(null);
+      expect(mockSetPinVerifiedForUserId).toHaveBeenCalledWith(null);
     });
   });
 });

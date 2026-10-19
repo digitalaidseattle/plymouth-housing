@@ -4,13 +4,14 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UserFilters from './UserFilters';
 import UserTable from './UserTable';
 import AddVolunteerModal from '../../components/AddVolunteerModal/AddVolunteerModal';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import useUsers from './useUsers';
 
 const UserPage = () => {
@@ -21,11 +22,7 @@ const UserPage = () => {
     'original',
   );
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning';
-  }>({ open: false, message: '', severity: 'warning' });
+  const { snackbarState, showSnackbar, handleClose: handleSnackbarClose } = useSnackbar();
 
   const {
     originalData,
@@ -87,31 +84,20 @@ const UserPage = () => {
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
 
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') return;
-    setSnackbarState({ ...snackbarState, open: false });
-  };
-
-  // Handle status toggle
-  const handleStatusToggle = async (userId: number) => {
-    try {
-      await updateUserStatus(userId);
-      setSnackbarState({
-        open: true,
-        message: 'User status updated successfully!',
-        severity: 'success',
-      });
-    } catch (error) {
-      setSnackbarState({
-        open: true,
-        message: 'Error updating user: ' + error,
-        severity: 'warning',
-      });
-    }
-  };
+ // Handle status toggle
+const handleStatusToggle = async (userId: number) => {
+  try {
+    await updateUserStatus(userId);
+    showSnackbar('User status updated successfully!', 'success');
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    const displayMessage = message.startsWith('Error updating user:')
+      ? message
+      : `Error updating user: ${message}`;
+    console.error('handleStatusToggle error:', err);
+    showSnackbar(displayMessage, 'error');
+  }
+};
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>

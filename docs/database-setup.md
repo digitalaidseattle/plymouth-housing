@@ -10,6 +10,8 @@ There are tutorials here:
 
 ## Database for Development
 
+> If you use the Docker setup in [docker-setup.md](docker-setup.md), the database is created for you and you can skip this section.
+
 A note on permission with PowerShell. 
 You might get a warning that untrusted scripts are not allowed to run. Here is how to turn that off on Windows. 
 1. Open an admin PowerShell prompt.  
@@ -32,6 +34,10 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 
 #### **Step 2: Install SQL Server Extension for VS Code**
 - Install the **SQL Server (mssql)** extension from Microsoft in VS Code.  
+- Install the PowerShell **SqlServer** module if it is not already available:
+  ```powershell
+  Install-Module SqlServer -Scope CurrentUser
+  ```
 
 #### **Step 3: Create and Bootstrap the Database**
 1.  Open a Powershell terminal in VS Code. Setting the $env variables and running the .ps1 script should happen in PowerShell. 
@@ -39,18 +45,25 @@ You might get a warning that untrusted scripts are not allowed to run. Here is h
 
     ```$env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=master;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'```
 
-1. Use the `create_db.sql` script in VS Code:  
-   - Open the script and click the **play button** to execute.
-   - This will create the **inventory** database
+1. Run the bootstrap script:
 
-1.  Change the connection string to point to the inventory database instead of master:
+```powershell
+./database/bootstrap_db.ps1
+```
 
-    ```$env:DATABASE_CONNECTION_STRING='Server=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'```
+1. The script will automatically:
+- Drop and recreate the **Inventory** database.
+- Create the schema.
+- Seed the database.
 
-1. Initialize the database:  
-   - Run the PowerShell script located at `./database/bootstrap_db.ps1`.  
+> **Warning**
+>
+> Both `bootstrap_db.ps1` and `create_db.sql` are **destructive**.
+>
+> They will drop and recreate the Inventory database, permanently deleting all existing data.
+>
+> Never run either script against staging or production unless you intentionally want to destroy and recreate the database.
 
-> **Warning:** Running `bootstrap_db.ps1` will wipe out all existing data in the database. Proceed with caution. Especially if you are pointing to staging or prod!
 
 ---
 
@@ -164,6 +177,22 @@ You can use an Azure SQL database for development as well. It is not recommended
 1. Use SQL Authentication for easier connection.  
 1. Add your local IP to the **Security/Networking** section of the Azure SQL Server (not the database).  
 1. Test the connection by adding it to the VS Code SQL Server extension.
+
+## Demo Data
+
+The Admin Analytics page is blank on a fresh database, there are no transactions to chart. `-SeedDemoData` fills a local database with a year of fake checkout history so the page has something to show.
+
+```powershell
+$env:DATABASE_CONNECTION_STRING = 'Server=localhost\SQLEXPRESS;Database=Inventory;Persist Security Info=False;Integrated Security=SSPI;TrustServerCertificate=True;'
+.\database\bootstrap_db.ps1 -SeedDemoData
+```
+
+You get about 60 residents across 12 buildings and 500 checkouts over the last 365 days, plus edits, restocks and corrections. Re-running clears the old demo data first. Volumes are the constants at the top of `database/data_seed/analytics_demo_data.sql`.
+
+Two things to know:
+
+1. **Local only.** Nothing stops you pointing it at staging, and `bootstrap_db.ps1` drops the database before it seeds, so check your connection string. Staging and prod go through the Azure Portal instead, see [schema-migration.md](schema-migration.md).
+1. **Stock counts are left alone.** The seeded checkouts don't come out of `Items.quantity`, so the numbers on hand won't tie out against the history.
 
 ## Production/Staging
 

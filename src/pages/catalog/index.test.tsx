@@ -7,6 +7,17 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('@mui/icons-material', () => ({
+  __esModule: true,
+  Check: () => null,
+  Close: () => null,
+  Add: () => null,
+  Search: () => null,
+  Archive: () => null,
+  Unarchive: () => null,
+}));
+
 import Catalog from './index';
 import { UserContext } from '../../components/contexts/UserContext';
 import * as useCatalogModule from './useCatalog';
@@ -28,6 +39,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       activeVolunteers: [],
       setActiveVolunteers: vi.fn(),
       isLoading: false,
+      pinVerified: false,
+      setPinVerifiedForUserId: vi.fn(),
     }}
   >
     {children}
@@ -121,6 +134,7 @@ describe('Catalog Component', () => {
         quantity: 10,
         threshold: 5,
         items_per_basket: null,
+        is_archived: false,
       },
     ];
 
@@ -214,6 +228,7 @@ describe('Catalog Component', () => {
         quantity: 50,
         threshold: 10,
         items_per_basket: null,
+        is_archived: false,
       },
     ];
 

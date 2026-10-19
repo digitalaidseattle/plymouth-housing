@@ -15,7 +15,7 @@ import {
 } from '../../types/interfaces';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getLastResidentVisit } from '../../services/residentService';
-import { getRole } from '../../utils/userUtils';
+import { getHomePath } from '../../utils/userUtils';
 import { computeCartDeltas } from '../../utils/transactionUtils';
 import { withCount } from '../../utils/textUtils';
 import { CheckoutDialog } from '../../components/Checkout/CheckoutDialog';
@@ -222,7 +222,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       (accumulator, category) => accumulator + category.categoryCount,
       0,
     );
-    const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {
         checkoutSuccess: !isError,
@@ -234,11 +233,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       },
     };
 
-    if (userRole === 'volunteer') {
-      navigate('/volunteer-home', navigateState);
-    } else {
-      navigate('/inventory', navigateState);
-    }
+    navigate(getHomePath(user), navigateState);
   };
 
   const categories =
@@ -262,7 +257,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       if (!confirmed) return;
     }
 
-    const userRole = user ? getRole(user) : null;
     const navigateState = {
       state: {
         checkoutSuccess: false,
@@ -270,11 +264,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       },
     };
 
-    if (userRole === 'volunteer') {
-      navigate('/volunteer-home', navigateState);
-    } else {
-      navigate('/inventory', navigateState);
-    }
+    navigate(getHomePath(user), navigateState);
   };
 
   return (

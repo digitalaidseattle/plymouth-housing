@@ -27,6 +27,7 @@ describe('ItemsTable Component', () => {
       quantity: 50,
       threshold: 10,
       items_per_basket: null,
+      is_archived: false,
     },
     {
       id: 2,
@@ -38,6 +39,19 @@ describe('ItemsTable Component', () => {
       quantity: 30,
       threshold: 5,
       items_per_basket: 2,
+      is_archived: false,
+    },
+    {
+      id: 3,
+      name: 'Archived Towels',
+      type: 'General',
+      category_id: 2,
+      category_name: 'Hygiene',
+      description: 'Archived towels',
+      quantity: 10,
+      threshold: 5,
+      items_per_basket: null,
+      is_archived: true,
     },
   ];
 
@@ -243,6 +257,7 @@ describe('ItemsTable Component', () => {
       quantity: 10,
       threshold: 5,
       items_per_basket: null,
+      is_archived: false,
     }));
 
     render(
@@ -261,5 +276,186 @@ describe('ItemsTable Component', () => {
 
     expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
     expect(screen.getByText('Item 11')).toBeInTheDocument();
+  });
+
+  test('hides archived items by default and shows them when requested', () => {
+    render(
+      <ItemsTable
+        items={mockItems}
+        categories={mockCategories}
+        {...mockHandlers}
+      />,
+    );
+
+    expect(screen.getByText('Apples')).toBeInTheDocument();
+    expect(screen.getByText('Soap')).toBeInTheDocument();
+    expect(screen.queryByText('Archived Towels')).not.toBeInTheDocument();
+
+    const showArchivedSwitch = screen.getByRole('switch', {
+      name: 'Show archived',
+    });
+
+    expect(showArchivedSwitch).not.toBeChecked();
+
+    fireEvent.click(showArchivedSwitch);
+
+    expect(screen.getByText('Archived Towels')).toBeInTheDocument();
+    expect(showArchivedSwitch).toBeChecked();
+
+    fireEvent.click(showArchivedSwitch);
+
+    expect(screen.queryByText('Archived Towels')).not.toBeInTheDocument();
+    expect(showArchivedSwitch).not.toBeChecked();
+  });
+
+  test('archives and unarchives an item', async () => {
+    render(
+      <ItemsTable
+        items={mockItems}
+        categories={mockCategories}
+        {...mockHandlers}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Archive item' })[0],
+    );
+
+    await waitFor(() => {
+      expect(mockHandlers.onUpdate).toHaveBeenCalledWith(1, {
+        is_archived: true,
+      });
+      expect(mockHandlers.onSuccess).toHaveBeenCalledWith('Item archived');
+    });
+
+    fireEvent.click(
+      screen.getByRole('switch', { name: 'Show archived' }),
+    );
+
+    expect(screen.getByText('Archived Towels')).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Unarchive item' })[0],
+    );
+
+    await waitFor(() => {
+      expect(mockHandlers.onUpdate).toHaveBeenCalledWith(3, {
+        is_archived: false,
+      });
+      expect(mockHandlers.onSuccess).toHaveBeenCalledWith('Item unarchived');
+    });
+  });
+
+  test('preserves the current page when hiding archived items does not invalidate it', () => {
+    const manyItems: AdminItem[] = [
+      ...Array.from({ length: 25 }, (_, i) => ({
+        id: i + 1,
+        name: `Item ${i + 1}`,
+        type: 'General',
+        category_id: 1,
+        category_name: 'Food',
+        description: null,
+        quantity: 10,
+        threshold: 5,
+        items_per_basket: null,
+        is_archived: false,
+      })),
+      {
+        id: 26,
+        name: 'Archived Item',
+        type: 'General',
+        category_id: 1,
+        category_name: 'Food',
+        description: null,
+        quantity: 10,
+        threshold: 5,
+        items_per_basket: null,
+        is_archived: true,
+      },
+    ];
+
+    render(
+      <ItemsTable
+        items={manyItems}
+        categories={mockCategories}
+        {...mockHandlers}
+      />,
+    );
+
+    const showArchivedSwitch = screen.getByRole('switch', {
+      name: 'Show archived',
+    });
+
+    fireEvent.click(showArchivedSwitch);
+
+    const nextPageButton = screen.getByRole('button', { name: /next page/i });
+
+    fireEvent.click(nextPageButton);
+    fireEvent.click(nextPageButton);
+
+    expect(screen.getByText('Item 21')).toBeInTheDocument();
+
+    fireEvent.click(showArchivedSwitch);
+
+    expect(screen.getByText('Item 21')).toBeInTheDocument();
+    expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
+  });
+
+  test('moves to the last valid page when hiding archived items invalidates the current page', async () => {
+    const manyItems: AdminItem[] = [
+      ...Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        name: `Item ${i + 1}`,
+        type: 'General',
+        category_id: 1,
+        category_name: 'Food',
+        description: null,
+        quantity: 10,
+        threshold: 5,
+        items_per_basket: null,
+        is_archived: false,
+      })),
+      ...Array.from({ length: 5 }, (_, i) => ({
+        id: i + 21,
+        name: `Archived Item ${i + 1}`,
+        type: 'General',
+        category_id: 1,
+        category_name: 'Food',
+        description: null,
+        quantity: 10,
+        threshold: 5,
+        items_per_basket: null,
+        is_archived: true,
+      })),
+    ];
+
+    render(
+      <ItemsTable
+        items={manyItems}
+        categories={mockCategories}
+        {...mockHandlers}
+      />,
+    );
+
+    const showArchivedSwitch = screen.getByRole('switch', {
+      name: 'Show archived',
+    });
+
+    fireEvent.click(showArchivedSwitch);
+
+    const nextPageButton = screen.getByRole('button', { name: /next page/i });
+
+    fireEvent.click(nextPageButton);
+    fireEvent.click(nextPageButton);
+
+    expect(screen.getByText('Archived Item 1')).toBeInTheDocument();
+
+    fireEvent.click(showArchivedSwitch);
+
+    await waitFor(() => {
+      expect(screen.getByText('Item 11')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
   });
 });

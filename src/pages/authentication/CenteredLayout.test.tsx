@@ -25,9 +25,13 @@ describe('CenteredLayout Component', () => {
         <div>Child</div>
       </CenteredLayout>
     );
-    // Check that the outermost container has minHeight and paddingTop as defined in sx
-    expect(container.firstChild).toHaveStyle('min-height: 90vh');
-    expect(container.firstChild).toHaveStyle('padding-top: 25vh');
+    // Check that the outermost container has minHeight and paddingTop as defined in sx.
+    // jsdom 30 resolves viewport units in getComputedStyle, so the sx values of
+    // 90vh/25vh come back as pixels relative to the window height. Compare the
+    // parsed numbers rather than formatted strings to stay clear of float noise.
+    const style = getComputedStyle(container.firstChild as Element);
+    expect(parseFloat(style.minHeight)).toBeCloseTo(window.innerHeight * 0.9, 1);
+    expect(parseFloat(style.paddingTop)).toBeCloseTo(window.innerHeight * 0.25, 1);
   });
 
   test('has correct layout structure', () => {

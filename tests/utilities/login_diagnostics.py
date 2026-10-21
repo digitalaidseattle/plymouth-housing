@@ -44,6 +44,7 @@ def redact(value):
     text = re.sub(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "[redacted email]", text)
     text = re.sub(r"(?i)\b(password|token|code|cookie|secret|assertion)\s*[:=]\s*[^\s,;]+", r"\1=[redacted]", text)
     text = re.sub(r"[A-Za-z0-9_+/=-]{32,}(?:\.[A-Za-z0-9_+/=-]+)*", "[redacted opaque value]", text)
+    text = re.sub(r"\b\d{4,8}\b", "[redacted number]", text)
     return text[:4000]
 
 

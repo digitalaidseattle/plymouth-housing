@@ -59,6 +59,28 @@ def test_sanitization_removes_credentials_url_parameters_and_tokens(monkeypatch)
     assert safe_url("https://user:pass@host/login?token=secret#secret") == "https://host/login"
 
 
+@pytest.mark.parametrize("number", ["1234", "12345", "123456", "1234567", "12345678"])
+def test_standalone_four_to_eight_digit_numbers_are_redacted(monkeypatch, number):
+    monkeypatch.setattr("tests.utilities.login_diagnostics.secret_values", lambda: [])
+    assert redact(f"Verification ({number}).") == "Verification ([redacted number])."
+
+
+def test_embedded_codes_and_numbers_outside_masking_range_are_preserved(monkeypatch):
+    monkeypatch.setattr("tests.utilities.login_diagnostics.secret_values", lambda: [])
+    text = "AADSTS50034 case123456 id_123456 123 123456789"
+    assert redact(text) == text
+
+
+def test_number_masking_preserves_opaque_redaction_and_truncation(monkeypatch):
+    monkeypatch.setattr("tests.utilities.login_diagnostics.secret_values", lambda: [])
+    tail = "detail " * 800
+    raw = "AADSTS50034 123456 " + "Q" * 40 + " " + tail
+    expected = "AADSTS50034 [redacted number] [redacted opaque value] " + tail
+    result = redact(raw)
+    assert result == expected[:4000]
+    assert len(result) == 4000
+
+
 def test_capture_persists_sanitized_evidence_and_restores_after_screenshot_failure(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VOLUNTEER_USERNAME", "private@example.com")

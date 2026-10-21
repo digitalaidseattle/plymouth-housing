@@ -147,8 +147,8 @@ const ResidentDuplicateDialog = ({
               <Stack
                 spacing={1}
                 sx={{
-                  maxHeight: 240,
-                  overflowY: 'auto',
+                  maxHeight: matchingResidents.length > 2 ? 160 : 'none',
+                  overflowY: matchingResidents.length > 2 ? 'auto' : 'visible',
                   pr: 0.5,
                 }}
               >

@@ -7,7 +7,6 @@ CREATE TABLE Transactions (
     resident_id INT,
     transaction_type INT NOT NULL,
     transaction_date DATETIME DEFAULT GETDATE() NOT NULL,
-    unit_id INT,
     building_id INT,
     parent_transaction_id UNIQUEIDENTIFIER NULL,
 );

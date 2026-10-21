@@ -68,8 +68,8 @@ BEGIN
             THROW 51007, 'Target unit does not exist.', 1;
         END;
 
-        -- Reassign transactions without changing their historical
-        -- unit_id or building_id snapshots.
+        -- Preserve transaction history by associating existing
+        -- transactions with the surviving resident.
         UPDATE dbo.Transactions
         SET resident_id = @target_resident_id
         WHERE resident_id = @source_resident_id;

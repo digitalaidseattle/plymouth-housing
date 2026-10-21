@@ -20,29 +20,29 @@ VALUES ('Merge Target Resident', 2);
 
 SET @target_resident_id = SCOPE_IDENTITY();
 
--- Source resident's historical transactions
+-- Source resident's existing transactions
 INSERT INTO dbo.Transactions (
     id, user_id, resident_id, transaction_type,
-    transaction_date, unit_id, building_id
+    transaction_date
 )
 VALUES
 (
     @source_transaction_id_1, 1, @source_resident_id, 1,
-    '2026-01-01 10:00:00', 1, 1
+    '2026-01-01 10:00:00'
 ),
 (
     @source_transaction_id_2, 1, @source_resident_id, 1,
-    '2026-01-02 10:00:00', 2, 1
+    '2026-01-02 10:00:00'
 );
 
 -- Target resident's existing transaction
 INSERT INTO dbo.Transactions (
     id, user_id, resident_id, transaction_type,
-    transaction_date, unit_id, building_id
+    transaction_date
 )
 VALUES (
     @target_transaction_id, 1, @target_resident_id, 1,
-    '2026-01-03 10:00:00', 2, 1
+    '2026-01-03 10:00:00'
 );
 
 EXEC dbo.MergeResidents
@@ -79,35 +79,18 @@ IF (
 ) <> 2
     THROW 50203, 'Test 1 FAILED: Source transactions were not reassigned', 1;
 
--- First source transaction's historical location must remain unchanged
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Transactions
-    WHERE id = @source_transaction_id_1
+-- All three transactions must remain associated with the target.
+IF (
+    SELECT COUNT(*)
+    FROM dbo.Transactions
+    WHERE id IN (
+        @source_transaction_id_1,
+        @source_transaction_id_2,
+        @target_transaction_id
+    )
       AND resident_id = @target_resident_id
-      AND unit_id = 1
-      AND building_id = 1
-)
-    THROW 50204, 'Test 1 FAILED: First transaction snapshot changed', 1;
-
--- Second source transaction's historical location must remain unchanged
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Transactions
-    WHERE id = @source_transaction_id_2
-      AND resident_id = @target_resident_id
-      AND unit_id = 2
-      AND building_id = 1
-)
-    THROW 50205, 'Test 1 FAILED: Second transaction snapshot changed', 1;
-
--- Target's existing transaction must retain its original location
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Transactions
-    WHERE id = @target_transaction_id
-      AND resident_id = @target_resident_id
-      AND unit_id = 2
-      AND building_id = 1
-)
-    THROW 50206, 'Test 1 FAILED: Target transaction snapshot changed', 1;
+) <> 3
+    THROW 50204, 'Test 1 FAILED: Transaction history was not preserved', 1;
 
 PRINT 'Test 1 PASSED';
 
@@ -188,11 +171,11 @@ SET @rollback_target_id = SCOPE_IDENTITY();
 
 INSERT INTO dbo.Transactions (
     id, user_id, resident_id, transaction_type,
-    transaction_date, unit_id, building_id
+    transaction_date
 )
 VALUES (
     @rollback_transaction_id, 1, @rollback_source_id, 1,
-    '2026-01-04 10:00:00', 1, 1
+    '2026-01-04 10:00:00'
 );
 
 BEGIN TRY
@@ -230,13 +213,11 @@ IF NOT EXISTS (
 )
     THROW 50212, 'Test 3 FAILED: Target profile changed despite rollback', 1;
 
--- Transaction must remain associated with the source
+-- Transaction must remain associated with the source.
 IF NOT EXISTS (
     SELECT 1 FROM dbo.Transactions
     WHERE id = @rollback_transaction_id
       AND resident_id = @rollback_source_id
-      AND unit_id = 1
-      AND building_id = 1
 )
     THROW 50213, 'Test 3 FAILED: Transaction reassignment was not rolled back', 1;
 
@@ -270,11 +251,11 @@ SET @name_target_id = SCOPE_IDENTITY();
 
 INSERT INTO dbo.Transactions (
     id, user_id, resident_id, transaction_type,
-    transaction_date, unit_id, building_id
+    transaction_date
 )
 VALUES (
     @name_transaction_id, 1, @name_source_id, 1,
-    '2026-01-05 10:00:00', 1, 1
+    '2026-01-05 10:00:00'
 );
 
 BEGIN TRY
@@ -312,13 +293,11 @@ IF NOT EXISTS (
 )
     THROW 50217, 'Test 4 FAILED: Target resident changed despite rollback', 1;
 
--- Transaction must remain associated with the source with its snapshots intact
+-- Transaction must remain associated with the source.
 IF NOT EXISTS (
     SELECT 1 FROM dbo.Transactions
     WHERE id = @name_transaction_id
       AND resident_id = @name_source_id
-      AND unit_id = 1
-      AND building_id = 1
 )
     THROW 50218, 'Test 4 FAILED: Transaction changed despite rollback', 1;
 

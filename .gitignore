@@ -36,5 +36,10 @@ __pycache__/
 venv/
 allure-results/
 
+# Generated E2E reports, sanitized diagnostics, and pytest scratch files
+/artifacts/
+.pytest_cache/
+/se-metadata.json
+
 # Claude Code personal settings (per-developer, not shared)
 .claude/settings.local.json

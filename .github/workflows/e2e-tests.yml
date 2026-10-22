@@ -21,7 +21,8 @@ on:
         default: false
 
 # Defaults for automatic runs after staging deployment.
-# Manual runs use the inputs above.
+# Manual runs use the inputs above. Optional smoke mode is intentionally retained;
+# this does not fully implement PIT-492's request to remove the smoke filter entirely.
 env:
   RUN_FULL_E2E: "true"
   RUN_SMOKE_E2E: "false"
@@ -184,14 +185,20 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
+          import configparser
           import importlib.metadata
+          import os
           import xdist
 
+          config = configparser.ConfigParser(interpolation=None)
+          config.read("pytest.ini")
           print("pytest-xdist:", importlib.metadata.version("pytest-xdist"))
-          print("Tests will run serially using -n 0.")
+          print("pytest.ini addopts:", repr(config.get("pytest", "addopts", fallback="")))
+          print("PYTEST_ADDOPTS cleared:", os.environ.get("PYTEST_ADDOPTS") == "")
+          print("Collection and execution override addopts and run serially using -n 0.")
           PY
 
-      - name: Collect and run selected staging E2E suite
+      - name: Collect and run staging E2E (${{ needs.select-suite.outputs.suite }})
         shell: bash
         run: |
           set -euo pipefail
@@ -229,11 +236,11 @@ jobs:
             --alluredir=artifacts/allure-results \
             --junitxml=artifacts/e2e-results.xml
 
-      - name: Preserve E2E reports and login diagnostics
+      - name: Preserve staging E2E results and login diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-${{ needs.select-suite.outputs.suite }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: e2e-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             artifacts/login-diagnostics/
             artifacts/allure-results/

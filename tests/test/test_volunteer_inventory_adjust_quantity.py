@@ -1,48 +1,31 @@
 import pytest
 
 
-@pytest.mark.regression
-@pytest.mark.serial
-def test_inventory_adjust_quantity(login_with_volunteer, inventory_page):
-
-    item = "Body soap"
-    new_qty = 800
-
+@pytest.fixture
+def adjustable_general_item(login_with_volunteer, inventory_page, catalog_selection_report):
     inventory_page.click_on_inventory()
     inventory_page.wait_for_inventory_loaded()
+    return inventory_page.select_adjustable_general_item(report=catalog_selection_report)
 
-    # 🔥 capture original value
-    original_qty = inventory_page.get_inventory_quantity(item)
 
+@pytest.mark.regression
+@pytest.mark.serial
+def test_inventory_adjust_quantity(adjustable_general_item, inventory_page):
+    item, original_qty = adjustable_general_item
+    new_qty = original_qty + 1
+    inventory_page.search_item(item)
+    inventory_page.wait_for_general_results(item)
+    inventory_page.wait_for_search_results(item)
     try:
-        # -------------------------
-        # Adjust
-        # -------------------------
-        inventory_page.click_adjust(item)
-        inventory_page.wait_for_adjust_modal()
-
-        inventory_page.set_new_quantity(str(new_qty))
-        inventory_page.select_reason("Correction")
-        inventory_page.enter_comment("E2E test")
-
-        inventory_page.click_submit()
-        inventory_page.wait_for_adjust_complete(item, new_qty)
-
-        inventory_page.wait_for_inventory_loaded()
-
-        updated_qty = inventory_page.get_inventory_quantity(item)
-
-        assert updated_qty == new_qty, \
-            f"Expected {new_qty}, got {updated_qty}"
-
+        inventory_page.adjust_quantity(item, new_qty, "E2E quantity adjustment")
+        assert inventory_page.get_inventory_quantity(item) == new_qty
     finally:
-        # 🔥 CLEANUP (VERY IMPORTANT)
-        inventory_page.click_adjust(item)
-        inventory_page.wait_for_adjust_modal()
-
-        inventory_page.set_new_quantity(str(original_qty))
-        inventory_page.select_reason("Correction")
-        inventory_page.enter_comment("Cleanup")
-
-        inventory_page.click_submit()
-        inventory_page.wait_for_adjust_complete(item, original_qty)
+        # Dismiss any failed submission dialog and locate the item after page resets.
+        inventory_page.driver.refresh()
+        inventory_page.wait_for_inventory_loaded()
+        inventory_page.select_general_inventory()
+        inventory_page.search_item(item)
+        inventory_page.wait_for_general_results(item)
+        inventory_page.wait_for_search_results(item)
+        inventory_page.adjust_quantity(item, original_qty, "E2E cleanup")
+        assert inventory_page.get_inventory_quantity(item) == original_qty

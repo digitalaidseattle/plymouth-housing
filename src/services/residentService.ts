@@ -151,6 +151,43 @@ export async function getResidentsByBuilding(user: ClientPrincipal | null, build
   }
 }
 
+export async function getResidentsByIds(
+  user: ClientPrincipal | null,
+  residentIds: number[],
+) {
+  const uniqueIds = [...new Set(residentIds)];
+
+  if (uniqueIds.length === 0) {
+    return [];
+  }
+
+  try {
+    const filter = uniqueIds
+      .map((id) => `id eq ${id}`)
+      .join(' or ');
+
+    const result = await apiRequest<
+      Array<{
+        id: number;
+        name: string;
+        unit_id: number;
+        unit_number: string;
+        building_id: number;
+        building_name: string;
+        building_code: string;
+      }>
+    >({
+      url: `${ENDPOINTS.RESIDENTS_BY_BUILDING}?$filter=${encodeURIComponent(filter)}`,
+      role: getRole(user),
+    });
+
+    return result.value;
+  } catch (error) {
+    console.error('Error fetching residents by IDs:', error);
+    throw error;
+  }
+}
+
 export async function getAllResidents(user: ClientPrincipal | null) {
   try {
     const result = await apiRequest<Array<{

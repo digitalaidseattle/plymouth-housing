@@ -15,6 +15,7 @@ import {
   addResident,
   updateResident,
   getResidentsByBuilding,
+  getResidentsByIds,
   getAllResidents,
   getLastResidentVisit,
   mergeResidents,
@@ -281,6 +282,66 @@ describe('residentService', () => {
       });
 
       await expect(getResidentsByBuilding(user, buildingId)).rejects.toThrow('Error');
+    });
+  });
+
+  describe('getResidentsByIds', () => {
+    it('should fetch residents filtered by the requested IDs', async () => {
+      const mockResponse = {
+        value: [
+          {
+            id: 4,
+            name: 'Alice Smyth',
+            unit_id: 40,
+            unit_number: '401',
+            building_id: 1,
+            building_name: 'Alpha House',
+            building_code: 'AH',
+          },
+          {
+            id: 5,
+            name: 'Alice Smyth',
+            unit_id: 50,
+            unit_number: '502',
+            building_id: 2,
+            building_name: 'Beta House',
+            building_code: 'BH',
+          },
+        ],
+      };
+
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await getResidentsByIds(user, [4, 5]);
+
+      const filter = encodeURIComponent('id eq 4 or id eq 5');
+
+      expect(fetch).toHaveBeenCalledWith(
+        `${ENDPOINTS.RESIDENTS_BY_BUILDING}?$filter=${filter}`,
+        expect.objectContaining({ method: 'GET' }),
+      );
+      expect(result).toEqual(mockResponse.value);
+    });
+
+    it('should return an empty array without making a request when no IDs are supplied', async () => {
+      await expect(getResidentsByIds(user, [])).resolves.toEqual([]);
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error if the request fails', async () => {
+      (fetch as Mock).mockResolvedValue({
+        ok: false,
+        statusText: 'Error',
+        clone: () => ({
+          json: () => Promise.reject(new Error()),
+          text: () => Promise.resolve(''),
+        }),
+      });
+
+      await expect(getResidentsByIds(user, [4])).rejects.toThrow('Error');
     });
   });
 

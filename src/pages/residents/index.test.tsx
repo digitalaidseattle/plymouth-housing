@@ -16,6 +16,7 @@ vi.mock('../../services/residentService', () => ({
     { id: 1, name: 'Alpha House', code: 'AH' },
     { id: 2, name: 'Beta House', code: 'BH' },
   ]),
+  getResidentsByIds: vi.fn(),
   getAllResidents: vi.fn().mockResolvedValue([]),
   findResidentsByName: vi.fn(),
   mergeResidents: vi.fn(),
@@ -178,6 +179,7 @@ describe('ResidentsPage', () => {
       { id: 2, name: 'Beta House', code: 'BH' },
     ]);
 
+    vi.mocked(residentService.getResidentsByIds).mockResolvedValue([]);
     vi.mocked(residentService.getAllResidents).mockResolvedValue([]);
     vi.mocked(residentService.findResidentsByName).mockResolvedValue([]);
     vi.mocked(residentService.mergeResidents).mockResolvedValue(undefined);
@@ -394,7 +396,7 @@ describe('ResidentsPage', () => {
       { id: 5, name: 'Alice Smyth' },
     ]);
 
-    vi.mocked(residentService.getAllResidents).mockResolvedValue([
+    vi.mocked(residentService.getResidentsByIds).mockResolvedValue([
       {
         id: 4,
         name: 'Alice Smyth',
@@ -435,9 +437,20 @@ describe('ResidentsPage', () => {
       expect(
         screen.getByRole('button', { name: 'Merge with Alice Smyth (5)' }),
       ).toBeInTheDocument();
+
+      expect(
+        screen.getByText('Alice Smyth — AH · Unit 401'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Alice Smyth — BH · Unit 502'),
+      ).toBeInTheDocument();
     });
 
     expect(updateResidentName).not.toHaveBeenCalled();
+    expect(residentService.getResidentsByIds).toHaveBeenCalledWith(
+      dummyUser,
+      [4, 5],
+    );
   });
 
   test('merges the selected duplicate and updates its profile in one request', async () => {
@@ -457,7 +470,7 @@ describe('ResidentsPage', () => {
       { id: 5, name: 'Alice Smyth' },
     ]);
 
-    vi.mocked(residentService.getAllResidents).mockResolvedValue([
+    vi.mocked(residentService.getResidentsByIds).mockResolvedValue([
       {
         id: 4,
         name: 'Alice Smyth',

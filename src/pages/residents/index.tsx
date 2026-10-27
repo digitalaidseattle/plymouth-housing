@@ -30,6 +30,7 @@ import { UserContext } from '../../components/contexts/UserContext';
 import { Building, SnackbarState, Unit } from '../../types/interfaces';
 import {
   getBuildings,
+  getResidentsByIds,
   getAllResidents,
   findResidentsByName,
   mergeResidents,
@@ -273,12 +274,13 @@ const ResidentsPage = () => {
         if (otherMatches.length > 0) {
           // Fetch fresh location details rather than relying on a potentially
           // stale copy of the resident list.
-          const currentResidents = await getAllResidents(user);
-          setAllResidents(currentResidents);
-          setAllResidentsError(null);
+          const residentDetails = await getResidentsByIds(
+            user,
+            otherMatches.map((match) => match.id),
+          );
 
           const residentsById = new Map(
-            currentResidents.map((resident) => [resident.id, resident]),
+            residentDetails.map((resident) => [resident.id, resident]),
           );
 
           const residentsWithLocation: ResidentMatch[] = otherMatches.map(

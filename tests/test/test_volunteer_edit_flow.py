@@ -284,45 +284,12 @@ def test_cancel_edit_discards_changes(
 # -----------------------------------------------------
 
 @pytest.mark.regression
+@pytest.mark.serial
 @pytest.mark.edit_feature
-def test_welcome_basket_not_editable(
-    driver,
-    login_with_volunteer,
-    history_page
-):
-    """
-    Welcome Basket transactions should not show Edit button.
-    """
+def test_welcome_basket_not_editable(driver, login_with_volunteer, record_property):
+    from tests.pages.welcome_history_page import WelcomeHistoryPage, report_history_record
 
-    history_page.open_history()
-
-    cards = history_page.get_history_cards()
-
-    welcome_basket_card = None
-
-    for card in cards:
-        if "Welcome Basket" in card.text:
-            welcome_basket_card = card
-            break
-
-    if welcome_basket_card is None:
-        pytest.skip("No Welcome Basket transaction found in history")
-
-    history_page.driver.execute_script(
-        "arguments[0].scrollIntoView({block:'center'});",
-        welcome_basket_card
-    )
-
-    history_page.driver.execute_script(
-        "arguments[0].click();",
-        welcome_basket_card
-    )
-
-    history_page.wait_for_visibility(
-        history_page.locators.TRANSACTION_DETAILS_DIALOG
-    )
-
-    assert not history_page.is_visible(
-        history_page.locators.EDIT_BUTTON,
-        timeout=3
-    ), "Welcome Basket transactions should not show Edit button"
+    page = WelcomeHistoryPage(driver)
+    page.open()
+    card, _ = page.find_existing(lambda details: report_history_record(record_property, details))
+    page.assert_passive(card)

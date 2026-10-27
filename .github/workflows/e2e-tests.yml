@@ -136,4 +136,17 @@ jobs:
             -m smoke \
             --maxfail=1 \
             --disable-warnings \
+            --alluredir=artifacts/allure-results \
             -q
+
+
+      - name: Preserve E2E login diagnostics and Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/login-diagnostics/
+            artifacts/allure-results/
+          if-no-files-found: ignore
+          retention-days: 7

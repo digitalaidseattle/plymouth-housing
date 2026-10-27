@@ -11,17 +11,17 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { Column, FlaggedTransaction } from '../../types/interfaces';
+import { Column, ResidentVisits } from '../../types/interfaces';
 import { formatShortDate } from '../History/historyUtils';
 import DataTable from './DataTable';
 
 interface ResidentsDetailTableProps {
-  rows: FlaggedTransaction[];
+  rows: ResidentVisits[];
   repeatsOnly: boolean;
   onRepeatsOnlyChange: (checked: boolean) => void;
 }
 
-const columns: Column<FlaggedTransaction>[] = [
+const columns: Column<ResidentVisits>[] = [
   {
     label: 'Resident',
     render: (row) => (
@@ -49,8 +49,8 @@ const columns: Column<FlaggedTransaction>[] = [
   { label: '# Visits', align: 'right', render: (row) => row.visitCount },
   { label: '# Items', align: 'right', render: (row) => row.total_quantity },
   {
-    label: 'Transaction Date',
-    render: (row) => formatShortDate(row.transaction_date),
+    label: 'Last Visit',
+    render: (row) => formatShortDate(row.lastVisit),
   },
 ];
 
@@ -74,7 +74,7 @@ const ResidentsDetailTable: React.FC<ResidentsDetailTableProps> = ({
     }
     columns={columns}
     rows={rows}
-    getRowKey={(row) => row.transaction_id}
+    getRowKey={(row) => row.resident_id}
     getRowHighlight={(row) => row.isDuplicate}
     emptyMessage={
       repeatsOnly

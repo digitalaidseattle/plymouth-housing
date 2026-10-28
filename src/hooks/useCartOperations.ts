@@ -11,7 +11,10 @@ interface UseCartOperationsProps {
   setCheckoutItems: (items: CategoryProps[]) => void;
 }
 
-export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOperationsProps) {
+export function useCartOperations({
+  checkoutItems,
+  setCheckoutItems,
+}: UseCartOperationsProps) {
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
@@ -22,45 +25,48 @@ export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOp
       (cat: CategoryProps) => cat.id === categoryId,
     );
 
-    if (categoryIndex !== -1) {
-      const categoryData = updatedCheckoutItems[categoryIndex];
-      const categoryItems = [...categoryData.items];
-      const itemIndex = categoryItems.findIndex(
-        (addedItem: CheckoutItemProp) => addedItem.id === item.id,
-      );
-
-      if (itemIndex !== -1) {
-        const foundItem = categoryItems[itemIndex];
-        // quantity can be negative (decrement); remove item entirely if it reaches 0
-        const newQuantity = foundItem.quantity + quantity;
-        if (newQuantity <= 0) {
-          categoryItems.splice(itemIndex, 1);
-        } else {
-          categoryItems[itemIndex] = { ...foundItem, quantity: newQuantity };
-        }
-      } else if (quantity > 0) {
-        categoryItems.push({ ...item, quantity });
-      }
-
-      const newCategoryCount = categoryItems.reduce(
-        (acc, currentItem) => acc + currentItem.quantity,
-        0,
-      );
-      updatedCheckoutItems[categoryIndex] = {
-        ...categoryData,
-        items: categoryItems,
-        categoryCount: newCategoryCount,
-      };
+    if (categoryIndex === -1) {
+      console.error(`addItemToCart: no cart category with id ${categoryId}`);
+      return;
     }
+
+    const categoryData = updatedCheckoutItems[categoryIndex];
+    const categoryItems = [...categoryData.items];
+    const itemIndex = categoryItems.findIndex(
+      (addedItem: CheckoutItemProp) => addedItem.id === item.id,
+    );
+
+    if (itemIndex !== -1) {
+      const foundItem = categoryItems[itemIndex];
+      // quantity can be negative (decrement); remove item entirely if it reaches 0
+      const newQuantity = foundItem.quantity + quantity;
+      if (newQuantity <= 0) {
+        categoryItems.splice(itemIndex, 1);
+      } else {
+        categoryItems[itemIndex] = { ...foundItem, quantity: newQuantity };
+      }
+    } else if (quantity > 0) {
+      categoryItems.push({ ...item, quantity });
+    }
+
+    const newCategoryCount = categoryItems.reduce(
+      (acc, currentItem) => acc + currentItem.quantity,
+      0,
+    );
+    updatedCheckoutItems[categoryIndex] = {
+      ...categoryData,
+      items: categoryItems,
+      categoryCount: newCategoryCount,
+    };
 
     setCheckoutItems(updatedCheckoutItems);
   };
 
   // Removes the item entirely from the cart regardless of its current quantity (a "delete row" action,
   // distinct from addItemToCart which decrements one at a time).
-  const removeItemFromCart = (itemId: number, categoryName: string) => {
+  const removeItemFromCart = (itemId: number, categoryId: number) => {
     const updatedCheckoutItems = checkoutItems.map((category) => {
-      if (category.category !== categoryName) return category;
+      if (category.id !== categoryId) return category;
 
       const updatedItems = category.items.filter(
         (addedItem: CheckoutItemProp) => addedItem.id !== itemId,
@@ -68,7 +74,10 @@ export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOp
       return {
         ...category,
         items: updatedItems,
-        categoryCount: updatedItems.reduce((count, item) => count + item.quantity, 0),
+        categoryCount: updatedItems.reduce(
+          (count, item) => count + item.quantity,
+          0,
+        ),
       };
     });
 

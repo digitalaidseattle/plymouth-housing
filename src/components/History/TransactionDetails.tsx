@@ -105,7 +105,10 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
         if (mounted) setEditTransaction(data);
       } catch (error) {
         console.error('Failed to load transaction details:', error);
-        showSnackbar('Could not load transaction details. Please try again.', 'error');
+        showSnackbar(
+          'Could not load transaction details. Please try again.',
+          'error',
+        );
       } finally {
         if (mounted) setLoading(false);
       }
@@ -151,56 +154,36 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
 
   return (
     <>
-    <DialogTemplate
-      showDialog={showDialog}
-      handleShowDialog={onClose}
-      title="Transaction Details"
-      {...(checkoutTransaction.item_type === 'general' && editTransaction && {
-        handleSubmit: handleEdit,
-        submitButtonText: 'Edit',
-        isSubmitting: loading,
-      })}
-    >
-      {loading ? (
-        <Stack
-          id="transaction-details-loading"
-          data-testid="transaction-details-content"
-          sx={{ alignItems: 'center', py: 4 }}
-        >
-          <CircularProgress size={24} />
-        </Stack>
-      ) : (
-        <Stack
-          data-testid="transaction-details-content"
-          sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 2 }}
-        >
-          {/* Card 1: Resident Information */}
-          <Card
+      <DialogTemplate
+        showDialog={showDialog}
+        handleShowDialog={onClose}
+        title="Transaction Details"
+        {...(checkoutTransaction.item_type === 'general' &&
+          editTransaction && {
+            handleSubmit: handleEdit,
+            submitButtonText: 'Edit',
+            isSubmitting: loading,
+          })}
+      >
+        {loading ? (
+          <Stack
+            id="transaction-details-loading"
+            data-testid="transaction-details-content"
+            sx={{ alignItems: 'center', py: 4 }}
+          >
+            <CircularProgress size={24} />
+          </Stack>
+        ) : (
+          <Stack
+            data-testid="transaction-details-content"
             sx={{
-              backgroundColor: theme.palette.grey[50],
-              border: `1px solid ${theme.palette.grey[200]}`,
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              gap: 2,
             }}
           >
-            <CardContent sx={{ p: 2 }}>
-              <Typography
-                variant="body2"
-                sx={{ color: theme.palette.text.primary, mb: 1 }}
-              >
-                {checkoutTransaction.resident_name}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                {checkoutTransaction.building_code} -{' '}
-                {checkoutTransaction.building_name} -{' '}
-                {checkoutTransaction.unit_number}
-              </Typography>
-            </CardContent>
-          </Card>
-
-          <Stack sx={{ overflowY: 'auto', flex: 1, minHeight: 0, gap: 2 }}>
-            {/* Card 2: Current Effective Items */}
+            {/* Card 1: Resident Information */}
             <Card
               sx={{
                 backgroundColor: theme.palette.grey[50],
@@ -208,40 +191,89 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
               }}
             >
               <CardContent sx={{ p: 2 }}>
-                <Stack
-                  direction="row"
-                  sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.palette.text.primary, mb: 1 }}
                 >
-                  <Typography
-                    variant="caption"
-                    sx={{ color: theme.palette.text.secondary }}
-                  >
-                    Items
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={effectiveItems.reduce(
-                      (sum, item: CheckoutItemProp) => sum + item.quantity,
-                      0,
-                    )}
-                    sx={{
-                      backgroundColor: theme.palette.success.lighter,
-                      color: theme.palette.success.dark,
-                      fontSize: theme.typography.caption.fontSize,
-                      height: 22,
-                      minWidth: 44,
-                      px: 0.75,
-                    }}
-                  />
-                </Stack>
+                  {checkoutTransaction.resident_name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.palette.text.primary }}
+                >
+                  {checkoutTransaction.building_code} -{' '}
+                  {checkoutTransaction.building_name} -{' '}
+                  {checkoutTransaction.unit_number}
+                </Typography>
+              </CardContent>
+            </Card>
 
-                {(editTransaction?.correctionTransactions?.length ?? 0) > 0 ? (
-                  effectiveItems.length > 0 ? (
+            <Stack sx={{ overflowY: 'auto', flex: 1, minHeight: 0, gap: 2 }}>
+              {/* Card 2: Current Effective Items */}
+              <Card
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  border: `1px solid ${theme.palette.grey[200]}`,
+                }}
+              >
+                <CardContent sx={{ p: 2 }}>
+                  <Stack
+                    direction="row"
+                    sx={{
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 1.5,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{ color: theme.palette.text.secondary }}
+                    >
+                      Items
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={effectiveItems.reduce(
+                        (sum, item: CheckoutItemProp) => sum + item.quantity,
+                        0,
+                      )}
+                      sx={{
+                        backgroundColor: theme.palette.success.lighter,
+                        color: theme.palette.success.dark,
+                        fontSize: theme.typography.caption.fontSize,
+                        height: 22,
+                        minWidth: 44,
+                        px: 0.75,
+                      }}
+                    />
+                  </Stack>
+
+                  {(editTransaction?.correctionTransactions?.length ?? 0) >
+                  0 ? (
+                    effectiveItems.length > 0 ? (
+                      <Stack sx={{ gap: 0.75 }}>
+                        {effectiveItems.map((item: CheckoutItemProp) => (
+                          <TransactionItemCard
+                            key={item.id}
+                            itemName={item.name}
+                            quantity={item.quantity}
+                          />
+                        ))}
+                      </Stack>
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ color: theme.palette.text.secondary }}
+                      >
+                        None
+                      </Typography>
+                    )
+                  ) : originalItems.length > 0 ? (
                     <Stack sx={{ gap: 0.75 }}>
-                      {effectiveItems.map((item: CheckoutItemProp) => (
+                      {originalItems.map((item) => (
                         <TransactionItemCard
                           key={item.id}
-                          itemName={item.name}
+                          itemName={getItemName(item.item_id, itemNames)}
                           quantity={item.quantity}
                         />
                       ))}
@@ -253,115 +285,106 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                     >
                       None
                     </Typography>
-                  )
-                ) : originalItems.length > 0 ? (
-                  <Stack sx={{ gap: 0.75 }}>
-                    {originalItems.map((item) => (
-                      <TransactionItemCard
-                        key={item.id}
-                        itemName={getItemName(item.item_id, itemNames)}
-                        quantity={item.quantity}
-                      />
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    sx={{ color: theme.palette.text.secondary }}
-                  >
-                    None
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
 
-            {/* Card 3: History Log */}
-            {originalItems.length > 0 && (
-              <Accordion
-                elevation={1}
-                id="transaction-details-history-accordion"
-                sx={{
-                  backgroundColor: theme.palette.grey[50],
-                  border: `1px solid ${theme.palette.grey[200]}`,
-                  '&:before': { display: 'none' },
-                  borderRadius: 1,
-                }}
-              >
-                <AccordionSummary
-                  data-testid="transaction-details-history"
-                  expandIcon={<ExpandMoreIcon fontSize="small" />}
+              {/* Card 3: History Log */}
+              {originalItems.length > 0 && (
+                <Accordion
+                  elevation={1}
+                  id="transaction-details-history-accordion"
                   sx={{
-                    minHeight: 40,
-                    '& .MuiAccordionSummary-content': { my: 0.5 },
+                    backgroundColor: theme.palette.grey[50],
+                    border: `1px solid ${theme.palette.grey[200]}`,
+                    '&:before': { display: 'none' },
+                    borderRadius: 1,
                   }}
                 >
-                  <Typography
-                    variant="caption"
-                    sx={{ color: theme.palette.text.secondary }}
+                  <AccordionSummary
+                    data-testid="transaction-details-history"
+                    expandIcon={<ExpandMoreIcon fontSize="small" />}
+                    sx={{
+                      minHeight: 40,
+                      '& .MuiAccordionSummary-content': { my: 0.5 },
+                    }}
                   >
-                    History
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails
-                  sx={{ p: 2, pt: 0, maxHeight: 240, overflowY: 'auto', pr: 1 }}
-                >
-                  <Stack sx={{ gap: 1 }}>
-                    {sortedHistoryEntries.map(
-                      (
-                        { transaction: historyTransaction, isCorrection },
-                        index,
-                      ) => (
-                        <Stack
-                          key={historyTransaction.transaction_id ?? index}
-                          sx={{ gap: 1 }}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              fontWeight: 500,
-                            }}
+                    <Typography
+                      variant="caption"
+                      sx={{ color: theme.palette.text.secondary }}
+                    >
+                      History
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails
+                    sx={{
+                      p: 2,
+                      pt: 0,
+                      maxHeight: 240,
+                      overflowY: 'auto',
+                      pr: 1,
+                    }}
+                  >
+                    <Stack sx={{ gap: 1 }}>
+                      {sortedHistoryEntries.map(
+                        (
+                          { transaction: historyTransaction, isCorrection },
+                          index,
+                        ) => (
+                          <Stack
+                            key={historyTransaction.transaction_id ?? index}
+                            sx={{ gap: 1 }}
                           >
-                            {formatTransactionDate(
-                              historyTransaction.transaction_date ||
-                                checkoutTransaction.transaction_date,
-                              historyTransaction.user_id
-                                ? getUserName(
-                                    historyTransaction.user_id,
-                                    userList,
-                                  )
-                                : undefined,
-                              '',
-                            )}
-                          </Typography>
-                          <Stack sx={{ gap: 0.5 }}>
-                            {(historyTransaction.items ?? []).map((item) => (
-                              <TransactionItemCard
-                                key={item.id}
-                                itemName={getItemName(item.item_id, itemNames)}
-                                quantity={item.quantity}
-                                includeSign={isCorrection}
-                              />
-                            ))}
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: theme.palette.text.secondary,
+                                fontWeight: 500,
+                              }}
+                            >
+                              {formatTransactionDate(
+                                historyTransaction.transaction_date ||
+                                  checkoutTransaction.transaction_date,
+                                historyTransaction.user_id
+                                  ? getUserName(
+                                      historyTransaction.user_id,
+                                      userList,
+                                    )
+                                  : undefined,
+                                '',
+                              )}
+                            </Typography>
+                            <Stack sx={{ gap: 0.5 }}>
+                              {(historyTransaction.items ?? []).map((item) => (
+                                <TransactionItemCard
+                                  key={item.id}
+                                  itemName={getItemName(
+                                    item.item_id,
+                                    itemNames,
+                                  )}
+                                  quantity={item.quantity}
+                                  includeSign={isCorrection}
+                                />
+                              ))}
+                            </Stack>
                           </Stack>
-                        </Stack>
-                      ),
-                    )}
-                  </Stack>
-                </AccordionDetails>
-              </Accordion>
-            )}
+                        ),
+                      )}
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+            </Stack>
           </Stack>
-        </Stack>
-      )}
-    </DialogTemplate>
-    <SnackbarAlert
-      open={snackbarState.open}
-      onClose={handleClose}
-      severity={snackbarState.severity}
-    >
-      {snackbarState.message}
-    </SnackbarAlert>
+        )}
+      </DialogTemplate>
+      <SnackbarAlert
+        open={snackbarState.open}
+        onClose={handleClose}
+        severity={snackbarState.severity}
+      >
+        {snackbarState.message}
+      </SnackbarAlert>
     </>
   );
 };

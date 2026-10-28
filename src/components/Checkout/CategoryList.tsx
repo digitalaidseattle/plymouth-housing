@@ -26,7 +26,7 @@ type CategoryListProps = {
     quantity: number,
     categoryId: number,
   ) => void;
-  removeItemFromCart: (itemId: number, categoryName: string) => void;
+  removeItemFromCart: (itemId: number, categoryId: number) => void;
   onApplianceMiscClick: (item: CheckoutItemProp) => void;
   onPastCheckoutClick: (item: CheckoutItemProp) => void;
 };

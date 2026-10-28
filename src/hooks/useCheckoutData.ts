@@ -52,15 +52,9 @@ export function useCheckoutData({
     try {
       const categorizedItems = await getCategorizedItems(user);
 
-      setData(categorizedItems);
-
-      const cleanCheckout = categorizedItems.map((category: CategoryProps) => ({
-        ...category,
-        categoryCount: 0,
-        items: [],
-      }));
-      setCheckoutItems(cleanCheckout);
-
+      // Resolve the welcome basket before touching state so a failure leaves
+      // the previous state intact rather than a half-updated page.
+      let welcomeBasket: CategoryProps[] | null = null;
       if (checkoutType === 'welcomeBasket') {
         const welcomeBasketCategory = categorizedItems.find(
           (category: CategoryProps) =>
@@ -74,10 +68,19 @@ export function useCheckoutData({
             item.id === WELCOME_BASKET_ITEMS.FULL ||
             item.id === WELCOME_BASKET_ITEMS.TWIN,
         );
-        setWelcomeBasketData([
-          { ...welcomeBasketCategory, items: filteredItems },
-        ]);
+        welcomeBasket = [{ ...welcomeBasketCategory, items: filteredItems }];
       }
+
+      setData(categorizedItems);
+
+      const cleanCheckout = categorizedItems.map((category: CategoryProps) => ({
+        ...category,
+        categoryCount: 0,
+        items: [],
+      }));
+      setCheckoutItems(cleanCheckout);
+
+      if (welcomeBasket) setWelcomeBasketData(welcomeBasket);
     } catch (error) {
       onErrorRef.current('Could not get categorized items. \r\n' + error);
       console.error('Error fetching categorized items:', error);

@@ -37,7 +37,7 @@ type CheckoutDialogProps = {
   onClose: () => void;
   onSuccess: (errorMessage?: string) => void;
   checkoutItems: CategoryProps[];
-  removeItemFromCart: (itemId: number, categoryName: string) => void;
+  removeItemFromCart: (itemId: number, categoryId: number) => void;
   addItemToCart: (
     item: CheckoutItemProp,
     quantity: number,

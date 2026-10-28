@@ -15,7 +15,6 @@ const ItemQuantityButton = ({
   removeItemFromCart,
   removeButton,
   disableAdd,
-  categoryName,
   categoryId,
 }: CheckoutCardProps) => {
   const foundInCart = categoryCheckout?.items?.find(
@@ -82,7 +81,7 @@ const ItemQuantityButton = ({
             typography: 'body2',
             px: { xs: 1, md: 3 },
           }}
-          onClick={() => removeItemFromCart(item.id, categoryName)}
+          onClick={() => removeItemFromCart(item.id, categoryId)}
         >
           Remove
         </Button>

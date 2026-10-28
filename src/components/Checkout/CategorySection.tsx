@@ -23,7 +23,7 @@ type CategorySectionProps = {
     quantity: number,
     categoryId: number,
   ) => void;
-  removeItemFromCart: (itemId: number, categoryName: string) => void;
+  removeItemFromCart: (itemId: number, categoryId: number) => void;
   removeButton: boolean;
   checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];

@@ -81,6 +81,21 @@ export async function findResident(user: ClientPrincipal | null, name: string, u
   }
 }
 
+export async function findResidentsByName(user: ClientPrincipal | null, name: string) {
+  try {
+    const safeName = name.replace(/'/g, "''");
+    const filter = encodeURIComponent(`name eq '${safeName}'`);
+    const result = await apiRequest<Array<{ id: number; name: string }>>({
+      url: `${ENDPOINTS.RESIDENTS}?$filter=${filter}`,
+      role: getRole(user),
+    });
+    return result.value;
+  } catch (error) {
+    console.error('Error fetching residents by name:', error);
+    throw error;
+  }
+}
+
 export async function addResident(user: ClientPrincipal | null, name: string, unitId: number) {
   try {
     const result = await apiRequest<Array<{ id: number; name: string }>>({
@@ -96,13 +111,18 @@ export async function addResident(user: ClientPrincipal | null, name: string, un
   }
 }
 
-export async function updateResident(user: ClientPrincipal | null, id: number, name: string) {
+export async function updateResident(
+  user: ClientPrincipal | null,
+  id: number,
+  name: string,
+  unitId: number
+) {
   try {
     await apiRequest({
       url: `${ENDPOINTS.RESIDENTS}/id/${id}`,
       role: getRole(user),
       method: 'PATCH',
-      body: { name },
+      body: { name, unit_id: unitId },
     });
   } catch (error) {
     console.error('Error updating resident:', error);
@@ -127,6 +147,43 @@ export async function getResidentsByBuilding(user: ClientPrincipal | null, build
     return result.value;
   } catch (error) {
     console.error('Error fetching residents by building:', error);
+    throw error;
+  }
+}
+
+export async function getResidentsByIds(
+  user: ClientPrincipal | null,
+  residentIds: number[],
+) {
+  const uniqueIds = [...new Set(residentIds)];
+
+  if (uniqueIds.length === 0) {
+    return [];
+  }
+
+  try {
+    const filter = uniqueIds
+      .map((id) => `id eq ${id}`)
+      .join(' or ');
+
+    const result = await apiRequest<
+      Array<{
+        id: number;
+        name: string;
+        unit_id: number;
+        unit_number: string;
+        building_id: number;
+        building_name: string;
+        building_code: string;
+      }>
+    >({
+      url: `${ENDPOINTS.RESIDENTS_BY_BUILDING}?$filter=${encodeURIComponent(filter)}`,
+      role: getRole(user),
+    });
+
+    return result.value;
+  } catch (error) {
+    console.error('Error fetching residents by IDs:', error);
     throw error;
   }
 }
@@ -163,6 +220,31 @@ export async function getLastResidentVisit(user: ClientPrincipal | null, residen
     return result;
   } catch (error) {
     console.error('Error fetching last resident visit:', error);
+    throw error;
+  }
+}
+
+export async function mergeResidents(
+  user: ClientPrincipal | null,
+  sourceResidentId: number,
+  targetResidentId: number,
+  targetName: string,
+  targetUnitId: number,
+) {
+  try {
+    await apiRequest({
+      url: ENDPOINTS.MERGE_RESIDENTS,
+      role: getRole(user),
+      method: 'POST',
+      body: {
+        source_resident_id: sourceResidentId,
+        target_resident_id: targetResidentId,
+        target_name: targetName,
+        target_unit_id: targetUnitId,
+      },
+    });
+  } catch (error) {
+    console.error('Error merging residents:', error);
     throw error;
   }
 }

@@ -15,11 +15,11 @@ export function useCartOperations({ checkoutItems, setCheckoutItems }: UseCartOp
   const addItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
-    category: string,
+    categoryId: number,
   ) => {
     const updatedCheckoutItems = [...checkoutItems];
     const categoryIndex = updatedCheckoutItems.findIndex(
-      (cat: CategoryProps) => cat.category === category,
+      (cat: CategoryProps) => cat.id === categoryId,
     );
 
     if (categoryIndex !== -1) {

@@ -35,8 +35,9 @@ const VolunteerHome: React.FC = () => {
     if (!user) return;
     getCategorizedItems(user, true).catch((error) => {
       console.error('Error refreshing categorized items:', error);
+      showSnackbar('Could not refresh the item list. Please try again.', 'error');
     });
-  }, [user]);
+  }, [user, showSnackbar]);
 
   // Success/cancel message from CheckoutPage; absent on a plain visit.
   useEffect(() => {

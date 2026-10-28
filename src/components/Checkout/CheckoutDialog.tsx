@@ -41,7 +41,7 @@ type CheckoutDialogProps = {
   addItemToCart: (
     item: CheckoutItemProp,
     quantity: number,
-    category: string,
+    categoryId: number,
   ) => void;
   setCheckoutItems: (items: CategoryProps[]) => void;
   selectedBuildingCode: string;
@@ -489,7 +489,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                   category={section}
                   categoryCheckout={section}
                   addItemToCart={(item, quantity) => {
-                    addItemToCart(item, quantity, section.category);
+                    addItemToCart(item, quantity, section.id);
                   }}
                   removeItemFromCart={removeItemFromCart}
                   removeButton={true}

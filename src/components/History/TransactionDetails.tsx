@@ -29,6 +29,8 @@ import {
   getUserName,
 } from '../../utils/transactionUtils';
 import { signNumber } from '../../utils/textUtils';
+import SnackbarAlert from '../SnackbarAlert';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 interface TransactionItemCardProps {
   itemName: string;
@@ -86,6 +88,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
 
   const [loading, setLoading] = useState(false);
   const [editTransaction, setEditTransaction] =
@@ -102,6 +105,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
         if (mounted) setEditTransaction(data);
       } catch (error) {
         console.error('Failed to load transaction details:', error);
+        showSnackbar('Could not load transaction details. Please try again.', 'error');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -109,7 +113,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
     return () => {
       mounted = false;
     };
-  }, [showDialog, checkoutTransaction, user]);
+  }, [showDialog, checkoutTransaction, user, showSnackbar]);
 
   const handleEdit = (e: SyntheticEvent) => {
     e.preventDefault();
@@ -146,6 +150,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   );
 
   return (
+    <>
     <DialogTemplate
       showDialog={showDialog}
       handleShowDialog={onClose}
@@ -350,6 +355,14 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
         </Stack>
       )}
     </DialogTemplate>
+    <SnackbarAlert
+      open={snackbarState.open}
+      onClose={handleClose}
+      severity={snackbarState.severity}
+    >
+      {snackbarState.message}
+    </SnackbarAlert>
+    </>
   );
 };
 

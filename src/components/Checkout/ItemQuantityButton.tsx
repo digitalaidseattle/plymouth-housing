@@ -16,17 +16,18 @@ const ItemQuantityButton = ({
   removeButton,
   disableAdd,
   categoryName,
+  categoryId,
 }: CheckoutCardProps) => {
   const foundInCart = categoryCheckout?.items?.find(
     (v: CheckoutItemProp) => v.id === item.id,
   );
 
   const handleAddClick = () => {
-    addItemToCart(item, 1, categoryName);
+    addItemToCart(item, 1, categoryId);
   };
 
   const handleRemoveClick = () => {
-    addItemToCart(item, -1, categoryName);
+    addItemToCart(item, -1, categoryId);
   };
 
   return (

@@ -21,7 +21,7 @@ type CategorySectionProps = {
   addItemToCart: (
     item: CheckoutItemProp,
     quantity: number,
-    category: string,
+    categoryId: number,
   ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
@@ -122,6 +122,7 @@ const CategorySection = ({
               removeButton={removeButton}
               categoryLimit={category.checkout_limit}
               categoryName={category.category}
+              categoryId={category.id}
               checkoutType={checkoutType}
               checkoutHistory={checkoutHistory}
               selectedWelcomeItemName={selectedWelcomeItemName}

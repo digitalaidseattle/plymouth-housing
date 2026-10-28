@@ -34,6 +34,13 @@ const Profile = () => {
     ? 'Volunteer'
     : '';
 
+  const initials = username
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('');
+
   const handleLogout = async () => {
     localStorage.clear();
     window.location.href = '/.auth/logout?post_logout_redirect_uri=/login.html';
@@ -68,7 +75,9 @@ const Profile = () => {
         onClick={handleToggle}
       >
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', p: 0.5 }}>
-          <Avatar alt="profile user" sx={{ width: 32, height: 32 }} />
+          <Avatar alt="profile user" sx={{ width: 32, height: 32, fontSize: 14 }}>
+            {initials}
+          </Avatar>
           <Typography variant="subtitle1">{username}</Typography>
         </Stack>
       </ButtonBase>
@@ -89,7 +98,9 @@ const Profile = () => {
                 <ClickAwayListener onClickAway={handleClose}>
                   <MainCard elevation={0} border={false} content={false}>
                     <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Avatar alt="profile user" sx={{ width: 44, height: 44 }} />
+                      <Avatar alt="profile user" sx={{ width: 44, height: 44 }}>
+                        {initials}
+                      </Avatar>
                       <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Typography
                           variant="subtitle1"

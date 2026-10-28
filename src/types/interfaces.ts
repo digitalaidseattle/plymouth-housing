@@ -44,13 +44,14 @@ export type CheckoutCardProps = {
   addItemToCart: (
     item: CheckoutItemProp,
     quantity: number,
-    category: string,
+    categoryId: number,
   ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   removeButton: boolean;
   disableAdd?: boolean;
   categoryLimit: number;
   categoryName: string;
+  categoryId: number;
   checkoutType?: CheckoutType;
   checkoutHistory?: CheckoutHistoryItem[];
   // Name of the welcome-basket item currently in the cart (across all categories),

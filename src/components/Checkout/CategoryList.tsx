@@ -24,7 +24,7 @@ type CategoryListProps = {
   addItemToCart: (
     item: CheckoutItemProp,
     quantity: number,
-    category: string,
+    categoryId: number,
   ) => void;
   removeItemFromCart: (itemId: number, categoryName: string) => void;
   onApplianceMiscClick: (item: CheckoutItemProp) => void;
@@ -63,7 +63,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   const wrappedAddItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
-    categoryName: string,
+    categoryId: number,
   ): void => {
     if (quantity > 0) {
       if (item.id === SPECIAL_ITEMS.APPLIANCE_MISC) {
@@ -77,7 +77,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         return;
       }
     }
-    addItemToCart(item, quantity, categoryName);
+    addItemToCart(item, quantity, categoryId);
   };
 
   if (searchActive) {
@@ -102,13 +102,14 @@ const CategoryList: React.FC<CategoryListProps> = ({
                 item={item}
                 categoryCheckout={matchingCategory}
                 addItemToCart={(item, quantity) =>
-                  wrappedAddItemToCart(item, quantity, section.category)
+                  wrappedAddItemToCart(item, quantity, section.id)
                 }
                 checkoutType={sectionType}
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 categoryLimit={section.checkout_limit}
                 categoryName={section.category}
+                categoryId={section.id}
                 checkoutHistory={checkoutHistory}
                 selectedWelcomeItemName={selectedWelcomeItemName}
               />
@@ -140,7 +141,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
           category={category}
           categoryCheckout={getMatchingCategory(category.category)}
           addItemToCart={(item, quantity) =>
-            wrappedAddItemToCart(item, quantity, category.category)
+            wrappedAddItemToCart(item, quantity, category.id)
           }
           removeItemFromCart={removeItemFromCart}
           removeButton={false}

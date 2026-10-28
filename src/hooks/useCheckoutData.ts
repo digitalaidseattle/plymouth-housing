@@ -66,19 +66,17 @@ export function useCheckoutData({
           (category: CategoryProps) =>
             category.id === CATEGORY_IDS.WELCOME_BASKET,
         );
-        if (welcomeBasketCategory) {
-          const filteredItems = (welcomeBasketCategory.items || []).filter(
-            (item: CheckoutItemProp) =>
-              item.id === WELCOME_BASKET_ITEMS.FULL ||
-              item.id === WELCOME_BASKET_ITEMS.TWIN,
-          );
-          setWelcomeBasketData([
-            { ...welcomeBasketCategory, items: filteredItems },
-          ]);
-        } else {
-          // TODO: dead code - 'Welcome Basket' category always exists. Should throw instead of silently showing empty page.
-          setWelcomeBasketData([]);
+        if (!welcomeBasketCategory) {
+          throw new Error('Welcome Basket category not found.');
         }
+        const filteredItems = (welcomeBasketCategory.items || []).filter(
+          (item: CheckoutItemProp) =>
+            item.id === WELCOME_BASKET_ITEMS.FULL ||
+            item.id === WELCOME_BASKET_ITEMS.TWIN,
+        );
+        setWelcomeBasketData([
+          { ...welcomeBasketCategory, items: filteredItems },
+        ]);
       }
     } catch (error) {
       onErrorRef.current('Could not get categorized items. \r\n' + error);

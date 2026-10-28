@@ -21,8 +21,9 @@ const AdminHome: React.FC = () => {
     if (!user) return;
     getCategorizedItems(user, true).catch((error) => {
       console.error('Error refreshing categorized items:', error);
+      showSnackbar('Could not refresh the item list. Please try again.', 'error');
     });
-  }, [user]);
+  }, [user, showSnackbar]);
 
   useEffect(() => {
     if (location.state?.message) {

@@ -21,7 +21,6 @@ export async function getItems(user: ClientPrincipal | null): Promise<AdminItem[
   return data.value || [];
 }
 
-// TODO(human): implement createItem
 export async function createItem(
   user: ClientPrincipal | null,
   item: Omit<AdminItem, 'id' | 'category_name'>,

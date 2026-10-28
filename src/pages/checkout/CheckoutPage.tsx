@@ -32,7 +32,7 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 import { useCheckoutData } from '../../hooks/useCheckoutData';
 import { useCheckoutHistory } from '../../hooks/useCheckoutHistory';
 import { useCartOperations } from '../../hooks/useCartOperations';
-import { SPECIAL_ITEMS } from '../../types/constants';
+import { CATEGORY_IDS, SPECIAL_ITEMS } from '../../types/constants';
 
 interface CheckoutPageProps {
   checkoutType?: CheckoutType;
@@ -329,7 +329,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             setShowAdditionalNotesDialog(!showAdditionalNotesDialog)
           }
           item={selectedItem}
-          addItemToCart={(item) => addItemToCart(item, 1, 'Appliance')} // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
+          addItemToCart={(item) => addItemToCart(item, 1, CATEGORY_IDS.APPLIANCE)}
           residentInfo={residentInfo}
           checkoutHistory={checkoutHistory}
         />
@@ -343,9 +343,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           item={selectedItem}
           addItemToCart={(item) => {
             if (item.id === SPECIAL_ITEMS.RUG) {
-              addItemToCart(item, 1, 'Home Goods'); // TODO: replace 'Home Goods' with CATEGORY_IDS.HOME_GOODS when addItemToCart is updated to use category IDs
+              addItemToCart(item, 1, CATEGORY_IDS.HOME_GOODS);
             } else {
-              addItemToCart(item, 1, 'Appliance'); // TODO: replace 'Appliance' with CATEGORY_IDS.APPLIANCE when addItemToCart is updated to use category IDs
+              addItemToCart(item, 1, CATEGORY_IDS.APPLIANCE);
             }
           }}
           residentInfo={residentInfo}

@@ -201,8 +201,9 @@ const Inventory = () => {
       setCategoryData(categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      showSnackbar('Could not get categories. Please try again.', 'error');
     }
-  }, [user]);
+  }, [user, showSnackbar]);
 
   useEffect(() => {
     const handler = setTimeout(() => {

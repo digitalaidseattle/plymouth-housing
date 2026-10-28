@@ -403,10 +403,6 @@
         {
           "actions": ["execute"],
           "role": "admin"
-        },
-        {
-          "actions": ["execute"],
-          "role": "volunteer"
         }
       ]
     },

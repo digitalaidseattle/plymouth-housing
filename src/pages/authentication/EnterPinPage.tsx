@@ -6,7 +6,7 @@
  */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Typography, Button, Box } from '@mui/material';
+import { Typography, Button, Box, Link } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import PinInput from './PinInput';
 import CenteredLayout from './CenteredLayout';
@@ -31,7 +31,7 @@ const EnterPinPage: React.FC = () => {
   const isPinComplete = pin.every((p) => p !== '');
 
   useEffect(() => {
-    setPin(Array(4).fill(''));  
+    setPin(Array(4).fill(''));
     if (!loggedInUserId) {
       navigate('/pick-your-name');
     }
@@ -193,6 +193,12 @@ const EnterPinPage: React.FC = () => {
     navigate('/pick-your-name');
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/.auth/logout?post_logout_redirect_uri=/login.html';
+  };
+
   if (!loggedInUserId) {
     return null;
   }
@@ -265,6 +271,20 @@ const EnterPinPage: React.FC = () => {
           >
             Back to the name selection
           </Typography>
+          <Link
+            variant="body2"
+            component="button"
+            color="text.primary"
+            onClick={handleLogout}
+            sx={{
+              display: 'block',
+              mx: 'auto',
+              marginTop: 2,
+              textUnderlineOffset: '3px',
+            }}
+          >
+            Not you? Sign out
+          </Link>
         </Box>
         <SnackbarAlert
           open={snackbarState.open}

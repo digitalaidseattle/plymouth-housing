@@ -11,7 +11,8 @@ import {
   Button,
   Autocomplete,
   TextField,
-  Box
+  Box,
+  Link,
 } from '@mui/material';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
@@ -36,10 +37,10 @@ const PickYourNamePage: React.FC = () => {
     // Intentionally run only when entering the name-selection page.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   useEffect(() => {
     if (!user) return;
-    
+
     const fetchVolunteers = async () => {
       try {
         setIsLoading(true);
@@ -83,81 +84,106 @@ const PickYourNamePage: React.FC = () => {
       showSnackbar('Please select a name before continuing.', 'warning');
     }
   };
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/.auth/logout?post_logout_redirect_uri=/login.html';
+  };
 
   const isValidVolunteer = (volunteerId: number | null): boolean =>
     volunteerId !== null && activeVolunteers.some((v) => v.id === volunteerId);
 
   return (
-      <MinimalWrapper>
-        <CenteredLayout>
-          <Box sx={{ maxWidth: '340px', width: '100%' }}>
-            <Typography
-              variant="h4"
-              sx={{
-                textAlign: 'left',
-                height: '50px',
-                lineHeight: '50px',
-                marginBottom: 2,
-              }}
-            >
-              Pick Your Name
-            </Typography>
-
-            <Typography
-              variant="body2"
-              sx={{
-                maxWidth: '100%',
-                textAlign: 'left',
-                marginBottom: 4,
-                lineHeight: 1.5,
-              }}
-            >
-              <strong>Can't find your name?</strong> Let a staff member know.
-            </Typography>
-
-            <Autocomplete
-              data-testid="volunteer-name-autocomplete"
-              value={activeVolunteers.find(volunteer => volunteer.id === loggedInUserId) || null}
-              onChange={handleNameChange}
-              options={activeVolunteers}
-              getOptionLabel={(option) => option.name}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={isLoading ? 'Loading...' : 'Select your name'}
-                  variant="outlined"
-                  sx={{ width: '100%' }}
-                />
-              )}
-              sx={{
-                width: '100%',
-                marginBottom: 4,
-                '& .MuiAutocomplete-inputRoot': { height: '56px' },
-              }}
-              disabled={isLoading}
-            />
-
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={handleNextClick}
-              disabled={isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)}
-              sx={{ height: '56px' }}
-            >
-              Continue
-            </Button>
-          </Box>
-
-          <SnackbarAlert
-            open={snackbarState.open}
-            onClose={handleClose}
-            severity={snackbarState.severity}
+    <MinimalWrapper>
+      <CenteredLayout>
+        <Box sx={{ maxWidth: '340px', width: '100%' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              textAlign: 'left',
+              height: '50px',
+              lineHeight: '50px',
+              marginBottom: 2,
+            }}
           >
-            {snackbarState.message}
-          </SnackbarAlert>
-        </CenteredLayout>
-      </MinimalWrapper>
+            Pick Your Name
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              maxWidth: '100%',
+              textAlign: 'left',
+              marginBottom: 4,
+              lineHeight: 1.5,
+            }}
+          >
+            <strong>Can't find your name?</strong> Let a staff member know.
+          </Typography>
+
+          <Autocomplete
+            data-testid="volunteer-name-autocomplete"
+            value={
+              activeVolunteers.find(
+                (volunteer) => volunteer.id === loggedInUserId,
+              ) || null
+            }
+            onChange={handleNameChange}
+            options={activeVolunteers}
+            getOptionLabel={(option) => option.name}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={isLoading ? 'Loading...' : 'Select your name'}
+                variant="outlined"
+                sx={{ width: '100%' }}
+              />
+            )}
+            sx={{
+              width: '100%',
+              marginBottom: 4,
+              '& .MuiAutocomplete-inputRoot': { height: '56px' },
+            }}
+            disabled={isLoading}
+          />
+
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleNextClick}
+            disabled={
+              isLoading || !loggedInUserId || !isValidVolunteer(loggedInUserId)
+            }
+            sx={{ height: '56px' }}
+          >
+            Continue
+          </Button>
+          <Link
+            variant="body2"
+            component="button"
+            color="text.primary"
+            onClick={handleLogout}
+            sx={{
+              display: 'block',
+              mx: 'auto',
+              marginTop: 2,
+              textUnderlineOffset: '3px',
+            }}
+          >
+            Not you? Sign out
+          </Link>
+        </Box>
+
+        <SnackbarAlert
+          open={snackbarState.open}
+          onClose={handleClose}
+          severity={snackbarState.severity}
+        >
+          {snackbarState.message}
+        </SnackbarAlert>
+      </CenteredLayout>
+    </MinimalWrapper>
   );
 };
 

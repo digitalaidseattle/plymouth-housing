@@ -152,7 +152,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       if (!itemDetails) return;
 
       const categoryIndex = cart.findIndex(
-        (cat: CategoryProps) => cat.category === sourceCategory.category,
+        (cat: CategoryProps) => cat.id === sourceCategory.id,
       );
       if (categoryIndex !== -1) {
         const categoryData = cart[categoryIndex];

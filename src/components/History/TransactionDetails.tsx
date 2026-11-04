@@ -105,10 +105,12 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
         if (mounted) setEditTransaction(data);
       } catch (error) {
         console.error('Failed to load transaction details:', error);
-        showSnackbar(
-          'Could not load transaction details. Please try again.',
-          'error',
-        );
+        if (mounted) {
+          showSnackbar(
+            'Could not load transaction details. Please try again.',
+            'error',
+          );
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -377,14 +379,14 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
             </Stack>
           </Stack>
         )}
+        <SnackbarAlert
+          open={snackbarState.open}
+          onClose={handleClose}
+          severity={snackbarState.severity}
+        >
+          {snackbarState.message}
+        </SnackbarAlert>
       </DialogTemplate>
-      <SnackbarAlert
-        open={snackbarState.open}
-        onClose={handleClose}
-        severity={snackbarState.severity}
-      >
-        {snackbarState.message}
-      </SnackbarAlert>
     </>
   );
 };

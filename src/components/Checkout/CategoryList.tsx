@@ -51,8 +51,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
     return cartItems[0]?.name ?? '';
   })();
 
-  const getMatchingCategory = (categoryName: string): CategoryProps =>
-    checkoutItems.find((cat) => cat.category === categoryName) || {
+  const getMatchingCategory = (categoryId: number): CategoryProps =>
+    checkoutItems.find((cat) => cat.id === categoryId) || {
       id: 0,
       category: '',
       items: [],
@@ -95,7 +95,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         }}
       >
         {categories.map((section: CategoryProps) => {
-          const matchingCategory = getMatchingCategory(section.category);
+          const matchingCategory = getMatchingCategory(section.id);
           return section.items.map((item: CheckoutItemProp) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, xl: 3 }} key={item.id}>
               <CheckoutCard
@@ -139,7 +139,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         <CategorySection
           key={category.id}
           category={category}
-          categoryCheckout={getMatchingCategory(category.category)}
+          categoryCheckout={getMatchingCategory(category.id)}
           addItemToCart={(item, quantity) =>
             wrappedAddItemToCart(item, quantity, category.id)
           }

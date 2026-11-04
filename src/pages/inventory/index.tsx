@@ -201,7 +201,7 @@ const Inventory = () => {
       setCategoryData(categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      showSnackbar('Could not get categories. Please try again.', 'error');
+      showSnackbar('Could not get categories. Please refresh the page.', 'error');
     }
   }, [user, showSnackbar]);
 

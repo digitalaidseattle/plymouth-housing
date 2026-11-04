@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from tests.pages.base_page import BasePage
 from tests.utilities.locators import LoginPageLocators
+from tests.utilities.login_diagnostics import visible_controls, capture_login_diagnostics, safe_url
 
 
 class LoginPage(BasePage):
@@ -83,9 +84,9 @@ class LoginPage(BasePage):
         filename: str,
     ) -> None:
         try:
-            self.driver.save_screenshot(filename)
-        except WebDriverException:
-            pass
+            capture_login_diagnostics(self.driver, filename)
+        except Exception:
+            print("Login diagnostic capture was unavailable")
 
     # ---------------------------------------------------
     # Microsoft login
@@ -151,7 +152,7 @@ class LoginPage(BasePage):
             raise AssertionError(
                 "Neither the app Log In link nor the Microsoft "
                 "sign-in page appeared. Current URL: "
-                f"{self.driver.current_url}"
+                f"{safe_url(self.driver.current_url)}"
             ) from exc
 
         if outcome == "microsoft":
@@ -293,18 +294,27 @@ class LoginPage(BasePage):
                 button,
             )
 
-        wait.until(
-            lambda driver: (
-                len(
-                    driver.find_elements(
-                        *self.locators.PASSWORD_INPUT
-                    )
-                )
-                > 0
-                or "login.microsoftonline.com"
-                not in driver.current_url.lower()
-            )
-        )
+    def wait_for_password_transition(self, timeout=30):
+        """Wait for visible controls, not URL changes or hidden password nodes."""
+        self.driver._login_observed_states = []
+
+        def state(driver):
+            controls = visible_controls(driver)
+            active = [key for key, visible in controls.items() if visible]
+            if not driver._login_observed_states or driver._login_observed_states[-1] != active:
+                driver._login_observed_states.append(active)
+            for blocking in ("error_message", "mfa_prompt", "consent", "account_picker"):
+                if controls[blocking]:
+                    return blocking
+            return "password" if controls["password"] else False
+
+        outcome = WebDriverWait(
+            self.driver, timeout,
+            ignored_exceptions=(NoSuchElementException, StaleElementReferenceException),
+        ).until(state, "Microsoft username transition did not reach a recognized next state")
+        if outcome != "password":
+            raise AssertionError(f"Microsoft username transition reached {outcome}, rather than password")
+        return self.driver.find_element(*self.locators.PASSWORD_INPUT)
 
     def enter_password(
         self,

@@ -413,6 +413,77 @@ class HistoryPage(BasePage):
 
         return cards
 
+    def get_history_transaction_ids(self):
+        """Capture a stable baseline before checkout, without using global counts."""
+        previous = None
+        stable = 0
+
+        def snapshot(driver):
+            nonlocal previous, stable
+            try:
+                ids = frozenset(card.get_attribute("id") for card in self.get_history_cards())
+                if not ids and not self.is_no_transactions_message_visible():
+                    return False
+                if any(not value for value in ids):
+                    return False
+                stable = stable + 1 if ids == previous else 0
+                previous = ids
+                return {"ids": ids} if stable >= 2 else False
+            except (StaleElementReferenceException, NoSuchElementException):
+                stable = 0
+                return False
+
+        return self.get_wait(15).until(snapshot, "History baseline did not settle")["ids"]
+
+    def wait_for_new_transaction(self, previous_ids, resident_name, item_name,
+                                 expected_qty=1, timeout=30):
+        """Match a new card plus its item details using existing deployed UI."""
+        from tests.pages.checkout_page import CheckOutPage
+        item_literal = CheckOutPage._xpath_literal(item_name)
+        # Item name and chip quantity must belong to the same details item row.
+        item_locator = (By.XPATH,
+            "//*[@data-testid='transaction-details-content']"
+            "//*[normalize-space(.)='Items']/ancestor::*[contains(@class,'MuiCardContent-root')][1]"
+            f"//p[normalize-space(.)={item_literal}]/parent::*"
+            f"//*[contains(@class,'MuiChip-label')][normalize-space(.)='{expected_qty}']")
+        deadline = time.monotonic() + timeout
+        while True:
+            try:
+                candidates = []
+                for card in self.get_history_cards():
+                    card_id = card.get_attribute("id")
+                    if not card_id or card_id in previous_ids:
+                        continue
+                    names = card.find_elements(By.TAG_NAME, "h3")
+                    if not names or names[0].text.strip() != resident_name.strip():
+                        continue
+                    if self.extract_quantity_from_text(card.text) == expected_qty:
+                        candidates.append(card_id)
+                for card_id in candidates:
+                    card = self.driver.find_element(By.ID, card_id)
+                    card.click()
+                    self.wait_for_visibility(self.locators.TRANSACTION_DETAILS_DIALOG)
+                    try:
+                        # Wait for asynchronously fetched item details to finish.
+                        self.get_wait(10).until(lambda d: bool(d.find_elements(
+                            By.XPATH,
+                            "//*[@data-testid='transaction-details-content']"
+                            "//*[normalize-space(.)='Items']/ancestor::*[contains(@class,'MuiCardContent-root')][1]//p"
+                        )))
+                        if any(el.is_displayed() for el in self.driver.find_elements(*item_locator)):
+                            return card_id
+                    finally:
+                        self.close_transaction_details()
+            except (StaleElementReferenceException, NoSuchElementException):
+                # React can replace cards during refresh; recover within the deadline.
+                pass
+            if time.monotonic() >= deadline:
+                raise AssertionError(
+                    "No newly created history transaction matched the checkout resident, item, and quantity"
+                )
+            time.sleep(1)
+            self.refresh_history()
+
     def get_latest_card(self):
         cards = self.get_history_cards()
 

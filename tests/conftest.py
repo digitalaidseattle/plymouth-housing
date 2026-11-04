@@ -89,72 +89,30 @@ def attach_debug_artifacts(
     driver: WebDriver,
     name: str = "debug",
 ) -> None:
-    """
-    Attach browser state to Allure without exposing credentials.
-    This helps diagnose setup/login failures.
-    """
-    safe_name = sanitize_attachment_name(name)
-
+    """Persist sanitized state and screenshots without raw HTML or URL queries."""
+    from tests.utilities.login_diagnostics import capture_login_diagnostics
     try:
-        allure.attach(
-            driver.current_url,
-            name=f"{safe_name}_current_url",
-            attachment_type=allure.attachment_type.TEXT,
-        )
-    except Exception as exc:
-        print(f"[WARN] Could not attach current URL: {exc}")
+        capture_login_diagnostics(driver, sanitize_attachment_name(name))
+    except Exception as error:
+        print(f"[WARN] Diagnostic capture unavailable: {type(error).__name__}")
 
+
+def wait_for_password_field(driver, login_page, timeout=30):
+    return login_page.wait_for_password_transition(timeout=timeout)
+
+
+def submit_username_and_wait_for_password(driver, login_page, timeout=30):
+    """Cover click failures as well as the bounded username-to-password wait."""
     try:
-        allure.attach(
-            driver.title,
-            name=f"{safe_name}_page_title",
-            attachment_type=allure.attachment_type.TEXT,
-        )
-    except Exception as exc:
-        print(f"[WARN] Could not attach page title: {exc}")
-
-    try:
-        allure.attach(
-            driver.page_source,
-            name=f"{safe_name}_page_source",
-            attachment_type=allure.attachment_type.HTML,
-        )
-    except Exception as exc:
-        print(f"[WARN] Could not attach page source: {exc}")
-
-    try:
-        allure.attach(
-            driver.get_screenshot_as_png(),
-            name=f"{safe_name}_screenshot",
-            attachment_type=allure.attachment_type.PNG,
-        )
-    except Exception as exc:
-        print(f"[WARN] Could not attach screenshot: {exc}")
-
-
-def wait_for_password_field(
-    driver: WebDriver,
-    login_page: LoginPage,
-    timeout: int = 30,
-):
-    """
-    Wait for the Microsoft/Azure password field after the username
-    is submitted. Attaches debug evidence if it never appears.
-    """
-    try:
-        return WebDriverWait(driver, timeout).until(
-            EC.visibility_of_element_located(
-                login_page.locators.PASSWORD_INPUT
-            )
-        )
-    except TimeoutException:
-        print("[DEBUG] Password field did not appear after clicking Next")
-        print("[DEBUG] Current URL:", driver.current_url)
-        print("[DEBUG] Page title:", driver.title)
-        print("[DEBUG] Page source preview:", driver.page_source[:1000])
-
-        attach_debug_artifacts(driver, "password_field_timeout")
-        raise
+        login_page.click_next_button()
+        return wait_for_password_field(driver, login_page, timeout=timeout)
+    except Exception as error:
+        attach_debug_artifacts(driver, "microsoft_username_transition_failure")
+        states = getattr(driver, "_login_observed_states", [])
+        raise AssertionError(
+            f"Microsoft username transition failed ({type(error).__name__}); "
+            f"observed controls: {states}. See sanitized login diagnostics."
+        ) from None
 
 
 # ---------------------------------------------------
@@ -308,13 +266,7 @@ def login_with_volunteer(
     login_page.enter_username(
         volunteer_username
     )
-    login_page.click_next_button()
-
-    wait_for_password_field(
-        driver,
-        login_page,
-        timeout=30,
-    )
+    submit_username_and_wait_for_password(driver, login_page, timeout=30)
 
     login_page.enter_password(
         volunteer_password
@@ -367,13 +319,7 @@ def admin_home_page(
     login_page.enter_username(
         admin_username
     )
-    login_page.click_next_button()
-
-    wait_for_password_field(
-        driver,
-        login_page,
-        timeout=30,
-    )
+    submit_username_and_wait_for_password(driver, login_page, timeout=30)
 
     login_page.enter_password(
         admin_password
@@ -479,3 +425,21 @@ def pytest_runtest_makereport(
             "[WARN] Failure artifact capture failed: "
             f"{exc}"
         )
+
+
+@pytest.fixture
+def catalog_selection_report(record_property):
+    """Include selection evidence in JUnit properties and the Allure report."""
+    def report(preferred, selected, unavailable):
+        import json
+        evidence = {
+            "preferred_item": preferred,
+            "selected_item": selected,
+            "replacement_item": selected if selected != preferred else None,
+            "unavailable_candidates": unavailable,
+        }
+        text = json.dumps(evidence, indent=2)
+        record_property("catalog_selection", text)
+        allure.attach(text, name="Catalog item selection", attachment_type=allure.attachment_type.JSON)
+        print("Catalog item selection: " + text)
+    return report

@@ -116,9 +116,24 @@ class InventoryPageLocators:
         return By.XPATH, locator
 
     @staticmethod
+    def get_inventory_row_locator(item_name):
+        if "'" not in item_name:
+            literal = f"'{item_name}'"
+        elif '"' not in item_name:
+            literal = f'"{item_name}"'
+        else:
+            literal = "concat(" + ", \"'\", ".join(f"'{part}'" for part in item_name.split("'")) + ")"
+        return By.XPATH, (
+            "//*[@id='inventory-container']//tbody/tr"
+            f"[td[1][normalize-space(.)={literal}]]"
+            "[td[3][normalize-space(.)='General']]"
+        )
+
+    @staticmethod
     def get_inventory_locator(item_name):
-        locator = f'//*[text()="{item_name}"]/following-sibling::td[5]'
-        return By.XPATH, locator
+        by, row = InventoryPageLocators.get_inventory_row_locator(item_name)
+        return by, row + "/td[6]"
+
 
 
 class CheckoutPageLocators:

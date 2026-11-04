@@ -274,9 +274,11 @@ describe('Analytics Page', () => {
     renderAnalytics();
 
     const detailPanel = await findDetailPanel();
-    const aliceRows = within(detailPanel).getAllByText('Alice Resident');
-    expect(aliceRows).toHaveLength(2);
-    expect(within(detailPanel).getAllByText('Repeat')).toHaveLength(2);
+    expect(within(detailPanel).getAllByText('Alice Resident')).toHaveLength(1);
+    expect(within(detailPanel).getAllByText('Repeat')).toHaveLength(1);
+    expect(
+      within(detailPanel).getByRole('columnheader', { name: 'Last Visit' }),
+    ).toBeInTheDocument();
 
     const bobRow = within(detailPanel)
       .getByText('Bob Resident')
@@ -298,7 +300,7 @@ describe('Analytics Page', () => {
     expect(
       within(detailPanel).queryByText('Bob Resident'),
     ).not.toBeInTheDocument();
-    expect(within(detailPanel).getAllByText('Alice Resident')).toHaveLength(2);
+    expect(within(detailPanel).getAllByText('Alice Resident')).toHaveLength(1);
   });
 
   test('changing the building filter narrows the detail rows to that building', async () => {
@@ -320,7 +322,7 @@ describe('Analytics Page', () => {
     const updatedDetailPanel = await findDetailPanel();
     expect(
       await within(updatedDetailPanel).findAllByText('Alice Resident'),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
     expect(
       within(updatedDetailPanel).queryByText('Bob Resident'),
     ).not.toBeInTheDocument();
@@ -474,13 +476,12 @@ describe('Analytics Page', () => {
     renderAnalytics();
 
     const detailPanel = await findDetailPanel();
-    const aliceRows = within(detailPanel).getAllByText('Alice Resident');
-    aliceRows.forEach((nameEl) => {
-      const row = nameEl.closest('tr') as HTMLElement;
-      const cells = within(row).getAllByRole('cell');
-      // Resident, Building, Unit, # Visits, # Items, Transaction Date
-      expect(cells[3]).toHaveTextContent('2');
-    });
+    const aliceRow = within(detailPanel)
+      .getByText('Alice Resident')
+      .closest('tr') as HTMLElement;
+    const aliceCells = within(aliceRow).getAllByRole('cell');
+    // Resident, Building, Unit, # Visits, # Items, Last Visit
+    expect(aliceCells[3]).toHaveTextContent('2');
 
     const bobRow = within(detailPanel)
       .getByText('Bob Resident')

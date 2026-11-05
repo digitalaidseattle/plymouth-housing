@@ -24,9 +24,9 @@ type CategoryListProps = {
   addItemToCart: (
     item: CheckoutItemProp,
     quantity: number,
-    category: string,
+    categoryId: number,
   ) => void;
-  removeItemFromCart: (itemId: number, categoryName: string) => void;
+  removeItemFromCart: (itemId: number, categoryId: number) => void;
   onApplianceMiscClick: (item: CheckoutItemProp) => void;
   onPastCheckoutClick: (item: CheckoutItemProp) => void;
 };
@@ -51,8 +51,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
     return cartItems[0]?.name ?? '';
   })();
 
-  const getMatchingCategory = (categoryName: string): CategoryProps =>
-    checkoutItems.find((cat) => cat.category === categoryName) || {
+  const getMatchingCategory = (categoryId: number): CategoryProps =>
+    checkoutItems.find((cat) => cat.id === categoryId) || {
       id: 0,
       category: '',
       items: [],
@@ -63,7 +63,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   const wrappedAddItemToCart = (
     item: CheckoutItemProp,
     quantity: number,
-    categoryName: string,
+    categoryId: number,
   ): void => {
     if (quantity > 0) {
       if (item.id === SPECIAL_ITEMS.APPLIANCE_MISC) {
@@ -77,7 +77,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         return;
       }
     }
-    addItemToCart(item, quantity, categoryName);
+    addItemToCart(item, quantity, categoryId);
   };
 
   if (searchActive) {
@@ -95,20 +95,21 @@ const CategoryList: React.FC<CategoryListProps> = ({
         }}
       >
         {categories.map((section: CategoryProps) => {
-          const matchingCategory = getMatchingCategory(section.category);
+          const matchingCategory = getMatchingCategory(section.id);
           return section.items.map((item: CheckoutItemProp) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, xl: 3 }} key={item.id}>
               <CheckoutCard
                 item={item}
                 categoryCheckout={matchingCategory}
                 addItemToCart={(item, quantity) =>
-                  wrappedAddItemToCart(item, quantity, section.category)
+                  wrappedAddItemToCart(item, quantity, section.id)
                 }
                 checkoutType={sectionType}
                 removeItemFromCart={removeItemFromCart}
                 removeButton={false}
                 categoryLimit={section.checkout_limit}
                 categoryName={section.category}
+                categoryId={section.id}
                 checkoutHistory={checkoutHistory}
                 selectedWelcomeItemName={selectedWelcomeItemName}
               />
@@ -138,9 +139,9 @@ const CategoryList: React.FC<CategoryListProps> = ({
         <CategorySection
           key={category.id}
           category={category}
-          categoryCheckout={getMatchingCategory(category.category)}
+          categoryCheckout={getMatchingCategory(category.id)}
           addItemToCart={(item, quantity) =>
-            wrappedAddItemToCart(item, quantity, category.category)
+            wrappedAddItemToCart(item, quantity, category.id)
           }
           removeItemFromCart={removeItemFromCart}
           removeButton={false}

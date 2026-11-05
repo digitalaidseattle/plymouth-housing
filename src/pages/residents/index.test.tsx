@@ -5,7 +5,13 @@
  *
  */
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  within,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import ResidentsPage from './index';
@@ -553,6 +559,42 @@ describe('ResidentsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('lists voucher buildings under a Voucher Programs heading and loads their residents', async () => {
+    vi.mocked(residentService.getBuildings).mockResolvedValue([
+      { id: 1, name: 'Alpha House', code: 'AH' },
+      { id: 3, name: 'Voucher Program', code: 'SPC' },
+      { id: 2, name: 'Beta House', code: 'BH' },
+    ]);
+
+    render(
+      <Wrapper>
+        <ResidentsPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(residentService.getBuildings).toHaveBeenCalled();
+    });
+    fireEvent.mouseDown(screen.getByLabelText('Building'));
+
+    const listbox = await screen.findByRole('listbox');
+    await within(listbox).findByText('SPC — Voucher Program');
+    expect(
+      Array.from(listbox.children).map((child) => child.textContent),
+    ).toEqual([
+      'AH — Alpha House',
+      'BH — Beta House',
+      'Voucher Programs',
+      'SPC — Voucher Program',
+    ]);
+
+    fireEvent.click(
+      screen.getByRole('option', { name: 'SPC — Voucher Program' }),
+    );
+
+    expect(mockHook).toHaveBeenLastCalledWith(3);
   });
 
   test('renders search input alongside building dropdown', async () => {

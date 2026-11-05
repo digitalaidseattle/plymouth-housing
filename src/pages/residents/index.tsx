@@ -9,12 +9,7 @@ import {
   Autocomplete,
   Box,
   CircularProgress,
-  FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   Stack,
   Table,
   TableBody,
@@ -37,6 +32,7 @@ import {
 } from '../../services/residentService';
 import { useResidentsByBuilding } from './useResidentsByBuilding';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import BuildingFilterSelect from '../../components/BuildingFilterSelect';
 import ResidentEditDialog from './ResidentEditDialog';
 import ResidentDuplicateDialog from './ResidentDuplicateDialog';
 
@@ -161,8 +157,8 @@ const ResidentsPage = () => {
     }
   };
 
-  const handleBuildingChange = (event: SelectChangeEvent<number>) => {
-    setSelectedBuildingId(event.target.value as number);
+  const handleBuildingChange = (buildingId: number | 'all') => {
+    setSelectedBuildingId(buildingId as number);
     setFilteredUnitId(null);
   };
 
@@ -403,21 +399,13 @@ const ResidentsPage = () => {
         spacing={2}
         sx={{ alignItems: 'center', mt: 3, mb: 3 }}
       >
-        <FormControl sx={{ minWidth: 240 }}>
-          <InputLabel id="building-select-label">Building</InputLabel>
-          <Select
-            labelId="building-select-label"
-            value={selectedBuildingId ?? ''}
-            label="Building"
-            onChange={handleBuildingChange}
-          >
-            {buildings.map((building) => (
-              <MenuItem key={building.id} value={building.id}>
-                {building.code} — {building.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <BuildingFilterSelect
+          buildings={buildings}
+          value={selectedBuildingId ?? ''}
+          onChange={handleBuildingChange}
+          labelId="building-select-label"
+          formControlSx={{ minWidth: 240 }}
+        />
 
         <Autocomplete
           options={allResidents}
@@ -454,7 +442,7 @@ const ResidentsPage = () => {
         {!isLoading &&
           selectedBuildingId !== null &&
           visibleData.length === 0 && (
-            <Typography color="text.secondary">No units found.</Typography>
+            <Typography color="text.secondary">No residents found.</Typography>
           )}
 
         {!isLoading && visibleData.length > 0 && (

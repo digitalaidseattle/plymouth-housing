@@ -4,22 +4,25 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
   Button,
   Autocomplete,
   TextField,
-  Box
+  Box,
+  IconButton,
+  InputAdornment,
+  Tooltip,
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import MinimalWrapper from '../../layout/MinimalLayout/MinimalWrapper';
 import CenteredLayout from './CenteredLayout';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { UserContext } from '../../components/contexts/UserContext';
 import { User } from '../../types/interfaces';
-import { apiRequest } from '../../services/apiRequest';
-import { ENDPOINTS, USER_ROLES } from '../../types/constants';
+import { getActiveVolunteers } from '../../services/userService';
 import { trackException } from '../../utils/appInsights';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
@@ -37,37 +40,34 @@ const PickYourNamePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  useEffect(() => {
+  const refreshVolunteers = useCallback(async () => {
     if (!user) return;
-    
-    const fetchVolunteers = async () => {
-      try {
-        setIsLoading(true);
-        const url = `${ENDPOINTS.USERS}?$select=id,name&$filter=active eq true and role eq 'volunteer'`
-        const data = await apiRequest<User[]>({
-          url,
-          role: USER_ROLES.VOLUNTEER,
-        });
-        setActiveVolunteers(data.value);
-      } catch (error) {
-        const err =
-          error instanceof Error
-            ? error
-            : new Error('Unknown error fetching volunteers');
-        console.error('Failed to fetch volunteers:', error);
-        trackException(err, {
-          component: 'PickNamePage',
-          action: 'fetchVolunteers',
-        });
-        showSnackbar('Failed to load volunteer list. Please try again later.', 'warning');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchVolunteers();
-    // The effect is intended to run only once on mount.
+    try {
+      setIsLoading(true);
+      setActiveVolunteers(await getActiveVolunteers(user));
+    } catch (error) {
+      const err =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error fetching volunteers');
+      console.error('Failed to fetch volunteers:', error);
+      trackException(err, {
+        component: 'PickNamePage',
+        action: 'fetchVolunteers',
+      });
+      showSnackbar('Failed to load volunteer list. Please try again later.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+    // setActiveVolunteers and showSnackbar are recreated on every render.
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  },[]);
+  }, [user]);
+
+  useEffect(() => {
+    refreshVolunteers();
+    // Refresh once on entering the page; the icon covers later refreshes.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
 
   const handleNameChange = (
     _event: React.SyntheticEvent,
@@ -112,7 +112,8 @@ const PickYourNamePage: React.FC = () => {
                 lineHeight: 1.5,
               }}
             >
-              <strong>Can't find your name?</strong> Let a staff member know.
+              <strong>Can't find your name?</strong> Tap the refresh icon to reload the
+              list, or let a staff member know.
             </Typography>
 
             <Autocomplete
@@ -127,6 +128,31 @@ const PickYourNamePage: React.FC = () => {
                   label={isLoading ? 'Loading...' : 'Select your name'}
                   variant="outlined"
                   sx={{ width: '100%' }}
+                  slotProps={{
+                    ...params.slotProps,
+                    input: {
+                      ...params.slotProps.input,
+                      endAdornment: (
+                        <>
+                          {params.slotProps.input.endAdornment}
+                          <InputAdornment position="end">
+                            <Tooltip title="Refresh name list">
+                              <span>
+                                <IconButton
+                                  aria-label="Refresh name list"
+                                  onClick={refreshVolunteers}
+                                  disabled={isLoading}
+                                  edge="end"
+                                >
+                                  <RefreshIcon />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </InputAdornment>
+                        </>
+                      ),
+                    },
+                  }}
                 />
               )}
               sx={{

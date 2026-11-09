@@ -38,6 +38,21 @@ export async function getUsersByFilter(
   }
 }
 
+export async function getActiveVolunteers(
+  user: ClientPrincipal | null,
+): Promise<User[]> {
+  try {
+    const result = await apiRequest<User[]>({
+      url: `${ENDPOINTS.USERS}?$select=id,name&$filter=${encodeURIComponent("active eq true and role eq 'volunteer'")}`,
+      role: getRole(user),
+    });
+    return result.value;
+  } catch (error) {
+    console.error('Error fetching active volunteers:', error);
+    throw error;
+  }
+}
+
 export async function createUser(
   user: ClientPrincipal | null,
   data: object,

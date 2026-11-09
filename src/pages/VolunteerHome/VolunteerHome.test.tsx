@@ -168,11 +168,44 @@ describe('VolunteerHome Component', () => {
     );
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(
+        fetchMock.mock.calls.some(([url]) => String(url).includes('itemsbycategory')),
+      ).toBe(true);
     });
-    expect(fetchMock.mock.calls[0][0]).toContain('itemsbycategory');
 
     sessionStorage.clear();
+  });
+
+  test('refreshes the active volunteer list on landing', async () => {
+    vi.useRealTimers();
+    const volunteers = [{ id: 7, name: 'New Volunteer' }];
+    const setActiveVolunteers = vi.fn();
+    (global.fetch as any) = vi.fn().mockImplementation(async (url: string) => ({
+      ok: true,
+      json: async () => ({ value: String(url).includes('Users') || String(url).includes('users') ? volunteers : [] }),
+    }));
+
+    render(
+      <UserContext.Provider
+        value={{
+          user: mockUser,
+          setUser: vi.fn(),
+          loggedInUserId: 1,
+          setLoggedInUserId: vi.fn(),
+          activeVolunteers: [],
+          setActiveVolunteers,
+          isLoading: false,
+          pinVerified: false,
+          setPinVerifiedForUserId: vi.fn(),
+        }}
+      >
+        <VolunteerHome />
+      </UserContext.Provider>,
+    );
+
+    await waitFor(() => {
+      expect(setActiveVolunteers).toHaveBeenCalledWith(volunteers);
+    });
   });
 
   test('render snackbar', () => {

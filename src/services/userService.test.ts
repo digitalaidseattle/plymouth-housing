@@ -5,7 +5,7 @@
  *
  */
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
-import { getUsers, getUsersByFilter, createUser, updateUser } from './userService';
+import { getUsers, getUsersByFilter, getActiveVolunteers, createUser, updateUser } from './userService';
 import { ENDPOINTS } from '../types/constants';
 import { getRole } from '../utils/userUtils';
 import { apiRequest } from './apiRequest';
@@ -112,6 +112,27 @@ describe('userService', () => {
       (apiRequest as Mock).mockRejectedValue(error);
 
       await expect(createUser(user, newUserData)).rejects.toThrow('Failed to fetch data: Bad Request');
+    });
+  });
+
+  describe('getActiveVolunteers', () => {
+    it('should request only active volunteers', async () => {
+      const mockVolunteers = [{ id: 1, name: 'Alice' }];
+      (apiRequest as Mock).mockResolvedValue({ value: mockVolunteers });
+
+      const result = await getActiveVolunteers(user);
+
+      expect(apiRequest).toHaveBeenCalledWith({
+        url: `${ENDPOINTS.USERS}?$select=id,name&$filter=${encodeURIComponent("active eq true and role eq 'volunteer'")}`,
+        role: 'admin',
+      });
+      expect(result).toEqual(mockVolunteers);
+    });
+
+    it('should rethrow when the request fails', async () => {
+      (apiRequest as Mock).mockRejectedValue(new Error('boom'));
+
+      await expect(getActiveVolunteers(user)).rejects.toThrow('boom');
     });
   });
 

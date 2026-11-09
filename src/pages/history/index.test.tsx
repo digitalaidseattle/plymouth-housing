@@ -829,6 +829,64 @@ describe('HistoryPage Component', () => {
     ).not.toBeInTheDocument();
   });
 
+  test('lists voucher buildings under a Voucher Programs heading and filters to the selected one', async () => {
+    const voucherBuilding: Building = {
+      id: 3,
+      code: 'SPC',
+      name: 'Voucher Program',
+    };
+    const voucherTransaction: CheckoutTransaction = {
+      ...mockCheckoutTransactions[0],
+      transaction_id: '4',
+      building_id: voucherBuilding.id,
+      building_code: voucherBuilding.code,
+      building_name: voucherBuilding.name,
+    };
+
+    vi.spyOn(residentService, 'getBuildings').mockResolvedValue([
+      mockBuildings[0],
+      voucherBuilding,
+      mockBuildings[1],
+    ]);
+    vi.spyOn(historyService, 'getCheckoutHistory').mockResolvedValue([
+      ...mockCheckoutTransactions,
+      voucherTransaction,
+    ]);
+
+    render(
+      <Wrapper>
+        <HistoryPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 2 records total/i)).toBeInTheDocument();
+    });
+
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: /Building/i }));
+
+    const listbox = await screen.findByRole('listbox');
+    expect(
+      Array.from(listbox.children).map((child) => child.textContent),
+    ).toEqual([
+      'All Buildings',
+      'A — 123 Main St',
+      'B — 456 Oak Ave',
+      'Voucher Programs',
+      'SPC — Voucher Program',
+    ]);
+
+    fireEvent.click(within(listbox).getByText('SPC — Voucher Program'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 1 record total/i)).toBeInTheDocument();
+    });
+    expect(screen.getByTestId('general-checkout-card-4')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('general-checkout-card-1'),
+    ).not.toBeInTheDocument();
+  });
+
   test('hides the building filter on the Inventory tab and resets it on return', async () => {
     render(
       <Wrapper>

@@ -6,6 +6,7 @@
  */
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { Building, DatePreset, DateRange } from '../types/interfaces';
+import BuildingFilterSelect from './BuildingFilterSelect';
 
 type ReportFilterControlsProps = {
   dateInput: DatePreset;
@@ -71,32 +72,21 @@ const ReportFilterControls: React.FC<ReportFilterControlsProps> = ({
       </Select>
     </FormControl>
     {showBuilding && (
-      <FormControl sx={{ flexShrink: 0 }}>
-        <InputLabel id="select-building-label">Building</InputLabel>
-        <Select
-          labelId="select-building-label"
-          id="select-building"
-          value={buildingId}
-          label="Building"
-          onChange={(event) => {
-            const value = event.target.value;
-            onBuildingChange(value === 'all' ? 'all' : Number(value));
-          }}
-          sx={(theme) => ({
-            width: { xs: '100%', sm: 'auto' },
-            minWidth: theme.spacing(24),
-            borderRadius: theme.spacing(2.25),
-            '& .MuiSelect-select': { py: 2 },
-          })}
-        >
-          <MenuItem value="all">All Buildings</MenuItem>
-          {buildings?.map((building) => (
-            <MenuItem key={building.id} value={building.id}>
-              {building.code} — {building.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <BuildingFilterSelect
+        buildings={buildings}
+        value={buildingId}
+        onChange={onBuildingChange}
+        labelId="select-building-label"
+        id="select-building"
+        includeAll
+        formControlSx={{ flexShrink: 0 }}
+        sx={(theme) => ({
+          width: { xs: '100%', sm: 'auto' },
+          minWidth: theme.spacing(24),
+          borderRadius: theme.spacing(2.25),
+          '& .MuiSelect-select': { py: 2 },
+        })}
+      />
     )}
   </>
 );

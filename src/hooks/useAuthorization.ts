@@ -11,6 +11,8 @@ const useAuthorization = (user: ClientPrincipal | null, requiredRoles: string[])
 
   useEffect(() => {
     if (user && !requiredRoles.some(role => user.userRoles.includes(role))) {
+      localStorage.clear();
+      sessionStorage.clear();
       window.location.href = "/.auth/logout?post_logout_redirect_uri=/non-authorized.html";
     }
   }, [user, requiredRoles]);

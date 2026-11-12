@@ -9,7 +9,7 @@ import {
   buildAnalyticsSections,
   onlyAdds,
   summarizeCheckouts,
-  flagDuplicates,
+  groupByResident,
   countResidentsByBuilding,
   percentChange,
   previousPeriod,
@@ -54,6 +54,7 @@ const baseItem: InventoryItem = {
   threshold: 5,
   category: 'Category A',
   status: 'Low Stock',
+  is_archived: false,
 };
 
 const makeItem = (overrides: Partial<InventoryItem>): InventoryItem => ({
@@ -86,6 +87,7 @@ describe('summarizeCheckouts', () => {
       residentsServed: 0,
       checkouts: 0,
       itemsCheckedOut: 0,
+      activeDays: 0,
       avgCheckoutsPerActiveDay: 0,
       rangeDays: 1,
     });
@@ -137,41 +139,75 @@ describe('summarizeCheckouts', () => {
     ];
     const { startDate, endDate } = localDateRange([2025, 0, 1], [2025, 0, 4]);
     const result = summarizeCheckouts(transactions, startDate, endDate);
+    expect(result.activeDays).toBe(2);
     expect(result.avgCheckoutsPerActiveDay).toBe(1.5);
     expect(result.rangeDays).toBe(4);
   });
 });
 
-describe('flagDuplicates', () => {
-  test('flags no duplicates when each resident appears once', () => {
-    const transactions = [
+describe('groupByResident', () => {
+  test('returns one row per resident with visits and items summed', () => {
+    const result = groupByResident([
+      makeTransaction({ transaction_id: 'txn-1', total_quantity: 5 }),
+      makeTransaction({ transaction_id: 'txn-2', total_quantity: 3 }),
+      makeTransaction({
+        transaction_id: 'txn-3',
+        resident_id: 20,
+        total_quantity: 2,
+      }),
+    ]);
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({
+      resident_id: 10,
+      visitCount: 2,
+      total_quantity: 8,
+      isDuplicate: true,
+    });
+    expect(result[1]).toMatchObject({ visitCount: 1, isDuplicate: false });
+  });
+
+  test('keeps the latest visit date whatever the input order', () => {
+    const result = groupByResident([
       makeTransaction({
         transaction_id: 'txn-1',
-        resident_id: 10,
-        resident_name: 'Alice Johnson',
+        transaction_date: '2025-03-01T00:00:00Z',
       }),
       makeTransaction({
         transaction_id: 'txn-2',
-        resident_id: 20,
-        resident_name: 'Bob Williams',
+        transaction_date: '2025-02-01T00:00:00Z',
       }),
-    ];
-    const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.isDuplicate)).toEqual([false, false]);
+    ]);
+    expect(result[0].lastVisit).toBe('2025-03-01T00:00:00Z');
   });
 
-  test('flags all transactions sharing a resident_id as duplicates', () => {
-    const transactions = [
-      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-2', resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-3', resident_id: 10 }),
-    ];
-    const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.isDuplicate)).toEqual([true, true, true]);
+  test('sorts by visits, then by most recent visit', () => {
+    const result = groupByResident([
+      makeTransaction({
+        transaction_id: 'txn-1',
+        resident_id: 1,
+        transaction_date: '2025-01-01T00:00:00Z',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-2',
+        resident_id: 2,
+        transaction_date: '2025-02-01T00:00:00Z',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-3',
+        resident_id: 3,
+        transaction_date: '2025-01-01T00:00:00Z',
+      }),
+      makeTransaction({
+        transaction_id: 'txn-4',
+        resident_id: 3,
+        transaction_date: '2025-01-02T00:00:00Z',
+      }),
+    ]);
+    expect(result.map((r) => r.resident_id)).toEqual([3, 2, 1]);
   });
 
   test('keeps distinct residents sharing a name apart', () => {
-    const transactions = [
+    const result = groupByResident([
       makeTransaction({
         transaction_id: 'txn-1',
         resident_id: 10,
@@ -182,42 +218,30 @@ describe('flagDuplicates', () => {
         resident_id: 11,
         resident_name: 'John Doe',
       }),
-      makeTransaction({
-        transaction_id: 'txn-3',
-        resident_id: 12,
-        resident_name: 'Jane Doe',
-      }),
-    ];
-    const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.isDuplicate)).toEqual([false, false, false]);
-    expect(result.map((t) => t.visitCount)).toEqual([1, 1, 1]);
+    ]);
+    expect(result).toHaveLength(2);
+    expect(result.map((r) => r.isDuplicate)).toEqual([false, false]);
   });
 
-  test('preserves the original order', () => {
-    const transactions = [
+  test('relabels the welcome stand-in and never flags it as a repeat', () => {
+    const result = groupByResident([
       makeTransaction({
         transaction_id: 'txn-1',
-        resident_id: 10,
-        resident_name: 'Alice Johnson',
+        resident_name: 'admin',
+        unit_number: ' Welcome ',
       }),
       makeTransaction({
         transaction_id: 'txn-2',
-        resident_id: 20,
-        resident_name: 'Bob Williams',
+        resident_name: 'admin',
+        unit_number: ' Welcome ',
       }),
-    ];
-    const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.transaction_id)).toEqual(['txn-1', 'txn-2']);
-  });
-
-  test('counts every transaction a resident made', () => {
-    const transactions = [
-      makeTransaction({ transaction_id: 'txn-1', resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-2', resident_id: 10 }),
-      makeTransaction({ transaction_id: 'txn-3', resident_id: 10 }),
-    ];
-    const result = flagDuplicates(transactions);
-    expect(result.map((t) => t.visitCount)).toEqual([3, 3, 3]);
+    ]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      resident_name: 'Welcome Baskets',
+      visitCount: 2,
+      isDuplicate: false,
+    });
   });
 });
 
@@ -518,7 +542,7 @@ describe('buildAnalyticsSections', () => {
     topCheckedOutItems: [{ item_name: 'Soap', total_quantity: 9 }],
     topInventoryAdded: [{ item_name: 'Towels', total_quantity: 4 }],
     leastCheckedOutItems: [{ item_name: 'Mop', total_quantity: 0 }],
-    detailRows: flagDuplicates([
+    detailRows: groupByResident([
       makeTransaction({
         unit_number: ' 101 ',
         transaction_date: '2026-08-12T12:00:00.000Z',
@@ -546,6 +570,27 @@ describe('buildAnalyticsSections', () => {
 
   test('takes the summary rows straight from the stat tiles', () => {
     expect(sections[1].rows).toEqual([['Checkouts', '12']]);
+  });
+
+  test('adds an average checkouts row when one is given', () => {
+    const withAvg = buildAnalyticsSections({
+      dateRangeString: 'Aug 1 - Aug 31, 2026',
+      buildingName: 'Building A',
+      repeatsOnly: true,
+      statTiles: [{ label: 'Checkouts', value: '12' }],
+      avgCheckoutsPerActiveDay: '2.5',
+      residentsByBuilding: [],
+      topCheckedOutItems: [],
+      topInventoryAdded: [],
+      leastCheckedOutItems: [],
+      detailRows: [],
+      lowStockRows: [],
+      checkedOutById: new Map(),
+    });
+    expect(withAvg[1].rows).toEqual([
+      ['Checkouts', '12'],
+      ['Avg Checkouts / Active Day', '2.5'],
+    ]);
   });
 
   test('labels each ranked panel with what its count means', () => {

@@ -51,6 +51,7 @@ const MainLayout: React.FC = () => {
   const resetTimer = useInactivityTimer({
     onInactivity: () => {
       localStorage.clear();
+      sessionStorage.clear();
       window.location.href =
         '/.auth/logout?post_logout_redirect_uri=/login.html';
     },

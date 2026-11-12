@@ -35,7 +35,7 @@ const SnackbarAlert: React.FC<SnackbarAlertProps> = ({
     <Snackbar
       open={open}
       autoHideDuration={3000}
-      onClose={onClose}
+      onClose={(event, reason) => onClose(event ?? undefined, reason)}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
     >
       <Alert onClose={onClose} severity={severity} sx={{ width: '100%' }}>

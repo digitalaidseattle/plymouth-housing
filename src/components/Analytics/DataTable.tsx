@@ -16,14 +16,9 @@ import {
 } from '@mui/material';
 import { usePagination } from '../../hooks/usePagination';
 import { SETTINGS } from '../../types/constants';
+import { Column } from '../../types/interfaces';
 import PanelCard from './PanelCard';
 import TablePaginationBar from './TablePaginationBar';
-
-export type Column<T> = {
-  label: string;
-  align?: 'left' | 'right';
-  render: (row: T) => React.ReactNode;
-};
 
 interface DataTableProps<T> {
   title: string;
@@ -34,11 +29,13 @@ interface DataTableProps<T> {
   getRowHighlight?: (row: T) => boolean;
   emptyMessage: string;
   minWidth?: number;
-  // Set when the table already sits inside a card, to avoid a doubled border.
+  // Leaves out the card frame, for a table that sits inside another card.
   bare?: boolean;
 }
 
 const headerSx = { fontWeight: 'bold', whiteSpace: 'nowrap' };
+const bodyCellSx = { whiteSpace: 'nowrap' };
+const ROW_HEIGHT = 53;
 
 const DataTable = <T,>({
   title,
@@ -59,6 +56,8 @@ const DataTable = <T,>({
     changeRowsPerPage,
     paginatedRows,
   } = usePagination(rows, SETTINGS.analyticsItemsPerPage);
+
+  const emptyRows = rowsPerPage - paginatedRows.length;
 
   const table = (
     <>
@@ -101,12 +100,21 @@ const DataTable = <T,>({
                 }
               >
                 {columns.map((column) => (
-                  <TableCell key={column.label} align={column.align ?? 'left'}>
+                  <TableCell
+                    key={column.label}
+                    align={column.align ?? 'left'}
+                    sx={bodyCellSx}
+                  >
                     {column.render(row)}
                   </TableCell>
                 ))}
               </TableRow>
             ))}
+            {pageCount > 1 && emptyRows > 0 && paginatedRows.length > 0 && (
+              <TableRow sx={{ height: ROW_HEIGHT * emptyRows }}>
+                <TableCell colSpan={columns.length} />
+              </TableRow>
+            )}
             {paginatedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center">

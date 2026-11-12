@@ -4,17 +4,13 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
   ButtonGroup,
-  FormControl,
-  InputLabel,
   Menu,
   MenuItem,
-  Select,
-  SelectChangeEvent,
   Stack,
   Typography,
 } from '@mui/material';
@@ -24,20 +20,22 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { Building, DatePreset, DateRange } from '../../types/interfaces';
-import {
-  formatClockTime,
-  formatDateRangeSummary,
-} from '../History/historyUtils';
+import { formatDateRangeSummary } from '../History/historyUtils';
+import { formatAge } from '../../utils/textUtils';
+import ReportFilterControls from '../ReportFilterControls';
+
+const TICK_INTERVAL = 30 * 1000;
 
 interface AnalyticsFiltersProps {
   dateInput: DatePreset;
   dateRange: DateRange;
   dateRangeString: string;
+  activeDays: number;
   onDateSelect: (preset: DatePreset) => void;
   onOpenCustomDialog: () => void;
   buildings: Building[];
   buildingId: number | null;
-  onBuildingChange: (e: SelectChangeEvent<number | 'all'>) => void;
+  onBuildingChange: (buildingId: number | 'all') => void;
   onExport: () => void;
   onExportInventory: () => void;
   lastUpdated: number | null;
@@ -45,15 +43,9 @@ interface AnalyticsFiltersProps {
   onRefresh: () => void;
 }
 
-const historySelectSx = {
-  borderRadius: '18px',
-  '& .MuiSelect-select': { py: 2 },
-};
-
 // Tablet (sm–md) shows the icon only; the label returns on phone and desktop.
 const actionLabelSx = { display: { xs: 'inline', sm: 'none', lg: 'inline' } };
 
-// 44px keeps the icon-only tablet state a usable touch target.
 const actionButtonSx = {
   whiteSpace: 'nowrap',
   color: 'common.black',
@@ -79,6 +71,7 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
   dateInput,
   dateRange,
   dateRangeString,
+  activeDays,
   onDateSelect,
   onOpenCustomDialog,
   buildings,
@@ -93,6 +86,16 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
+  const [now, setNow] = useState(Date.now);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const interval = window.setInterval(
+      () => setNow(Date.now()),
+      TICK_INTERVAL,
+    );
+    return () => window.clearInterval(interval);
+  }, [lastUpdated]);
 
   const runExport = (fn: () => void) => {
     setExportMenuAnchor(null);
@@ -100,17 +103,15 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
   };
 
   return (
-    <Stack sx={{ gap: 1 }}>
-      <Stack
-        direction="row"
-        sx={{
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          columnGap: 2,
-          rowGap: 1.5,
-        }}
-      >
+    <Stack
+      direction={{ xs: 'column', lg: 'row' }}
+      sx={{
+        alignItems: { xs: 'stretch', lg: 'flex-start' },
+        justifyContent: 'space-between',
+        gap: 1,
+      }}
+    >
+      <Stack sx={{ gap: 1 }}>
         <Stack
           direction="row"
           sx={{
@@ -120,123 +121,93 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
             rowGap: 1.5,
           }}
         >
-          <FormControl>
-            <InputLabel id="select-date-label">Date</InputLabel>
-            <Select
-              labelId="select-date-label"
-              id="select-date"
-              value={dateInput}
-              label="Date"
-              onChange={(e) => {
-                const value = e.target.value as DatePreset;
-                if (value === 'custom') {
-                  onOpenCustomDialog();
-                } else {
-                  onDateSelect(value);
-                }
-              }}
-              SelectDisplayProps={{ 'aria-describedby': dateSummaryId }}
-              sx={{ ...historySelectSx, width: 20 }}
-            >
-              <MenuItem value="this year">This Year</MenuItem>
-              <MenuItem value="last year">Last Year</MenuItem>
-              <MenuItem value="this month">This Month</MenuItem>
-              <MenuItem value="this week">This Week</MenuItem>
-              <MenuItem value="today">Today</MenuItem>
-              <MenuItem value="yesterday">Yesterday</MenuItem>
-              <MenuItem value="custom">
-                {dateRange.isCustom ? dateRangeString : 'Custom'}
-              </MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl>
-            <InputLabel id="select-building-label">Building</InputLabel>
-            <Select
-              labelId="select-building-label"
-              id="select-building"
-              value={buildingId ?? 'all'}
-              label="Building"
-              onChange={onBuildingChange}
-              sx={{ ...historySelectSx, minWidth: 24 }}
-            >
-              <MenuItem value="all">All Buildings</MenuItem>
-              {buildings.map((building) => (
-                <MenuItem key={building.id} value={building.id}>
-                  {building.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <ReportFilterControls
+            dateInput={dateInput}
+            dateRange={dateRange}
+            dateRangeString={dateRangeString}
+            dateSummaryId={dateSummaryId}
+            onDateSelect={onDateSelect}
+            onOpenCustomDialog={onOpenCustomDialog}
+            buildings={buildings}
+            buildingId={buildingId ?? 'all'}
+            onBuildingChange={onBuildingChange}
+          />
         </Stack>
-        <Stack
-          direction="row"
-          sx={{
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            columnGap: 1,
-            rowGap: 1,
-          }}
+        <Typography
+          id={dateSummaryId}
+          sx={{ typography: 'caption', color: 'text.secondary' }}
         >
-          {lastUpdated !== null && (
-            <Typography sx={{ typography: 'caption', color: 'text.secondary' }}>
-              Last updated {formatClockTime(lastUpdated)}
-            </Typography>
+          {formatDateRangeSummary(
+            dateRange.startDate,
+            dateRange.endDate,
+            activeDays,
           )}
+        </Typography>
+      </Stack>
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          columnGap: 1,
+          rowGap: 1,
+        }}
+      >
+        {lastUpdated !== null && (
+          <Typography sx={{ typography: 'caption', color: 'text.secondary' }}>
+            Updated {formatAge(now - lastUpdated)}
+          </Typography>
+        )}
+        <Button
+          variant="text"
+          aria-label="Refresh"
+          startIcon={<ReloadOutlined />}
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          sx={actionButtonSx}
+        >
+          <Box component="span" sx={actionLabelSx}>
+            Refresh
+          </Box>
+        </Button>
+        <ButtonGroup variant="text">
           <Button
-            variant="text"
-            aria-label="Refresh"
-            startIcon={<ReloadOutlined />}
-            onClick={onRefresh}
+            aria-label="Export"
+            startIcon={<DownloadOutlined />}
+            onClick={onExport}
             disabled={isRefreshing}
             sx={actionButtonSx}
           >
             <Box component="span" sx={actionLabelSx}>
-              Refresh
+              Export
             </Box>
           </Button>
-          <ButtonGroup variant="text">
-            <Button
-              aria-label="Export CSV"
-              startIcon={<DownloadOutlined />}
-              onClick={onExport}
-              sx={actionButtonSx}
-            >
-              <Box component="span" sx={actionLabelSx}>
-                Export CSV
-              </Box>
-            </Button>
-            <Button
-              aria-label="More export options"
-              aria-haspopup="menu"
-              aria-expanded={Boolean(exportMenuAnchor)}
-              onClick={(e) => setExportMenuAnchor(e.currentTarget)}
-              sx={caretButtonSx}
-            >
-              <CaretDownOutlined />
-            </Button>
-          </ButtonGroup>
-          <Menu
-            anchorEl={exportMenuAnchor}
-            open={Boolean(exportMenuAnchor)}
-            onClose={() => setExportMenuAnchor(null)}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          <Button
+            aria-label="More export options"
+            aria-haspopup="menu"
+            aria-expanded={Boolean(exportMenuAnchor)}
+            onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+            disabled={isRefreshing}
+            sx={caretButtonSx}
           >
-            <MenuItem onClick={() => runExport(onExport)}>
-              Export analytics data
-            </MenuItem>
-            <MenuItem onClick={() => runExport(onExportInventory)}>
-              Export current inventory
-            </MenuItem>
-          </Menu>
-        </Stack>
+            <CaretDownOutlined />
+          </Button>
+        </ButtonGroup>
+        <Menu
+          anchorEl={exportMenuAnchor}
+          open={Boolean(exportMenuAnchor)}
+          onClose={() => setExportMenuAnchor(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <MenuItem onClick={() => runExport(onExport)}>
+            Export analytics data
+          </MenuItem>
+          <MenuItem onClick={() => runExport(onExportInventory)}>
+            Export current inventory
+          </MenuItem>
+        </Menu>
       </Stack>
-      <Typography
-        id={dateSummaryId}
-        sx={{ typography: 'caption', color: 'text.secondary' }}
-      >
-        {formatDateRangeSummary(dateRange.startDate, dateRange.endDate)}
-      </Typography>
     </Stack>
   );
 };

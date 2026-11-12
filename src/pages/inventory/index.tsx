@@ -127,19 +127,11 @@ const Inventory = () => {
   }, [location.state, showSnackbar]);
 
   const negativeItemCount = originalData.filter(
-    (item) => item.quantity < 0,
+    (item) => !item.is_archived && item.quantity < 0,
   ).length;
 
   const handleFilter = useCallback(() => {
-    const searchFiltered = originalData.filter(
-      (row: {
-        name: string;
-        type: string;
-        description: string;
-        category: string;
-        quantity: number;
-        status: string;
-      }) => {
+    const searchFiltered = originalData.filter((row) => {
         const matchesType = filters.type
           ? row.type.toLowerCase().includes(filters.type.toLowerCase())
           : true;
@@ -163,9 +155,14 @@ const Inventory = () => {
             row.quantity.toString().toLowerCase().includes(lowerCaseSearch)
           : true;
 
-        return matchesType && matchesCategory && matchesSearch && matchesStatus;
-      },
-    );
+          return (
+            !row.is_archived &&
+            matchesType &&
+            matchesCategory &&
+            matchesSearch &&
+            matchesStatus
+          );
+      });
 
     if (sortColumn && sortDirection !== 'original') {
       searchFiltered.sort((a, b) => {
@@ -189,7 +186,7 @@ const Inventory = () => {
     try {
       const inventoryList = await getItems(user);
       setOriginalData(inventoryList);
-      setDisplayData(inventoryList);
+      setDisplayData(inventoryList.filter((item) => !item.is_archived));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       showSnackbar(`Could not get inventory: ${message}`, 'warning');

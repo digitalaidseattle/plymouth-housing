@@ -30,8 +30,6 @@ import { previousPeriod } from '../utils/analyticsUtils';
 import { cacheGet, cacheRemove, cacheSet } from '../utils/sessionCache';
 import { SETTINGS } from '../types/constants';
 
-// Separate slots, so a building change only refetches the item totals.
-// Buildings aren't here: getBuildings keeps its own longer-lived cache.
 const CACHE_KEYS = {
   range: 'analyticsRange',
   itemTotals: 'analyticsItemTotals',
@@ -97,13 +95,13 @@ export function useAnalyticsData({
     reloadToken,
   });
 
-  // Neither of these moves with the filters.
   const items = useCachedFetch({
     cacheKey: CACHE_KEYS.items,
     variant: userId,
     ttl: TTL,
     initial: [] as InventoryItem[],
-    fetcher: () => getItems(user),
+    fetcher: async () =>
+      (await getItems(user)).filter((item) => !item.is_archived),
     errorLabel: 'Error fetching items',
     onError,
     reloadToken,
@@ -177,8 +175,6 @@ export function useAnalyticsData({
   };
 }
 
-// This hook is the only caller, so the caching machinery lives here rather
-// than in a shared hook of its own.
 interface Entry<T> {
   variant: string;
   fetchedAt: number;
@@ -241,7 +237,6 @@ function useCachedFetch<T>({
       })
       .catch((error) => {
         if (!mounted) return;
-        // Cleared, so one range's numbers never sit under another's heading.
         setData(latest.current.initial);
         setFetchedAt(null);
         latest.current.onError(`${errorLabel}: ${message(error)}`);

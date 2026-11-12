@@ -4,6 +4,8 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
+import { DatePreset, DateRange } from '../../types/interfaces';
+
 const DATE_FORMATS = {
   DATE_ONLY: {
     month: 'short' as const,
@@ -92,53 +94,66 @@ export function formatDateRange(startDate: Date, endDate: Date): string {
   return `${startStr} - ${endStr}`;
 }
 
-// The range with the days it covers, e.g. "Sep 1 - Sep 9, 2026 (9 days)", or
-// just the date on its own when the range is a single day.
-export function formatDateRangeSummary(startDate: Date, endDate: Date): string {
+// The range with the days it covers and how many of them saw a checkout, e.g.
+// "Sep 1 - Sep 9, 2026 (9 days, 3 active days)", or just the date on its own when
+// the range is a single day.
+export function formatDateRangeSummary(
+  startDate: Date,
+  endDate: Date,
+  activeDays: number,
+): string {
   const days = calendarDays(startDate, endDate);
   return days === 1
-    ? startDate.toLocaleString('en-us', DATE_FORMATS.RANGE_END)
-    : `${formatDateRange(startDate, endDate)} (${days} days)`;
+    ? formatFullDate(startDate)
+    : `${formatDateRange(startDate, endDate)} (${days} days, ${activeDays} active days)`;
 }
 
 export function formatFullDate(date: Date): string {
   return date.toLocaleString('en-us', DATE_FORMATS.FULL_DATE);
 }
 
-export function getPresetDateRange(preset: string): {
-  startDate: Date;
-  endDate: Date;
-} {
-  const now = new Date();
-  const month = now.getMonth();
-  const year = now.getFullYear();
+export function getPresetDateRange(
+  preset: Exclude<DatePreset, 'custom'>,
+): DateRange {
+  const today = new Date();
 
   switch (preset) {
-    case 'this-month': {
-      return {
-        startDate: new Date(year, month, 1),
-        endDate: new Date(year, month + 1, 0),
-      };
+    case 'yesterday': {
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      return { startDate: yesterday, endDate: yesterday };
     }
-    case 'last-month': {
-      return {
-        startDate: new Date(year, month - 1, 1),
-        endDate: new Date(year, month, 0),
-      };
+    case 'this week': {
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() - 6);
+      return { startDate, endDate: today };
     }
-    case 'last-30-days': {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(now.getDate() - 30);
+    case 'this month':
       return {
-        startDate: thirtyDaysAgo,
-        endDate: now,
+        startDate: new Date(today.getFullYear(), today.getMonth(), 1),
+        endDate: new Date(today.getFullYear(), today.getMonth() + 1, 0),
       };
-    }
-    default: {
+    case 'last month':
       return {
-        startDate: now,
-        endDate: now,
+        startDate: new Date(today.getFullYear(), today.getMonth() - 1, 1),
+        endDate: new Date(today.getFullYear(), today.getMonth(), 0),
       };
+    case 'last 30 days': {
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() - 29);
+      return { startDate, endDate: today };
     }
+    case 'this year':
+      return {
+        startDate: new Date(today.getFullYear(), 0, 1),
+        endDate: today,
+      };
+    case 'last year':
+      return {
+        startDate: new Date(today.getFullYear() - 1, 0, 1),
+        endDate: new Date(today.getFullYear() - 1, 11, 31),
+      };
+    case 'today':
+      return { startDate: today, endDate: today };
   }
 }

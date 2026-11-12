@@ -89,7 +89,7 @@ jobs:
         run: |
           echo "Deploying database data_seed..."
           for file in ./database/data_seed/*.sql; do
-            if [ -f "$file" ]; then
+            if [ -f "$file" ] && [ "$(basename "$file")" != "analytics_demo_data.sql" ]; then
               echo "Executing: $file"
               /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${{ secrets.SQL_SA_TEST_PASSWORD }} -C -d Inventory -i "$file"
             fi

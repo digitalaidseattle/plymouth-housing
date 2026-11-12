@@ -43,7 +43,7 @@ const createUserContextValue = (overrides = {}) => ({
   setUser: vi.fn(),
   isLoading: false,
   pinVerified: false,
-  setPinVerified: vi.fn(),
+  setPinVerifiedForUserId: vi.fn(),
   ...overrides,
 });
 
@@ -179,19 +179,20 @@ describe('PickNamePage Component', () => {
     });
   });
 
-  test('resets loggedInUserId and pinVerified on mount (back-navigation regression)', async () => {
+  test('resets loggedInUserId and pin verification on mount (back-navigation regression)', async () => {
     const mockSetLoggedInUserId = vi.fn();
-    const mockSetPinVerified = vi.fn();
+    const mockSetPinVerifiedForUserId = vi.fn();
     const volunteers = [{ id: 1, name: 'Alice' }];
+
     mockFetchWithRetry.mockResolvedValue({ value: volunteers });
   
     render(
       <UserContext.Provider
         value={createUserContextValue({
-          loggedInUserId: 1, // simulate stale value left over from a prior selection
-          pinVerified: false,
+          loggedInUserId: 1,
+          pinVerified: true,
           setLoggedInUserId: mockSetLoggedInUserId,
-          setPinVerified: mockSetPinVerified,
+          setPinVerifiedForUserId: mockSetPinVerifiedForUserId,
         })}
       >
         <PickNamePage />
@@ -200,7 +201,7 @@ describe('PickNamePage Component', () => {
   
     await waitFor(() => {
       expect(mockSetLoggedInUserId).toHaveBeenCalledWith(null);
-      expect(mockSetPinVerified).toHaveBeenCalledWith(false);
+      expect(mockSetPinVerifiedForUserId).toHaveBeenCalledWith(null);
     });
   });
 });

@@ -86,7 +86,7 @@ export interface UserContextType {
   setActiveVolunteers: (activeVolunteers: User[]) => void;
   isLoading: boolean;
   pinVerified: boolean;
-  setPinVerified: (verified: boolean) => void;
+  setPinVerifiedForUserId: (userId: number | null) => void;
 }
 
 // BaseUser defines the common properties shared by all user types.
@@ -133,6 +133,7 @@ export type InventoryItem = {
   threshold: number;
   category: string;
   status: string;
+  is_archived: boolean;
 };
 
 export type CategoryItem = {
@@ -151,6 +152,7 @@ export type AdminItem = {
   quantity: number;
   threshold: number;
   items_per_basket: number | null;
+  is_archived: boolean;
 };
 
 // ─── Location / Residents ─────────────────────────────────────────────────────
@@ -279,16 +281,22 @@ export type BuildingResidents = {
   visitCount: number;
 };
 
-// A checkout alongside how many times that resident appears in the same range.
-export type FlaggedTransaction = CheckoutTransaction & {
-  isDuplicate: boolean;
+export type ResidentVisits = {
+  resident_id: number;
+  resident_name: string;
+  building_code: string;
+  unit_number: string;
   visitCount: number;
+  total_quantity: number;
+  lastVisit: string;
+  isDuplicate: boolean;
 };
 
 export type AnalyticsSummary = {
   residentsServed: number;
   checkouts: number;
   itemsCheckedOut: number;
+  activeDays: number;
   avgCheckoutsPerActiveDay: number;
   rangeDays: number;
 };
@@ -362,8 +370,11 @@ export type DatePreset =
   | 'this month'
   | 'this year'
   | 'last year'
+  | 'last month'
+  | 'last 30 days'
   | 'custom';
 
+// A range already serialized for the API: local midnight to local end of day.
 export type DateRangeStrings = {
   startDate: string;
   endDate: string;
@@ -390,3 +401,21 @@ export type EditState = {
   field: string | null;
   value: string | number;
 };
+
+// ─── Data Table ───────────────────────────────────────────────────────────────
+
+export type Column<T> = {
+  label: string;
+  align?: 'left' | 'right';
+  render: (row: T) => React.ReactNode;
+};
+
+// ─── CSV Export ───────────────────────────────────────────────────────────────
+
+export type CsvValue = string | number | null | undefined;
+
+export interface CsvSection {
+  title: string;
+  headers: string[];
+  rows: CsvValue[][];
+}

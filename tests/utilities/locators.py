@@ -36,17 +36,50 @@ class HistoryPageLocators:
         "//*[contains(text(),'No transactions found')]"
     )
 
+    # Transaction details modal, opened by clicking a history card.
+    # Edit/History are scoped to the dialog so the "History" accordion
+    # cannot collide with the sidebar History nav item.
+    TRANSACTION_DETAILS_DIALOG = (
+        By.XPATH,
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
+    )
+
+    DIALOG_CLOSE_BUTTON = (
+        By.XPATH,
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
+        "//*[@data-testid='dialog-close-btn']"
+    )
+
+    EDIT_BUTTON = (
+        By.XPATH,
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
+        "//*[@data-testid='dialog-submit-btn']"
+    )
+
+    HISTORY_ACCORDION = (
+        By.XPATH,
+        "//*[@data-testid='dialog'][.//*[@data-testid='transaction-details-content']]"
+        "//*[@data-testid='transaction-details-history']"
+    )
+
 class HomePageLocators:
     # ---- Sections ----
     CHECKOUT_SECTION = (By.CSS_SELECTOR, "[data-testid='section-checkout']")
     INVENTORY_SECTION = (By.CSS_SELECTOR, "[data-testid='section-inventory']")
     ADMIN_HOME_MENU_BUTTON = (By.XPATH, "//a[@href='/admin-home']")
     EMAIL_ID = (By.XPATH, "//h6[contains(., '@plymouthhousing.org')]")
-    LOGOUT_BUTTON = (By.XPATH, "//h6[normalize-space()='Log out']")
+    # The logout control renders as a <button>, not an <h6>.
+    LOGOUT_BUTTON = (By.XPATH, "//button[normalize-space()='Log out']")
     PLYMOUTH_HOUSING_TEXT = (By.XPATH, '//h5[normalize-space()="Plymouth Housing"]')
     HOME_HEADER = (By.XPATH, "//h4[contains(., 'Thanks for being here')]")
 
 class LoginPageLocators:
+    # Staging requires clicking the app's AAD login link before
+    # the Microsoft sign-in flow begins.
+    APP_LOGIN_BUTTON = (
+        By.CSS_SELECTOR,
+        'a[href*=".auth/login/aad"]',
+    )
     USERNAME_INPUT  = (By.NAME,  'loginfmt')
     NEXT_BUTTON     = (By.ID,    'idSIButton9')
     PASSWORD_INPUT  = (By.NAME,  'passwd')
@@ -83,9 +116,24 @@ class InventoryPageLocators:
         return By.XPATH, locator
 
     @staticmethod
+    def get_inventory_row_locator(item_name):
+        if "'" not in item_name:
+            literal = f"'{item_name}'"
+        elif '"' not in item_name:
+            literal = f'"{item_name}"'
+        else:
+            literal = "concat(" + ", \"'\", ".join(f"'{part}'" for part in item_name.split("'")) + ")"
+        return By.XPATH, (
+            "//*[@id='inventory-container']//tbody/tr"
+            f"[td[1][normalize-space(.)={literal}]]"
+            "[td[3][normalize-space(.)='General']]"
+        )
+
+    @staticmethod
     def get_inventory_locator(item_name):
-        locator = f'//*[text()="{item_name}"]/following-sibling::td[5]'
-        return By.XPATH, locator
+        by, row = InventoryPageLocators.get_inventory_row_locator(item_name)
+        return by, row + "/td[6]"
+
 
 
 class CheckoutPageLocators:
@@ -101,12 +149,40 @@ class CheckoutPageLocators:
     CONTINUE_BUTTON = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "continue")]')
 
     PROCEED_TO_CHECKOUT = (By.XPATH, '//button[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "proceed to checkout")]')
-    CONFIRM = (By.XPATH, '//*[text()="Confirm"]')
+    CONFIRM = (
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-dialog-confirm-btn']"
+    )
 
     SEARCH = (By.XPATH, "//input[@type='search']")
 
     # modal header
-    SUMMARY_HEADER = (By.XPATH, "//h2[contains(text(),'Checkout Summary')]")
+    SUMMARY_HEADER = (
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-summary-title']"
+    )
+
+    # ---------------------------------------------------
+    # Edit mode (Checkout Summary opened from History > Edit)
+    # ---------------------------------------------------
+
+    EDIT_SUMMARY_HEADER = (
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'][data-edit-mode='true'] "
+        "[data-testid='checkout-summary-title']"
+    )
+
+    # One button carries both states: it reads "No changes" and is
+    # disabled until an edit is made, then becomes "Save changes".
+    SAVE_CHANGES_BUTTON = (
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-dialog-save-btn']"
+    )
+
+    EDIT_CANCEL_BUTTON = (
+        By.CSS_SELECTOR,
+        "[data-testid='checkout-summary-dialog'] [data-testid='checkout-dialog-cancel-edit-btn']"
+    )
 
     # over limit warning
     OVER_LIMIT_WARNING = (By.XPATH, "//*[contains(text(),'over the limit')]")
@@ -128,11 +204,22 @@ class CheckoutPageLocators:
 
     @staticmethod
     def get_add_button_locator(item_name):
+        """Find the catalogue item's increase button using stable test hooks."""
+        if "'" not in item_name:
+            item_literal = f"'{item_name}'"
+        elif '"' not in item_name:
+            item_literal = f'"{item_name}"'
+        else:
+            parts = item_name.split("'")
+            item_literal = "concat(" + ", \"'\", ".join(f"'{part}'" for part in parts) + ")"
+
         return (
             By.XPATH,
-            f"//p[@aria-label='{item_name}']"
-            f"/ancestor::div[contains(@class,'MuiCardContent-root')]"
-            f"/following-sibling::div//button"
+            "//*[@data-testid='checkout-item-row'"
+            f" and @data-item-name={item_literal}]"
+            "[not(ancestor::*[@role='dialog'"
+            " or @data-testid='checkout-summary-dialog'])]"
+            "//*[@data-testid='checkout-item-increase']",
         )
 
 class AddItemPageLocators:

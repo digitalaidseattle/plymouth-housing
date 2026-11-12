@@ -10,6 +10,8 @@ There are tutorials here:
 
 ## Database for Development
 
+> If you use the Docker setup in [docker-setup.md](docker-setup.md), the database is created for you and you can skip this section.
+
 A note on permission with PowerShell. 
 You might get a warning that untrusted scripts are not allowed to run. Here is how to turn that off on Windows. 
 1. Open an admin PowerShell prompt.  

@@ -1,7 +1,7 @@
 import pytest
 import logging
 
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -22,83 +22,81 @@ class InventoryPage(BasePage):
 
     # BASIC INVENTORY METHODS
     def get_inventory(self, item: str) -> str:
-        locator = self.locators.get_inventory_locator(item)
-        return self.get_text(locator, timeout=90)
+        return self.get_text(self.locators.get_inventory_locator(item), timeout=90)
 
     def get_inventory_quantity(self, item: str) -> int:
-        """
-        Returns numeric inventory quantity for given item.
-        Skips test if warning icon is present.
-        Raises clean error if value is non-numeric.
-        """
+        """Read only the exact General row; retry stale nodes within 20 seconds."""
+        locator = self.locators.get_inventory_locator(item)
+        found = {}
 
-        xpath = f"//td[normalize-space()='{item}']/following-sibling::td[5]"
+        def read_quantity(driver):
+            try:
+                cell = driver.find_element(*locator)
+                if cell.find_elements(By.XPATH, ".//*[local-name()='svg']"):
+                    raise AssertionError(f"Inventory value not ready for '{item}' (warning icon shown)")
+                text = cell.text.strip()
+                if not (text.isascii() and text.isdigit()):
+                    return False
+                found["quantity"] = int(text)
+                return True  # Zero is a valid quantity.
+            except (StaleElementReferenceException, NoSuchElementException):
+                return False
 
-        try:
-            # Wait for cell presence
-            cell = WebDriverWait(self.driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, xpath))
-            )
-
-            # Skip if warning icon present
-            if cell.find_elements(By.XPATH, ".//*[local-name()='svg']"):
-                pytest.skip(
-                    f"Inventory value not ready for '{item}' (warning icon shown)"
-                )
-
-            # Wait until text becomes numeric
-            WebDriverWait(self.driver, 20).until(
-                lambda d: d.find_element(By.XPATH, xpath).text.strip().isdigit()
-            )
-
-            text = self.driver.find_element(By.XPATH, xpath).text.strip()
-
-            if not text.isdigit():
-                raise ValueError(
-                    f"Inventory value for '{item}' is not numeric: '{text}'"
-                )
-
-            return int(text)
-
-        except TimeoutException:
-            raise TimeoutException(
-                f"Timeout while retrieving inventory quantity for '{item}'"
-            )
+        self.get_wait(20).until(read_quantity, f"No readable General quantity for {item!r}")
+        return found["quantity"]
 
     # SEARCH METHODS
-    def search_item(self, item_name: str):
-        search_field = WebDriverWait(self.driver, 20).until(
-            EC.element_to_be_clickable(self.locators.SEARCH)
-        )
+    @staticmethod
+    def _xpath_literal(value):
+        if "'" not in value:
+            return f"'{value}'"
 
-        self.scroll_into_view(self.locators.SEARCH)
-        search_field.clear()
-        search_field.send_keys(item_name)
+        if '"' not in value:
+            return f'"{value}"'
+
+        parts = value.split("'")
+        return "concat(" + ", \"'\", ".join(f"'{part}'" for part in parts) + ")"
+
+    def search_item(self, item_name: str):
+        """Replace the React search value and verify the entered query."""
+        wait = WebDriverWait(self.driver, 20)
+        search_field = wait.until(EC.element_to_be_clickable(self.locators.SEARCH))
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", search_field
+        )
+        search_field.click()
+        search_field.send_keys(Keys.CONTROL, "a")
+        search_field.send_keys(Keys.BACKSPACE)
+        wait.until(lambda d: (d.find_element(*self.locators.SEARCH).get_attribute("value") or "") == "")
+        self.driver.find_element(*self.locators.SEARCH).send_keys(item_name)
+        wait.until(lambda d: d.find_element(*self.locators.SEARCH).get_attribute("value") == item_name)
 
     def wait_for_search_results(self, item_name: str):
-        xpath = (
-            f"//tr[td[contains(translate(text(),"
-            f"'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),"
-            f"'{item_name.lower()}')]]"
-        )
+        """Match nested product-name text in the inventory's first column."""
+        _, xpath = self.locators.get_inventory_row_locator(item_name)
 
-        for attempt in range(1, 3):
+        def visible_match(driver):
+            for row in driver.find_elements(By.XPATH, xpath):
+                try:
+                    if row.is_displayed():
+                        return row
+                except StaleElementReferenceException:
+                    continue
+            return False
+
+        for attempt in range(2):
             try:
-                logger.info(f"Search attempt {attempt} for '{item_name}'")
-
-                WebDriverWait(self.driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, xpath))
-                )
+                WebDriverWait(self.driver, 10).until(visible_match)
                 return
-
             except TimeoutException:
-                logger.warning(
-                    f"Search attempt {attempt} failed for '{item_name}' — retrying..."
-                )
-                self.search_item(item_name)
+                if attempt == 0:
+                    self.search_item(item_name)
 
+        names = [cell.text.strip() for cell in self.driver.find_elements(
+            By.XPATH, "//*[@id='inventory-container']//tr[td]/td[1]"
+        ) if cell.is_displayed()]
         raise AssertionError(
-            f"'{item_name}' not found in inventory table after retries."
+            f"{item_name!r} not found in inventory search. Visible results: {names!r}"
         )
 
     # LOADING HANDLING
@@ -109,35 +107,147 @@ class InventoryPage(BasePage):
             )
         )
 
+    def assert_inventory_page_ready(self):
+        """Verify the table structure, including an empty catalogue."""
+        self.get_wait(20).until(EC.visibility_of_element_located(
+            (By.CSS_SELECTOR, "#inventory-container table")
+        ))
+        headers = [cell.text.strip() for cell in self.driver.find_elements(
+            By.CSS_SELECTOR, "#inventory-container thead th"
+        )]
+        assert headers == ["Name", "Description", "Type", "Category", "Status", "Quantity", "Adjust"], headers
+        self.get_wait(20).until(EC.visibility_of_element_located(
+            (By.CSS_SELECTOR, "#inventory-container tbody tr")
+        ))
+
+    def select_general_inventory(self):
+        """Set the actual type control; /inventory alone does not identify type."""
+        self.click((By.CSS_SELECTOR, "#type-button-container > button"))
+        self.click((By.XPATH, "//li[@role='menuitem'][normalize-space(.)='General']"))
+        # Remove restrictions left over from a previous inventory visit.
+        for label in ("Clear Category Filter", "Clear Status Filter"):
+            for control in self.driver.find_elements(By.CSS_SELECTOR, f"[aria-label='{label}']"):
+                control.click()
+        self.search_item("")
+        self.wait_for_general_results("")
+
+    def wait_for_general_results(self, query):
+        """Require the selected type and a settled, matching rendered snapshot."""
+        previous = None
+        stable = 0
+
+        def settled(driver):
+            nonlocal previous, stable
+            try:
+                if driver.find_element(By.CSS_SELECTOR, "#type-button-container > button").text.strip() != "General":
+                    return False
+                if driver.find_element(*self.locators.SEARCH).get_attribute("value") != query:
+                    return False
+                rows = driver.find_elements(By.CSS_SELECTOR, "#inventory-container tbody tr")
+                snapshot = []
+                for row in rows:
+                    cells = row.find_elements(By.TAG_NAME, "td")
+                    if len(cells) == 1 and cells[0].text.strip() == "No items to display":
+                        snapshot.append(("empty",))
+                    elif len(cells) == 7 and cells[2].text.strip() == "General":
+                        values = tuple(cell.text.strip() for cell in cells)
+                        if query.lower() not in " ".join(values).lower():
+                            return False
+                        snapshot.append(values)
+                    else:
+                        return False
+                if not snapshot:
+                    return False
+                stable = stable + 1 if snapshot == previous else 0
+                previous = snapshot
+                return stable >= 2
+            except (StaleElementReferenceException, NoSuchElementException):
+                stable = 0
+                return False
+
+        self.get_wait(20).until(settled, "General inventory filter/search results did not settle")
+
+    def select_adjustable_general_item(self, report=None, minimum_quantity=0):
+        """Try the requested candidates in order, before starting any mutation."""
+        self.select_general_inventory()
+        candidates = ("Body soap", "Conditioner", "Can opener")
+        self.assert_inventory_page_ready()
+        available = {}
+        unsuitable = {}
+        # Inventory excludes archived items. Search every page before deciding
+        # a preferred candidate is absent; never choose a lower priority early.
+        while True:
+            def read_page(driver):
+                # Retry the complete page snapshot when React replaces a row.
+                page_available, page_unsuitable = {}, {}
+                try:
+                    for row in driver.find_elements(By.CSS_SELECTOR, "#inventory-container tbody tr"):
+                        cells = row.find_elements(By.TAG_NAME, "td")
+                        if len(cells) != 7:
+                            continue
+                        name = cells[0].text.strip()
+                        if name not in candidates:
+                            continue
+                        # Inspect this cell before parsing text: a warning is not zero.
+                        if cells[5].find_elements(By.XPATH, ".//*[local-name()='svg']"):
+                            page_unsuitable[name] = (
+                                "Item exists, but quantity shows a warning icon; unsuitable for this test."
+                            )
+                            continue
+                        quantity = cells[5].text.strip()
+                        buttons = cells[6].find_elements(By.TAG_NAME, "button")
+                        if (cells[2].text.strip() == "General"
+                                and quantity.isascii() and quantity.isdigit()
+                                and int(quantity) >= minimum_quantity
+                                and buttons and buttons[0].is_enabled()):
+                            page_available[name] = int(quantity)
+                        else:
+                            page_unsuitable[name] = (
+                                f"not General, quantity below {minimum_quantity} or unreadable, or Adjust unavailable"
+                            )
+                except StaleElementReferenceException:
+                    return False
+                return page_available, page_unsuitable
+
+            page_available, page_unsuitable = self.get_wait(10).until(read_page)
+            available.update(page_available)
+            unsuitable.update(page_unsuitable)
+            buttons = self.driver.find_elements(
+                By.CSS_SELECTOR, "#inventory-container button[aria-label='Go to next page']"
+            )
+            if not buttons or not buttons[0].is_enabled():
+                break
+            locator = (By.CSS_SELECTOR, "#inventory-container button[aria-current='page']")
+            previous = self.driver.find_element(*locator).text
+            buttons[0].click()
+            self.get_wait(10).until(lambda d: d.find_element(*locator).text != previous)
+        unavailable = []
+        for name in candidates:
+            if name in available:
+                if report:
+                    report(candidates[0], name, unavailable)
+                return name, available[name]
+            reason = unsuitable.get(name, "missing or archived (not in active inventory)")
+            unavailable.append({"item": name, "reason": reason})
+        if report:
+            report(candidates[0], None, unavailable)
+        pytest.skip("No suitable active General inventory candidate: " + "; ".join(
+            f"{entry['item']}: {entry['reason']}" for entry in unavailable
+        ))
+
+    def adjust_quantity(self, item, quantity, comment):
+        self.click_adjust(item)
+        self.wait_for_adjust_modal()
+        self.set_new_quantity(str(quantity))
+        self.select_reason("Correction")
+        self.enter_comment(comment)
+        self.click_submit()
+        self.wait_for_adjust_complete(item, quantity)
+
     # DEFENSIVE SEARCH (STABILIZED)
     def second_search_item(self, item_name: str):
-
-        search_field = WebDriverWait(self.driver, 20).until(
-            EC.element_to_be_clickable(self.locators.SEARCH)
-        )
-
-        # Ensure field in view
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", search_field
-        )
-
-        # Try clear icon
-        try:
-            clear_icon = WebDriverWait(self.driver, 2).until(
-                EC.visibility_of_element_located(self.locators.CLEAR_ICON)
-            )
-            clear_icon.click()
-        except (NoSuchElementException, TimeoutException):
-            logger.debug("Clear icon not available — fallback to manual clearing")
-
-        # Defensive clear
-        search_field.send_keys(Keys.CONTROL + "a")
-        search_field.send_keys(Keys.DELETE)
-
-        if search_field.get_attribute("value").strip() != "":
-            search_field.clear()
-
-        search_field.send_keys(item_name)
+        """Use the same verified search replacement for subsequent queries."""
+        self.search_item(item_name)
 
     # STATUS FILTER METHODS
     def click_status(self):
@@ -166,10 +276,8 @@ class InventoryPage(BasePage):
         return self.driver.find_elements(By.XPATH, xpath)
 
     def click_adjust(self, item_name: str):
-        locator = (
-            By.XPATH,
-            f"//td[normalize-space()='{item_name}']/following-sibling::td[last()]//button"
-        )
+        by, row = self.locators.get_inventory_row_locator(item_name)
+        locator = (by, row + "/td[last()]//button")
         self.click(locator)
 
     def set_new_quantity(self, value: str):

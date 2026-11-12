@@ -4,7 +4,7 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-export type CsvValue = string | number | null | undefined;
+import { CsvSection, CsvValue } from '../types/interfaces';
 
 // Excel and Sheets execute a cell opening with one of these.
 const FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -26,12 +26,6 @@ const escapeField = (field: CsvValue): string => {
 export const toCsv = (headers: string[], rows: CsvValue[][]): string =>
   [headers, ...rows].map((row) => row.map(escapeField).join(',')).join('\n');
 
-export interface CsvSection {
-  title: string;
-  headers: string[];
-  rows: CsvValue[][];
-}
-
 export const toCsvSections = (sections: CsvSection[]): string =>
   sections
     .map(
@@ -42,6 +36,8 @@ export const toCsvSections = (sections: CsvSection[]): string =>
 
 // A BOM makes Excel detect UTF-8 instead of garbling accented names.
 const UTF8_BOM = '\ufeff';
+
+const REVOKE_DELAY_MS = 1000;
 
 const triggerDownload = (filename: string, csv: string): void => {
   const blob = new Blob([UTF8_BOM + csv], {
@@ -58,7 +54,7 @@ const triggerDownload = (filename: string, csv: string): void => {
     anchor.click();
   } finally {
     anchor.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
   }
 };
 

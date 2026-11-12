@@ -12,8 +12,8 @@ interface RankedBarChartProps {
   title: string;
   hint: string;
   emptyMessage: string;
-  rows: { label: string; caption?: string; value: number }[];
-  // Set when the chart already sits inside a card, to avoid a doubled border.
+  rows: { label: string; value: number; secondaryValue?: number }[];
+  // Leaves out the card frame, for a chart that sits inside another card.
   bare?: boolean;
 }
 
@@ -38,7 +38,7 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
       >
         <Typography variant="h5">{title}</Typography>
         {/* A generated title can run the width of the card, so the column name
-            holds its place and the title wraps instead. */}
+              holds its place and the title wraps instead. */}
         <Typography
           sx={{
             typography: 'body2',
@@ -64,8 +64,8 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
             rowGap: 2,
           }}
         >
-          {rows.map((row) => (
-            <Fragment key={row.label}>
+          {rows.map((row, index) => (
+            <Fragment key={index}>
               <Box sx={{ minWidth: 0 }}>
                 <Typography
                   sx={{ typography: 'body2' }}
@@ -74,18 +74,15 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
                 >
                   {row.label}
                 </Typography>
-                {row.caption && (
-                  <Typography
-                    sx={{ typography: 'caption', color: 'text.secondary' }}
-                    noWrap
-                  >
-                    {row.caption}
-                  </Typography>
-                )}
               </Box>
               <LinearProgress
                 variant="determinate"
-                value={Math.max((row.value / maxValue) * 100, 2)}
+                value={
+                  row.value === 0
+                    ? 0
+                    : Math.max((row.value / maxValue) * 100, 2)
+                }
+                aria-label={row.label}
                 sx={{ height: 10, backgroundColor: 'grey.200' }}
               />
               <Typography
@@ -93,9 +90,15 @@ const RankedBarChart: React.FC<RankedBarChartProps> = ({
                   typography: 'body2',
                   minWidth: '2.5rem',
                   textAlign: 'right',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {row.value}
+                {row.secondaryValue != null && (
+                  <Box component="span" sx={{ color: 'text.secondary' }}>
+                    {` / ${row.secondaryValue}`}
+                  </Box>
+                )}
               </Typography>
             </Fragment>
           ))}

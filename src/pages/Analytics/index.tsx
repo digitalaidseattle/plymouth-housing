@@ -5,7 +5,7 @@
  *
  */
 import React, { useContext, useMemo, useState } from 'react';
-import { Grid, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
+import { Grid, Skeleton, Stack } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
 import StatTile from '../../components/Analytics/StatTile';
@@ -19,7 +19,7 @@ import { useAnalyticsData } from '../../hooks/useAnalyticsData';
 import {
   buildAnalyticsSections,
   countResidentsByBuilding,
-  flagDuplicates,
+  groupByResident,
   percentChange,
   sortLowStockItems,
   sumItemsAdded,
@@ -85,8 +85,6 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
       ),
     [previousRows, previousRange],
   );
-  const hasData = currentSummary.checkouts > 0;
-
   const itemTotalsById = useMemo(
     () =>
       new Map(itemTotals.map((total) => [total.item_id, total.total_quantity])),
@@ -94,11 +92,16 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
   );
   const lowStockRows = useMemo(() => sortLowStockItems(items), [items]);
 
-  const flaggedRows = useMemo(() => flagDuplicates(currentRows), [currentRows]);
+  const residentRows = useMemo(
+    () => groupByResident(currentRows),
+    [currentRows],
+  );
   const detailRows = useMemo(
     () =>
-      repeatsOnly ? flaggedRows.filter((row) => row.isDuplicate) : flaggedRows,
-    [flaggedRows, repeatsOnly],
+      repeatsOnly
+        ? residentRows.filter((row) => row.isDuplicate)
+        : residentRows,
+    [residentRows, repeatsOnly],
   );
 
   const residentsByBuilding = useMemo(
@@ -146,58 +149,45 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
     [previousInventoryAdds],
   );
 
-  // Nothing in the current range means nothing to compare against. Each tile passes
-  // its own test, because stock can come in on a day with no checkouts going out.
-  const delta = (current: number, previous: number, hasCurrent: boolean) =>
-    hasCurrent ? percentChange(current, previous) : null;
-
   const statTiles = [
     {
       label: 'Residents Served',
       value: String(currentSummary.residentsServed),
-      delta: delta(
+      delta: percentChange(
         currentSummary.residentsServed,
         previousSummary.residentsServed,
-        hasData,
       ),
       caption: 'Unique residents with at least one checkout',
     },
     {
       label: 'Checkouts',
       value: String(currentSummary.checkouts),
-      // Only meaningful once the range covers more than a day.
       valueSuffix:
         currentSummary.rangeDays > 1
-          ? `${currentSummary.avgCheckoutsPerActiveDay.toFixed(1)} / day`
+          ? `${currentSummary.avgCheckoutsPerActiveDay.toFixed(1)} / active day`
           : undefined,
-      delta: delta(
-        currentSummary.checkouts,
-        previousSummary.checkouts,
-        hasData,
-      ),
-      caption: 'Totals for the selected range',
+      delta: percentChange(currentSummary.checkouts, previousSummary.checkouts),
+      caption: 'Average counts only days with a checkout',
     },
     {
       label: 'Items Checked Out',
       value: String(currentSummary.itemsCheckedOut),
-      delta: delta(
+      delta: percentChange(
         currentSummary.itemsCheckedOut,
         previousSummary.itemsCheckedOut,
-        hasData,
       ),
       caption: 'Total item count across all checkouts',
     },
     {
       label: 'Items Added',
       value: String(itemsAdded),
-      delta: delta(itemsAdded, previousItemsAdded, itemsAdded > 0),
+      delta: percentChange(itemsAdded, previousItemsAdded),
       caption: 'Total quantity added to inventory',
     },
   ];
 
-  const handleBuildingChange = (e: SelectChangeEvent<number | 'all'>) => {
-    const value = e.target.value;
-    setBuildingId(value === 'all' ? null : Number(value));
+  const handleBuildingChange = (value: number | 'all') => {
+    setBuildingId(value === 'all' ? null : value);
   };
 
   const selectedBuildingName =
@@ -212,6 +202,10 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         buildingName: selectedBuildingName,
         repeatsOnly,
         statTiles,
+        avgCheckoutsPerActiveDay:
+          currentSummary.rangeDays > 1
+            ? currentSummary.avgCheckoutsPerActiveDay.toFixed(1)
+            : undefined,
         residentsByBuilding,
         topCheckedOutItems,
         topInventoryAdded,
@@ -243,13 +237,13 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
         showDialog={showCustomDateDialog}
         handleShowDialog={toggleCustomDateDialog}
         handleSetDateRange={handleSetCustomDateRange}
-        handleSetDateInput={() => {}}
       />
 
       <AnalyticsFilters
         dateInput={dateInput}
         dateRange={dateRange}
         dateRangeString={dateRangeString}
+        activeDays={currentSummary.activeDays}
         onDateSelect={handleDateSelection}
         onOpenCustomDialog={toggleCustomDateDialog}
         buildings={buildings}
@@ -288,12 +282,12 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <RankedBarChart
                 title="Residents Served by Building"
-                hint="unique residents"
+                hint="residents / visits"
                 emptyMessage="No checkouts in the selected date range. Try a wider range or a different building."
                 rows={residentsByBuilding.map((building) => ({
                   label: building.building_code,
-                  caption: `${building.visitCount} visits`,
                   value: building.residentCount,
+                  secondaryValue: building.visitCount,
                 }))}
               />
             </Grid>
@@ -312,7 +306,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
               <RankedBarChart
                 title="Top 10 Inventory Items Added"
                 hint="by quantity"
-                emptyMessage="No inventory added in the selected date range. Try a wider range or a different building."
+                emptyMessage="No inventory added in the selected date range. Try a wider range."
                 rows={topInventoryAdded.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,
@@ -323,7 +317,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ onError }) => {
               <RankedBarChart
                 title="Least Checked Out Items"
                 hint="0 = never checked out"
-                emptyMessage="No inventory items for the selected building."
+                emptyMessage="No inventory items to show."
                 rows={leastCheckedOutItems.map((item) => ({
                   label: item.item_name,
                   value: item.total_quantity,

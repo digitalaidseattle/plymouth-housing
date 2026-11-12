@@ -112,7 +112,7 @@ const mockItemTotals: CheckoutItemTotal[] = [
 
 // Space Heater is at/below threshold; Pillows is not, so it should be excluded
 // from the Low Stock panel. Item ids intentionally don't match mockItemTotals,
-// so the "Checked Out" column falls back to a dash.
+// so the "Checked Out" column falls back to 0.
 const mockItems: InventoryItem[] = [
   {
     id: 1,
@@ -123,6 +123,7 @@ const mockItems: InventoryItem[] = [
     threshold: 5,
     category: 'Appliances',
     status: 'Low Stock',
+    is_archived: false,
   },
   {
     id: 2,
@@ -133,6 +134,7 @@ const mockItems: InventoryItem[] = [
     threshold: 5,
     category: 'Bedding',
     status: 'In Stock',
+    is_archived: false,
   },
 ];
 
@@ -175,7 +177,7 @@ const renderAnalytics = () =>
           setActiveVolunteers: vi.fn(),
           isLoading: false,
           pinVerified: false,
-          setPinVerified: vi.fn(),
+          setPinVerifiedForUserId: vi.fn(),
         }}
       >
         <Analytics onError={vi.fn()} />
@@ -272,9 +274,11 @@ describe('Analytics Page', () => {
     renderAnalytics();
 
     const detailPanel = await findDetailPanel();
-    const aliceRows = within(detailPanel).getAllByText('Alice Resident');
-    expect(aliceRows).toHaveLength(2);
-    expect(within(detailPanel).getAllByText('Repeat')).toHaveLength(2);
+    expect(within(detailPanel).getAllByText('Alice Resident')).toHaveLength(1);
+    expect(within(detailPanel).getAllByText('Repeat')).toHaveLength(1);
+    expect(
+      within(detailPanel).getByRole('columnheader', { name: 'Last Visit' }),
+    ).toBeInTheDocument();
 
     const bobRow = within(detailPanel)
       .getByText('Bob Resident')
@@ -296,7 +300,7 @@ describe('Analytics Page', () => {
     expect(
       within(detailPanel).queryByText('Bob Resident'),
     ).not.toBeInTheDocument();
-    expect(within(detailPanel).getAllByText('Alice Resident')).toHaveLength(2);
+    expect(within(detailPanel).getAllByText('Alice Resident')).toHaveLength(1);
   });
 
   test('changing the building filter narrows the detail rows to that building', async () => {
@@ -309,7 +313,7 @@ describe('Analytics Page', () => {
     const buildingSelect = screen.getByRole('combobox', { name: /building/i });
     fireEvent.mouseDown(buildingSelect);
     const buildingAOption = await screen.findByRole('option', {
-      name: 'Building A',
+      name: 'A — Building A',
     });
     fireEvent.click(buildingAOption);
 
@@ -318,7 +322,7 @@ describe('Analytics Page', () => {
     const updatedDetailPanel = await findDetailPanel();
     expect(
       await within(updatedDetailPanel).findAllByText('Alice Resident'),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
     expect(
       within(updatedDetailPanel).queryByText('Bob Resident'),
     ).not.toBeInTheDocument();
@@ -345,11 +349,11 @@ describe('Analytics Page', () => {
     );
   });
 
-  test('shows an enabled Export CSV button', async () => {
+  test('shows an enabled Export button', async () => {
     renderAnalytics();
 
     await findDetailPanel();
-    const exportButton = screen.getByRole('button', { name: /export csv/i });
+    const exportButton = screen.getByRole('button', { name: 'Export' });
     expect(exportButton).toBeEnabled();
   });
 
@@ -358,7 +362,7 @@ describe('Analytics Page', () => {
 
     const tile = await findTileCard('Checkouts');
     expect(within(tile).getByText('3')).toBeInTheDocument();
-    expect(within(tile).queryByText(/\/ day/)).not.toBeInTheDocument();
+    expect(within(tile).queryByText(/\/ active day/)).not.toBeInTheDocument();
   });
 
   test('shows the per-day average beside the total once the range spans days', async () => {
@@ -370,7 +374,7 @@ describe('Analytics Page', () => {
 
     // The 3 checkouts land on 3 separate days, and quiet days are not counted.
     const tile = await findTileCard('Checkouts');
-    expect(await within(tile).findByText('1.0 / day')).toBeInTheDocument();
+    expect(await within(tile).findByText('1.0 / active day')).toBeInTheDocument();
   });
 
   test('charts only InventoryAdd rows in Top Inventory Items Added', async () => {
@@ -413,6 +417,7 @@ describe('Analytics Page', () => {
         threshold: 5,
         category: 'Miscellaneous',
         status: 'In Stock',
+        is_archived: false,
       },
     ]);
     vi.spyOn(analyticsService, 'getCheckoutItemTotals').mockResolvedValue([
@@ -471,13 +476,12 @@ describe('Analytics Page', () => {
     renderAnalytics();
 
     const detailPanel = await findDetailPanel();
-    const aliceRows = within(detailPanel).getAllByText('Alice Resident');
-    aliceRows.forEach((nameEl) => {
-      const row = nameEl.closest('tr') as HTMLElement;
-      const cells = within(row).getAllByRole('cell');
-      // Resident, Building, Unit, # Visits, # Items, Transaction Date
-      expect(cells[3]).toHaveTextContent('2');
-    });
+    const aliceRow = within(detailPanel)
+      .getByText('Alice Resident')
+      .closest('tr') as HTMLElement;
+    const aliceCells = within(aliceRow).getAllByRole('cell');
+    // Resident, Building, Unit, # Visits, # Items, Last Visit
+    expect(aliceCells[3]).toHaveTextContent('2');
 
     const bobRow = within(detailPanel)
       .getByText('Bob Resident')
@@ -486,19 +490,25 @@ describe('Analytics Page', () => {
     expect(bobCells[3]).toHaveTextContent('1');
   });
 
-  test('shows the per-building visit count as a caption distinct from the unique-resident bar value', async () => {
+  test("shows each building's residents and visits beside the bar", async () => {
     renderAnalytics();
 
     const buildingsPanel = (
       await screen.findByText('Residents Served by Building')
     ).closest('.MuiCard-root') as HTMLElement;
 
-    const captionEl = await within(buildingsPanel).findByText('2 visits');
-    const labelBox = captionEl.parentElement as HTMLElement;
-    expect(within(labelBox).getByText('A')).toBeInTheDocument();
+    expect(
+      within(buildingsPanel).getByText('residents / visits'),
+    ).toBeInTheDocument();
+
+    const labelBox = within(buildingsPanel)
+      .getByText('A')
+      .parentElement as HTMLElement;
+    // The counts sit in the value column, not under the building name.
+    expect(labelBox).not.toHaveTextContent('2');
 
     const barValueEl = labelBox.nextElementSibling
       ?.nextElementSibling as HTMLElement;
-    expect(barValueEl).toHaveTextContent('1');
+    expect(barValueEl).toHaveTextContent('1 / 2');
   });
 });

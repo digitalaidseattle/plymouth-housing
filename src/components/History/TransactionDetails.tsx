@@ -159,12 +159,14 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
       {loading ? (
         <Stack
           id="transaction-details-loading"
+          data-testid="transaction-details-content"
           sx={{ alignItems: 'center', py: 4 }}
         >
           <CircularProgress size={24} />
         </Stack>
       ) : (
         <Stack
+          data-testid="transaction-details-content"
           sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 2 }}
         >
           {/* Card 1: Resident Information */}
@@ -281,6 +283,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                 }}
               >
                 <AccordionSummary
+                  data-testid="transaction-details-history"
                   expandIcon={<ExpandMoreIcon fontSize="small" />}
                   sx={{
                     minHeight: 40,

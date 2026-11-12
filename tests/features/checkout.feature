@@ -7,11 +7,11 @@ Feature: Checkout functionality
     When the user completes checkout with "<item>"
 
     Then the checkout should be successful
+    And the user should be redirected to the home page
     And the item should appear in the history
     And the history record count should increase
-    And the user should be redirected to the home page
 
   Examples:
     | item       |
     | Curtains   |
-    | Baby Wipes |
+    | Disinfectant Wipes |

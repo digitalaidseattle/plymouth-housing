@@ -70,6 +70,7 @@ describe('Items', () => {
       quantity: 0,
       threshold: 5,
       items_per_basket: null,
+      is_archived: false,
     };
 
     it('posts the item with correct shape', async () => {

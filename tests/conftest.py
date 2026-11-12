@@ -1,207 +1,335 @@
 import os
+from collections.abc import Generator
+
 import allure
 import pytest
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
 from tests.pages.checkout_page import CheckOutPage
 from tests.pages.history_page import HistoryPage
 from tests.pages.home_page import HomePage
 from tests.pages.inventory_page import InventoryPage
 from tests.pages.login_page import LoginPage
 from tests.utilities.data import (
-    URL,
-    ADMIN_USERNAME,
     ADMIN_PASSWORD,
-    VOLUNTEER_USERNAME,
+    ADMIN_USERNAME,
+    URL,
+    VOLUNTEER_DISPLAY_NAME,
     VOLUNTEER_PASSWORD,
+    VOLUNTEER_PIN,
+    VOLUNTEER_USERNAME,
 )
 
+
 # ---------------------------------------------------
-# Debug Helpers
+# Environment helpers
 # ---------------------------------------------------
 
-def _safe_name(name):
-    """Sanitize test/debug names for attachments."""
-    return (
-        name.replace("/", "_")
-        .replace("\\", "_")
-        .replace(" ", "_")
-        .replace(":", "_")
+def is_ci_environment() -> bool:
+    return os.getenv("CI", "").strip().lower() == "true"
+
+
+def require_value(
+    value: str | None,
+    variable_name: str,
+) -> str:
+    if value is None or not str(value).strip():
+        raise RuntimeError(
+            f"Required environment variable is missing: "
+            f"{variable_name}"
+        )
+
+    return str(value).strip()
+
+
+def validate_base_url(url: str | None) -> str:
+    validated_url = require_value(
+        url,
+        "URL",
     )
 
-def _attach_debug_artifacts(driver, name="debug"):
-    """
-    Attach useful browser state to Allure without exposing credentials.
-    This helps diagnose setup/login failures.
-    """
-    safe_name = _safe_name(name)
-
-    try:
-        allure.attach(
-            driver.current_url,
-            name=f"{safe_name}_current_url",
-            attachment_type=allure.attachment_type.TEXT,
+    if not validated_url.startswith(
+        ("http://", "https://")
+    ):
+        raise RuntimeError(
+            "URL must begin with http:// or https://"
         )
-    except Exception as e:
-        print(f"[WARN] Could not attach current URL: {e}")
 
-    try:
-        allure.attach(
-            driver.title,
-            name=f"{safe_name}_page_title",
-            attachment_type=allure.attachment_type.TEXT,
-        )
-    except Exception as e:
-        print(f"[WARN] Could not attach page title: {e}")
+    return validated_url
 
-    try:
-        allure.attach(
-            driver.page_source,
-            name=f"{safe_name}_page_source",
-            attachment_type=allure.attachment_type.HTML,
-        )
-    except Exception as e:
-        print(f"[WARN] Could not attach page source: {e}")
-
-    try:
-        screenshot = driver.get_screenshot_as_png()
-        allure.attach(
-            screenshot,
-            name=f"{safe_name}_screenshot",
-            attachment_type=allure.attachment_type.PNG,
-        )
-    except Exception as e:
-        print(f"[WARN] Could not attach screenshot: {e}")
-
-
-def _wait_for_password_field(driver, login_page, timeout=20):
-    """
-    Wait for Microsoft/Azure password field after username submit.
-    Adds debug output if the login flow does not reach the password screen.
-    """
-    try:
-        return WebDriverWait(driver, timeout).until(
-            EC.visibility_of_element_located(login_page.locators.PASSWORD_INPUT)
-        )
-    except TimeoutException:
-        print("[DEBUG] Password field did not appear after clicking Next")
-        print("[DEBUG] Current URL:", driver.current_url)
-        print("[DEBUG] Page title:", driver.title)
-        print("[DEBUG] Page source preview:", driver.page_source[:1000])
-
-        _attach_debug_artifacts(driver, "password_field_timeout")
-        raise
 
 # ---------------------------------------------------
-# WebDriver Fixture (Stable + CI-ready)
+# Debug helpers
 # ---------------------------------------------------
 
-@pytest.fixture(scope="function")
-def driver():
+def sanitize_attachment_name(
+    value: str,
+) -> str:
+    safe_characters = []
+
+    for character in value:
+        if character.isalnum() or character in {
+            "-",
+            "_",
+            ".",
+        }:
+            safe_characters.append(character)
+        else:
+            safe_characters.append("_")
+
+    return "".join(safe_characters)
+
+
+def attach_debug_artifacts(
+    driver: WebDriver,
+    name: str = "debug",
+) -> None:
+    """Persist sanitized state and screenshots without raw HTML or URL queries."""
+    from tests.utilities.login_diagnostics import capture_login_diagnostics
+    try:
+        capture_login_diagnostics(driver, sanitize_attachment_name(name))
+    except Exception as error:
+        print(f"[WARN] Diagnostic capture unavailable: {type(error).__name__}")
+
+
+def wait_for_password_field(driver, login_page, timeout=30):
+    return login_page.wait_for_password_transition(timeout=timeout)
+
+
+def submit_username_and_wait_for_password(driver, login_page, timeout=30):
+    """Cover click failures as well as the bounded username-to-password wait."""
+    try:
+        login_page.click_next_button()
+        return wait_for_password_field(driver, login_page, timeout=timeout)
+    except Exception as error:
+        attach_debug_artifacts(driver, "microsoft_username_transition_failure")
+        states = getattr(driver, "_login_observed_states", [])
+        raise AssertionError(
+            f"Microsoft username transition failed ({type(error).__name__}); "
+            f"observed controls: {states}. See sanitized login diagnostics."
+        ) from None
+
+
+# ---------------------------------------------------
+# Chrome configuration
+# ---------------------------------------------------
+
+def build_chrome_options() -> Options:
     options = Options()
 
-    # Reduce saved-password, credential, notification, and passkey prompts.
-    # This helps avoid Windows Security "Choose a passkey" popups during Microsoft login.
-    options.add_argument("--incognito")
-    options.add_argument("--disable-save-password-bubble")
-    options.add_argument("--disable-notifications")
-    options.add_argument("--disable-popup-blocking")
-    options.add_argument("--disable-features=WebAuthenticationConditionalUI")
-
-    prefs = {
-        "credentials_enable_service": False,
-        "profile.password_manager_enabled": False,
-        "profile.default_content_setting_values.notifications": 2,
-    }
-    options.add_experimental_option("prefs", prefs)
-
-    if os.getenv("CI") == "true":
-        options.add_argument("--headless=new")
-        options.add_argument("--window-size=1920,1080")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--disable-infobars")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-
-    # Faster page loading strategy
+    # Do not wait for every background resource.
     options.page_load_strategy = "eager"
 
-    driver = webdriver.Chrome(options=options)
+    options.add_argument(
+        "--disable-notifications"
+    )
+    options.add_argument(
+        "--disable-infobars"
+    )
 
-    if os.getenv("CI") != "true":
-        driver.maximize_window()
+    # Reduce saved-password, credential, and passkey prompts. This avoids
+    # Windows Security "Choose a passkey" popups during Microsoft login.
+    options.add_argument("--incognito")
+    options.add_argument(
+        "--disable-save-password-bubble"
+    )
+    options.add_argument(
+        "--disable-popup-blocking"
+    )
+    options.add_argument(
+        "--disable-features="
+        "WebAuthenticationConditionalUI"
+    )
 
-    driver.get(URL)
+    options.add_experimental_option(
+        "prefs",
+        {
+            "credentials_enable_service": False,
+            "profile.password_manager_enabled": False,
+            "profile.default_content_setting_values.notifications": 2,
+        },
+    )
 
-    yield driver
+    if is_ci_environment():
+        options.add_argument("--headless=new")
+        options.add_argument(
+            "--window-size=1920,1080"
+        )
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument(
+            "--disable-dev-shm-usage"
+        )
+        options.add_argument(
+            "--disable-extensions"
+        )
+        options.add_argument(
+            "--disable-blink-features="
+            "AutomationControlled"
+        )
 
-    driver.quit()
+    return options
+
 
 # ---------------------------------------------------
-# Volunteer Login Fixture (Hardened)
+# WebDriver fixture
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
-def login_with_volunteer(driver):
-    login_page = LoginPage(driver)
+def driver(request) -> Generator[WebDriver, None, None]:
+    base_url = validate_base_url(URL)
+    options = build_chrome_options()
 
-    # Enter username (never log credentials)
-    login_page.enter_username(VOLUNTEER_USERNAME)
-    login_page.click_next_button()
+    browser = webdriver.Chrome(
+        options=options
+    )
 
-    # Wait for password field to be visible
-    _wait_for_password_field(driver, login_page, timeout=20)
+    browser.set_page_load_timeout(120)
+    browser.set_script_timeout(60)
 
-    # Enter password (never log this)
-    login_page.enter_password(VOLUNTEER_PASSWORD)
+    if not is_ci_environment():
+        browser.maximize_window()
+
+    # Publish the browser before the first navigation. If browser.get()
+    # fails, the fixture never yields, so "driver" is never registered in
+    # item.funcargs and the report hook would have nothing to capture.
+    request.node.setup_failure_driver = browser
+
+    try:
+        browser.get(base_url)
+        yield browser
+
+    except Exception:
+        # finally closes the browser before the report hook runs, so the
+        # evidence has to be captured here, while the session is still live.
+        attach_debug_artifacts(
+            browser,
+            "driver_setup_failure",
+        )
+
+        raise
+
+    finally:
+        try:
+            browser.quit()
+        except Exception as exc:
+            print(
+                "[WARN] WebDriver shutdown failed: "
+                f"{exc}"
+            )
+
+
+# ---------------------------------------------------
+# Login page fixture
+# ---------------------------------------------------
+
+@pytest.fixture(scope="function")
+def login_page(
+    driver: WebDriver,
+) -> LoginPage:
+    return LoginPage(driver)
+
+
+# ---------------------------------------------------
+# Volunteer login fixture
+# ---------------------------------------------------
+
+@pytest.fixture(scope="function")
+def login_with_volunteer(
+    driver: WebDriver,
+    login_page: LoginPage,
+) -> HomePage:
+    volunteer_username = require_value(
+        VOLUNTEER_USERNAME,
+        "VOLUNTEER_USERNAME",
+    )
+    volunteer_password = require_value(
+        VOLUNTEER_PASSWORD,
+        "VOLUNTEER_PASSWORD",
+    )
+    volunteer_display_name = require_value(
+        VOLUNTEER_DISPLAY_NAME,
+        "VOLUNTEER_DISPLAY_NAME",
+    )
+    volunteer_pin = require_value(
+        VOLUNTEER_PIN,
+        "VOLUNTEER_PIN",
+    )
+
+    login_page.click_app_login_button()
+
+    login_page.enter_username(
+        volunteer_username
+    )
+    submit_username_and_wait_for_password(driver, login_page, timeout=30)
+
+    login_page.enter_password(
+        volunteer_password
+    )
     login_page.click_sign_in_button()
 
-    # Handle "Stay signed in"
     login_page.handle_stay_signed_in()
 
-    # Select volunteer user (stable flow)
-    login_page.select_volunteer("John Doe 1234")
+    # Wait until the volunteer-selection route
+    # and its autocomplete field are available.
+    login_page.wait_for_pick_your_name()
+
+    login_page.select_volunteer(
+        volunteer_display_name
+    )
 
     login_page.click_continue_button()
 
-    # Enter PIN (masked in UI)
-    login_page.enter_pin()
+    login_page.enter_pin(
+        volunteer_pin
+    )
     login_page.click_continue_button()
 
-    # Ensure home page is fully loaded
     home_page = HomePage(driver)
     home_page.wait_for_homepage_loaded()
 
     return home_page
 
+
 # ---------------------------------------------------
-# Admin Login Fixture (Stable)
+# Admin login fixture
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
-def admin_home_page(driver):
-    login_page = LoginPage(driver)
+def admin_home_page(
+    driver: WebDriver,
+    login_page: LoginPage,
+) -> HomePage:
+    admin_username = require_value(
+        ADMIN_USERNAME,
+        "ADMIN_USERNAME",
+    )
+    admin_password = require_value(
+        ADMIN_PASSWORD,
+        "ADMIN_PASSWORD",
+    )
 
-    # Enter username (never log credentials)
-    login_page.enter_username(ADMIN_USERNAME)
-    login_page.click_next_button()
+    login_page.click_app_login_button()
 
-    # Wait for password field to be visible
-    _wait_for_password_field(driver, login_page, timeout=20)
+    login_page.enter_username(
+        admin_username
+    )
+    submit_username_and_wait_for_password(driver, login_page, timeout=30)
 
-    # Enter password (never log this)
-    login_page.enter_password(ADMIN_PASSWORD)
+    login_page.enter_password(
+        admin_password
+    )
     login_page.click_sign_in_button()
 
-    # Handle "Stay signed in"
     login_page.handle_stay_signed_in()
 
-    # Wait until backend / DB is ready
+    # Wait for temporary database/loading
+    # overlays to disappear.
     login_page.wait_for_database_ready()
 
     home_page = HomePage(driver)
@@ -209,59 +337,109 @@ def admin_home_page(driver):
 
     return home_page
 
+
 # ---------------------------------------------------
-# Page Fixtures
+# Page fixtures
 # ---------------------------------------------------
 
 @pytest.fixture(scope="function")
-def history_page(driver):
+def history_page(
+    driver: WebDriver,
+) -> HistoryPage:
     return HistoryPage(driver)
 
 
 @pytest.fixture(scope="function")
-def checkout_page(driver):
+def checkout_page(
+    driver: WebDriver,
+) -> CheckOutPage:
     return CheckOutPage(driver)
 
 
 @pytest.fixture(scope="function")
-def inventory_page(driver):
+def inventory_page(
+    driver: WebDriver,
+) -> InventoryPage:
     return InventoryPage(driver)
 
 
 @pytest.fixture(scope="function")
-def home_page(driver):
+def home_page(
+    driver: WebDriver,
+) -> HomePage:
     return HomePage(driver)
 
 
 @pytest.fixture(scope="function")
-def add_item_page(driver):
-    from tests.pages.add_item_page import AddItemPage
+def add_item_page(
+    driver: WebDriver,
+):
+    # Local import prevents unnecessary loading
+    # when the fixture is not used.
+    from tests.pages.add_item_page import (
+        AddItemPage,
+    )
+
     return AddItemPage(driver)
 
+
 # ---------------------------------------------------
-# Allure Screenshot Hook (Secure + Hardened)
+# Allure failure evidence
 # ---------------------------------------------------
 
 @pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_makereport(item, call):
+def pytest_runtest_makereport(
+    item: pytest.Item,
+    call: pytest.CallInfo,
+):
     outcome = yield
-    rep = outcome.get_result()
+    report = outcome.get_result()
 
-    # Capture failures from setup and test execution.
-    # This is important because login fixture failures happen during setup.
-    if not rep.failed or rep.when not in ("setup", "call"):
+    # Save evidence for setup and test-call failures. Login fixture
+    # failures happen during setup, so that phase matters. Teardown is
+    # excluded because the driver may already have been closed.
+    if (
+        not report.failed
+        or report.when not in {"setup", "call"}
+    ):
         return
 
-    driver = item.funcargs.get("driver", None)
+    browser = item.funcargs.get("driver") or getattr(
+        item,
+        "setup_failure_driver",
+        None,
+    )
 
-    # Exit safely if driver is not available
-    if not driver:
+    if browser is None:
         return
 
     try:
-        debug_name = f"{item.name}_{rep.when}_failure"
-        _attach_debug_artifacts(driver, debug_name)
+        attach_debug_artifacts(
+            browser,
+            f"{item.name}_{report.when}_failure",
+        )
 
-    except Exception as e:
-        # Never allow debug capture failure to break the test run
-        print(f"[WARN] Failure artifact capture failed: {e}")
+    except Exception as exc:
+        # Never allow debug capture failure to break the test run.
+        print(
+            "[WARN] Failure artifact capture failed: "
+            f"{exc}"
+        )
+
+
+@pytest.fixture
+def catalog_selection_report(record_property):
+    """Include selection evidence in JUnit properties and the Allure report."""
+    def report(preferred, selected, unavailable):
+        import json
+        evidence = {
+            "preferred_item": preferred,
+            "selected_item": selected,
+            "replacement_item": selected if selected != preferred else None,
+            "unavailable_candidates": unavailable,
+        }
+        text = json.dumps(evidence, indent=2)
+        record_property("catalog_selection", text)
+        allure.attach(text, name="Catalog item selection", attachment_type=allure.attachment_type.JSON)
+        print("Catalog item selection: " + text)
+    return report

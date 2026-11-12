@@ -2,64 +2,248 @@ name: E2E UI Tests
 
 on:
   workflow_run:
-    workflows: ['Azure Static Web Apps Staging']
+    workflows:
+      - Azure Static Web Apps Staging
     types:
       - completed
     branches:
       - staging
+
   workflow_dispatch:
+    inputs:
+      run_full_e2e:
+        description: Run all staging E2E tests
+        type: boolean
+        default: true
+      run_smoke_e2e:
+        description: Run smoke tests only when full E2E is disabled
+        type: boolean
+        default: false
+
+# Defaults for automatic runs after staging deployment.
+# Manual runs use the inputs above. Optional smoke mode is intentionally retained;
+# this does not fully implement PIT-492's request to remove the smoke filter entirely.
+env:
+  RUN_FULL_E2E: "true"
+  RUN_SMOKE_E2E: "false"
 
 permissions:
   contents: read
 
+concurrency:
+  group: e2e-staging
+  cancel-in-progress: false
+
 jobs:
-  e2e-tests:
-    if:
-      ${{ github.event.workflow_run.conclusion == 'success' || github.event_name
-      == 'workflow_dispatch' }}
+  select-suite:
+    name: Select staging E2E suite
+
+    if: >-
+      (
+        github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/staging'
+      ) ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'staging'
+      )
 
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
-    env:
-      CI: 'true'
-      URL: ${{ vars.STAGING_URL }}
-      ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
-      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      VOLUNTEER_USERNAME: ${{ vars.VOLUNTEER_USERNAME }}
-      VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
+    outputs:
+      suite: ${{ steps.select.outputs.suite }}
 
     steps:
-      - name: Checkout repository
+      - name: Resolve execution switches
+        id: select
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          MANUAL_FULL: ${{ inputs.run_full_e2e }}
+          MANUAL_SMOKE: ${{ inputs.run_smoke_e2e }}
+        run: |
+          set -euo pipefail
+
+          full="$RUN_FULL_E2E"
+          smoke="$RUN_SMOKE_E2E"
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            full="$MANUAL_FULL"
+            smoke="$MANUAL_SMOKE"
+          fi
+
+          case "$full/$smoke" in
+            true/true|true/false)
+              suite=full
+              ;;
+            false/true)
+              suite=smoke
+              ;;
+            false/false)
+              suite=none
+              ;;
+            *)
+              echo "::error::Execution switches must be true or false"
+              exit 1
+              ;;
+          esac
+
+          echo "suite=$suite" >> "$GITHUB_OUTPUT"
+          echo "Selected staging E2E suite: $suite"
+
+  e2e-tests:
+    name: Run staging E2E (${{ needs.select-suite.outputs.suite }})
+    needs: select-suite
+    if: >-
+      needs.select-suite.result == 'success' &&
+      (
+        needs.select-suite.outputs.suite == 'full' ||
+        needs.select-suite.outputs.suite == 'smoke'
+      )
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      CI: "true"
+      E2E_SUITE: ${{ needs.select-suite.outputs.suite }}
+      PYTEST_ADDOPTS: ""
+
+      URL: ${{ vars.STAGING_URL }}
+
+      ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+
+      VOLUNTEER_USERNAME: ${{ vars.VOLUNTEER_USERNAME }}
+      VOLUNTEER_PASSWORD: ${{ secrets.VOLUNTEER_PASSWORD }}
+      VOLUNTEER_DISPLAY_NAME: ${{ vars.VOLUNTEER_DISPLAY_NAME }}
+      VOLUNTEER_PIN: ${{ secrets.VOLUNTEER_PIN }}
+
+    steps:
+      - name: Checkout deployed staging commit
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: tests/requirements.txt
 
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: Install dependencies
+      - name: Verify required staging configuration
+        shell: bash
         run: |
-          python -m pip install --upgrade pip
+          set -euo pipefail
+          missing=0
 
-          if [ -f tests/requirements.txt ]; then
-            echo "Installing dependencies from tests/requirements.txt"
-            pip install -r tests/requirements.txt
-          else
-            echo "tests/requirements.txt not found, installing inline dependencies"
-            pip install \
-              pytest~=8.3 \
-              selenium~=4.27 \
-              python-dotenv~=1.1 \
-              allure-pytest~=2.14 \
-              requests~=2.32 \
-              pytest-html~=4.1 \
-              webdriver-manager~=4.0 \
-              pytest-xdist~=3.8
+          required_variables=(
+            URL
+            ADMIN_USERNAME
+            ADMIN_PASSWORD
+            VOLUNTEER_USERNAME
+            VOLUNTEER_PASSWORD
+            VOLUNTEER_DISPLAY_NAME
+            VOLUNTEER_PIN
+          )
+
+          for variable_name in "${required_variables[@]}"; do
+            if [ -z "${!variable_name:-}" ]; then
+              echo "::error::Required staging configuration is unavailable: ${variable_name}"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
           fi
 
-      - name: Run smoke tests (headless)
+      - name: Mask sensitive values
+        shell: bash
         run: |
-          pytest -m smoke --maxfail=1 --disable-warnings -q
+          echo "::add-mask::$ADMIN_USERNAME"
+          echo "::add-mask::$VOLUNTEER_USERNAME"
+          echo "::add-mask::$VOLUNTEER_DISPLAY_NAME"
+          echo "::add-mask::$VOLUNTEER_PIN"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r tests/requirements.txt
+
+      - name: Verify serial execution dependency
+        shell: bash
+        run: |
+          python - <<'PY'
+          import configparser
+          import importlib.metadata
+          import os
+          import xdist
+
+          config = configparser.ConfigParser(interpolation=None)
+          config.read("pytest.ini")
+          print("pytest-xdist:", importlib.metadata.version("pytest-xdist"))
+          print("pytest.ini addopts:", repr(config.get("pytest", "addopts", fallback="")))
+          print("PYTEST_ADDOPTS cleared:", os.environ.get("PYTEST_ADDOPTS") == "")
+          print("Collection and execution override addopts and run serially using -n 0.")
+          PY
+
+      - name: Collect and run staging E2E (${{ needs.select-suite.outputs.suite }})
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+
+          selection=()
+
+          case "$E2E_SUITE" in
+            full)
+              echo "Running the full staging E2E suite serially."
+              ;;
+            smoke)
+              echo "Running staging smoke tests serially."
+              selection=(-m smoke)
+              ;;
+            *)
+              echo "::error::Unexpected E2E suite: $E2E_SUITE"
+              exit 1
+              ;;
+          esac
+
+          python -m pytest tests/test \
+            -o addopts= \
+            -n 0 \
+            "${selection[@]}" \
+            --collect-only \
+            -q
+
+          python -m pytest tests/test \
+            -o addopts= \
+            -n 0 \
+            "${selection[@]}" \
+            -v \
+            --durations=10 \
+            --alluredir=artifacts/allure-results \
+            --junitxml=artifacts/e2e-results.xml
+
+      - name: Preserve staging E2E results and login diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/login-diagnostics/
+            artifacts/allure-results/
+            artifacts/e2e-results.xml
+          if-no-files-found: ignore
+          retention-days: 7

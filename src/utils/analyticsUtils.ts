@@ -13,14 +13,15 @@ import {
   AnalyticsSummary,
   BuildingResidents,
   CheckoutTransaction,
+  CsvSection,
   DateRangeStrings,
-  FlaggedTransaction,
   InventoryItem,
   InventoryTransaction,
   RankedItem,
+  ResidentVisits,
   TransactionType,
 } from '../types/interfaces';
-import { CsvSection } from './csvExport';
+import { SPECIAL_UNITS } from '../types/constants';
 
 export const summarizeCheckouts = (
   transactions: CheckoutTransaction[],
@@ -37,24 +38,55 @@ export const summarizeCheckouts = (
     residentsServed: new Set(transactions.map((t) => t.resident_id)).size,
     checkouts,
     itemsCheckedOut: transactions.reduce((sum, t) => sum + t.total_quantity, 0),
+    activeDays,
     avgCheckoutsPerActiveDay: activeDays === 0 ? 0 : checkouts / activeDays,
     rangeDays,
   };
 };
 
 // Keyed on resident_id, so two residents sharing a name stay two people.
-export const flagDuplicates = (
+export const groupByResident = (
   transactions: CheckoutTransaction[],
-): FlaggedTransaction[] => {
-  const counts = new Map<number, number>();
-  transactions.forEach((t) =>
-    counts.set(t.resident_id, (counts.get(t.resident_id) ?? 0) + 1),
-  );
-
-  return transactions.map((t) => {
-    const visitCount = counts.get(t.resident_id) ?? 0;
-    return { ...t, isDuplicate: visitCount > 1, visitCount };
+): ResidentVisits[] => {
+  const residents = new Map<number, ResidentVisits>();
+  transactions.forEach((t) => {
+    const resident = residents.get(t.resident_id);
+    if (!resident) {
+      residents.set(t.resident_id, {
+        resident_id: t.resident_id,
+        resident_name: t.resident_name,
+        building_code: t.building_code,
+        unit_number: t.unit_number,
+        visitCount: 1,
+        total_quantity: t.total_quantity,
+        lastVisit: t.transaction_date,
+        isDuplicate: false,
+      });
+      return;
+    }
+    resident.visitCount += 1;
+    resident.total_quantity += t.total_quantity;
+    if (
+      new Date(t.transaction_date).getTime() >
+      new Date(resident.lastVisit).getTime()
+    ) {
+      resident.lastVisit = t.transaction_date;
+    }
   });
+
+  return Array.from(residents.values())
+    .map((resident) => {
+      // Welcome baskets sit under a stand-in resident, not a real person.
+      if (resident.unit_number.trim().toLowerCase() === SPECIAL_UNITS.WELCOME) {
+        return { ...resident, resident_name: 'Welcome Baskets' };
+      }
+      return { ...resident, isDuplicate: resident.visitCount > 1 };
+    })
+    .sort(
+      (a, b) =>
+        b.visitCount - a.visitCount ||
+        new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime(),
+    );
 };
 
 export const countResidentsByBuilding = (
@@ -86,7 +118,9 @@ export const countResidentsByBuilding = (
 export const onlyAdds = (
   rows: InventoryTransaction[],
 ): InventoryTransaction[] =>
-  rows.filter((t) => t.transaction_type === TransactionType.InventoryAdd);
+  rows.filter(
+    (t) => t.transaction_type === TransactionType.InventoryAdd && t.quantity > 0,
+  );
 
 export const sumItemsAdded = (transactions: InventoryTransaction[]): number =>
   transactions.reduce((sum, t) => sum + t.quantity, 0);
@@ -146,16 +180,16 @@ interface AnalyticsExport {
   buildingName: string;
   repeatsOnly: boolean;
   statTiles: { label: string; value: string }[];
+  avgCheckoutsPerActiveDay?: string;
   residentsByBuilding: BuildingResidents[];
   topCheckedOutItems: RankedItem[];
   topInventoryAdded: RankedItem[];
   leastCheckedOutItems: RankedItem[];
-  detailRows: FlaggedTransaction[];
+  detailRows: ResidentVisits[];
   lowStockRows: InventoryItem[];
   checkedOutById: Map<number, number>;
 }
 
-// The three ranked-item panels differ only by title and what the count means.
 const rankedSection = (
   title: string,
   quantityHeader: string,
@@ -166,12 +200,12 @@ const rankedSection = (
   rows: items.map((item) => [item.item_name, item.total_quantity]),
 });
 
-// One section per panel on the page, in the order they are shown.
 export const buildAnalyticsSections = ({
   dateRangeString,
   buildingName,
   repeatsOnly,
   statTiles,
+  avgCheckoutsPerActiveDay,
   residentsByBuilding,
   topCheckedOutItems,
   topInventoryAdded,
@@ -193,7 +227,12 @@ export const buildAnalyticsSections = ({
     // Built from the tiles themselves, so the two can't drift apart.
     title: 'Summary',
     headers: ['Metric', 'Value'],
-    rows: statTiles.map((tile) => [tile.label, tile.value]),
+    rows: [
+      ...statTiles.map((tile) => [tile.label, tile.value]),
+      ...(avgCheckoutsPerActiveDay
+        ? [['Avg Checkouts / Active Day', avgCheckoutsPerActiveDay]]
+        : []),
+    ],
   },
   {
     title: 'Residents Served by Building',
@@ -215,7 +254,7 @@ export const buildAnalyticsSections = ({
       'Unit',
       '# Visits',
       '# Items',
-      'Transaction Date',
+      'Last Visit',
     ],
     rows: detailRows.map((row) => [
       row.resident_name,
@@ -223,7 +262,7 @@ export const buildAnalyticsSections = ({
       row.unit_number.trim(),
       row.visitCount,
       row.total_quantity,
-      formatShortDate(row.transaction_date),
+      formatShortDate(row.lastVisit),
     ]),
   },
   {
@@ -242,7 +281,7 @@ export const buildAnalyticsSections = ({
       item.status,
       item.quantity,
       item.threshold,
-      checkedOutById.get(item.id) || '',
+      checkedOutById.get(item.id) ?? '',
     ]),
   },
 ];

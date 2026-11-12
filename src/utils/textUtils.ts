@@ -13,4 +13,12 @@ export function signNumber(value: number): string {
   return String(value);
 }
 
-export default { pluralize, withCount, signNumber };
+// Coarse "N minutes ago" label for how long since data was fetched
+export function formatAge(milliseconds: number): string {
+  const minutes = Math.floor(milliseconds / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${withCount(minutes, 'minute')} ago`;
+  return `${withCount(Math.floor(minutes / 60), 'hour')} ago`;
+}
+
+export default { pluralize, withCount, signNumber, formatAge };

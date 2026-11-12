@@ -21,7 +21,7 @@ const EnterPinPage: React.FC = () => {
   const [pin, setPin] = useState<string[]>(() => Array(4).fill(''));
   const [pinAttempt, setPinAttempt] = useState<number>(0);
   const { snackbarState, showSnackbar, handleClose } = useSnackbar();
-  const { loggedInUserId, user, activeVolunteers, setPinVerified } = useContext(UserContext);
+  const { loggedInUserId, user, activeVolunteers, setPinVerifiedForUserId } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handlePinChange = useCallback((newPin: string[]) => {
@@ -163,7 +163,9 @@ const EnterPinPage: React.FC = () => {
         if (loggedInUserId !== null) {
           await updateLastSignedIn(loggedInUserId); // Update last signed-in date after successful login
         }
-        setPinVerified(true);
+        if (loggedInUserId !== null) {
+          setPinVerifiedForUserId(loggedInUserId);
+        }
         navigate('/volunteer-home');
       } else if (result) {
         trackEvent('PIN_Submission', {

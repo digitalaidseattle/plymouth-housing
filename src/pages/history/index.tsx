@@ -4,25 +4,22 @@
  *  @copyright 2026 Digital Aid Seattle
  *
  */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   Button,
   Stack,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
 import { UserContext } from '../../components/contexts/UserContext';
 import CircularLoader from '../../components/CircularLoader';
 import CustomDateDialog from '../../components/History/CustomDateDialog';
+import ReportFilterControls from '../../components/ReportFilterControls';
 import TransactionsList from '../../components/History/TransactionsList';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { useSnackbar } from '../../hooks/useSnackbar';
-import { useDateRangeFilter, DatePreset } from '../../hooks/useDateRangeFilter';
+import { useDateRangeFilter } from '../../hooks/useDateRangeFilter';
 import { useReferenceData } from '../../hooks/useReferenceData';
 import { useHistoryData } from '../../hooks/useHistoryData';
 import { withCount } from '../../utils/textUtils';
@@ -43,18 +40,37 @@ const HistoryPage: React.FC = () => {
   } = useDateRangeFilter();
   const {
     userList,
+    buildings,
     isLoading: isLoadingReferenceData,
   } = useReferenceData({ user, onError: showSnackbar });
 
   const [historyType, setHistoryType] = useState<'checkout' | 'inventory'>(
     'checkout',
   );
+  const [selectedBuildingId, setSelectedBuildingId] = useState<number | 'all'>(
+    'all',
+  );
+
+  useEffect(() => {
+    if (historyType === 'inventory') {
+      setSelectedBuildingId('all');
+    }
+  }, [historyType]);
+
+  const hasBuildingFilter = historyType === 'checkout' && selectedBuildingId !== 'all';
+  const hasActiveFilters = dateInput !== 'today' || hasBuildingFilter;
+
+  const handleResetFilters = () => {
+    handleDateSelection('today');
+    setSelectedBuildingId('all');
+  };
 
   const { transactionsByUser, isLoading: isLoadingHistory } = useHistoryData({
     user,
     formattedDateRange,
     historyType,
     loggedInUserId,
+    selectedBuildingId,
     onError: showSnackbar,
   });
 
@@ -73,10 +89,17 @@ const HistoryPage: React.FC = () => {
         showDialog={showCustomDateDialog}
         handleShowDialog={toggleCustomDateDialog}
         handleSetDateRange={handleSetCustomDateRange}
-        handleSetDateInput={() => {}}
       />
 
-      <Stack direction="row" sx={{ alignItems: 'center', width: '100%', gap: 3 }}>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        sx={{
+          alignItems: { xs: 'stretch', md: 'center' },
+          width: '100%',
+          gap: 3,
+          flexWrap: 'wrap',
+        }}
+      >
         <ToggleButtonGroup
           value={historyType}
           exclusive
@@ -85,7 +108,7 @@ const HistoryPage: React.FC = () => {
             gap: 2,
             '& .MuiToggleButton-root': {
               border: 'none',
-              borderRadius: '18px !important', // Override grouped styles
+              borderRadius: (theme) => `${theme.spacing(2.25)} !important`, // Override grouped styles
               marginLeft: '0 !important',
             },
           }}
@@ -95,7 +118,7 @@ const HistoryPage: React.FC = () => {
             sx={{
               py: 2,
               px: 4,
-              borderRadius: '18px',
+              borderRadius: (theme) => theme.spacing(2.25),
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
@@ -121,7 +144,7 @@ const HistoryPage: React.FC = () => {
             sx={{
               py: 2,
               px: 4,
-              borderRadius: '18px',
+              borderRadius: (theme) => theme.spacing(2.25),
               fontSize: (theme) => theme.typography.h5.fontSize,
               border: 'none',
               textTransform: 'none',
@@ -143,35 +166,35 @@ const HistoryPage: React.FC = () => {
             Inventory
           </ToggleButton>
         </ToggleButtonGroup>
-        <FormControl>
-          <InputLabel id="select-date-label">Date</InputLabel>
-          <Select
-            labelId="select-date-label"
-            id="select-date"
-            value={dateInput}
-            label="Date"
-            onChange={(e) => {
-              const value = e.target.value as DatePreset;
-              if (value === 'custom') {
-                toggleCustomDateDialog();
-              } else {
-                handleDateSelection(value);
-              }
-            }}
-            sx={{
-              width: '10rem',
-              borderRadius: '18px',
-              '& .MuiSelect-select': { py: 2 },
-            }}
-          >
-            <MenuItem value="today">Today</MenuItem>
-            <MenuItem value="yesterday">Yesterday</MenuItem>
-            <MenuItem value="this week">This Week</MenuItem>
-            <MenuItem value="custom">
-              {dateRange.isCustom ? dateRangeString : 'Custom'}
-            </MenuItem>
-          </Select>
-        </FormControl>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          sx={{
+            alignItems: { xs: 'stretch', sm: 'center' },
+            width: { xs: '100%', md: 'auto' },
+            gap: 3,
+            flexWrap: 'wrap',
+          }}
+        >
+          <ReportFilterControls
+            dateInput={dateInput}
+            dateRange={dateRange}
+            dateRangeString={dateRangeString}
+            onDateSelect={handleDateSelection}
+            onOpenCustomDialog={toggleCustomDateDialog}
+            buildings={buildings}
+            buildingId={selectedBuildingId}
+            onBuildingChange={setSelectedBuildingId}
+            showBuilding={historyType === 'checkout'}
+          />
+          {hasActiveFilters && (
+            <Button
+              onClick={handleResetFilters}
+              sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+            >
+              Reset filters
+            </Button>
+          )}
+        </Stack>
       </Stack>
 
       <Stack>
@@ -182,7 +205,16 @@ const HistoryPage: React.FC = () => {
           <Button onClick={toggleCustomDateDialog}>Change date range</Button>
         ) : (
           <Typography variant="body1">
-            {dateInput !== 'this week' ? dateString : dateRangeString}
+            {[
+              'this week',
+              'this month',
+              'last month',
+              'last 30 days',
+              'this year',
+              'last year',
+            ].includes(dateInput)
+              ? dateRangeString
+              : dateString}
           </Typography>
         )}
         {!isLoading && (() => {
@@ -206,6 +238,7 @@ const HistoryPage: React.FC = () => {
             userList={userList}
             loggedInUserId={loggedInUserId}
             historyType={historyType}
+            hasBuildingFilter={hasBuildingFilter}
           />
         </>
       )}

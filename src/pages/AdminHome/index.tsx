@@ -19,10 +19,16 @@ const AdminHome: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
+    let stale = false;
     getCategorizedItems(user, true).catch((error) => {
+      if (stale) return;
       console.error('Error refreshing categorized items:', error);
+      showSnackbar('Could not refresh the item list. Please try again.', 'error');
     });
-  }, [user]);
+    return () => {
+      stale = true;
+    };
+  }, [user, showSnackbar]);
 
   useEffect(() => {
     if (location.state?.message) {

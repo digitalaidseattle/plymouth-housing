@@ -24,6 +24,7 @@ const CheckoutCard = ({
   removeButton,
   categoryLimit,
   categoryName,
+  categoryId,
   checkoutType,
   checkoutHistory,
   selectedWelcomeItemName,
@@ -114,6 +115,7 @@ const CheckoutCard = ({
           disableAdd={disableAdd}
           categoryLimit={categoryLimit}
           categoryName={categoryName}
+          categoryId={categoryId}
         />
       </CardActions>
     </Card>

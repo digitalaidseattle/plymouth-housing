@@ -15,18 +15,18 @@ const ItemQuantityButton = ({
   removeItemFromCart,
   removeButton,
   disableAdd,
-  categoryName,
+  categoryId,
 }: CheckoutCardProps) => {
   const foundInCart = categoryCheckout?.items?.find(
     (v: CheckoutItemProp) => v.id === item.id,
   );
 
   const handleAddClick = () => {
-    addItemToCart(item, 1, categoryName);
+    addItemToCart(item, 1, categoryId);
   };
 
   const handleRemoveClick = () => {
-    addItemToCart(item, -1, categoryName);
+    addItemToCart(item, -1, categoryId);
   };
 
   return (
@@ -81,7 +81,7 @@ const ItemQuantityButton = ({
             typography: 'body2',
             px: { xs: 1, md: 3 },
           }}
-          onClick={() => removeItemFromCart(item.id, categoryName)}
+          onClick={() => removeItemFromCart(item.id, categoryId)}
         >
           Remove
         </Button>

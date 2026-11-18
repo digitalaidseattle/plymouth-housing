@@ -52,6 +52,25 @@ export function useCheckoutData({
     try {
       const categorizedItems = await getCategorizedItems(user);
 
+      // Resolve the welcome basket before touching state so a failure leaves
+      // the previous state intact rather than a half-updated page.
+      let welcomeBasket: CategoryProps[] | null = null;
+      if (checkoutType === 'welcomeBasket') {
+        const welcomeBasketCategory = categorizedItems.find(
+          (category: CategoryProps) =>
+            category.id === CATEGORY_IDS.WELCOME_BASKET,
+        );
+        if (!welcomeBasketCategory) {
+          throw new Error('Welcome Basket category not found.');
+        }
+        const filteredItems = (welcomeBasketCategory.items || []).filter(
+          (item: CheckoutItemProp) =>
+            item.id === WELCOME_BASKET_ITEMS.FULL ||
+            item.id === WELCOME_BASKET_ITEMS.TWIN,
+        );
+        welcomeBasket = [{ ...welcomeBasketCategory, items: filteredItems }];
+      }
+
       setData(categorizedItems);
 
       const cleanCheckout = categorizedItems.map((category: CategoryProps) => ({
@@ -61,25 +80,7 @@ export function useCheckoutData({
       }));
       setCheckoutItems(cleanCheckout);
 
-      if (checkoutType === 'welcomeBasket') {
-        const welcomeBasketCategory = categorizedItems.find(
-          (category: CategoryProps) =>
-            category.id === CATEGORY_IDS.WELCOME_BASKET,
-        );
-        if (welcomeBasketCategory) {
-          const filteredItems = (welcomeBasketCategory.items || []).filter(
-            (item: CheckoutItemProp) =>
-              item.id === WELCOME_BASKET_ITEMS.FULL ||
-              item.id === WELCOME_BASKET_ITEMS.TWIN,
-          );
-          setWelcomeBasketData([
-            { ...welcomeBasketCategory, items: filteredItems },
-          ]);
-        } else {
-          // TODO: dead code - 'Welcome Basket' category always exists. Should throw instead of silently showing empty page.
-          setWelcomeBasketData([]);
-        }
-      }
+      if (welcomeBasket) setWelcomeBasketData(welcomeBasket);
     } catch (error) {
       onErrorRef.current('Could not get categorized items. \r\n' + error);
       console.error('Error fetching categorized items:', error);

@@ -142,7 +142,7 @@ const PickYourNamePage: React.FC = () => {
                                   aria-label="Refresh name list"
                                   onClick={refreshVolunteers}
                                   disabled={isLoading}
-                                  edge="end"
+                                  sx={{ mr: 1 }}
                                 >
                                   <RefreshIcon />
                                 </IconButton>

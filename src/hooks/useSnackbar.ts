@@ -48,6 +48,14 @@ export function useSnackbar() {
     setState((prev) => ({ ...prev, open: false }));
   }, []);
 
+  const resetSnackbar = useCallback(() => {
+    setState((prev) =>
+      prev.open || prev.queue.length > 0
+        ? { open: false, message: '', severity: prev.severity, queue: [] }
+        : prev,
+    );
+  }, []);
+
   useEffect(() => {
     if (state.open || state.queue.length === 0) return;
     const timer = setTimeout(() => {
@@ -70,5 +78,6 @@ export function useSnackbar() {
     snackbarState,
     showSnackbar,
     handleClose,
+    resetSnackbar,
   };
 }

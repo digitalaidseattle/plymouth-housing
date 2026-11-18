@@ -88,11 +88,16 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({
   const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const { snackbarState, showSnackbar, handleClose } = useSnackbar();
+  const { snackbarState, showSnackbar, handleClose, resetSnackbar } =
+    useSnackbar();
 
   const [loading, setLoading] = useState(false);
   const [editTransaction, setEditTransaction] =
     useState<EditTransactionState | null>(null);
+
+  useEffect(() => {
+    if (!showDialog) resetSnackbar();
+  }, [showDialog, resetSnackbar]);
 
   useEffect(() => {
     if (!showDialog) return;

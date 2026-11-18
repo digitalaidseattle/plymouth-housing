@@ -103,6 +103,30 @@ describe('PickNamePage Component', () => {
     });
   });
 
+  test('refresh icon refetches the volunteer list', async () => {
+    const setActiveVolunteers = vi.fn();
+    mockFetchWithRetry.mockResolvedValueOnce({ value: [{ id: 1, name: 'Alice' }] });
+
+    render(
+      <UserContext.Provider value={createUserContextValue({ setActiveVolunteers })}>
+        <PickNamePage />
+      </UserContext.Provider>
+    );
+
+    const refreshButton = await screen.findByRole('button', { name: /Refresh name list/i });
+    await waitFor(() => expect(refreshButton).toBeEnabled());
+    expect(mockFetchWithRetry).toHaveBeenCalledTimes(1);
+
+    const updated = [{ id: 1, name: 'Alice' }, { id: 2, name: 'New Volunteer' }];
+    mockFetchWithRetry.mockResolvedValueOnce({ value: updated });
+    fireEvent.click(refreshButton);
+
+    await waitFor(() => {
+      expect(setActiveVolunteers).toHaveBeenLastCalledWith(updated);
+    });
+    expect(mockFetchWithRetry).toHaveBeenCalledTimes(2);
+  });
+
   test('disables Continue button when no name is selected', async () => {
     const volunteers = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
 

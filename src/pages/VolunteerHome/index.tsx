@@ -15,10 +15,11 @@ import SnackbarAlert from '../../components/SnackbarAlert.tsx';
 import ActionCard from './ActionCard.tsx';
 import { UserContext } from '../../components/contexts/UserContext';
 import { getCategorizedItems } from '../../services/itemsService';
+import { getActiveVolunteers } from '../../services/userService';
 
 const VolunteerHome: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, setActiveVolunteers } = useContext(UserContext);
   const location = useLocation();
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -36,6 +37,17 @@ const VolunteerHome: React.FC = () => {
     getCategorizedItems(user, true).catch((error) => {
       console.error('Error refreshing categorized items:', error);
     });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    getActiveVolunteers(user)
+      .then(setActiveVolunteers)
+      .catch((error) => {
+        console.error('Error refreshing active volunteers:', error);
+      });
+    // setActiveVolunteers is recreated on every App render; refresh once per landing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Success/cancel message from CheckoutPage; absent on a plain visit.

@@ -402,7 +402,11 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           )}
 
           {categoryLimitExceeded && (
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ alignItems: 'flex-start' }}
+            >
               <Typography>Categories:</Typography>
               <Stack spacing={0.5}>
                 {categoryLimitErrors.map((c) => (

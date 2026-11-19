@@ -70,8 +70,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     onError: (msg) => showSnackbar(msg, 'warning'),
   });
 
-  const { addItemToCart, removeItemFromCart } =
-    useCartOperations({ checkoutItems, setCheckoutItems });
+  const { addItemToCart, removeItemFromCart } = useCartOperations({
+    checkoutItems,
+    setCheckoutItems,
+  });
 
   const [residentInfo, setResidentInfo] = useState<ResidentInfo>(() =>
     checkoutTransaction
@@ -119,8 +121,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
           checkoutTransaction.resident_id,
         );
         const visits = visitResult?.value as
-          | Array<{ transaction_date: string }>
-          | undefined;
+          Array<{ transaction_date: string }> | undefined;
         const lastVisitDate = visits?.[0]?.transaction_date ?? null;
 
         if (mounted) {
@@ -252,19 +253,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     let hasChanges: boolean;
 
     if (editTransaction) {
-      const hasItemChanges = computeCartDeltas(
-        checkoutItems.flatMap((category) => category.items),
-        editTransaction.effectiveItems,
-      ).length > 0;
+      const hasItemChanges =
+        computeCartDeltas(
+          checkoutItems.flatMap((category) => category.items),
+          editTransaction.effectiveItems,
+        ).length > 0;
 
       const hasResidentChanges =
         residentInfo.id !== editTransaction.originalTransaction?.resident_id;
 
       hasChanges = hasItemChanges || hasResidentChanges;
     } else {
-      hasChanges = checkoutItems.some(
-        (category) => category.categoryCount > 0,
-      );
+      hasChanges = checkoutItems.some((category) => category.categoryCount > 0);
     }
 
     if (hasChanges) {
@@ -283,7 +283,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+    >
       {checkoutTransaction && (
         <Box sx={{ px: 2, py: 1 }}>
           <Chip
@@ -407,39 +409,39 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       </Box>
 
       <CheckoutFooter
-          checkoutItems={checkoutItems}
-          setOpenSummary={setOpenSummary}
-          selectedBuildingCode={residentInfo.building.code}
-          residentInfoIsMissing={residentInfoIsMissing}
-        />
+        checkoutItems={checkoutItems}
+        setOpenSummary={setOpenSummary}
+        selectedBuildingCode={residentInfo.building.code}
+        residentInfoIsMissing={residentInfoIsMissing}
+      />
 
-        <CheckoutDialog
-          open={openSummary}
-          onClose={() => setOpenSummary(false)}
-          onChangeResident={() => {
-            setOpenSummary(false);
-            setShowResidentDetailDialog(true);
-          }}
-          onSuccess={handleCheckoutSuccess}
-          onError={(msg) => showSnackbar(msg, 'warning')}
-          checkoutItems={checkoutItems}
-          addItemToCart={addItemToCart}
-          setCheckoutItems={setCheckoutItems}
-          removeItemFromCart={removeItemFromCart}
-          selectedBuildingCode={residentInfo.building.code}
-          fetchData={fetchData}
-          residentInfo={residentInfo}
-          setResidentInfo={setResidentInfo}
-          editTransaction={editTransaction ?? undefined}
-          onCancelEdits={handleCancelEdits}
-        />
-        <SnackbarAlert
-          open={snackbarState.open}
-          onClose={handleSnackbarClose}
-          severity={snackbarState.severity}
-        >
-          {snackbarState.message}
-        </SnackbarAlert>
+      <CheckoutDialog
+        open={openSummary}
+        onClose={() => setOpenSummary(false)}
+        onChangeResident={() => {
+          setOpenSummary(false);
+          setShowResidentDetailDialog(true);
+        }}
+        onSuccess={handleCheckoutSuccess}
+        onError={(msg) => showSnackbar(msg, 'warning')}
+        checkoutItems={checkoutItems}
+        addItemToCart={addItemToCart}
+        setCheckoutItems={setCheckoutItems}
+        removeItemFromCart={removeItemFromCart}
+        selectedBuildingCode={residentInfo.building.code}
+        fetchData={fetchData}
+        residentInfo={residentInfo}
+        setResidentInfo={setResidentInfo}
+        editTransaction={editTransaction ?? undefined}
+        onCancelEdits={handleCancelEdits}
+      />
+      <SnackbarAlert
+        open={snackbarState.open}
+        onClose={handleSnackbarClose}
+        severity={snackbarState.severity}
+      >
+        {snackbarState.message}
+      </SnackbarAlert>
     </Box>
   );
 };

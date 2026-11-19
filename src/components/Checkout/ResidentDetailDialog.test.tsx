@@ -75,7 +75,9 @@ describe('ResidentDetailDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(CheckoutAPICalls.getLastResidentVisit).mockResolvedValue({ value: [] });
+    vi.mocked(CheckoutAPICalls.getLastResidentVisit).mockResolvedValue({
+      value: [],
+    });
     // Reset cursor
     document.body.style.cursor = 'default';
   });
@@ -94,7 +96,9 @@ describe('ResidentDetailDialog', () => {
       expect(
         screen.getByText('Provide resident details to continue'),
       ).toBeInTheDocument();
-      expect(screen.getByLabelText('Building or Voucher Code')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Building or Voucher Code'),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Unit Number')).toBeInTheDocument();
       expect(screen.getByLabelText('Resident Name')).toBeInTheDocument();
     });
@@ -319,13 +323,17 @@ describe('ResidentDetailDialog', () => {
 
       // Fields should be disabled during loading
       await waitFor(() => {
-        expect(screen.getByLabelText('Building or Voucher Code')).toBeDisabled();
+        expect(
+          screen.getByLabelText('Building or Voucher Code'),
+        ).toBeDisabled();
         expect(screen.getByLabelText('Resident Name')).toBeDisabled();
       });
 
       // Fields should be enabled after loading
       await waitFor(() => {
-        expect(screen.getByLabelText('Building or Voucher Code')).not.toBeDisabled();
+        expect(
+          screen.getByLabelText('Building or Voucher Code'),
+        ).not.toBeDisabled();
         expect(screen.getByLabelText('Resident Name')).not.toBeDisabled();
       });
     });
@@ -1233,10 +1241,7 @@ describe('ResidentDetailDialog', () => {
 
       // Wait for the existing residents to load.
       await waitFor(() => {
-        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(
-          mockUser,
-          1,
-        );
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(mockUser, 1);
       });
 
       // Change the search input to find another existing resident.
@@ -1248,9 +1253,7 @@ describe('ResidentDetailDialog', () => {
 
       fireEvent.mouseDown(residentInput);
 
-      const janeOption = await screen.findByText(
-        /Jane Smith - Last visit:/i,
-      );
+      const janeOption = await screen.findByText(/Jane Smith - Last visit:/i);
 
       fireEvent.click(janeOption);
 
@@ -1290,7 +1293,10 @@ describe('ResidentDetailDialog', () => {
     };
 
     const renderWithVoucher = (props = {}) =>
-      renderComponent({ buildings: [...mockBuildings, voucherBuilding], ...props });
+      renderComponent({
+        buildings: [...mockBuildings, voucherBuilding],
+        ...props,
+      });
 
     test('shows a disabled unit field reading "voucher"', async () => {
       (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(voucherUnits);
@@ -1313,7 +1319,10 @@ describe('ResidentDetailDialog', () => {
       await selectVoucherBuilding();
 
       await waitFor(() => {
-        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(mockUser, 99);
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(
+          mockUser,
+          99,
+        );
       });
     });
 
@@ -1352,7 +1361,9 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(await screen.findByText('A (Building A)'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('test-id-select-unit-number')).toBeInTheDocument();
+        expect(
+          screen.getByTestId('test-id-select-unit-number'),
+        ).toBeInTheDocument();
       });
       expect(screen.getByLabelText('Unit Number')).not.toBeDisabled();
     });

@@ -5,7 +5,15 @@
  *
  */
 import React, { FormEvent, useState, useContext } from 'react';
-import { Box, FormControl, TextField, Typography, Chip, Button, useTheme } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  TextField,
+  Typography,
+  Chip,
+  Button,
+  useTheme,
+} from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import {
   Building,
@@ -72,7 +80,12 @@ const ResidentDetailDialog = ({
   });
 
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
-  const residentsHook = useResidents(user, selectedUnit, residentInfo.name, residentInfo.lastVisitDate);
+  const residentsHook = useResidents(
+    user,
+    selectedUnit,
+    residentInfo.name,
+    residentInfo.lastVisitDate,
+  );
   const submitHook = useResidentFormSubmit(user, (residentInfo) => {
     setResidentInfo(residentInfo);
     handleShowDialog();
@@ -180,11 +193,7 @@ const ResidentDetailDialog = ({
 
       setFormError(errors);
 
-      if (
-        errors.buildingError ||
-        errors.unitError ||
-        errors.nameError
-      ) {
+      if (errors.buildingError || errors.unitError || errors.nameError) {
         return;
       }
 
@@ -239,7 +248,12 @@ const ResidentDetailDialog = ({
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box component="span">Editing transaction</Box>
-                <Button size="small" variant="text" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
+                <Button
+                  size="small"
+                  variant="text"
+                  id="edit-mode-dialog-cancel-btn"
+                  onClick={onCancelEdits}
+                >
                   Cancel
                 </Button>
               </Box>
@@ -285,71 +299,73 @@ const ResidentDetailDialog = ({
               }
             />
           ) : (
-          <Autocomplete
-            id="select-unit-number"
-            data-testid="test-id-select-unit-number"
-            options={unitNumberValues}
-            value={selectedUnit}
-            disabled={isWaiting || !selectedBuilding.id}
-            filterOptions={unitNumberFilter}
-            isOptionEqualToValue={(option, value) => {
-              if (typeof value === 'string') return false;
-              return option.id === value.id;
-            }}
-            onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
-              if (reason === 'clear') {
-                setSelectedUnit({ id: 0, unit_number: '' });
+            <Autocomplete
+              id="select-unit-number"
+              data-testid="test-id-select-unit-number"
+              options={unitNumberValues}
+              value={selectedUnit}
+              disabled={isWaiting || !selectedBuilding.id}
+              filterOptions={unitNumberFilter}
+              isOptionEqualToValue={(option, value) => {
+                if (typeof value === 'string') return false;
+                return option.id === value.id;
+              }}
+              onInputChange={(
+                _event: React.SyntheticEvent,
+                newValue,
+                reason,
+              ) => {
+                if (reason === 'clear') {
+                  setSelectedUnit({ id: 0, unit_number: '' });
+                  setSelectedResidentId(null);
+                  return;
+                }
+
+                const matchingUnit = unitNumberValues.find(
+                  (unit) => unit.unit_number === newValue,
+                );
+
                 setSelectedResidentId(null);
-                return;
-              }
 
-              const matchingUnit = unitNumberValues.find(
-                (unit) => unit.unit_number === newValue,
-              );
-
-              setSelectedResidentId(null);
-
-              if (matchingUnit) {
-                setSelectedUnit(matchingUnit);
-                setFormError({
-                  ...formError,
-                  unitError: false,
-                  nameError: false,
-                });
-              } else {
-                setSelectedUnit({ id: 0, unit_number: newValue });
-              }
-            }}
-            getOptionLabel={(option: Unit | string) => {
-              if (typeof option === 'string') return option;
-              return `${option.unit_number}`;
-            }}
-            renderInput={(params) => {
-              return (
-                <TextField
-                  {...params}
-                  id={selectedUnit.unit_number}
-                  label="Unit Number"
-                  error={formError.unitError}
-                  helperText={
-                    formError.unitError
-                      ? 'Please select a unit from the list'
-                      : ''
-                  }
-                />
-              );
-            }}
-            freeSolo
-          />
+                if (matchingUnit) {
+                  setSelectedUnit(matchingUnit);
+                  setFormError({
+                    ...formError,
+                    unitError: false,
+                    nameError: false,
+                  });
+                } else {
+                  setSelectedUnit({ id: 0, unit_number: newValue });
+                }
+              }}
+              getOptionLabel={(option: Unit | string) => {
+                if (typeof option === 'string') return option;
+                return `${option.unit_number}`;
+              }}
+              renderInput={(params) => {
+                return (
+                  <TextField
+                    {...params}
+                    id={selectedUnit.unit_number}
+                    label="Unit Number"
+                    error={formError.unitError}
+                    helperText={
+                      formError.unitError
+                        ? 'Please select a unit from the list'
+                        : ''
+                    }
+                  />
+                );
+              }}
+              freeSolo
+            />
           )}
         </FormControl>
 
         <FormControl>
           <Autocomplete
             value={
-              isEditMode
-                ? selectedResidentOption
-                : residentsHook.nameInput
+              isEditMode ? selectedResidentOption : residentsHook.nameInput
             }
             disabled={isWaiting || !selectedUnit.id}
             isOptionEqualToValue={(option, value) => {

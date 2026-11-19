@@ -98,6 +98,15 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [showResidentDetailDialog, setShowResidentDetailDialog] =
     useState<boolean>(() => !editTransaction);
 
+  const handleResidentDialogClose = () => {
+    setShowResidentDetailDialog(false);
+
+    // Return to Checkout Summary after editing a resident.
+    if (checkoutTransaction) {
+      setOpenSummary(true);
+    }
+  };
+
   // Fetch last visit date when editing an existing transaction
   useEffect(() => {
     if (!checkoutTransaction) return;
@@ -240,15 +249,23 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     checkoutType === 'general' ? filteredData : welcomeBasketData;
 
   const handleCancelEdits = () => {
-    // Compare current cart against original effectiveItems
-    const hasChanges =
-      editTransaction && editTransaction.effectiveItems
-        ? computeCartDeltas(
-            checkoutItems.flatMap((cat) => cat.items),
-            editTransaction.effectiveItems,
-          ).length > 0
-        : // In new checkout, check if cart has any items
-          checkoutItems.some((category) => category.categoryCount > 0);
+    let hasChanges: boolean;
+
+    if (editTransaction) {
+      const hasItemChanges = computeCartDeltas(
+        checkoutItems.flatMap((category) => category.items),
+        editTransaction.effectiveItems,
+      ).length > 0;
+
+      const hasResidentChanges =
+        residentInfo.id !== editTransaction.originalTransaction?.resident_id;
+
+      hasChanges = hasItemChanges || hasResidentChanges;
+    } else {
+      hasChanges = checkoutItems.some(
+        (category) => category.categoryCount > 0,
+      );
+    }
 
     if (hasChanges) {
       const confirmed = window.confirm(
@@ -257,14 +274,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       if (!confirmed) return;
     }
 
-    const navigateState = {
+    navigate(getHomePath(user), {
       state: {
         checkoutSuccess: false,
         message: 'Changes cancelled',
       },
-    };
-
-    navigate(getHomePath(user), navigateState);
+    });
   };
 
   return (
@@ -298,9 +313,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
       {showResidentDetailDialog && checkoutType === 'general' && (
         <ResidentDetailDialog
           showDialog={showResidentDetailDialog}
-          handleShowDialog={() =>
-            setShowResidentDetailDialog(!showResidentDetailDialog)
-          }
+          handleShowDialog={handleResidentDialogClose}
           buildings={buildings}
           unitNumberValues={unitNumberValues}
           setUnitNumberValues={setUnitNumberValues}
@@ -403,6 +416,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
         <CheckoutDialog
           open={openSummary}
           onClose={() => setOpenSummary(false)}
+          onChangeResident={() => {
+            setOpenSummary(false);
+            setShowResidentDetailDialog(true);
+          }}
           onSuccess={handleCheckoutSuccess}
           onError={(msg) => showSnackbar(msg, 'warning')}
           checkoutItems={checkoutItems}

@@ -6,7 +6,7 @@
  */
 import { getRole } from '../utils/userUtils';
 import { CheckoutItemProp, ClientPrincipal, ResidentInfo, TransactionItem, EditTransactionState, CheckoutTransaction, TransactionHistoryRow } from '../types/interfaces';
-import { ENDPOINTS } from '../types/constants';
+import { ENDPOINTS, USER_ROLES } from '../types/constants';
 import { apiRequest } from './apiRequest';
 import { getItems } from './itemsService';
 import { computeEffectiveItems } from '../utils/transactionUtils';
@@ -117,6 +117,33 @@ export async function getTransaction(
     return result;
   } catch (error) {
     console.error('Error fetching transaction:', error);
+    throw error;
+  }
+}
+
+export async function updateCheckoutResident(
+  user: ClientPrincipal | null,
+  transactionId: string,
+  residentId: number,
+) {
+  try {
+    const role = getRole(user);
+
+    if (role !== USER_ROLES.ADMIN) {
+      throw new Error('Only administrators can update checkout residents.');
+    }
+
+    return await apiRequest({
+      url: ENDPOINTS.UPDATE_CHECKOUT_RESIDENT,
+      role,
+      method: 'POST',
+      body: {
+        transaction_id: transactionId,
+        resident_id: residentId,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating checkout resident:', error);
     throw error;
   }
 }

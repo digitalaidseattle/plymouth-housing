@@ -9,6 +9,7 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import {
   processWelcomeBasket,
   processGeneralItems,
+  updateCheckoutResident,
   checkPastCheckout,
 } from './checkoutService';
 import { API_HEADERS, ENDPOINTS } from '../types/constants';
@@ -141,6 +142,53 @@ describe('checkoutService', () => {
       const result = await processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
 
       expect(result).toEqual(duplicateErrorResponse);
+    });
+  });
+
+  describe('updateCheckoutResident', () => {
+    const transactionId = '123e4567-e89b-12d3-a456-426614174000';
+    const residentId = 10;
+
+    it('should update checkout resident successfully', async () => {
+      const mockResponse = { value: [{ Status: 'Success' }] };
+
+      (getRole as Mock).mockReturnValue('admin');
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await updateCheckoutResident(
+        user,
+        transactionId,
+        residentId,
+      );
+
+      expect(fetch).toHaveBeenCalledWith(
+        ENDPOINTS.UPDATE_CHECKOUT_RESIDENT,
+        {
+          method: 'POST',
+          headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+          body: JSON.stringify({
+            transaction_id: transactionId,
+            resident_id: residentId,
+          }),
+        },
+      );
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should reject non-admin users', async () => {
+      (getRole as Mock).mockReturnValue('volunteer');
+
+      await expect(
+        updateCheckoutResident(user, transactionId, residentId),
+      ).rejects.toThrow(
+        'Only administrators can update checkout residents.',
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 

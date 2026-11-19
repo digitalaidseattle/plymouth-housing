@@ -180,8 +180,11 @@ describe('ResidentDetailDialog', () => {
           setTimeout(() => resolve(mockUnits), 100),
         );
       });
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidents);
 
-      renderComponent();
+      renderComponent({
+        unitNumberValues: mockUnits,
+      });
 
       const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
@@ -198,6 +201,17 @@ describe('ResidentDetailDialog', () => {
       // Fields should be enabled after loading
       await waitFor(() => {
         expect(screen.getByLabelText('Unit Number')).not.toBeDisabled();
+      });
+
+      // Select a valid unit by typing its exact value.
+      const unitInput = screen.getByLabelText('Unit Number');
+
+      fireEvent.change(unitInput, {
+        target: { value: '101' },
+      });
+
+      // Resident Name should now be enabled after resident loading completes.
+      await waitFor(() => {
         expect(screen.getByLabelText('Resident Name')).not.toBeDisabled();
       });
     });
@@ -1186,6 +1200,84 @@ describe('ResidentDetailDialog', () => {
         );
         expect(handleShowDialog).toHaveBeenCalled();
       });
+    });
+  });
+  describe('Edit Mode', () => {
+    const editResidentInfo = {
+      id: 1,
+      name: 'John Doe',
+      building: { id: 1, name: 'Building A', code: 'A' },
+      unit: { id: 1, unit_number: '101' },
+      lastVisitDate: null,
+    };
+
+    test('updates resident information when an existing resident is selected', async () => {
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue({
+        value: [
+          { id: 1, name: 'John Doe' },
+          { id: 2, name: 'Jane Smith' },
+        ],
+      });
+
+      const setResidentInfo = vi.fn();
+      const handleShowDialog = vi.fn();
+
+      renderComponent({
+        isEditMode: true,
+        residentInfo: editResidentInfo,
+        unitNumberValues: mockUnits,
+        setResidentInfo,
+        handleShowDialog,
+      });
+
+      // Wait for the existing residents to load.
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(
+          mockUser,
+          1,
+        );
+      });
+
+      // Change the search input to find another existing resident.
+      const residentInput = screen.getByLabelText('Resident Name');
+
+      fireEvent.change(residentInput, {
+        target: { value: 'Jane' },
+      });
+
+      fireEvent.mouseDown(residentInput);
+
+      const janeOption = await screen.findByText(
+        /Jane Smith - Last visit:/i,
+      );
+
+      fireEvent.click(janeOption);
+
+      expect(residentInput).toHaveValue('Jane Smith');
+
+      // Submit the resident change.
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+      await waitFor(() => {
+        expect(setResidentInfo).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 2,
+            name: 'Jane Smith',
+            building: expect.objectContaining({ id: 1 }),
+            unit: expect.objectContaining({
+              id: 1,
+              unit_number: '101',
+            }),
+          }),
+        );
+
+        expect(handleShowDialog).toHaveBeenCalled();
+      });
+
+      // Edit mode should select an existing resident, not create or look one up.
+      expect(CheckoutAPICalls.findResident).not.toHaveBeenCalled();
+      expect(CheckoutAPICalls.addResident).not.toHaveBeenCalled();
     });
   });
   describe('Voucher Buildings', () => {

@@ -137,6 +137,8 @@ const ResidentDetailDialog = ({
     if (isEditMode && showDialog && selectedBuilding.id) {
       fetchUnitNumbers(selectedBuilding.id);
     }
+    // The fetch function is recreated by useUnitNumbers on each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, showDialog, selectedBuilding.id]);
 
   // Resolve the original unit's database ID from the loaded unit options.

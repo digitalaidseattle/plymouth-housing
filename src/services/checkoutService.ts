@@ -5,8 +5,16 @@
  *
  */
 import { getRole } from '../utils/userUtils';
-import { CheckoutItemProp, ClientPrincipal, ResidentInfo, TransactionItem, EditTransactionState, CheckoutTransaction, TransactionHistoryRow } from '../types/interfaces';
-import { ENDPOINTS } from '../types/constants';
+import {
+  CheckoutItemProp,
+  ClientPrincipal,
+  ResidentInfo,
+  TransactionItem,
+  EditTransactionState,
+  CheckoutTransaction,
+  TransactionHistoryRow,
+} from '../types/interfaces';
+import { ENDPOINTS, USER_ROLES } from '../types/constants';
 import { apiRequest } from './apiRequest';
 import { getItems } from './itemsService';
 import { computeEffectiveItems } from '../utils/transactionUtils';
@@ -17,7 +25,7 @@ export async function processWelcomeBasket(
   loggedInUserId: number,
   sheetSetItem: CheckoutItemProp,
   residentInfo: ResidentInfo,
-  originalTransactionId?: string | null
+  originalTransactionId?: string | null,
 ) {
   if (originalTransactionId) {
     throw new Error('Welcome Basket transactions cannot be edited');
@@ -50,7 +58,7 @@ export async function processGeneralItems(
   loggedInUserId: number,
   checkoutItems: CheckoutItemProp[],
   residentInfo: ResidentInfo,
-  originalTransactionId?: string | null
+  originalTransactionId?: string | null,
 ) {
   try {
     const body: Record<string, unknown> = {
@@ -80,15 +88,20 @@ export async function processGeneralItems(
   }
 }
 
-export async function checkPastCheckout(user: ClientPrincipal | null, residentId: number) {
+export async function checkPastCheckout(
+  user: ClientPrincipal | null,
+  residentId: number,
+) {
   try {
-    const result = await apiRequest<Array<{
-      id: number;
-      item_id: number;
-      quantity: number;
-      transaction_id: string;
-      additional_notes: string;
-    }>>({
+    const result = await apiRequest<
+      Array<{
+        id: number;
+        item_id: number;
+        quantity: number;
+        transaction_id: string;
+        additional_notes: string;
+      }>
+    >({
       url: ENDPOINTS.CHECK_PAST_CHECKOUT,
       role: getRole(user),
       method: 'POST',
@@ -121,6 +134,33 @@ export async function getTransaction(
   }
 }
 
+export async function updateCheckoutResident(
+  user: ClientPrincipal | null,
+  transactionId: string,
+  residentId: number,
+) {
+  try {
+    const role = getRole(user);
+
+    if (role !== USER_ROLES.ADMIN) {
+      throw new Error('Only administrators can update checkout residents.');
+    }
+
+    return await apiRequest({
+      url: ENDPOINTS.UPDATE_CHECKOUT_RESIDENT,
+      role,
+      method: 'POST',
+      body: {
+        transaction_id: transactionId,
+        resident_id: residentId,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating checkout resident:', error);
+    throw error;
+  }
+}
+
 export async function getEditTransactionData(
   user: ClientPrincipal | null,
   checkoutTransaction: CheckoutTransaction,
@@ -141,7 +181,10 @@ export async function getEditTransactionData(
     const rows = txResult?.value ?? [];
     if (rows.length === 0) return empty;
 
-    const parseRow = (row: TransactionHistoryRow, isCorrection: boolean): CheckoutTransaction => {
+    const parseRow = (
+      row: TransactionHistoryRow,
+      isCorrection: boolean,
+    ): CheckoutTransaction => {
       const parsedItems = JSON.parse(row.items) as TransactionItem[];
       return {
         ...row,
@@ -149,20 +192,29 @@ export async function getEditTransactionData(
         item_type: 'general',
         welcome_basket_item_id: null,
         welcome_basket_quantity: null,
-        total_quantity: parsedItems.reduce((sum, item) => sum + item.quantity, 0),
+        total_quantity: parsedItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0,
+        ),
         is_edited: isCorrection,
       };
     };
 
     const originalTransaction = parseRow(rows[0], false);
-    const correctionTransactions = rows.slice(1).map((row) => parseRow(row, true));
+    const correctionTransactions = rows
+      .slice(1)
+      .map((row) => parseRow(row, true));
     const itemNames = new Map(items.map((i) => [i.id, i.name]));
 
     return {
       originalTransaction,
       correctionTransactions,
       itemNames,
-      effectiveItems: computeEffectiveItems(originalTransaction, correctionTransactions, itemNames),
+      effectiveItems: computeEffectiveItems(
+        originalTransaction,
+        correctionTransactions,
+        itemNames,
+      ),
     };
   } catch (error) {
     console.error('Error loading transaction data:', error);

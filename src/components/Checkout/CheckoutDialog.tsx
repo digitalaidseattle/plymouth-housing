@@ -28,6 +28,7 @@ import { UserContext } from '../contexts/UserContext';
 import {
   processGeneralItems,
   processWelcomeBasket,
+  updateCheckoutResident,
 } from '../../services/checkoutService';
 import { computeCartDeltas } from '../../utils/transactionUtils';
 import CategorySection from './CategorySection';
@@ -51,6 +52,7 @@ type CheckoutDialogProps = {
   onError: (message: string) => void;
   editTransaction?: EditTransactionState;
   onCancelEdits?: () => void;
+  onChangeResident?: () => void;
 };
 
 export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
@@ -68,6 +70,7 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   onError,
   editTransaction,
   onCancelEdits,
+  onChangeResident,
 }) => {
   const { user, loggedInUserId } = useContext(UserContext);
   const isEditMode = !!editTransaction;
@@ -99,14 +102,22 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
   // Snapshot cart state once when dialog opens. checkoutItems is intentionally excluded
   useEffect(() => {
     if (open) {
-      setOriginalCheckoutItems([...checkoutItems]);  
+      setOriginalCheckoutItems([...checkoutItems]);
       setTransactionId(crypto.randomUUID());
       setStatusMessage('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const hasChanges = isEditMode && computeCartDeltas(cartItems, editTransaction?.effectiveItems).length > 0;
+  const hasItemChanges =
+    isEditMode &&
+    computeCartDeltas(cartItems, editTransaction?.effectiveItems).length > 0;
+
+  const hasResidentChanges =
+    isEditMode &&
+    residentInfo.id !== editTransaction?.originalTransaction?.resident_id;
+
+  const hasChanges = hasItemChanges || hasResidentChanges;
 
   const handleCancel = () => {
     if (!isEditMode) {
@@ -172,8 +183,8 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
         itemsToSubmit = cartItems;
       }
 
-      // In edit mode, if no changes were made, close without creating a transaction
-      if (isEditMode && itemsToSubmit.length === 0) {
+      // In edit mode, close only when neither items nor resident changed.
+      if (isEditMode && !hasChanges) {
         onClose();
         return;
       }
@@ -200,14 +211,39 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           originalTransactionId,
         );
       } else {
-        data = await processGeneralItems(
-          transactionId,
-          user,
-          loggedInUserId,
-          itemsToSubmit,
-          residentInfo,
-          originalTransactionId,
-        );
+        // Apply item changes first, if any.
+        if (itemsToSubmit.length > 0) {
+          data = await processGeneralItems(
+            transactionId,
+            user,
+            loggedInUserId,
+            itemsToSubmit,
+            residentInfo,
+            originalTransactionId,
+          );
+        }
+
+        // Update the resident independently, if changed.
+        if (hasResidentChanges) {
+          if (!originalTransactionId) {
+            throw new Error('Original checkout transaction ID is missing.');
+          }
+
+          const residentResult = await updateCheckoutResident(
+            user,
+            originalTransactionId!,
+            residentInfo.id,
+          );
+
+          // Use the resident response when there were no item changes.
+          if (itemsToSubmit.length === 0) {
+            data = residentResult;
+          }
+        }
+      }
+
+      if (!data) {
+        throw new Error('No response received from checkout operation.');
       }
 
       // Validate response structure
@@ -366,7 +402,11 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
           )}
 
           {categoryLimitExceeded && (
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ alignItems: 'flex-start' }}
+            >
               <Typography>Categories:</Typography>
               <Stack spacing={0.5}>
                 {categoryLimitErrors.map((c) => (
@@ -529,6 +569,15 @@ export const CheckoutDialog: React.FC<CheckoutDialogProps> = ({
                 id="checkout-dialog-add-item-btn"
               >
                 Add item
+              </Button>
+              <Button
+                variant="text"
+                onClick={onChangeResident}
+                disabled={isProcessing}
+                id="checkout-dialog-change-resident-btn"
+                data-testid="checkout-dialog-change-resident-btn"
+              >
+                Change Resident
               </Button>
               <Button
                 variant="contained"

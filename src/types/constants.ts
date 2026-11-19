@@ -44,6 +44,7 @@ export const ENDPOINTS = {
   GET_INVENTORY_HISTORY: API_PREFIX + '/get-inventory-history',
   GET_LAST_RESIDENT_VISIT: API_PREFIX + '/get-last-resident-visit',
   MERGE_RESIDENTS: API_PREFIX + '/merge-residents',
+  UPDATE_CHECKOUT_RESIDENT: API_PREFIX + '/update-checkout-resident',
   GET_TRANSACTION: API_PREFIX + '/get-transaction',
   //Views
   EXPANDED_ITEMS: API_PREFIX + '/itemswithcategory',

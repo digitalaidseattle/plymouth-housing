@@ -9,6 +9,7 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import {
   processWelcomeBasket,
   processGeneralItems,
+  updateCheckoutResident,
   checkPastCheckout,
 } from './checkoutService';
 import { API_HEADERS, ENDPOINTS } from '../types/constants';
@@ -23,7 +24,12 @@ global.fetch = vi.fn();
 describe('checkoutService', () => {
   const user = { userDetails: 'testuser' } as any;
   const loggedInUserId = 1;
-  const residentInfo = { id: 1, name: 'John Doe', unit: { id: 1, unit_number: '1'}, building: { id: 1, name: 'building', code: 'B1'} };
+  const residentInfo = {
+    id: 1,
+    name: 'John Doe',
+    unit: { id: 1, unit_number: '1' },
+    building: { id: 1, name: 'building', code: 'B1' },
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,7 +38,13 @@ describe('checkoutService', () => {
   });
 
   describe('processWelcomeBasket', () => {
-    const sheetSetItem = { id: 1, quantity: 1, name: 'Twin-size Sheet Set', description: 'test', additional_notes: '' };
+    const sheetSetItem = {
+      id: 1,
+      quantity: 1,
+      name: 'Twin-size Sheet Set',
+      description: 'test',
+      additional_notes: '',
+    };
     const transactionID = '123e4567-e89b-12d3-a456-426614174000';
 
     it('should process welcome basket successfully', async () => {
@@ -42,7 +54,13 @@ describe('checkoutService', () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo);
+      const result = await processWelcomeBasket(
+        transactionID,
+        user,
+        loggedInUserId,
+        sheetSetItem,
+        residentInfo,
+      );
 
       expect(fetch).toHaveBeenCalledWith(ENDPOINTS.CHECKOUT_WELCOME_BASKET, {
         method: 'POST',
@@ -63,33 +81,60 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
-        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+        clone: () => ({
+          json: () => Promise.reject(new Error()),
+          text: () => Promise.resolve(''),
+        }),
       });
 
-      await expect(processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo)).rejects.toThrow('Error');
+      await expect(
+        processWelcomeBasket(
+          transactionID,
+          user,
+          loggedInUserId,
+          sheetSetItem,
+          residentInfo,
+        ),
+      ).rejects.toThrow('Error');
     });
 
     it('should return error response when transaction ID already exists', async () => {
       const duplicateErrorResponse = {
-        value: [{
-          Status: 'Error',
-          ErrorCode: 'DUPLICATE_TRANSACTION',
-          message: 'Transaction with this ID already exists.'
-        }]
+        value: [
+          {
+            Status: 'Error',
+            ErrorCode: 'DUPLICATE_TRANSACTION',
+            message: 'Transaction with this ID already exists.',
+          },
+        ],
       };
       (fetch as Mock).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(duplicateErrorResponse),
       });
 
-      const result = await processWelcomeBasket(transactionID, user, loggedInUserId, sheetSetItem, residentInfo);
+      const result = await processWelcomeBasket(
+        transactionID,
+        user,
+        loggedInUserId,
+        sheetSetItem,
+        residentInfo,
+      );
 
       expect(result).toEqual(duplicateErrorResponse);
     });
   });
 
   describe('processGeneralItems', () => {
-    const checkoutItems = [{ id: 1, quantity: 1, name: 'Item 1', description: 'test', additional_notes: 'note' }];
+    const checkoutItems = [
+      {
+        id: 1,
+        quantity: 1,
+        name: 'Item 1',
+        description: 'test',
+        additional_notes: 'note',
+      },
+    ];
     const transactionID = '123e4567-e89b-12d3-a456-426614174000';
 
     it('should process general items successfully', async () => {
@@ -99,7 +144,13 @@ describe('checkoutService', () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
+      const result = await processGeneralItems(
+        transactionID,
+        user,
+        loggedInUserId,
+        checkoutItems,
+        residentInfo,
+      );
 
       expect(fetch).toHaveBeenCalledWith(ENDPOINTS.CHECKOUT_GENERAL_ITEMS, {
         method: 'POST',
@@ -107,7 +158,11 @@ describe('checkoutService', () => {
         body: JSON.stringify({
           new_transaction_id: transactionID,
           user_id: loggedInUserId,
-          items: checkoutItems.map((item) => ({ id: item.id, quantity: item.quantity, additional_notes: item.additional_notes })),
+          items: checkoutItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+            additional_notes: item.additional_notes,
+          })),
           resident_id: residentInfo.id,
           message: '',
         }),
@@ -119,28 +174,89 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
-        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+        clone: () => ({
+          json: () => Promise.reject(new Error()),
+          text: () => Promise.resolve(''),
+        }),
       });
 
-      await expect(processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo)).rejects.toThrow('Error');
+      await expect(
+        processGeneralItems(
+          transactionID,
+          user,
+          loggedInUserId,
+          checkoutItems,
+          residentInfo,
+        ),
+      ).rejects.toThrow('Error');
     });
 
     it('should return error response when transaction ID already exists', async () => {
       const duplicateErrorResponse = {
-        value: [{
-          Status: 'Error',
-          ErrorCode: 'DUPLICATE_TRANSACTION',
-          message: 'Transaction with this ID already exists.'
-        }]
+        value: [
+          {
+            Status: 'Error',
+            ErrorCode: 'DUPLICATE_TRANSACTION',
+            message: 'Transaction with this ID already exists.',
+          },
+        ],
       };
       (fetch as Mock).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(duplicateErrorResponse),
       });
 
-      const result = await processGeneralItems(transactionID, user, loggedInUserId, checkoutItems, residentInfo);
+      const result = await processGeneralItems(
+        transactionID,
+        user,
+        loggedInUserId,
+        checkoutItems,
+        residentInfo,
+      );
 
       expect(result).toEqual(duplicateErrorResponse);
+    });
+  });
+
+  describe('updateCheckoutResident', () => {
+    const transactionId = '123e4567-e89b-12d3-a456-426614174000';
+    const residentId = 10;
+
+    it('should update checkout resident successfully', async () => {
+      const mockResponse = { value: [{ Status: 'Success' }] };
+
+      (getRole as Mock).mockReturnValue('admin');
+      (fetch as Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await updateCheckoutResident(
+        user,
+        transactionId,
+        residentId,
+      );
+
+      expect(fetch).toHaveBeenCalledWith(ENDPOINTS.UPDATE_CHECKOUT_RESIDENT, {
+        method: 'POST',
+        headers: { ...API_HEADERS, 'X-MS-API-ROLE': 'admin' },
+        body: JSON.stringify({
+          transaction_id: transactionId,
+          resident_id: residentId,
+        }),
+      });
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should reject non-admin users', async () => {
+      (getRole as Mock).mockReturnValue('volunteer');
+
+      await expect(
+        updateCheckoutResident(user, transactionId, residentId),
+      ).rejects.toThrow('Only administrators can update checkout residents.');
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 
@@ -170,10 +286,15 @@ describe('checkoutService', () => {
       (fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Error',
-        clone: () => ({ json: () => Promise.reject(new Error()), text: () => Promise.resolve('') }),
+        clone: () => ({
+          json: () => Promise.reject(new Error()),
+          text: () => Promise.resolve(''),
+        }),
       });
 
-      await expect(checkPastCheckout(user, residentId)).rejects.toThrow('Error');
+      await expect(checkPastCheckout(user, residentId)).rejects.toThrow(
+        'Error',
+      );
     });
   });
 });

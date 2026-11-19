@@ -75,7 +75,9 @@ describe('ResidentDetailDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(CheckoutAPICalls.getLastResidentVisit).mockResolvedValue({ value: [] });
+    vi.mocked(CheckoutAPICalls.getLastResidentVisit).mockResolvedValue({
+      value: [],
+    });
     // Reset cursor
     document.body.style.cursor = 'default';
   });
@@ -94,7 +96,9 @@ describe('ResidentDetailDialog', () => {
       expect(
         screen.getByText('Provide resident details to continue'),
       ).toBeInTheDocument();
-      expect(screen.getByLabelText('Building or Voucher Code')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Building or Voucher Code'),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Unit Number')).toBeInTheDocument();
       expect(screen.getByLabelText('Resident Name')).toBeInTheDocument();
     });
@@ -180,8 +184,11 @@ describe('ResidentDetailDialog', () => {
           setTimeout(() => resolve(mockUnits), 100),
         );
       });
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue(mockResidents);
 
-      renderComponent();
+      renderComponent({
+        unitNumberValues: mockUnits,
+      });
 
       const buildingInput = screen.getByLabelText('Building or Voucher Code');
       fireEvent.mouseDown(buildingInput);
@@ -198,6 +205,17 @@ describe('ResidentDetailDialog', () => {
       // Fields should be enabled after loading
       await waitFor(() => {
         expect(screen.getByLabelText('Unit Number')).not.toBeDisabled();
+      });
+
+      // Select a valid unit by typing its exact value.
+      const unitInput = screen.getByLabelText('Unit Number');
+
+      fireEvent.change(unitInput, {
+        target: { value: '101' },
+      });
+
+      // Resident Name should now be enabled after resident loading completes.
+      await waitFor(() => {
         expect(screen.getByLabelText('Resident Name')).not.toBeDisabled();
       });
     });
@@ -305,13 +323,17 @@ describe('ResidentDetailDialog', () => {
 
       // Fields should be disabled during loading
       await waitFor(() => {
-        expect(screen.getByLabelText('Building or Voucher Code')).toBeDisabled();
+        expect(
+          screen.getByLabelText('Building or Voucher Code'),
+        ).toBeDisabled();
         expect(screen.getByLabelText('Resident Name')).toBeDisabled();
       });
 
       // Fields should be enabled after loading
       await waitFor(() => {
-        expect(screen.getByLabelText('Building or Voucher Code')).not.toBeDisabled();
+        expect(
+          screen.getByLabelText('Building or Voucher Code'),
+        ).not.toBeDisabled();
         expect(screen.getByLabelText('Resident Name')).not.toBeDisabled();
       });
     });
@@ -1188,6 +1210,79 @@ describe('ResidentDetailDialog', () => {
       });
     });
   });
+  describe('Edit Mode', () => {
+    const editResidentInfo = {
+      id: 1,
+      name: 'John Doe',
+      building: { id: 1, name: 'Building A', code: 'A' },
+      unit: { id: 1, unit_number: '101' },
+      lastVisitDate: null,
+    };
+
+    test('updates resident information when an existing resident is selected', async () => {
+      (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(mockUnits);
+      (CheckoutAPICalls.getResidents as Mock).mockResolvedValue({
+        value: [
+          { id: 1, name: 'John Doe' },
+          { id: 2, name: 'Jane Smith' },
+        ],
+      });
+
+      const setResidentInfo = vi.fn();
+      const handleShowDialog = vi.fn();
+
+      renderComponent({
+        isEditMode: true,
+        residentInfo: editResidentInfo,
+        unitNumberValues: mockUnits,
+        setResidentInfo,
+        handleShowDialog,
+      });
+
+      // Wait for the existing residents to load.
+      await waitFor(() => {
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(mockUser, 1);
+      });
+
+      // Change the search input to find another existing resident.
+      const residentInput = screen.getByLabelText('Resident Name');
+
+      fireEvent.change(residentInput, {
+        target: { value: 'Jane' },
+      });
+
+      fireEvent.mouseDown(residentInput);
+
+      const janeOption = await screen.findByText(/Jane Smith - Last visit:/i);
+
+      fireEvent.click(janeOption);
+
+      expect(residentInput).toHaveValue('Jane Smith');
+
+      // Submit the resident change.
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+      await waitFor(() => {
+        expect(setResidentInfo).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 2,
+            name: 'Jane Smith',
+            building: expect.objectContaining({ id: 1 }),
+            unit: expect.objectContaining({
+              id: 1,
+              unit_number: '101',
+            }),
+          }),
+        );
+
+        expect(handleShowDialog).toHaveBeenCalled();
+      });
+
+      // Edit mode should select an existing resident, not create or look one up.
+      expect(CheckoutAPICalls.findResident).not.toHaveBeenCalled();
+      expect(CheckoutAPICalls.addResident).not.toHaveBeenCalled();
+    });
+  });
   describe('Voucher Buildings', () => {
     const voucherBuilding = { id: 3, name: 'SPC Voucher Program', code: 'SPC' };
     const voucherUnits = [{ id: 99, unit_number: 'voucher' }];
@@ -1198,7 +1293,10 @@ describe('ResidentDetailDialog', () => {
     };
 
     const renderWithVoucher = (props = {}) =>
-      renderComponent({ buildings: [...mockBuildings, voucherBuilding], ...props });
+      renderComponent({
+        buildings: [...mockBuildings, voucherBuilding],
+        ...props,
+      });
 
     test('shows a disabled unit field reading "voucher"', async () => {
       (CheckoutAPICalls.getUnitNumbers as Mock).mockResolvedValue(voucherUnits);
@@ -1221,7 +1319,10 @@ describe('ResidentDetailDialog', () => {
       await selectVoucherBuilding();
 
       await waitFor(() => {
-        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(mockUser, 99);
+        expect(CheckoutAPICalls.getResidents).toHaveBeenCalledWith(
+          mockUser,
+          99,
+        );
       });
     });
 
@@ -1260,7 +1361,9 @@ describe('ResidentDetailDialog', () => {
       fireEvent.click(await screen.findByText('A (Building A)'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('test-id-select-unit-number')).toBeInTheDocument();
+        expect(
+          screen.getByTestId('test-id-select-unit-number'),
+        ).toBeInTheDocument();
       });
       expect(screen.getByLabelText('Unit Number')).not.toBeDisabled();
     });

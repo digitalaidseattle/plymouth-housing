@@ -406,6 +406,22 @@
         }
       ]
     },
+    "UpdateCheckoutResident": {
+      "source": {
+        "object": "dbo.UpdateCheckoutResident",
+        "type": "stored-procedure"
+      },
+      "rest": {
+        "enabled": true,
+        "path": "/update-checkout-resident"
+      },
+      "permissions": [
+        {
+          "actions": ["execute"],
+          "role": "admin"
+        }
+      ]
+    },
     "GetTransaction": {
       "source": {
         "object": "dbo.GetTransaction",

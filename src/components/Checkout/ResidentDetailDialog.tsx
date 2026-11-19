@@ -5,7 +5,15 @@
  *
  */
 import React, { FormEvent, useState, useContext } from 'react';
-import { Box, FormControl, TextField, Typography, Chip, Button, useTheme } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  TextField,
+  Typography,
+  Chip,
+  Button,
+  useTheme,
+} from '@mui/material';
 import BuildingCodeSelect from './BuildingCodeSelect';
 import {
   Building,
@@ -33,6 +41,7 @@ type ResidentDetailDialogProps = {
   setResidentInfo: React.Dispatch<React.SetStateAction<ResidentInfo>>;
   isEditMode?: boolean;
   onCancelEdits?: () => void;
+  onChangeResident?: () => void;
 };
 
 const ResidentDetailDialog = ({
@@ -53,6 +62,9 @@ const ResidentDetailDialog = ({
     residentInfo.building,
   );
   const [selectedUnit, setSelectedUnit] = useState<Unit>(residentInfo.unit);
+  const [selectedResidentId, setSelectedResidentId] = useState<number | null>(
+    residentInfo.id || null,
+  );
   const [formError, setFormError] = useState<ResidentFormError>({
     buildingError: false,
     unitError: false,
@@ -68,7 +80,12 @@ const ResidentDetailDialog = ({
   });
 
   const unitNumbersHook = useUnitNumbers(setSelectedUnit);
-  const residentsHook = useResidents(user, selectedUnit, residentInfo.name, residentInfo.lastVisitDate);
+  const residentsHook = useResidents(
+    user,
+    selectedUnit,
+    residentInfo.name,
+    residentInfo.lastVisitDate,
+  );
   const submitHook = useResidentFormSubmit(user, (residentInfo) => {
     setResidentInfo(residentInfo);
     handleShowDialog();
@@ -80,6 +97,11 @@ const ResidentDetailDialog = ({
     residentsHook.isLoadingResidents;
   const apiError =
     unitNumbersHook.apiError || residentsHook.apiError || submitHook.apiError;
+
+  const selectedResidentOption =
+    residentsHook.existingResidents.find(
+      (resident) => resident.id === selectedResidentId,
+    ) ?? null;
 
   function formatVisitDate(
     dateStr: string | null,
@@ -110,6 +132,38 @@ const ResidentDetailDialog = ({
     setUnitNumberValues(unitNumbersHook.unitNumberValues);
   }, [unitNumbersHook.unitNumberValues, setUnitNumberValues]);
 
+  // Load the units for the original building when editing a checkout.
+  React.useEffect(() => {
+    if (isEditMode && showDialog && selectedBuilding.id) {
+      fetchUnitNumbers(selectedBuilding.id);
+    }
+    // The fetch function is recreated by useUnitNumbers on each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode, showDialog, selectedBuilding.id]);
+
+  // Resolve the original unit's database ID from the loaded unit options.
+  React.useEffect(() => {
+    if (!isEditMode || selectedBuilding.id !== residentInfo.building.id) {
+      return;
+    }
+    if (!residentInfo.unit.unit_number) return;
+    if (unitNumbersHook.unitNumberValues.length === 0) return;
+
+    const matchingUnit = unitNumbersHook.unitNumberValues.find(
+      (unit) => unit.unit_number === residentInfo.unit.unit_number,
+    );
+
+    if (matchingUnit) {
+      setSelectedUnit(matchingUnit);
+    }
+  }, [
+    isEditMode,
+    selectedBuilding.id,
+    residentInfo.building.id,
+    residentInfo.unit.unit_number,
+    unitNumbersHook.unitNumberValues,
+  ]);
+
   // Voucher buildings have no real unit, so auto-select their placeholder to
   // satisfy the unit_id requirement on submit.
   const isVoucher = isVoucherBuilding(selectedBuilding.code);
@@ -124,13 +178,39 @@ const ResidentDetailDialog = ({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
+    unitNumbersHook.setApiError('');
+    residentsHook.setApiError('');
+
     if (isEditMode) {
+      const selectedResident = residentsHook.existingResidents.find(
+        (resident) => resident.id === selectedResidentId,
+      );
+
+      const errors: ResidentFormError = {
+        buildingError: !selectedBuilding.id,
+        unitError: !selectedUnit.id,
+        nameError: !selectedResident,
+      };
+
+      setFormError(errors);
+
+      if (errors.buildingError || errors.unitError || errors.nameError) {
+        return;
+      }
+
+      setResidentInfo({
+        id: selectedResident!.id!,
+        name: selectedResident!.name,
+        building: selectedBuilding,
+        unit: selectedUnit,
+        lastVisitDate: selectedResident!.lastVisitDate ?? null,
+      });
+
       handleShowDialog();
       return;
     }
 
-    unitNumbersHook.setApiError('');
-    residentsHook.setApiError('');
     await submitHook.handleSubmit(
       residentsHook.nameInput,
       selectedBuilding,
@@ -170,7 +250,12 @@ const ResidentDetailDialog = ({
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box component="span">Editing transaction</Box>
-                <Button size="small" variant="text" id="edit-mode-dialog-cancel-btn" onClick={onCancelEdits}>
+                <Button
+                  size="small"
+                  variant="text"
+                  id="edit-mode-dialog-cancel-btn"
+                  onClick={onCancelEdits}
+                >
                   Cancel
                 </Button>
               </Box>
@@ -183,7 +268,10 @@ const ResidentDetailDialog = ({
             label="Building or Voucher Code"
             selectedBuilding={selectedBuilding}
             setSelectedBuilding={setSelectedBuilding}
-            setSelectedUnit={setSelectedUnit}
+            setSelectedUnit={(unit) => {
+              setSelectedUnit(unit);
+              setSelectedResidentId(null);
+            }}
             fetchUnitNumbers={fetchUnitNumbers}
             error={formError.buildingError}
             resetError={() =>
@@ -193,7 +281,7 @@ const ResidentDetailDialog = ({
                 nameError: false,
               })
             }
-            disabled={isWaiting || isEditMode}
+            disabled={isWaiting}
           />
         </FormControl>
 
@@ -213,88 +301,103 @@ const ResidentDetailDialog = ({
               }
             />
           ) : (
-          <Autocomplete
-            id="select-unit-number"
-            data-testid="test-id-select-unit-number"
-            options={unitNumberValues}
-            value={selectedUnit}
-            disabled={isWaiting || isEditMode}
-            filterOptions={unitNumberFilter}
-            isOptionEqualToValue={(option, value) => {
-              if (typeof value === 'string') return false;
-              return option.id === value.id;
-            }}
-            onInputChange={(_event: React.SyntheticEvent, newValue, reason) => {
-              if (reason === 'clear') {
-                setSelectedUnit({ id: 0, unit_number: '' });
-                return;
-              }
-              const matchingUnit = unitNumberValues.find(
-                (u) => u.unit_number === newValue,
-              );
-              if (matchingUnit) {
-                setSelectedUnit(matchingUnit);
-                setFormError({
-                  ...formError,
-                  unitError: false,
-                  nameError: false,
-                });
-              } else {
-                setSelectedUnit({ id: 0, unit_number: newValue });
-              }
-            }}
-            getOptionLabel={(option: Unit | string) => {
-              if (typeof option === 'string') return option;
-              return `${option.unit_number}`;
-            }}
-            renderInput={(params) => {
-              return (
-                <TextField
-                  {...params}
-                  id={selectedUnit.unit_number}
-                  label="Unit Number"
-                  error={formError.unitError}
-                  helperText={
-                    formError.unitError
-                      ? 'Please select a unit from the list'
-                      : ''
-                  }
-                />
-              );
-            }}
-            freeSolo
-          />
+            <Autocomplete
+              id="select-unit-number"
+              data-testid="test-id-select-unit-number"
+              options={unitNumberValues}
+              value={selectedUnit}
+              disabled={isWaiting || !selectedBuilding.id}
+              filterOptions={unitNumberFilter}
+              isOptionEqualToValue={(option, value) => {
+                if (typeof value === 'string') return false;
+                return option.id === value.id;
+              }}
+              onInputChange={(
+                _event: React.SyntheticEvent,
+                newValue,
+                reason,
+              ) => {
+                if (reason === 'clear') {
+                  setSelectedUnit({ id: 0, unit_number: '' });
+                  setSelectedResidentId(null);
+                  return;
+                }
+
+                const matchingUnit = unitNumberValues.find(
+                  (unit) => unit.unit_number === newValue,
+                );
+
+                setSelectedResidentId(null);
+
+                if (matchingUnit) {
+                  setSelectedUnit(matchingUnit);
+                  setFormError({
+                    ...formError,
+                    unitError: false,
+                    nameError: false,
+                  });
+                } else {
+                  setSelectedUnit({ id: 0, unit_number: newValue });
+                }
+              }}
+              getOptionLabel={(option: Unit | string) => {
+                if (typeof option === 'string') return option;
+                return `${option.unit_number}`;
+              }}
+              renderInput={(params) => {
+                return (
+                  <TextField
+                    {...params}
+                    id={selectedUnit.unit_number}
+                    label="Unit Number"
+                    error={formError.unitError}
+                    helperText={
+                      formError.unitError
+                        ? 'Please select a unit from the list'
+                        : ''
+                    }
+                  />
+                );
+              }}
+              freeSolo
+            />
           )}
         </FormControl>
 
         <FormControl>
           <Autocomplete
-            value={residentsHook.nameInput}
-            disabled={isWaiting || isEditMode}
+            value={
+              isEditMode ? selectedResidentOption : residentsHook.nameInput
+            }
+            disabled={isWaiting || !selectedUnit.id}
+            isOptionEqualToValue={(option, value) => {
+              if (typeof value === 'string') return option.name === value;
+              return option.id === value.id;
+            }}
             onChange={(_event, newValue) => {
               if (formError.nameError) {
                 setFormError({ ...formError, nameError: false });
               }
+
               if (typeof newValue === 'string') {
                 residentsHook.setNameInput(newValue);
                 residentsHook.setCurrentLastVisitDate(null);
-              } else if (
-                newValue &&
-                (newValue as ResidentNameOption).inputValue
-              ) {
-                residentsHook.setNameInput(
-                  (newValue as ResidentNameOption).inputValue!,
-                );
+                setSelectedResidentId(null);
+              } else if (newValue?.inputValue) {
+                residentsHook.setNameInput(newValue.inputValue);
                 residentsHook.setCurrentLastVisitDate(null);
-              } else if (newValue && (newValue as ResidentNameOption).name) {
+                setSelectedResidentId(null);
+              } else if (newValue?.name) {
                 const selectedResident = newValue as ResidentNameOption;
                 residentsHook.setNameInput(selectedResident.name);
                 residentsHook.setCurrentLastVisitDate(
                   selectedResident.lastVisitDate || null,
                 );
+                setSelectedResidentId(selectedResident.id ?? null);
               } else {
                 residentsHook.setNameInput('');
                 residentsHook.setCurrentLastVisitDate(null);
+                setSelectedResidentId(null);
               }
             }}
             onInputChange={(_event, newInputValue, reason) => {
@@ -304,6 +407,7 @@ const ResidentDetailDialog = ({
               if (reason === 'input') {
                 residentsHook.setNameInput(newInputValue);
                 residentsHook.setCurrentLastVisitDate(null);
+                setSelectedResidentId(null);
               }
             }}
             filterOptions={(options, params) => {
@@ -333,7 +437,7 @@ const ResidentDetailDialog = ({
                 </li>
               );
             }}
-            freeSolo
+            freeSolo={!isEditMode}
             renderInput={(params) => (
               <TextField
                 {...params}
